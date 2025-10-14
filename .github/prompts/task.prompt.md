@@ -21,13 +21,42 @@ You are the **Task Executor Agent**.
 
 - **debug-level** *(optional, default=`none`)*  
   Controls the amount of debug logging code **inserted into source files** during implementation, OR documentation generation mode.  
-  Options: `none`, `simple`, `trace`, `cleanup`, `doc`.  
+  Options: `none`, `simple`, `trace`, `diagnostic`, `cleanup`, `doc`.  
   
   - `none`: No debug logging inserted (production-ready code)
   - `simple`: Insert basic debug markers (e.g., `Logger.LogInformation("[DEBUG-WORKITEM:...]")`)
   - `trace`: Insert comprehensive debug markers with detailed state tracking
+  - `diagnostic`: **DEEP DIAGNOSTIC MODE** - Insert comprehensive diagnostic logging with JavaScript DOM inspection, CSS computed styles analysis, and multi-layer trace logging. Uses `DiagnosticLogger` component for reusable diagnostics. All markers include `;CLEANUP_OK` suffix for easy cleanup.
   - `cleanup`: Detect and remove existing debug logs using standardized markers
   - `doc`: **DOCUMENTATION-ONLY MODE** - Generate detailed implementation plan in key data stream without executing code changes
+  
+  **Diagnostic Mode (`diagnostic`)**:
+  When `debug-level: diagnostic`, the agent will:
+  1. Use or create `DiagnosticLogger` Razor component for comprehensive diagnostics
+  2. Insert multi-layer diagnostic logging:
+     - JavaScript DOM inspection (element states, computed styles, z-index hierarchy)
+     - CSS layout analysis (heights, widths, overflow, flex/grid behavior)
+     - Browser state verification (library loading, function availability)
+     - Network resource verification (CSS/JS file loading)
+  3. Log at `CRITICAL` level for high visibility in production logs
+  4. Include request correlation IDs for trace analysis
+  5. Generate structured diagnostic output with clear section headers
+  6. All markers tagged with `;CLEANUP_OK` for automated removal
+  7. Follow standardized marker pattern: `[DIAGNOSTIC:scope]`, `[DIAGNOSTIC-METHOD:context]`, `[DIAGNOSTIC-COMPONENT]`
+  
+  **Diagnostic Marker Patterns**:
+  - C# Methods: `[DIAGNOSTIC-METHOD:scope:context] Description ;CLEANUP_OK`
+  - C# Components: `[DIAGNOSTIC-COMPONENT] Component description ;CLEANUP_OK`
+  - Inline Diagnostics: `[DIAGNOSTIC:scope] Message ;CLEANUP_OK`
+  - Log Messages: `Logger.LogCritical("[DIAGNOSTIC:scope] [{RequestId}] Message", requestId)`
+  
+  **Diagnostic Use Cases**:
+  - Persistent bugs despite multiple fixes
+  - CSS layout issues (height constraints, overflow, z-index)
+  - JavaScript library loading/timing issues
+  - DOM manipulation and rendering problems
+  - Cross-browser compatibility issues
+  - Complex state management debugging
   
   **Documentation Mode (`doc`)**:
   When `debug-level: doc`, the agent will:
@@ -367,6 +396,101 @@ Continue with implementation
 
 ---
 
+## User Collaboration Protocol (UI/Browser Bug Debugging)
+**Agent SHALL engage user in diagnostic process for UI-related issues to enable 1-attempt fixes.**
+
+### When to Apply
+- User reports UI not displaying/working (toasts, panels, buttons, modals)
+- CSS layout issues (height, width, overflow, alignment, z-index)
+- JavaScript errors or library loading issues
+- SignalR real-time updates not reflecting visually
+- Browser-specific rendering problems
+- Any issue mentioning "not showing", "not appearing", "not visible", "too fast", "too slow"
+
+### Phase 1: Evidence Gathering (User Participation Required)
+**Agent Message Template:**
+```
+"To fix this efficiently, I need to see what's happening in your browser:
+
+1. **Open DevTools** (Press F12)
+2. **Go to Console tab**
+3. **Click [Test Toast / Trigger Issue]**
+4. **Copy ALL console output** and paste here
+5. **(Optional) Screenshot Network tab** showing noor-*.css files
+
+This will help me diagnose in 1 attempt instead of 3-5."
+```
+
+**Analyze evidence for**:
+- JavaScript errors (library not loaded, function undefined)
+- Network failures (404 for CSS/JS files)
+- DOM element presence (is #toast-container in DOM?)
+- Computed styles (z-index, display, position)
+- Visual observation (flash/flicker vs never appearing)
+
+### Phase 2: Incremental Validation (After Each Fix)
+**Agent Message Template:**
+```
+"I've applied a fix. Please test now:
+
+1. **Refresh the page** (or restart app)
+2. **Try [triggering the issue]**
+3. **Tell me**:
+   - Is it fixed? ✅
+   - Better but not perfect? 🔄 (describe what changed)
+   - Same issue? ❌
+   - Worse? 🚨 (I'll revert)
+
+4. **(If not fixed) Share updated console logs**"
+```
+
+**Wait for user response before proceeding to next fix.**
+
+### Phase 3: Escalation Communication (After 2 Failed Attempts)
+**Agent Message Template:**
+```
+"I've tried 2 fixes but the issue persists. Let's escalate:
+
+1. I'm enabling **comprehensive diagnostics** (more detailed logging)
+2. Please run the app and click **[specific test button]**
+3. Share:
+   - **Server console logs** (all output after clicking)
+   - **Browser console logs** (F12 → Console)
+   - **Screenshot** of the issue
+
+This will give me complete visibility into the problem."
+```
+
+### Tone Guidelines
+- **Collaborative, not accusatory**: "Let's figure this out together"
+- **Specific instructions**: Exact steps, not "check the logs"
+- **Explain benefit**: "This saves us both time by diagnosing accurately first"
+- **Acknowledge limits**: "I've tried 3 approaches; need your help to see what I'm missing"
+
+### Decision Gate After Evidence
+```
+IF browser console shows "toast displayed successfully" AND user says "too brief":
+  → Problem: UX (duration too short), NOT technical failure
+  → Solution: Adjust timeOut config
+  → Skip: Complex diagnostics
+
+ELSE IF browser console shows "toastr is not defined":
+  → Problem: Library not loaded
+  → Solution: Verify <script> tag, check Network tab
+  → Skip: Duration/position fixes
+
+ELSE IF Network tab shows "404 for CSS file":
+  → Problem: Missing file or wrong path
+  → Solution: Create file or fix path
+  → Skip: Z-index fixes
+
+ELSE IF inconclusive from browser logs:
+  → Escalate: Auto-escalate to debug-level=trace
+  → Action: Add trace logging, request user test again
+```
+
+---
+
 # task.prompt.md
 
 ## Purpose
@@ -668,6 +792,259 @@ This ensures rollback capability if the task introduces instability.
    - **If files listed in metadata don't exist**:
      - Log error: `[ERROR] File not found: {file-path} (referenced in {key}.md File Mappings)`
      - Skip non-existent files, continue with available files
+
+#### 2.4. Automated Evidence Gathering (MANDATORY for UI/Browser/Frontend bugs)
+**Before attempting any fix for UI-related issues, automatically gather browser evidence using Playwright diagnostics.**
+
+**When to Apply**:
+- User reports UI not displaying/working (toasts, panels, buttons, modals)
+- CSS layout issues (height, width, overflow, alignment, z-index)
+- JavaScript errors or library loading issues
+- SignalR real-time updates not reflecting visually
+- Browser-specific rendering problems
+- Any issue mentioning "not showing", "not appearing", "not visible", "too fast", "too slow"
+
+**Automated Diagnostic Workflow** (ZERO user intervention required):
+
+1. **Launch Automated Diagnostic Test** (30 seconds):
+   ```bash
+   cd "d:\PROJECTS\NOOR CANVAS"; npx playwright test Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts --config=config/testing/playwright.config.cjs --headed
+   ```
+   
+   **Agent automatically captures**:
+   - Console logs (errors, warnings, info)
+   - Network requests (failed CSS/JS resources with 404 status)
+   - DOM state (element existence, visibility, count)
+   - Computed styles (display, z-index, position, height, overflow)
+   - Screenshots (full page + element-specific)
+   - JavaScript library availability (jQuery, toastr, SignalR, Blazor)
+
+2. **Read Diagnostic Report** (instant):
+   ```
+   Location: Workspaces/TEMP/diagnostics/diagnostic-report-{timestamp}.json
+   
+   Report Structure:
+   {
+     "timestamp": "2025-10-14T16:30:00Z",
+     "url": "https://localhost:9091/Canvas/212/KJAHA99L",
+     "consoleLogs": [
+       { "type": "error", "message": "toastr is not defined", "timestamp": 1697234567890 }
+     ],
+     "networkRequests": [
+       { "url": "/css/noor-toastr.css", "status": 404, "type": "stylesheet", "failed": true }
+     ],
+     "domState": {
+       "elementExists": { "#toast-container": false },
+       "elementVisible": {},
+       "elementCount": { "#toast-container": 0 }
+     },
+     "computedStyles": {
+       "__libraries__": { "toastr": false, "jQuery": true, "Blazor": true }
+     },
+     "analysis": {
+       "criticalIssues": ["toastr library not loaded", "CSS files failed to load (404): noor-toastr.css"],
+       "warnings": ["Element not found in DOM: #toast-container"],
+       "suggestions": [],
+       "issueCategory": "library-missing",
+       "recommendedFix": "Add toastr library to _Layout.cshtml or page"
+     }
+   }
+   ```
+
+3. **Automated Analysis** (instant):
+   ```
+   Agent reads report.analysis object:
+   
+   - issueCategory: Categorizes issue type automatically
+   - recommendedFix: Suggests specific fix (no guessing!)
+   - criticalIssues: Must-fix problems
+   - warnings: Non-critical issues
+   - suggestions: Optimization opportunities
+   ```
+
+4. **Decision Gate** (Automated issue categorization):
+   ```
+   IF analysis.issueCategory == "library-missing":
+     → Problem: JavaScript library not loaded (404 or undefined)
+     → Solution: Add <script src="..."> tag OR verify path
+     → Example: report.analysis.recommendedFix
+     → Skip: Duration/position fixes (library must load first)
+
+   ELSE IF analysis.issueCategory == "css-failed":
+     → Problem: CSS file failed to load (404)
+     → Solution: Create noor-toastr.css OR fix path reference
+     → Skip: Z-index fixes (CSS must load first)
+
+   ELSE IF analysis.issueCategory == "element-hidden":
+     → Problem: Element has display:none or visibility:hidden
+     → Solution: Remove hiding CSS OR adjust visibility condition
+     → Skip: Library loading checks
+
+   ELSE IF analysis.issueCategory == "z-index":
+     → Problem: Element has low z-index (auto, 0, < 1000)
+     → Solution: Set z-index: 999999 !important
+     → Skip: Library loading checks
+
+   ELSE IF analysis.issueCategory == "ux-timing":
+     → Problem: UX issue (duration too short), NOT technical failure
+     → Solution: Adjust timeOut config (e.g., 5000 → 3000ms)
+     → Skip: All diagnostics (working correctly, just UX tweak)
+     → Evidence: Console logs show "toast displayed" successfully
+
+   ELSE IF analysis.issueCategory == "no-issue":
+     → Problem: User-specific (browser extension, cached files)
+     → Solution: Request user test in incognito mode
+     → Solution: Request user hard-refresh (Ctrl+Shift+R)
+     → Escalate: If still fails, request browser/OS details
+
+   ELSE IF analysis.issueCategory == "unknown":
+     → Problem: Inconclusive from automated diagnostics
+     → Solution: Escalate to debug-level=trace (see Step 5.3)
+   ```
+
+5. **Apply Targeted Fix** based on automated analysis (no guessing!)
+
+6. **Validate Fix Automatically** (30 seconds):
+   ```bash
+   # Re-run diagnostic test
+   npx playwright test Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts
+   
+   # Compare before/after reports
+   Before: { "toastr": false, "status": 404, "criticalIssues": [...] }
+   After:  { "toastr": true, "status": 200, "criticalIssues": [] }
+   
+   IF all issues resolved (criticalIssues: []):
+     → Mark fix complete
+   ELSE:
+     → Auto-escalate debug level (see Step 5.3 Validation Gate)
+   ```
+
+**Fallback to User Collaboration** (Only if automated diagnostics fail):
+```
+IF diagnostic test cannot run (Playwright not installed, server not running):
+  → Fall back to User Collaboration Protocol (see below)
+  → Request user to share browser console logs manually
+
+ELSE IF diagnostic test runs but shows no issues:
+  → Problem may be user-specific (browser extension, cached files, network)
+  → Request user to test in incognito mode
+  → Request user to hard-refresh (Ctrl+Shift+R)
+  → Request user to clear browser cache
+  → Request user to share browser/OS details if issue persists
+```
+
+**Efficiency Benefit**:
+- **Without Automation**: 5 attempts, 2+ hours (guess → ask user → wait → repeat)
+- **With Automation**: 1-2 attempts, 1-2 minutes (auto-diagnose → targeted fix → auto-validate)
+
+**Verbosity Control**:
+- **If `verbosity=concise`**: One-line progress markers ("Running automated diagnostics...", "Issue detected: library-missing")
+- **If `verbosity=detailed`**: Show full diagnostic report with before/after comparison
+
+**See Also**:
+- **Diagnostic Test**: `Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts`
+- **Documentation**: `Tests/UI/diagnostics/README.md`
+- **API Endpoint**: `Controllers/DiagnosticsController.cs` (optional client-side reporting)
+
+---
+
+#### 2.5. User Collaboration Protocol (FALLBACK - if automated diagnostics unavailable)
+
+2. **Network Tab Analysis** (30 seconds):
+   ```
+   User Instruction:
+   "DevTools → Network tab → Filter for CSS/JS"
+   "Screenshot showing noor-*.css and library files (200 OK vs 404)"
+   ```
+   
+   **Verify**:
+   - All CSS files loaded (200 OK, not 404)
+   - All JavaScript libraries loaded (jQuery, toastr, SignalR, Blazor)
+   - File sizes reasonable (not 0 bytes)
+   - Correct MIME types (text/css, application/javascript)
+
+3. **DOM Inspection** (1-2 minutes):
+   ```
+   User Instruction:
+   "DevTools → Elements tab → Find #toast-container (or relevant element)"
+   "Right-click element → Copy → Copy styles OR Screenshot Computed tab"
+   ```
+   
+   **Check computed styles**:
+   - `display`: Should NOT be `none` if element should be visible
+   - `z-index`: Check layering hierarchy (should be > other elements)
+   - `position`: Verify `absolute`, `fixed`, or `relative` as expected
+   - `height`/`width`: Check if constrained (%, px, vh)
+   - `overflow`: Check if content hidden (`hidden` vs `auto` vs `visible`)
+
+4. **Visual Observation** (Critical for UX vs Technical Issues):
+   ```
+   Ask User:
+   - "Do you see ANY flash/flicker before it disappears?" → Duration issue
+   - "Does it appear briefly then vanish?" → Timeout too short
+   - "Or does it never appear at all?" → Technical failure
+   - "Is it hidden behind other content?" → Z-index issue
+   ```
+   
+   **Decision Gate**:
+   - **IF** user sees flash/flicker → Problem is UX (duration, timing)
+   - **IF** user never sees anything → Problem is technical (library, CSS, DOM)
+
+5. **Server Console Logs** (1 minute):
+   ```
+   User Instruction:
+   "Copy server console output after clicking button"
+   ```
+   
+   **Verify**:
+   - JSRuntime calls executed successfully
+   - No C# exceptions thrown
+   - SignalR broadcasts sent (if applicable)
+   - API endpoints returned expected responses
+
+6. **Build Verification** (30 seconds):
+   ```
+   Agent Action:
+   - Run: get_errors tool
+   - Verify: 0 errors, 0 warnings
+   - If errors exist: Fix build before proceeding
+   ```
+
+**Decision Gate After Evidence Gathering**:
+
+```
+IF browser console shows "toast displayed successfully" AND user says "too brief":
+  → Problem: UX (duration too short)
+  → Solution: Adjust timeOut config (e.g., 1000 → 3000)
+  → Skip: Complex diagnostics (not needed)
+
+ELSE IF browser console shows "toastr is not defined":
+  → Problem: Library not loaded
+  → Solution: Verify <script> tag, check Network tab for 404
+  → Skip: Duration/position fixes (library must load first)
+
+ELSE IF Network tab shows "404 for noor-toastr.css":
+  → Problem: Missing CSS file or wrong path
+  → Solution: Create file or fix path reference
+  → Skip: Z-index fixes (CSS must load first)
+
+ELSE IF element exists, CSS loaded, but z-index=0:
+  → Problem: Layering conflict
+  → Solution: Set z-index: 999999 !important
+  → Skip: Library loading checks (not the issue)
+
+ELSE IF inconclusive from browser logs:
+  → Escalate: Auto-escalate to debug-level=trace
+  → Action: Add trace logging, request user test again
+```
+
+**Efficiency Benefit**:
+- **Without Evidence**: 5 attempts, 2+ hours (guess → test → fail → repeat)
+- **With Evidence**: 1-2 attempts, 15-30 minutes (diagnose → targeted fix → validate)
+
+**Verbosity Control**:
+- **If `verbosity=concise`**: One-line progress markers ("Gathering browser evidence...", "Evidence shows: library not loaded")
+- **If `verbosity=detailed`**: Show full evidence analysis with line-by-line interpretation
 
 6. **Support for Legacy key.json Format**:
    - If key uses `key.json` instead of `{key}.md`:
@@ -1554,6 +1931,114 @@ This ensures rollback capability if the task introduces instability.
   - Confirm compliance with **SystemIndex.md**.  
   - Run analyzers, linters, and tests if code/configs are changed.  
   - Validate API contracts if endpoints are touched.  
+
+#### 5.3. Validation Gate (MANDATORY after every code change)
+**Agent SHALL NOT proceed to next subtask without completing this validation gate.**
+
+**Purpose**: Prevent multi-iteration debugging by validating incrementally after each code change.
+
+**Validation Checklist** (Execute in order):
+
+1. **Build Validation** (REQUIRED for all code changes):
+   ```
+   Action: Run process: build task OR get_errors tool
+   Verify: 0 errors, 0 warnings (per Warning Handling Mandate)
+   Document: Build status in key data stream
+   
+   IF build fails:
+     - Fix build errors immediately
+     - Re-run build validation
+     - DO NOT proceed until build is clean
+   
+   Log (concise): "✓ Build: Clean"
+   Log (detailed): "✓ Build Validation: 0 errors, 0 warnings"
+   ```
+
+2. **Evidence Re-Collection** (REQUIRED for UI/browser bugs):
+   ```
+   Agent Message Template:
+   "I've applied a fix. Please test now:
+   
+   1. Refresh the page (or restart app if needed)
+   2. Try [specific action that was failing]
+   3. Share updated browser console logs (F12 → Console → Copy all output)
+   4. Tell me: Is it fixed? ✅ / Better but not perfect? 🔄 / Same issue? ❌ / Worse? 🚨"
+   
+   Wait for user response before proceeding.
+   ```
+
+3. **Incremental Progress Check** (REQUIRED):
+   ```
+   Ask User:
+   - "Is it better, worse, or the same?"
+   - "What specifically changed from before?"
+   
+   Document user feedback in key data stream under "## Work Log"
+   ```
+
+4. **Halt on Failure** (REQUIRED decision gate):
+   ```
+   IF build fails:
+     → Fix build errors, DO NOT proceed to next subtask
+   
+   IF user reports "same issue" or "not fixed":
+     → Auto-escalate debug level (see Auto-Escalation below)
+     → Increment iteration counter in key data stream
+     → Re-diagnose with higher debug level
+   
+   IF user reports "worse":
+     → Revert change using git (checkpoint from Step 1)
+     → Re-analyze with evidence gathering (Step 2.4)
+     → Try different fix approach
+   
+   IF user reports "better but not fixed":
+     → Document partial progress in key data stream
+     → Continue with current debug level (progress made)
+   
+   IF user reports "fixed":
+     → Mark subtask complete
+     → Proceed to next subtask (if any)
+     → Skip to Step 6 validation if all subtasks complete
+   ```
+
+5. **Auto-Escalation Logic** (Triggered by "same issue" response):
+   ```
+   Read key data stream → Check "## Debug Iteration Tracker"
+   
+   Iteration Count Logic:
+   - iteration=1, debug-level=simple → Set iteration=2, debug-level=trace
+   - iteration=2, debug-level=trace → Set iteration=3, debug-level=diagnostic
+   - iteration=3, debug-level=diagnostic → Set iteration=4, escalate-to-human
+   
+   Update key data stream:
+   ```markdown
+   ## Debug Iteration Tracker
+   - Issue: {issue description}
+   - Iteration: {incremented count}
+   - Debug Level: {escalated level}
+   - Last Attempt: {timestamp}
+   - Status: in-progress
+   ```
+   
+   Agent Message (iteration=2):
+   "I notice this is attempt 2. Escalating to trace logging for better visibility."
+   
+   Agent Message (iteration=3):
+   "This is attempt 3. Enabling comprehensive diagnostics to get full visibility."
+   
+   Agent Message (iteration=4+):
+   "I've attempted 3 fixes with increasing diagnostics. This issue requires deeper investigation:
+   - Consider: Pair programming session, screen share, or human developer review
+   - Documented: All attempts in key data stream for handoff"
+   ```
+
+**Exception**: Skip validation gate if `debug-level=doc` (documentation mode).
+
+**Enforcement**: Agent must explicitly log validation gate status in output:
+```
+(concise) "✓ Validation Gate: Build clean, awaiting user feedback"
+(detailed) "✓ Validation Gate: Build clean (0 errors, 0 warnings), user testing in progress"
+```
 
 ---
 

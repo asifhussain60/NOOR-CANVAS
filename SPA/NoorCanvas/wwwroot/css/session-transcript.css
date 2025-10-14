@@ -1449,17 +1449,17 @@
    Modern toast notification styling for real-time user feedback.
    Supports success, error, warning, and info toast types.
    DEBUG-WORKITEM: Added toast styling from session-transcript-styling.html ;CLEANUP_OK
+   NOTE: Position is controlled by noor-toastr.css and JavaScript positionClass setting
    ============================================================================ */
 
 .toast-container {
     position: fixed;
-    top: 20px;
-    right: 20px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
     gap: 10px;
     pointer-events: none;
+    /* Position (top/bottom/left/right) is set by noor-toastr.css position classes */
 }
 
 .toast {
@@ -1558,10 +1558,29 @@
 
 /* Responsive Design for Toast Notifications */
 @media (max-width: 768px) {
-    .toast-container {
-        top: 10px;
-        right: 10px;
-        left: 10px;
+    /* Mobile: Toasts span full width with small margins */
+    #toast-container.toast-top-right,
+    #toast-container.toast-top-left,
+    #toast-container.toast-top-center,
+    .toast-container.toast-top-right,
+    .toast-container.toast-top-left,
+    .toast-container.toast-top-center {
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        transform: none !important;
+    }
+    
+    #toast-container.toast-bottom-right,
+    #toast-container.toast-bottom-left,
+    #toast-container.toast-bottom-center,
+    .toast-container.toast-bottom-right,
+    .toast-container.toast-bottom-left,
+    .toast-container.toast-bottom-center {
+        bottom: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        transform: none !important;
     }
     
     .toast {

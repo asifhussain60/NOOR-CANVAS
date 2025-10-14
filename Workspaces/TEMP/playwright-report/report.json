@@ -60,20 +60,20 @@
   },
   "suites": [
     {
-      "title": "Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-      "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
+      "title": "Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+      "file": "Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Canvas Questions - Orange Card Visual Regression (Percy)",
-          "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
-          "line": 28,
+          "title": "Auto-Diagnostics: UI Issue Detection",
+          "file": "Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts",
+          "line": 329,
           "column": 6,
           "specs": [
             {
-              "title": "should match visual baseline for orange question card",
+              "title": "diagnose SessionCanvas (participant view)",
               "ok": false,
               "tags": [],
               "tests": [
@@ -88,82 +88,109 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 2808,
+                      "duration": 3792,
                       "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:86:21",
+                        "message": "Error: Critical issues detected:\nJavaScript files failed to load (404): ",
+                        "stack": "Error: Critical issues detected:\nJavaScript files failed to load (404): \n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts:377:13",
                         "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-                          "column": 21,
-                          "line": 86
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+                          "column": 13,
+                          "line": 377
                         },
-                        "snippet": "\u001b[0m \u001b[90m 84 |\u001b[39m         \u001b[90m// Step 1: User A joins session\u001b[39m\n \u001b[90m 85 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m'[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 86 |\u001b[39m         \u001b[36mawait\u001b[39m pageA\u001b[33m.\u001b[39mgoto(\u001b[32m`${BASE_URL}/user/landing/${SESSION_TOKEN}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 87 |\u001b[39m         \u001b[36mawait\u001b[39m pageA\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'input[placeholder=\"Enter your name\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 88 |\u001b[39m\n \u001b[90m 89 |\u001b[39m         \u001b[36mawait\u001b[39m pageA\u001b[33m.\u001b[39mfill(\u001b[32m'input[placeholder=\"Enter your name\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mUSER_A_NAME\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 375 |\u001b[39m     \u001b[90m// Fail test if critical issues detected (forces agent to review)\u001b[39m\n \u001b[90m 376 |\u001b[39m     \u001b[36mif\u001b[39m (report\u001b[33m.\u001b[39manalysis\u001b[33m.\u001b[39mcriticalIssues\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 377 |\u001b[39m       \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Critical issues detected:\\n${report.analysis.criticalIssues.join('\\n')}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 378 |\u001b[39m     }\n \u001b[90m 379 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 380 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-                            "column": 21,
-                            "line": 86
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+                            "column": 13,
+                            "line": 377
                           },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n\n  84 |         // Step 1: User A joins session\n  85 |         console.log('[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK');\n> 86 |         await pageA.goto(`${BASE_URL}/user/landing/${SESSION_TOKEN}`);\n     |                     ^\n  87 |         await pageA.waitForSelector('input[placeholder=\"Enter your name\"]', { timeout: 10000 });\n  88 |\n  89 |         await pageA.fill('input[placeholder=\"Enter your name\"]', USER_A_NAME);\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:86:21"
+                          "message": "Error: Critical issues detected:\nJavaScript files failed to load (404): \n\n\u001b[0m \u001b[90m 375 |\u001b[39m     \u001b[90m// Fail test if critical issues detected (forces agent to review)\u001b[39m\n \u001b[90m 376 |\u001b[39m     \u001b[36mif\u001b[39m (report\u001b[33m.\u001b[39manalysis\u001b[33m.\u001b[39mcriticalIssues\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 377 |\u001b[39m       \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Critical issues detected:\\n${report.analysis.criticalIssues.join('\\n')}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 378 |\u001b[39m     }\n \u001b[90m 379 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 380 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts:377:13\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Launching browser contexts for Percy ;CLEANUP_OK\n"
+                          "text": "\n📊 DIAGNOSTIC REPORT SAVED: D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\diagnostics\\diagnostic-report-1760456006661.json\n"
                         },
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Browser contexts created ;CLEANUP_OK\n"
+                          "text": "\n🔍 AUTOMATED ANALYSIS:\n"
                         },
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-test-start] Beginning visual regression test ;CLEANUP_OK\n"
+                          "text": "{\n  \"criticalIssues\": [\n    \"JavaScript files failed to load (404): \"\n  ],\n  \"warnings\": [\n    \"Element not found in DOM: #toast-container\",\n    \"Element not found in DOM: .toast\",\n    \"Element not found in DOM: .canvas-area-container\",\n    \"Element not found in DOM: .canvas-sidebar\",\n    \"Element not found in DOM: .debug-panel\",\n    \"Element not found in DOM: button:has-text(\\\"Test Toast\\\")\"\n  ],\n  \"suggestions\": [],\n  \"issueCategory\": \"library-missing\",\n  \"recommendedFix\": \"Add missing JavaScript libraries or fix paths: \"\n}\n"
                         },
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK\n"
+                          "text": "\n🚨 CRITICAL ISSUES:\n"
                         },
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-teardown-trace] Closing browser contexts ;CLEANUP_OK\n"
+                          "text": "  - JavaScript files failed to load (404): \n"
+                        },
+                        {
+                          "text": "\n⚠️  WARNINGS:\n"
+                        },
+                        {
+                          "text": "  - Element not found in DOM: #toast-container\n"
+                        },
+                        {
+                          "text": "  - Element not found in DOM: .toast\n"
+                        },
+                        {
+                          "text": "  - Element not found in DOM: .canvas-area-container\n"
+                        },
+                        {
+                          "text": "  - Element not found in DOM: .canvas-sidebar\n"
+                        },
+                        {
+                          "text": "  - Element not found in DOM: .debug-panel\n"
+                        },
+                        {
+                          "text": "  - Element not found in DOM: button:has-text(\"Test Toast\")\n"
+                        },
+                        {
+                          "text": "\n🎯 ISSUE CATEGORY: library-missing\n"
+                        },
+                        {
+                          "text": "🛠️  RECOMMENDED FIX: Add missing JavaScript libraries or fix paths: \n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-14T11:22:14.910Z",
+                      "startTime": "2025-10-14T15:33:22.709Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--83bea-ne-for-orange-question-card-chromium\\test-failed-2.png"
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-diagnostics-auto--de8a4-ionCanvas-participant-view--chromium\\test-failed-1.png"
                         },
                         {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--83bea-ne-for-orange-question-card-chromium\\test-failed-1.png"
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-diagnostics-auto--de8a4-ionCanvas-participant-view--chromium\\video.webm"
                         },
                         {
                           "name": "error-context",
                           "contentType": "text/markdown",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--83bea-ne-for-orange-question-card-chromium\\error-context.md"
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-diagnostics-auto--de8a4-ionCanvas-participant-view--chromium\\error-context.md"
                         }
                       ],
                       "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-                        "column": 21,
-                        "line": 86
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+                        "column": 13,
+                        "line": 377
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "eb1f0f12b18be6b9afce-cf577ba511afff347840",
-              "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
-              "line": 81,
-              "column": 5
+              "id": "cac2a4c4b75a6ac1875c-0bd144176881044c6f4e",
+              "file": "Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts",
+              "line": 331,
+              "column": 3
             },
             {
-              "title": "should capture vote state changes visually",
+              "title": "diagnose HostControlPanel (host view)",
               "ok": false,
               "tags": [],
               "tests": [
@@ -178,71 +205,111 @@
                       "workerIndex": 1,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 5146,
+                      "duration": 3702,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:192:36",
+                        "message": "Error: Critical issues detected:\nJavaScript files failed to load (404): ",
+                        "stack": "Error: Critical issues detected:\nJavaScript files failed to load (404): \n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts:409:13",
                         "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-                          "column": 36,
-                          "line": 192
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+                          "column": 13,
+                          "line": 409
                         },
-                        "snippet": "\u001b[0m \u001b[90m 190 |\u001b[39m\n \u001b[90m 191 |\u001b[39m         \u001b[36mconst\u001b[39m questionCard \u001b[33m=\u001b[39m pageB\u001b[33m.\u001b[39mlocator(\u001b[32m'.canvas-question-item.question-item-style-sienna'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 192 |\u001b[39m         \u001b[36mawait\u001b[39m expect(questionCard)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 193 |\u001b[39m\n \u001b[90m 194 |\u001b[39m         \u001b[90m// Capture pre-vote state\u001b[39m\n \u001b[90m 195 |\u001b[39m         \u001b[36mawait\u001b[39m percySnapshot(pageB\u001b[33m,\u001b[39m \u001b[32m'Orange Card - Before Vote'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 407 |\u001b[39m     \u001b[90m// Fail test if critical issues detected\u001b[39m\n \u001b[90m 408 |\u001b[39m     \u001b[36mif\u001b[39m (report\u001b[33m.\u001b[39manalysis\u001b[33m.\u001b[39mcriticalIssues\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 409 |\u001b[39m       \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Critical issues detected:\\n${report.analysis.criticalIssues.join('\\n')}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 410 |\u001b[39m     }\n \u001b[90m 411 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 412 |\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-                            "column": 36,
-                            "line": 192
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+                            "column": 13,
+                            "line": 409
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n\n\n  190 |\n  191 |         const questionCard = pageB.locator('.canvas-question-item.question-item-style-sienna').first();\n> 192 |         await expect(questionCard).toBeVisible({ timeout: 5000 });\n      |                                    ^\n  193 |\n  194 |         // Capture pre-vote state\n  195 |         await percySnapshot(pageB, 'Orange Card - Before Vote', {\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:192:36"
+                          "message": "Error: Critical issues detected:\nJavaScript files failed to load (404): \n\n\u001b[0m \u001b[90m 407 |\u001b[39m     \u001b[90m// Fail test if critical issues detected\u001b[39m\n \u001b[90m 408 |\u001b[39m     \u001b[36mif\u001b[39m (report\u001b[33m.\u001b[39manalysis\u001b[33m.\u001b[39mcriticalIssues\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 409 |\u001b[39m       \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Critical issues detected:\\n${report.analysis.criticalIssues.join('\\n')}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 410 |\u001b[39m     }\n \u001b[90m 411 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 412 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts:409:13\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Launching browser contexts for Percy ;CLEANUP_OK\n"
+                          "text": "\n📊 DIAGNOSTIC REPORT SAVED: D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\diagnostics\\diagnostic-report-1760456012502.json\n"
                         },
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Browser contexts created ;CLEANUP_OK\n"
+                          "text": "\n🔍 AUTOMATED ANALYSIS:\n"
                         },
                         {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-vote-test] Testing vote visual state changes ;CLEANUP_OK\n"
-                        },
-                        {
-                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-teardown-trace] Closing browser contexts ;CLEANUP_OK\n"
+                          "text": "{\n  \"criticalIssues\": [\n    \"JavaScript files failed to load (404): \"\n  ],\n  \"warnings\": [\n    \"Element not found in DOM: #toast-container\",\n    \"Element not found in DOM: .toast\",\n    \"Element not found in DOM: .host-panel-container\",\n    \"Element not found in DOM: .debug-panel\",\n    \"Element not found in DOM: button:has-text(\\\"Test Toast\\\")\"\n  ],\n  \"suggestions\": [],\n  \"issueCategory\": \"library-missing\",\n  \"recommendedFix\": \"Add missing JavaScript libraries or fix paths: \"\n}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-14T11:22:20.887Z",
+                      "startTime": "2025-10-14T15:33:28.872Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-1.png"
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-diagnostics-auto--7243e-HostControlPanel-host-view--chromium\\test-failed-1.png"
                         },
                         {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-2.png"
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-diagnostics-auto--7243e-HostControlPanel-host-view--chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-diagnostics-auto--7243e-HostControlPanel-host-view--chromium\\error-context.md"
                         }
                       ],
                       "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
-                        "column": 36,
-                        "line": 192
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\diagnostics\\auto-browser-diagnostics.spec.ts",
+                        "column": 13,
+                        "line": 409
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "eb1f0f12b18be6b9afce-192fda2cba08dea1f942",
-              "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
-              "line": 185,
-              "column": 5
+              "id": "cac2a4c4b75a6ac1875c-b52c4601a7659c596a56",
+              "file": "Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts",
+              "line": 381,
+              "column": 3
+            },
+            {
+              "title": "diagnose and trigger toast automatically",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4393,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠️  Test Toast button not found - skipping automatic trigger test\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-14T15:33:34.595Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cac2a4c4b75a6ac1875c-8016758ae830b4215ff0",
+              "file": "Tests/UI/diagnostics/auto-browser-diagnostics.spec.ts",
+              "line": 413,
+              "column": 3
             }
           ]
         }
@@ -251,9 +318,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-10-14T11:22:13.196Z",
-    "duration": 14168.42,
-    "expected": 0,
+    "startTime": "2025-10-14T15:33:20.827Z",
+    "duration": 18780.615999999998,
+    "expected": 1,
     "skipped": 0,
     "unexpected": 2,
     "flaky": 0

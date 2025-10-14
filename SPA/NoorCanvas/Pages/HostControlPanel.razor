@@ -44,20 +44,28 @@
                 title = title || 'Notification';
                 type = type || 'info';
                 
+                // [DIAGNOSTIC:toast-config] HostControlPanel: 10 second display at bottom-right for selective actions ;CLEANUP_OK
                 const options = {
-                    timeOut: 5000,
+                    timeOut: 10000,
                     extendedTimeOut: 2000,
                     closeButton: true,
                     progressBar: true,
-                    positionClass: 'toast-top-right',
+                    positionClass: 'toast-bottom-right',
                     preventDuplicates: false,
-                    newestOnTop: true
+                    newestOnTop: true,
+                    showDuration: 300,
+                    hideDuration: 300,
+                    showEasing: 'swing',
+                    hideEasing: 'linear',
+                    showMethod: 'fadeIn',
+                    hideMethod: 'fadeOut'
                 };
 
                 options.toastClass = 'toast noor-toast';
                 options.titleClass = 'toast-title noor-toast-title';
                 options.messageClass = 'toast-message noor-toast-message';
 
+                console.log('[DEBUG-WORKITEM:hcp:toastr:trace] 📋 Toast options:', JSON.stringify(options), ';CLEANUP_OK');
                 console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ✅ About to display toastr with type:', type.toLowerCase(), ';CLEANUP_OK');
                 
                 switch(type.toLowerCase()) {
@@ -70,7 +78,7 @@
                         console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ⚠️ WARNING toast displayed ;CLEANUP_OK');
                         break;
                     case 'error':
-                        toastr.error(message, title, { ...options, timeOut: 7000 });
+                        toastr.error(message, title, { ...options, timeOut: 10000 });
                         console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ❌ ERROR toast displayed ;CLEANUP_OK');
                         break;
                     case 'info':
@@ -1400,23 +1408,10 @@
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("ShareAsset initiated: {ShareId} {AssetType} #{InstanceNumber}", shareId, assetType, instanceNumber);
         
-        // TOASTR: Show immediate feedback that click was detected and C# method called
-        await JSRuntime.InvokeVoidAsync("showNoorToast", 
-            $"Processing share request for {assetType} #{instanceNumber}...", 
-            "Share Button Clicked", 
-            "info");
-        // Toast notification shown to user
-        
         if (SessionId == null || hubConnection == null)
         {
             var errorMsg = "Cannot share asset: SignalR connection or session not available";
             Logger.LogError("Share asset failed: SessionId={SessionId}, hubConnection available={HubConnectionExists}", SessionId, hubConnection != null);
-            
-            // Show error notification
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                "Share failed: Session or SignalR connection not available. Please refresh the page.", 
-                "Share Error", 
-                "error");
             
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -1426,13 +1421,6 @@
         {
             var errorMsg = $"SignalR connection is in state: {hubConnection.State}. Expected: Connected";
             Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ SignalR not connected: State={State}", hubConnection.State);
-            
-            // TOASTR: Show SignalR connection error
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                $"Share failed: SignalR is {hubConnection.State}. Please refresh the page to reconnect.", 
-                "Connection Error", 
-                "error");
-            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: SignalR state error notification shown, State={State}, broadcastId={BroadcastId} ;CLEANUP_OK", hubConnection.State, broadcastId);
             
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -1447,13 +1435,6 @@
             if (string.IsNullOrEmpty(rawAssetHtml))
             {
                 Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ No HTML content found for shareId: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
-                
-                // TOASTR: Show content not found error
-                await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                    $"Could not find content for {assetType} #{instanceNumber}. The asset may have been removed or modified.", 
-                    "Content Not Found", 
-                    "error");
-                Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Content not found error shown, ShareId={ShareId}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, broadcastId);
                 
                 await ShowErrorMessageAsync($"Asset content not found for {assetType} #{instanceNumber}");
                 return;
@@ -1473,13 +1454,6 @@
             if (completedTask == timeoutTask)
             {
                 Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ STEP 3 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId}", broadcastId);
-                
-                // TOASTR: Show timeout error
-                await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                    $"Share request for {assetType} #{instanceNumber} timed out. Please check your connection and try again.", 
-                    "Share Timeout", 
-                    "error");
-                Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Timeout error notification shown, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
                 
                 await ShowErrorMessageAsync("Asset sharing timed out after 5 seconds");
                 return;
@@ -1709,28 +1683,6 @@
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] ❌ Exception during asset detection");
             return $"Asset detection failed: {ex.Message}";
-        }
-    }
-    
-    // [DEBUG-WORKITEM:hcp:toastr-test:trace] Test toast notification to verify toastr library integration ;CLEANUP_OK
-    private async Task TestToastNotificationHCP()
-    {
-        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] 🧪 TEST TOAST BUTTON CLICKED (HostControlPanel) ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] Attempting to invoke showNoorToast via JSRuntime ;CLEANUP_OK", requestId);
-        
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                "This is a test toast notification from HostControlPanel debug panel. If you see this, toastr library is working correctly!", 
-                "🧪 Host Toast Test", 
-                "success");
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync('showNoorToast') completed successfully ;CLEANUP_OK", requestId);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] 💥 Test toast FAILED: {Message} ;CLEANUP_OK", requestId, ex.Message);
-            Logger.LogError("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}]   - InnerException: {InnerMessage} ;CLEANUP_OK", requestId, ex.InnerException?.Message ?? "None");
         }
     }
 
@@ -3353,17 +3305,6 @@
         )
         {
             IsEnabled = !isLoading
-        });
-        
-        // [DEBUG-WORKITEM:hcp:toastr-test:trace] Test toast button to verify toastr library is working ;CLEANUP_OK
-        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
-            "Test Toast Notification",
-            "Display a test toast to verify toastr library is working",
-            async () => await TestToastNotificationHCP(),
-            "fa-solid fa-bell"
-        )
-        {
-            IsEnabled = true
         });
         
         return actions;

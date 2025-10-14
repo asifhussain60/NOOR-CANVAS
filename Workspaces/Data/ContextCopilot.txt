@@ -1,189 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Green Question List</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        /* Using Inter font as required */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Align content to the top */
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        /* --- Custom Green Theme Colors --- */
-        .theme-green {
-            color: #006400; /* Dark Green */
-        }
-        .theme-green-light-bg {
-            background-color: #ECFDF5; /* Very light green background */
-        }
-        
-        /* Custom border styling for the question cards */
-        .question-card-border {
-            border-width: 2px;
-            border-color: #D1D5DB; /* Gray-300 */
-            border-right-width: 6px;
-            border-right-color: #006400; /* Theme Green */
-        }
-
-        /* Styles for the Author Badge */
-        .author-badge-style {
-            background-color: #E5E7EB; /* Light Gray Background */
-            color: #4B5563; /* Dark Gray Text */
-        }
-
-        /* Styles for the Action Buttons */
-        .approve-button {
-            background-color: #34D399; /* Emerald Green */
-            color: white;
-            transition: background-color 0.15s;
-        }
-        .approve-button:hover {
-            background-color: #10B981;
-        }
-
-        .delete-button {
-            background-color: #F87171; /* Red */
-            color: white;
-            transition: background-color 0.15s;
-        }
-        .delete-button:hover {
-            background-color: #EF4444;
-        }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-</head>
-<body>
-
-<!-- Main container for the list (max width) -->
-<div class="w-full max-w-lg">
-
-    <!-- Header -->
-    <h1 class="text-2xl font-bold mb-6 theme-green">
-        <i class="fa-solid fa-clipboard-question mr-3"></i>Questions & Answers
-    </h1>
-
-    <!-- Question List Container (Added class 'question-list-container' for CSS targeting) -->
-    <div class="space-y-4 question-list-container">
-        
-        <!-- Question Item 1: Owner: Pepper Potts (With Badge) -->
-        <div class="bg-white p-4 shadow-md question-card-border relative">
-            
-            <!-- Upvote Badge -->
-            <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-semibold shadow-md z-10">
-                8
-            </div>
-
-            <div class="flex flex-col space-y-3">
-                
-                <!-- Question Text Row - Color changed to theme-green -->
-                <div class="flex items-start text-base font-medium theme-green">
-                    What is the importance of gratitude in Islam?
-                </div>
-
-                <!-- Footer: Author & Actions -->
-                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
-                    
-                    <!-- Author Badge -->
-                    <span class="px-4 py-1.5 rounded-full text-xs author-badge-style flex items-center">
-                        <i class="fa-solid fa-user mr-1"></i>Pepper Potts
-                    </span>
-
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2">
-                        <button class="approve-button p-2 rounded-lg shadow-sm" title="Approve Question">
-                            <i class="fa-solid fa-check"></i>
-                        </button>
-                        <button class="delete-button p-2 rounded-lg shadow-sm" title="Delete Question">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Question Item 2: Owner: Warren Worthington (No Badge) -->
-        <div class="bg-white p-4 shadow-md question-card-border relative">
-            <div class="flex flex-col space-y-3">
-                
-                <!-- Question Text Row - Color changed to theme-green -->
-                <div class="flex items-start text-base font-medium theme-green">
-                    What does 'Bismillah' mean?
-                </div>
-
-                <!-- Footer: Author & Actions -->
-                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
-                    
-                    <!-- Author Badge -->
-                    <span class="px-4 py-1.5 rounded-full text-xs author-badge-style flex items-center">
-                        <i class="fa-solid fa-user mr-1"></i>Warren Worthington
-                    </span>
-
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2">
-                        <button class="approve-button p-2 rounded-lg shadow-sm" title="Approve Question">
-                            <i class="fa-solid fa-check"></i>
-                        </button>
-                        <button class="delete-button p-2 rounded-lg shadow-sm" title="Delete Question">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Dummy Item 3 for better visualization of alternating colors (No Badge) -->
-        <div class="bg-white p-4 shadow-md question-card-border relative">
-            <div class="flex flex-col space-y-3">
-                
-                <!-- Question Text Row - Color changed to theme-green -->
-                <div class="flex items-start text-base font-medium theme-green">
-                    What are the names of the five daily prayers?
-                </div>
-
-                <!-- Footer: Author & Actions -->
-                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
-                    
-                    <!-- Author Badge -->
-                    <span class="px-4 py-1.5 rounded-full text-xs author-badge-style flex items-center">
-                        <i class="fa-solid fa-user mr-1"></i>John Smith
-                    </span>
-
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2">
-                        <button class="approve-button p-2 rounded-lg shadow-sm" title="Approve Question">
-                            <i class="fa-solid fa-check"></i>
-                        </button>
-                        <button class="delete-button p-2 rounded-lg shadow-sm" title="Delete Question">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-</body>
-</html>
+(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+noor-share-system.js:293 [NOOR-SHARE] 🚀 Definitive share button system loaded and ready
+VM2040 KJAHA99L:110 NOOR-QA: Toast notification system initialized
+blazor.server.js:1 [2025-10-14T14:23:20.937Z] Information: Normalizing '_blazor' to 'https://localhost:9091/_blazor'.
+noor-logging.js:66 [14:23:20.971 INFO] NOOR-INIT: NOOR Canvas application loaded Object
+noor-logging.js:66 [14:23:20.973 INFO] NOOR-BROWSER: Browser logger initialized Object
+noor-annotations.js:330 NOOR-ANNOTATION: JavaScript module loaded and ready
+noor-share-system.js:273 [NOOR-SHARE] DOM ready, system available for initialization
+VM2041 KJAHA99L:11 🎨 CSS DEBUG: Starting CSS verification...
+VM2041 KJAHA99L:16 ✅ CSS DEBUG: noor-canvas.css link found: https://localhost:9091/css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk
+VM2041 KJAHA99L:40 📋 CSS DEBUG: All loaded CSS files:
+VM2041 KJAHA99L:42   1. https://localhost:9091/css/bootstrap/bootstrap.min.css
+VM2041 KJAHA99L:42   2. https://localhost:9091/NoorCanvas.styles.css?v=bAe9wRsTLxsOJwwDWShD_-VHowVpNXGln5MlgF-XUVk
+VM2041 KJAHA99L:42   3. https://localhost:9091/css/fonts/fonts.css?v=G6Wns9j7CKAGfSZlu1ePXb60LtW9RmcpvH_gOHbZG48
+VM2041 KJAHA99L:42   4. https://localhost:9091/css/session-transcript.css?v=8-A3vAfWggMk3NJMm070RbrsP9Na-vUVjPukW6Yq9bI
+VM2041 KJAHA99L:42   5. https://localhost:9091/css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk
+VM2041 KJAHA99L:42   6. https://localhost:9091/css/debug-panel.css?v=-clSxQTKYJ_8_FGGWwmh-ofBgXnBJabNqiI7jEGZVD0
+VM2041 KJAHA99L:42   7. https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css
+VM2041 KJAHA99L:42   8. https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css
+VM2041 KJAHA99L:42   9. https://localhost:9091/css/noor-toastr.css?v=8mti1rtebJn2XzpAxp7GeRX6gQsXkVa8KRN3_N0TJWs
+VM2041 KJAHA99L:42   10. https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=Lato:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@400;600;700&family=Noto+Nastaliq+Urdu&display=swap
+VM2041 KJAHA99L:42   11. https://fonts.googleapis.com/css2?family=Harmattan:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap
+VM2041 KJAHA99L:42   12. https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cairo:wght@400;700&display=swap
+ContentIsolatedWorld.js:1 Initializing CS WAX...
+VM2041 KJAHA99L:31 ⚠️ CSS DEBUG: No .noor-btn elements found to test
+blazor.server.js:1 [2025-10-14T14:23:21.515Z] Information: WebSocket connected to wss://localhost:9091/_blazor?id=mNzTlSOhiOKLsaeyFu7Bkw.
+ContentIsolatedWorld.js:1 WAX CS initialized
+ContentIsolatedWorld.js:1 response for event EMAIL_FIELD_FOUND: [object Object]
+noor-logging.js:73 [14:23:22.525 INFO] BLAZOR-STARTUP: Blazor server connection auto-established
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: showNoorToast call - If you see this, the wrapper function works! ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: 🧪 Wrapper Test ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: info ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: info ;CLEANUP_OK
+VM2040 KJAHA99L:98 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ℹ️ INFO toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: info 🧪 Wrapper Test
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Test Toast Notification' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: showNoorToast call - If you see this, the wrapper function works! ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: 🧪 Wrapper Test ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: info ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: info ;CLEANUP_OK
+VM2040 KJAHA99L:98 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ℹ️ INFO toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: info 🧪 Wrapper Test
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Test Toast Notification' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: showNoorToast call - If you see this, the wrapper function works! ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: 🧪 Wrapper Test ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: info ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: info ;CLEANUP_OK
+VM2040 KJAHA99L:98 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ℹ️ INFO toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: info 🧪 Wrapper Test
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Test Toast Notification' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Simulate Random Question' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Simulate Random Question' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Simulate Random Question' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Simulate Random Question' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
+VM2040 KJAHA99L:55 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎯 showNoorToast CALLED ;CLEANUP_OK
+VM2040 KJAHA99L:56 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - message: 'Simulate Random Question' completed successfully ;CLEANUP_OK
+VM2040 KJAHA99L:57 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - title: Debug Action ;CLEANUP_OK
+VM2040 KJAHA99L:58 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - type: success ;CLEANUP_OK
+VM2040 KJAHA99L:59 [DEBUG-WORKITEM:hcp-questions:toast:TRACE]   - toastr available: true ;CLEANUP_OK
+VM2040 KJAHA99L:80 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] ✅ About to display toastr with type: success ;CLEANUP_OK
+VM2040 KJAHA99L:85 [DEBUG-WORKITEM:hcp-questions:toast:TRACE] 🎉 SUCCESS toast displayed ;CLEANUP_OK
+VM2040 KJAHA99L:102 [DEBUG-WORKITEM:canvas:INFRA] NOOR Canvas toast displayed: success Debug Action
