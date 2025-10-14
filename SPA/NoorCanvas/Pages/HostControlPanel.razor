@@ -1764,27 +1764,23 @@
         </div>";
             }
             
-            // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Orange card styling extracted from ContextCopilot.txt ;CLEANUP_OK
+            // [DEBUG-WORKITEM:canvas-question:css-migration:TRACE] Orange card styling moved to session-transcript.css ;CLEANUP_OK
+            // [DEBUG-WORKITEM:canvas-question:css-classes:TRACE] Refactored from inline styles to CSS classes for maintainability ;CLEANUP_OK
             // Background: #fff7f5 (orange-50), Border: #fdba74 (orange-300), Icon: #f97316 (orange-500), Title: #c2410c (orange-700)
-            // [DEBUG-WORKITEM:hcp-question:footer-removal:TRACE] Removed "Asked by" footer div
-            // [DEBUG-WORKITEM:hcp-question:subtitle-darkgreen:TRACE] Changed subtitle to darkgreen with 1rem font-size
-            // [DEBUG-WORKITEM:hcp-question:title-1.5rem:TRACE] Changed title to 1.5rem with left justify
+            // Subtitle: darkgreen (1rem), Title: #c2410c (1.5rem left-aligned), Footer removed
             var questionHtml = $@"
-<div style=""background-color:#fff7f5;border-style:solid;border-color:#fdba74;border-top-width:2px;border-left-width:2px;border-right-width:4px;border-bottom-width:4px;border-radius:1.5rem;padding:2rem;margin:1.5rem 0;box-shadow:0 4px 6px rgba(253,186,116,0.2);"">
-    <!-- Header with Icon -->
-    <div style=""display:flex;align-items:flex-start;margin-bottom:1rem;"">
-        <div style=""width:3rem;height:3rem;border-radius:9999px;background-color:#ffedd5;border:1px solid #fdba74;margin-right:1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;"">
-            <i class=""fa-solid fa-question-circle"" style=""color:#f97316;font-size:1.875rem;""></i>
+<div class=""shared-question-card"">
+    <div class=""shared-question-header"">
+        <div class=""shared-question-icon-wrapper"">
+            <i class=""fa-solid fa-question-circle shared-question-icon""></i>
         </div>
         <div>
-            <h1 style=""font-size:1.5rem;font-weight:600;color:#c2410c;margin:0;text-align:left;"">Participant Question</h1>
-            <p style=""font-size:1rem;color:darkgreen;margin:0;"">Shared by host for discussion</p>
+            <h1 class=""shared-question-title"">Participant Question</h1>
+            <p class=""shared-question-subtitle"">Shared by host for discussion</p>
         </div>
     </div>
-    
-    <!-- Question Content -->
-    <div style=""background-color:white;border-radius:0.75rem;padding:1.25rem;margin-top:1rem;border:1px solid #e5e7eb;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);"">
-        <p style=""font-size:1rem;color:#7c2d12;font-weight:500;margin:0;"">{encodedQuestionText}</p>
+    <div class=""shared-question-content"">
+        <p class=""shared-question-text"">{encodedQuestionText}</p>
     </div>
 </div>";
 

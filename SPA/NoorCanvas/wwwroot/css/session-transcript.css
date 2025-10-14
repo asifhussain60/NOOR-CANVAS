@@ -1582,3 +1582,159 @@
         max-width: none;
     }
 }
+
+/* ============================================================================
+   SHARED QUESTION CARD STYLING
+   ============================================================================
+   Orange-themed question cards shared from Host Control Panel to participants.
+   [DEBUG-WORKITEM:canvas-question:css-migration:TRACE] Moved from inline styles
+   in HostControlPanel.razor ShareQuestionAsync() to centralized CSS ;CLEANUP_OK
+   ============================================================================ */
+
+/* Main question card container */
+[data-islamic-content] .shared-question-card,
+.ks-transcript .shared-question-card,
+.session-transcript-content .shared-question-card,
+.transcript-display .shared-question-card,
+.islamic-content .shared-question-card {
+    background-color: #fff7f5;
+    border-style: solid;
+    border-color: #fdba74;
+    border-top-width: 2px;
+    border-left-width: 2px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin: 1.5rem auto;
+    box-shadow: 0 4px 6px rgba(253, 186, 116, 0.2);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
+}
+
+/* Question header with icon */
+[data-islamic-content] .shared-question-header,
+.ks-transcript .shared-question-header,
+.session-transcript-content .shared-question-header,
+.transcript-display .shared-question-header,
+.islamic-content .shared-question-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+/* Icon circle container */
+[data-islamic-content] .shared-question-icon-wrapper,
+.ks-transcript .shared-question-icon-wrapper,
+.session-transcript-content .shared-question-icon-wrapper,
+.transcript-display .shared-question-icon-wrapper,
+.islamic-content .shared-question-icon-wrapper {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background-color: #ffedd5;
+    border: 1px solid #fdba74;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Question mark icon */
+[data-islamic-content] .shared-question-icon,
+.ks-transcript .shared-question-icon,
+.session-transcript-content .shared-question-icon,
+.transcript-display .shared-question-icon,
+.islamic-content .shared-question-icon {
+    color: #f97316;
+    font-size: 1.875rem;
+}
+
+/* Question title - "Participant Question" */
+[data-islamic-content] .shared-question-title,
+.ks-transcript .shared-question-title,
+.session-transcript-content .shared-question-title,
+.transcript-display .shared-question-title,
+.islamic-content .shared-question-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #c2410c;
+    margin: 0;
+    text-align: left;
+}
+
+/* Question subtitle - "Shared by host for discussion" */
+[data-islamic-content] .shared-question-subtitle,
+.ks-transcript .shared-question-subtitle,
+.session-transcript-content .shared-question-subtitle,
+.transcript-display .shared-question-subtitle,
+.islamic-content .shared-question-subtitle {
+    font-size: 1rem;
+    color: darkgreen;
+    margin: 0;
+}
+
+/* Question text content */
+[data-islamic-content] .shared-question-content,
+.ks-transcript .shared-question-content,
+.session-transcript-content .shared-question-content,
+.transcript-display .shared-question-content,
+.islamic-content .shared-question-content {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-top: 1rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Question text styling */
+[data-islamic-content] .shared-question-text,
+.ks-transcript .shared-question-text,
+.session-transcript-content .shared-question-text,
+.transcript-display .shared-question-text,
+.islamic-content .shared-question-text {
+    font-size: 1rem;
+    color: #7c2d12;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Responsive Design for Question Cards */
+@media (max-width: 768px) {
+    [data-islamic-content] .shared-question-card,
+    .ks-transcript .shared-question-card,
+    .session-transcript-content .shared-question-card,
+    .transcript-display .shared-question-card,
+    .islamic-content .shared-question-card {
+        padding: 1.5rem;
+        margin: 1rem auto;
+        width: var(--islamic-asset-width-mobile) !important;
+    }
+
+    [data-islamic-content] .shared-question-title,
+    .ks-transcript .shared-question-title,
+    .session-transcript-content .shared-question-title,
+    .transcript-display .shared-question-title,
+    .islamic-content .shared-question-title {
+        font-size: 1.25rem;
+    }
+
+    [data-islamic-content] .shared-question-icon-wrapper,
+    .ks-transcript .shared-question-icon-wrapper,
+    .session-transcript-content .shared-question-icon-wrapper,
+    .transcript-display .shared-question-icon-wrapper,
+    .islamic-content .shared-question-icon-wrapper {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    [data-islamic-content] .shared-question-icon,
+    .ks-transcript .shared-question-icon,
+    .session-transcript-content .shared-question-icon,
+    .transcript-display .shared-question-icon,
+    .islamic-content .shared-question-icon {
+        font-size: 1.5rem;
+    }
+}
