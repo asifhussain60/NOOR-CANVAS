@@ -582,6 +582,7 @@
     }
 
     /* Question Items - Refactored from ContextCopilot.txt */
+    /* [DEBUG-WORKITEM:canvas-questions-orangecard:css-trace] Base question card styling with overflow:visible for badge positioning ;CLEANUP_OK */
     .canvas-question-item {
         border-radius: 0.75rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15);
@@ -594,10 +595,10 @@
         border-width: 2px;
         border-left-width: 6px;
         border-style: solid;
-        overflow: visible;
+        overflow: visible; /* [DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] Changed from overflow-x:hidden - allows badge translate(50%, -50%) to render outside card bounds ;CLEANUP_OK */
         word-wrap: break-word;
         margin-bottom: 1rem;
-        position: relative;
+        position: relative; /* [DEBUG-WORKITEM:canvas-questions-orangecard:positioning-trace] Required for absolute positioned badge child element ;CLEANUP_OK */
     }
 
     /* Green Theme - Own Question */
@@ -607,11 +608,12 @@
     }
 
     /* Sienna Theme - Other Users' Question */
+    /* [DEBUG-WORKITEM:canvas-questions-orangecard:theme-trace] Sienna color scheme from ContextCopilot.txt - border:#A0522D, background:#FAEBD7 ;CLEANUP_OK */
     .question-item-style-sienna {
         border-color: #A0522D; /* Sienna */
         background-color: #FAEBD7; /* Antique White */
         border-width: 2px;
-        border-left-width: 6px;
+        border-left-width: 6px; /* [DEBUG-WORKITEM:canvas-questions-orangecard:border-trace] Thick left border matches design requirement ;CLEANUP_OK */
     }
 
     .canvas-question-text {
@@ -1209,6 +1211,8 @@
         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionCanvas OnInitialized - SessionToken: '{SessionToken}' (Length: {Length})", 
             requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] [{RequestId}] CSS overflow property changed from 'overflow-x:hidden' to 'overflow:visible' to prevent badge cutoff ;CLEANUP_OK", requestId);
+        Logger.LogDebug("[DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] [{RequestId}] Badge positioning: absolute, top:0, right:0, transform:translate(50%, -50%) requires parent overflow:visible ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Canvas and Q&A panel containers set to prevent overflow with overflow:hidden and min-height:0 ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both divs constrained to same height (600px) via CSS Grid with proper flex containment ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel configured with overflow-y:auto for vertical scrollbar on desktop/iPad ;CLEANUP_OK");
