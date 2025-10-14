@@ -10,6 +10,56 @@ Apply orange/sienna styling from ContextCopilot.txt to broadcasted question card
 
 ## Work Log
 
+### 2025-10-14 - CSS Migration to session-transcript.css
+**Commit:** `1840524e`
+**Agent:** task (canvas-question key)
+**Status:** Complete
+
+**Changes:**
+1. Moved inline styles to centralized CSS
+   - Extracted all orange card styling from `HostControlPanel.razor` 
+   - Created `.shared-question-card` and 9 related CSS classes
+   - Added to `SPA/NoorCanvas/wwwroot/css/session-transcript.css` (after line 1585)
+   - Follows Islamic content styling pattern (multi-container support)
+
+2. Refactored ShareQuestionAsync() HTML generation
+   - Replaced inline `style=""` attributes with CSS classes
+   - Cleaner, more maintainable markup
+   - Simplified C# string interpolation (no style clutter)
+
+3. CSS Classes Created:
+   - `.shared-question-card` - Main container with orange theme
+   - `.shared-question-header` - Header flex layout
+   - `.shared-question-icon-wrapper` - Icon circle container
+   - `.shared-question-icon` - FontAwesome question icon
+   - `.shared-question-title` - "Participant Question" (1.5rem, #c2410c)
+   - `.shared-question-subtitle` - "Shared by host for discussion" (1rem, darkgreen)
+   - `.shared-question-content` - White content box
+   - `.shared-question-text` - Question text styling (#7c2d12)
+
+4. Responsive design
+   - Mobile breakpoint (@media max-width: 768px)
+   - Uses `--islamic-asset-width-mobile` CSS variable
+   - Scaled down icon and title sizes
+
+**Architecture Decisions:**
+- ✅ Moved to session-transcript.css (NOT AssetLookup table)
+- Questions are ephemeral, session-scoped (not persistent assets)
+- CSS follows existing Islamic content pattern
+- Consistent with shareable asset styling approach
+
+**Debug Logging:** Trace level
+- `[DEBUG-WORKITEM:canvas-question:css-migration:TRACE]`
+- `[DEBUG-WORKITEM:canvas-question:css-classes:TRACE]`
+
+**Files Modified:**
+- `SPA/NoorCanvas/wwwroot/css/session-transcript.css` (+167 lines)
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (lines 1767-1787 simplified)
+
+**Validation:**
+- Build: ✅ Clean (0 errors, 0 warnings)
+- Commit: `1840524e`
+
 ### 2025-10-14 - Final Styling Refinement
 **Commit:** `4c94ccd8`
 **Agent:** GitHub Copilot
