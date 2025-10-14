@@ -29,6 +29,57 @@ SessionCanvas UI improvements for content display and Q&A functionality, includi
 
 ## Work Log
 
+### 2025-01-11 | Welcome Panel Layout Visual Test
+**Commit**: `b784f5cd` (fix) + `4ad86f8c` (test)  
+**Agent**: task  
+**Task**: Create Percy visual regression test for welcome panel layout
+
+**Changes Made**:
+- Created `Tests/UI/canvas-welcome-panel-layout-visual.spec.ts`
+- Test verifies welcome panel appears inside session-canvas-container (white card)
+- Validates panel positioned inside canvas-area-container, above canvas-content-area
+- Percy snapshots at desktop (1280px), tablet (768px), mobile (375px) viewports
+- Structural assertions: DOM hierarchy, bounding box positions, CSS styling
+- Test coverage: Initial load + content broadcast persistence
+
+**Test Scenarios**:
+1. Welcome panel structure and visibility
+2. Panel inside session-canvas-container verification
+3. Panel inside canvas-area-container verification
+4. Position above canvas-content-area (Y coordinate comparison)
+5. CSS styling validation (color: #006400, font: Poppins, alignment: center)
+6. Responsive layout at multiple viewports
+7. Layout persistence after content broadcast
+
+**Percy Snapshots**:
+- `Welcome Panel Layout - Desktop` (1280px)
+- `Welcome Panel Layout - Tablet` (768px)
+- `Welcome Panel Layout - Mobile` (375px)
+- `Welcome Panel Layout - With Content` (multi-viewport)
+
+**Files Created**:
+- `Tests/UI/canvas-welcome-panel-layout-visual.spec.ts` - Percy visual regression test (285 lines)
+
+**Validation**:
+- Build: Clean (zero errors, zero warnings)
+- Test includes debug logging at simple level
+- Structural DOM assertions verify correct nesting
+- Bounding box comparison ensures welcome panel appears ABOVE canvas content
+- CSS verification confirms green text color and Poppins font
+
+**Next Steps**:
+1. Start application: `cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet run`
+2. Run test: `npx playwright test Tests/UI/canvas-welcome-panel-layout-visual.spec.ts --headed`
+3. Review Percy dashboard for visual diffs
+4. Address any layout issues identified
+
+**Screenshot Reference**:
+- Issue: "Emma Frost, Welcome To The Session" appearing outside white card
+- Required: Move welcome message inside session-canvas-container (white card)
+- Solution: Relocated welcome panel div inside canvas-area-container, above canvas-content-area
+
+---
+
 ### 2025-01-11 | Welcome Panel Layout Fix
 **Commit**: `b784f5cd`  
 **Agent**: task  
