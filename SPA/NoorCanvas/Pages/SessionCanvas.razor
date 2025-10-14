@@ -335,6 +335,7 @@
     }
 
     /* Canvas Area Styles */
+    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] CRITICAL FIX 2 - Remove height:100% from canvas-area-container to prevent vertical expansion ;CLEANUP_OK */
     .canvas-area-container {
         background-color: white;
         border-radius: 1rem;
@@ -343,8 +344,10 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - prevents canvas from growing with content ;CLEANUP_OK */
         min-height: 400px;
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Added max-height constraint to match sidebar ;CLEANUP_OK */
+        max-height: 100%;
     }
 
 .canvas-content-area {
@@ -3454,16 +3457,38 @@
         
         try
         {
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                "This is a test toast notification from SessionCanvas debug panel. If you see this, toastr library is working correctly!", 
-                "🧪 Test Toast", 
-                "info");
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync('showNoorToast') completed successfully ;CLEANUP_OK", requestId);
+            // [DEBUG-WORKITEM:canvas:toastr-test:trace] Check if toastr library is loaded before attempting to show toast ;CLEANUP_OK
+            var toastrLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] Toastr library loaded: {ToastrLoaded} ;CLEANUP_OK", requestId, toastrLoaded);
+            
+            if (!toastrLoaded)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] ⚠️ Toastr library NOT loaded - waiting 500ms and retrying ;CLEANUP_OK", requestId);
+                await Task.Delay(500);
+                toastrLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] Toastr library loaded after retry: {ToastrLoaded} ;CLEANUP_OK", requestId, toastrLoaded);
+            }
+            
+            if (toastrLoaded)
+            {
+                await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                    "This is a test toast notification from SessionCanvas debug panel. If you see this, toastr library is working correctly!", 
+                    "🧪 Test Toast", 
+                    "info");
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync('showNoorToast') completed successfully ;CLEANUP_OK", requestId);
+            }
+            else
+            {
+                Logger.LogError("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] 💥 Toastr library failed to load - cannot show toast ;CLEANUP_OK", requestId);
+                // Fallback to alert
+                await JSRuntime.InvokeVoidAsync("alert", "Toastr library not loaded. Check browser console for errors.");
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] 💥 Test toast FAILED: {Message} ;CLEANUP_OK", requestId, ex.Message);
             Logger.LogError("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}]   - InnerException: {InnerMessage} ;CLEANUP_OK", requestId, ex.InnerException?.Message ?? "None");
+            Logger.LogError("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace ?? "None");
         }
     }
     
@@ -3475,31 +3500,40 @@
         
         try
         {
-            // Get canvas-area-container dimensions
-            var canvasAreaDimensions = await JSRuntime.InvokeAsync<DimensionResult>("eval", @"
+            // [DEBUG-WORKITEM:canvas:sidebar-height:trace] Enhanced dimension logging with computed styles ;CLEANUP_OK
+            // Get canvas-area-container dimensions and computed styles
+            var canvasAreaInfo = await JSRuntime.InvokeAsync<ContainerInfo>("eval", @"
                 (function() {
                     var container = document.querySelector('.canvas-area-container');
                     if (!container) return { width: 0, height: 0, scrollHeight: 0, found: false };
                     var rect = container.getBoundingClientRect();
+                    var computedStyle = window.getComputedStyle(container);
                     return {
                         width: rect.width,
                         height: rect.height,
                         scrollHeight: container.scrollHeight,
+                        computedHeight: computedStyle.height,
+                        computedMinHeight: computedStyle.minHeight,
+                        computedMaxHeight: computedStyle.maxHeight,
                         found: true
                     };
                 })()
             ");
             
-            // Get canvas-sidebar dimensions
-            var sidebarDimensions = await JSRuntime.InvokeAsync<DimensionResult>("eval", @"
+            // Get canvas-sidebar dimensions and computed styles
+            var sidebarInfo = await JSRuntime.InvokeAsync<ContainerInfo>("eval", @"
                 (function() {
                     var sidebar = document.querySelector('.canvas-sidebar');
                     if (!sidebar) return { width: 0, height: 0, scrollHeight: 0, found: false };
                     var rect = sidebar.getBoundingClientRect();
+                    var computedStyle = window.getComputedStyle(sidebar);
                     return {
                         width: rect.width,
                         height: rect.height,
                         scrollHeight: sidebar.scrollHeight,
+                        computedHeight: computedStyle.height,
+                        computedMinHeight: computedStyle.minHeight,
+                        computedMaxHeight: computedStyle.maxHeight,
                         found: true
                     };
                 })()
@@ -3520,22 +3554,69 @@
                 })()
             ");
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-AREA-CONTAINER - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Found: {Found} ;CLEANUP_OK", 
-                requestId, canvasAreaDimensions.Width, canvasAreaDimensions.Height, canvasAreaDimensions.ScrollHeight, canvasAreaDimensions.Found);
+            // Get canvas-main-grid dimensions
+            var gridInfo = await JSRuntime.InvokeAsync<ContainerInfo>("eval", @"
+                (function() {
+                    var grid = document.querySelector('.canvas-main-grid');
+                    if (!grid) return { width: 0, height: 0, scrollHeight: 0, found: false };
+                    var rect = grid.getBoundingClientRect();
+                    var computedStyle = window.getComputedStyle(grid);
+                    return {
+                        width: rect.width,
+                        height: rect.height,
+                        scrollHeight: grid.scrollHeight,
+                        computedHeight: computedStyle.height,
+                        computedMinHeight: computedStyle.minHeight,
+                        computedMaxHeight: computedStyle.maxHeight,
+                        found: true
+                    };
+                })()
+            ");
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-SIDEBAR - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Found: {Found} ;CLEANUP_OK", 
-                requestId, sidebarDimensions.Width, sidebarDimensions.Height, sidebarDimensions.ScrollHeight, sidebarDimensions.Found);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-MAIN-GRID - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Computed: {Computed}, Min: {Min}, Max: {Max} ;CLEANUP_OK", 
+                requestId, gridInfo.Width, gridInfo.Height, gridInfo.ScrollHeight, gridInfo.ComputedHeight, gridInfo.ComputedMinHeight, gridInfo.ComputedMaxHeight);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-AREA-CONTAINER - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Computed: {Computed}, Min: {Min}, Max: {Max} ;CLEANUP_OK", 
+                requestId, canvasAreaInfo.Width, canvasAreaInfo.Height, canvasAreaInfo.ScrollHeight, canvasAreaInfo.ComputedHeight, canvasAreaInfo.ComputedMinHeight, canvasAreaInfo.ComputedMaxHeight);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-SIDEBAR - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Computed: {Computed}, Min: {Min}, Max: {Max} ;CLEANUP_OK", 
+                requestId, sidebarInfo.Width, sidebarInfo.Height, sidebarInfo.ScrollHeight, sidebarInfo.ComputedHeight, sidebarInfo.ComputedMinHeight, sidebarInfo.ComputedMaxHeight);
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-QUESTIONS-CONTAINER - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Found: {Found} ;CLEANUP_OK", 
                 requestId, questionsContainerDimensions.Width, questionsContainerDimensions.Height, questionsContainerDimensions.ScrollHeight, questionsContainerDimensions.Found);
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📊 Total Questions in Model: {Count} ;CLEANUP_OK", 
                 requestId, Model?.Questions?.Count ?? 0);
+            
+            // [DEBUG-WORKITEM:canvas:sidebar-height:trace] Compare canvas-area vs sidebar heights to detect expansion ;CLEANUP_OK
+            if (canvasAreaInfo.Found && sidebarInfo.Found)
+            {
+                var heightDiff = canvasAreaInfo.Height - sidebarInfo.Height;
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📊 HEIGHT COMPARISON - Canvas Area vs Sidebar Diff: {HeightDiff}px (Canvas: {CanvasH}px, Sidebar: {SidebarH}px) ;CLEANUP_OK", 
+                    requestId, heightDiff, canvasAreaInfo.Height, sidebarInfo.Height);
+                
+                if (Math.Abs(heightDiff) > 50)
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] ⚠️ SIGNIFICANT HEIGHT DIFFERENCE DETECTED - Canvas and sidebar should be equal in grid layout ;CLEANUP_OK", requestId);
+                }
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 💥 Failed to log dimensions: {Message} ;CLEANUP_OK", requestId, ex.Message);
         }
+    }
+    
+    // Helper class for dimension logging with computed styles
+    private class ContainerInfo
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double ScrollHeight { get; set; }
+        public string ComputedHeight { get; set; } = "";
+        public string ComputedMinHeight { get; set; } = "";
+        public string ComputedMaxHeight { get; set; } = "";
+        public bool Found { get; set; }
     }
     
     // Helper class for dimension logging
