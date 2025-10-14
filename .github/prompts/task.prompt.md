@@ -312,7 +312,9 @@ This ensures rollback capability if the task introduces instability.
 4. Infrastructure compliance validation (consult `InfrastructureQuickRef.md`)
 5. Cross-agent pattern reuse (consult `.github/learning/`)
 6. Spaghetti code risk assessment
-7. **🔍 Data Lifecycle Validation (CRUD Operations):**
+
+#### 2.8.7. Data Lifecycle Validation (CRUD Operations)
+**🔍 Complete data flow verification for create/update/delete operations:**
    - **Component 1:** UI Action (button click, form submit)
    - **Component 2:** API Call (HTTP POST/PUT/DELETE)
    - **Component 3:** Database Persistence (EF SaveChanges, SQL execution)
@@ -639,14 +641,7 @@ Search all modified source files and remove debug logging markers:
 
 ## Clean Exit Guarantee
 
-At end of every task:
-- Solution must build with **zero errors and zero warnings**
-- All analyzers, linters, Roslynator checks must pass
-- All relevant automated tests must pass
-- All contracts (API, DTO, DB) must remain intact
-- No obsolete or broken paths may remain
-
-If any condition fails, task must be marked **Incomplete** and reported.
+**See:** `.github/prompts/shared/clean-exit-guarantee.md` for complete exit criteria and failure protocols.
 
 ---
 
@@ -694,30 +689,4 @@ If any condition fails, task must be marked **Incomplete** and reported.
 
 ## Diagnostic Mode Details
 
-When `debug-level: diagnostic`, the agent will:
-
-1. Use or create `DiagnosticLogger` Razor component for comprehensive diagnostics
-2. Insert multi-layer diagnostic logging:
-   - JavaScript DOM inspection (element states, computed styles, z-index hierarchy)
-   - CSS layout analysis (heights, widths, overflow, flex/grid behavior)
-   - Browser state verification (library loading, function availability)
-   - Network resource verification (CSS/JS file loading)
-3. Log at `CRITICAL` level for high visibility in production logs
-4. Include request correlation IDs for trace analysis
-5. Generate structured diagnostic output with clear section headers
-6. All markers tagged with `;CLEANUP_OK` for automated removal
-7. Follow standardized marker pattern: `[DIAGNOSTIC:scope]`, `[DIAGNOSTIC-METHOD:context]`, `[DIAGNOSTIC-COMPONENT]`
-
-**Diagnostic Marker Patterns:**
-- C# Methods: `[DIAGNOSTIC-METHOD:scope:context] Description ;CLEANUP_OK`
-- C# Components: `[DIAGNOSTIC-COMPONENT] Component description ;CLEANUP_OK`
-- Inline Diagnostics: `[DIAGNOSTIC:scope] Message ;CLEANUP_OK`
-- Log Messages: `Logger.LogCritical("[DIAGNOSTIC:scope] [{RequestId}] Message", requestId)`
-
-**Diagnostic Use Cases:**
-- Persistent bugs despite multiple fixes
-- CSS layout issues (height constraints, overflow, z-index)
-- JavaScript library loading/timing issues
-- DOM manipulation and rendering problems
-- Cross-browser compatibility issues
-- Complex state management debugging
+**See:** `.github/prompts/shared/debug-logging-mandate.md` for complete diagnostic mode patterns, marker formats, and use cases.
