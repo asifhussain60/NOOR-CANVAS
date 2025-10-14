@@ -1477,15 +1477,9 @@
     line-height: 1.4;
     color: #374151;
     pointer-events: auto;
-    transform: translateX(400px);
-    opacity: 0;
-    transition: all 0.3s ease-out;
+    /* REMOVED conflicting transform/opacity that prevented toastr.js from showing toasts */
+    /* toastr.js handles its own animations via showMethod/hideMethod options */
     border-left: 4px solid #10b981;
-}
-
-.toast.show {
-    transform: translateX(0);
-    opacity: 1;
 }
 
 .toast.error {
