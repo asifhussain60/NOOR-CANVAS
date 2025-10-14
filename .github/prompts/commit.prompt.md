@@ -687,13 +687,33 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 ---
 
 ## Guardrails
-- **ALWAYS verify zero uncommitted count** after push (Step 8 is mandatory)
-- **ALWAYS execute cohesion review** unless skip condition met (recent analysis <24h)
-- **ALWAYS commit before pushing** (Step 6 must complete before Step 7)
-- **NEVER skip Step 8** verification - this is the critical success check
+
+### Critical Rules (NEVER SKIP)
+1. **Step 0 (Server Cleanup)**: MANDATORY - Always execute to prevent file locks
+2. **Step 1 (Cohesion Review)**: MANDATORY unless skip-cohesion=true AND recent analysis <24h exists
+3. **Step 2 (Sync)**: MANDATORY unless skip-sync=true AND no doc/config changes
+4. **Step 3 (Analyze Learning)**: MANDATORY unless skip-learning=true AND no new completions
+5. **Step 3.5 (Refactor)**: MANDATORY unless skip-refactor=true AND (no code changes OR recent refactor <3 commits)
+6. **Step 4.7 (Debug Cleanup)**: MANDATORY - Always remove debug markers before commit
+7. **Step 5-8 (Commit/Push/Verify)**: MANDATORY - Always execute in sequence
+
+### Execution Requirements
+- **DO NOT assume skip conditions** - explicitly check each one with PowerShell commands
+- **DO NOT skip steps without verification** - show the skip check output
+- **ALWAYS log skip reasons** - display "✓ Skipping [step] ([reason])" when skipping
+- **ALWAYS execute remaining steps** if any step is not skipped
+- **NEVER skip Step 8 verification** - this is the critical success check
 - **NEVER proceed if cohesion review finds issues** - abort and fix issues first
-- **ALWAYS log skip reasons** when any step is skipped
+- **ALWAYS commit before pushing** - Step 6 must complete before Step 7
 - If push fails, notify user but don't fail entire workflow (commits are local)
+
+### Skip Parameter Interpretation
+- **Default behavior**: ALL steps execute unless explicitly skipped with parameters
+- **skip-cohesion=true**: Check for recent report (<24h), skip only if found
+- **skip-sync=true**: Check for doc/config changes, skip only if none
+- **skip-learning=true**: Check for new completions, skip only if none
+- **skip-refactor=true**: Check for code changes AND recent refactor, skip only if both conditions met
+- **No parameters provided**: Execute ALL steps (most thorough validation)
 
 ---
 
@@ -707,6 +727,46 @@ At the end of every commit workflow:
 - User must receive clear summary of what was committed and pushed
 
 If any of these conditions fail, the workflow must report failure and provide remediation steps.
+
+---
+
+## Workflow Validation Checklist
+
+Before beginning execution, the agent MUST acknowledge:
+
+```
+🔍 COMMIT WORKFLOW EXECUTION PLAN
+================================
+
+Step 0: Server Cleanup - MANDATORY ✓
+Step 1: Cohesion Review - checking skip condition...
+Step 2: Sync - checking skip condition...
+Step 3: Analyze Learning - checking skip condition...
+Step 3.5: Refactor - checking skip condition...
+Step 4: Key Cleanup - checking skip condition...
+Step 4.7: Debug Cleanup - MANDATORY ✓
+Step 5-8: Commit/Push/Verify - MANDATORY ✓
+
+Parameters Received:
+- key: {value or 'none'}
+- skip-cohesion: {value or 'false'}
+- skip-sync: {value or 'false'}
+- skip-learning: {value or 'false'}
+- skip-refactor: {value or 'false'}
+- push: {value or 'true'}
+
+Proceeding with execution...
+```
+
+### During Execution
+For each step, the agent MUST output:
+- **If executing**: `▶️ STEP X: [Step Name] - EXECUTING`
+- **If checking skip**: `🔍 STEP X: [Step Name] - CHECKING SKIP CONDITION`
+- **If skipping**: `⏭️ STEP X: [Step Name] - SKIPPED ([reason])`
+- **If completing**: `✅ STEP X: [Step Name] - COMPLETE`
+
+### After Execution
+The agent MUST provide the summary report (Step 9) showing which steps were executed vs skipped.
 
 ---
 
