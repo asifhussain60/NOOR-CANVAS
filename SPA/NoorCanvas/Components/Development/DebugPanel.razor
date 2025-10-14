@@ -1,13 +1,11 @@
 @using NoorCanvas.Services.Development
 @using NoorCanvas.Models.Debug
 @using Microsoft.Extensions.Configuration
-@using Microsoft.JSInterop
 @implements IDisposable
 @inject IDevModeService DevModeService
 @inject ILogger<DebugPanel> Logger
 @inject DialogService DialogService
 @inject IConfiguration Configuration
-@inject IJSRuntime JSRuntime
 
 @* Only render debug panel in development mode *@
 @if (DevModeService.ShowDevPanels)
@@ -69,23 +67,6 @@
                             </button>
                         }
                     }
-                    else if (OnEnterTestData.HasDelegate)
-                    {
-                        <button @onclick="HandleEnterTestData" 
-                                disabled="@_isProcessing"
-                                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                            @if (_isProcessing)
-                            {
-                                <i class="fas fa-spinner fa-spin mr-2"></i>
-                                <span>Processing...</span>
-                            }
-                            else
-                            {
-                                <i class="fas fa-database mr-2"></i>
-                                <span>Enter Test Data</span>
-                            }
-                        </button>
-                    }
                     else
                     {
                         <div class="text-xs text-gray-300 text-center py-3 bg-gray-700 rounded-lg">
@@ -124,7 +105,6 @@
 
 @code {
     [Parameter] public string CurrentViewName { get; set; } = "Unknown";
-    [Parameter] public EventCallback OnEnterTestData { get; set; }
     [Parameter] public List<IDebugAction>? DebugActions { get; set; }
     [Parameter] public string GenericMessage { get; set; } = "No debug actions available for this view";
     [Parameter] public bool ShowDebugToasts { get; set; } = true;
@@ -238,61 +218,6 @@
         {
             _isProcessing = false;
             _currentAction = null;
-            StateHasChanged();
-        }
-    }
-
-    private async Task HandleEnterTestData()
-    {
-        if (_isProcessing) return;
-        
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            
-            Logger.LogInformation("NOOR-DEBUG-PANEL: Entering test data for view: {ViewName}", CurrentViewName);
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Before OnEnterTestData.InvokeAsync - ViewName: {ViewName} ;CLEANUP_OK", CurrentViewName);
-            
-            // [DIAGNOSTIC:notyf:silent] Enable silent mode to suppress test data toasts ;CLEANUP_OK
-            await JSRuntime.InvokeVoidAsync("eval", "if (window.NoorToast) { window.NoorToast.setSilentMode(true); }");
-            
-            await OnEnterTestData.InvokeAsync();
-            
-            // [DIAGNOSTIC:notyf:silent] Disable silent mode after test data operation ;CLEANUP_OK
-            await JSRuntime.InvokeVoidAsync("eval", "if (window.NoorToast) { window.NoorToast.setSilentMode(false); }");
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] After OnEnterTestData.InvokeAsync - Success ;CLEANUP_OK");
-            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] ShowDebugToasts={ShowDebugToasts}, Test data toast display DISABLED (per task: remove toast from Pasted Image 2) ;CLEANUP_OK", ShowDebugToasts);
-            
-            // DISABLED: Test data toast notifications removed from UI per user request
-            // Original code:
-            // if (ShowDebugToasts)
-            // {
-            //     await DialogService.ShowSuccessAsync($"Test data entered successfully for {CurrentViewName}", "Test Data");
-            // }
-            
-            _isExpanded = false;
-            
-            Logger.LogInformation("NOOR-DEBUG-PANEL: Test data entry completed successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Exception caught in HandleEnterTestData - ViewName: {ViewName}, Error: {ErrorMessage} ;CLEANUP_OK", CurrentViewName, ex.Message);
-            Logger.LogError("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Test data error toast display DISABLED (per task: remove toasts from screenshots) ;CLEANUP_OK");
-            
-            // DISABLED: Test data error toast notifications removed from UI per user request
-            // Original code:
-            // await DialogService.ShowAlertAsync($"Error entering test data: {ex.Message}", "Test Data Error", Components.Dialogs.AlertDialog.AlertType.Error);
-            
-            _isExpanded = false;
-            
-            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error entering test data for view: {ViewName}", CurrentViewName);
-        }
-        finally
-        {
-            _isProcessing = false;
             StateHasChanged();
         }
     }
