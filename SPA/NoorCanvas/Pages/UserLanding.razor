@@ -1324,6 +1324,11 @@
                     requestId, testData.name, testData.email, randomCountry.CountryName, randomCountry.ISO2);
 
                 StateHasChanged();
+
+                // Auto-submit the form after populating test data
+                Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Auto-submitting registration form", requestId);
+                await Task.Delay(100); // Brief delay to ensure UI updates
+                await HandleButtonClick();
             }
             else
             {
