@@ -10,6 +10,41 @@ Apply orange/sienna styling from ContextCopilot.txt to broadcasted question card
 
 ## Work Log
 
+### 2025-10-14 - Final Styling Refinement
+**Commit:** `4c94ccd8`
+**Agent:** GitHub Copilot
+**Status:** Complete
+
+**Changes:**
+1. Removed "Asked by" footer div
+   - Eliminated entire footer section with user metadata and vote badge
+   - Removed border-top separator
+   - Cleaner, more focused card layout
+
+2. Changed subtitle styling
+   - Font size: `0.875rem` → `1rem`
+   - Color: `#f97316` (orange-500) → `darkgreen`
+   - Preserved `margin:0`
+   - Subtitle: "Shared by host for discussion"
+
+3. Changed title styling
+   - Font size: `1.25rem` → `1.5rem`
+   - Added `text-align:left` (explicitly left-justified)
+   - Preserved `font-weight:600`, `color:#c2410c`, `margin:0`
+   - Title: "Participant Question"
+
+**Debug Logging:** Trace level
+- `[DEBUG-WORKITEM:hcp-question:footer-removal:TRACE]`
+- `[DEBUG-WORKITEM:hcp-question:subtitle-darkgreen:TRACE]`
+- `[DEBUG-WORKITEM:hcp-question:title-1.5rem:TRACE]`
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (lines 1767-1787)
+
+**Validation:**
+- Build: ✅ Clean (0 errors, 0 warnings)
+- Commit: `4c94ccd8`
+
 ### 2025-10-14 - Initial Implementation
 **Commit:** `1bcbc5c3b57cee8a34de49f4c31c1d8b46ddc7df`
 **Agent:** task
