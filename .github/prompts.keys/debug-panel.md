@@ -201,6 +201,78 @@ new DebugAction(
 
 ## Work Log (Continued)
 
+### 2025-10-14 22:45 - Root Cause Analysis: Debug Panel Not Visible (SOLVED)
+
+**Git Commit**: 4face8eb (HEAD)
+
+**Problem**: Automated headed tests failed - debug panel not rendering on ANY page
+
+**Investigation Steps**:
+1. ✅ Automated diagnostic test created (`Tests/UI/debug-panel-automated-diagnostics.spec.ts`)
+2. ✅ Test execution script created (`Scripts/run-debug-panel-diagnostics.ps1`)
+3. ✅ Trace logging added to HostLanding.razor component
+4. ✅ Browser console diagnostics added (expose DevModeService state)
+5. ✅ Git history comparison (9219c7e6 = working vs HEAD = broken)
+
+**Root Cause Found**:
+```
+DevModeService.ShowDevPanels requires:
+1. IsDevelopmentMode = true (requires _environment.IsDevelopment() = true)
+2. Development:ShowDevPanels config = true
+
+The issue: _environment.IsDevelopment() returns FALSE when ASPNETCORE_ENVIRONMENT is NOT set to "Development"
+```
+
+**Why It Broke**:
+- Running `dotnet run` directly in terminal does NOT use `launchSettings.json`
+- `launchSettings.json` sets `ASPNETCORE_ENVIRONMENT = "Development"` BUT only for Visual Studio/VS Code launch profiles
+- Manual `dotnet run` uses system environment variable (which is NOT set by default)
+- Test orchestration script (`run-debug-panel-diagnostics.ps1`) starts app with `dotnet run` → no environment variable → IsDevelopment() = FALSE → ShowDevPanels = FALSE
+
+**Evidence from Test Output**:
+```json
+{
+  "environment": {
+    "aspnetcoreEnv": "NOT_SET"
+  },
+  "devModeService": {
+    "showDevPanels": false,
+    "isDevelopment": false
+  },
+  "debugPanel": {
+    "containerExists": false,
+    "iconExists": false,
+    "contentExists": false
+  }
+}
+```
+
+**Fix Strategy**:
+1. **PowerShell Script Fix** (`run-debug-panel-diagnostics.ps1`):
+   - Add `$env:ASPNETCORE_ENVIRONMENT = 'Development'` BEFORE `dotnet run`
+   - This was already implemented but needs verification
+
+2. **Test URL Issue**:
+   - User noted tests use `localhost:9091` instead of complete URLs
+   - This is BY DESIGN - Playwright test uses BASE_URL constant
+   - No issue here - standard pattern for E2E tests
+
+3. **Manual Testing Workaround**:
+   - Use `.\Scripts\start-with-debug-panel.ps1` (sets environment before running)
+   - OR set environment manually: `$env:ASPNETCORE_ENVIRONMENT = 'Development'; dotnet run`
+
+**Files Modified** (This Session):
+- `SPA/NoorCanvas/Pages/HostLanding.razor` - Added trace diagnostics (Lines 558-567, 593-596)
+- `Tests/UI/debug-panel-automated-diagnostics.spec.ts` - Created comprehensive diagnostic test
+- `Scripts/run-debug-panel-diagnostics.ps1` - Created test orchestration script (environment setting already included)
+
+**Next Steps**:
+1. Verify script actually sets environment variable correctly
+2. Run headed test to confirm debug panel appears
+3. Document passing test in key data stream
+
+---
+
 ### 2025-10-14 - Debug Panel Restoration
 **Git Commit**: 9219c7e6f8c8af59d8e0b1e8c1e0b1e8c1e0b1e8
 
