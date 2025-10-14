@@ -499,14 +499,50 @@ This ensures rollback capability if the task introduces instability.
 ### 2. Key Data Stream Verification & File Context Loading (Mandatory)
 **Before planning, ALWAYS verify and gather context from the key data stream, then auto-load relevant files.**
 
-#### 2.1. Key Resolution
+#### 2.1. Key Resolution & Continuation Detection
 - **If key is provided**: Use the provided key.
-- **If key is NOT provided**:
-  - Search thread history for the most recently used key (prioritize within last 10 interactions).
-  - Check `#terminalLastCommand` and `#getTerminalOutput` for key references.
-  - Query `.github/prompts.keys/` for recently modified keys (within last 24 hours).
-  - **Assume continuation**: If a recent key is found and no contradictory context exists, assume new work is under the same key data stream.
-  - **Document inference**: Clearly state which key was inferred and why.
+- **If key is NOT provided** OR **user says "Adding to previous key data stream" / "continue previous work" / "resume"**:
+  - **TRIGGER**: Explicit continuation phrases OR no key parameter provided
+  - **Action**: Scan workspace for previous key data stream
+  
+  **Continuation Detection Workflow**:
+  1. **Parse User Intent**:
+     - Check for phrases: "adding to previous", "continue previous", "resume", "same key", "previous key data stream"
+     - If detected → Force continuation mode (skip new key creation)
+  
+  2. **Identify Previous Key**:
+     - **Method 1 - Thread History**: Search last 10 interactions for key references
+     - **Method 2 - Terminal Commands**: Check `#terminalLastCommand` for key parameters
+     - **Method 3 - Recent Keys**: Query `.github/prompts.keys/` for keys modified in last 24 hours
+     - **Method 4 - Open Files**: Check editor context for files matching key pattern
+     - **Method 5 - Git Log**: Check recent commits for key references in commit messages
+  
+  3. **Validate Previous Key**:
+     - Read `.github/prompts.keys/{key}/{key}.md` metadata
+     - Verify key status is `in-progress` OR `complete` (will auto-revert to in-progress)
+     - Confirm work-in-progress section exists with prior context
+  
+  4. **Present Confirmation to User**:
+     ```
+     🔗 Continuation Detected
+     - **Previous Key**: {key-name}
+     - **Last Activity**: {timestamp}
+     - **Status**: {current-status} → in-progress
+     - **Previous Work**: {brief summary from work-in-progress section}
+     
+     Proceeding with continuation under key: {key-name}
+     ```
+  
+  5. **Abort Conditions**:
+     - Multiple candidate keys found (ambiguity) → Ask user to specify
+     - No previous key found in last 7 days → Ask user to provide key or create new
+     - Previous key is `locked` by another agent → Request unlock or new key
+  
+  6. **Auto-Revert Status**:
+     - If previous key status was `complete` → Automatically revert to `in-progress`
+     - Log status change in work-log.md with timestamp
+  
+  **Document inference**: Always state which key was selected and detection method used.
 
 #### 2.2. Key Data Stream Query
 1. **Search for Key File**:
@@ -853,11 +889,24 @@ This ensures rollback capability if the task introduces instability.
    - Framework/platform (Blazor Server, ASP.NET Core, SignalR, Entity Framework)
 
 2. **Query Pattern Library**:
-   - Check `Workspaces/Copilot/learning/error-patterns.json` (if exists)
-   - Match error signature against known patterns
-   - Retrieve solution and confidence score if match found
+   - **Primary Source**: `.github/learning/error-patterns.json` (8 documented patterns with solutions)
+   - **Match Criteria**: Signature similarity + symptom overlap
+   - **Confidence Calculation**:
+     - **HIGH**: Exact signature match + 2+ symptom matches (>90% confidence)
+     - **MEDIUM**: Partial signature match + 1 symptom match (60-90% confidence)
+     - **LOW**: Keyword match only (<60% confidence)
 
-3. **Known Blazor Server Patterns**:
+3. **Known Pattern Quick Reference** (from .github/learning/error-patterns.json):
+   - **FP-001**: Blazor ServerPrerendered renderer conflict → Change to RenderMode.Server
+   - **FP-002**: Self-contained executable config embedding → Switch to framework-dependent
+   - **FP-003**: Dynamic JSON RuntimeBinderException → Use JsonElement instead of dynamic
+   - **FP-004**: PowerShell profile directory conflict → Use absolute paths (RESOLVED ✅)
+   - **FP-005**: ESLint unused variables → Use underscore or implement error handling
+   - **FP-006**: Workspace cleanup regression → Remove TEMP files in completion workflow
+   - **FP-007**: File lock build failures → Kill processes before build (RESOLVED ✅)
+   - **FP-008**: Database timeout network issues → Implement retry policy with backoff
+
+4. **Legacy Patterns** (backward compatibility - check if error-patterns.json unavailable):
    - **"No interop methods are registered for renderer X"**:
      - **Cause**: ServerPrerendered render mode creating dual renderers
      - **Solution**: Change _Host.cshtml to `render-mode="Server"`
@@ -876,7 +925,7 @@ This ensures rollback capability if the task introduces instability.
      - **Files**: Program.cs
      - **Confidence**: HIGH
 
-4. **Known SignalR Patterns**:
+5. **SignalR Legacy Patterns**:
    - **"Connection closed with error: Server timeout elapsed"**:
      - **Cause**: SignalR keep-alive timeout, network instability
      - **Solution**: Increase ServerTimeout and KeepAliveInterval
@@ -889,7 +938,7 @@ This ensures rollback capability if the task introduces instability.
      - **Files**: {HubName}.cs (specific hub class)
      - **Confidence**: MEDIUM
 
-5. **Known Entity Framework Patterns**:
+6. **Entity Framework Legacy Patterns**:
    - **"A second operation started on this context before a previous operation completed"**:
      - **Cause**: Concurrent DbContext operations, improper async/await
      - **Solution**: Ensure await keywords on all async operations, check DbContext lifetime
@@ -1822,6 +1871,136 @@ Internal template includes:
 - Preserve completion documentation
 - Add new work log entry documenting resumption
 - Continue normal workflow (Steps 1-8)
+
+---
+
+### 10. Self-Improvement from Workspace Patterns (Final Step)
+**Purpose**: Update task.prompt.md itself with learnings from current workspace patterns.
+
+**Trigger**: Execute ONLY after task completion (Step 9) OR when executing cohesion-review analysis.
+
+**Workflow**:
+
+#### 10.1. Pattern Extraction from Current Workspace
+1. **Scan Recent Workspace Documents** (last 30 days):
+   - `Workspaces/Documentation/*-summary.md`
+   - `Workspaces/Copilot/_DOCS/summaries/*`
+   - `.github/prompts.keys/*/work-log.md` (completed keys only)
+   - `TEMP/*-summary.md` (successful implementations)
+
+2. **Identify Success Patterns**:
+   - Look for keywords: "success", "completed", "clean build", "zero errors", "100%"
+   - Extract implementation strategies with proven outcomes
+   - Identify reusable workflows (e.g., "multi-instance testing", "phased refactoring")
+   - Calculate success rate: occurrences / total attempts
+
+3. **Identify Failure Patterns**:
+   - Look for keywords: "failed", "error", "root cause", "lesson learned", "prevention"
+   - Extract error signatures and root causes
+   - Document preventive measures
+   - Update `.github/learning/error-patterns.json` with new patterns
+
+#### 10.2. Update Error Pattern Library
+**If new error was resolved during this task**:
+
+1. **Check if error already exists in `.github/learning/error-patterns.json`**:
+   - If exists → Increment `occurrences`, update `last_seen` timestamp
+   - If new → Add complete pattern entry
+
+2. **New Pattern Schema**:
+   ```json
+   {
+     "id": "FP-{next-number}",
+     "name": "{descriptive-name}",
+     "category": "{framework|api|build|infrastructure|etc}",
+     "signature": "{exact error message or pattern}",
+     "error_type": "{runtime|build|linter|configuration}",
+     "confidence": "{HIGH|MEDIUM|LOW}",
+     "occurrences": 1,
+     "root_cause": "{documented cause}",
+     "symptoms": ["{symptom1}", "{symptom2}"],
+     "solution": {
+       "description": "{brief solution}",
+       "steps": ["{step1}", "{step2}"],
+       "files": ["{affected files}"],
+       "validation": "{how to verify fix}"
+     },
+     "prevention": "{how to avoid in future}",
+     "source": "{workspace document path}",
+     "last_seen": "{ISO-8601 timestamp}"
+   }
+   ```
+
+3. **Commit Update**:
+   ```
+   git add .github/learning/error-patterns.json
+   git commit -m "learn: Add error pattern FP-{number} from key {key-name}"
+   ```
+
+#### 10.3. Integrate Success Patterns into task.prompt.md
+**If high-confidence pattern found (3+ occurrences, >80% success rate)**:
+
+1. **Determine Integration Point**:
+   - UI/Component patterns → Add to Step 2.8 (Architecture Analysis) examples
+   - Testing patterns → Add to Step 6.1 (Playwright Test Creation) reference
+   - Database patterns → Add to Core Mandates database rules
+   - SignalR patterns → Add to Step 2.7 (Error Pattern Matching)
+   - Refactoring patterns → Reference in Step 3 (Planning) for consolidation tasks
+
+2. **Add Pattern Example**:
+   - Insert as sub-bullet under relevant step
+   - Include pattern name, brief description, source key
+   - Link to detailed documentation in workspace
+
+3. **Update Pattern Metadata**:
+   - Increment integration count in `.github/learning/patterns/{category}-patterns.json`
+   - Mark pattern as "integrated" with timestamp
+
+#### 10.4. Remove Obsolete Patterns
+**Clean up deprecated or superseded patterns**:
+
+1. **Identify Obsolete Patterns**:
+   - Patterns marked as "RESOLVED" in error-patterns.json for >90 days
+   - Patterns with zero occurrences in last 180 days
+   - Patterns superseded by newer solutions
+
+2. **Archive Before Removal**:
+   - Move to `.github/learning/archived/error-patterns-{year}.json`
+   - Document reason for archival
+   - Preserve for historical reference
+
+3. **Update task.prompt.md**:
+   - Remove references to archived patterns
+   - Add deprecation notices if needed
+
+#### 10.5. Self-Update Commit
+**Commit prompt improvements**:
+
+```bash
+git add .github/prompts/task.prompt.md
+git add .github/learning/error-patterns.json
+git add .github/learning/patterns/*.json
+git commit -m "learn: Update task.prompt.md from workspace patterns (key: {key-name})"
+```
+
+**Output to User**:
+```
+🧠 Self-Improvement Complete
+- ✅ Error Pattern Library: {X new | Y updated | Z archived}
+- ✅ Success Patterns Integrated: {count} new examples added
+- ✅ task.prompt.md Updated: {step numbers modified}
+- 📚 Pattern Sources: {list of workspace documents}
+
+Commit: {SHA hash}
+```
+
+**Skip Conditions**:
+- No new patterns identified (all already documented)
+- User explicitly requests `--no-learning` flag
+- Pattern confidence too low (<60%)
+- Execution was debugging/experimental only (no production changes)
+
+**Efficiency Note**: This step typically adds 2-3 minutes to completion workflow but compounds learning across all future task executions.
 
 ---
 
