@@ -201,21 +201,33 @@
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Executing debug action '{ActionName}' for view: {ViewName}", action.Name, CurrentViewName);
             
+            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Before ExecuteAsync - Action: {ActionName} ;CLEANUP_OK", action.Name);
+            
             await action.ExecuteAsync();
             
-            // Show success toast only if debug toasts are enabled
-            if (ShowDebugToasts)
-            {
-                await DialogService.ShowSuccessAsync($"'{action.Name}' completed successfully", "Debug Action");
-            }
+            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] After ExecuteAsync - Success ;CLEANUP_OK");
+            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] ShowDebugToasts={ShowDebugToasts}, Toast display DISABLED (per task: remove toasts from screenshots) ;CLEANUP_OK", ShowDebugToasts);
+            
+            // DISABLED: Toast notifications removed from UI per user request
+            // Original code:
+            // if (ShowDebugToasts)
+            // {
+            //     await DialogService.ShowSuccessAsync($"'{action.Name}' completed successfully", "Debug Action");
+            // }
+            
             _isExpanded = false;
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Debug action '{ActionName}' completed successfully", action.Name);
         }
         catch (Exception ex)
         {
-            // Always show error toasts regardless of ShowDebugToasts setting (user notifications must always display)
-            await DialogService.ShowAlertAsync($"Error executing '{action.Name}': {ex.Message}", "Debug Action Error", Components.Dialogs.AlertDialog.AlertType.Error);
+            Logger.LogError("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Exception caught - Action: {ActionName}, Error: {ErrorMessage} ;CLEANUP_OK", action.Name, ex.Message);
+            Logger.LogError("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Error toast display DISABLED (per task: remove toasts from screenshots) ;CLEANUP_OK");
+            
+            // DISABLED: Error toast notifications removed from UI per user request
+            // Original code:
+            // await DialogService.ShowAlertAsync($"Error executing '{action.Name}': {ex.Message}", "Debug Action Error", Components.Dialogs.AlertDialog.AlertType.Error);
+            
             _isExpanded = false;
             
             Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error executing debug action '{ActionName}' for view: {ViewName}", action.Name, CurrentViewName);
