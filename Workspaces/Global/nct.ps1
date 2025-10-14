@@ -181,11 +181,32 @@ if ($SessionId -gt 0) {
                     $_.CommandLine -like "*NoorCanvas*" 
                 } | Stop-Process -Force -ErrorAction SilentlyContinue
                 
+                # Kill by port usage (anything using 9090/9091)
+                $portsToKill = @(9090, 9091)
+                foreach ($port in $portsToKill) {
+                    $connections = netstat -ano | findstr ":$port" | findstr "LISTENING"
+                    foreach ($connection in $connections) {
+                        if ($connection -match '\s+(\d+)$') {
+                            $pid = $matches[1]
+                            try {
+                                $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                                if ($process -and $process.ProcessName -ne "System") {
+                                    Write-Host "  Killing process $($process.ProcessName) (PID: $pid) using port $port" -ForegroundColor Gray
+                                    Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+                                }
+                            }
+                            catch {
+                                # Process may already be terminated, continue
+                            }
+                        }
+                    }
+                }
+                
                 Start-Sleep -Seconds 2
                 
-                # Execute ncb (NOOR Canvas Build)
+                # Execute ncb (NOOR Canvas Build) - will build fresh code
                 Write-Host ""
-                Write-Host "Launching NOOR Canvas Build (ncb)..." -ForegroundColor Green
+                Write-Host "Launching NOOR Canvas Build (ncb) with fresh build..." -ForegroundColor Green
                 & ncb
                 
                 # After ncb completes, launch the host URL in browser

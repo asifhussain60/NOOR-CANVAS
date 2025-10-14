@@ -85,8 +85,20 @@ try {
     # Set environment variable for URLs
     $env:ASPNETCORE_URLS = "$httpsUrl;$httpUrl"
     
-    # Launch the ASP.NET Core application (no build - ncb handles that)
-    dotnet run --no-build --urls "$httpsUrl;$httpUrl"
+    # Always build to ensure latest code is running
+    Write-Host "Building latest code..." -ForegroundColor Cyan
+    dotnet build --configuration Release --verbosity minimal
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Build failed!" -ForegroundColor Red
+        exit 1
+    }
+    
+    Write-Host "Build completed successfully!" -ForegroundColor Green
+    Write-Host ""
+    
+    # Launch the ASP.NET Core application with fresh build
+    dotnet run --configuration Release --no-build --urls "$httpsUrl;$httpUrl"
 } finally {
     Pop-Location
 }

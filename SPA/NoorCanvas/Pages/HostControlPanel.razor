@@ -3678,15 +3678,7 @@
                 const result = await shareResponse.json();
                 console.log('NOOR-ASSET-SHARE: Asset shared successfully:', result);
                 
-                // TOASTR: Show API success notification
-                if (typeof window.showNoorToast === 'function') {
-                    window.showNoorToast(
-                        `${assetType} successfully shared with all participants!`, 
-                        '✅ Share Complete', 
-                        'success'
-                    );
-                    console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: API success notification shown for:', assetId);
-                }
+                // Toast notification removed - visual feedback via button state is sufficient
                 
                 // Success feedback
                 shareButton.textContent = '✓ SHARED';
@@ -3713,18 +3705,7 @@
                 errorMessage = error;
             }
             
-            // TOASTR: Show asset sharing error  
-            if (typeof window.showNoorToast === 'function') {
-                window.showNoorToast(
-                    `Failed to share ${assetType}: ${errorMessage}`, 
-                    'Share Failed', 
-                    'error'
-                );
-                console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Asset sharing error shown:', errorMessage);
-            } else {
-                // Fallback to existing error toast function
-                showErrorToast(`Failed to share asset: ${errorMessage}`);
-            }
+            // Toast notification removed - visual feedback via button state is sufficient
             
             // Find button and show error feedback
             const shareButton = document.querySelector(`button[data-asset-id="${assetId}"]`);
