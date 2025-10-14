@@ -1,27 +1,27 @@
 ﻿<#
 .SYNOPSIS
-    Deploy NoorCanvas application to production from master branch.
+    Deploy NoorCanvas application and HostProvisioner to production from master branch.
 
 .DESCRIPTION
     This script orchestrates a complete production deployment workflow:
     1. Ensures starting on development branch
     2. Merges development → master (with conflict detection)
-    3. Builds and publishes from master in Release mode
+    3. Builds and publishes NoorCanvas from master in Release mode
     4. Applies web.config transformations (KSESSIONS production database)
-    5. Deploys to D:\Websites\NOOR-CANVAS with IIS management
-    6. Returns to development branch
+    5. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
+    6. Builds and deploys HostProvisioner to D:\Websites\NOOR-CANVAS\HostProvisioner
+    7. Tests HostProvisioner connection to KSESSIONS database
+    8. Returns to development branch
     
     Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
     connection strings point to KSESSIONS (production) database.
+    HostProvisioner is automatically configured for Production environment.
 
 .PARAMETER SkipMerge
     Skip the git merge step. Use only if already on master with correct code.
 
 .PARAMETER SkipBuild
     Skip the build step and deploy existing publish output.
-
-.PARAMETER SkipBackup
-    Skip creating a backup of the existing deployment.
 
 .PARAMETER SkipIIS
     Skip IIS-related operations (stop/start app pool).
@@ -42,8 +42,8 @@
     Deploy from current master branch without merging development
 
 .EXAMPLE
-    .\ncdeploy.ps1 -SkipBackup -SkipIIS
-    Quick deployment without backup or IIS operations
+    .\ncdeploy.ps1 -SkipIIS
+    Quick deployment without IIS operations
 
 .NOTES
     Author: NOOR CANVAS Team
@@ -54,7 +54,6 @@
 param(
     [switch]$SkipMerge,
     [switch]$SkipBuild,
-    [switch]$SkipBackup,
     [switch]$SkipIIS,
     [switch]$AutoMerge,
     [string]$AppPool = "NoorCanvas"
@@ -298,49 +297,42 @@ try {
         Write-Warning "Skipping IIS operations as requested"
     }
 
-    # Step 3: Backup existing deployment
-    if (-not $SkipBackup) {
-        Write-Step "Creating backup of existing deployment..."
+    # Step 3: Backup existing deployment (ALWAYS - before clean deploy)
+    Write-Step "Creating backup of existing deployment..."
+    
+    if (Test-Path $DeployPath) {
+        $BackupFolder = "$BackupPath\backup-$Timestamp"
+        New-Item -ItemType Directory -Path $BackupFolder -Force | Out-Null
         
-        if (Test-Path $DeployPath) {
-            $BackupFolder = "$BackupPath\backup-$Timestamp"
-            New-Item -ItemType Directory -Path $BackupFolder -Force | Out-Null
-            
-            Copy-Item -Path "$DeployPath\*" -Destination $BackupFolder -Recurse -Force
-            Write-Success "Backup created: $BackupFolder"
-            
-            # Keep only last 5 backups
-            $backups = Get-ChildItem -Path $BackupPath -Directory | Sort-Object CreationTime -Descending
-            if ($backups.Count -gt 5) {
-                $backups | Select-Object -Skip 5 | ForEach-Object {
-                    Remove-Item -Path $_.FullName -Recurse -Force
-                    Write-Info "Removed old backup: $($_.Name)"
-                }
+        Copy-Item -Path "$DeployPath\*" -Destination $BackupFolder -Recurse -Force
+        Write-Success "Backup created: $BackupFolder"
+        
+        # Keep only last 5 backups
+        $backups = Get-ChildItem -Path $BackupPath -Directory | Sort-Object CreationTime -Descending
+        if ($backups.Count -gt 5) {
+            $backups | Select-Object -Skip 5 | ForEach-Object {
+                Remove-Item -Path $_.FullName -Recurse -Force
+                Write-Info "Removed old backup: $($_.Name)"
             }
-        } else {
-            Write-Warning "No existing deployment found to backup"
         }
     } else {
-        Write-Warning "Skipping backup as requested"
+        Write-Info "No existing deployment found to backup (first deployment)"
     }
 
-    # Step 4: Clean production directory
-    Write-Step "Cleaning production deployment directory..."
+    # Step 4: Clean production directory (FULL CLEAN DEPLOY)
+    Write-Step "Performing CLEAN deployment (removing ALL existing files)..."
     
     if (Test-Path $DeployPath) {
         try {
-            # Preserve logs and production appsettings
-            $preservePaths = @("logs", "appsettings.Production.json")
-            
-            Get-ChildItem -Path $DeployPath | Where-Object { 
-                $preservePaths -notcontains $_.Name 
-            } | ForEach-Object {
+            # Remove ALL files and folders for a clean deployment
+            Write-Info "Removing all files from $DeployPath..."
+            Get-ChildItem -Path $DeployPath -Force | ForEach-Object {
                 Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction Stop
             }
-            
-            Write-Success "Production directory cleaned (preserved logs and production settings)"
+            Write-Success "All existing files removed - clean slate ready"
         } catch {
-            Write-Warning "Some files may be locked. Continuing with deployment..."
+            Write-Error "Failed to clean deployment directory: $_"
+            throw "Cannot perform clean deployment. Some files may be locked by IIS or other processes."
         }
     } else {
         New-Item -ItemType Directory -Path $DeployPath -Force | Out-Null
@@ -413,6 +405,86 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
+    # Step 7.5: Deploy HostProvisioner
+    Write-Step "Deploying HostProvisioner..."
+    
+    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
+    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.csproj"
+    $HostProvisionerPublishPath = "$WorkspaceRoot\Workspaces\hostprovisioner-publish-temp"
+    $HostProvisionerDeployPath = "$DeployPath\HostProvisioner"
+    
+    if (Test-Path $HostProvisionerProjectFile) {
+        Write-Info "Building HostProvisioner in Release mode..."
+        
+        # Clean previous publish output
+        if (Test-Path $HostProvisionerPublishPath) {
+            Remove-Item -Path $HostProvisionerPublishPath -Recurse -Force
+        }
+        
+        # Build HostProvisioner
+        $publishArgs = @(
+            "publish"
+            $HostProvisionerProjectFile
+            "-c", "Release"
+            "-o", $HostProvisionerPublishPath
+            "--no-self-contained"
+            "/p:PublishReadyToRun=false"
+            "/p:EnvironmentName=Production"
+        )
+        
+        & dotnet @publishArgs
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "HostProvisioner build failed. Skipping HostProvisioner deployment."
+        } else {
+            Write-Success "HostProvisioner built successfully"
+            
+            # Create HostProvisioner deployment directory
+            if (-not (Test-Path $HostProvisionerDeployPath)) {
+                New-Item -ItemType Directory -Path $HostProvisionerDeployPath -Force | Out-Null
+                Write-Info "Created HostProvisioner deployment directory"
+            }
+            
+            # Copy HostProvisioner files
+            Copy-Item -Path "$HostProvisionerPublishPath\*" -Destination $HostProvisionerDeployPath -Recurse -Force
+            Write-Success "HostProvisioner deployed to $HostProvisionerDeployPath"
+            
+            # Verify HostProvisioner deployment
+            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll"
+            if (Test-Path $hpDllPath) {
+                Write-Host "  ✓ HostProvisioner.dll" -ForegroundColor Green
+                
+                # Test database connection
+                Write-Info "Testing HostProvisioner database connection to KSESSIONS..."
+                try {
+                    Push-Location $HostProvisionerDeployPath
+                    $testOutput = & dotnet HostProvisioner.dll test-connection 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Success "HostProvisioner connected to KSESSIONS successfully"
+                        Write-Info $testOutput
+                    } else {
+                        Write-Warning "HostProvisioner connection test failed. Check appsettings.json"
+                        Write-Info $testOutput
+                    }
+                } catch {
+                    Write-Warning "Could not test HostProvisioner connection: $_"
+                } finally {
+                    Pop-Location
+                }
+            } else {
+                Write-Warning "HostProvisioner.dll not found in deployment"
+            }
+            
+            # Clean up temporary publish folder
+            if (Test-Path $HostProvisionerPublishPath) {
+                Remove-Item -Path $HostProvisionerPublishPath -Recurse -Force
+                Write-Info "Cleaned HostProvisioner publish temp folder"
+            }
+        }
+    } else {
+        Write-Warning "HostProvisioner project not found at $HostProvisionerProjectFile. Skipping HostProvisioner deployment."
+    }
+
     # Step 8: Return to development branch
     if (-not $SkipMerge) {
         Write-Step "Git: Returning to development branch..."
@@ -437,16 +509,19 @@ try {
     # Final summary
     Write-Host "`n========================================" -ForegroundColor Green
     Write-Host "  DEPLOYMENT SUCCESSFUL!" -ForegroundColor Green
+    Write-Host "  (CLEAN DEPLOY - All files replaced)" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Green
     
     Write-Host "`nDeployment Details:" -ForegroundColor White
-    Write-Host "  Location: $DeployPath" -ForegroundColor Gray
+    Write-Host "  NoorCanvas: $DeployPath" -ForegroundColor Gray
+    Write-Host "  HostProvisioner: $DeployPath\HostProvisioner" -ForegroundColor Gray
     Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Gray
     Write-Host "  Environment: Production" -ForegroundColor Gray
+    Write-Host "  Deployment Type: CLEAN (all files removed first)" -ForegroundColor Gray
     Write-Host "  Branch: master" -ForegroundColor Gray
     Write-Host "  Timestamp: $Timestamp" -ForegroundColor Gray
     
-    if (-not $SkipBackup -and (Test-Path "$BackupPath\backup-$Timestamp")) {
+    if (Test-Path "$BackupPath\backup-$Timestamp") {
         Write-Host "  Backup: $BackupPath\backup-$Timestamp" -ForegroundColor Gray
     }
     
