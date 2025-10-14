@@ -23,9 +23,6 @@
 .PARAMETER SkipBuild
     Skip the build step and deploy existing publish output.
 
-.PARAMETER SkipBackup
-    Skip creating a backup of the existing deployment.
-
 .PARAMETER SkipIIS
     Skip IIS-related operations (stop/start app pool).
 
@@ -45,8 +42,8 @@
     Deploy from current master branch without merging development
 
 .EXAMPLE
-    .\ncdeploy.ps1 -SkipBackup -SkipIIS
-    Quick deployment without backup or IIS operations
+    .\ncdeploy.ps1 -SkipIIS
+    Quick deployment without IIS operations
 
 .NOTES
     Author: NOOR CANVAS Team
@@ -57,7 +54,6 @@
 param(
     [switch]$SkipMerge,
     [switch]$SkipBuild,
-    [switch]$SkipBackup,
     [switch]$SkipIIS,
     [switch]$AutoMerge,
     [string]$AppPool = "NoorCanvas"
@@ -301,49 +297,42 @@ try {
         Write-Warning "Skipping IIS operations as requested"
     }
 
-    # Step 3: Backup existing deployment
-    if (-not $SkipBackup) {
-        Write-Step "Creating backup of existing deployment..."
+    # Step 3: Backup existing deployment (ALWAYS - before clean deploy)
+    Write-Step "Creating backup of existing deployment..."
+    
+    if (Test-Path $DeployPath) {
+        $BackupFolder = "$BackupPath\backup-$Timestamp"
+        New-Item -ItemType Directory -Path $BackupFolder -Force | Out-Null
         
-        if (Test-Path $DeployPath) {
-            $BackupFolder = "$BackupPath\backup-$Timestamp"
-            New-Item -ItemType Directory -Path $BackupFolder -Force | Out-Null
-            
-            Copy-Item -Path "$DeployPath\*" -Destination $BackupFolder -Recurse -Force
-            Write-Success "Backup created: $BackupFolder"
-            
-            # Keep only last 5 backups
-            $backups = Get-ChildItem -Path $BackupPath -Directory | Sort-Object CreationTime -Descending
-            if ($backups.Count -gt 5) {
-                $backups | Select-Object -Skip 5 | ForEach-Object {
-                    Remove-Item -Path $_.FullName -Recurse -Force
-                    Write-Info "Removed old backup: $($_.Name)"
-                }
+        Copy-Item -Path "$DeployPath\*" -Destination $BackupFolder -Recurse -Force
+        Write-Success "Backup created: $BackupFolder"
+        
+        # Keep only last 5 backups
+        $backups = Get-ChildItem -Path $BackupPath -Directory | Sort-Object CreationTime -Descending
+        if ($backups.Count -gt 5) {
+            $backups | Select-Object -Skip 5 | ForEach-Object {
+                Remove-Item -Path $_.FullName -Recurse -Force
+                Write-Info "Removed old backup: $($_.Name)"
             }
-        } else {
-            Write-Warning "No existing deployment found to backup"
         }
     } else {
-        Write-Warning "Skipping backup as requested"
+        Write-Info "No existing deployment found to backup (first deployment)"
     }
 
-    # Step 4: Clean production directory
-    Write-Step "Cleaning production deployment directory..."
+    # Step 4: Clean production directory (FULL CLEAN DEPLOY)
+    Write-Step "Performing CLEAN deployment (removing ALL existing files)..."
     
     if (Test-Path $DeployPath) {
         try {
-            # Preserve logs and production appsettings
-            $preservePaths = @("logs", "appsettings.Production.json")
-            
-            Get-ChildItem -Path $DeployPath | Where-Object { 
-                $preservePaths -notcontains $_.Name 
-            } | ForEach-Object {
+            # Remove ALL files and folders for a clean deployment
+            Write-Info "Removing all files from $DeployPath..."
+            Get-ChildItem -Path $DeployPath -Force | ForEach-Object {
                 Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction Stop
             }
-            
-            Write-Success "Production directory cleaned (preserved logs and production settings)"
+            Write-Success "All existing files removed - clean slate ready"
         } catch {
-            Write-Warning "Some files may be locked. Continuing with deployment..."
+            Write-Error "Failed to clean deployment directory: $_"
+            throw "Cannot perform clean deployment. Some files may be locked by IIS or other processes."
         }
     } else {
         New-Item -ItemType Directory -Path $DeployPath -Force | Out-Null
@@ -520,6 +509,7 @@ try {
     # Final summary
     Write-Host "`n========================================" -ForegroundColor Green
     Write-Host "  DEPLOYMENT SUCCESSFUL!" -ForegroundColor Green
+    Write-Host "  (CLEAN DEPLOY - All files replaced)" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Green
     
     Write-Host "`nDeployment Details:" -ForegroundColor White
@@ -527,10 +517,11 @@ try {
     Write-Host "  HostProvisioner: $DeployPath\HostProvisioner" -ForegroundColor Gray
     Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Gray
     Write-Host "  Environment: Production" -ForegroundColor Gray
+    Write-Host "  Deployment Type: CLEAN (all files removed first)" -ForegroundColor Gray
     Write-Host "  Branch: master" -ForegroundColor Gray
     Write-Host "  Timestamp: $Timestamp" -ForegroundColor Gray
     
-    if (-not $SkipBackup -and (Test-Path "$BackupPath\backup-$Timestamp")) {
+    if (Test-Path "$BackupPath\backup-$Timestamp") {
         Write-Host "  Backup: $BackupPath\backup-$Timestamp" -ForegroundColor Gray
     }
     
