@@ -1,18 +1,21 @@
 ﻿<#
 .SYNOPSIS
-    Deploy NoorCanvas application to production from master branch.
+    Deploy NoorCanvas application and HostProvisioner to production from master branch.
 
 .DESCRIPTION
     This script orchestrates a complete production deployment workflow:
     1. Ensures starting on development branch
     2. Merges development → master (with conflict detection)
-    3. Builds and publishes from master in Release mode
+    3. Builds and publishes NoorCanvas from master in Release mode
     4. Applies web.config transformations (KSESSIONS production database)
-    5. Deploys to D:\Websites\NOOR-CANVAS with IIS management
-    6. Returns to development branch
+    5. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
+    6. Builds and deploys HostProvisioner to D:\Websites\NOOR-CANVAS\HostProvisioner
+    7. Tests HostProvisioner connection to KSESSIONS database
+    8. Returns to development branch
     
     Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
     connection strings point to KSESSIONS (production) database.
+    HostProvisioner is automatically configured for Production environment.
 
 .PARAMETER SkipMerge
     Skip the git merge step. Use only if already on master with correct code.
@@ -413,6 +416,86 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
+    # Step 7.5: Deploy HostProvisioner
+    Write-Step "Deploying HostProvisioner..."
+    
+    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
+    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.csproj"
+    $HostProvisionerPublishPath = "$WorkspaceRoot\Workspaces\hostprovisioner-publish-temp"
+    $HostProvisionerDeployPath = "$DeployPath\HostProvisioner"
+    
+    if (Test-Path $HostProvisionerProjectFile) {
+        Write-Info "Building HostProvisioner in Release mode..."
+        
+        # Clean previous publish output
+        if (Test-Path $HostProvisionerPublishPath) {
+            Remove-Item -Path $HostProvisionerPublishPath -Recurse -Force
+        }
+        
+        # Build HostProvisioner
+        $publishArgs = @(
+            "publish"
+            $HostProvisionerProjectFile
+            "-c", "Release"
+            "-o", $HostProvisionerPublishPath
+            "--no-self-contained"
+            "/p:PublishReadyToRun=false"
+            "/p:EnvironmentName=Production"
+        )
+        
+        & dotnet @publishArgs
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "HostProvisioner build failed. Skipping HostProvisioner deployment."
+        } else {
+            Write-Success "HostProvisioner built successfully"
+            
+            # Create HostProvisioner deployment directory
+            if (-not (Test-Path $HostProvisionerDeployPath)) {
+                New-Item -ItemType Directory -Path $HostProvisionerDeployPath -Force | Out-Null
+                Write-Info "Created HostProvisioner deployment directory"
+            }
+            
+            # Copy HostProvisioner files
+            Copy-Item -Path "$HostProvisionerPublishPath\*" -Destination $HostProvisionerDeployPath -Recurse -Force
+            Write-Success "HostProvisioner deployed to $HostProvisionerDeployPath"
+            
+            # Verify HostProvisioner deployment
+            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll"
+            if (Test-Path $hpDllPath) {
+                Write-Host "  ✓ HostProvisioner.dll" -ForegroundColor Green
+                
+                # Test database connection
+                Write-Info "Testing HostProvisioner database connection to KSESSIONS..."
+                try {
+                    Push-Location $HostProvisionerDeployPath
+                    $testOutput = & dotnet HostProvisioner.dll test-connection 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Success "HostProvisioner connected to KSESSIONS successfully"
+                        Write-Info $testOutput
+                    } else {
+                        Write-Warning "HostProvisioner connection test failed. Check appsettings.json"
+                        Write-Info $testOutput
+                    }
+                } catch {
+                    Write-Warning "Could not test HostProvisioner connection: $_"
+                } finally {
+                    Pop-Location
+                }
+            } else {
+                Write-Warning "HostProvisioner.dll not found in deployment"
+            }
+            
+            # Clean up temporary publish folder
+            if (Test-Path $HostProvisionerPublishPath) {
+                Remove-Item -Path $HostProvisionerPublishPath -Recurse -Force
+                Write-Info "Cleaned HostProvisioner publish temp folder"
+            }
+        }
+    } else {
+        Write-Warning "HostProvisioner project not found at $HostProvisionerProjectFile. Skipping HostProvisioner deployment."
+    }
+
     # Step 8: Return to development branch
     if (-not $SkipMerge) {
         Write-Step "Git: Returning to development branch..."
@@ -440,7 +523,8 @@ try {
     Write-Host "========================================" -ForegroundColor Green
     
     Write-Host "`nDeployment Details:" -ForegroundColor White
-    Write-Host "  Location: $DeployPath" -ForegroundColor Gray
+    Write-Host "  NoorCanvas: $DeployPath" -ForegroundColor Gray
+    Write-Host "  HostProvisioner: $DeployPath\HostProvisioner" -ForegroundColor Gray
     Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Gray
     Write-Host "  Environment: Production" -ForegroundColor Gray
     Write-Host "  Branch: master" -ForegroundColor Gray
