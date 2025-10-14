@@ -320,6 +320,14 @@ cd "D:\PROJECTS\NOOR CANVAS"
 - `4face8eb` - Add trace diagnostics to HostLanding
 - `d13499ef` - Document root cause analysis
 - `a322c009` - Add simple visibility test
+- `ed6551b3` - Add test execution instructions
+
+**Test Execution Issue Identified**:
+- Test causes app to shut down after 6 seconds (Blazor connection established, then shutdown)
+- Screenshots not created - test didn't complete successfully
+- Need proper app lifecycle management with separate PowerShell window
+
+**Next Step**: Create automated E2E visual regression test with proper app startup orchestration
 
 ---
 
