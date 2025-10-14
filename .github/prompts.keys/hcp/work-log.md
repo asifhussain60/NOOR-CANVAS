@@ -2,6 +2,69 @@
 
 ---
 
+## [2025-10-14T03:00:00Z] - task agent
+
+**Status**: completed  
+**Work Done**:
+- ✅ **TOASTR INTEGRATION**: Added missing toastr library to HostControlPanel.razor
+- ✅ **TOAST NOTIFICATIONS**: Enabled question alert toasts for host when participants post questions
+- **Root Cause**: HostControlPanel uses EmptyLayout (doesn't inherit _Host.cshtml scripts)
+- **Solution**: Added toastr CDN links + showNoorToast function inline in HeadContent
+
+**Technical Implementation**:
+1. **Toastr Library** (HeadContent):
+   - CSS: `https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css`
+   - JS: jQuery 3.6.0 + toastr.js 2.1.4
+   - Position: `toast-top-right` (host panel)
+   
+2. **showNoorToast Function** (inline script):
+   - Same implementation as SessionCanvas.razor (commit 2571014d)
+   - Supports 4 types: success, warning, error, info
+   - Comprehensive trace logging for debugging
+   - Fallback to alert() if toastr library fails
+   
+3. **OnAfterRenderAsync Verification**:
+   - Checks `typeof toastr !== 'undefined'`
+   - Checks `typeof window.showNoorToast === 'function'`
+   - Logs critical errors if either missing
+   
+4. **Toast Notification Feature**:
+   - Triggered by: QuestionReceived SignalR event (already present, line 282)
+   - Toast code already existed (lines 349-373) but library was missing
+   - Message format: `"{UserName} asked: \"{QuestionText}\""`
+   - Toast title: "New Question Received"
+   - Toast type: info (blue styling)
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor`
+  - HeadContent: +60 lines (toastr CDN + showNoorToast function)
+  - OnAfterRenderAsync: +28 lines (verification logging)
+  - OnInitializedAsync: +2 lines (trace logging)
+
+**Trace Logging Added** ([DEBUG-WORKITEM:hcp:toastr:trace] ;CLEANUP_OK):
+- OnInitializedAsync: Toastr library load confirmation
+- OnAfterRenderAsync: Verify toastr/showNoorToast availability after first render
+- showNoorToast function: Entry point + type switch logging
+- QuestionReceived handler: Toast invocation tracking (already present)
+
+**Validation**: PASS
+- Build status: SUCCESS (13.7s, zero errors, zero warnings)
+- Architecture: Matches SessionCanvas implementation
+- Testing Required: Host opens HostControlPanel → Participant posts question → Host sees toast
+
+**Commit**: `03b527d0c3278d177a3ff693e0dd36e8785079dc`
+
+**Benefits**:
+1. **Feature Parity**: HostControlPanel now has same toast infrastructure as SessionCanvas
+2. **Real-Time Alerts**: Host immediately notified when questions arrive
+3. **User Context**: Toast shows who asked the question + preview
+4. **Consistent UX**: Same toast styling across both host and participant views
+5. **Debug Ready**: Comprehensive trace logging for troubleshooting
+
+**User Request**: "Configure so that when participant posts a question, host sees a toast informing him that a question was added"
+
+---
+
 ## [2025-10-11T19:15:00Z] - task agent
 
 **Status**: completed  
