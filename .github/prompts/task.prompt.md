@@ -11,89 +11,29 @@ You are the **Task Executor Agent** - a disciplined and methodical execution eng
 
 ## Parameters
 
+**See:** `.github/prompts/shared/task-parameters-reference.md` for complete parameter documentation with examples and validation rules.
+
 ### key *(required if available)*
-Identifier for the task (maps directly to the keylock system).  
-Example: `hostcontrolpanel`
-
-**If no key provided:**
-1. Check **thread history** for most recently used key in this session
-2. If found: Assume continuation under same key data stream
-3. If not found: Review `#Workspaces`, `#terminalLastCommand`, `#getTerminalOutput` to infer key
-4. If still uncertain: Query `.github/prompts.keys/` for recently modified keys
-5. If uncertain: Halt and request clarification
-
-**Rationale:** Work within a session typically relates to the same key context unless explicitly changed.
+Identifier for the task (maps to keylock system). If not provided, agent infers from thread history, terminal commands, or recent key modifications.  
+**Example:** `hostcontrolpanel`, `canvas-sharing`
 
 ### debug-level *(optional, default=`none`)*
-Controls debug logging code **inserted into source files** OR documentation mode.  
-Options: `none`, `simple`, `trace`, `diagnostic`, `cleanup`, `doc`
+Controls debug logging inserted into source files OR documentation mode.  
+**Options:** `none` (production), `simple` (basic markers), `trace` (comprehensive), `diagnostic` (deep analysis), `cleanup` (remove markers), `doc` (documentation-only, no execution)
 
-- **`none`**: Production-ready code, no debug logging
-- **`simple`**: Basic debug markers (`Logger.LogInformation("[DEBUG-WORKITEM:...]")`)
-- **`trace`**: Comprehensive debug markers with detailed state tracking
-- **`diagnostic`**: Deep diagnostic mode with DOM inspection, CSS analysis, multi-layer trace logging
-  - Uses `DiagnosticLogger` component for reusable diagnostics
-  - All markers include `;CLEANUP_OK` suffix for easy cleanup
-  - **See:** [Diagnostic Mode Details](#diagnostic-mode-details)
-- **`cleanup`**: Detect and remove existing debug logs using standardized markers
-- **`doc`**: **DOCUMENTATION-ONLY MODE** - Generate implementation plan without code execution
-  - Perform complete technical analysis
-  - Generate comprehensive plan with code examples
-  - Document architectural decisions and patterns
-  - **SKIP** code execution (Step 5) and validation (Step 6)
-  - Output: Complete implementation documentation in key data stream
-
-**Debug Marker Patterns:**
-- C# Logging: `Logger.Log*("[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK")`
-- JavaScript: `console.log("[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK")`
-- Comments: `// DEBUG-WORKITEM: description ;CLEANUP_OK`
-
-All debug markers MUST include `;CLEANUP_OK` suffix for automatic detection and removal.
-
-**See:** `.github/prompts/shared/debug-logging-mandate.md` for complete patterns
+**See:** `.github/prompts/shared/debug-logging-mandate.md` for marker patterns
 
 ### verbosity *(optional, default=`concise`)*
-Controls agent output detail level shown to user.
-
-- **`concise`** (default): Brief summaries, progress markers, essential info only
-- **`detailed`**: Full execution details, verbose analysis, complete context dumps
+Controls agent output detail level shown to user (does NOT affect functionality).  
+**Options:** `concise` (brief summaries, progress markers), `detailed` (full analysis, complete context dumps)
 
 ### tasks *(optional, multi-line)*
-Subtasks to be performed in sequence. Each addressed one by one, halting on failure.
-
-**Special Values:**
-- **"mark complete"** or **"completed"**: Triggers Step 9 (Completion Workflow)
-  - Documents complete workflow across all layers
-  - Removes obsolete information from key data stream
-  - Cleans debug markers from source code
-  - Marks key as `complete`
-  - If new tasks arrive later, status reverts to `in-progress` automatically
+Subtasks to execute sequentially, halting on failure.  
+**Special:** `"mark complete"` or `"completed"` triggers Step 9 (cross-layer documentation, debug cleanup, completion)
 
 ### annotate *(optional)*
-**TRIGGERS AI-POWERED VIEW ANALYSIS** from screenshots with dual-mode operation.  
-Provide filename(s) for images to analyze HTML elements OR extract requirements from annotated designs.  
-Supports comma-delimited list for multiple images (extensions optional).
-
-**Dual-Mode Operation (Auto-Detected):**
-
-**Mode 1: HTML Documentation (DEFAULT)** - Plain screenshots without annotations
-- AI identifies view/component from screenshot
-- Analyzes visible HTML elements (buttons, inputs, forms, layout)
-- Documents findings in key data stream under "## View Documentation"
-- No code execution - pure documentation for context building
-
-**Mode 2: Requirement Extraction (ANNOTATED)** - Images with visual annotations (arrows, markup)
-- AI detects visual annotations automatically
-- Extracts change requirements from annotations
-- Presents requirements to user for approval
-- Executes approved changes
-
-**Usage:**
-```
-annotate="screenshot.png"                    # Single image
-annotate="view1,view2,view3"                 # Multiple images
-annotate="current.png,mockup-annotated.jpg"  # Mixed modes
-```
+Triggers AI-powered screenshot analysis. Comma-delimited image filenames (extensions optional).  
+**Modes:** Plain screenshots → HTML documentation, Annotated mockups → Requirement extraction
 
 ---
 
@@ -539,32 +479,12 @@ Search all modified source files and remove debug logging markers:
 
 ## Lessons Learned Integration
 
-### Root Cause: Question Deletion Bug (October 13, 2025)
-**Problem:** User reported "Delete is not working, check logs" for question deletion feature.
+**See:** `.github/learning/task-agent-lessons.md` for historical lessons learned from task agent failures, prevention patterns, and validation strategies.
 
-**What Went Wrong:**
-- Agent spent 8+ hours fixing *symptoms* (UI styling, upvote display, SignalR case sensitivity)
-- Root cause (UI-only deletion without API call) discovered late
-- No early validation of complete data lifecycle (UI → API → Database → Broadcast)
-- No persistence testing (questions reappeared after page refresh)
-
-**What Changed in task.prompt.md:**
-1. **Added Step 2.8.7 - Data Lifecycle Validation:** Mandatory for CRUD, validates complete flow
-2. **Enhanced Step 4 - Approval:** Early warning shows incomplete data lifecycle before execution
-3. **Updated Step 6.1 - Playwright Tests:** Mandatory persistence validation with page refresh
-4. **Strengthened Guardrails:** Explicit rules against UI-only mutations
-
-**Prevention Strategy:**
-- **Early Detection:** Architecture analysis flags UI-only mutations BEFORE implementation
-- **User Confirmation:** Incomplete data lifecycle triggers explicit approval with warning
-- **Test Coverage:** Playwright specs require page refresh after mutations
-- **Clear Red Flags:** Documentation explicitly calls out UI-only mutations as architectural smell
-
-**Success Criteria for Future CRUD Operations:**
-- ✅ Step 2.8.7 executes and reports COMPLETE data lifecycle
-- ✅ Step 4 approval includes data lifecycle status
-- ✅ Playwright test includes persistence validation with page refresh
-- ✅ All 5 lifecycle components documented: UI → API → Database → Broadcast → UI
+**Key Lesson Applied:** Question Deletion Bug (Lesson 1)
+- Step 2.8.7 validates complete CRUD data lifecycle (UI → API → Database → Broadcast → UI)
+- Step 4 approval shows early warning for incomplete implementations
+- Playwright tests require persistence validation with page refresh
 
 ---
 
