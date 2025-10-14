@@ -3369,17 +3369,6 @@
             IsEnabled = !string.IsNullOrWhiteSpace(SessionToken)
         });
         
-        // [DEBUG-WORKITEM:canvas:toastr-test:trace] Test toast button to verify toastr library is working ;CLEANUP_OK
-        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
-            "Test Toast Notification",
-            "Display a test toast to verify toastr library is working",
-            async () => await TestToastNotification(),
-            "fa-solid fa-bell"
-        )
-        {
-            IsEnabled = true
-        });
-        
         // [DEBUG-WORKITEM:canvas:sidebar-height:trace] Debug action to log sidebar/container dimensions ;CLEANUP_OK
         actions.Add(new NoorCanvas.Models.Debug.DebugAction(
             "Log Sidebar Dimensions",
@@ -3465,118 +3454,6 @@
         
         // Submit through existing logic
         await SubmitQuestion();
-    }
-    
-    // [DEBUG-WORKITEM:canvas:toastr-test:trace] Test toast notification to verify toastr library integration ;CLEANUP_OK
-    private async Task TestToastNotification()
-    {
-        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
-        Logger.LogCritical("[TOAST-TEST] [{RequestId}] ========== TEST STARTED ==========", requestId);
-        
-        // Step 1: Run comprehensive diagnostics using diagnostic component
-        if (diagnosticLogger != null)
-        {
-            await diagnosticLogger.DiagnoseToastSystem();
-        }
-        else
-        {
-            Logger.LogWarning("[TOAST-TEST] [{RequestId}] Diagnostic logger not available - running inline diagnostics", requestId);
-            await DiagnoseToastSystemInline();
-        }
-        
-        // Step 2: Check library availability
-        var toastrLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
-        Logger.LogCritical("[TOAST-TEST] [{RequestId}] Step 1: Toastr loaded = {ToastrLoaded}", requestId, toastrLoaded);
-        
-        if (!toastrLoaded)
-        {
-            await Task.Delay(500);
-            toastrLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
-            Logger.LogCritical("[TOAST-TEST] [{RequestId}] Step 1b: Toastr loaded after retry = {ToastrLoaded}", requestId, toastrLoaded);
-        }
-        
-        // Step 3: Try direct toastr call (bypass showNoorToast)
-        if (toastrLoaded)
-        {
-            try
-            {
-                Logger.LogCritical("[TOAST-TEST] [{RequestId}] Step 2: Calling toastr.info directly...", requestId);
-                await JSRuntime.InvokeVoidAsync("eval", @"
-                    toastr.info('Direct toastr call - If you see this, toastr library works!', 'Direct Test', {
-                        positionClass: 'toast-top-right',
-                        timeOut: 10000,
-                        closeButton: true
-                    });
-                ");
-                Logger.LogCritical("[TOAST-TEST] [{RequestId}] Step 2: Direct toastr call SUCCEEDED", requestId);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("[TOAST-TEST] [{RequestId}] Step 2: Direct toastr call FAILED: {Error}", requestId, ex.Message);
-            }
-            
-            // Step 4: Try showNoorToast
-            await Task.Delay(1000); // Give time to see first toast
-            
-            try
-            {
-                Logger.LogCritical("[TOAST-TEST] [{RequestId}] Step 3: Calling showNoorToast...", requestId);
-                await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                    "showNoorToast call - If you see this, the wrapper function works!", 
-                    "🧪 Wrapper Test", 
-                    "info");
-                Logger.LogCritical("[TOAST-TEST] [{RequestId}] Step 3: showNoorToast call SUCCEEDED", requestId);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("[TOAST-TEST] [{RequestId}] Step 3: showNoorToast call FAILED: {Error}", requestId, ex.Message);
-            }
-        }
-        else
-        {
-            Logger.LogError("[TOAST-TEST] [{RequestId}] CRITICAL: Toastr library NOT loaded after retry!", requestId);
-            await JSRuntime.InvokeVoidAsync("alert", "CRITICAL: Toastr library not loaded. Check browser console and Network tab.");
-        }
-        
-        Logger.LogCritical("[TOAST-TEST] [{RequestId}] ========== TEST COMPLETED ==========", requestId);
-    }
-    
-    // [DIAGNOSTIC-METHOD:toast-system] Inline diagnostics fallback if component not available ;CLEANUP_OK
-    private async Task DiagnoseToastSystemInline()
-    {
-        try
-        {
-            var diagnostics = await JSRuntime.InvokeAsync<string>("eval", @"
-                (function() {
-                    const results = [];
-                    results.push('toastr loaded: ' + (typeof toastr !== 'undefined'));
-                    results.push('showNoorToast loaded: ' + (typeof window.showNoorToast === 'function'));
-                    
-                    const cssLinks = Array.from(document.querySelectorAll('link[rel=""stylesheet""]'))
-                        .map(link => link.href)
-                        .filter(href => href.includes('noor-toastr'));
-                    results.push('noor-toastr.css loaded: ' + (cssLinks.length > 0));
-                    if (cssLinks.length > 0) results.push('  Path: ' + cssLinks[0]);
-                    
-                    const container = document.querySelector('#toast-container, .toast-container');
-                    results.push('Toast container exists: ' + (container !== null));
-                    if (container) {
-                        const containerStyle = window.getComputedStyle(container);
-                        results.push('  z-index: ' + containerStyle.zIndex);
-                        results.push('  position: ' + containerStyle.position);
-                        results.push('  display: ' + containerStyle.display);
-                    }
-                    
-                    return results.join('\n');
-                })()
-            ");
-            
-            Logger.LogCritical("[TOAST-DIAGNOSTICS-INLINE] SYSTEM STATUS:\n{Diagnostics}", diagnostics);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError("[TOAST-DIAGNOSTICS-INLINE] Failed: {Error}", ex.Message);
-        }
     }
     
     // [DEBUG-WORKITEM:canvas:sidebar-height:trace] Log dimensions of canvas containers to debug height issue ;CLEANUP_OK
