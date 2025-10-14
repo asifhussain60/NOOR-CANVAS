@@ -4,9 +4,12 @@
 
 ---
 
-## 🧪 Playwright Testing Rules
+## 🧪 Automated End-to-End Visual Regression Testing
 
 **When user mentions "Playwright test" or "pwtest":**
+
+Create automated end-to-end visual regression tests using Playwright, Percy, and any other configured libraries to reproduce and fix the issue. Ensure that the application is launched in a separate PowerShell window (not a Terminal window) before executing any headed tests to maintain proper environment isolation and visual consistency.
+
 - Test Location: `PlayWright/tests/`, `Tests/UI/`, or `Workspaces/TEMP/` (temporary)
 - Configuration: `config/testing/playwright.config.cjs`
 - Test Data: Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
@@ -26,8 +29,8 @@
 ### Validation & Quality
 - **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)ion hub for all architectural and configuration references.**
 
-**Version**: 3.0.0  
-**Last Updated**: 2025-10-12  
+**Version**: 3.1.0  
+**Last Updated**: 2025-10-14  
 **Maintained By**: Sync Agent  
 **Auto-Update**: This file is automatically updated by Copilot agents when infrastructure, architecture, or configuration changes occur.
 
@@ -79,10 +82,11 @@
 - **task.prompt.md** - Canonical task executor
   - File auto-loading, checkpoint commits
   - 9-step workflow with validation gates
-  - Automatic Playwright test generation (Step 6.1)
+  - Automatic test generation using Playwright, Percy, and configured libraries (Step 6.1)
   - Functionality registry validation (Step 8.2)
   - **MUST** consult InfrastructureQuickRef.md for database rules
   - **MUST** consult PlaywrightQuickRef.md for test creation
+  - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
 
 - **question.prompt.md** - Application knowledge agent
   - One-stop Q&A solution
@@ -109,10 +113,12 @@
   - Cross-layer validation
   - Reports to sync for fixes
 
-- **test-generation.prompt.md** - Playwright test generator
+- **test-generation.prompt.md** - Automated end-to-end visual regression test generator
+  - Creates tests using Playwright, Percy, and configured libraries
   - Session 212 canonical patterns
   - Multi-browser testing support
   - API-based test approaches
+  - **CRITICAL**: Application must be launched in separate PowerShell window for headed tests
 
 - **analyze-learning.prompt.md** - Self-learning analysis agent
   - Pattern extraction from completed keys
