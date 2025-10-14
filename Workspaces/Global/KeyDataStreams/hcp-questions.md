@@ -12,7 +12,7 @@ Make questions in HostControlPanel Q&A panel clickable to broadcast them as form
 - [x] Broadcast clicked question as formatted asset to SessionCanvas
 - [x] Apply modern styling to question asset display
 - [x] Add trace-level SignalR logging for broadcast/reception
-- [ ] Create Playwright visual regression tests
+- [x] Create Playwright visual regression tests
 
 ## File Mappings
 ### Primary Files
@@ -57,7 +57,17 @@ Make questions in HostControlPanel Q&A panel clickable to broadcast them as form
 See: `Workspaces/Global/WorkLogs/hcp-questions/work-log.md`
 
 ## Tests Created
-- None yet (Playwright tests pending)
+- `Workspaces/TEMP/hcp-questions-clickable-broadcast.spec.ts` - E2E visual regression test
+
+### Test Coverage
+- Question card hover animation CSS verification
+- Click broadcast from HostControlPanel to SessionCanvas
+- Green theme formatting validation
+- Action button removal verification
+- Metadata footer display (author, vote count)
+- SignalR trace logging capture
+- Event propagation stop on buttons
 
 ## Git Commits
 - `b784c9c71ff2f234b5a0d54c5cfe7106910a8d95` - Clickable question implementation
+- `c053a884cde4c6e42f538e48243cb538d20c9cbf` - Playwright E2E visual regression test
