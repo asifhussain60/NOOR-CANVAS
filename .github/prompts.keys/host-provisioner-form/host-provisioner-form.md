@@ -6,9 +6,50 @@
 
 ## Summary
 
-Modern Windows Forms application for generating Host and User tokens for NOOR Canvas sessions. Provides graphical interface with same functionality as CLI Host Provisioner, matching HostLanding.razor design theme.
+Modern Windows Forms application for generating Host and User tokens for NOOR Canvas sessions. Provides graphical interface with same functionality as CLI Host Provisioner, matching HostLanding.razor design theme. Both CLI and WinForms applications now share centralized configuration for consistent environment detection and database targeting.
 
 ## Work Log
+
+### 2025-10-15 - Centralized Configuration (Commit: 0b3129ad3da373d51cb2f8693140add0ed712f03)
+
+**Task:** Centralize environment and configuration settings between CLI and WinForms
+
+**Implementation:**
+1. Created `Tools/HostProvisioner/Shared/HostProvisionerConfig.cs`:
+   - `DetectEnvironment()` - Centralized environment detection logic
+   - `ConfigureServices()` - Centralized DI service configuration
+   - `ExtractDatabaseName()` - Database name extraction
+   - `GetConnectionStringForDisplay()` - Connection string with masked password
+2. Updated CLI `Program.cs`:
+   - Removed duplicate `ConfigureServices()` method
+   - Removed `GetConnectionStringForDisplay()` and `ExtractDatabaseName()` helpers
+   - Now uses `HostProvisionerConfig.DetectEnvironment()` and `HostProvisionerConfig.ConfigureServices()`
+3. Updated WinForms `MainForm.cs`:
+   - Removed duplicate `ConfigureServices()` method
+   - Removed `ExtractDatabaseName()` helper
+   - Now uses `HostProvisionerConfig.DetectEnvironment()` and `HostProvisionerConfig.ConfigureServices()`
+4. Added shared file links to both .csproj files
+5. Created comprehensive README documenting shared configuration
+
+**Environment Detection Priority:**
+1. `ASPNETCORE_ENVIRONMENT` environment variable
+2. `app.config` file (modified by ncdeploy for production)
+3. Default to "Development"
+
+**Configuration Files (Shared by Both Apps):**
+- `appsettings.json` - Base configuration
+- `appsettings.Development.json` - Dev environment (KSESSIONS_DEV)
+- `appsettings.Production.json` - Production environment (KSESSIONS)
+- `app.config` - Environment detection (modified by deployment)
+
+**Benefits:**
+- ✅ Single source of truth for environment detection
+- ✅ Consistent behavior across CLI and WinForms
+- ✅ Easy maintenance - update once, applies to both
+- ✅ ncdeploy compatibility maintained
+- ✅ DRY principle - eliminated duplicate code
+
+**Build Status:** ✅ Clean build
 
 ### 2025-10-15 - Initial Implementation (Commit: 9f0e71cbe14006bcc1fa23405dddd82aecb02931)
 
@@ -56,4 +97,5 @@ Modern Windows Forms application for generating Host and User tokens for NOOR Ca
 - **BOTH** applications maintained (CLI + WinForms)
 - CLI tool: `Tools/HostProvisioner/HostProvisioner/`
 - WinForms: `Tools/HostProvisioner/HostProvisioner.WinForms/`
+- Shared configuration: `Tools/HostProvisioner/Shared/`
 - Shared token generation logic ensures consistency
