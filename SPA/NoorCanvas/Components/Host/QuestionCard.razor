@@ -1,13 +1,14 @@
 @* Question Card Component - Green theme styling from ContextCopilot.txt [DEBUG-WORKITEM:hcp-questions:styling] ;CLEANUP_OK *@
 @* [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Made question card clickable with hover animation for asset broadcasting ;CLEANUP_OK *@
+@* [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Added IsSelected parameter for visual feedback on shared questions ;CLEANUP_OK *@
 @using Microsoft.AspNetCore.Components
 
 <div @onclick="HandleQuestionClick" 
      @onclick:stopPropagation="false"
-     style="background-color:white;padding:1rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;border:2px solid #D1D5DB;border-right:6px solid #006400;cursor:pointer;transition:all 0.2s ease;"
+     style="background-color:@GetBackgroundColor();padding:1rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;border:2px solid #D1D5DB;border-right:6px solid @GetBorderColor();cursor:pointer;transition:all 0.2s ease;"
      @onmouseover="() => isHovered = true"
      @onmouseout="() => isHovered = false"
-     class="@(isHovered ? "question-card-hover" : "")">
+     class="@(isHovered ? "question-card-hover" : "") @(IsSelected ? "question-card-selected" : "")">
     
     @* [DEBUG-WORKITEM:hcp-questions:styling] Upvote badge - conditionally shown if VoteCount > 0 ;CLEANUP_OK *@
     @if (Question.VoteCount > 0)
@@ -65,8 +66,27 @@
     [Parameter] public EventCallback<int> OnMarkAnswered { get; set; }
     [Parameter] public EventCallback<int> OnDelete { get; set; }
     [Parameter] public EventCallback<QuestionDto> OnQuestionClick { get; set; }
+    [Parameter] public bool IsSelected { get; set; }
 
     private bool isHovered = false;
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Get background color based on selection state ;CLEANUP_OK
+    /// </summary>
+    private string GetBackgroundColor()
+    {
+        if (IsSelected) return "#fff7f5"; // Light orange/peach for selected (matches shared-question-card)
+        return "white"; // Default white
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Get border color based on selection state ;CLEANUP_OK
+    /// </summary>
+    private string GetBorderColor()
+    {
+        if (IsSelected) return "#fdba74"; // Orange border for selected (matches shared-question-card)
+        return "#006400"; // Dark green default
+    }
 
     /// <summary>
     /// [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Handle question card click for asset broadcasting ;CLEANUP_OK

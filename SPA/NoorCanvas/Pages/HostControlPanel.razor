@@ -82,6 +82,7 @@
             <HostControlPanelContent Model="@Model" 
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
+                                     SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
@@ -137,6 +138,7 @@
     private Timer? messageTimer;
     private HubConnection? hubConnection;
     private ErrorDisplay? errorDisplay;
+    private Guid? selectedQuestionId; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Track currently selected/shared question ;CLEANUP_OK
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
@@ -1728,11 +1730,16 @@
     /// <summary>
     /// [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Broadcast clicked question with orange theme from ContextCopilot.txt ;CLEANUP_OK
     /// Applies orange/sienna styling matching ContextCopilot.txt design with 2px/4px borders
+    /// [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Sets selectedQuestionId for visual feedback ;CLEANUP_OK
     /// </summary>
     private async Task ShareQuestionAsset(NoorCanvas.ViewModels.QuestionItem question)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:selection-state:TRACE] [{RequestId}] Setting selectedQuestionId={QuestionId} for visual feedback ;CLEANUP_OK", requestId, question.Id);
+        selectedQuestionId = question.Id; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Update selected question for UI feedback ;CLEANUP_OK
+        StateHasChanged(); // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Force UI refresh to show selection ;CLEANUP_OK
         
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW START ════════ ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] QuestionId: {QuestionId}, Text: '{Text}', BroadcastId: {BroadcastId} ;CLEANUP_OK", 
