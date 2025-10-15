@@ -69,6 +69,7 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 - ✅ Clean build (zero errors, zero warnings - mandatory)
 - ✅ Comprehensive completion (cross-layer documentation when "mark complete")
 - ✅ Concise user output (full details in work-log.md)
+- ✅ Iterative approval refinement (up to 3 re-evaluations for evolving requirements)
 
 ---
 
@@ -257,28 +258,152 @@ This ensures rollback capability if the task introduces instability.
 
 ### Step 4: Approval (MANDATORY)
 
-- Present generated plan to user for confirmation
-- **⚠️ Early Warning:** If Step 2.8.7 detected INCOMPLETE data lifecycle:
-  ```
-  ⚠️ WARNING: Incomplete Data Lifecycle Detected
-  
-  Current implementation missing:
-  - [X] Database Persistence (mutations not saved)
-  - [X] SignalR Broadcast (other clients won't see changes)
-  
-  This will result in:
-  - ❌ Changes disappear after page refresh
-  - ❌ Multi-user desync (only one browser updated)
-  
-  Recommendation:
-  1. Add API endpoint: POST /api/questions/{id}/delete
-  2. Add database mutation: DbContext.Questions.Remove()
-  3. Add SignalR broadcast: Clients.All.SendAsync("QuestionDeleted")
-  
-  Proceed with incomplete implementation? (Not recommended)
-  ```
-- Do not proceed until explicit approval given
-- If no approval: Halt and mark as **Pending Approval**
+**Purpose:** Iterative approval gate with re-evaluation support for additional requirements.
+
+**Workflow:**
+
+1. **Present Generated Plan** to user for confirmation (controlled by `verbosity` parameter)
+
+2. **Parse User Response:**
+   - **Explicit Approval** (proceed to Step 5):
+     - Patterns: `"yes"`, `"y"`, `"proceed"`, `"go ahead"`, `"continue"`, `"approved"`, `"ok"` (case-insensitive)
+     - **CRITICAL:** Response must contain ONLY approval keywords, no additional requests
+     - Example: `"Yes"`, `"proceed"`, `"Y"`, `"ok"`
+   
+   - **Additional Requirements** (loop back to Step 3):
+     - Any response containing new instructions, modifications, or clarifications
+     - Examples: `"Also add X"`, `"Change Y to Z"`, `"What about A?"`, `"Make the button blue"`
+     - Agent appends requirements to context and re-plans
+   
+   - **Rejection** (halt execution):
+     - Patterns: `"no"`, `"cancel"`, `"stop"`, `"halt"`
+     - Mark task as **Pending Approval** and exit
+
+3. **Re-Evaluation Loop** (if additional requirements detected):
+   - **Iteration {N}/3:** Append user's additional requirements to Step 2 context
+   - Return to **Step 3:** Re-plan with updated requirements
+   - Present updated plan with change summary:
+     ```
+     📝 Updated Implementation Plan (Iteration {N}/3)
+     
+     Additional Requirements Added:
+     - {requirement 1}
+     - {requirement 2}
+     
+     Updated Plan:
+     {new plan with changes highlighted}
+     
+     Proceed with updated plan? (yes/proceed to continue, or provide more requirements)
+     ```
+   - **Iteration Limit:** After 3 re-evaluations, require explicit `"proceed"` or `"cancel"`
+   - **Loop Termination:** Only proceed to Step 5 on explicit approval without new requirements
+
+4. **⚠️ Early Warning:** If Step 2.8.7 detected INCOMPLETE data lifecycle:
+   ```
+   ⚠️ WARNING: Incomplete Data Lifecycle Detected
+   
+   Current implementation missing:
+   - [X] Database Persistence (mutations not saved)
+   - [X] SignalR Broadcast (other clients won't see changes)
+   
+   This will result in:
+   - ❌ Changes disappear after page refresh
+   - ❌ Multi-user desync (only one browser updated)
+   
+   Recommendation:
+   1. Add API endpoint: POST /api/questions/{id}/delete
+   2. Add database mutation: DbContext.Questions.Remove()
+   3. Add SignalR broadcast: Clients.All.SendAsync("QuestionDeleted")
+   
+   Proceed with incomplete implementation? (Not recommended)
+   ```
+
+5. **Halt Conditions:**
+   - User provides rejection response
+   - Maximum iterations (3) reached without approval
+   - Explicit "Pending Approval" request
+
+**Output (controlled by verbosity):**
+- **Concise:** Plan summary, iteration count (if re-evaluation occurred), approval request
+- **Detailed:** Full plan, change history across iterations, architectural impact analysis
+
+---
+
+**Examples:**
+
+**Scenario 1: Immediate Approval**
+```
+Agent: {presents plan}
+       
+       Proceed with this plan?
+
+User: "Yes, proceed"
+
+Agent: ✅ Approved. Proceeding to Step 5 (Execute)
+```
+
+**Scenario 2: Additional Requirements (Single Iteration)**
+```
+Agent: {presents initial plan}
+       
+       Proceed with this plan?
+
+User: "Also add a confirmation dialog before deletion"
+
+Agent: 📝 Updated Implementation Plan (Iteration 1/3)
+       
+       Additional Requirements Added:
+       - Add confirmation dialog before deletion
+       
+       Updated Plan:
+       1. Add ConfirmDialog component to SessionCanvas.razor
+       2. Wire up deletion flow with confirmation step
+       3. Add confirmation state management
+       ...
+       
+       Proceed with updated plan?
+
+User: "Yes"
+
+Agent: ✅ Approved after 1 iteration. Proceeding to Step 5 (Execute)
+```
+
+**Scenario 3: Multiple Iterations**
+```
+Agent: {presents initial plan}
+
+User: "Change button color to blue"
+
+Agent: 📝 Updated Implementation Plan (Iteration 1/3)
+       {updated plan with blue button}
+       Proceed with updated plan?
+
+User: "Also add a tooltip on hover"
+
+Agent: 📝 Updated Implementation Plan (Iteration 2/3)
+       {updated plan with blue button + tooltip}
+       Proceed with updated plan?
+
+User: "proceed"
+
+Agent: ✅ Approved after 2 iterations. Proceeding to Step 5 (Execute)
+```
+
+**Scenario 4: Max Iterations Reached**
+```
+Agent: {presents plan after 3rd iteration}
+       
+       ⚠️ Maximum re-evaluations reached (3/3).
+       
+       Please respond with:
+       - "proceed" to implement current plan
+       - "cancel" to halt execution
+       - OR start a new /task invocation with refined requirements
+
+User: "proceed"
+
+Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
+```
 
 ---
 
@@ -358,6 +483,7 @@ SUMMARY: {key-name}
 - Debug Logging: {inserted | removed | none}
 - Tests: {passed/failed count}
 - Build: {Clean | Warnings | Errors}
+- Approval Iterations: {N} (if re-evaluation occurred)
 ```
 
 **Detailed:**
@@ -371,6 +497,9 @@ SUMMARY: {key-name}
 - Debug Logging: {details}
 - Tests: {X passed, Y failed with details}
 - Build: {Clean | Warnings | Errors with details}
+- Approval Iterations: {N} (if re-evaluation occurred)
+  - Iteration 1: {additional requirement 1}
+  - Iteration 2: {additional requirement 2}
 ```
 
 ---
@@ -397,6 +526,8 @@ SUMMARY: {key-name}
    - **Changes**: {list}
    - **Files Affected**: {list}
    - **Tests**: {results}
+   - **Approval Iterations**: {N} (if re-evaluation occurred)
+   - **Additional Requirements**: {list of requirements added during iterations}
    - **Commit**: {SHA}
    ```
 4. Output to user (brief acknowledgment only):
@@ -509,9 +640,12 @@ Search all modified source files and remove debug logging markers:
 - **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword)
 - **ALWAYS preserve completion documentation when resuming completed keys**
 - **ALWAYS infer key from recent work** if not explicitly provided
+- **ALWAYS enforce re-evaluation iteration limit** (max 3 iterations at Step 4 approval gate)
+- **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
 - **NEVER implement UI-only mutations** - all CRUD operations MUST have complete data lifecycle (UI → API → DB → Broadcast → UI)
 - **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
 - **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes
+- **NEVER proceed past Step 4 if user response contains additional requirements** - loop back to Step 3 for re-planning
 - Never modify functionality unless explicitly required
 - Always ensure architectural and structural integrity
 - Always pause and request clarification if uncertain
