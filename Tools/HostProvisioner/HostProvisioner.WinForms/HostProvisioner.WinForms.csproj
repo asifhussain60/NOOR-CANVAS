@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\HostProvisionerConfig.cs" Link="Shared\HostProvisionerConfig.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="app.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

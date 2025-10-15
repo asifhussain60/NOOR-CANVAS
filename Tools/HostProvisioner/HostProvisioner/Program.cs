@@ -9,6 +9,7 @@ using NoorCanvas.Data;
 using NoorCanvas.Models.Simplified;
 using NoorCanvas.Models.KSESSIONS;
 using NoorCanvas.Services;
+using HostProvisioner.Shared;
 
 namespace HostProvisioner;
 
@@ -110,8 +111,8 @@ class Program
     private static void ShowEnvironmentBanner()
     {
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-        var connectionString = GetConnectionStringForDisplay();
-        var databaseName = ExtractDatabaseName(connectionString);
+        var connectionString = HostProvisionerConfig.GetConnectionStringForDisplay(environment);
+        var databaseName = HostProvisionerConfig.ExtractDatabaseName(connectionString);
         
         Console.WriteLine();
         Console.WriteLine();
@@ -126,97 +127,14 @@ class Program
 
     private static void ConfigureServices(ServiceCollection services)
     {
-        // STEP 1: Determine environment from multiple sources (priority order)
-        // 1. Environment variable (set by PowerShell script or system)
-        // 2. app.config file (modified by ncdeploy for production)
-        // 3. Default to Development
-        string? environment = null;
-        string? baseUrl = null;
+        // [DEBUG-WORKITEM:host-provisioner-form:config] Use centralized environment detection
+        var (environment, baseUrl) = HostProvisionerConfig.DetectEnvironment("HostProvisioner.dll.config");
         
-        // Try environment variable first
-        environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        // [DEBUG-WORKITEM:host-provisioner-form:config] Use centralized service configuration
+        HostProvisionerConfig.ConfigureServices(services, environment);
         
-        // If not set, try reading from app.config
-        if (string.IsNullOrEmpty(environment))
-        {
-            try
-            {
-                var appConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "HostProvisioner.dll.config");
-                if (File.Exists(appConfigPath))
-                {
-                    var configDoc = System.Xml.Linq.XDocument.Load(appConfigPath);
-                    var envSetting = configDoc.Descendants("add")
-                        .FirstOrDefault(x => x.Attribute("key")?.Value == "ASPNETCORE_ENVIRONMENT");
-                    environment = envSetting?.Attribute("value")?.Value;
-                    Console.WriteLine($"[TRACE] Environment from app.config: {environment}");
-                    
-                    // Read BaseUrl for the environment
-                    var baseUrlKey = $"BaseUrl_{environment}";
-                    var baseUrlSetting = configDoc.Descendants("add")
-                        .FirstOrDefault(x => x.Attribute("key")?.Value == baseUrlKey);
-                    baseUrl = baseUrlSetting?.Attribute("value")?.Value;
-                    Console.WriteLine($"[TRACE] BaseUrl from app.config: {baseUrl}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[TRACE] Could not read app.config: {ex.Message}");
-            }
-        }
-        else
-        {
-            Console.WriteLine($"[TRACE] Environment from environment variable: {environment}");
-        }
-        
-        // Default to Development if still not set
-        environment ??= "Development";
-        
-        // Default BaseUrl if not set from config
-        baseUrl ??= (environment == "Production" ? "https://noorcanvas.servehttp.com" : "https://localhost:9091");
-        
-        // Set the environment variable so appsettings loading works correctly
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
-        
-        // Store BaseUrl in environment for use in DisplayGuidWithPause
-        Environment.SetEnvironmentVariable("NOORCANVAS_BASE_URL", baseUrl);
-        
-        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Environment: {environment} ;CLEANUP_OK");
-        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Base URL: {baseUrl} ;CLEANUP_OK");
-        
-        // Load configuration
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .Build();
-
-        // Add Entity Framework with connection string from NoorCanvas project
-        var connectionString = configuration.GetConnectionString("DefaultConnection") ??
-            "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;";
-
-        // [DEBUG-WORKITEM:deploy:connection-resolution] Log which database is being targeted ;CLEANUP_OK
-        var dbName = connectionString.Contains("KSESSIONS_DEV") ? "KSESSIONS_DEV" : "KSESSIONS";
-        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Target Database: {dbName} ;CLEANUP_OK");
-
-        // Use simplified schema only - use DefaultConnection for all database contexts
-        services.AddDbContext<SimplifiedCanvasDbContext>(options =>
-            options.UseSqlServer(connectionString, sqlOptions =>
-                sqlOptions.CommandTimeout(3600)));
-
-        // Add KSESSIONS Database Context for Session validation (Issue-45)
-        services.AddDbContext<KSessionsDbContext>(options =>
-            options.UseSqlServer(connectionString, sqlOptions =>
-                sqlOptions.CommandTimeout(3600)));
-
-        // Add logging factory for token services
+        // Add Serilog (CLI-specific)
         services.AddLogging(builder => builder.AddSerilog());
-        
-        // Add simplified token service only
-        services.AddScoped<SimplifiedTokenService>();
-
-        // Register configuration
-        services.AddSingleton<IConfiguration>(configuration);
     }
 
     private static async Task RunInteractiveMode(IServiceProvider serviceProvider)
@@ -291,8 +209,8 @@ class Program
         
         // Display environment and database information banner
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-        var connectionString = GetConnectionStringForDisplay();
-        var databaseName = ExtractDatabaseName(connectionString);
+        var connectionString = HostProvisionerConfig.GetConnectionStringForDisplay(environment);
+        var databaseName = HostProvisionerConfig.ExtractDatabaseName(connectionString);
         
         Console.WriteLine();
         Console.WriteLine();
@@ -312,44 +230,6 @@ class Program
         Console.WriteLine();
     }
     
-    private static string GetConnectionStringForDisplay()
-    {
-        try
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true)
-                .Build();
-            
-            return configuration.GetConnectionString("DefaultConnection") ?? 
-                   "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=***;";
-        }
-        catch
-        {
-            return "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=***;";
-        }
-    }
-    
-    private static string ExtractDatabaseName(string connectionString)
-    {
-        try
-        {
-            var parts = connectionString.Split(';');
-            var dbPart = parts.FirstOrDefault(p => p.Trim().StartsWith("Database=", StringComparison.OrdinalIgnoreCase));
-            if (dbPart != null)
-            {
-                return dbPart.Split('=')[1].Trim();
-            }
-        }
-        catch
-        {
-            // Fall through to default
-        }
-        return "KSESSIONS_DEV";
-    }
-
     private static void ShowInteractiveHelp()
     {
         Console.WriteLine();

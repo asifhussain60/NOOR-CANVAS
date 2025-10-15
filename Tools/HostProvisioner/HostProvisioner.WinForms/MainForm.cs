@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Models.Simplified;
 using NoorCanvas.Services;
+using HostProvisioner.Shared;
 
 namespace HostProvisioner.WinForms
 {
@@ -32,9 +33,15 @@ namespace HostProvisioner.WinForms
 
         public MainForm()
         {
-            // [DEBUG-WORKITEM:host-provisioner-form:init] Initialize services
+            // [DEBUG-WORKITEM:host-provisioner-form:config] Initialize services with centralized config
             var services = new ServiceCollection();
-            ConfigureServices(services);
+            
+            // Detect environment using centralized logic
+            var (environment, baseUrl) = HostProvisionerConfig.DetectEnvironment("HostProvisioner.WinForms.dll.config");
+            
+            // Configure services using centralized logic
+            HostProvisionerConfig.ConfigureServices(services, environment);
+            
             _serviceProvider = services.BuildServiceProvider();
 
             InitializeComponent();
@@ -274,78 +281,14 @@ namespace HostProvisioner.WinForms
             this.Tag = new { HostPanel = pnlHost, UserPanel = pnlUser };
         }
 
-        private void ConfigureServices(ServiceCollection services)
-        {
-            // [DEBUG-WORKITEM:host-provisioner-form:config] Service configuration
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-            
-            // Try reading from app.config
-            if (string.IsNullOrEmpty(environment))
-            {
-                try
-                {
-                    var appConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "HostProvisioner.WinForms.dll.config");
-                    if (File.Exists(appConfigPath))
-                    {
-                        var configDoc = System.Xml.Linq.XDocument.Load(appConfigPath);
-                        var envSetting = configDoc.Descendants("add")
-                            .FirstOrDefault(x => x.Attribute("key")?.Value == "ASPNETCORE_ENVIRONMENT");
-                        environment = envSetting?.Attribute("value")?.Value;
-                    }
-                }
-                catch { }
-            }
-            
-            environment ??= "Development";
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
-
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .Build();
-
-            var connectionString = configuration.GetConnectionString("DefaultConnection") ??
-                "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;";
-
-            services.AddDbContext<SimplifiedCanvasDbContext>(options =>
-                options.UseSqlServer(connectionString, sqlOptions =>
-                    sqlOptions.CommandTimeout(3600)));
-
-            services.AddDbContext<KSessionsDbContext>(options =>
-                options.UseSqlServer(connectionString, sqlOptions =>
-                    sqlOptions.CommandTimeout(3600)));
-
-            services.AddLogging();
-            services.AddScoped<SimplifiedTokenService>();
-            services.AddSingleton<IConfiguration>(configuration);
-        }
-
         private void ShowEnvironmentInfo()
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-            var config = _serviceProvider.GetRequiredService<IConfiguration>();
-            var connectionString = config.GetConnectionString("DefaultConnection") ?? "";
-            var dbName = ExtractDatabaseName(connectionString);
+            var connectionString = HostProvisionerConfig.GetConnectionStringForDisplay(environment);
+            var dbName = HostProvisionerConfig.ExtractDatabaseName(connectionString);
 
             lblEnvironment.Text = $"Environment: {environment}";
             lblDatabase.Text = $"Database: {dbName}";
-        }
-
-        private string ExtractDatabaseName(string connectionString)
-        {
-            try
-            {
-                var parts = connectionString.Split(';');
-                var dbPart = parts.FirstOrDefault(p => p.Trim().StartsWith("Database=", StringComparison.OrdinalIgnoreCase));
-                if (dbPart != null)
-                {
-                    return dbPart.Split('=')[1].Trim();
-                }
-            }
-            catch { }
-            return "KSESSIONS_DEV";
         }
 
         private async void BtnGenerate_Click(object? sender, EventArgs e)
