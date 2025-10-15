@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Deploy NoorCanvas application and HostProvisioner to production from master branch.
+    Deploy NoorCanvas application and HostProvisioner (Windows Forms) to production from master branch.
 
 .DESCRIPTION
     This script orchestrates a complete production deployment workflow:
@@ -9,13 +9,13 @@
     3. Builds and publishes NoorCanvas from master in Release mode
     4. Applies web.config transformations (KSESSIONS production database)
     5. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
-    6. Builds and deploys HostProvisioner to D:\Websites\NOOR-CANVAS\HostProvisioner
-    7. Tests HostProvisioner connection to KSESSIONS database
+    6. Builds and deploys HostProvisioner.WinForms to D:\Websites\NOOR-CANVAS\HostProvisioner
+    7. Configures HostProvisioner.WinForms for Production environment
     8. Returns to development branch
     
     Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
     connection strings point to KSESSIONS (production) database.
-    HostProvisioner is automatically configured for Production environment.
+    HostProvisioner.WinForms is automatically configured for Production environment.
 
 .PARAMETER SkipMerge
     Skip the git merge step. Use only if already on master with correct code.
@@ -414,11 +414,12 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
-    # Step 7.5: Deploy HostProvisioner
-    Write-Step "Deploying HostProvisioner..."
+    # Step 7.5: Deploy HostProvisioner (Windows Forms)
+    # [DEBUG-WORKITEM:deploy:hostprovisioner] Deploy WinForms Host Provisioner to production
+    Write-Step "Deploying HostProvisioner (Windows Forms)..."
     
-    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
-    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.csproj"
+    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner.WinForms"
+    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.WinForms.csproj"
     $HostProvisionerPublishPath = "$WorkspaceRoot\Workspaces\hostprovisioner-publish-temp"
     $HostProvisionerDeployPath = "$DeployPath\HostProvisioner"
     
@@ -477,47 +478,36 @@ try {
                 }
             }
             
-            # Also transform HostProvisioner.dll.config if it exists
-            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll.config"
+            # Also transform HostProvisioner.WinForms.dll.config if it exists
+            # [DEBUG-WORKITEM:deploy:hostprovisioner] Transform WinForms config to Production
+            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.WinForms.dll.config"
             if (Test-Path $dllConfigPath) {
-                Write-Info "Transforming HostProvisioner.dll.config to Production environment..."
+                Write-Info "Transforming HostProvisioner.WinForms.dll.config to Production environment..."
                 try {
                     [xml]$dllConfig = Get-Content $dllConfigPath
                     $envSetting = $dllConfig.SelectSingleNode("//appSettings/add[@key='ASPNETCORE_ENVIRONMENT']")
                     if ($envSetting) {
                         $envSetting.SetAttribute("value", "Production")
                         $dllConfig.Save($dllConfigPath)
-                        Write-Success "HostProvisioner.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
+                        Write-Success "HostProvisioner.WinForms.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
                     }
                 } catch {
-                    Write-Warning "Failed to transform HostProvisioner.dll.config: $_"
+                    Write-Warning "Failed to transform HostProvisioner.WinForms.dll.config: $_"
                 }
             }
             
             # Verify HostProvisioner deployment
-            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll"
+            # [DEBUG-WORKITEM:deploy:hostprovisioner] Verify WinForms deployment
+            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.WinForms.dll"
             if (Test-Path $hpDllPath) {
-                Write-Host "  ✓ HostProvisioner.dll" -ForegroundColor Green
+                Write-Host "  ✓ HostProvisioner.WinForms.dll" -ForegroundColor Green
                 
-                # Test database connection
-                Write-Info "Testing HostProvisioner database connection to KSESSIONS..."
-                try {
-                    Push-Location $HostProvisionerDeployPath
-                    $testOutput = & dotnet HostProvisioner.dll test-connection 2>&1
-                    if ($LASTEXITCODE -eq 0) {
-                        Write-Success "HostProvisioner connected to KSESSIONS successfully"
-                        Write-Info $testOutput
-                    } else {
-                        Write-Warning "HostProvisioner connection test failed. Check appsettings.json"
-                        Write-Info $testOutput
-                    }
-                } catch {
-                    Write-Warning "Could not test HostProvisioner connection: $_"
-                } finally {
-                    Pop-Location
-                }
+                # Test database connection (Windows Forms app - skip connection test)
+                # [DEBUG-WORKITEM:deploy:hostprovisioner] WinForms app - no CLI test-connection command
+                Write-Info "HostProvisioner (Windows Forms) deployed successfully"
+                Write-Info "Launch manually: HostProvisioner.WinForms.exe"
             } else {
-                Write-Warning "HostProvisioner.dll not found in deployment"
+                Write-Warning "HostProvisioner.WinForms.dll not found in deployment"
             }
             
             # Clean up temporary publish folder
