@@ -356,6 +356,21 @@ public class SessionHub : Hub
     }
 
     /// <summary>
+    /// [DEBUG-WORKITEM:hcp] Clear canvas content and show default message in participant views ;CLEANUP_OK
+    /// </summary>
+    public async Task ClearCanvas(int sessionId)
+    {
+        var sessionGroupName = $"session_{sessionId}";
+        
+        _logger.LogInformation("[DEBUG-WORKITEM:hcp] Broadcasting ClearCanvas to {Group} - SessionId={SessionId} ;CLEANUP_OK", 
+            sessionGroupName, sessionId);
+        
+        await Clients.Group(sessionGroupName).SendAsync("ClearCanvas");
+        
+        _logger.LogInformation("[DEBUG-WORKITEM:hcp] ✅ ClearCanvas broadcast complete to {Group} ;CLEANUP_OK", sessionGroupName);
+    }
+
+    /// <summary>
     /// ISSUE-1 FIX: Enhanced group join method that syncs existing participants to new connections.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>

@@ -1707,6 +1707,22 @@
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Question found - Text: '{Text}', Asker: {Asker} ;CLEANUP_OK", 
             requestId, questionText?.Substring(0, Math.Min(50, questionText.Length)), originalAskerGuid ?? "NULL");
         
+        // [DEBUG-WORKITEM:hcp] Check if this question is currently shared on canvas ;CLEANUP_OK
+        if (selectedQuestionId.HasValue && selectedQuestionId.Value == questionId)
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp] [{RequestId}] Question is currently shared on canvas - clearing canvas ;CLEANUP_OK", requestId);
+            try
+            {
+                await hubConnection.InvokeAsync("ClearCanvas", SessionId.Value);
+                selectedQuestionId = null; // Clear selection
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp] [{RequestId}] ✅ Canvas cleared successfully ;CLEANUP_OK", requestId);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:hcp] [{RequestId}] ❌ Failed to clear canvas: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            }
+        }
+        
         // Remove from host UI immediately
         Model.Questions.Remove(question);
         await InvokeAsync(StateHasChanged);

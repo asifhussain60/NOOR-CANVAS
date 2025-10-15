@@ -3142,6 +3142,26 @@
                 }
             });
 
+            // [DEBUG-WORKITEM:hcp] Listen for canvas clear events to show default message ;CLEANUP_OK
+            hubConnection.On("ClearCanvas", async () =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp] ClearCanvas event received, clearing SharedAssetContent ;CLEANUP_OK");
+                    
+                    if (Model != null)
+                    {
+                        Model.SharedAssetContent = null;
+                        await InvokeAsync(StateHasChanged);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp] ✅ Canvas cleared - default message will be displayed ;CLEANUP_OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp] ❌ Error processing ClearCanvas event: {Message} ;CLEANUP_OK", ex.Message);
+                }
+            });
+
             // [DEBUG-WORKITEM:canvas-questions:session-status] Listen for session began events to enable Q&A ;CLEANUP_OK
             hubConnection.On<object>("SessionBegan", async (sessionData) =>
             {
