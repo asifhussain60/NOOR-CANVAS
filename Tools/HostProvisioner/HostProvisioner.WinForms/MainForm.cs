@@ -21,6 +21,7 @@ namespace HostProvisioner.WinForms
         private static readonly Color NoorBrown = ColorTranslator.FromHtml("#4B3C2B");
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly string _baseUrl; // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Store base URL for token display ;CLEANUP_OK
         private TextBox txtSessionId = null!;
         private Button btnGenerate = null!;
         private TextBox txtHostToken = null!;
@@ -38,6 +39,7 @@ namespace HostProvisioner.WinForms
             
             // Detect environment using centralized logic
             var (environment, baseUrl) = HostProvisionerConfig.DetectEnvironment("HostProvisioner.WinForms.dll.config");
+            _baseUrl = baseUrl; // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Store for token URL generation ;CLEANUP_OK
             
             // Configure services using centralized logic
             HostProvisionerConfig.ConfigureServices(services, environment);
@@ -199,7 +201,7 @@ namespace HostProvisioner.WinForms
 
             var lblHost = new Label
             {
-                Text = "Host Token",
+                Text = "Host URL", // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Changed label to URL ;CLEANUP_OK
                 Location = new Point(16, 15),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
@@ -211,7 +213,7 @@ namespace HostProvisioner.WinForms
                 Location = new Point(16, 45),
                 Size = new Size(pnlHost.Width - 110, 32),
                 ReadOnly = true,
-                Font = new Font("Consolas", 10F),
+                Font = new Font("Consolas", 9F), // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Smaller font for longer URLs ;CLEANUP_OK
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.FixedSingle
             };
@@ -228,7 +230,7 @@ namespace HostProvisioner.WinForms
                 Cursor = Cursors.Hand
             };
             btnCopyHost.FlatAppearance.BorderSize = 0;
-            btnCopyHost.Click += (s, e) => CopyToClipboard(txtHostToken.Text, "Host token");
+            btnCopyHost.Click += (s, e) => CopyToClipboard(txtHostToken.Text, "Host URL"); // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Updated label ;CLEANUP_OK
             btnCopyHost.MouseEnter += (s, e) => btnCopyHost.BackColor = Color.FromArgb(0, 80, 0);
             btnCopyHost.MouseLeave += (s, e) => btnCopyHost.BackColor = NoorGreen;
 
@@ -250,7 +252,7 @@ namespace HostProvisioner.WinForms
 
             var lblUser = new Label
             {
-                Text = "User Token",
+                Text = "User URL", // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Changed label to URL ;CLEANUP_OK
                 Location = new Point(16, 15),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
@@ -262,7 +264,7 @@ namespace HostProvisioner.WinForms
                 Location = new Point(16, 45),
                 Size = new Size(pnlUser.Width - 110, 32),
                 ReadOnly = true,
-                Font = new Font("Consolas", 10F),
+                Font = new Font("Consolas", 9F), // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Smaller font for longer URLs ;CLEANUP_OK
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.FixedSingle
             };
@@ -279,7 +281,7 @@ namespace HostProvisioner.WinForms
                 Cursor = Cursors.Hand
             };
             btnCopyUser.FlatAppearance.BorderSize = 0;
-            btnCopyUser.Click += (s, e) => CopyToClipboard(txtUserToken.Text, "User token");
+            btnCopyUser.Click += (s, e) => CopyToClipboard(txtUserToken.Text, "User URL"); // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Updated label ;CLEANUP_OK
             btnCopyUser.MouseEnter += (s, e) => btnCopyUser.BackColor = Color.FromArgb(0, 80, 0);
             btnCopyUser.MouseLeave += (s, e) => btnCopyUser.BackColor = NoorGreen;
 
@@ -354,7 +356,8 @@ namespace HostProvisioner.WinForms
             var connectionString = HostProvisionerConfig.GetConnectionStringForDisplay(environment);
             var dbName = HostProvisionerConfig.ExtractDatabaseName(connectionString);
 
-            lblEnvironment.Text = $"Environment: {environment}";
+            // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Display base URL in environment info ;CLEANUP_OK
+            lblEnvironment.Text = $"Environment: {environment} | Base URL: {_baseUrl}";
             lblDatabase.Text = $"Database: {dbName}";
         }
 
@@ -381,8 +384,9 @@ namespace HostProvisioner.WinForms
                 // [DEBUG-WORKITEM:host-provisioner-form:generate] Token generation logic
                 var (hostToken, userToken) = await GenerateTokensAsync(sessionId);
 
-                txtHostToken.Text = hostToken;
-                txtUserToken.Text = userToken;
+                // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Display full URLs with tokens ;CLEANUP_OK
+                txtHostToken.Text = $"{_baseUrl}/host?token={hostToken}";
+                txtUserToken.Text = $"{_baseUrl}/?token={userToken}";
 
                 // Show result panels
                 var panels = (dynamic)this.Tag!;
