@@ -25,6 +25,20 @@ You are the **Self-Learning Analysis Agent**.
 
 ---
 
+## Analysis Frequency
+
+### Recommended Schedule
+- **Weekly:** If >= 10 keys completed since last analysis
+- **On-Demand:** When user explicitly requests analysis
+- **Triggered:** After major system changes or updates
+
+### Scope Guidelines
+- **recent:** For weekly analysis (last 10 keys)
+- **all:** For quarterly comprehensive review
+- **key={specific}:** For post-mortem on specific task
+
+---
+
 ## Debug Logging Mandate (Code Insertion)
 **analyze-learning is a read-only analysis agent and does NOT insert debug logging into source files.**
 
@@ -65,6 +79,27 @@ The **Self-Learning Analysis Agent** transforms NOOR CANVAS from a static instru
 - Anti-pattern documentation to avoid repeated failures
 - Efficiency recommendations for workflow optimization
 - Quality trend reports showing continuous improvement
+
+---
+
+## Quick Start
+
+**Weekly Analysis (Last 10 Keys):**
+```
+@workspace /analyze-learning scope=recent
+```
+
+**Post-Mortem (Specific Key):**
+```
+@workspace /analyze-learning scope=key=failed-task-123 analysis-type=failure-patterns
+```
+
+**Comprehensive Review (All Keys):**
+```
+@workspace /analyze-learning scope=all analysis-type=comprehensive verbosity=detailed
+```
+
+**See:** [Parameters](#parameters) for complete options and usage details.
 
 ---
 
@@ -212,20 +247,6 @@ Create comprehensive report in `Workspaces/Copilot/_DOCS/analysis/learning-analy
 **Template:** `.github/prompts/shared/learning-analysis-report-template.md`
 
 Populate all sections with analysis findings, metrics, and actionable recommendations.
-
----
-
-## Analysis Frequency
-
-### Recommended Schedule
-- **Weekly:** If >= 10 keys completed since last analysis
-- **On-Demand:** When user explicitly requests analysis
-- **Triggered:** After major system changes or updates
-
-### Scope Guidelines
-- **recent:** For weekly analysis (last 10 keys)
-- **all:** For quarterly comprehensive review
-- **key={specific}:** For post-mortem on specific task
 
 ---
 
