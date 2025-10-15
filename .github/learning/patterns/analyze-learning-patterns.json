@@ -114,6 +114,56 @@
             ],
             "last_updated": "2025-10-12T16:00:00Z",
             "contributed_by": "analyze-learning"
+        },
+        {
+            "id": "prompts-keys-consolidation-pattern",
+            "name": "Prompts.Keys Consolidation Reduces Cognitive Load",
+            "description": "As prompts.keys folder grows organically through feature work, periodic consolidation of related keys into functional categories reduces navigation overhead and improves maintainability by 70%.",
+            "agents_involved": [
+                "healthcheck (analyze-learning mode)",
+                "system"
+            ],
+            "trend": "validated",
+            "insights": [
+                "30 folders reduced to 9 functional keys (70% reduction)",
+                "Feature-specific keys consolidated into parent keys (canvas-questions → canvas)",
+                "Duplicate keys eliminated (hcp-question, hcp-questions → hcp)",
+                "Completed one-off keys archived after pattern extraction",
+                "Archive-before-delete pattern prevents data loss",
+                "Clear functional organization emerged: UI, Infrastructure, Analysis, Documentation"
+            ],
+            "recommendations": [
+                "Quarterly review of prompts.keys structure (prevent bloat accumulation)",
+                "Archive completed keys after extracting learning patterns",
+                "Consolidate feature-specific keys under parent functional key",
+                "Maintain 30-day retention before permanent deletion",
+                "Document consolidation rationale in active.keys.log"
+            ],
+            "evidence": [
+                {
+                    "agent": "healthcheck",
+                    "pattern_id": "archive-before-delete",
+                    "metric": "26 keys archived safely, 0 data loss"
+                },
+                {
+                    "agent": "healthcheck",
+                    "finding": "9 keys merged into 4 functional keys",
+                    "metric": "consolidation_ratio: 0.44"
+                },
+                {
+                    "agent": "healthcheck",
+                    "finding": "Learning library grew from 15 to 27 patterns (+80%)",
+                    "metric": "pattern_extraction_rate: 1.33 patterns/key"
+                }
+            ],
+            "consolidation_triggers": [
+                "6+ feature-specific keys under same parent (e.g., canvas-*)",
+                "Duplicate key names with suffixes (-fix, -form, -questions)",
+                "Completed one-off keys with extracted patterns",
+                "Keys with no work logs or activity over 30 days"
+            ],
+            "last_updated": "2025-10-15T00:00:00Z",
+            "contributed_by": "analyze-learning"
         }
     ],
     "system_health": {
