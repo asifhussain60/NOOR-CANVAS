@@ -47,6 +47,7 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 
 # Prompt Optimization Mode (NEW)
 @workspace /healthcheck scope=task notes="holistic analysis and optimization"
+@workspace /healthcheck scope=task.prompt.md notes="Add xyz functionality"
 @workspace /healthcheck scope=refactor.prompt.md verbosity=detailed
 @workspace /healthcheck scope=sync notes="identify competing instructions"
 ```
@@ -123,7 +124,20 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
   - `detailed`: Full audit report with all violations listed
 
 - **notes** *(optional)*  
-  - Context or areas to prioritize in the health audit.  
+  - Context or areas to prioritize in the health audit.
+  - **Standard Healthcheck Mode**: Focuses audit on specific areas or concerns
+  - **Prompt Optimization Mode**: Additional requests evaluated holistically against entire prompt architecture
+  - **Holistic Evaluation**: When provided with prompt scope, notes are analyzed in context of:
+    - Complete prompt workflow and execution steps
+    - All existing parameters and their interactions
+    - Current architectural patterns and conventions
+    - Potential conflicts with existing functionality
+    - Integration requirements across all prompt sections
+  - **Example**: `/healthcheck task.prompt.md notes: Add xyz functionality`
+    - Agent evaluates where xyz fits in task workflow
+    - Identifies potential conflicts with existing steps
+    - Recommends implementation approach aligned with task architecture
+    - Assesses impact on all task parameters and execution flow  
 
 ---
 
@@ -141,6 +155,20 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Validate file exists, abort if not found
 
 #### 2. Holistic Analysis (Read-Only Deep Dive)
+
+**If `notes` parameter provided:**
+- **Evaluate notes in holistic context** of the entire prompt:
+  - Where would this request fit in the existing workflow?
+  - Does it conflict with any existing steps, parameters, or guardrails?
+  - What architectural patterns should it follow?
+  - What's the recommended implementation approach?
+  - What are the cross-functional impacts (e.g., affects Steps 2, 5, and 8)?
+- **Generate contextual recommendations** that consider:
+  - Complete execution flow of the prompt
+  - All parameter interactions and dependencies
+  - Existing conventions and patterns
+  - Potential side effects on other functionality
+  - Integration requirements across all sections
 
 **Analyze for:**
 
@@ -178,6 +206,29 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 **Date:** {ISO-8601 timestamp}
 **Prompt File:** .github/prompts/{prompt-name}.prompt.md
 **Current Size:** {line count} lines
+**Additional Request (notes):** {notes content if provided}
+
+---
+
+## Holistic Evaluation of Additional Request (if notes provided)
+
+**Request:** {notes content}
+
+**Contextual Analysis:**
+- **Workflow Integration:** {Where this fits in existing execution flow}
+- **Architectural Alignment:** {How this aligns with prompt patterns}
+- **Parameter Impact:** {Effects on existing parameters}
+- **Conflict Assessment:** {Potential conflicts with existing functionality}
+- **Implementation Approach:** {Recommended approach within prompt architecture}
+
+**Recommendations:**
+1. **Primary Recommendation:** {Main approach for implementing notes request}
+2. **Alternative Approach:** {Alternative if primary has conflicts}
+3. **Integration Points:** {Specific steps/sections to modify}
+4. **Guardrails to Add:** {New guardrails needed for this functionality}
+5. **Cross-Functional Impacts:** {Effects on other parts of prompt}
+
+**Priority:** {High/Medium/Low based on alignment with existing architecture}
 
 ---
 
@@ -273,7 +324,11 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 ```
 🔍 Prompt Analysis: {prompt-name}
 
-📊 Current Size: {X} lines
+{If notes provided:}
+� Additional Request: {notes summary}
+✅ Holistic Evaluation: Complete (see recommendations below)
+
+�📊 Current Size: {X} lines
 
 ⚠️ Critical Issues Found:
 - {X} competing instructions
@@ -285,6 +340,12 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Estimated reduction: {X}% ({Y} lines)
 - New shared files: {Z}
 - Maintainability improvement: {A}%
+
+{If notes provided:}
+🎯 Holistic Recommendations for Additional Request:
+- Primary: {main recommendation}
+- Integration: {where to add in workflow}
+- Impact: {cross-functional effects}
 
 📋 Full report available in Workspaces/TEMP/{prompt-name}-optimization-analysis.md
 
@@ -497,6 +558,12 @@ Final validation:
 2. **Perform Holistic Analysis:**
    - Execute comprehensive analysis per [Prompt Optimization Mode](#prompt-optimization-mode) workflow
    - Identify competing instructions, bloat, inefficiencies, conflicts
+   - **If notes provided:** Evaluate notes request holistically:
+     - Analyze where request fits in complete prompt workflow
+     - Identify potential conflicts with existing functionality
+     - Determine architectural alignment and best integration approach
+     - Assess cross-functional impacts across all steps/parameters
+     - Generate contextual recommendations aligned with prompt patterns
    - Generate optimization metrics and recommendations
 
 3. **Generate Optimization Report:**
@@ -677,6 +744,16 @@ After completing healthcheck (either mode):
 **Phase**: prompt-optimization
 **Git Commit**: [full-sha-hash]
 **Scope**: prompt/{prompt-name}
+**Additional Request (notes)**: [notes content if provided]
+
+**Holistic Evaluation Results** (if notes provided):
+- Request: [notes content]
+- Workflow Integration: [where it fits in execution flow]
+- Architectural Alignment: [alignment with patterns]
+- Recommended Approach: [primary implementation strategy]
+- Integration Points: [specific steps/sections to modify]
+- Cross-Functional Impacts: [effects on other functionality]
+- Priority: [High/Medium/Low]
 
 **Optimization Results**: [Successful | Partial | Failed]
 
