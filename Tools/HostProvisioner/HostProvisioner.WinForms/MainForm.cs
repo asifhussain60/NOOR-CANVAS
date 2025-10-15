@@ -50,20 +50,32 @@ namespace HostProvisioner.WinForms
 
         private void InitializeComponent()
         {
-            // Form settings
+            // Form settings - Modern card-based design
             this.Text = "NOOR Canvas Host Provisioner";
-            this.Size = new Size(500, 750);
+            this.Size = new Size(550, 800);
             this.BackColor = NoorBeige;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Font = new Font("Segoe UI", 9F);
+            this.Padding = new Padding(30);
+
+            // Main container panel - Card with shadow effect
+            var pnlMain = new Panel
+            {
+                Location = new Point(30, 30),
+                Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 60),
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.None,
+                Padding = new Padding(32)
+            };
+            pnlMain.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlMain, 24, Color.White, NoorGold);
 
             // Logo
             var picLogo = new PictureBox
             {
                 Size = new Size(200, 200),
-                Location = new Point((this.ClientSize.Width - 200) / 2, 20),
+                Location = new Point((pnlMain.Width - 200) / 2, 30),
                 SizeMode = PictureBoxSizeMode.Zoom
             };
 
@@ -85,35 +97,37 @@ namespace HostProvisioner.WinForms
             var lblTitle = new Label
             {
                 Text = "Host Provisioner",
-                Font = new Font("Poppins", 20F, FontStyle.Bold),
+                Font = new Font("Poppins", 24F, FontStyle.Bold),
                 ForeColor = NoorGreen,
                 AutoSize = true,
-                Location = new Point(0, 230),
-                Width = this.ClientSize.Width,
+                Location = new Point(0, 250),
+                Width = pnlMain.Width,
                 TextAlign = ContentAlignment.MiddleCenter
             };
-            lblTitle.Location = new Point((this.ClientSize.Width - lblTitle.PreferredWidth) / 2, 230);
+            lblTitle.Location = new Point((pnlMain.Width - lblTitle.PreferredWidth) / 2, 250);
 
-            // Environment panel
+            // Environment panel - Compact info card
             var pnlEnv = new Panel
             {
-                Location = new Point(40, 280),
-                Size = new Size(this.ClientSize.Width - 80, 60),
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Location = new Point(40, 310),
+                Size = new Size(pnlMain.Width - 80, 70),
+                BackColor = NoorBeige,
+                BorderStyle = BorderStyle.None,
+                Padding = new Padding(16)
             };
+            pnlEnv.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlEnv, 12, NoorBeige, NoorGold);
 
             lblEnvironment = new Label
             {
-                Location = new Point(10, 10),
+                Location = new Point(16, 15),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
                 ForeColor = NoorBrown
             };
 
             lblDatabase = new Label
             {
-                Location = new Point(10, 35),
+                Location = new Point(16, 40),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = NoorBrown
@@ -122,137 +136,152 @@ namespace HostProvisioner.WinForms
             pnlEnv.Controls.Add(lblEnvironment);
             pnlEnv.Controls.Add(lblDatabase);
 
-            // Session ID input panel
+            // Session ID input panel - Modern input card
             var pnlInput = new Panel
             {
-                Location = new Point(40, 360),
-                Size = new Size(this.ClientSize.Width - 80, 120),
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
+                Location = new Point(40, 400),
+                Size = new Size(pnlMain.Width - 80, 150),
+                BackColor = NoorBeige,
+                BorderStyle = BorderStyle.None,
+                Padding = new Padding(20)
             };
+            pnlInput.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlInput, 16, NoorBeige, NoorGold);
 
             var lblSessionId = new Label
             {
                 Text = "Session ID",
-                Location = new Point(10, 15),
+                Location = new Point(20, 20),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = NoorBrown
             };
 
             txtSessionId = new TextBox
             {
-                Location = new Point(10, 45),
-                Size = new Size(pnlInput.Width - 20, 30),
-                Font = new Font("Segoe UI", 12F),
-                TextAlign = HorizontalAlignment.Center
+                Location = new Point(20, 50),
+                Size = new Size(pnlInput.Width - 40, 32),
+                Font = new Font("Segoe UI", 13F),
+                TextAlign = HorizontalAlignment.Center,
+                BorderStyle = BorderStyle.FixedSingle
             };
 
             btnGenerate = new Button
             {
                 Text = "🔐 Generate Tokens",
-                Location = new Point(10, 85),
-                Size = new Size(pnlInput.Width - 20, 40),
+                Location = new Point(20, 95),
+                Size = new Size(pnlInput.Width - 40, 45),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnGenerate.FlatAppearance.BorderSize = 0;
             btnGenerate.Click += BtnGenerate_Click;
+            btnGenerate.MouseEnter += (s, e) => btnGenerate.BackColor = Color.FromArgb(0, 80, 0);
+            btnGenerate.MouseLeave += (s, e) => btnGenerate.BackColor = NoorGreen;
 
             pnlInput.Controls.Add(lblSessionId);
             pnlInput.Controls.Add(txtSessionId);
             pnlInput.Controls.Add(btnGenerate);
 
-            // Host Token panel
+            // Host Token panel - Modern token display
             var pnlHost = new Panel
             {
-                Location = new Point(40, 500),
-                Size = new Size(this.ClientSize.Width - 80, 80),
+                Location = new Point(40, 570),
+                Size = new Size(pnlMain.Width - 80, 90),
                 BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
+                BorderStyle = BorderStyle.None,
+                Padding = new Padding(16),
                 Visible = false
             };
+            pnlHost.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlHost, 12, Color.White, NoorGold);
 
             var lblHost = new Label
             {
                 Text = "Host Token",
-                Location = new Point(10, 10),
+                Location = new Point(16, 15),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 ForeColor = NoorBrown
             };
 
             txtHostToken = new TextBox
             {
-                Location = new Point(10, 35),
-                Size = new Size(pnlHost.Width - 90, 30),
+                Location = new Point(16, 45),
+                Size = new Size(pnlHost.Width - 110, 32),
                 ReadOnly = true,
                 Font = new Font("Consolas", 10F),
-                BackColor = NoorBeige
+                BackColor = NoorBeige,
+                BorderStyle = BorderStyle.FixedSingle
             };
 
             btnCopyHost = new Button
             {
-                Text = "Copy",
-                Location = new Point(pnlHost.Width - 75, 35),
-                Size = new Size(65, 30),
+                Text = "📋 Copy",
+                Location = new Point(pnlHost.Width - 90, 45),
+                Size = new Size(75, 32),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9F),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnCopyHost.FlatAppearance.BorderSize = 0;
             btnCopyHost.Click += (s, e) => CopyToClipboard(txtHostToken.Text, "Host token");
+            btnCopyHost.MouseEnter += (s, e) => btnCopyHost.BackColor = Color.FromArgb(0, 80, 0);
+            btnCopyHost.MouseLeave += (s, e) => btnCopyHost.BackColor = NoorGreen;
 
             pnlHost.Controls.Add(lblHost);
             pnlHost.Controls.Add(txtHostToken);
             pnlHost.Controls.Add(btnCopyHost);
 
-            // User Token panel
+            // User Token panel - Modern token display
             var pnlUser = new Panel
             {
-                Location = new Point(40, 595),
-                Size = new Size(this.ClientSize.Width - 80, 80),
+                Location = new Point(40, 675),
+                Size = new Size(pnlMain.Width - 80, 90),
                 BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
+                BorderStyle = BorderStyle.None,
+                Padding = new Padding(16),
                 Visible = false
             };
+            pnlUser.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlUser, 12, Color.White, NoorGold);
 
             var lblUser = new Label
             {
                 Text = "User Token",
-                Location = new Point(10, 10),
+                Location = new Point(16, 15),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 ForeColor = NoorBrown
             };
 
             txtUserToken = new TextBox
             {
-                Location = new Point(10, 35),
-                Size = new Size(pnlUser.Width - 90, 30),
+                Location = new Point(16, 45),
+                Size = new Size(pnlUser.Width - 110, 32),
                 ReadOnly = true,
                 Font = new Font("Consolas", 10F),
-                BackColor = NoorBeige
+                BackColor = NoorBeige,
+                BorderStyle = BorderStyle.FixedSingle
             };
 
             btnCopyUser = new Button
             {
-                Text = "Copy",
-                Location = new Point(pnlUser.Width - 75, 35),
-                Size = new Size(65, 30),
+                Text = "📋 Copy",
+                Location = new Point(pnlUser.Width - 90, 45),
+                Size = new Size(75, 32),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9F),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnCopyUser.FlatAppearance.BorderSize = 0;
             btnCopyUser.Click += (s, e) => CopyToClipboard(txtUserToken.Text, "User token");
+            btnCopyUser.MouseEnter += (s, e) => btnCopyUser.BackColor = Color.FromArgb(0, 80, 0);
+            btnCopyUser.MouseLeave += (s, e) => btnCopyUser.BackColor = NoorGreen;
 
             pnlUser.Controls.Add(lblUser);
             pnlUser.Controls.Add(txtUserToken);
@@ -261,24 +290,62 @@ namespace HostProvisioner.WinForms
             // Status label
             lblStatus = new Label
             {
-                Location = new Point(40, 690),
-                Size = new Size(this.ClientSize.Width - 80, 30),
-                Font = new Font("Segoe UI", 9F),
+                Location = new Point(40, pnlMain.Height - 40),
+                Size = new Size(pnlMain.Width - 80, 25),
+                Font = new Font("Segoe UI", 9.5F),
                 ForeColor = NoorBrown,
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
-            // Add all controls to form
-            this.Controls.Add(picLogo);
-            this.Controls.Add(lblTitle);
-            this.Controls.Add(pnlEnv);
-            this.Controls.Add(pnlInput);
-            this.Controls.Add(pnlHost);
-            this.Controls.Add(pnlUser);
-            this.Controls.Add(lblStatus);
+            // Add all controls to main panel
+            pnlMain.Controls.Add(picLogo);
+            pnlMain.Controls.Add(lblTitle);
+            pnlMain.Controls.Add(pnlEnv);
+            pnlMain.Controls.Add(pnlInput);
+            pnlMain.Controls.Add(pnlHost);
+            pnlMain.Controls.Add(pnlUser);
+            pnlMain.Controls.Add(lblStatus);
+
+            // Add main panel to form
+            this.Controls.Add(pnlMain);
 
             // Store references to panels for visibility toggling
             this.Tag = new { HostPanel = pnlHost, UserPanel = pnlUser };
+        }
+
+        // [DEBUG-WORKITEM:host-provisioner-form:styling] Custom rounded panel drawing with border
+        private void DrawRoundedPanel(Graphics g, Panel panel, int radius, Color backgroundColor, Color borderColor)
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            
+            using (var path = GetRoundedRectPath(new Rectangle(0, 0, panel.Width - 1, panel.Height - 1), radius))
+            {
+                // Fill background
+                using (var brush = new SolidBrush(backgroundColor))
+                {
+                    g.FillPath(brush, path);
+                }
+                
+                // Draw border
+                using (var pen = new Pen(borderColor, 2))
+                {
+                    g.DrawPath(pen, path);
+                }
+            }
+        }
+
+        private System.Drawing.Drawing2D.GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
+        {
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            int diameter = radius * 2;
+            
+            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
+            path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
+            path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
+            path.CloseFigure();
+            
+            return path;
         }
 
         private void ShowEnvironmentInfo()
