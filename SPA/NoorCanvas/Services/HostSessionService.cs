@@ -59,14 +59,12 @@ namespace NoorCanvas.Services
         /// <returns></returns>
         public string GetBaseUrl()
         {
-            // [DEBUG-WORKITEM:session-opener:http-client] Determine base URL for IIS vs Kestrel ;CLEANUP_OK
             try
             {
                 // Check if running in production (IIS)
                 var environment = _configuration["ASPNETCORE_ENVIRONMENT"];
                 if (environment == "Production")
                 {
-                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:http-client] Using production IIS URL: https://noorcanvas.servehttp.com ;CLEANUP_OK");
                     return "https://noorcanvas.servehttp.com";
                 }
                 
@@ -74,21 +72,20 @@ namespace NoorCanvas.Services
                 var httpsUrl = _configuration["Kestrel:Endpoints:Https:Url"];
                 if (!string.IsNullOrEmpty(httpsUrl))
                 {
-                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:http-client] Using Kestrel URL from config: {Url} ;CLEANUP_OK", httpsUrl);
                     return httpsUrl;
                 }
             }
             catch (Exception ex)
             {
                 // Log configuration errors and use fallback
-                _logger.LogWarning(ex, "[DEBUG-WORKITEM:session-opener:http-client] Configuration error when reading base URL ;CLEANUP_OK");
+                _logger.LogWarning(ex, "Configuration error when reading base URL");
             }
 
             // Use production URL in production, localhost in development
             var fallbackUrl = _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production" 
                 ? "https://noorcanvas.servehttp.com" 
                 : "https://localhost:9091";
-            _logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] Using environment-aware fallback URL: {Url} (Environment: {Env}) ;CLEANUP_OK", 
+            _logger.LogInformation("Using environment-aware fallback URL: {Url} (Environment: {Env})", 
                 fallbackUrl, _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT"));
             return fallbackUrl;
         }
@@ -103,9 +100,6 @@ namespace NoorCanvas.Services
 
             try
             {
-                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Frontend service calling /api/Host/albums - Token: {Token} ;CLEANUP_OK", 
-                    hostToken?.Substring(0, Math.Min(8, hostToken?.Length ?? 0)) ?? "null");
-                
                 var httpClient = CreateHttpClient();
                 var url = "/api/Host/albums";
                 if (!string.IsNullOrEmpty(hostToken))
@@ -113,34 +107,26 @@ namespace NoorCanvas.Services
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
                 
-                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Request URL: {Url} ;CLEANUP_OK", url);
                 var response = await httpClient.GetAsync(url);
-
-                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] API response - Status: {Status}, Success: {Success} ;CLEANUP_OK", 
-                    response.StatusCode, response.IsSuccessStatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums response length: {Length} bytes ;CLEANUP_OK", 
-                        jsonContent?.Length ?? 0);
                     
                     albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent ?? string.Empty, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<NoorCanvas.Controllers.AlbumData>();
-                    
-                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums deserialized - Count: {Count} ;CLEANUP_OK", albums.Count);
                 }
                 else
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums API call failed - Status: {Status} ;CLEANUP_OK", 
+                    _logger.LogWarning("Albums API call failed - Status: {Status}", 
                         response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] Error loading albums - Message: {Message} ;CLEANUP_OK", ex.Message);
+                _logger.LogError(ex, "Error loading albums - Message: {Message}", ex.Message);
             }
 
             return albums;

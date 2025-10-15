@@ -5,7 +5,7 @@ using System.Text;
 namespace NoorCanvas.Services
 {
     /// <summary>
-    /// [DEBUG-WORKITEM:hostcanvas:continue] Safe HTML rendering service inspired by AngularJS $sce.trustAsHtml() ;CLEANUP_OK
+    /// Safe HTML rendering service inspired by AngularJS $sce.trustAsHtml()
     /// Provides secure HTML content rendering for large transcript content to avoid appendChild issues.
     /// Based on the KSESSIONS implementation pattern.
     /// </summary>
@@ -30,11 +30,8 @@ namespace NoorCanvas.Services
             {
                 if (string.IsNullOrEmpty(htmlContent))
                 {
-                    _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:continue] Empty HTML content provided ;CLEANUP_OK");
                     return new MarkupString("<p>No content available.</p>");
                 }
-
-                _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:continue] Processing HTML content - length: {Length} chars ;CLEANUP_OK", htmlContent.Length);
 
                 // Parse HTML using HtmlAgilityPack for safe processing
                 var htmlDoc = new HtmlDocument();
@@ -43,14 +40,12 @@ namespace NoorCanvas.Services
                 // Process the HTML to ensure it's safe for Blazor rendering
                 var processedHtml = ProcessHtmlForBlazorRendering(htmlDoc);
 
-                _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:continue] HTML processed successfully - output length: {Length} chars ;CLEANUP_OK", processedHtml.Length);
-
                 // Return as MarkupString which Blazor can render safely without appendChild issues
                 return new MarkupString(processedHtml);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:continue] Error processing HTML content ;CLEANUP_OK");
+                _logger.LogError(ex, "Error processing HTML content");
                 return new MarkupString($"<div class='error'>Error rendering content: {ex.Message}</div>");
             }
         }

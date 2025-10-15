@@ -239,9 +239,6 @@ window.NoorShareSystem = {
 
     // Show toast notifications
     showToast: function (message, type = 'info') {
-        console.log(`[DEBUG-WORKITEM:toastr:share:TRACE] showToast called - message="${message}", type="${type}" ;CLEANUP_OK`);
-        console.log(`[DEBUG-WORKITEM:toastr:share:TRACE] Toast display DISABLED (per task: remove toasts from screenshots) ;CLEANUP_OK`);
-
         // DISABLED: Toast notifications removed from UI per user request
         // Original code:
         // if (typeof window.showNoorToast === 'function') {
@@ -251,7 +248,6 @@ window.NoorShareSystem = {
 
         // Log to console only (no visual toast)
         console.log(`[NOOR-SHARE] TOAST [${type.toUpperCase()}]: ${message}`);
-        console.log(`[DEBUG-WORKITEM:toastr:share:TRACE] Toast logged to console only (not displayed to user) ;CLEANUP_OK`);
     },
 
     // Show error notification

@@ -1,5 +1,5 @@
 /**
- * [DEBUG-WORKITEM:signalcomm:impl] Advanced HTML Renderer - JavaScript fallback for Blazor DOM parser limitations ;CLEANUP_OK
+ * Advanced HTML Renderer - JavaScript fallback for Blazor DOM parser limitations
  * Provides client-side HTML parsing and rendering when server-side parsing fails
  * This addresses the core issue of Blazor's DOM parser being too strict with CSS
  */
