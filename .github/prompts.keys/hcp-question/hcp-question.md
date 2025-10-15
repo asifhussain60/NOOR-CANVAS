@@ -10,6 +10,40 @@ Apply orange/sienna styling from ContextCopilot.txt to broadcasted question card
 
 ## Work Log
 
+### 2025-10-15T00:00:00Z - Visual Selection State for Shared Questions
+**Commit:** `fe584e197f314c14340e08b95ae8d85d089a155e`
+**Agent:** task
+**Status:** In Progress
+
+**Changes:**
+1. Added visual feedback for selected/shared questions
+   - Question cards change background to light orange (#fff7f5) when clicked
+   - Border color changes to orange (#fdba74) matching shared-question-card theme
+   - Enhanced shadow effect on selected state
+
+2. Component Updates:
+   - QuestionCard.razor: Added `IsSelected` parameter, `GetBackgroundColor()`, `GetBorderColor()` methods
+   - HostControlPanelContent.razor: Added `SelectedQuestionId` parameter, pass to QuestionCard
+   - HostControlPanel.razor: Added `selectedQuestionId` field, update in `ShareQuestionAsset()`
+
+3. CSS Updates:
+   - Added `.question-card-selected` class in session-transcript.css
+   - Selected state matches shared-question-card orange theme
+   - Smooth transitions for selection feedback
+
+**Debug Logging:** Trace level
+- `[DEBUG-WORKITEM:hcp-question:selection-state:TRACE]`
+
+**Files Modified:**
+- `Components/Host/QuestionCard.razor`
+- `Components/Host/HostControlPanelContent.razor`
+- `Pages/HostControlPanel.razor`
+- `wwwroot/css/session-transcript.css`
+
+**Validation:**
+- Build: ✅ Clean (0 errors, 0 warnings)
+- Commit: `fe584e197f314c14340e08b95ae8d85d089a155e`
+
 ### 2025-10-14 - CSS Migration to session-transcript.css
 **Commit:** `1840524e`
 **Agent:** task (canvas-question key)
