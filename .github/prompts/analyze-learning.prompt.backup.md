@@ -91,7 +91,23 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 
 ### 0. Pre-Analysis Cleanup (Recommended)
 
-See: `.github/prompts/shared/pre-analysis-cleanup.md` for cleanup workflow and guidelines.
+**Before analyzing keys, clean up workspace for optimal analysis:**
+
+1. **Run cleanup prompt** to ensure clean workspace:
+   ```
+   @workspace /cleanup target=key-streams consolidate-keys=true
+   ```
+
+2. **Benefits of pre-analysis cleanup**:
+   - **Reduced key count**: Consolidate related keys for clearer pattern analysis
+   - **Better signal-to-noise**: Remove stale/obsolete keys from analysis
+   - **Complete history**: Consolidated keys preserve all git commits and work logs
+   - **Accurate metrics**: Base metrics on active keys, not archived ones
+
+3. **Skip cleanup if**:
+   - Analysis is post-mortem on specific key (`scope=key=X`)
+   - Recent cleanup performed (<7 days ago)
+   - User explicitly requests skip
 
 ---
 
@@ -196,22 +212,80 @@ See: `.github/prompts/shared/pre-analysis-cleanup.md` for cleanup workflow and g
 
 ### 5. Knowledge Update
 
-Follow pattern contribution guidelines in:
-- **Schema:** `Workspaces/Copilot/learning/PATTERN_SCHEMA.md`
-- **Workflow:** `.github/prompts/shared/pattern-library-update-guide.md`
+#### Update Pattern Files
+- Add new patterns to appropriate files:
+  - `Workspaces/Copilot/learning/patterns/task-patterns.json`
+  - `Workspaces/Copilot/learning/patterns/refactor-patterns.json`
+  - `Workspaces/Copilot/learning/patterns/validation-patterns.json`
+  - `Workspaces/Copilot/learning/patterns/integration-patterns.json`
 
-Update pattern files, insights, and recommendations per established protocols.
-**Propose** (do not directly update) SelfAwareness improvements for user review.
+#### Update Insight Files
+- Add component insights to `component-insights.json`
+- Add technology insights to `technology-insights.json`
+- Add performance insights to `performance-insights.json`
+
+#### Update Recommendations
+- Add new recommendations to `active-recommendations.md`
+- Move completed recommendations to `implemented-recommendations.md`
+- Update recommendation priorities based on frequency/impact
+
+#### Propose SelfAwareness Updates
+- Identify failed approaches that should be added to "Memory of Failures"
+- Suggest new guardrails based on recurring issues
+- Recommend baseline debt updates (ESLint, StyleCop)
+- **DO NOT UPDATE** SelfAwareness directly - generate proposal for user review
 
 ---
 
 ### 6. Generate Analysis Report
 
-Create comprehensive report in `Workspaces/Copilot/_DOCS/analysis/learning-analysis-{date}.md` using template:
+Create comprehensive report in `Workspaces/Copilot/_DOCS/analysis/learning-analysis-{date}.md`:
 
-**Template:** `.github/prompts/shared/learning-analysis-report-template.md`
+**Report Structure:**
+```markdown
+# Self-Learning Analysis Report
+**Date:** {date}
+**Scope:** {scope}
+**Keys Analyzed:** {count}
 
-Populate all sections with analysis findings, metrics, and actionable recommendations.
+## Executive Summary
+- Success Rate: X%
+- Average Duration: Xm Ys
+- Top Patterns Identified: N
+- Critical Recommendations: N
+
+## Success Patterns
+[Detailed analysis]
+
+## Failure Patterns
+[Detailed analysis]
+
+## Efficiency Insights
+[Detailed analysis]
+
+## Quality Trends
+[Detailed analysis]
+
+## Component Insights
+[Detailed analysis]
+
+## Technology Insights
+[Detailed analysis]
+
+## Recommendations
+### Critical
+### High Priority
+### Medium Priority
+
+## Proposed SelfAwareness Updates
+[If applicable]
+
+## Pattern Library Updates
+[Summary of pattern additions]
+
+## Next Analysis
+Recommended date: {date + 1 week or +10 keys}
+```
 
 ---
 
@@ -353,7 +427,51 @@ After completing analysis:
 
 **Key Data Stream Path**: `.github/prompts.keys/learning-analysis/work-log.md`
 
-**Entry Format:** See `.github/prompts/shared/key-data-stream-analyze-learning-template.md`
+**Entry Format**:
+```markdown
+---
+## [ISO-8601-Timestamp] - analyze-learning agent
+
+**Status**: complete
+**Phase**: analysis
+**Git Commit**: [full-sha-hash]
+**Scope**: [recent|all|key=X]
+**Analysis Type**: [comprehensive|success-patterns|failure-patterns|efficiency|quality-trends]
+
+**Patterns Extracted**:
+- [X] task-patterns.json: [N new patterns, M updated patterns]
+- [X] refactor-patterns.json: [N new patterns, M updated patterns]
+- [X] validation-patterns.json: [N new patterns, M updated patterns]
+- [X] integration-patterns.json: [N new patterns, M updated patterns]
+- [X] question-patterns.json: [N new patterns, M updated patterns]
+- [X] analyze-learning-patterns.json: [N meta-patterns identified]
+
+**Key Insights**:
+- [Insight 1 from cross-agent analysis]
+- [Insight 2 from trend analysis]
+- [Insight 3 from efficiency review]
+
+**Success Metrics**:
+- Overall success rate: [X%]
+- Most successful pattern: [pattern-id] (usage: N, success: X%)
+- Highest efficiency gain: [pattern-id] ([X]% time reduction)
+
+**Recommendations**:
+- [Recommendation 1 for system improvement]
+- [Recommendation 2 for workflow optimization]
+- [Recommendation 3 for pattern consolidation]
+
+**Files Modified**:
+- `Workspaces/Copilot/learning/task-patterns.json` ([N additions, M updates])
+- `Workspaces/Copilot/learning/refactor-patterns.json` ([N additions, M updates])
+- `Workspaces/Copilot/learning/analyze-learning-patterns.json` ([N meta-patterns])
+
+**Keys Analyzed**: [N total keys, M completed, P failed, Q in-progress]
+
+**Next Analysis**: Scheduled for [date] or after [X] more completed keys
+
+---
+```
 
 4. **Generate Report**: Provide human-readable summary of findings
 5. **Commit Changes**: Commit all pattern file updates with descriptive message
