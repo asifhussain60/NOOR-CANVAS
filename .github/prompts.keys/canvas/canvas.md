@@ -48,9 +48,9 @@ SessionCanvas UI improvements focusing on layout stability and notification func
 ## Work Log
 
 ### 2025-10-15T00:00:00Z - Question Textarea & Submit Button UI Improvements
-**Commit:** `e40a08b9d78e5f30c2711c7c4007fcbafd09a9fb`
+**Commit:** `e40a08b9d78e5f30c2711c7c4007fcbafd09a9fb` → `72625c28530d82d7698e3b7c7700b06642000a57`
 **Agent:** task
-**Status:** In Progress
+**Status:** Complete
 
 **Changes:**
 1. Question textarea expanded to 3 rows with text wrapping
@@ -63,16 +63,23 @@ SessionCanvas UI improvements focusing on layout stability and notification func
    - Changed `.canvas-form-submit-icon` font-size from `1.25rem` to `1rem`
    - Icon now fits better within button layout
 
+3. Submit button height matching textarea (commit: `72625c28`)
+   - Changed `.canvas-form-submit-button` from fixed `height: 3rem` to `height: auto`
+   - Added `align-self: stretch` to match flexbox parent height dynamically
+   - Button now grows/shrinks with textarea height
+   - Content remains centered via existing `align-items: center` and `justify-content: center`
+
 **Debug Logging:** Trace level
 - `[DEBUG-WORKITEM:canvas:textarea-wrap:TRACE]`
 - `[DEBUG-WORKITEM:canvas:submit-icon:TRACE]`
+- `[DEBUG-WORKITEM:canvas:submit-button-height:TRACE]`
 
 **Files Modified:**
 - `Pages/SessionCanvas.razor` (CSS + HTML)
 
 **Validation:**
 - Build: ✅ Clean (0 errors, 0 warnings)
-- Commit: `e40a08b9d78e5f30c2711c7c4007fcbafd09a9fb`
+- Commits: `e40a08b9d78e5f30c2711c7c4007fcbafd09a9fb` (textarea/icon), `72625c28530d82d7698e3b7c7700b06642000a57` (button height)
 
 ### 2025-10-14 | Canvas Panel Height & Toast Notification Fixes
 **Commit**: `d76901ab` (initial) → `017c570d` (corrected)  

@@ -48,13 +48,19 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 - Incremental Work (multi-step tasks with continuous documentation)
 - Task Completion (`tasks: mark complete` for comprehensive cross-layer documentation)
 - Work Resumption (continue previously completed tasks)
+- **Continuous Work** (use "Adding to previous key data stream," to auto-detect and continue recent work)
 
 ### How to Invoke
 ```
 @workspace /task key=hcp tasks="Fix hadees token removal in SessionCanvas"
 @workspace /task key=canvas tasks="Add share button\n---\nCreate Playwright test"
 @workspace /task key=hcp tasks="mark complete"
+
+# Auto-detect previous key (Step 0.5 Protocol)
+@workspace Adding to previous key data stream, fix the submit button styling
 ```
+
+**Note:** When message starts with "Adding to previous key data stream,", the agent automatically detects the most recently modified key from git history and continues work on that key.
 
 ### Expected Outcomes
 - ✅ Incremental documentation (key data stream updated after EVERY sub-task)
@@ -134,6 +140,53 @@ git checkout development
 
 ---
 
+### Step 0.5: Previous Key Data Stream Continuation Protocol (CONDITIONAL)
+
+**Trigger Phrase:** User message starts with `"Adding to previous key data stream,"`
+
+**Purpose:** Seamlessly continue work on the most recently modified key without requiring explicit key parameter.
+
+**Detection & Resolution:**
+1. **Scan recent git commits** for key data stream modifications:
+   ```bash
+   git log --pretty=format:"%H %s" --name-only -10 | grep "prompts.keys"
+   ```
+2. **Identify most recent key:**
+   - Parse file path: `.github/prompts.keys/**/{key}.md`
+   - Extract `{key}` from path
+   - Verify last modification timestamp
+3. **Auto-populate key parameter:**
+   - Set `key = {detected-key}`
+   - Inform user: `"📌 Continuing work on key: {detected-key} (last modified: {timestamp})"`
+
+**Validation:**
+- If NO recent key modifications found → Request explicit key from user
+- If MULTIPLE keys modified in last commit → Use most recent timestamp
+- If ambiguous → Present options to user for selection
+
+**Handover to Task Protocol:**
+- Once key is resolved, proceed to **Step 1: Checkpoint Commit**
+- Continue normal task workflow (Steps 1-9)
+- Update the SAME key data stream that was auto-detected
+
+**Example Flow:**
+```
+User: "Adding to previous key data stream, fix the button alignment issue"
+
+Agent Actions:
+1. Scan git log → Finds `.github/prompts.keys/canvas/canvas.md` modified 2 minutes ago
+2. Extract key: "canvas"
+3. Notify: "📌 Continuing work on key: canvas (last modified: 2025-10-15T00:02:00Z)"
+4. Proceed to Step 1 with key="canvas"
+```
+
+**Guardrails:**
+- **ALWAYS verify detected key with user before proceeding** (brief confirmation)
+- **NEVER assume key if git history is ambiguous** (request clarification)
+- **ALWAYS preserve previous work** (append to existing work log, never overwrite)
+
+---
+
 ### Step 1: Checkpoint Commit (MANDATORY)
 
 Create checkpoint commit for rollback capability:
@@ -160,7 +213,7 @@ This ensures rollback capability if the task introduces instability.
 **Key Sub-Phases Overview:**
 
 **Always Execute:**
-- **2.1:** Key Resolution (infer from history or use provided)
+- **2.1:** Key Resolution (infer from history, use provided parameter, or auto-detected from Step 0.5)
 - **2.2:** Key Data Stream Query (read existing work, prevent duplication)
 - **2.3:** Auto-Load File Mappings (load referenced files into context)
 
