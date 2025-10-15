@@ -108,8 +108,10 @@ try {
     Write-Host "========================================`n" -ForegroundColor Magenta
 
     # Step 0: Git branch management (merge development → master)
+    # [DEBUG-WORKITEM:deploy:merge-feedback:SIMPLE]
     if (-not $SkipMerge) {
         Write-Step "Git: Preparing for deployment merge..."
+        Write-Info "→ Checking current branch and status"
         
         # Change to workspace root for git operations
         Push-Location $WorkspaceRoot
@@ -131,6 +133,7 @@ try {
             }
             
             # Check for uncommitted changes
+            Write-Info "→ Checking for uncommitted changes"
             $gitStatus = git status --porcelain
             if ($gitStatus) {
                 Write-Warning "Uncommitted changes detected:"
@@ -145,14 +148,16 @@ try {
                 } else {
                     Write-Warning "Continuing with deployment despite uncommitted changes (AutoMerge enabled)"
                 }
+            } else {
+                Write-Success "No uncommitted changes"
             }
             
             # Fetch latest changes
-            Write-Info "Fetching latest changes..."
+            Write-Info "→ Fetching latest changes from origin"
             git fetch origin
             
             # Switch to master
-            Write-Info "Switching to master branch..."
+            Write-Info "→ Switching to master branch"
             git checkout master
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch to master branch"
@@ -160,14 +165,14 @@ try {
             Write-Success "On master branch"
             
             # Pull latest master
-            Write-Info "Pulling latest master changes..."
+            Write-Info "→ Pulling latest master changes"
             git pull origin master
             if ($LASTEXITCODE -ne 0) {
                 Write-Warning "Failed to pull master (may not exist remotely). Continuing..."
             }
             
             # Merge development into master
-            Write-Info "Merging development → master..."
+            Write-Info "→ Merging development into master"
             git merge development --no-ff -m "Deploy: Merge development to master ($Timestamp)"
             
             if ($LASTEXITCODE -ne 0) {
@@ -212,8 +217,10 @@ try {
     }
 
     # Step 1: Build the application
+    # [DEBUG-WORKITEM:deploy:build-feedback:SIMPLE]
     if (-not $SkipBuild) {
         Write-Step "Building application in Release mode from master branch..."
+        Write-Info "→ Cleaning previous publish output"
         
         # Clean previous publish output
         if (Test-Path $PublishPath) {
@@ -223,6 +230,7 @@ try {
 
         # Publish the application with Release configuration
         # This triggers web.Release.config transformation
+        Write-Info "→ Publishing with Release configuration and Production transforms"
         $publishArgs = @(
             "publish"
             $ProjectFile
@@ -245,6 +253,7 @@ try {
         Write-Success "Application built and published successfully"
         
         # Verify web.config transformation
+        Write-Info "→ Verifying web.config transformations"
         $webConfigPath = "$PublishPath\web.config"
         if (Test-Path $webConfigPath) {
             $webConfigContent = Get-Content $webConfigPath -Raw
@@ -521,21 +530,28 @@ try {
         Write-Warning "HostProvisioner project not found at $HostProvisionerProjectFile. Skipping HostProvisioner deployment."
     }
 
-    # Step 8: Return to development branch
+    # Step 8: Push master to origin and return to development branch
+    # [DEBUG-WORKITEM:deploy:auto-push:SIMPLE]
     if (-not $SkipMerge) {
-        Write-Step "Git: Returning to development branch..."
+        Write-Step "Git: Pushing master branch to origin..."
         
         Push-Location $WorkspaceRoot
         try {
+            # Push master to origin after successful deployment
+            git push origin master
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Failed to push master to origin. You may need to push manually."
+                Write-Info "Run: git push origin master"
+            } else {
+                Write-Success "Master branch pushed to origin successfully"
+            }
+            
+            Write-Step "Git: Returning to development branch..."
             git checkout development
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch back to development branch"
             }
             Write-Success "Back on development branch"
-            
-            # Optionally push master to remote
-            Write-Host "`nTo push master branch to remote:" -ForegroundColor Cyan
-            Write-Host "  git push origin master" -ForegroundColor Gray
             
         } finally {
             Pop-Location
@@ -569,6 +585,7 @@ try {
     Write-Host ""
 
 } catch {
+    # [DEBUG-WORKITEM:deploy:error-cleanup:SIMPLE]
     Write-Host "`n========================================" -ForegroundColor Red
     Write-Host "  DEPLOYMENT FAILED!" -ForegroundColor Red
     Write-Host "========================================" -ForegroundColor Red
@@ -578,20 +595,33 @@ try {
     
     # Try to restart the app pool if we stopped it
     if (-not $SkipIIS) {
-        Write-Host "`nAttempting to restart application pool..." -ForegroundColor Yellow
+        Write-Host "`n→ Attempting to restart application pool..." -ForegroundColor Yellow
         try {
             Start-WebAppPool -Name $AppPool -ErrorAction SilentlyContinue
+            Write-Success "Application pool restarted"
         } catch {
-            # Ignore errors here
+            Write-Warning "Could not restart app pool: $_"
         }
     }
     
-    # Try to return to original branch
+    # Try to return to original branch (leaving master clean)
     if ($OriginalBranch -and -not $SkipMerge) {
-        Write-Host "Attempting to return to $OriginalBranch branch..." -ForegroundColor Yellow
+        Write-Host "`n→ Returning to $OriginalBranch branch (leaving master clean)..." -ForegroundColor Yellow
         Push-Location $WorkspaceRoot
         try {
             git checkout $OriginalBranch -ErrorAction SilentlyContinue
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Returned to $OriginalBranch branch"
+                Write-Info "Master branch state: Clean (deployment changes not committed)"
+            } else {
+                Write-Warning "Could not return to $OriginalBranch branch automatically"
+            }
+        } catch {
+            Write-Warning "Error switching branches: $_"
+        } finally {
+            Pop-Location
+        }
+    }
         } finally {
             Pop-Location
         }
