@@ -579,11 +579,13 @@
         background-color: #F3F4F6;
     }
 
+    /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Updated submit button to match textarea height and center content ;CLEANUP_OK */
     .canvas-form-submit-button {
         flex: 1;
         min-width: 80px;
         padding: 0.5rem;
-        height: 3rem;
+        height: auto; /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Auto height to match textarea ;CLEANUP_OK */
+        align-self: stretch; /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Stretch to match textarea height ;CLEANUP_OK */
         border-radius: 0.5rem;
         color: white;
         font-weight: 600;
