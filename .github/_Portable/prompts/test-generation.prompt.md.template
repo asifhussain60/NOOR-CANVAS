@@ -1,308 +1,191 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Your project name
-- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, etc.)
-- `{{LANGUAGES}}` - Programming languages
-- `{{FRAMEWORKS}}` - Frameworks/libraries
-- `{{BUILD_COMMAND}}` - Build command (e.g., `{{BUILD_COMMAND}}`, `npm run build`)
-- `{{TEST_COMMAND}}` - Test command (e.g., `{{TEST_COMMAND}}`, `npm test`)
-- `{{SERVER_CLEANUP}}` - Server cleanup command
-- `{{DATABASE_TYPE}}` - Database/ORM type
-
 ---
+
+````prompt
+# test-generation.prompt.md
 
 ---
 mode: agent
-purpose: Generate Playwright end-to-end tests for user-facing functionality
-inputs: feature, scenario, endpoints, tokens
-outputs: TypeScript test file in Tests/UI/ or Workspaces/TEMP/
 ---
 
-# Test Generation Agent
-
 ## Role
-You are the **Test Generation Agent** responsible for creating Playwright end-to-end tests following canonical patterns and proven test data.
+You are the **Test Generation Agent** - responsible for creating comprehensive automated tests.
 
-## Mandatory Prerequisites
+---
 
-### 1. Server Management Protocol
-**CRITICAL**: Before test execution, verify .NET application state:
+## Parameters
 
+### target *(required)*
+File, module, or feature to generate tests for.
+
+### test-type *(optional, default=`all`)*
+Type of tests: `unit`, `integration`, `e2e`, `all`
+
+---
+
+## Purpose
+
+### What
+Generates comprehensive, maintainable automated tests for code.
+
+### When to Use
+- After implementing new features
+- When adding test coverage
+- Retrofitting tests to existing code
+- Test-driven development
+
+### How to Invoke
+```
+@workspace /test target=src/services/UserService.ts
+@workspace /test target=api/controllers/UserController.cs test-type=integration
+@workspace /test target=feature-login test-type=e2e
+```
+
+---
+
+## Test Generation Steps
+
+### Step 1: Code Analysis
+- Read target code
+- Identify public interfaces
+- Find dependencies
+- List edge cases
+- Check existing tests
+
+### Step 2: Test Planning
+- Determine test types needed
+- Plan test scenarios:
+  - Happy path
+  - Error cases
+  - Edge cases
+  - Boundary conditions
+- Identify test data needs
+
+### Step 3: Test Creation
+
+#### Unit Tests
+- Test each function/method in isolation
+- Mock external dependencies
+- Cover all branches
+- Test error handling
+
+#### Integration Tests
+- Test component interactions
+- Use real dependencies where appropriate
+- Test data flow
+- Validate contracts
+
+#### E2E Tests
+- Test complete user workflows
+- Use realistic scenarios
+- Validate end-to-end functionality
+- Check UI interactions (if applicable)
+
+### Step 4: Test Data
+- Create minimal test data
+- Use factories or builders
+- Reference canonical test data
+- Ensure data cleanup
+
+### Step 5: Validation
+- Run new tests
+- Verify all pass
+- Check code coverage
+- Review test quality
+
+---
+
+## Test Structure
+
+### Unit Test Template
 ```typescript
-// Option A: PW_MODE=standalone (PREFERRED)
-// - Playwright manages .NET app lifecycle automatically
-// - Set via: $env:PW_MODE="standalone" (PowerShell)
-// - webServer config handles startup/shutdown
-// - Use this for CI/CD and automated test runs
-
-// Option B: Manual Server Check (for development)
-// - Check if server is already running on port 9091
-// - If running: connect to existing instance
-// - If not running: fail fast with clear error message
-```
-
-**Test Execution Strategy**:
-1. **Check running processes**: `Get-Process | Where-Object {$_.ProcessName -eq "{{PROJECT_NAME}}"}`
-2. **If server running**: Proceed with tests (faster feedback loop)
-3. **If server NOT running**: 
-   - **CI/CD Mode**: Use `PW_MODE=standalone` to auto-start
-   - **Dev Mode**: Instruct user to start server manually OR use standalone mode
-4. **Never**: Start multiple conflicting server instances
-
-### 2. Canonical References (MANDATORY)
-- **`InfrastructureQuickRef.md`**: Database connections, API endpoints, SignalR hubs, Test Session {{SESSION_ID}} tokens
-- **`PlaywrightConfig.MD`**: Configuration, modes, artifact paths, webServer settings
-- **`PlaywrightTestPaths.MD`**: Proven tokens, URLs, API patterns, expected responses
-- **Test Session {{SESSION_ID}}**: Default test session with transcript data
-- **Tokens**: Host=`{{HOST_TOKEN}}`, User=`{{USER_TOKEN}}` ({{USER_NAME}})
-
-### 3. Input Parameters
-Receive from task.prompt.md:
-- `feature`: Name of feature being tested (e.g., "debug-panel-islamic-questions")
-- `scenario`: Specific test scenario (e.g., "random-question-broadcast")
-- `endpoints`: API endpoints involved (e.g., `/api/{{RESOURCE}}/{{ACTION}}`)
-- `tokens`: Override defaults if needed (default: Test Session {{SESSION_ID}} tokens)
-- `multiUser`: Boolean indicating multi-browser test requirement
-
-## Test Generation Rules
-
-### Core Patterns
-1. **Always use Test Session {{SESSION_ID}}** unless explicitly specified otherwise
-2. **Default tokens**: Host=`{{HOST_TOKEN}}`, User=`{{USER_TOKEN}}`
-3. **API-based approach**: Use `/api/participant/session/{token}/me` pattern (eliminates localStorage issues)
-4. **Multi-browser isolation**: Separate browser contexts with different tokens
-5. **Wait strategies**:
-   - Navigation: `page.waitForLoadState('networkidle')`
-   - API calls: Explicit `page.waitForTimeout(3000)` after critical operations
-   - SignalR: Wait for specific broadcast events or UI state changes
-6. **Artifact capture**: `PW_MODE=standalone` enables auto-screenshots/traces on failure
-
-### File Naming Convention
-```
-{feature}-{scenario}.spec.ts
-```
-Examples:
-- `debug-panel-islamic-questions-broadcast.spec.ts`
-- `question-enter-key-submit.spec.ts`
-- `question-multi-user-sync.spec.ts`
-
-### Test Location
-- **Production tests**: `Tests/UI/`
-- **Temporary/experimental tests**: `Workspaces/TEMP/`
-- **Feature-specific tests**: Match location to feature scope
-
-## Template Structure
-
-```typescript
-import { test, expect, Page, Browser } from '@playwright/test';
-
-/**
- * Test Suite: {Feature Name}
- * Scenario: {Scenario Description}
- * 
- * Prerequisites:
- * - Test Session {{SESSION_ID}} must exist in database
- * - Server running on {{BASE_URL}}
- * - Mode: PW_MODE=standalone (auto-start) or manual server
- * 
- * References:
- * - PlaywrightTestPaths.MD: Test Session {{SESSION_ID}} tokens
- * - PlaywrightConfig.MD: Test configuration
- */
-
-test.describe('{Feature Name}', () => {
-    test.beforeAll(async () => {
-        // Server readiness check (optional in standalone mode)
-        // In standalone mode, webServer handles this automatically
+describe('[Component]', () => {
+  describe('[Method/Function]', () => {
+    it('should [expected behavior]', () => {
+      // Arrange
+      const input = ...;
+      
+      // Act
+      const result = functionUnderTest(input);
+      
+      // Assert
+      expect(result).toBe(expected);
     });
-
-    test('{Scenario Description}', async ({ browser }) => {
-        // Step 1: Setup - Create browser contexts
-        const userContext = await browser.newContext();
-        const userPage = await userContext.newPage();
-        
-        // Optional: Multi-user scenario
-        // const hostContext = await browser.newContext();
-        // const hostPage = await hostContext.newPage();
-
-        try {
-            // Step 2: Navigate using canonical URLs from PlaywrightTestPaths.MD
-            await userPage.goto('{{BASE_URL}}/session/canvas/{{USER_TOKEN}}');
-            await userPage.waitForLoadState('networkidle');
-            
-            // Step 3: Wait for API-based participant loading
-            await userPage.waitForTimeout(3000);
-            
-            // Step 4: Verify initial UI state
-            await expect(userPage.locator('.session-canvas-root').first())
-                .toBeVisible({ timeout: 10000 });
-            
-            // Step 5: Perform test actions
-            // ... test-specific logic ...
-            
-            // Step 6: Assert expected outcomes
-            // ... assertions ...
-            
-            // Step 7: Verify API responses match PlaywrightTestPaths.MD patterns
-            // ... API validation ...
-            
-        } finally {
-            // Cleanup
-            await userContext.close();
-            // await hostContext.close();
-        }
+    
+    it('should handle [error case]', () => {
+      // Test error handling
     });
-});
-```
-
-## Server Management Examples
-
-### Example 1: Standalone Mode (Recommended)
-```powershell
-# Set mode before test execution
-$env:PW_MODE="standalone"
-
-# Run tests (Playwright handles server lifecycle)
-npx playwright test debug-panel-islamic-questions-broadcast.spec.ts --headed
-```
-
-### Example 2: Manual Server Check
-```typescript
-test.beforeAll(async () => {
-    // Verify server is accessible
-    const response = await fetch('{{BASE_URL}}/api/health');
-    if (!response.ok) {
-        throw new Error('Server not running. Start with: dotnet run (in SPA/{{PROJECT_NAME}})');
-    }
-});
-```
-
-### Example 3: PowerShell Server Check (in test instructions)
-```markdown
-## Prerequisites
-Before running tests, ensure server is running:
-
-```powershell
-# Option 1: Check if running
-Get-Process | Where-Object {$_.ProcessName -eq "{{PROJECT_NAME}}"}
-
-# Option 2: Start server manually
-cd "D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}"
-dotnet run
-
-# Option 3: Use standalone mode (auto-start)
-$env:PW_MODE="standalone"
-npx playwright test
-```
-```
-
-## Multi-Browser Test Pattern
-
-```typescript
-test('Multi-user question synchronization', async ({ browser }) => {
-    // Create separate contexts for isolation
-    const participantContext = await browser.newContext();
-    const participantPage = await participantContext.newPage();
     
-    const hostContext = await browser.newContext();
-    const hostPage = await hostContext.newPage();
+    it('should validate [edge case]', () => {
+      // Test edge case
+    });
+  });
+});
+```
+
+### Integration Test Template
+```typescript
+describe('[Integration: ComponentA + ComponentB]', () => {
+  it('should [integrated behavior]', async () => {
+    // Setup
+    const serviceA = new ServiceA();
+    const serviceB = new ServiceB(serviceA);
     
-    try {
-        // Navigate both users
-        await participantPage.goto('{{BASE_URL}}/session/canvas/{{USER_TOKEN}}');
-        await hostPage.goto('{{BASE_URL}}/host/control-panel/{{HOST_TOKEN}}');
-        
-        await Promise.all([
-            participantPage.waitForLoadState('networkidle'),
-            hostPage.waitForLoadState('networkidle')
-        ]);
-        
-        // Wait for API loading
-        await participantPage.waitForTimeout(3000);
-        await hostPage.waitForTimeout(3000);
-        
-        // Participant submits question
-        await participantPage.fill('.canvas-form-textarea', 'Test question');
-        await participantPage.click('.canvas-form-submit-button');
-        
-        // Wait for SignalR broadcast
-        await hostPage.waitForTimeout(2000);
-        
-        // Verify host sees the question
-        await expect(hostPage.locator('.question-item'))
-            .toContainText('Test question');
-            
-    } finally {
-        await participantContext.close();
-        await hostContext.close();
-    }
+    // Execute
+    const result = await serviceB.performAction();
+    
+    // Verify
+    expect(result).toMatchObject(expected);
+  });
 });
 ```
 
-## API Validation Pattern
-
+### E2E Test Template
 ```typescript
-// Verify API responses match PlaywrightTestPaths.MD expected data
-const response = await page.request.get(
-    '{{BASE_URL}}/api/participant/session/{{USER_TOKEN}}/me'
-);
-
-expect(response.status()).toBe(200);
-
-const data = await response.json();
-expect(data.name).toBe("{{USER_NAME}}");
-expect(data.userGuid).toBe("b59e3dca-9330-40f5-9de8-9a5350fd2d6a");
-```
-
-## Console Error Monitoring
-
-```typescript
-const consoleErrors: string[] = [];
-
-page.on('console', msg => {
-    if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-    }
+test('[User workflow]', async ({ page }) => {
+  // Navigate
+  await page.goto('/path');
+  
+  // Interact
+  await page.fill('[input]', 'value');
+  await page.click('[button]');
+  
+  // Verify
+  await expect(page.locator('[result]')).toBeVisible();
 });
-
-// After test actions
-const criticalErrors = consoleErrors.filter(err => 
-    err.includes('NotifyQuestionDeleted') ||
-    err.includes('appendChild') ||
-    err.includes('SignalR')
-);
-
-expect(criticalErrors).toHaveLength(0);
 ```
 
-## Output Format
+---
 
-Generate complete TypeScript test file with:
-1. **File header**: Feature description, prerequisites, references
-2. **Imports**: Playwright test framework
-3. **Test suite**: Descriptive test.describe block
-4. **Server check**: beforeAll hook with readiness verification
-5. **Test cases**: One or more test() blocks with clear step comments
-6. **Cleanup**: Proper context/page closure in finally blocks
-7. **Documentation**: Inline comments explaining critical waits and assertions
+## Best Practices
 
-## Success Criteria
+1. **Test Behavior, Not Implementation**: Focus on what, not how
+2. **One Assertion Per Test**: Keep tests focused
+3. **Descriptive Names**: Test names should describe expected behavior
+4. **Independent Tests**: Each test should run independently
+5. **Fast Tests**: Keep unit tests fast
+6. **Realistic E2E**: E2E tests should match real user behavior
 
-- ✅ Uses canonical Test Session {{SESSION_ID}} data from PlaywrightTestPaths.MD
-- ✅ Includes server readiness check (standalone mode aware)
-- ✅ Follows proven API-based participant loading pattern
-- ✅ Implements proper wait strategies (networkidle + explicit timeouts)
-- ✅ Tests multi-browser scenarios when applicable
-- ✅ Monitors console for critical errors
-- ✅ Validates API responses against expected data
-- ✅ Includes cleanup in finally blocks
-- ✅ File saved to appropriate location (Tests/UI/ or Workspaces/TEMP/)
+---
 
-## Workflow Integration
+## Quality Checklist
 
-**Invoked by**: task.prompt.md when test generation is required
-**Returns to**: task.prompt.md with test file path for key-data-stream documentation
-**Artifacts**: TypeScript test file, execution instructions, server management guidance
+- [ ] All public methods/functions tested
+- [ ] Error cases covered
+- [ ] Edge cases handled
+- [ ] Tests are independent
+- [ ] Tests are repeatable
+- [ ] Test names are descriptive
+- [ ] Code coverage improved
+- [ ] All tests pass
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial test generation agent from portable template
+
+````

@@ -1,0 +1,43 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. This is a project-specific service documentation template. Only populate if your project has similar HTML processing services.
+
+---
+
+# HTML Service Responsibilities
+
+## Purpose
+[This file documents HTML processing services if applicable to your project. Delete if not needed.]
+
+---
+
+## Service Overview
+
+### [Service Name]
+**Purpose**: [Service purpose]
+
+**Responsibilities**:
+- [Responsibility 1]
+- [Responsibility 2]
+
+**Key Methods**:
+- `Method1()` - [Description]
+- `Method2()` - [Description]
+
+---
+
+## Usage Patterns
+
+[Document how HTML services are used in your project]
+
+---
+
+## Best Practices
+
+[Document best practices for HTML processing]
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Template created (delete if service not applicable)

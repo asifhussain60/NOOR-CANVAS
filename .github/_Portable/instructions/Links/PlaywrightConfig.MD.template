@@ -1,0 +1,115 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{TEST_FRAMEWORK}}` - Testing framework
+- `{{TEST_PATH}}` - Test files path
+
+---
+
+# {{TEST_FRAMEWORK}} Configuration
+
+## Purpose
+Configuration and best practices for {{TEST_FRAMEWORK}} testing in {{PROJECT_NAME}}.
+
+---
+
+## Configuration
+
+### Config File Location
+- **Main Config**: `config/testing/[test-config-file]`
+- **Test Files**: `{{TEST_PATH}}/`
+
+### Test Execution
+```bash
+{{TEST_COMMAND}}
+```
+
+---
+
+## Test Structure
+
+### Test Organization
+```
+{{TEST_PATH}}/
+├── unit/              # Unit tests
+├── integration/       # Integration tests
+└── e2e/              # End-to-end tests
+```
+
+### Naming Conventions
+- Test files: `[feature].spec.ts` or `[feature].test.ts`
+- Test descriptions: Clear, descriptive names
+- Test data: Use canonical test data from InfrastructureQuickRef.md
+
+---
+
+## Test Patterns
+
+### Unit Tests
+```typescript
+// Example unit test pattern
+describe('ExampleFeature', () => {
+  it('should perform expected behavior', () => {
+    // Test implementation
+  });
+});
+```
+
+### Integration Tests
+```typescript
+// Example integration test pattern
+describe('ExampleIntegration', () => {
+  it('should integrate with external service', async () => {
+    // Test implementation
+  });
+});
+```
+
+### E2E Tests
+```typescript
+// Example E2E test pattern
+test('should complete user workflow', async () => {
+  // Test implementation
+});
+```
+
+---
+
+## Best Practices
+
+1. **Use Canonical Test Data**: Reference test data from InfrastructureQuickRef.md
+2. **Isolate Tests**: Each test should be independent
+3. **Clean Up**: Ensure proper cleanup after tests
+4. **Descriptive Names**: Use clear, descriptive test names
+5. **Test One Thing**: Each test should validate one specific behavior
+
+---
+
+## Debugging Tests
+
+### Debug Mode
+[Document how to run tests in debug mode]
+
+### Common Issues
+[Document common test failures and solutions]
+
+---
+
+## CI/CD Integration
+
+### Automated Testing
+[Document how tests run in CI/CD pipeline]
+
+### Test Reports
+[Document where test reports are generated]
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial test configuration
+  - Configured {{TEST_FRAMEWORK}}
+  - Established test structure
+  - Documented test patterns

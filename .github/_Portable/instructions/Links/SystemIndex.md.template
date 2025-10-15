@@ -1,0 +1,201 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:** None - This file is generic documentation of the learning and prompt system structure.
+
+---
+
+# System Index
+
+## Purpose
+Central navigation hub for all AI agent documentation, learning infrastructure, and system snapshots.
+
+**Last Updated:** [Generated during setup]  
+**Project:** {{PROJECT_NAME}}
+
+---
+
+## Quick Navigation
+
+### Core Instructions
+- **[SelfAwareness.instructions.md](../SelfAwareness.instructions.md)** - Global operating guardrails for all agents
+- **[Architecture.md](Architecture.md)** - Detailed system architecture and design
+- **[InfrastructureQuickRef.md](InfrastructureQuickRef.md)** - Infrastructure reference (database, API, configuration)
+
+### Agent Prompts
+Located in `.github/prompts/`:
+- **task.prompt.md** - Task execution agent
+- **refactor.prompt.md** - Code refactoring agent
+- **sync.prompt.md** - Documentation synchronization agent
+- **healthcheck.prompt.md** - System health validation agent
+- **question.prompt.md** - Q&A and clarification agent
+- **test-generation.prompt.md** - Test generation agent
+- **analyze-learning.prompt.md** - Learning analysis agent
+- **cohesion-review.prompt.md** - Code quality review agent
+
+### Shared Documentation
+Located in `.github/prompts/shared/`:
+- Commit message formats
+- Debug logging mandates
+- Workflow templates
+- Testing protocols
+- UI debugging procedures
+
+### Learning Infrastructure
+Located in `.github/learning/`:
+- **README.md** - Learning system overview
+- **PATTERN_SCHEMA.md** - Pattern documentation schema
+- **patterns/** - Learned patterns by agent type
+- **insights/** - Project-specific insights
+- **recommendations/** - Active and implemented recommendations
+
+---
+
+## Agent Overview
+
+### Task Agent (`/workitem`)
+**Purpose**: Execute feature implementations, bug fixes, and code changes
+**Key Features**:
+- Phase-based processing with `---` delimiter
+- Automatic test generation per phase
+- Debug logging integration
+- Checkpoint and rollback support
+
+### Refactor Agent (`/refactor`)
+**Purpose**: Code quality improvements and architectural refactoring
+**Key Features**:
+- Safe refactoring with automatic backup
+- Analyzer integration
+- Test preservation
+- Documentation updates
+
+### Sync Agent (`/sync`)
+**Purpose**: Keep documentation synchronized with code
+**Key Features**:
+- Architecture.md updates
+- API contract validation
+- System snapshot maintenance
+- Cross-reference verification
+
+### Healthcheck Agent (`/healthcheck`)
+**Purpose**: Validate system health and configuration
+**Key Features**:
+- Database connectivity validation
+- API endpoint verification
+- Configuration validation
+- Dependency health checks
+
+### Question Agent (`/question`)
+**Purpose**: Answer questions and provide clarification
+**Key Features**:
+- Context-aware responses
+- Documentation reference
+- Code example generation
+- Architecture explanation
+
+### Test Generation Agent (`/test`)
+**Purpose**: Generate comprehensive test suites
+**Key Features**:
+- Unit test generation
+- Integration test creation
+- E2E test scenarios
+- Test framework integration
+
+### Learning Analysis Agent (`/analyze-learning`)
+**Purpose**: Analyze agent performance and extract patterns
+**Key Features**:
+- Pattern extraction from work logs
+- Success/failure analysis
+- Recommendation generation
+- Learning library updates
+
+### Cohesion Review Agent (`/cohesion-review`)
+**Purpose**: Review code quality and architectural cohesion
+**Key Features**:
+- Code quality metrics
+- Architecture alignment
+- Best practice validation
+- Improvement recommendations
+
+---
+
+## File Organization
+
+### Root Structure
+```
+.github/
+├── instructions/          # Core instruction files
+│   ├── SelfAwareness.instructions.md
+│   └── Links/            # Reference documentation
+├── prompts/              # Agent prompt definitions
+│   └── shared/          # Shared documentation
+├── learning/            # Learning infrastructure
+│   ├── patterns/       # Learned patterns
+│   ├── insights/       # Project insights
+│   └── recommendations/ # Recommendations
+└── reports/            # Agent execution reports
+
+Workspaces/
+├── Copilot/           # Agent workspace
+│   ├── _DOCS/        # Documentation artifacts
+│   ├── prompts.keys/ # Work item tracking
+│   └── learning/     # Learning data
+├── CodeQuality/      # Code analysis
+└── TEMP/            # Temporary files
+```
+
+---
+
+## Configuration Files
+
+### Testing
+- `config/testing/` - Centralized test configuration
+  - Test framework config
+  - Linting configuration
+  - Formatting rules
+
+### Project
+- `{{CONFIG_PATH}}/` - Project configuration
+  - Application settings
+  - Connection strings
+  - Environment-specific config
+
+---
+
+## Database Schema
+
+### Primary Database: {{DATABASE_NAME}}
+- **Writable Schema**: {{SCHEMA_PRIMARY}}
+- **Read-Only Schemas**: {{SCHEMA_READONLY}}
+
+For detailed schema documentation, see [InfrastructureQuickRef.md](InfrastructureQuickRef.md)
+
+---
+
+## API Endpoints
+
+**Base URL**: {{API_BASE_URL}}
+
+For complete API documentation, see [Architecture.md](Architecture.md)
+
+---
+
+## Update Protocol
+
+This file should be updated when:
+- New agents are added
+- Documentation structure changes
+- Major architectural changes occur
+- New learning patterns are established
+
+**Responsibility**: Sync agent maintains this file automatically.
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial creation from portable template
+  - Customized for {{PROJECT_NAME}}
+  - {{PROJECT_TYPE}} project structure
+  - [List initial configuration details]

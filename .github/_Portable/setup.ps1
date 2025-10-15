@@ -1,467 +1,569 @@
-#!/usr/bin/env pwsh
-<#
-.SYNOPSIS
-    Automated setup for Portable AI Agent System
+# Portable AI Agent System Setup Script
+# PowerShell Version (Cross-platform)
 
-.DESCRIPTION
-    This script automatically configures the AI agent orchestration system for any project.
-    It detects your project type, installs required tools, creates workspace structure,
-    and configures all agent prompts and instructions with your project-specific details.
-
-.PARAMETER ProjectRoot
-    Root directory of your project (defaults to parent of _Portable folder)
-
-.PARAMETER SkipToolInstall
-    Skip automatic tool installation (Roslynator, Playwright, etc.)
-
-.PARAMETER DryRun
-    Show what would be done without making changes
-
-.EXAMPLE
-    .\setup.ps1
-    # Full automatic setup
-
-.EXAMPLE
-    .\setup.ps1 -SkipToolInstall
-    # Setup without installing tools
-
-.EXAMPLE
-    .\setup.ps1 -DryRun
-    # Preview changes without applying them
-
-.NOTES
-    Author: Portable AI Agent System
-    Version: 2.0.0
-    Date: October 12, 2025
-#>
-
-[CmdletBinding()]
 param(
-    [string]$ProjectRoot,
-    [switch]$SkipToolInstall,
-    [switch]$DryRun
+    [string]$ProjectName = "",
+    [switch]$AutoDetect = $true,
+    [switch]$DryRun = $false
 )
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
+# Color output functions
+function Write-Success { Write-Host $args -ForegroundColor Green }
+function Write-Info { Write-Host $args -ForegroundColor Cyan }
+function Write-Warning { Write-Host $args -ForegroundColor Yellow }
+function Write-Error { Write-Host $args -ForegroundColor Red }
 
-$ErrorActionPreference = "Stop"
-$PortableRoot = $PSScriptRoot
+# Clear screen and show banner
+Clear-Host
+Write-Info "========================================"
+Write-Info " Portable AI Agent System Setup"
+Write-Info "========================================"
+Write-Host ""
 
-if (-not $ProjectRoot) {
-    # Assume _Portable is in .github folder
-    $ProjectRoot = Split-Path (Split-Path $PortableRoot -Parent) -Parent
+# Detect project root (parent of .github\_Portable)
+$scriptPath = $PSScriptRoot
+$portableDir = $scriptPath
+$githubDir = Split-Path $portableDir -Parent
+$projectRoot = Split-Path $githubDir -Parent
+
+Write-Info "Project Root: $projectRoot"
+Write-Info "Portable Templates: $portableDir"
+Write-Host ""
+
+#region Project Type Detection
+
+function Detect-ProjectType {
+    Write-Info "🔍 Detecting project type..."
+    
+    $projectTypes = @()
+    
+    # .NET Detection
+    if ((Get-ChildItem -Path $projectRoot -Filter "*.sln" -ErrorAction SilentlyContinue) -or
+        (Get-ChildItem -Path $projectRoot -Filter "*.csproj" -Recurse -ErrorAction SilentlyContinue)) {
+        $projectTypes += ".NET"
+    }
+    
+    # Node.js Detection
+    if (Test-Path (Join-Path $projectRoot "package.json")) {
+        $projectTypes += "Node.js"
+    }
+    
+    # Python Detection
+    if ((Test-Path (Join-Path $projectRoot "requirements.txt")) -or
+        (Test-Path (Join-Path $projectRoot "setup.py")) -or
+        (Test-Path (Join-Path $projectRoot "pyproject.toml"))) {
+        $projectTypes += "Python"
+    }
+    
+    # Java Detection
+    if ((Test-Path (Join-Path $projectRoot "pom.xml")) -or
+        (Test-Path (Join-Path $projectRoot "build.gradle"))) {
+        $projectTypes += "Java"
+    }
+    
+    # Ruby Detection
+    if (Test-Path (Join-Path $projectRoot "Gemfile")) {
+        $projectTypes += "Ruby"
+    }
+    
+    # Go Detection
+    if (Test-Path (Join-Path $projectRoot "go.mod")) {
+        $projectTypes += "Go"
+    }
+    
+    # PHP Detection
+    if (Test-Path (Join-Path $projectRoot "composer.json")) {
+        $projectTypes += "PHP"
+    }
+    
+    if ($projectTypes.Count -eq 0) {
+        $projectTypes += "Other"
+    }
+    
+    Write-Success "✅ Detected: $($projectTypes -join ', ')"
+    return $projectTypes
 }
 
-Write-Host ""
-Write-Host "============================================" -ForegroundColor Cyan
-Write-Host " Portable AI Agent System - Automated Setup" -ForegroundColor Cyan
-Write-Host "============================================" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "[INFO] Project Root: $ProjectRoot" -ForegroundColor Green
-Write-Host "[INFO] Portable Root: $PortableRoot" -ForegroundColor Green
-Write-Host ""
+#endregion
 
-if ($DryRun) {
-    Write-Host "[DRY RUN MODE] No changes will be made" -ForegroundColor Yellow
+#region Interactive Configuration
+
+function Get-ProjectConfig {
+    param([string[]]$DetectedTypes)
+    
+    Write-Info ""
+    Write-Info "📝 Project Configuration"
+    Write-Info "========================"
     Write-Host ""
-}
-
-# ============================================================================
-# PHASE 1: PROJECT DETECTION
-# ============================================================================
-
-Write-Host "Phase 1: Detecting Project Type..." -ForegroundColor Cyan
-
-$ProjectInfo = @{
-    Name = Split-Path $ProjectRoot -Leaf
-    Type = "Unknown"
-    Languages = @()
-    Frameworks = @()
-    BuildCommand = ""
-    TestCommand = ""
-    ServerCleanup = ""
-    HasGit = Test-Path (Join-Path $ProjectRoot ".git")
-    DatabaseType = "None"
-    DatabaseName = ""
-    ApiEndpoints = @()
-}
-
-# Detect .NET
-if (Test-Path (Join-Path $ProjectRoot "*.sln")) {
-    $ProjectInfo.Type = ".NET"
-    $ProjectInfo.Languages += "C#"
-    $ProjectInfo.BuildCommand = "dotnet build"
-    $ProjectInfo.TestCommand = "dotnet test"
-    $ProjectInfo.ServerCleanup = "Get-Process -Name dotnet -ErrorAction SilentlyContinue | Stop-Process -Force"
     
-    # Detect framework
-    $csproj = Get-ChildItem -Path $ProjectRoot -Filter "*.csproj" -Recurse | Select-Object -First 1
-    if ($csproj) {
-        $content = Get-Content $csproj.FullName -Raw
-        if ($content -match '<Project Sdk="Microsoft.NET.Sdk.Web">') {
-            $ProjectInfo.Frameworks += "ASP.NET Core"
+    $config = @{}
+    
+    # Project Name
+    if ([string]::IsNullOrWhiteSpace($ProjectName)) {
+        $defaultName = (Get-Item $projectRoot).Name
+        $config.PROJECT_NAME = Read-Host "Project Name [$defaultName]"
+        if ([string]::IsNullOrWhiteSpace($config.PROJECT_NAME)) {
+            $config.PROJECT_NAME = $defaultName
         }
-        if ($content -match 'Microsoft\.AspNetCore\.Components\.WebAssembly') {
-            $ProjectInfo.Frameworks += "Blazor WebAssembly"
-        }
-        if ($content -match 'Microsoft\.EntityFrameworkCore') {
-            $ProjectInfo.DatabaseType = "Entity Framework Core"
-        }
-    }
-}
-
-# Detect Node.js
-if (Test-Path (Join-Path $ProjectRoot "package.json")) {
-    if ($ProjectInfo.Type -eq "Unknown") { $ProjectInfo.Type = "Node.js" }
-    $ProjectInfo.Languages += "JavaScript/TypeScript"
-    
-    $packageJson = Get-Content (Join-Path $ProjectRoot "package.json") -Raw | ConvertFrom-Json
-    
-    # Detect framework
-    if ($packageJson.dependencies.PSObject.Properties.Name -contains "react") {
-        $ProjectInfo.Frameworks += "React"
-    }
-    if ($packageJson.dependencies.PSObject.Properties.Name -contains "vue") {
-        $ProjectInfo.Frameworks += "Vue"
-    }
-    if ($packageJson.dependencies.PSObject.Properties.Name -contains "@angular/core") {
-        $ProjectInfo.Frameworks += "Angular"
-    }
-    if ($packageJson.dependencies.PSObject.Properties.Name -contains "next") {
-        $ProjectInfo.Frameworks += "Next.js"
+    } else {
+        $config.PROJECT_NAME = $ProjectName
     }
     
-    # Build/test commands
-    if ($packageJson.scripts.build) {
-        $ProjectInfo.BuildCommand = "npm run build"
-    }
-    if ($packageJson.scripts.test) {
-        $ProjectInfo.TestCommand = "npm test"
-    }
-    $ProjectInfo.ServerCleanup = "Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force"
-}
-
-# Detect Python
-if ((Get-ChildItem -Path $ProjectRoot -Filter "*.py" -Recurse -Depth 2 -ErrorAction SilentlyContinue).Count -gt 0) {
-    if ($ProjectInfo.Type -eq "Unknown") { $ProjectInfo.Type = "Python" }
-    $ProjectInfo.Languages += "Python"
-    
-    if (Test-Path (Join-Path $ProjectRoot "manage.py")) {
-        $ProjectInfo.Frameworks += "Django"
-        $ProjectInfo.BuildCommand = "python manage.py migrate"
-        $ProjectInfo.TestCommand = "python manage.py test"
-    }
-    elseif (Test-Path (Join-Path $ProjectRoot "app.py")) {
-        $ProjectInfo.Frameworks += "Flask"
-        $ProjectInfo.TestCommand = "pytest"
-    }
-    $ProjectInfo.ServerCleanup = "Get-Process -Name python -ErrorAction SilentlyContinue | Stop-Process -Force"
-}
-
-Write-Host "  [✓] Project Type: $($ProjectInfo.Type)" -ForegroundColor Green
-Write-Host "  [✓] Languages: $($ProjectInfo.Languages -join ', ')" -ForegroundColor Green
-Write-Host "  [✓] Frameworks: $($ProjectInfo.Frameworks -join ', ')" -ForegroundColor Green
-Write-Host ""
-
-# ============================================================================
-# PHASE 2: WORKSPACE STRUCTURE CREATION
-# ============================================================================
-
-Write-Host "Phase 2: Creating Workspace Structure..." -ForegroundColor Cyan
-
-$WorkspaceDirs = @(
-    ".github/prompts/shared",
-    ".github/instructions/Links",
-    "Workspaces/Copilot/_DOCS/summaries",
-    "Workspaces/Copilot/_DOCS/analysis",
-    "Workspaces/Copilot/_DOCS/configs",
-    "Workspaces/Copilot/artifacts",
-    "Workspaces/Copilot/config",
-    "Workspaces/Copilot/prompts.keys",
-    "Workspaces/Copilot/learning",
-    "Workspaces/CodeQuality/Analyzer/Config",
-    "Workspaces/CodeQuality/Analyzer/Reports",
-    "Workspaces/CodeQuality/Analyzer/Logs",
-    "Workspaces/TEMP"
-)
-
-foreach ($dir in $WorkspaceDirs) {
-    $fullPath = Join-Path $ProjectRoot $dir
-    if (-not (Test-Path $fullPath)) {
-        if (-not $DryRun) {
-            New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
-        }
-        Write-Host "  [✓] Created: $dir" -ForegroundColor Green
-    }
-    else {
-        Write-Host "  [→] Exists: $dir" -ForegroundColor Gray
-    }
-}
-
-Write-Host ""
-
-# ============================================================================
-# PHASE 3: TEMPLATE PROCESSING
-# ============================================================================
-
-Write-Host "Phase 3: Processing Templates..." -ForegroundColor Cyan
-
-# First, ensure templates exist by running conversion if needed
-$templateCount = (Get-ChildItem -Path (Join-Path $PortableRoot "prompts") -Filter "*.template" -ErrorAction SilentlyContinue).Count
-if ($templateCount -eq 0) {
-    Write-Host "  [→] Templates not found, running conversion..." -ForegroundColor Yellow
-    $conversionScript = Join-Path $PortableRoot "convert-to-templates.ps1"
-    if (Test-Path $conversionScript) {
-        & $conversionScript
-    }
-    else {
-        Write-Host "  [ERROR] Conversion script not found!" -ForegroundColor Red
-        Write-Host "  Expected: $conversionScript" -ForegroundColor Red
-        exit 1
-    }
-}
-else {
-    Write-Host "  [→] Found $templateCount template files" -ForegroundColor Green
-}
-
-# Template replacement function
-function Expand-Template {
-    param(
-        [string]$Content,
-        [hashtable]$Variables
-    )
-    
-    $result = $Content
-    foreach ($key in $Variables.Keys) {
-        $result = $result -replace "\{\{$key\}\}", $Variables[$key]
-    }
-    return $result
-}
-
-# Define replacement variables
-$TemplateVars = @{
-    "PROJECT_NAME" = $ProjectInfo.Name
-    "PROJECT_TYPE" = $ProjectInfo.Type
-    "LANGUAGES" = ($ProjectInfo.Languages -join ", ")
-    "FRAMEWORKS" = ($ProjectInfo.Frameworks -join ", ")
-    "BUILD_COMMAND" = $ProjectInfo.BuildCommand
-    "TEST_COMMAND" = $ProjectInfo.TestCommand
-    "SERVER_CLEANUP" = $ProjectInfo.ServerCleanup
-    "DATABASE_TYPE" = $ProjectInfo.DatabaseType
-    "HAS_GIT" = if ($ProjectInfo.HasGit) { "Yes" } else { "No" }
-}
-
-# Process template files
-$templateFiles = Get-ChildItem -Path $PortableRoot -Filter "*.template" -Recurse
-
-foreach ($template in $templateFiles) {
-    $content = Get-Content $template.FullName -Raw
-    $expandedContent = Expand-Template -Content $content -Variables $TemplateVars
-    
-    # Determine destination path
-    $relativePath = $template.FullName.Substring($PortableRoot.Length + 1)
-    $destinationPath = $relativePath -replace "\.template$", ""
-    $destinationPath = $destinationPath -replace "^prompts\\", ".github\prompts\"
-    $destinationPath = $destinationPath -replace "^instructions\\", ".github\instructions\"
-    $fullDestPath = Join-Path $ProjectRoot $destinationPath
-    
-    if (-not $DryRun) {
-        $destDir = Split-Path $fullDestPath -Parent
-        if (-not (Test-Path $destDir)) {
-            New-Item -ItemType Directory -Path $destDir -Force | Out-Null
-        }
-        Set-Content -Path $fullDestPath -Value $expandedContent -Encoding UTF8
+    # Project Type
+    Write-Host ""
+    Write-Host "Detected project types: $($DetectedTypes -join ', ')"
+    $config.PROJECT_TYPE = Read-Host "Primary project type [$($DetectedTypes[0])]"
+    if ([string]::IsNullOrWhiteSpace($config.PROJECT_TYPE)) {
+        $config.PROJECT_TYPE = $DetectedTypes[0]
     }
     
-    Write-Host "  [✓] Generated: $destinationPath" -ForegroundColor Green
-}
-
-# Copy shared files (no templating needed)
-$sharedFiles = Get-ChildItem -Path (Join-Path $PortableRoot "prompts\shared") -File
-foreach ($file in $sharedFiles) {
-    $destPath = Join-Path $ProjectRoot ".github\prompts\shared\$($file.Name)"
-    if (-not $DryRun) {
-        Copy-Item -Path $file.FullName -Destination $destPath -Force
-    }
-    Write-Host "  [✓] Copied: .github/prompts/shared/$($file.Name)" -ForegroundColor Green
-}
-
-Write-Host ""
-
-# ============================================================================
-# PHASE 4: TOOL INSTALLATION (Optional)
-# ============================================================================
-
-if (-not $SkipToolInstall) {
-    Write-Host "Phase 4: Installing Development Tools..." -ForegroundColor Cyan
-    
-    # Install based on project type
-    switch ($ProjectInfo.Type) {
+    # Language and Framework Detection
+    switch ($config.PROJECT_TYPE) {
         ".NET" {
-            Write-Host "  [→] Installing Roslynator..." -ForegroundColor Yellow
-            if (-not $DryRun) {
-                dotnet tool install -g Roslynator.DotNet.Cli 2>&1 | Out-Null
+            $config.LANGUAGES = "C#"
+            $config.FRAMEWORKS = Read-Host "Frameworks (e.g., ASP.NET Core, Blazor) [ASP.NET Core]"
+            if ([string]::IsNullOrWhiteSpace($config.FRAMEWORKS)) {
+                $config.FRAMEWORKS = "ASP.NET Core"
             }
-            Write-Host "  [✓] Roslynator installed" -ForegroundColor Green
+            $config.BUILD_COMMAND = "dotnet build"
+            $config.TEST_COMMAND = "dotnet test"
+            $config.RUN_COMMAND = "dotnet run"
+            $config.LINT_COMMAND = "dotnet format --verify-no-changes"
+            $config.ANALYZER_TOOLS = "Roslynator, StyleCop"
+            $config.TEST_FRAMEWORK = "xUnit, Playwright"
+            $config.PACKAGE_MANAGER = "NuGet"
         }
         "Node.js" {
-            Write-Host "  [→] Installing Playwright..." -ForegroundColor Yellow
-            if (-not $DryRun) {
-                npm install -D @playwright/test 2>&1 | Out-Null
-                npx playwright install 2>&1 | Out-Null
+            $config.LANGUAGES = "JavaScript, TypeScript"
+            $config.FRAMEWORKS = Read-Host "Frameworks (e.g., Express, React, Vue) [Express]"
+            if ([string]::IsNullOrWhiteSpace($config.FRAMEWORKS)) {
+                $config.FRAMEWORKS = "Express"
             }
-            Write-Host "  [✓] Playwright installed" -ForegroundColor Green
+            $config.BUILD_COMMAND = "npm run build"
+            $config.TEST_COMMAND = "npm test"
+            $config.RUN_COMMAND = "npm start"
+            $config.LINT_COMMAND = "npm run lint"
+            $config.ANALYZER_TOOLS = "ESLint, Prettier"
+            $config.TEST_FRAMEWORK = "Jest, Playwright"
+            $config.PACKAGE_MANAGER = "npm"
+        }
+        "Python" {
+            $config.LANGUAGES = "Python"
+            $config.FRAMEWORKS = Read-Host "Frameworks (e.g., Django, Flask, FastAPI) [Flask]"
+            if ([string]::IsNullOrWhiteSpace($config.FRAMEWORKS)) {
+                $config.FRAMEWORKS = "Flask"
+            }
+            $config.BUILD_COMMAND = "python -m build"
+            $config.TEST_COMMAND = "pytest"
+            $config.RUN_COMMAND = "python app.py"
+            $config.LINT_COMMAND = "flake8"
+            $config.ANALYZER_TOOLS = "flake8, pylint, black"
+            $config.TEST_FRAMEWORK = "pytest"
+            $config.PACKAGE_MANAGER = "pip"
+        }
+        "Java" {
+            $config.LANGUAGES = "Java"
+            $config.FRAMEWORKS = Read-Host "Frameworks (e.g., Spring Boot, Jakarta EE) [Spring Boot]"
+            if ([string]::IsNullOrWhiteSpace($config.FRAMEWORKS)) {
+                $config.FRAMEWORKS = "Spring Boot"
+            }
+            $config.BUILD_COMMAND = "mvn clean install"
+            $config.TEST_COMMAND = "mvn test"
+            $config.RUN_COMMAND = "mvn spring-boot:run"
+            $config.LINT_COMMAND = "mvn checkstyle:check"
+            $config.ANALYZER_TOOLS = "Checkstyle, SpotBugs"
+            $config.TEST_FRAMEWORK = "JUnit, Selenium"
+            $config.PACKAGE_MANAGER = "Maven"
+        }
+        default {
+            $config.LANGUAGES = Read-Host "Programming Languages"
+            $config.FRAMEWORKS = Read-Host "Frameworks/Libraries"
+            $config.BUILD_COMMAND = Read-Host "Build Command"
+            $config.TEST_COMMAND = Read-Host "Test Command"
+            $config.RUN_COMMAND = Read-Host "Run Command"
+            $config.LINT_COMMAND = Read-Host "Lint Command"
+            $config.ANALYZER_TOOLS = Read-Host "Analysis Tools"
+            $config.TEST_FRAMEWORK = Read-Host "Testing Framework"
+            $config.PACKAGE_MANAGER = Read-Host "Package Manager"
         }
     }
     
+    # Database Configuration
     Write-Host ""
-}
-else {
-    Write-Host "Phase 4: Skipping Tool Installation (--SkipToolInstall)" -ForegroundColor Yellow
+    Write-Info "Database Configuration"
+    $config.DATABASE_NAME = Read-Host "Primary Database Name"
+    $config.DATABASE_SERVER = Read-Host "Database Server"
+    $config.DATABASE_TYPE = Read-Host "Database Type (e.g., SQL Server, PostgreSQL, MongoDB)"
+    $config.SCHEMA_PRIMARY = Read-Host "Primary Writable Schema [dbo]"
+    if ([string]::IsNullOrWhiteSpace($config.SCHEMA_PRIMARY)) {
+        $config.SCHEMA_PRIMARY = "dbo"
+    }
+    $config.SCHEMA_READONLY = Read-Host "Read-Only Schemas (comma-separated)"
+    $config.CONNECTION_STRING_KEY = Read-Host "Connection String Key [DefaultConnection]"
+    if ([string]::IsNullOrWhiteSpace($config.CONNECTION_STRING_KEY)) {
+        $config.CONNECTION_STRING_KEY = "DefaultConnection"
+    }
+    
+    # Infrastructure Configuration
     Write-Host ""
+    Write-Info "Infrastructure Configuration"
+    $config.API_BASE_URL = Read-Host "API Base URL (e.g., https://localhost:5001/api)"
+    $config.APP_PORT = Read-Host "Application Port [5000]"
+    if ([string]::IsNullOrWhiteSpace($config.APP_PORT)) {
+        $config.APP_PORT = "5000"
+    }
+    
+    # Real-time Technology
+    $config.REALTIME_TECH = Read-Host "Real-time Technology (SignalR, Socket.IO, WebSockets, None) [None]"
+    if ([string]::IsNullOrWhiteSpace($config.REALTIME_TECH)) {
+        $config.REALTIME_TECH = "None"
+    }
+    
+    # UI Framework
+    $config.UI_FRAMEWORK = Read-Host "UI Framework (Blazor, React, Vue, Angular, None) [None]"
+    if ([string]::IsNullOrWhiteSpace($config.UI_FRAMEWORK)) {
+        $config.UI_FRAMEWORK = "None"
+    }
+    
+    # Branch Strategy
+    Write-Host ""
+    Write-Info "Branch Strategy"
+    $config.PRODUCTION_BRANCH = Read-Host "Production Branch Name [master]"
+    if ([string]::IsNullOrWhiteSpace($config.PRODUCTION_BRANCH)) {
+        $config.PRODUCTION_BRANCH = "master"
+    }
+    $config.DEVELOPMENT_BRANCH = Read-Host "Development Branch Name [development]"
+    if ([string]::IsNullOrWhiteSpace($config.DEVELOPMENT_BRANCH)) {
+        $config.DEVELOPMENT_BRANCH = "development"
+    }
+    
+    # Paths
+    $config.SOURCE_PATH = Read-Host "Source Code Path (relative to project root)"
+    $config.TEST_PATH = Read-Host "Test Files Path (relative to project root)"
+    $config.CONFIG_PATH = Read-Host "Configuration Files Path (relative to project root)"
+    
+    # Additional Settings
+    $config.API_COUNT = Read-Host "Initial API Endpoint Count [0]"
+    if ([string]::IsNullOrWhiteSpace($config.API_COUNT)) {
+        $config.API_COUNT = "0"
+    }
+    $config.SERVICE_COUNT = Read-Host "Initial Service Count [0]"
+    if ([string]::IsNullOrWhiteSpace($config.SERVICE_COUNT)) {
+        $config.SERVICE_COUNT = "0"
+    }
+    
+    # Scripts
+    $config.LAUNCH_SCRIPT = Read-Host "Launch Script (relative path)"
+    $config.BUILD_LAUNCH_SCRIPT = Read-Host "Build+Launch Script (relative path)"
+    $config.DEPLOYMENT_SCRIPT = Read-Host "Deployment Script (relative path)"
+    
+    return $config
 }
 
-# ============================================================================
-# PHASE 5: GENERATE PROJECT SUMMARY
-# ============================================================================
+#endregion
 
-Write-Host "Phase 5: Generating Project Summary..." -ForegroundColor Cyan
+#region Template Processing
 
-$summaryContent = @"
+function Process-Templates {
+    param($Config)
+    
+    Write-Info ""
+    Write-Info "🔨 Processing Templates..."
+    Write-Info "=========================="
+    Write-Host ""
+    
+    $filesProcessed = 0
+    
+    # Get all template files
+    $templateFiles = Get-ChildItem -Path $portableDir -Filter "*.template" -Recurse
+    
+    foreach ($template in $templateFiles) {
+        $relativePath = $template.FullName.Substring($portableDir.Length + 1)
+        $outputPath = $template.FullName -replace '\.template$', ''
+        $outputPath = $outputPath -replace '\\\_Portable\\', '\\'
+        
+        # Read template content
+        $content = Get-Content -Path $template.FullName -Raw
+        
+        # Replace all template variables
+        foreach ($key in $Config.Keys) {
+            $content = $content -replace "\{\{$key\}\}", $Config[$key]
+        }
+        
+        # Determine output location (move from _Portable to .github)
+        $targetPath = $outputPath -replace [regex]::Escape($portableDir), $githubDir
+        $targetDir = Split-Path $targetPath -Parent
+        
+        # Create target directory if needed
+        if (!(Test-Path $targetDir)) {
+            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        }
+        
+        if (!$DryRun) {
+            # Write processed file
+            Set-Content -Path $targetPath -Value $content -NoNewline
+        }
+        
+        Write-Success "✅ $relativePath -> $(Split-Path $targetPath -Leaf)"
+        $filesProcessed++
+    }
+    
+    Write-Host ""
+    Write-Success "Processed $filesProcessed template files"
+}
+
+#endregion
+
+#region Folder Structure Creation
+
+function Create-WorkspaceFolders {
+    Write-Info ""
+    Write-Info "📁 Creating Workspace Structure..."
+    Write-Info "=================================="
+    Write-Host ""
+    
+    $folders = @(
+        "Workspaces\Copilot\_DOCS\summaries",
+        "Workspaces\Copilot\_DOCS\analysis",
+        "Workspaces\Copilot\_DOCS\configs",
+        "Workspaces\Copilot\_DOCS\migrations",
+        "Workspaces\Copilot\artifacts",
+        "Workspaces\Copilot\config",
+        "Workspaces\Copilot\prompts.keys",
+        "Workspaces\Copilot\learning",
+        "Workspaces\CodeQuality\Analysis\Config",
+        "Workspaces\CodeQuality\Analysis\Reports",
+        "Workspaces\CodeQuality\Analysis\Logs",
+        "Workspaces\Documentation",
+        "Workspaces\TEMP"
+    )
+    
+    foreach ($folder in $folders) {
+        $fullPath = Join-Path $projectRoot $folder
+        if (!(Test-Path $fullPath)) {
+            if (!$DryRun) {
+                New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
+            }
+            Write-Success "✅ Created: $folder"
+        } else {
+            Write-Info "   Exists: $folder"
+        }
+    }
+}
+
+#endregion
+
+#region Summary Generation
+
+function Generate-SetupSummary {
+    param($Config)
+    
+    Write-Info ""
+    Write-Info "📄 Generating Setup Summary..."
+    Write-Info "=============================="
+    Write-Host ""
+    
+    $summary = @"
 # Project Setup Summary
 
-**Generated**: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")  
-**Project**: $($ProjectInfo.Name)  
-**Type**: $($ProjectInfo.Type)  
-**Portable AI Agent System**: v2.0.0
+**Date**: $(Get-Date -Format "yyyy-MM-DD HH:mm:ss")
+**Project**: $($Config.PROJECT_NAME)
+**Type**: $($Config.PROJECT_TYPE)
 
 ---
 
-## Project Configuration
+## Configuration
 
-### Detected Information
-- **Languages**: $($ProjectInfo.Languages -join ', ')
-- **Frameworks**: $($ProjectInfo.Frameworks -join ', ')
-- **Database**: $($ProjectInfo.DatabaseType)
-- **Git Repository**: $($ProjectInfo.HasGit)
+### Project Identity
+- **Name**: $($Config.PROJECT_NAME)
+- **Type**: $($Config.PROJECT_TYPE)
+- **Languages**: $($Config.LANGUAGES)
+- **Frameworks**: $($Config.FRAMEWORKS)
 
-### Build & Test Commands
-- **Build**: ``$($ProjectInfo.BuildCommand)``
-- **Test**: ``$($ProjectInfo.TestCommand)``
-- **Server Cleanup**: ``$($ProjectInfo.ServerCleanup)``
+### Build & Test
+- **Build Command**: ``$($Config.BUILD_COMMAND)``
+- **Test Command**: ``$($Config.TEST_COMMAND)``
+- **Run Command**: ``$($Config.RUN_COMMAND)``
+- **Lint Command**: ``$($Config.LINT_COMMAND)``
 
----
+### Database
+- **Primary Database**: $($Config.DATABASE_NAME)
+- **Server**: $($Config.DATABASE_SERVER)
+- **Type**: $($Config.DATABASE_TYPE)
+- **Writable Schema**: $($Config.SCHEMA_PRIMARY)
+- **Read-Only Schemas**: $($Config.SCHEMA_READONLY)
+- **Connection Key**: $($Config.CONNECTION_STRING_KEY)
 
-## Installed Agents
+### Infrastructure
+- **API Base URL**: $($Config.API_BASE_URL)
+- **Port**: $($Config.APP_PORT)
+- **Real-time Technology**: $($Config.REALTIME_TECH)
+- **UI Framework**: $($Config.UI_FRAMEWORK)
 
-### 1. Task Executor (`/task`)
-- **Purpose**: Feature implementation, bug fixes, general development
-- **Key Features**: Progressive documentation, automatic test generation, 0E/0W policy
-- **Usage**: ``@workspace /task key=myfeature tasks="Implement new feature"``
+### Branch Strategy
+- **Production Branch**: $($Config.PRODUCTION_BRANCH)
+- **Development Branch**: $($Config.DEVELOPMENT_BRANCH)
 
-### 2. Refactor Agent (`/refactor`)
-- **Purpose**: Code quality improvements, technical debt reduction
-- **Key Features**: Warning-free commits, systematic refactoring, pattern extraction
-- **Usage**: ``@workspace /refactor scope=MyService tasks="Extract common logic"``
-
-### 3. Sync Agent (`/sync`)
-- **Purpose**: Keep documentation in sync with code
-- **Key Features**: Cross-reference validation, automated updates
-- **Usage**: ``@workspace /sync key=myfeature``
-
-### 4. Health Check Agent (`/healthcheck`)
-- **Purpose**: Validate system integrity and architectural compliance
-- **Key Features**: 6-level validation pipeline, comprehensive reporting
-- **Usage**: ``@workspace /healthcheck``
-
-### 5. Question Agent (`/question`)
-- **Purpose**: Answer questions about codebase, architecture, patterns
-- **Key Features**: Context-aware responses, learning integration
-- **Usage**: ``@workspace /question "How does authentication work?"``
-
-### 6. Test Generation Agent (`/test-generation`)
-- **Purpose**: Create comprehensive E2E tests
-- **Key Features**: Multi-browser support, proven patterns
-- **Usage**: ``@workspace /test-generation feature=login scenario=success``
+### Tools
+- **Analyzers**: $($Config.ANALYZER_TOOLS)
+- **Testing**: $($Config.TEST_FRAMEWORK)
+- **Package Manager**: $($Config.PACKAGE_MANAGER)
 
 ---
 
-## Workspace Structure
+## Installed Components
 
-\`\`\`
-.github/
-├── prompts/              # Agent prompt files
-│   └── shared/          # Shared modules
-└── instructions/        # System guidelines
-    └── Links/          # Reference documentation
+### AI Agent System
+✅ Core instruction files
+✅ Agent prompt definitions
+✅ Shared documentation
+✅ Learning infrastructure
 
-Workspaces/
-├── Copilot/
-│   ├── _DOCS/          # Analysis and summaries
-│   ├── config/         # Agent configurations
-│   ├── learning/       # Pattern library
-│   └── prompts.keys/   # Key-based work tracking
-├── CodeQuality/        # Analysis tools and reports
-└── TEMP/               # Temporary test files
-\`\`\`
+### Workspace Structure
+✅ Copilot workspace (documentation, artifacts, configs)
+✅ CodeQuality workspace (analysis tools)
+✅ TEMP workspace (temporary files)
+
+### Documentation
+✅ Architecture.md
+✅ InfrastructureQuickRef.md
+✅ SystemIndex.md
+✅ API Contract Validation
+✅ Validation Framework
+✅ Functionality Registry
 
 ---
 
 ## Next Steps
 
-1. **Test the System**
-   \`\`\`
-   @workspace /question "What agents are available?"
-   \`\`\`
+### 1. Verify Documentation
+Review generated documentation in ``.github/instructions/Links/`` and update with project-specific details.
 
-2. **Start Your First Task**
-   \`\`\`
-   @workspace /task key=setup tasks="Verify setup complete"
-   \`\`\`
+### 2. Configure Database
+Update ``InfrastructureQuickRef.md`` with actual database connection details (keep secrets in config files, not documentation).
 
-3. **Review Documentation**
-   - [.github/prompts/task.prompt.md](.github/prompts/task.prompt.md) - Task agent guide
-   - [.github/instructions/SelfAwareness.instructions.md](.github/instructions/SelfAwareness.instructions.md) - Global rules
+### 3. Start Using Agents
+Try the question agent to explore available functionality:
+``````
+@workspace /question What agents are available?
+``````
 
-4. **Configure Your Environment**
-   - Update database connection strings (if applicable)
-   - Configure API keys (if using AI features)
-   - Set up your preferred IDE integrations
+### 4. Customize Templates
+Review and customize generated files to match your specific project needs.
+
+### 5. Initialize Learning System
+The learning system will populate automatically as you use the agents. Run your first task:
+``````
+@workspace /task key=setup tasks="Verify setup is complete"
+``````
+
+---
+
+## Available Agents
+
+### Task Agent (``/task``)
+Execute features, bug fixes, and implementations
+
+### Refactor Agent (``/refactor``)
+Safe code quality improvements
+
+### Sync Agent (``/sync``)
+Keep documentation synchronized with code
+
+### Healthcheck Agent (``/healthcheck``)
+Validate system health
+
+### Question Agent (``/question``)
+Answer questions about the project
+
+### Test Generation Agent (``/test``)
+Generate comprehensive test suites
+
+### Learning Analysis Agent (``/analyze-learning``)
+Analyze patterns and generate insights
+
+### Cohesion Review Agent (``/cohesion-review``)
+Review code quality and architecture
 
 ---
 
 ## Support
 
-For issues or questions:
-1. Check [.github/_Portable/docs/TROUBLESHOOTING.md](../_Portable/docs/TROUBLESHOOTING.md)
-2. Review agent-specific prompt files in `.github/prompts/`
-3. Consult system documentation in `.github/instructions/`
+For questions or issues:
+1. Review ``SystemIndex.md`` for navigation
+2. Check agent prompts in ``.github/prompts/``
+3. Consult ``SelfAwareness.instructions.md`` for operating rules
 
 ---
 
-**Setup completed successfully!** 🎉
+**Setup completed successfully!**
 "@
 
-$summaryPath = Join-Path $ProjectRoot "PROJECT-SETUP-SUMMARY.md"
-if (-not $DryRun) {
-    Set-Content -Path $summaryPath -Value $summaryContent -Encoding UTF8
+    if (!$DryRun) {
+        $summaryPath = Join-Path $projectRoot "PROJECT-SETUP-SUMMARY.md"
+        Set-Content -Path $summaryPath -Value $summary
+        Write-Success "✅ Summary saved to: PROJECT-SETUP-SUMMARY.md"
+    }
+    
+    return $summary
 }
 
-Write-Host "  [✓] Created: PROJECT-SETUP-SUMMARY.md" -ForegroundColor Green
-Write-Host ""
+#endregion
 
-# ============================================================================
-# COMPLETION
-# ============================================================================
+#region Main Execution
 
-Write-Host "============================================" -ForegroundColor Green
-Write-Host " Setup Complete!" -ForegroundColor Green
-Write-Host "============================================" -ForegroundColor Green
-Write-Host ""
-Write-Host "Review the generated PROJECT-SETUP-SUMMARY.md for details." -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Test your setup with:" -ForegroundColor Yellow
-Write-Host "  @workspace /question `"What agents are available?`"" -ForegroundColor White
-Write-Host ""
+try {
+    # Step 1: Detect project type
+    $detectedTypes = Detect-ProjectType
+    
+    # Step 2: Get configuration
+    $config = Get-ProjectConfig -DetectedTypes $detectedTypes
+    
+    # Step 3: Show configuration summary
+    Write-Info ""
+    Write-Info "Configuration Summary"
+    Write-Info "===================="
+    foreach ($key in $config.Keys | Sort-Object) {
+        Write-Host "  $key = $($config[$key])"
+    }
+    Write-Host ""
+    
+    # Step 4: Confirm
+    $confirm = Read-Host "Proceed with setup? (Y/N) [Y]"
+    if ($confirm -ne "" -and $confirm -ne "Y" -and $confirm -ne "y") {
+        Write-Warning "Setup cancelled."
+        exit 0
+    }
+    
+    # Step 5: Process templates
+    Process-Templates -Config $config
+    
+    # Step 6: Create workspace folders
+    Create-WorkspaceFolders
+    
+    # Step 7: Generate summary
+    $summary = Generate-SetupSummary -Config $config
+    
+    # Step 8: Final output
+    Write-Host ""
+    Write-Success "========================================"
+    Write-Success " Setup Complete!"
+    Write-Success "========================================"
+    Write-Host ""
+    Write-Info "Next Steps:"
+    Write-Host "  1. Review PROJECT-SETUP-SUMMARY.md"
+    Write-Host "  2. Update documentation with project-specific details"
+    Write-Host "  3. Try: @workspace /question What agents are available?"
+    Write-Host ""
+    
+} catch {
+    Write-Error ""
+    Write-Error "Setup failed with error:"
+    Write-Error $_.Exception.Message
+    Write-Error ""
+    Write-Error "Stack Trace:"
+    Write-Error $_.ScriptStackTrace
+    exit 1
+}
+
+#endregion

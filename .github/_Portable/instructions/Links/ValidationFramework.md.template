@@ -1,0 +1,168 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{TEST_FRAMEWORK}}` - Testing framework
+- `{{BUILD_COMMAND}}` - Build command
+
+---
+
+# Validation Framework
+
+## Purpose
+Defines validation rules and procedures for {{PROJECT_NAME}} to ensure code quality, functionality, and reliability.
+
+---
+
+## Validation Levels
+
+### Level 1: Syntax and Build
+**Validation**:
+- Code compiles/builds successfully
+- No syntax errors
+- All dependencies resolved
+
+**Commands**:
+```bash
+{{BUILD_COMMAND}}
+```
+
+### Level 2: Code Quality
+**Validation**:
+- Linting passes
+- Formatting is correct
+- Analyzer rules satisfied
+
+**Commands**:
+```bash
+{{LINT_COMMAND}}
+```
+
+### Level 3: Unit Tests
+**Validation**:
+- All unit tests pass
+- Code coverage meets threshold
+- No test failures
+
+**Commands**:
+```bash
+{{TEST_COMMAND}}
+```
+
+### Level 4: Integration Tests
+**Validation**:
+- Integration tests pass
+- External dependencies validated
+- API contracts verified
+
+### Level 5: End-to-End Tests
+**Validation**:
+- Complete workflows validated
+- User scenarios tested
+- Performance acceptable
+
+---
+
+## Pre-Commit Validation
+
+### Required Checks
+1. ✅ Build succeeds
+2. ✅ Linting passes
+3. ✅ Unit tests pass
+4. ✅ No new warnings introduced
+5. ✅ Documentation updated (if applicable)
+
+### Automated Validation
+[Document any pre-commit hooks or automation]
+
+---
+
+## CI/CD Validation
+
+### Build Pipeline
+1. Checkout code
+2. Install dependencies
+3. Run build
+4. Run linting
+5. Run unit tests
+6. Run integration tests
+7. Generate reports
+
+### Deployment Gates
+[Document deployment validation requirements]
+
+---
+
+## Manual Validation
+
+### Code Review Checklist
+- [ ] Code follows project conventions
+- [ ] Logic is clear and well-documented
+- [ ] Error handling is appropriate
+- [ ] Tests cover new functionality
+- [ ] Documentation is updated
+- [ ] No hardcoded values or secrets
+- [ ] Performance considerations addressed
+
+### Feature Validation Checklist
+- [ ] Feature meets requirements
+- [ ] All edge cases handled
+- [ ] Error states tested
+- [ ] User experience validated
+- [ ] Accessibility considered
+- [ ] Security implications reviewed
+
+---
+
+## Failure Handling
+
+### Build Failures
+1. Check error messages
+2. Verify dependencies
+3. Review recent changes
+4. Check configuration
+
+### Test Failures
+1. Review test output
+2. Check test data
+3. Verify environment
+4. Review related code changes
+
+### Quality Failures
+1. Review analyzer output
+2. Address violations
+3. Document suppressions (if necessary)
+4. Re-run validation
+
+---
+
+## Validation Reports
+
+### Report Locations
+- Build reports: [Location]
+- Test reports: [Location]
+- Quality reports: `Workspaces/CodeQuality/Analysis/Reports/`
+
+### Report Review
+[Document how to interpret validation reports]
+
+---
+
+## Best Practices
+
+1. Run validation before committing
+2. Fix failures immediately
+3. Don't suppress warnings without documentation
+4. Keep validation fast for quick feedback
+5. Regularly review and update validation rules
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial validation framework
+  - Established validation levels
+  - Defined pre-commit checks
+  - Documented failure handling procedures

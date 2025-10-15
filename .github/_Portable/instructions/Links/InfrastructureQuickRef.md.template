@@ -1,0 +1,230 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables Used:**
+- `{{DATABASE_NAME}}` - Primary database name
+- `{{DATABASE_SERVER}}` - Database server
+- `{{DATABASE_TYPE}}` - Database type (SQL Server, PostgreSQL, MySQL, MongoDB, etc.)
+- `{{SCHEMA_PRIMARY}}` - Primary writable schema
+- `{{SCHEMA_READONLY}}` - Read-only schemas (comma-separated)
+- `{{CONNECTION_STRING_KEY}}` - Connection string config key
+- `{{API_BASE_URL}}` - API base URL
+- `{{APP_PORT}}` - Application port
+- `{{REALTIME_TECH}}` - Real-time technology
+- `{{REALTIME_ENDPOINTS}}` - Real-time hub/channel endpoints
+- `{{CONFIG_PATH}}` - Configuration files path
+- `{{SOURCE_PATH}}` - Source code path
+- `{{TEST_PATH}}` - Test files path
+- `{{PROJECT_TYPE}}` - Project type
+
+---
+
+````markdown
+# Infrastructure Quick Reference
+
+**Version**: 1.0.0  
+**Last Updated**: [Generated during setup]  
+**Purpose**: Authoritative infrastructure reference to eliminate Copilot hallucinations
+
+---
+
+## 🗄️ Database Connections
+
+### Primary Database: {{DATABASE_NAME}}
+**When user mentions "database", they mean {{DATABASE_NAME}} unless specified otherwise.**
+
+**Connection Details**:
+- **Database Name**: `{{DATABASE_NAME}}`
+- **Server**: `{{DATABASE_SERVER}}`
+- **Database Type**: `{{DATABASE_TYPE}}`
+- **Authentication**: [Specify auth method - SQL Server auth, integrated auth, etc.]
+- **Connection Key**: `"{{CONNECTION_STRING_KEY}}"`
+- **Configuration Location**: `{{CONFIG_PATH}}`
+
+### ⚠️ CRITICAL DATABASE RULES
+
+**SCHEMA ACCESS CONTROL**:
+- ✅ **`{{SCHEMA_PRIMARY}}` schema**: READ-WRITE allowed (Primary application schema)
+- ❌ **`{{SCHEMA_READONLY}}` schema(s)**: **READ-ONLY** - NO modifications allowed
+- ❌ **All other schemas**: **READ-ONLY**
+
+**Schema Usage**:
+- `{{SCHEMA_PRIMARY}}` - Primary application schema
+  - [List main tables here]
+  
+- `{{SCHEMA_READONLY}}` - **READ-ONLY** (legacy or reference data)
+  - [List readonly tables here]
+
+### Connection String Best Practices
+**NEVER hardcode connection strings in code. Always use configuration:**
+```
+// Example for different project types:
+
+// .NET
+_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")
+
+// Node.js
+process.env.{{CONNECTION_STRING_KEY}}
+
+// Python
+os.environ.get('{{CONNECTION_STRING_KEY}}')
+
+// Java
+System.getenv("{{CONNECTION_STRING_KEY}}")
+```
+
+---
+
+## 🔌 External Dependencies
+
+### Required Services
+1. **Database Server** ({{DATABASE_SERVER}})
+   - {{DATABASE_NAME}} database
+   
+2. **Application Server**
+   - Port: {{APP_PORT}}
+   - Protocol: [HTTP/HTTPS]
+
+3. **Real-Time Communication** (if applicable)
+   - Technology: {{REALTIME_TECH}}
+   - Endpoints: {{REALTIME_ENDPOINTS}}
+
+### Configuration Files
+- Main config: `{{CONFIG_PATH}}/[config-file]`
+- Development overrides: `{{CONFIG_PATH}}/[dev-config-file]`
+
+### Environment Variables
+- `ENVIRONMENT` - Development/Production
+- Connection strings can override config file values
+
+---
+
+## API Endpoints (REST)
+
+### Base URL
+- **Development**: `{{API_BASE_URL}}`
+- **Port**: {{APP_PORT}}
+
+### Controllers & Routes
+Document your API endpoints here:
+
+#### ExampleController (`/api/Example`)
+- `GET /` - List examples
+- `GET /{id}` - Get example by ID
+- `POST /` - Create example
+- `PUT /{id}` - Update example
+- `DELETE /{id}` - Delete example
+
+[Add more controllers as your project develops]
+
+---
+
+## Real-Time Communication (if applicable)
+
+### {{REALTIME_TECH}} Hubs/Channels
+
+#### ExampleHub (`/hub/example`)
+**Purpose**: Real-time updates for [feature]
+
+**Client Methods** (server → client):
+- `EventName` - Event description
+
+**Server Methods** (client → server):
+- `MethodName(params)` - Method description
+
+[Add more hubs/channels as needed]
+
+---
+
+## Test Infrastructure
+
+### Test Data
+Document any canonical test data here:
+- Test accounts
+- Sample data identifiers
+- Test tokens/credentials
+
+### Test Configuration
+**Config File**: `{{TEST_PATH}}/[test-config-file]`
+
+**Test Patterns**:
+```
+// Document test patterns specific to your project
+const TEST_BASE_URL = '{{API_BASE_URL}}';
+const TEST_DATA_ID = 'example-id';
+```
+
+---
+
+## Frontend Routes
+
+### Main Routes
+- `/` - Landing/home page
+- `/[feature]` - [Description]
+
+[Add more routes as your project develops]
+
+---
+
+## Environment Variables
+
+### Application Configuration
+- **APP_PORT**: `{{APP_PORT}}`
+- **ENVIRONMENT**: `Development` | `Production`
+- **BASE_URL**: `{{API_BASE_URL}}`
+
+### Testing
+- **TEST_MODE**: [Specify test modes]
+
+---
+
+## File Locations
+
+### Configuration
+- **Main Config**: `{{CONFIG_PATH}}/[config-file]`
+- **Test Config**: `{{TEST_PATH}}/[test-config]`
+
+### Code
+- **Source**: `{{SOURCE_PATH}}/`
+- **Tests**: `{{TEST_PATH}}/`
+
+### Documentation
+- **Architecture**: `.github/instructions/Links/Architecture.md`
+- **Prompts**: `.github/prompts/`
+- **Instructions**: `.github/instructions/`
+
+---
+
+## Critical Anti-Patterns (Hallucination Prevention)
+
+### ❌ DO NOT Hardcode Credentials
+- Never put connection strings in code
+- Never commit passwords or secrets to git
+- Always use configuration management
+
+### ❌ DO NOT Assume File Locations
+- Always check `SystemIndex.md` for current structure
+- Use search tools to verify file existence
+- Reference files by absolute paths when possible
+
+### ❌ DO NOT Invent API Endpoints
+- Always check this file or Architecture.md for actual endpoints
+- Verify endpoints before referencing in tests or code
+- Use search to find actual route definitions
+
+### ❌ DO NOT Create Random Test Data
+- Use documented canonical test data
+- Do not create random identifiers
+- Follow established test patterns
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial creation from portable template
+  - Customized for {{PROJECT_NAME}}
+  - Configured for {{PROJECT_TYPE}} project
+  - Database: {{DATABASE_NAME}} on {{DATABASE_SERVER}}
+
+````
