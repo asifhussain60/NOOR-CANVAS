@@ -33,6 +33,7 @@ namespace HostProvisioner.WinForms
         private Button btnOpenUser = null!; // [DEBUG-WORKITEM:host-provisioner-form:browser] Open User URL in browser ;CLEANUP_OK
         private Label lblStatus = null!;
         private Label lblEnvironment = null!;
+        private Label lblBaseUrl = null!; // Separate label for Base URL
         private Label lblDatabase = null!;
 
         public MainForm()
@@ -86,10 +87,12 @@ namespace HostProvisioner.WinForms
 
             try
             {
-                var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "NC-Logo.png");
+                // Use correct logo from web app resources
+                var logoPath = @"D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\NoorCanvas.png";
                 if (File.Exists(logoPath))
                 {
                     picLogo.Image = Image.FromFile(logoPath);
+                    picLogo.BackColor = Color.Transparent; // Handle transparency properly
                 }
             }
             catch (Exception ex)
@@ -111,11 +114,11 @@ namespace HostProvisioner.WinForms
             };
             lblTitle.Location = new Point((pnlMain.Width - lblTitle.PreferredWidth) / 2, 250);
 
-            // Environment panel - Compact info card
+            // Environment panel - Compact info card (increased height for two lines)
             var pnlEnv = new Panel
             {
                 Location = new Point(40, 310),
-                Size = new Size(pnlMain.Width - 80, 70),
+                Size = new Size(pnlMain.Width - 80, 85), // Increased from 70 to 85 for two lines
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.None,
                 Padding = new Padding(16)
@@ -130,32 +133,42 @@ namespace HostProvisioner.WinForms
                 ForeColor = NoorBrown
             };
 
+            // Add separate label for Base URL on new line
+            lblBaseUrl = new Label
+            {
+                Location = new Point(16, 35),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = NoorBrown
+            };
+
             lblDatabase = new Label
             {
-                Location = new Point(16, 40),
+                Location = new Point(16, 55), // Moved down from 40 to 55
                 AutoSize = true,
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = NoorBrown
             };
 
             pnlEnv.Controls.Add(lblEnvironment);
+            pnlEnv.Controls.Add(lblBaseUrl); // Add Base URL label
             pnlEnv.Controls.Add(lblDatabase);
 
-            // Session ID input panel - Modern input card
+            // Session ID input panel - Modern input card (increased padding)
             var pnlInput = new Panel
             {
-                Location = new Point(40, 400),
+                Location = new Point(40, 415), // Adjusted from 400 to account for taller environment panel
                 Size = new Size(pnlMain.Width - 80, 150),
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.None,
-                Padding = new Padding(20)
+                Padding = new Padding(24) // Increased from 20 to 24
             };
             pnlInput.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlInput, 16, NoorBeige, NoorGold);
 
             var lblSessionId = new Label
             {
                 Text = "Session ID",
-                Location = new Point(20, 20),
+                Location = new Point(24, 24), // Adjusted for new padding
                 AutoSize = true,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = NoorBrown
@@ -163,8 +176,8 @@ namespace HostProvisioner.WinForms
 
             txtSessionId = new TextBox
             {
-                Location = new Point(20, 50),
-                Size = new Size(pnlInput.Width - 40, 32),
+                Location = new Point(24, 54), // Adjusted for new padding
+                Size = new Size(pnlInput.Width - 48, 32), // Adjusted for new padding (24*2=48)
                 Font = new Font("Segoe UI", 13F),
                 TextAlign = HorizontalAlignment.Center,
                 BorderStyle = BorderStyle.FixedSingle
@@ -173,8 +186,8 @@ namespace HostProvisioner.WinForms
             btnGenerate = new Button
             {
                 Text = "🔐 Generate Tokens",
-                Location = new Point(20, 95),
-                Size = new Size(pnlInput.Width - 40, 45),
+                Location = new Point(24, 99), // Adjusted for new padding
+                Size = new Size(pnlInput.Width - 48, 45), // Adjusted for new padding
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -193,7 +206,7 @@ namespace HostProvisioner.WinForms
             // Host Token panel - Modern token display
             var pnlHost = new Panel
             {
-                Location = new Point(40, 570),
+                Location = new Point(40, 585), // Adjusted from 570 to account for environment panel change
                 Size = new Size(pnlMain.Width - 80, 90),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
@@ -214,18 +227,18 @@ namespace HostProvisioner.WinForms
             txtHostToken = new TextBox
             {
                 Location = new Point(16, 45),
-                Size = new Size(pnlHost.Width - 200, 32), // [DEBUG-WORKITEM:host-provisioner-form:browser] Reduced width for Open button ;CLEANUP_OK
+                Size = new Size(pnlHost.Width - 210, 32), // Increased from 200 to 210 to reduce button overlap
                 ReadOnly = true,
-                Font = new Font("Consolas", 9F), // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Smaller font for longer URLs ;CLEANUP_OK
+                Font = new Font("Consolas", 8.5F), // Reduced from 9F to 8.5F for better fit
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             btnCopyHost = new Button
             {
-                Text = "📋 Copy",
-                Location = new Point(pnlHost.Width - 180, 45), // [DEBUG-WORKITEM:host-provisioner-form:browser] Adjusted position ;CLEANUP_OK
-                Size = new Size(75, 32),
+                Text = "📋",
+                Location = new Point(pnlHost.Width - 185, 45), // Adjusted position for tighter spacing
+                Size = new Size(85, 32), // Increased from 75 to 85 for touch target
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -240,13 +253,13 @@ namespace HostProvisioner.WinForms
             // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button for Host URL ;CLEANUP_OK
             btnOpenHost = new Button
             {
-                Text = "🌐 Open",
+                Text = "🌐",
                 Location = new Point(pnlHost.Width - 90, 45),
                 Size = new Size(75, 32),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold), // Larger icon
                 Cursor = Cursors.Hand
             };
             btnOpenHost.FlatAppearance.BorderSize = 0;
@@ -262,7 +275,7 @@ namespace HostProvisioner.WinForms
             // User Token panel - Modern token display
             var pnlUser = new Panel
             {
-                Location = new Point(40, 675),
+                Location = new Point(40, 690), // Adjusted from 675 to account for environment panel change
                 Size = new Size(pnlMain.Width - 80, 90),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
@@ -283,18 +296,18 @@ namespace HostProvisioner.WinForms
             txtUserToken = new TextBox
             {
                 Location = new Point(16, 45),
-                Size = new Size(pnlUser.Width - 200, 32), // [DEBUG-WORKITEM:host-provisioner-form:browser] Reduced width for Open button ;CLEANUP_OK
+                Size = new Size(pnlUser.Width - 210, 32), // Increased from 200 to 210 to reduce button overlap
                 ReadOnly = true,
-                Font = new Font("Consolas", 9F), // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Smaller font for longer URLs ;CLEANUP_OK
+                Font = new Font("Consolas", 8.5F), // Reduced from 9F to 8.5F for better fit
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             btnCopyUser = new Button
             {
-                Text = "📋 Copy",
-                Location = new Point(pnlUser.Width - 180, 45), // [DEBUG-WORKITEM:host-provisioner-form:browser] Adjusted position ;CLEANUP_OK
-                Size = new Size(75, 32),
+                Text = "📋",
+                Location = new Point(pnlUser.Width - 185, 45), // Adjusted position for tighter spacing
+                Size = new Size(85, 32), // Increased from 75 to 85 for touch target
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -309,13 +322,13 @@ namespace HostProvisioner.WinForms
             // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button for User URL ;CLEANUP_OK
             btnOpenUser = new Button
             {
-                Text = "🌐 Open",
+                Text = "🌐",
                 Location = new Point(pnlUser.Width - 90, 45),
                 Size = new Size(75, 32),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold), // Larger icon
                 Cursor = Cursors.Hand
             };
             btnOpenUser.FlatAppearance.BorderSize = 0;
@@ -395,8 +408,9 @@ namespace HostProvisioner.WinForms
             var connectionString = HostProvisionerConfig.GetConnectionStringForDisplay(environment);
             var dbName = HostProvisionerConfig.ExtractDatabaseName(connectionString);
 
-            // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Display base URL in environment info ;CLEANUP_OK
-            lblEnvironment.Text = $"Environment: {environment} | Base URL: {_baseUrl}";
+            // Split environment and base URL to separate lines
+            lblEnvironment.Text = $"Environment: {environment}";
+            lblBaseUrl.Text = $"Base URL: {_baseUrl}";
             lblDatabase.Text = $"Database: {dbName}";
         }
 

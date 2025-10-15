@@ -10,7 +10,57 @@ Modern Windows Forms application for generating Host and User tokens for NOOR Ca
 
 ## Work Log
 
-### 2025-10-15T00:20:00Z - Browser Launch Functionality (Commit: 9a0b84f860f4da738595cc9df41b449a13f635de)
+### 2025-10-15T00:30:00Z - UI Improvements from Screenshot Analysis (Commit: Pending)
+
+**Task:** Fix UI issues identified in annotated screenshot
+
+**Changes:**
+1. **Fixed logo display:**
+   - Changed logo path from `Resources/NC-Logo.png` to correct file: `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\NoorCanvas.png`
+   - Added `BackColor = Color.Transparent` to PictureBox for proper transparency handling
+
+2. **Split environment info to separate lines:**
+   - Increased environment panel height from 70px to 85px
+   - Added separate `lblBaseUrl` label
+   - Environment info now displays as:
+     - Line 1: `Environment: {environment}`
+     - Line 2: `Base URL: {baseUrl}`
+     - Line 3: `Database: {dbName}`
+   - Labels positioned at y: 15, 35, 55 respectively
+
+3. **Added more padding to Session ID panel:**
+   - Increased padding from 20px to 24px (all sides)
+   - Adjusted all child control positions to match new padding
+   - TextBox and button widths adjusted accordingly
+   - Panel position shifted from 400 to 415 to account for taller environment panel
+
+4. **Fixed URL text cutoff:**
+   - Reduced font size from 9F to 8.5F Consolas for better fit
+   - Increased TextBox width from `Width - 200` to `Width - 210`
+   - Adjusted button sizing and positioning for tighter layout
+   - Copy buttons now 85px wide (increased from 75px)
+   - Copy button positioned at `Width - 185` instead of `Width - 180`
+   - Simplified button text to icons only: 📋 for Copy, 🌐 for Open
+   - Increased icon font size to 11F for better visibility
+
+5. **Adjusted panel positions:**
+   - Environment panel: height 70→85
+   - Session ID panel: y-position 400→415
+   - Host URL panel: y-position 570→585
+   - User URL panel: y-position 675→690
+
+**Implementation Details:**
+- Logo now loads from web app resources (single source of truth)
+- All spacing adjustments cascade properly through UI
+- Buttons maintain hover effects and consistent styling
+- URL textboxes provide better horizontal space for long URLs
+
+**Files Modified:**
+- `Tools/HostProvisioner/HostProvisioner.WinForms/MainForm.cs`
+
+**Build Status:** ✅ Clean build
+
+### 2025-10-15T00:20:00Z - Browser Launch Functionality (Commit: 03a79197)
 
 **Task:** Add clickable URL functionality with browser launch buttons
 
