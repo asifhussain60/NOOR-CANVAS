@@ -550,39 +550,7 @@ SUMMARY: {key-name}
 
 **Triggered when user specifies "mark complete" or "completed" as tasks parameter value.**
 
-**See:** `shared/completion-workflow-template.md` for complete template
-
-#### 9.1. Cross-Layer Documentation Analysis
-**Document the COMPLETE, FINAL workflow across ALL layers:**
-
-**Output to User (brief):**
-```
-🎯 Completion Analysis for Key: {key-name}
-
-Documented Layers:
-✓ Frontend: {X components, Y client scripts}
-✓ API: {X endpoints, Y DTOs}
-✓ Services: {X services, Y methods}
-✓ Database: {X tables, Y migrations}
-✓ Configuration: {X settings documented}
-✓ Tests: {X unit, Y integration, Z Playwright}
-
-Cross-layer workflow documented in work-log.md
-```
-
-**Full Documentation Stored In:** `.github/prompts.keys/{key}/work-log.md`
-
-**8 Layer Documentation:**
-1. Frontend Layer (UI components, user journey, styling, client logic)
-2. API Layer (endpoints, DTOs, authentication, error handling)
-3. Service Layer (business logic, transformations, dependencies)
-4. Database Layer (tables, migrations, queries, indexes)
-5. SignalR/Real-Time (hubs, connection management, message flow)
-6. Configuration (appsettings, environment variables, feature flags)
-7. Testing Coverage (unit, integration, Playwright, visual)
-8. Dependencies (NuGet/npm packages, framework versions)
-
-#### 9.2. Obsolete Information Removal & Debug Cleanup
+#### 9.1. Obsolete Information Removal & Debug Cleanup
 
 **Key Data Stream Cleanup:**
 - Remove superseded implementations, failed attempts, temporary workarounds
@@ -606,26 +574,23 @@ Search all modified source files and remove debug logging markers:
 - Build status: Clean
 ```
 
-#### 9.3. Completion Documentation Template
-
-**User sees (brief):**
-```
-✅ Key marked as COMPLETE
-📝 Comprehensive documentation added to work-log.md
-🗑️ Obsolete information removed
-```
-
-**work-log.md contains:** Complete template from `shared/completion-workflow-template.md`
-
-#### 9.4. State Management
+#### 9.2. State Management & Completion
 - Mark key as `complete` in metadata
+- Verify key data stream is up-to-date with final state
 - Archive work log (historical entries intact)
 - Update key index
 
-#### 9.5. Resumption Protocol
+**Output to User:**
+```
+✅ Key marked as COMPLETE
+📝 All information recorded in key data stream
+🗑️ Debug markers removed ({X} markers from {Y} files)
+```
+
+#### 9.3. Resumption Protocol
 **If new tasks arrive for a `complete` key:**
 - Auto-revert status from `complete` to `in-progress`
-- Preserve completion documentation
+- Preserve all historical entries in key data stream
 - Add new work log entry documenting resumption
 - Continue normal workflow (Steps 1-8)
 
@@ -637,8 +602,8 @@ Search all modified source files and remove debug logging markers:
 - **ALWAYS execute Step 2.8.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations)
 - **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
 - **ALWAYS update key data stream after execution** (Step 8 is mandatory)
-- **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword)
-- **ALWAYS preserve completion documentation when resuming completed keys**
+- **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
+- **ALWAYS preserve all historical entries when resuming completed keys**
 - **ALWAYS infer key from recent work** if not explicitly provided
 - **ALWAYS enforce re-evaluation iteration limit** (max 3 iterations at Step 4 approval gate)
 - **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
