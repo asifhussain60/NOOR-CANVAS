@@ -36,10 +36,37 @@ brew install git
 
 ## Database Connection
 
-The project is configured to connect to your Windows SQL Server at:
-- **Server**: `192.168.1.58,1433`
-- **Development Database**: `KSESSIONS_DEV`
-- **Production Database**: `KSESSIONS`
+The project is configured to connect to your Windows SQL Server using `AHHOME` by default.
+
+**For macOS Development**: You'll need to update the connection strings to use the IP address.
+
+### Update Connection Strings on macOS
+
+After cloning, update these files to use `192.168.1.58,1433`:
+
+**1. Edit `config/sharedsettings.json`:**
+```json
+{
+    "ConnectionStrings": {
+        "Development": "Server=192.168.1.58,1433;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;",
+        "Production": "Server=192.168.1.58,1433;Database=KSESSIONS;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"
+    }
+}
+```
+
+**2. Edit `SPA/NoorCanvas/appsettings.json`:**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=192.168.1.58,1433;Database=KSESSIONS_DEV;..."
+  }
+}
+```
+
+**3. Edit `SPA/NoorCanvas/appsettings.Development.json`** - Same change
+**4. Edit `SPA/NoorCanvas/appsettings.Production.json`** - Same change (use `KSESSIONS` database)
+
+**Important**: Do NOT commit these changes back to Git. Keep them local on your Mac.
 
 ### Network Requirements
 Ensure your Mac can reach the Windows machine at `192.168.1.58`:

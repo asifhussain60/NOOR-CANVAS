@@ -144,13 +144,13 @@ if (-not $appsettingsConfig.ConnectionStrings) {
     $appsettingsConfig | Add-Member -MemberType NoteProperty -Name "ConnectionStrings" -Value ([PSCustomObject]@{})
 }
 
-$connectionString = "Server=192.168.1.58,1433;Database=$database;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"
+$connectionString = "Server=AHHOME;Database=$database;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"
 $appsettingsConfig.ConnectionStrings | Add-Member -MemberType NoteProperty -Name "DefaultConnection" -Value $connectionString -Force
 
 # Save updated configuration
 $appsettingsConfig | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
 Write-Host "[OK] Configured for $environment environment" -ForegroundColor Green
-Write-Host "[INFO] Database: $database on 192.168.1.58" -ForegroundColor Gray
+Write-Host "[INFO] Database: $database on AHHOME" -ForegroundColor Gray
 
 # Verify critical files
 Write-Host "`n[STEP] Verifying deployment..." -ForegroundColor Yellow

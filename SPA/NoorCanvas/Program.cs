@@ -9,6 +9,10 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add local configuration overrides (appsettings.local.json)
+// This allows Windows devs to use AHHOME while macOS devs use IP addresses
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 // Configure Serilog (use configuration-based approach only to prevent duplication)
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
