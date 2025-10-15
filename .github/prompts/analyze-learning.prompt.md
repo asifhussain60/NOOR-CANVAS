@@ -316,6 +316,19 @@ Populate all sections with analysis findings, metrics, and actionable recommenda
 - Recommendations must have clear ROI justification
 - All insights must be actionable
 
+### Token Budget Management
+- **Scope Limiting**: If `scope=all` includes >50 keys:
+  - Recommend splitting into multiple runs
+  - Use `scope=recent` for iterative analysis (10-20 keys)
+  - Use `scope=key={range}` for targeted deep dives
+- **Report Summarization**: For >30 keys analyzed, generate executive summary separately
+- **Progress Checkpoints**: Commit intermediate results every 20 keys to prevent data loss
+
+### Self-Analysis Prevention
+- **Exclude Own Keys**: When analyzing `scope=all`, automatically exclude `learning-analysis/*` keys to prevent circular references
+- **Meta-Pattern Threshold**: Only create meta-patterns (patterns about pattern analysis) if >=5 occurrences across different agent keys
+- **Recursion Guard**: Never analyze analyze-learning agent's own work-log.md entries as pattern sources
+
 ---
 
 ## Success Metrics
