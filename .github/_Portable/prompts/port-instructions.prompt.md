@@ -9,6 +9,32 @@ You are the **Portability Agent** - responsible for creating generic, reusable t
 
 ---
 
+## Parameters
+
+### prompt *(optional)*
+Specify a single prompt file to port instead of regenerating the entire _Portable folder.
+
+**Format:** Prompt filename (e.g., `task.prompt.md`, `refactor.prompt.md`)
+
+**Behavior:**
+- **Not provided (default):** Full regeneration - delete and recreate entire `_Portable` folder
+- **Provided:** Selective update - port only the specified prompt and its dependencies
+
+**Example:**
+```
+@workspace /port-instructions prompt=task.prompt.md
+@workspace /port-instructions prompt=refactor
+```
+
+**What Gets Updated (Selective Mode):**
+- The specified prompt template (`.github/_Portable/prompts/{prompt}.template`)
+- All shared files referenced by the prompt
+- Related learning files (if prompt has dedicated lessons)
+- Meta-prompts (port-instructions, total-recall) are always updated
+- Documentation files are NOT updated in selective mode
+
+---
+
 ## Purpose
 
 ### What
@@ -22,10 +48,17 @@ Analyzes the entire `.github` folder structure (instructions, prompts, learning 
 
 ### How to Invoke
 ```
+# Full regeneration (default)
 @workspace /port-instructions
+
+# Selective update for specific prompt
+@workspace /port-instructions prompt=task.prompt.md
+@workspace /port-instructions prompt=refactor
 ```
 
 ### Expected Outcomes
+
+**Full Regeneration Mode (no prompt parameter):**
 - ✅ Complete deletion and recreation of `.github/_Portable/` folder
 - ✅ Generic templates for all prompts and instructions
 - ✅ Template variables replacing project-specific values
@@ -33,6 +66,14 @@ Analyzes the entire `.github` folder structure (instructions, prompts, learning 
 - ✅ Comprehensive documentation (README, START-HERE, QUICK-REFERENCE)
 - ✅ Preserved learning infrastructure structure
 - ✅ Ready-to-copy portable system
+
+**Selective Update Mode (prompt parameter provided):**
+- ✅ Updated template for specified prompt only
+- ✅ Updated shared files referenced by the prompt
+- ✅ Updated related learning files (if applicable)
+- ✅ Meta-prompts (port-instructions, total-recall) always updated
+- ✅ Existing documentation and other prompts preserved
+- ✅ Faster execution (no full rebuild)
 
 ---
 
@@ -91,7 +132,196 @@ All templates MUST use these standardized variables:
 
 ## Execution Steps
 
-### Step 1: Destructive Cleanup (MANDATORY FIRST STEP)
+### Step 0: Mode Selection (MANDATORY FIRST STEP)
+
+**Determine execution mode based on `prompt` parameter:**
+
+#### Mode 1: Full Regeneration (Default - No prompt parameter)
+- **Trigger:** `prompt` parameter NOT provided
+- **Action:** Proceed to Step 1 (Destructive Cleanup)
+- **Scope:** Entire `_Portable` folder recreated from scratch
+- **Use Case:** Major updates, periodic refresh, initial setup
+
+#### Mode 2: Selective Update (prompt parameter provided)
+- **Trigger:** `prompt` parameter IS provided (e.g., `prompt=task.prompt.md`)
+- **Action:** Skip to Step 0.5 (Selective Update Protocol)
+- **Scope:** Only specified prompt + dependencies updated
+- **Use Case:** Single prompt improvements, quick updates, iterative development
+
+---
+
+### Step 0.5: Selective Update Protocol (CONDITIONAL - Only if prompt parameter provided)
+
+**Executed ONLY when `prompt` parameter is provided. Skips full regeneration.**
+
+#### 0.5.1: Normalize Prompt Name
+```powershell
+# Accept various formats
+# Input: "task", "task.prompt.md", "task.prompt"
+# Output: "task.prompt.md"
+
+$promptName = $prompt -replace '\.prompt(\.md)?$', ''  # Remove extensions
+$promptFile = "$promptName.prompt.md"  # Add standard extension
+```
+
+#### 0.5.2: Validate Prompt Exists
+```powershell
+$sourcePath = ".github/prompts/$promptFile"
+if (!(Test-Path $sourcePath)) {
+    Write-Error "❌ Prompt not found: $sourcePath"
+    Write-Host "Available prompts:"
+    Get-ChildItem ".github/prompts/*.prompt.md" | ForEach-Object { Write-Host "  - $($_.Name)" }
+    EXIT
+}
+```
+
+#### 0.5.3: Identify Dependencies
+
+**Analyze source prompt to find referenced files:**
+
+```powershell
+# Read prompt content
+$content = Get-Content $sourcePath -Raw
+
+# Extract file references
+$sharedRefs = [regex]::Matches($content, '`\.github/prompts/shared/([^`]+)`') | 
+    ForEach-Object { $_.Groups[1].Value }
+
+$learningRefs = [regex]::Matches($content, '`\.github/learning/([^`]+)`') | 
+    ForEach-Object { $_.Groups[1].Value }
+
+# Deduplicate
+$sharedFiles = $sharedRefs | Select-Object -Unique
+$learningFiles = $learningRefs | Select-Object -Unique
+```
+
+**Output to User:**
+```
+🔍 Analyzing: $promptFile
+
+Dependencies Found:
+  📁 Shared Files: $($sharedFiles.Count)
+    - $sharedFile1
+    - $sharedFile2
+  📁 Learning Files: $($learningFiles.Count)
+    - $learningFile1
+```
+
+#### 0.5.4: Update Specified Prompt Template
+
+**Create templated version:**
+
+1. Read source: `.github/prompts/$promptFile`
+2. Extract project-specific values (same extraction logic as Step 2)
+3. Replace with template variables (same replacement logic as Step 3.2)
+4. Add template header
+5. Write to: `.github/_Portable/prompts/$promptFile.template`
+
+**Output:**
+```
+✅ Updated: prompts/$promptFile.template
+```
+
+#### 0.5.5: Update Referenced Shared Files
+
+**For each shared file found in 0.5.3:**
+
+```powershell
+foreach ($sharedFile in $sharedFiles) {
+    $sourcePath = ".github/prompts/shared/$sharedFile"
+    $destPath = ".github/_Portable/prompts/shared/$sharedFile"
+    
+    if (Test-Path $sourcePath) {
+        # Copy as-is (shared files are already generic)
+        Copy-Item $sourcePath $destPath -Force
+        Write-Host "✅ Updated: prompts/shared/$sharedFile"
+    }
+}
+```
+
+#### 0.5.6: Update Referenced Learning Files
+
+**For each learning file found in 0.5.3:**
+
+```powershell
+foreach ($learningFile in $learningFiles) {
+    $sourcePath = ".github/learning/$learningFile"
+    $destPath = ".github/_Portable/learning/$learningFile"
+    
+    if (Test-Path $sourcePath) {
+        # Determine if templating needed
+        if ($learningFile -match '\.(json|md)$') {
+            # Copy with potential templating
+            # (Most learning files are generic, copy as-is)
+            Copy-Item $sourcePath $destPath -Force
+            Write-Host "✅ Updated: learning/$learningFile"
+        }
+    }
+}
+```
+
+#### 0.5.7: Always Update Meta-Prompts
+
+**Meta-prompts are always updated regardless of selective mode:**
+
+```powershell
+# Update port-instructions.prompt.md
+Copy-Item ".github/prompts/port-instructions.prompt.md" `
+          ".github/_Portable/prompts/port-instructions.prompt.md" -Force
+
+# Update total-recall.prompt.md
+Copy-Item ".github/prompts/total-recall.prompt.md" `
+          ".github/_Portable/prompts/total-recall.prompt.md" -Force
+
+Write-Host "✅ Updated: Meta-prompts (port-instructions, total-recall)"
+```
+
+**Rationale:** Meta-prompts manage the system itself and should always be current.
+
+#### 0.5.8: Generate Selective Update Summary
+
+**Output to User:**
+```
+✅ SELECTIVE UPDATE COMPLETE
+
+Updated Files:
+==============
+📝 Prompt Template:
+  - prompts/$promptFile.template
+
+📁 Shared Files ($($sharedFiles.Count)):
+  - prompts/shared/$sharedFile1
+  - prompts/shared/$sharedFile2
+
+📁 Learning Files ($($learningFiles.Count)):
+  - learning/$learningFile1
+
+🔄 Meta-Prompts (always updated):
+  - prompts/port-instructions.prompt.md
+  - prompts/total-recall.prompt.md
+
+Skipped (Preserved):
+===================
+- All other prompt templates
+- Instructions templates
+- Setup scripts (setup.bat, setup.ps1)
+- Documentation (README, START-HERE, etc.)
+
+Next Steps:
+===========
+1. Review changes in .github/_Portable/
+2. Test the updated template
+3. Commit changes: git add .github/_Portable/
+4. Run full regeneration if needed: @workspace /port-instructions
+```
+
+**EXIT:** After Step 0.5.8, skip all remaining steps (Steps 1-7) and complete execution.
+
+---
+
+### Step 1: Destructive Cleanup (MANDATORY FIRST STEP - Full Regeneration Only)
+
+**ONLY executed in Full Regeneration Mode (no `prompt` parameter provided).**
 
 **CRITICAL:** Before analyzing anything, COMPLETELY DELETE the `.github/_Portable/` folder.
 
@@ -114,7 +344,9 @@ if (Test-Path ".github/_Portable") {
 
 ---
 
-### Step 2: Source Analysis
+### Step 2: Source Analysis (Full Regeneration Only)
+
+**ONLY executed in Full Regeneration Mode.**
 
 **Scan Source Infrastructure:**
 ```
@@ -190,7 +422,9 @@ Template: "{{FRAMEWORKS}}"
 
 ---
 
-### Step 3: Template Creation
+### Step 3: Template Creation (Full Regeneration Only)
+
+**ONLY executed in Full Regeneration Mode.**
 
 **For EACH file in source structure, create templated version:**
 
@@ -299,7 +533,9 @@ Files to copy WITHOUT templating (these are universal):
 
 ---
 
-### Step 4: Setup Script Creation
+### Step 4: Setup Script Creation (Full Regeneration Only)
+
+**ONLY executed in Full Regeneration Mode.**
 
 **Create:** `.github/_Portable/setup.bat` (Windows)
 
@@ -403,7 +639,9 @@ Write-Host "✅ Setup Complete!" -ForegroundColor Green
 
 ---
 
-### Step 5: Documentation Creation
+### Step 5: Documentation Creation (Full Regeneration Only)
+
+**ONLY executed in Full Regeneration Mode.**
 
 **Create:** `.github/_Portable/README.md`
 
@@ -449,7 +687,9 @@ Write-Host "✅ Setup Complete!" -ForegroundColor Green
 
 ---
 
-### Step 6: Validation
+### Step 6: Validation (Full Regeneration Only)
+
+**ONLY executed in Full Regeneration Mode.**
 
 **Verify Template Quality:**
 
@@ -483,12 +723,17 @@ For EACH template file:
 
 ### Step 7: Output Summary
 
+**Execution Mode Determines Summary Format:**
+
+#### Full Regeneration Mode Summary
+
 **Generate Report:**
 
 ```markdown
 # Port Instructions Execution Summary
 
 **Date:** [Current Date]
+**Mode:** Full Regeneration
 **Source:** .github/ folder structure
 **Destination:** .github/_Portable/ folder
 
@@ -547,6 +792,78 @@ For EACH template file:
 - Verify all template variables populate correctly
 - Update version number in STATUS.md
 - Consider adding more sample patterns to learning/
+```
+
+#### Selective Update Mode Summary
+
+**NOTE:** This summary is shown in Step 0.5.8, not Step 7 (which is skipped in selective mode).
+
+**Generate Report:**
+
+```markdown
+# Port Instructions Execution Summary (Selective Update)
+
+**Date:** [Current Date]
+**Mode:** Selective Update
+**Target Prompt:** {promptFile}
+**Scope:** Single prompt + dependencies
+
+## Actions Taken
+
+### 1. Prompt Template Updated
+- ✅ Analyzed source: .github/prompts/{promptFile}
+- ✅ Replaced project-specific values with template variables
+- ✅ Updated: .github/_Portable/prompts/{promptFile}.template
+
+### 2. Shared Files Updated ({X} files)
+- ✅ {sharedFile1}
+- ✅ {sharedFile2}
+- ... (list all)
+
+### 3. Learning Files Updated ({X} files)
+- ✅ {learningFile1}
+- ... (list all)
+
+### 4. Meta-Prompts Updated (Always)
+- ✅ port-instructions.prompt.md
+- ✅ total-recall.prompt.md
+
+## Files Preserved (Not Modified)
+- All other prompt templates
+- All instruction templates
+- Setup scripts (setup.bat, setup.ps1)
+- Documentation (README, START-HERE, QUICK-REFERENCE, STATUS, COMPLETE)
+- Other shared files not referenced by this prompt
+- Other learning files not referenced by this prompt
+
+## Validation Results
+- ✅ Template validated (no hardcoded values)
+- ✅ Dependencies complete
+- ✅ Meta-prompts current
+
+## Usage Instructions
+
+**To apply this update to a new project:**
+1. Copy .github/_Portable/ to new project (entire folder)
+2. Run setup.bat or setup.ps1
+3. The updated {promptFile} template will be deployed
+
+**To update other prompts:**
+```
+@workspace /port-instructions prompt=refactor.prompt.md
+@workspace /port-instructions prompt=sync.prompt.md
+```
+
+**To perform full regeneration:**
+```
+@workspace /port-instructions
+```
+
+## Next Steps
+- Review changes in .github/_Portable/prompts/{promptFile}.template
+- Test template with setup.bat in a test project
+- Commit changes to repository
+- Run full regeneration periodically to sync all files
 ```
 
 ---
