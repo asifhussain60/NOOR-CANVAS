@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics; // [DEBUG-WORKITEM:host-provisioner-form:browser] For launching browser ;CLEANUP_OK
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +29,8 @@ namespace HostProvisioner.WinForms
         private TextBox txtUserToken = null!;
         private Button btnCopyHost = null!;
         private Button btnCopyUser = null!;
+        private Button btnOpenHost = null!; // [DEBUG-WORKITEM:host-provisioner-form:browser] Open Host URL in browser ;CLEANUP_OK
+        private Button btnOpenUser = null!; // [DEBUG-WORKITEM:host-provisioner-form:browser] Open User URL in browser ;CLEANUP_OK
         private Label lblStatus = null!;
         private Label lblEnvironment = null!;
         private Label lblDatabase = null!;
@@ -211,7 +214,7 @@ namespace HostProvisioner.WinForms
             txtHostToken = new TextBox
             {
                 Location = new Point(16, 45),
-                Size = new Size(pnlHost.Width - 110, 32),
+                Size = new Size(pnlHost.Width - 200, 32), // [DEBUG-WORKITEM:host-provisioner-form:browser] Reduced width for Open button ;CLEANUP_OK
                 ReadOnly = true,
                 Font = new Font("Consolas", 9F), // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Smaller font for longer URLs ;CLEANUP_OK
                 BackColor = NoorBeige,
@@ -221,7 +224,7 @@ namespace HostProvisioner.WinForms
             btnCopyHost = new Button
             {
                 Text = "📋 Copy",
-                Location = new Point(pnlHost.Width - 90, 45),
+                Location = new Point(pnlHost.Width - 180, 45), // [DEBUG-WORKITEM:host-provisioner-form:browser] Adjusted position ;CLEANUP_OK
                 Size = new Size(75, 32),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
@@ -234,9 +237,27 @@ namespace HostProvisioner.WinForms
             btnCopyHost.MouseEnter += (s, e) => btnCopyHost.BackColor = Color.FromArgb(0, 80, 0);
             btnCopyHost.MouseLeave += (s, e) => btnCopyHost.BackColor = NoorGreen;
 
+            // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button for Host URL ;CLEANUP_OK
+            btnOpenHost = new Button
+            {
+                Text = "🌐 Open",
+                Location = new Point(pnlHost.Width - 90, 45),
+                Size = new Size(75, 32),
+                BackColor = NoorGreen,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnOpenHost.FlatAppearance.BorderSize = 0;
+            btnOpenHost.Click += (s, e) => OpenUrlInBrowser(txtHostToken.Text);
+            btnOpenHost.MouseEnter += (s, e) => btnOpenHost.BackColor = Color.FromArgb(0, 80, 0);
+            btnOpenHost.MouseLeave += (s, e) => btnOpenHost.BackColor = NoorGreen;
+
             pnlHost.Controls.Add(lblHost);
             pnlHost.Controls.Add(txtHostToken);
             pnlHost.Controls.Add(btnCopyHost);
+            pnlHost.Controls.Add(btnOpenHost); // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button to panel ;CLEANUP_OK
 
             // User Token panel - Modern token display
             var pnlUser = new Panel
@@ -262,7 +283,7 @@ namespace HostProvisioner.WinForms
             txtUserToken = new TextBox
             {
                 Location = new Point(16, 45),
-                Size = new Size(pnlUser.Width - 110, 32),
+                Size = new Size(pnlUser.Width - 200, 32), // [DEBUG-WORKITEM:host-provisioner-form:browser] Reduced width for Open button ;CLEANUP_OK
                 ReadOnly = true,
                 Font = new Font("Consolas", 9F), // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Smaller font for longer URLs ;CLEANUP_OK
                 BackColor = NoorBeige,
@@ -272,7 +293,7 @@ namespace HostProvisioner.WinForms
             btnCopyUser = new Button
             {
                 Text = "📋 Copy",
-                Location = new Point(pnlUser.Width - 90, 45),
+                Location = new Point(pnlUser.Width - 180, 45), // [DEBUG-WORKITEM:host-provisioner-form:browser] Adjusted position ;CLEANUP_OK
                 Size = new Size(75, 32),
                 BackColor = NoorGreen,
                 ForeColor = Color.White,
@@ -285,9 +306,27 @@ namespace HostProvisioner.WinForms
             btnCopyUser.MouseEnter += (s, e) => btnCopyUser.BackColor = Color.FromArgb(0, 80, 0);
             btnCopyUser.MouseLeave += (s, e) => btnCopyUser.BackColor = NoorGreen;
 
+            // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button for User URL ;CLEANUP_OK
+            btnOpenUser = new Button
+            {
+                Text = "🌐 Open",
+                Location = new Point(pnlUser.Width - 90, 45),
+                Size = new Size(75, 32),
+                BackColor = NoorGreen,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnOpenUser.FlatAppearance.BorderSize = 0;
+            btnOpenUser.Click += (s, e) => OpenUrlInBrowser(txtUserToken.Text);
+            btnOpenUser.MouseEnter += (s, e) => btnOpenUser.BackColor = Color.FromArgb(0, 80, 0);
+            btnOpenUser.MouseLeave += (s, e) => btnOpenUser.BackColor = NoorGreen;
+
             pnlUser.Controls.Add(lblUser);
             pnlUser.Controls.Add(txtUserToken);
             pnlUser.Controls.Add(btnCopyUser);
+            pnlUser.Controls.Add(btnOpenUser); // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button to panel ;CLEANUP_OK
 
             // Status label
             lblStatus = new Label
@@ -478,6 +517,29 @@ namespace HostProvisioner.WinForms
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to copy to clipboard:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // [DEBUG-WORKITEM:host-provisioner-form:browser] Open URL in default browser ;CLEANUP_OK
+        private void OpenUrlInBrowser(string url)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+                
+                lblStatus.Text = "✓ Browser opened!";
+                lblStatus.ForeColor = NoorGreen;
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = "✗ Failed to open browser";
+                lblStatus.ForeColor = Color.Red;
+                MessageBox.Show($"Failed to open URL in browser:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
