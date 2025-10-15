@@ -43,9 +43,14 @@ Prepare and validate production deployment for Noor Canvas application with prop
 - `SPA/NoorCanvas/appsettings.json` - Development connection strings (KSESSIONS_DEV, KQUR_DEV)
 
 ### Deployment
-- `ncdeploy.ps1` - Production deployment script with automatic wwwroot cleanup
-- `cleanup-production-wwwroot.ps1` - Manual production wwwroot cleanup script
-- `ncrollback.ps1` - Deployment rollback script
+- `Scripts/ncdeploy.ps1` - Production deployment script with automatic wwwroot cleanup [UPDATED: Deploys Windows Forms Host Provisioner]
+- `Scripts/cleanup-production-wwwroot.ps1` - Manual production wwwroot cleanup script
+- `Scripts/ncrollback.ps1` - Deployment rollback script
+
+### Tools (Host Provisioner)
+- `Tools/HostProvisioner/HostProvisioner.WinForms/` - Windows Forms Host Provisioner (deployed to production)
+- `Tools/HostProvisioner/HostProvisioner/` - CLI Host Provisioner (development only)
+- `Tools/HostProvisioner/Shared/HostProvisionerConfig.cs` - Centralized configuration shared by both apps
 
 ### Frontend (Components)
 - `SPA/NoorCanvas/Components/Production/ProductionInfoPanel.razor` - Production-safe database info display (NEW)
@@ -106,6 +111,25 @@ Prepare and validate production deployment for Noor Canvas application with prop
 
 **Files**: 7 modified/created | **Tests**: N/A | **Build**: PASS
 **Next**: Deploy to production, test nct-prod.ps1
+---
+
+---
+## [2025-10-15 05:30 UTC] - task
+**Status**: in-progress | **Phase**: deploy-winforms-hostprovisioner | **Commit**: b3b0ce6
+**Work**:
+- Updated ncdeploy.ps1 to deploy Windows Forms Host Provisioner instead of CLI tool:
+  * Changed project path: HostProvisioner → HostProvisioner.WinForms
+  * Updated project file: HostProvisioner.csproj → HostProvisioner.WinForms.csproj
+  * Updated config transformation: HostProvisioner.dll.config → HostProvisioner.WinForms.dll.config
+  * Updated deployment verification: HostProvisioner.dll → HostProvisioner.WinForms.dll
+  * Removed CLI connection test (not applicable to Windows Forms GUI)
+  * Updated script documentation header
+  * Added debug markers: [DEBUG-WORKITEM:deploy:hostprovisioner]
+- Production deployment now uses modern Windows Forms GUI
+- Both CLI and WinForms share centralized configuration via HostProvisionerConfig.cs
+
+**Files**: 2 modified (ncdeploy.ps1, deploy.md) | **Tests**: N/A (deployment script) | **Build**: PASS
+**Next**: Production deployment testing
 ---
 
 ---
