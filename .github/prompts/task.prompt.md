@@ -65,7 +65,7 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 ### Expected Outcomes
 - ✅ Incremental documentation (key data stream updated after EVERY sub-task)
 - ✅ Git-linked traceability (full SHA commit hashes recorded)
-- ✅ Checkpoint commits (every task creates rollback point with 28-entry history)
+- ✅ Checkpoint tags (every task creates searchable git tag with 28-tag history per key)
 - ✅ Automatic test creation (Playwright tests generated for UI changes)
 - ✅ Clean build (zero errors, zero warnings - mandatory)
 - ✅ Comprehensive completion (cross-layer documentation when "mark complete")
@@ -485,7 +485,7 @@ SUMMARY: {key-name}
 - Tests: {passed/failed count}
 - Build: {Clean | Warnings | Errors}
 - Approval Iterations: {N} (if re-evaluation occurred)
-- Checkpoint: {SHA}
+- Checkpoint: checkpoint/{key}/{timestamp}
 ```
 
 **Detailed:**
@@ -502,8 +502,9 @@ SUMMARY: {key-name}
 - Approval Iterations: {N} (if re-evaluation occurred)
   - Iteration 1: {additional requirement 1}
   - Iteration 2: {additional requirement 2}
-- Checkpoint: {SHA}
-  - Rollback: git reset --hard {SHA}
+- Checkpoint: checkpoint/{key}/{timestamp}
+  - Browse: git tag --list "checkpoint/{key}/*" --sort=-creatordate
+  - Rollback: git reset --hard checkpoint/{key}/{timestamp}
 ```
 
 ---
@@ -550,9 +551,9 @@ SUMMARY: {key-name}
 
 ---
 
-### Step 8.4: Checkpoint Commit & Log (MANDATORY)
+### Step 8.4: Checkpoint Commit & Tag (MANDATORY)
 
-**After all work is complete and key data stream is updated, create a final checkpoint commit.**
+**After all work is complete and key data stream is updated, create a final checkpoint commit with git tag.**
 
 #### Checkpoint Commit Requirements
 1. **Stage all changes:**
@@ -566,37 +567,65 @@ SUMMARY: {key-name}
    ```
    - Example: `git commit -m "checkpoint: canvas - added share button with confirmation dialog"`
 
-3. **Retrieve commit SHA:**
+3. **Create lightweight git tag:**
+   ```bash
+   git tag "checkpoint/{key}/{ISO-8601-date}"
+   ```
+   - Example: `git tag "checkpoint/canvas/2025-10-16T02:30:00Z"`
+   - Format: `checkpoint/{key}/{timestamp}` (enables filtering by key)
+
+4. **Retrieve commit SHA:**
    ```bash
    git rev-parse HEAD
    ```
 
-#### Checkpoint Log Management
-1. **Locate checkpoint log:** `.github/prompts.keys/.checkpoints/{key}.log`
-2. **Create or append entry** (most recent at top):
+#### Automatic Tag Pruning (28-tag limit per key)
+1. **List existing checkpoints for this key:**
+   ```bash
+   git tag --list "checkpoint/{key}/*" --sort=-creatordate
    ```
-   {ISO-8601 timestamp} | {SHA} | {one-line summary}
+
+2. **If ≥28 tags exist, delete oldest:**
+   ```bash
+   git tag --list "checkpoint/{key}/*" --sort=creatordate | Select-Object -First {count-to-delete} | ForEach-Object { git tag -d $_ }
    ```
-   - Example: `2025-10-16T02:30:00Z | a3f5b9c | added share button with confirmation dialog`
 
-3. **Enforce 28-entry limit:**
-   - Count existing entries
-   - If ≥28 entries, remove oldest entries (bottom of file)
-   - Keep only most recent 28 checkpoints
+3. **Maintains most recent 28 checkpoints per key automatically**
 
-4. **Alphabetical key organization:**
-   - Checkpoint logs stored per key: `.github/prompts.keys/.checkpoints/{key}.log`
-   - One log file per key, alphabetically organized
+#### Rollback & Browsing Capabilities
 
-#### Rollback Capability
-Users can rollback to any checkpoint using:
+**Rollback to specific checkpoint:**
 ```bash
-git reset --hard {SHA}
+git reset --hard {tag-name}
+# Example: git reset --hard checkpoint/canvas/2025-10-16T02:30:00Z
 ```
 
+**Browse all checkpoints for a key:**
+```bash
+git tag --list "checkpoint/{key}/*" --sort=-creatordate
+```
+
+**View checkpoint details:**
+```bash
+git show {tag-name} --stat
+```
+
+**Browse all checkpoints across all keys:**
+```bash
+git tag --list "checkpoint/*/*" --sort=-creatordate
+```
+
+**Advantages over separate log files:**
+- ✅ Single source of truth (git history)
+- ✅ No file sync issues
+- ✅ Native git browsing/search
+- ✅ Works with all git tools (GUI clients, IDE integrations)
+- ✅ Automatic cleanup via tag deletion
+- ✅ Can view full diff: `git show checkpoint/canvas/2025-10-16T02:30:00Z`
+
 **Output to User:**
-- **Concise:** `"✓ Checkpoint created: {SHA} ({key})"`
-- **Detailed:** Show complete checkpoint log entry and rollback command
+- **Concise:** `"✓ Checkpoint created: {tag-name}"`
+- **Detailed:** Show tag name, SHA, and rollback command
 
 **Example Checkpoint Log (`.github/prompts.keys/.checkpoints/canvas.log`):**
 ```
@@ -665,8 +694,8 @@ Search all modified source files and remove debug logging markers:
 - **ALWAYS execute Step 2.8.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations)
 - **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
 - **ALWAYS update key data stream after execution** (Step 8 is mandatory)
-- **ALWAYS create checkpoint commit after task completion** (Step 8.4 is mandatory)
-- **ALWAYS maintain checkpoint log with max 28 entries per key** (oldest entries auto-removed)
+- **ALWAYS create checkpoint commit and git tag after task completion** (Step 8.4 is mandatory)
+- **ALWAYS prune old checkpoint tags to maintain max 28 per key** (automatic cleanup)
 - **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
 - **ALWAYS preserve all historical entries when resuming completed keys**
 - **ALWAYS infer key from recent work** if not explicitly provided
