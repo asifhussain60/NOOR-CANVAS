@@ -29,7 +29,7 @@ Annotation system for NOOR Canvas with real-time SignalR synchronization, suppor
   - Broadcasts `AnnotationsCleared` event to all clients in session group
   - Trace markers: `[TRACE-ANNOTATION:clear-*]` for debugging
 - **Build**: Clean (zero errors, zero warnings)
-- **Commit**: 68019d4fca1b9d2c6712eb7408f79e4c1908ca87
+- **Commit**: d6f86e60339cfc6730558db87091daac365a12d4
 
 ### 2025-10-16T22:00:00Z
 - **Status**: In Progress
