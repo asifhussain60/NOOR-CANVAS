@@ -65,17 +65,17 @@ public class AssetProcessingService
             string finalHtml;
             if (shouldInjectButtons)
             {
-                _logger.LogInformation("G£‡ Calling InjectAssetShareButtonsAsync - Session {SessionId} status '{SessionStatus}'",
+                _logger.LogInformation("GÔøΩÔøΩ Calling InjectAssetShareButtonsAsync - Session {SessionId} status '{SessionStatus}'",
                     sessionId, sessionStatus);
 
                 finalHtml = await InjectAssetShareButtonsAsync(sanitizedInput ?? string.Empty, transformRunId);
 
-                _logger.LogInformation("G£‡ InjectAssetShareButtonsAsync completed - Output length: {OutputLength}",
+                _logger.LogInformation("GÔøΩÔøΩ InjectAssetShareButtonsAsync completed - Output length: {OutputLength}",
                     finalHtml?.Length ?? 0);
             }
             else
             {
-                _logger.LogWarning("G•Ó Skipping share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars)",
+                _logger.LogWarning("GÔøΩÔøΩ Skipping share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars)",
                     sessionId, sessionStatus, sanitizedInput?.Length ?? 0);
                 finalHtml = sanitizedInput ?? string.Empty;
             }
@@ -188,7 +188,7 @@ public class AssetProcessingService
 
             if (elements.Length > 0)
             {
-                _logger.LogInformation("[ASSETSHARE-DB:{RunId}] G£‡ FOUND {Count} instances of {AssetType} using selector '{Selector}'",
+                _logger.LogInformation("[ASSETSHARE-DB:{RunId}] GÔøΩÔøΩ FOUND {Count} instances of {AssetType} using selector '{Selector}'",
                     runId, elements.Length, assetLookup.AssetIdentifier, assetLookup.CssSelector);
 
                 // Process elements in reverse order to preserve positions
@@ -201,7 +201,7 @@ public class AssetProcessingService
             }
             else
             {
-                _logger.LogWarning("[ASSETSHARE-DB:{RunId}] G•Ó NO MATCHES found for {AssetType} with selector '{Selector}'",
+                _logger.LogWarning("[ASSETSHARE-DB:{RunId}] GÔøΩÔøΩ NO MATCHES found for {AssetType} with selector '{Selector}'",
                     runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
                 return Task.FromResult(0);
             }
@@ -308,6 +308,7 @@ public class AssetProcessingService
 
     /// <summary>
     /// Create HTML for a share button based on AssetLookup data.
+    /// Includes hidden annotation toolbar that slides out when share button is clicked.
     /// </summary>
     private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
@@ -316,8 +317,59 @@ public class AssetProcessingService
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
-        return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">?? SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+        return $@"
+<div class=""ks-share-wrapper"" data-share-container=""{encodedShareId}"" style=""display: flex; align-items: center; gap: 0; position: relative;"">
+    <button class=""ks-share-button ks-share-red"" 
+            data-share-button=""asset"" 
+            data-share-id=""{encodedShareId}"" 
+            data-asset-type=""{encodedAssetType}"" 
+            data-instance-number=""{instanceNumber}"" 
+            type=""button"" 
+            style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; white-space: nowrap;"">
+        üì§ SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}
+    </button>
+    
+    <!-- [TRACE:annotation-toolbar:hidden] Hidden annotation toolbar - slides out on share click -->
+    <div class=""annotation-toolbar"" 
+         data-annotation-toolbar=""{encodedShareId}""
+         style=""display: flex; align-items: center; gap: 4px; max-width: 0; overflow: hidden; opacity: 0; transition: max-width 0.3s ease-in-out, opacity 0.3s ease-in-out; padding: 0;"">
+        
+        <!-- Annotation Tool Buttons -->
+        <button class=""annotation-tool-btn"" data-tool=""select"" data-target=""{encodedShareId}"" type=""button"" title=""Select"" style=""background-color: transparent; color: #D4AF37; border: 1px solid #D4AF37; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
+            üñ±Ô∏è
+        </button>
+        <button class=""annotation-tool-btn"" data-tool=""laser"" data-target=""{encodedShareId}"" type=""button"" title=""Laser Pointer"" style=""background-color: transparent; color: #D4AF37; border: 1px solid #D4AF37; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
+            üî¥
+        </button>
+        <button class=""annotation-tool-btn"" data-tool=""draw"" data-target=""{encodedShareId}"" type=""button"" title=""Draw"" style=""background-color: transparent; color: #D4AF37; border: 1px solid #D4AF37; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
+            ‚úèÔ∏è
+        </button>
+        <button class=""annotation-tool-btn"" data-tool=""highlight"" data-target=""{encodedShareId}"" type=""button"" title=""Highlight"" style=""background-color: transparent; color: #D4AF37; border: 1px solid #D4AF37; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
+            üñçÔ∏è
+        </button>
+        <button class=""annotation-tool-btn"" data-tool=""note"" data-target=""{encodedShareId}"" type=""button"" title=""Add Note"" style=""background-color: transparent; color: #D4AF37; border: 1px solid #D4AF37; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
+            üìù
+        </button>
+        
+        <!-- Color Picker -->
+        <input type=""color"" 
+               class=""annotation-color-picker"" 
+               data-color-picker=""{encodedShareId}"" 
+               value=""#ffff00"" 
+               title=""Annotation Color"" 
+               style=""width: 32px; height: 28px; border: 1px solid #D4AF37; border-radius: 3px; cursor: pointer; padding: 0; background: transparent;"" />
+        
+        <!-- Clear Button -->
+        <button class=""annotation-clear-btn"" data-clear=""{encodedShareId}"" type=""button"" title=""Clear Annotations"" style=""background-color: #dc2626; color: white; border: 1px solid #dc2626; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
+            üóëÔ∏è
+        </button>
+        
+        <!-- Close Button (slides toolbar back) -->
+        <button class=""annotation-close-btn"" data-close-toolbar=""{encodedShareId}"" type=""button"" title=""Close Toolbar"" style=""background-color: #006400; color: white; border: 1px solid #006400; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px; margin-left: 4px;"">
+            ‚úñÔ∏è
+        </button>
+    </div>
+</div>";
     }
 
     /// <summary>

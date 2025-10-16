@@ -115,13 +115,6 @@
             @messageText
         </div>
     }
-    
-    <!-- [DIAGNOSTIC:annotation-panel:floating] Floating Annotation Panel - Shows after asset broadcast -->
-    <FloatingAnnotationPanel IsVisible="@showAnnotationPanel"
-                            OnClose="@CloseAnnotationPanel"
-                            OnToolChanged="@HandleToolChanged"
-                            OnColorChanged="@HandleColorChanged"
-                            OnClearAll="@HandleClearAnnotations" />
 </div>
 
 @* Debug Panel - Development Only *@
@@ -149,12 +142,6 @@
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
-    
-    // [DIAGNOSTIC:annotation-panel:state] Floating annotation panel state
-    private bool showAnnotationPanel = false;
-    private string currentAnnotationTool = "select";
-    private string currentAnnotationColor = "#ffff00";
-    private string? currentSharedAssetId = null; // Tracks which asset is currently being annotated
     
 
 
@@ -1284,21 +1271,6 @@
                 Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] TransformedTranscript length = {Length} ;CLEANUP_OK", diagRequestId, Model.TransformedTranscript?.Length ?? 0);
                 Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] Session Status = {Status} ;CLEANUP_OK", diagRequestId, Model.SessionStatus);
                 
-                // [TRACE-ANNOTATION:hcp-init-session] Initialize annotation system when session starts ;CLEANUP_OK
-                try
-                {
-                    Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] 🔄 Calling initializeAnnotationSystem() ;CLEANUP_OK", diagRequestId);
-                    await JSRuntime.InvokeVoidAsync("initializeAnnotationSystem");
-                    Logger.LogInformation("[TRACE-ANNOTATION:hcp-session-start] Annotation system initialized successfully ;CLEANUP_OK");
-                    Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] ✅ initializeAnnotationSystem() completed ;CLEANUP_OK", diagRequestId);
-                }
-                catch (Exception annotationEx)
-                {
-                    Logger.LogError(annotationEx, "[TRACE-ANNOTATION:hcp-session-start-error] Failed to initialize annotation system ;CLEANUP_OK");
-                    Logger.LogError("[DIAGNOSTIC:annotation-init] [{RequestId}] ❌ initializeAnnotationSystem() FAILED: {Error} ;CLEANUP_OK", diagRequestId, annotationEx.Message);
-                }
-                
-                // [DIAGNOSTIC:annotation-init] Log state AFTER annotation initialization ;CLEANUP_OK
                 Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] ════════ AFTER ANNOTATION INIT ════════ ;CLEANUP_OK", diagRequestId);
                 LogAnnotationToolbarVisibility();
                 
@@ -1451,15 +1423,6 @@
             
             // Success notification removed - SignalR broadcast logging preserved above
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🎉 SHARE COMPLETE: Asset broadcasted using direct content approach, broadcastId={BroadcastId}", broadcastId);
-            
-            // [DIAGNOSTIC:annotation-panel:show] Show floating annotation panel after successful broadcast
-            Logger.LogInformation("[DIAGNOSTIC:annotation-panel:show] Showing floating annotation panel for assetId={ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
-            currentSharedAssetId = shareId;
-            showAnnotationPanel = true;
-            await InvokeAsync(StateHasChanged);
-            
-            // [DIAGNOSTIC:annotation-panel:js-attach] Attach annotation tools to shared asset div
-            await JSRuntime.InvokeVoidAsync("attachAnnotationsToAsset", shareId);
         }
         catch (Exception ex)
         {
@@ -2059,36 +2022,6 @@
             showMessage = false;
             await InvokeAsync(StateHasChanged);
         }, null, TimeSpan.FromSeconds(6), Timeout.InfiniteTimeSpan);
-    }
-
-    // [DIAGNOSTIC:annotation-panel:handlers] Floating annotation panel event handlers
-    private async Task CloseAnnotationPanel()
-    {
-        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:close] Closing floating annotation panel for assetId={AssetId}", currentSharedAssetId);
-        showAnnotationPanel = false;
-        currentSharedAssetId = null;
-        await JSRuntime.InvokeVoidAsync("detachAnnotationsFromAsset");
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task HandleToolChanged(string tool)
-    {
-        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:tool] Tool changed to: {Tool}, assetId={AssetId}", tool, currentSharedAssetId);
-        currentAnnotationTool = tool;
-        await JSRuntime.InvokeVoidAsync("setAnnotationTool", tool, currentSharedAssetId);
-    }
-
-    private async Task HandleColorChanged(string color)
-    {
-        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:color] Color changed to: {Color}, assetId={AssetId}", color, currentSharedAssetId);
-        currentAnnotationColor = color;
-        await JSRuntime.InvokeVoidAsync("setAnnotationColor", color);
-    }
-
-    private async Task HandleClearAnnotations()
-    {
-        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:clear] Clearing annotations for assetId={AssetId}", currentSharedAssetId);
-        await JSRuntime.InvokeVoidAsync("clearAnnotationsForAsset", currentSharedAssetId);
     }
 
     /// <summary>
@@ -4661,177 +4594,287 @@ Please share this report with the development team for debugging.`;
         
         console.log('[TRACE-ANNOTATION:hcp-status] Connection status updated:', status, ';CLEANUP_OK');
     }
-
-    // ========== [TRACE-ANNOTATION:hcp-export] EXPORT INITIALIZATION FUNCTION ==========  ;CLEANUP_OK
-    window.initializeAnnotationSystem = async function() {
-        console.log('[TRACE-ANNOTATION:hcp-export] initializeAnnotationSystem called from C# ;CLEANUP_OK');
-        try {
-            await initializeAnnotationHub();
-            setupAnnotationTools();
-            annotationEnabled = true;
-            console.log('[TRACE-ANNOTATION:hcp-export-complete] Annotation system initialized ;CLEANUP_OK');
-        } catch (err) {
-            console.error('[TRACE-ANNOTATION:hcp-export-error] Failed to initialize annotation system ;CLEANUP_OK', err);
+    
+    // ========== [TRACE:annotation-toolbar:slide] SLIDING ANNOTATION TOOLBAR SYSTEM ==========
+    
+    // State management for annotation system
+    let currentActiveToolbar = null;
+    let annotationCanvases = {}; // Map of assetId -> canvas element
+    let annotationContexts = {}; // Map of assetId -> drawing context
+    let currentTools = {}; // Map of assetId -> current tool
+    let currentColors = {}; // Map of assetId -> current color
+    let isDrawing = false;
+    let drawingPath = [];
+    
+    // [TRACE:annotation-toolbar:share-click] Handle share button clicks - slide out toolbar
+    document.addEventListener('click', function(e) {
+        const shareBtn = e.target.closest('[data-share-button="asset"]');
+        
+        if (shareBtn) {
+            const shareId = shareBtn.getAttribute('data-share-id');
+            console.log('[TRACE:annotation-toolbar:share-click] Share button clicked:', shareId, ';CLEANUP_OK');
+            
+            // Close previous toolbar if different asset
+            if (currentActiveToolbar && currentActiveToolbar !== shareId) {
+                console.log('[TRACE:annotation-toolbar:close-previous] Closing previous toolbar:', currentActiveToolbar, ';CLEANUP_OK');
+                closeAnnotationToolbar(currentActiveToolbar);
+            }
+            
+            // Find and slide out the annotation toolbar for this asset
+            const toolbar = document.querySelector(`[data-annotation-toolbar="${shareId}"]`);
+            if (toolbar) {
+                console.log('[TRACE:annotation-toolbar:slide-out] Sliding out toolbar for:', shareId, ';CLEANUP_OK');
+                toolbar.style.maxWidth = '600px'; // Expand to show all buttons
+                toolbar.style.opacity = '1';
+                toolbar.style.padding = '0 8px';
+                currentActiveToolbar = shareId;
+                
+                // Initialize annotation canvas for this asset
+                initializeAnnotationCanvas(shareId);
+            }
         }
-    };
-
-    // ========== [DIAGNOSTIC:annotation-panel:attach] ATTACH ANNOTATIONS TO SHARED ASSET ==========
-    let currentAnnotationTarget = null;
-    let annotationCanvas = null;
-    let annotationContext = null;
-
-    window.attachAnnotationsToAsset = function(assetId) {
-        console.log('[DIAGNOSTIC:annotation-panel:attach] Attaching annotations to asset:', assetId);
+    });
+    
+    // [TRACE:annotation-toolbar:close-click] Handle close button clicks - slide toolbar back
+    document.addEventListener('click', function(e) {
+        const closeBtn = e.target.closest('[data-close-toolbar]');
         
-        // Find the shared asset div by data-share-id or shareId
-        const assetDiv = document.querySelector(`[data-share-id="${assetId}"]`) || 
-                        document.querySelector(`[shareId="${assetId}"]`);
+        if (closeBtn) {
+            const shareId = closeBtn.getAttribute('data-close-toolbar');
+            console.log('[TRACE:annotation-toolbar:close-click] Close button clicked:', shareId, ';CLEANUP_OK');
+            closeAnnotationToolbar(shareId);
+        }
+    });
+    
+    function closeAnnotationToolbar(shareId) {
+        const toolbar = document.querySelector(`[data-annotation-toolbar="${shareId}"]`);
+        if (toolbar) {
+            console.log('[TRACE:annotation-toolbar:close] Closing toolbar for:', shareId, ';CLEANUP_OK');
+            toolbar.style.maxWidth = '0';
+            toolbar.style.opacity = '0';
+            toolbar.style.padding = '0';
+            
+            if (currentActiveToolbar === shareId) {
+                currentActiveToolbar = null;
+            }
+            
+            // Remove annotation canvas for this asset
+            removeAnnotationCanvas(shareId);
+        }
+    }
+    
+    // [TRACE:annotation-toolbar:tool-click] Handle tool button clicks
+    document.addEventListener('click', function(e) {
+        const toolBtn = e.target.closest('[data-tool]');
         
-        if (!assetDiv) {
-            console.error('[DIAGNOSTIC:annotation-panel:attach] Asset div not found:', assetId);
+        if (toolBtn) {
+            const tool = toolBtn.getAttribute('data-tool');
+            const shareId = toolBtn.getAttribute('data-target');
+            console.log('[TRACE:annotation-toolbar:tool-click] Tool selected:', tool, 'for asset:', shareId, ';CLEANUP_OK');
+            
+            currentTools[shareId] = tool;
+            
+            // Update active state visually
+            const allToolBtns = document.querySelectorAll(`[data-target="${shareId}"][data-tool]`);
+            allToolBtns.forEach(btn => {
+                if (btn === toolBtn) {
+                    btn.style.backgroundColor = '#D4AF37';
+                    btn.style.color = '#000';
+                } else {
+                    btn.style.backgroundColor = 'transparent';
+                    btn.style.color = '#D4AF37';
+                }
+            });
+        }
+    });
+    
+    // [TRACE:annotation-toolbar:color-change] Handle color picker changes
+    document.addEventListener('change', function(e) {
+        const colorPicker = e.target.closest('[data-color-picker]');
+        
+        if (colorPicker) {
+            const shareId = colorPicker.getAttribute('data-color-picker');
+            const color = colorPicker.value;
+            console.log('[TRACE:annotation-toolbar:color-change] Color changed to:', color, 'for asset:', shareId, ';CLEANUP_OK');
+            
+            currentColors[shareId] = color;
+        }
+    });
+    
+    // [TRACE:annotation-toolbar:clear-click] Handle clear button clicks
+    document.addEventListener('click', function(e) {
+        const clearBtn = e.target.closest('[data-clear]');
+        
+        if (clearBtn) {
+            const shareId = clearBtn.getAttribute('data-clear');
+            console.log('[TRACE:annotation-toolbar:clear-click] Clear annotations for:', shareId, ';CLEANUP_OK');
+            
+            const context = annotationContexts[shareId];
+            const canvas = annotationCanvases[shareId];
+            
+            if (context && canvas) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                console.log('[TRACE:annotation-toolbar:clear-complete] Annotations cleared for:', shareId, ';CLEANUP_OK');
+                
+                // Broadcast clear to other clients
+                clearAnnotations();
+            }
+        }
+    });
+    
+    // [TRACE:annotation-toolbar:canvas-init] Initialize annotation canvas for an asset
+    function initializeAnnotationCanvas(shareId) {
+        console.log('[TRACE:annotation-toolbar:canvas-init] Initializing canvas for:', shareId, ';CLEANUP_OK');
+        
+        // Find the asset div (parent container of the share wrapper)
+        const shareWrapper = document.querySelector(`[data-share-container="${shareId}"]`);
+        if (!shareWrapper) {
+            console.error('[TRACE:annotation-toolbar:canvas-init-error] Share wrapper not found for:', shareId, ';CLEANUP_OK');
             return;
         }
         
-        currentAnnotationTarget = assetDiv;
-        console.log('[DIAGNOSTIC:annotation-panel:attach] Target asset found:', assetDiv);
+        // Find the closest asset container (ayah-card, poetry-wrapper, etc.)
+        let assetContainer = shareWrapper.closest('[data-content-type]') || 
+                           shareWrapper.closest('.ayah-card') ||
+                           shareWrapper.closest('.poetry-wrapper') ||
+                           shareWrapper.closest('.example') ||
+                           shareWrapper.closest('.etymology-card') ||
+                           shareWrapper.closest('.esotericBlock');
         
-        // Create annotation canvas overlay
-        createAnnotationCanvas(assetDiv);
-        
-        // Attach mouse event listeners
-        attachAnnotationListeners(assetDiv);
-    };
-
-    window.detachAnnotationsFromAsset = function() {
-        console.log('[DIAGNOSTIC:annotation-panel:detach] Detaching annotations');
-        
-        if (annotationCanvas) {
-            annotationCanvas.remove();
-            annotationCanvas = null;
-            annotationContext = null;
+        if (!assetContainer) {
+            console.error('[TRACE:annotation-toolbar:canvas-init-error] Asset container not found for:', shareId, ';CLEANUP_OK');
+            return;
         }
         
-        currentAnnotationTarget = null;
-    };
-
-    window.setAnnotationTool = function(tool, assetId) {
-        console.log('[DIAGNOSTIC:annotation-panel:tool] Setting tool:', tool, 'for asset:', assetId);
-        currentTool = tool;
-    };
-
-    window.setAnnotationColor = function(color) {
-        console.log('[DIAGNOSTIC:annotation-panel:color] Setting color:', color);
-        currentColor = color;
-    };
-
-    window.clearAnnotationsForAsset = function(assetId) {
-        console.log('[DIAGNOSTIC:annotation-panel:clear] Clearing annotations for asset:', assetId);
-        
-        if (annotationContext && annotationCanvas) {
-            annotationContext.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
-        }
-        
-        // Broadcast clear to all clients
-        clearAnnotations();
-    };
-
-    function createAnnotationCanvas(targetDiv) {
-        console.log('[DIAGNOSTIC:annotation-panel:canvas] Creating annotation canvas overlay');
+        console.log('[TRACE:annotation-toolbar:canvas-found] Asset container found:', assetContainer.className, ';CLEANUP_OK');
         
         // Remove existing canvas if any
-        if (annotationCanvas) {
-            annotationCanvas.remove();
+        if (annotationCanvases[shareId]) {
+            annotationCanvases[shareId].remove();
         }
         
-        // Create canvas element
-        annotationCanvas = document.createElement('canvas');
-        annotationCanvas.style.position = 'absolute';
-        annotationCanvas.style.top = '0';
-        annotationCanvas.style.left = '0';
-        annotationCanvas.style.pointerEvents = 'all';
-        annotationCanvas.style.zIndex = '1000';
-        annotationCanvas.id = 'annotation-canvas-overlay';
+        // Create canvas overlay
+        const canvas = document.createElement('canvas');
+        canvas.id = `annotation-canvas-${shareId}`;
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.pointerEvents = 'all';
+        canvas.style.zIndex = '1000';
+        canvas.style.cursor = 'crosshair';
         
-        // Match target div dimensions
-        const rect = targetDiv.getBoundingClientRect();
-        annotationCanvas.width = rect.width;
-        annotationCanvas.height = rect.height;
-        
-        // Make target div position relative if not already
-        if (getComputedStyle(targetDiv).position === 'static') {
-            targetDiv.style.position = 'relative';
+        // Ensure asset container has position relative
+        const position = window.getComputedStyle(assetContainer).position;
+        if (position === 'static') {
+            assetContainer.style.position = 'relative';
         }
         
-        // Append canvas to target div
-        targetDiv.appendChild(annotationCanvas);
+        // Set canvas dimensions to match container
+        const rect = assetContainer.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        
+        // Append canvas to asset container
+        assetContainer.appendChild(canvas);
         
         // Get drawing context
-        annotationContext = annotationCanvas.getContext('2d');
+        const context = canvas.getContext('2d');
         
-        console.log('[DIAGNOSTIC:annotation-panel:canvas] Canvas created:', annotationCanvas.width, 'x', annotationCanvas.height);
+        // Store in maps
+        annotationCanvases[shareId] = canvas;
+        annotationContexts[shareId] = context;
+        currentTools[shareId] = 'select';
+        currentColors[shareId] = '#ffff00';
+        
+        console.log('[TRACE:annotation-toolbar:canvas-ready] Canvas ready:', canvas.width, 'x', canvas.height, 'for:', shareId, ';CLEANUP_OK');
+        
+        // Attach drawing event listeners
+        attachDrawingListeners(canvas, shareId);
     }
-
-    function attachAnnotationListeners(targetDiv) {
-        console.log('[DIAGNOSTIC:annotation-panel:listeners] Attaching mouse listeners');
+    
+    function removeAnnotationCanvas(shareId) {
+        console.log('[TRACE:annotation-toolbar:canvas-remove] Removing canvas for:', shareId, ';CLEANUP_OK');
         
-        if (!annotationCanvas) return;
-        
-        annotationCanvas.addEventListener('mousedown', handleAnnotationMouseDown);
-        annotationCanvas.addEventListener('mousemove', handleAnnotationMouseMove);
-        annotationCanvas.addEventListener('mouseup', handleAnnotationMouseUp);
-        annotationCanvas.addEventListener('mouseleave', handleAnnotationMouseUp);
+        if (annotationCanvases[shareId]) {
+            annotationCanvases[shareId].remove();
+            delete annotationCanvases[shareId];
+            delete annotationContexts[shareId];
+            delete currentTools[shareId];
+            delete currentColors[shareId];
+        }
     }
-
-    function handleAnnotationMouseDown(e) {
-        if (currentTool === 'select') return;
+    
+    // [TRACE:annotation-toolbar:drawing] Attach drawing event listeners to canvas
+    function attachDrawingListeners(canvas, shareId) {
+        console.log('[TRACE:annotation-toolbar:drawing-listeners] Attaching listeners for:', shareId, ';CLEANUP_OK');
+        
+        canvas.addEventListener('mousedown', (e) => handleDrawStart(e, shareId));
+        canvas.addEventListener('mousemove', (e) => handleDrawMove(e, shareId));
+        canvas.addEventListener('mouseup', (e) => handleDrawEnd(e, shareId));
+        canvas.addEventListener('mouseleave', (e) => handleDrawEnd(e, shareId));
+    }
+    
+    function handleDrawStart(e, shareId) {
+        const tool = currentTools[shareId] || 'select';
+        
+        if (tool === 'select') return;
         
         isDrawing = true;
-        const rect = annotationCanvas.getBoundingClientRect();
+        const canvas = annotationCanvases[shareId];
+        const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        console.log('[DIAGNOSTIC:annotation-panel:draw] Start drawing at:', x, y, 'tool:', currentTool);
+        console.log('[TRACE:annotation-toolbar:draw-start] Drawing started at:', x, y, 'tool:', tool, ';CLEANUP_OK');
         
-        if (currentTool === 'draw' || currentTool === 'highlight') {
+        if (tool === 'draw' || tool === 'highlight') {
             drawingPath = [{x, y}];
-        } else if (currentTool === 'note') {
-            // Show note input dialog
+        } else if (tool === 'note') {
             const note = prompt('Enter your note:');
             if (note) {
-                drawNote(x, y, note);
+                drawNote(shareId, x, y, note);
             }
             isDrawing = false;
-        } else if (currentTool === 'laser') {
-            drawLaserPoint(x, y);
+        } else if (tool === 'laser') {
+            drawLaserPoint(shareId, x, y);
         }
     }
-
-    function handleAnnotationMouseMove(e) {
-        if (!isDrawing || currentTool === 'select' || currentTool === 'note') return;
+    
+    function handleDrawMove(e, shareId) {
+        if (!isDrawing) return;
         
-        const rect = annotationCanvas.getBoundingClientRect();
+        const tool = currentTools[shareId] || 'select';
+        if (tool === 'select' || tool === 'note') return;
+        
+        const canvas = annotationCanvases[shareId];
+        const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        if (currentTool === 'draw' || currentTool === 'highlight') {
+        if (tool === 'draw' || tool === 'highlight') {
             drawingPath.push({x, y});
-            drawPath();
-        } else if (currentTool === 'laser') {
-            drawLaserPoint(x, y);
+            drawPath(shareId);
+        } else if (tool === 'laser') {
+            drawLaserPoint(shareId, x, y);
         }
     }
-
-    function handleAnnotationMouseUp(e) {
+    
+    function handleDrawEnd(e, shareId) {
         if (!isDrawing) return;
         
-        console.log('[DIAGNOSTIC:annotation-panel:draw] End drawing, tool:', currentTool);
+        console.log('[TRACE:annotation-toolbar:draw-end] Drawing ended for:', shareId, ';CLEANUP_OK');
         
-        if ((currentTool === 'draw' || currentTool === 'highlight') && drawingPath.length > 0) {
+        const tool = currentTools[shareId] || 'select';
+        
+        if ((tool === 'draw' || tool === 'highlight') && drawingPath.length > 0) {
             // Broadcast annotation to other clients
             broadcastAnnotation({
-                tool: currentTool,
-                color: currentColor,
+                tool: tool,
+                color: currentColors[shareId],
                 path: drawingPath,
+                assetId: shareId,
                 timestamp: Date.now()
             });
         }
@@ -4839,64 +4882,74 @@ Please share this report with the development team for debugging.`;
         isDrawing = false;
         drawingPath = [];
     }
-
-    function drawPath() {
-        if (!annotationContext || drawingPath.length < 2) return;
+    
+    function drawPath(shareId) {
+        const context = annotationContexts[shareId];
+        const tool = currentTools[shareId];
+        const color = currentColors[shareId];
         
-        annotationContext.strokeStyle = currentColor;
-        annotationContext.lineWidth = currentTool === 'highlight' ? 20 : 3;
-        annotationContext.lineCap = 'round';
-        annotationContext.lineJoin = 'round';
-        annotationContext.globalAlpha = currentTool === 'highlight' ? 0.3 : 1.0;
+        if (!context || drawingPath.length < 2) return;
         
-        annotationContext.beginPath();
-        annotationContext.moveTo(drawingPath[0].x, drawingPath[0].y);
+        context.strokeStyle = color;
+        context.lineWidth = tool === 'highlight' ? 20 : 3;
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
+        context.globalAlpha = tool === 'highlight' ? 0.3 : 1.0;
+        
+        context.beginPath();
+        context.moveTo(drawingPath[0].x, drawingPath[0].y);
         
         for (let i = 1; i < drawingPath.length; i++) {
-            annotationContext.lineTo(drawingPath[i].x, drawingPath[i].y);
+            context.lineTo(drawingPath[i].x, drawingPath[i].y);
         }
         
-        annotationContext.stroke();
-        annotationContext.globalAlpha = 1.0;
+        context.stroke();
+        context.globalAlpha = 1.0;
     }
-
-    function drawLaserPoint(x, y) {
-        if (!annotationContext) return;
+    
+    function drawLaserPoint(shareId, x, y) {
+        const context = annotationContexts[shareId];
+        if (!context) return;
         
-        annotationContext.fillStyle = '#ff0000';
-        annotationContext.globalAlpha = 0.8;
-        annotationContext.beginPath();
-        annotationContext.arc(x, y, 8, 0, 2 * Math.PI);
-        annotationContext.fill();
-        annotationContext.globalAlpha = 1.0;
+        context.fillStyle = '#ff0000';
+        context.globalAlpha = 0.8;
+        context.beginPath();
+        context.arc(x, y, 8, 0, 2 * Math.PI);
+        context.fill();
+        context.globalAlpha = 1.0;
         
-        // Fade out after short delay
+        // Fade out after 500ms
         setTimeout(() => {
-            if (annotationContext && annotationCanvas) {
-                annotationContext.clearRect(x - 10, y - 10, 20, 20);
+            const canvas = annotationCanvases[shareId];
+            if (context && canvas) {
+                context.clearRect(x - 10, y - 10, 20, 20);
             }
         }, 500);
     }
-
-    function drawNote(x, y, text) {
-        if (!annotationContext) return;
+    
+    function drawNote(shareId, x, y, text) {
+        const context = annotationContexts[shareId];
+        if (!context) return;
+        
+        // Draw yellow note background
+        context.fillStyle = '#fbbf24';
+        context.fillRect(x, y, 30, 30);
         
         // Draw note icon
-        annotationContext.fillStyle = '#fbbf24';
-        annotationContext.fillRect(x, y, 30, 30);
+        context.fillStyle = '#000';
+        context.font = '16px Arial';
+        context.fillText('📝', x + 5, y + 22);
         
-        // Draw text
-        annotationContext.fillStyle = '#000';
-        annotationContext.font = '12px Arial';
-        annotationContext.fillText('📝', x + 5, y + 20);
+        console.log('[TRACE:annotation-toolbar:note-created] Note added at:', x, y, 'text:', text, ';CLEANUP_OK');
         
         // Broadcast annotation
         broadcastAnnotation({
             tool: 'note',
-            color: currentColor,
+            color: currentColors[shareId],
             x: x,
             y: y,
             text: text,
+            assetId: shareId,
             timestamp: Date.now()
         });
     }
