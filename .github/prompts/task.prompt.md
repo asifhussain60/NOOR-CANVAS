@@ -65,6 +65,7 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 ### Expected Outcomes
 - ✅ Incremental documentation (key data stream updated after EVERY sub-task)
 - ✅ Git-linked traceability (full SHA commit hashes recorded)
+- ✅ Checkpoint commits (every task creates rollback point with 28-entry history)
 - ✅ Automatic test creation (Playwright tests generated for UI changes)
 - ✅ Clean build (zero errors, zero warnings - mandatory)
 - ✅ Comprehensive completion (cross-layer documentation when "mark complete")
@@ -484,6 +485,7 @@ SUMMARY: {key-name}
 - Tests: {passed/failed count}
 - Build: {Clean | Warnings | Errors}
 - Approval Iterations: {N} (if re-evaluation occurred)
+- Checkpoint: {SHA}
 ```
 
 **Detailed:**
@@ -500,6 +502,8 @@ SUMMARY: {key-name}
 - Approval Iterations: {N} (if re-evaluation occurred)
   - Iteration 1: {additional requirement 1}
   - Iteration 2: {additional requirement 2}
+- Checkpoint: {SHA}
+  - Rollback: git reset --hard {SHA}
 ```
 
 ---
@@ -543,6 +547,65 @@ SUMMARY: {key-name}
 5. Regression detection & history
 
 **Failure to update the key data stream constitutes an incomplete task execution.**
+
+---
+
+### Step 8.4: Checkpoint Commit & Log (MANDATORY)
+
+**After all work is complete and key data stream is updated, create a final checkpoint commit.**
+
+#### Checkpoint Commit Requirements
+1. **Stage all changes:**
+   ```bash
+   git add -A
+   ```
+
+2. **Create checkpoint commit with standardized message:**
+   ```bash
+   git commit -m "checkpoint: {key} - {one-line summary of work}"
+   ```
+   - Example: `git commit -m "checkpoint: canvas - added share button with confirmation dialog"`
+
+3. **Retrieve commit SHA:**
+   ```bash
+   git rev-parse HEAD
+   ```
+
+#### Checkpoint Log Management
+1. **Locate checkpoint log:** `.github/prompts.keys/.checkpoints/{key}.log`
+2. **Create or append entry** (most recent at top):
+   ```
+   {ISO-8601 timestamp} | {SHA} | {one-line summary}
+   ```
+   - Example: `2025-10-16T02:30:00Z | a3f5b9c | added share button with confirmation dialog`
+
+3. **Enforce 28-entry limit:**
+   - Count existing entries
+   - If ≥28 entries, remove oldest entries (bottom of file)
+   - Keep only most recent 28 checkpoints
+
+4. **Alphabetical key organization:**
+   - Checkpoint logs stored per key: `.github/prompts.keys/.checkpoints/{key}.log`
+   - One log file per key, alphabetically organized
+
+#### Rollback Capability
+Users can rollback to any checkpoint using:
+```bash
+git reset --hard {SHA}
+```
+
+**Output to User:**
+- **Concise:** `"✓ Checkpoint created: {SHA} ({key})"`
+- **Detailed:** Show complete checkpoint log entry and rollback command
+
+**Example Checkpoint Log (`.github/prompts.keys/.checkpoints/canvas.log`):**
+```
+2025-10-16T02:30:00Z | a3f5b9c1234 | added share button with confirmation dialog
+2025-10-16T01:15:00Z | b2d4e8f5678 | fixed session title display bug
+2025-10-15T23:45:00Z | c1a7b3d9012 | implemented question deletion with persistence
+...
+(up to 28 most recent checkpoints)
+```
 
 ---
 
@@ -602,6 +665,8 @@ Search all modified source files and remove debug logging markers:
 - **ALWAYS execute Step 2.8.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations)
 - **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
 - **ALWAYS update key data stream after execution** (Step 8 is mandatory)
+- **ALWAYS create checkpoint commit after task completion** (Step 8.4 is mandatory)
+- **ALWAYS maintain checkpoint log with max 28 entries per key** (oldest entries auto-removed)
 - **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
 - **ALWAYS preserve all historical entries when resuming completed keys**
 - **ALWAYS infer key from recent work** if not explicitly provided
