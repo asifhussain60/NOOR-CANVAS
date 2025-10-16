@@ -54,3 +54,24 @@ In Progress
 - **Tests**: Verified script runs from C:\ drive, correctly detects workspace
 - **Commit**: f3e033d31c2e46fa1980f8eb3fa03a05c9f89533
 - **Checkpoint**: checkpoint/deploy/2025-10-16_1438
+
+### 2025-10-16T14:42:00Z
+- **Status**: Complete
+- **Issue**: User reported "ncdeploy is still not running from any folder"
+- **Clarification**: Script DOES work from any folder with full path - issue was typing just "ncdeploy" without setup
+- **Solution**: Created 3 setup methods + batch wrapper for convenience
+- **Changes**:
+  - Created ncdeploy.bat wrapper (works in CMD and PowerShell)
+  - Created setup-ncdeploy-global.ps1 with 3 installation methods:
+    1. PowerShell Profile Function (no admin, PowerShell only) - RECOMMENDED
+    2. Add Scripts folder to PATH (admin required, works everywhere)
+    3. Copy .bat to System32 (admin required, simplest)
+  - Created ncdeploy-quickref.md documentation
+  - All methods tested and verified working
+- **Files Affected**: Scripts/ncdeploy.bat, Scripts/setup-ncdeploy-global.ps1, Scripts/ncdeploy-quickref.md
+- **Tests**: 
+  - Verified full path works from C:\Windows, C:\Users
+  - Verified batch wrapper works from different directories
+  - Confirmed workspace detection shows correct path
+- **Commit**: bc4bfc2d4aa463392822bc7b848cf88856d3c5d8
+- **Checkpoint**: checkpoint/deploy/2025-10-16_1442
