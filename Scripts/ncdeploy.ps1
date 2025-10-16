@@ -612,10 +612,6 @@ try {
             Pop-Location
         }
     }
-        } finally {
-            Pop-Location
-        }
-    }
     
     Write-Host "`nRecovery options:" -ForegroundColor Cyan
     Write-Host "  - Check git status: git status" -ForegroundColor Gray
