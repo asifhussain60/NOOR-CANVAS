@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Provisioner - Draggable Header Feature</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F8F5F1;
+            padding: 40px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #006400;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .test-info {
+            background: #F8F5F1;
+            border-left: 4px solid #C5B358;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .header-demo {
+            width: 550px;
+            height: 50px;
+            background: #006400;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: white;
+            font-weight: bold;
+            margin: 20px 0;
+            cursor: move;
+            position: relative;
+        }
+        .header-demo::before {
+            content: "👆 Drag me!";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: #006400;
+            font-weight: bold;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { top: -30px; }
+            50% { top: -35px; }
+        }
+        .close-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .close-btn:hover {
+            background: rgba(180, 0, 0, 0.8);
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .code-comment {
+            color: #6a9955;
+        }
+        .code-keyword {
+            color: #569cd6;
+        }
+        .code-string {
+            color: #ce9178;
+        }
+        .feature-list {
+            background: #ffffff;
+            border: 1px solid #C5B358;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .feature-list h3 {
+            color: #006400;
+            margin-top: 0;
+        }
+        .feature-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #F8F5F1;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li::before {
+            content: "✓ ";
+            color: #006400;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Host Provisioner - Draggable Header Implementation</h1>
+        
+        <div class="test-info">
+            <strong>Feature:</strong> Draggable Header Bar<br>
+            <strong>Issue:</strong> Form was cutting off at the bottom<br>
+            <strong>Solution:</strong> Added draggable header to move form as needed<br>
+            <strong>Implementation Date:</strong> 2025-10-16
+        </div>
+
+        <h2>Interactive Header Demo</h2>
+        <div class="header-demo">
+            <span>⚙ NOOR Canvas Host Provisioner</span>
+            <button class="close-btn">✕</button>
+        </div>
+
+        <div class="feature-list">
+            <h3>🔧 Technical Implementation</h3>
+            <ul>
+                <li>Changed FormBorderStyle from FixedDialog to None</li>
+                <li>Added custom header panel (50px height)</li>
+                <li>Implemented mouse drag event handlers</li>
+                <li>Increased form height from 800px to 850px</li>
+                <li>Added cursor visual feedback (SizeAll)</li>
+                <li>Custom close button with hover effect</li>
+                <li>Header and title both support dragging</li>
+            </ul>
+        </div>
+
+        <h2>Code Implementation</h2>
+        <div class="code-block">
+<span class="code-comment">// Added dragging support fields</span>
+<span class="code-keyword">private bool</span> _isDragging = <span class="code-keyword">false</span>;
+<span class="code-keyword">private</span> Point _dragStartPoint;
+
+<span class="code-comment">// Header creation in InitializeComponent()</span>
+<span class="code-keyword">var</span> pnlHeader = <span class="code-keyword">new</span> Panel
+{
+    Location = <span class="code-keyword">new</span> Point(0, 0),
+    Size = <span class="code-keyword">new</span> Size(<span class="code-keyword">this</span>.ClientSize.Width, 50),
+    BackColor = NoorGreen,
+    Cursor = Cursors.SizeAll
+};
+
+<span class="code-comment">// Wire up drag events</span>
+pnlHeader.MouseDown += Header_MouseDown;
+pnlHeader.MouseMove += Header_MouseMove;
+pnlHeader.MouseUp += Header_MouseUp;
+        </div>
+
+        <div class="feature-list">
+            <h3>🎯 Visual Regression Test Points</h3>
+            <ul>
+                <li>Header bar is 50px tall with green background (#006400)</li>
+                <li>Title text: "⚙ NOOR Canvas Host Provisioner" in white</li>
+                <li>Close button (✕) positioned at top-right</li>
+                <li>Cursor changes to SizeAll (four-way arrow) over header</li>
+                <li>Form is borderless (no standard Windows border)</li>
+                <li>Main panel starts at Y=80 (below header)</li>
+                <li>All existing panels maintain proper spacing</li>
+            </ul>
+        </div>
+
+        <div class="test-info">
+            <strong>User Experience Improvements:</strong><br>
+            ✅ Form can be moved anywhere on screen<br>
+            ✅ Prevents content from being cut off at bottom<br>
+            ✅ Modern, clean appearance without Windows borders<br>
+            ✅ Visual feedback with cursor change<br>
+            ✅ Custom close button matches app theme<br>
+            ✅ Smooth dragging experience
+        </div>
+
+        <h2>Testing Checklist</h2>
+        <div class="feature-list">
+            <h3>📋 Manual Testing Steps</h3>
+            <ul>
+                <li>Click and hold on header bar - form should move</li>
+                <li>Click and hold on title text - form should move</li>
+                <li>Release mouse - form should stop moving</li>
+                <li>Click close button - application should exit</li>
+                <li>Hover over close button - background should turn red</li>
+                <li>Move form to screen edges - should not get stuck</li>
+                <li>Generate tokens while form is moved - should work normally</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+        

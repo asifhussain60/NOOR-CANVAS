@@ -36,6 +36,10 @@ namespace HostProvisioner.WinForms
         private Label lblBaseUrl = null!; // Separate label for Base URL
         private Label lblDatabase = null!;
 
+        // [TRACE:host-provisioner:drag-support] Form dragging support ;CLEANUP_OK
+        private bool _isDragging = false;
+        private Point _dragStartPoint;
+
         public MainForm()
         {
             // [DEBUG-WORKITEM:host-provisioner-form:config] Initialize services with centralized config
@@ -58,19 +62,67 @@ namespace HostProvisioner.WinForms
         {
             // Form settings - Modern card-based design
             this.Text = "NOOR Canvas Host Provisioner";
-            this.Size = new Size(550, 800);
+            this.Size = new Size(550, 850); // [TRACE:host-provisioner:drag-support] Increased height for header bar ;CLEANUP_OK
             this.BackColor = NoorBeige;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = FormBorderStyle.None; // [TRACE:host-provisioner:drag-support] Remove border for custom header ;CLEANUP_OK
             this.MaximizeBox = false;
             this.Font = new Font("Segoe UI", 9F);
             this.Padding = new Padding(30);
 
+            // [TRACE:host-provisioner:drag-support] Add draggable header bar ;CLEANUP_OK
+            var pnlHeader = new Panel
+            {
+                Location = new Point(0, 0),
+                Size = new Size(this.ClientSize.Width, 50),
+                BackColor = NoorGreen,
+                BorderStyle = BorderStyle.None,
+                Cursor = Cursors.SizeAll
+            };
+
+            var lblHeaderTitle = new Label
+            {
+                Text = "⚙ NOOR Canvas Host Provisioner",
+                Location = new Point(20, 12),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                Cursor = Cursors.SizeAll
+            };
+
+            var btnClose = new Button
+            {
+                Text = "✕",
+                Location = new Point(this.ClientSize.Width - 50, 10),
+                Size = new Size(40, 30),
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.FlatAppearance.MouseOverBackColor = Color.FromArgb(180, 0, 0);
+            btnClose.Click += (s, e) => this.Close();
+
+            // [TRACE:host-provisioner:drag-support] Wire up drag events for header and title ;CLEANUP_OK
+            pnlHeader.MouseDown += Header_MouseDown;
+            pnlHeader.MouseMove += Header_MouseMove;
+            pnlHeader.MouseUp += Header_MouseUp;
+            lblHeaderTitle.MouseDown += Header_MouseDown;
+            lblHeaderTitle.MouseMove += Header_MouseMove;
+            lblHeaderTitle.MouseUp += Header_MouseUp;
+
+            pnlHeader.Controls.Add(lblHeaderTitle);
+            pnlHeader.Controls.Add(btnClose);
+            this.Controls.Add(pnlHeader);
+
             // Main container panel - Card with shadow effect
             var pnlMain = new Panel
             {
-                Location = new Point(30, 30),
-                Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 60),
+                Location = new Point(30, 80), // [TRACE:host-provisioner:drag-support] Adjusted for header ;CLEANUP_OK
+                Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 110), // [TRACE:host-provisioner:drag-support] Adjusted for header ;CLEANUP_OK
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
                 Padding = new Padding(32)
@@ -555,6 +607,32 @@ namespace HostProvisioner.WinForms
                 lblStatus.ForeColor = Color.Red;
                 MessageBox.Show($"Failed to open URL in browser:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // [TRACE:host-provisioner:drag-support] Form dragging event handlers ;CLEANUP_OK
+        private void Header_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                _isDragging = true;
+                _dragStartPoint = e.Location;
+            }
+        }
+
+        private void Header_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if (_isDragging)
+            {
+                Point newLocation = this.Location;
+                newLocation.X += e.X - _dragStartPoint.X;
+                newLocation.Y += e.Y - _dragStartPoint.Y;
+                this.Location = newLocation;
+            }
+        }
+
+        private void Header_MouseUp(object? sender, MouseEventArgs e)
+        {
+            _isDragging = false;
         }
     }
 }
