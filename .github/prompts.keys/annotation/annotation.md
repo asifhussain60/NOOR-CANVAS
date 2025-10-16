@@ -3,12 +3,30 @@
 **Key**: annotation  
 **Status**: In Progress  
 **Created**: 2025-10-16  
-**Last Updated**: 2025-10-16T21:05:00Z
+**Last Updated**: 2025-10-16T21:45:00Z
 
 ## Overview
 Annotation system for NOOR Canvas with real-time SignalR synchronization, supporting laser pointer, drawing, highlighting, and note tools.
 
 ## Work Log
+
+### 2025-10-16T21:45:00Z
+- **Status**: In Progress
+- **Changes**:
+  - **ARCHITECTURE CHANGE**: Redesigned demo to use separate sender/receiver pages instead of single-page dual-iframe
+  - Created `annotation-sender.html` - Full annotation interface with controls, sample content (text + images), Launch Receiver button
+  - Created `annotation-receiver.html` - Minimal receiver view with sample content, toast notifications, no controls
+  - Each page establishes its own SignalR connection (fixes synchronization issue)
+  - Removed iframe-based architecture (now uses div-based layout with Tailwind CSS)
+  - Sender passes session ID to receiver via URL parameter
+  - Receiver auto-loads session ID from URL query string
+  - Both pages display identical sample content for alignment
+- **Files Affected**:
+  - `SPA/NoorCanvas/wwwroot/annotation-sender.html` (NEW)
+  - `SPA/NoorCanvas/wwwroot/annotation-receiver.html` (NEW)
+- **Root Cause Fix**: Separate SignalR connections per page enables proper `Clients.OthersInGroup()` behavior
+- **Build**: Clean (zero errors, zero warnings)
+- **Commit**: 3444ade0d6e5042da68e7710442bc713f5e49590
 
 ### 2025-10-16T21:32:00Z
 - **Status**: In Progress
@@ -67,6 +85,16 @@ Annotation system for NOOR Canvas with real-time SignalR synchronization, suppor
 3. Same-window testing will NOT show laser on View 2 (by design)
 
 ## Testing Instructions
+
+### NEW: Two-Page Architecture (Recommended)
+1. Open `https://localhost:9091/annotation-sender.html`
+2. Click "Connect" button
+3. Click "Launch Receiver" button (opens receiver in new window)
+4. In receiver window, click "Connect" (session ID auto-filled)
+5. In sender window, select annotation tool and annotate
+6. Verify annotations appear in receiver window in real-time
+
+### Legacy: Single-Page Dual-View (annotation-demo.html)
 1. Open `https://localhost:9091/annotation-demo.html` in **two separate browser windows**
 2. Click "Connect" in both windows
 3. Change User ID to "demo-user-2" in second window
@@ -81,5 +109,7 @@ Annotation system for NOOR Canvas with real-time SignalR synchronization, suppor
 
 ## References
 - SignalR Hub: `/hub/annotation`
-- Demo URL: `https://localhost:9091/annotation-demo.html`
+- **Sender URL**: `https://localhost:9091/annotation-sender.html`
+- **Receiver URL**: `https://localhost:9091/annotation-receiver.html`
+- Legacy Demo URL: `https://localhost:9091/annotation-demo.html`
 - Database: `KSESSIONS_DEV.canvas.Annotations`
