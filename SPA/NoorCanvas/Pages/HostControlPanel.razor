@@ -1324,16 +1324,30 @@
                     Model.TransformedTranscript = await TransformTranscriptHtmlAsync(Model.SessionTranscript);
                 }
                 
+                // [DIAGNOSTIC:annotation-init] Log state BEFORE annotation initialization ;CLEANUP_OK
+                var diagRequestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] ════════ BEFORE ANNOTATION INIT ════════ ;CLEANUP_OK", diagRequestId);
+                Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] shareHandlersInitialized = {Flag} ;CLEANUP_OK", diagRequestId, shareHandlersInitialized);
+                Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] TransformedTranscript length = {Length} ;CLEANUP_OK", diagRequestId, Model.TransformedTranscript?.Length ?? 0);
+                Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] Session Status = {Status} ;CLEANUP_OK", diagRequestId, Model.SessionStatus);
+                
                 // [TRACE-ANNOTATION:hcp-init-session] Initialize annotation system when session starts ;CLEANUP_OK
                 try
                 {
+                    Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] 🔄 Calling initializeAnnotationSystem() ;CLEANUP_OK", diagRequestId);
                     await JSRuntime.InvokeVoidAsync("initializeAnnotationSystem");
                     Logger.LogInformation("[TRACE-ANNOTATION:hcp-session-start] Annotation system initialized successfully ;CLEANUP_OK");
+                    Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] ✅ initializeAnnotationSystem() completed ;CLEANUP_OK", diagRequestId);
                 }
                 catch (Exception annotationEx)
                 {
                     Logger.LogError(annotationEx, "[TRACE-ANNOTATION:hcp-session-start-error] Failed to initialize annotation system ;CLEANUP_OK");
+                    Logger.LogError("[DIAGNOSTIC:annotation-init] [{RequestId}] ❌ initializeAnnotationSystem() FAILED: {Error} ;CLEANUP_OK", diagRequestId, annotationEx.Message);
                 }
+                
+                // [DIAGNOSTIC:annotation-init] Log state AFTER annotation initialization ;CLEANUP_OK
+                Logger.LogInformation("[DIAGNOSTIC:annotation-init] [{RequestId}] ════════ AFTER ANNOTATION INIT ════════ ;CLEANUP_OK", diagRequestId);
+                LogAnnotationToolbarVisibility();
                 
                 await ShowMessageAsync("Session started successfully! Session is now active.");
                 
@@ -2137,6 +2151,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // [DIAGNOSTIC:annotation-visibility] Log annotation toolbar visibility conditions ;CLEANUP_OK
+        LogAnnotationToolbarVisibility();
+        
         // [DEBUG-WORKITEM:hcp:toastr:trace] Verify toastr library loaded on first render ;CLEANUP_OK
         if (firstRender)
         {
@@ -2461,6 +2478,56 @@
             "DATA" => "#06B6D4",
             _ => "#E5E7EB"
         };
+    }
+
+    /// <summary>
+    /// [DIAGNOSTIC:annotation-visibility] Log all conditions affecting annotation toolbar visibility ;CLEANUP_OK
+    /// </summary>
+    private void LogAnnotationToolbarVisibility()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] ════════════════════════════════════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] ANNOTATION TOOLBAR VISIBILITY CHECK ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] ════════════════════════════════════════ ;CLEANUP_OK", requestId);
+        
+        // Condition 1: Session Status
+        var sessionStatus = Model?.SessionStatus ?? "NULL";
+        var isActiveOrEnded = (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended");
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] 1️⃣ Session Status = '{Status}' (Active or Ended? {IsValid}) ;CLEANUP_OK", 
+            requestId, sessionStatus, isActiveOrEnded);
+        
+        // Condition 2: Share Handlers Initialized
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] 2️⃣ shareHandlersInitialized = {Flag} ;CLEANUP_OK", 
+            requestId, shareHandlersInitialized);
+        
+        // Condition 3: Transformed Transcript
+        var hasTranscript = !string.IsNullOrEmpty(Model?.TransformedTranscript);
+        var transcriptLength = Model?.TransformedTranscript?.Length ?? 0;
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] 3️⃣ TransformedTranscript: HasContent={HasContent}, Length={Length} chars ;CLEANUP_OK", 
+            requestId, hasTranscript, transcriptLength);
+        
+        // Combined visibility result
+        var shouldBeVisible = isActiveOrEnded && shareHandlersInitialized && hasTranscript;
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] 🎯 RESULT: Annotation Toolbar Should Be Visible = {ShouldBeVisible} ;CLEANUP_OK", 
+            requestId, shouldBeVisible);
+        
+        if (!shouldBeVisible)
+        {
+            Logger.LogWarning("[DIAGNOSTIC:annotation-visibility] [{RequestId}] ⚠️ Toolbar HIDDEN - Missing conditions: ;CLEANUP_OK", requestId);
+            if (!isActiveOrEnded)
+                Logger.LogWarning("[DIAGNOSTIC:annotation-visibility] [{RequestId}]    ❌ Session not Active/Ended (current: {Status}) ;CLEANUP_OK", requestId, sessionStatus);
+            if (!shareHandlersInitialized)
+                Logger.LogWarning("[DIAGNOSTIC:annotation-visibility] [{RequestId}]    ❌ Share handlers not initialized ;CLEANUP_OK", requestId);
+            if (!hasTranscript)
+                Logger.LogWarning("[DIAGNOSTIC:annotation-visibility] [{RequestId}]    ❌ Transformed transcript is empty ;CLEANUP_OK", requestId);
+        }
+        else
+        {
+            Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] ✅ Toolbar VISIBLE - All conditions met ;CLEANUP_OK", requestId);
+        }
+        
+        Logger.LogInformation("[DIAGNOSTIC:annotation-visibility] [{RequestId}] ════════════════════════════════════════ ;CLEANUP_OK", requestId);
     }
 
     /// <summary>
