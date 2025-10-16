@@ -1,5 +1,22 @@
 # Work Log - css
 
+## 2025-10-16T07:25:00Z
+- **Status**: In Progress
+- **Changes**:
+  - [DEBUG-WORKITEM:css:landscape-fix] Fixed landscape screenshots rendering in portrait orientation
+  - Removed `fullPage: true` from all screenshot calls to respect viewport height constraints
+  - Landscape screenshots now correctly match viewport dimensions (e.g., 667x375 instead of 667x1338)
+- **Root Cause**: `fullPage: true` captures entire page height, ignoring viewport height setting
+- **Solution**: Use viewport-constrained screenshots (default Playwright behavior)
+- **Files Affected**:
+  - `Workspaces/TEMP/mobile-views-screenshots.spec.ts` (removed fullPage from 3 screenshot calls)
+  - All 33 screenshots regenerated with correct dimensions
+- **Verification**:
+  - ✅ iPhone landscape: 667x375 (was 667x1338)
+  - ✅ iPad landscape: 1024x768 (was 1024x1116)
+  - ✅ All 33 tests passed
+- **Commit**: 66848bf579c6f7c63252d9de7e2d43f0260a9ca5
+
 ## 2025-10-16T07:10:00Z
 - **Status**: In Progress
 - **Changes**:
