@@ -20,8 +20,8 @@
  */
 
 import { expect, test } from '@playwright/test';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -91,10 +91,9 @@ test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
                 await page.waitForSelector('.session-info-panel', { timeout: 10000 });
                 await page.waitForTimeout(1500); // Allow for animations and SignalR
 
-                // Take full-page screenshot
+                // [DEBUG-WORKITEM:css:landscape-fix] Removed fullPage to respect viewport dimensions ;CLEANUP_OK
                 await page.screenshot({
-                    path: path.join(SCREENSHOT_DIR, `SessionWaiting-${config.name}.png`),
-                    fullPage: true
+                    path: path.join(SCREENSHOT_DIR, `SessionWaiting-${config.name}.png`)
                 });
 
                 console.log(`✅ Screenshot saved: SessionWaiting-${config.name}.png`);
@@ -125,10 +124,9 @@ test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
                 await page.waitForSelector('.user-landing-logo', { timeout: 5000 });
                 await page.waitForTimeout(1000);
 
-                // Take full-page screenshot
+                // [DEBUG-WORKITEM:css:landscape-fix] Removed fullPage to respect viewport dimensions ;CLEANUP_OK
                 await page.screenshot({
-                    path: path.join(SCREENSHOT_DIR, `UserLanding-${config.name}.png`),
-                    fullPage: true
+                    path: path.join(SCREENSHOT_DIR, `UserLanding-${config.name}.png`)
                 });
 
                 console.log(`✅ Screenshot saved: UserLanding-${config.name}.png`);
@@ -159,10 +157,9 @@ test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
                 await page.waitForSelector('.canvas-content-area', { timeout: 10000 });
                 await page.waitForTimeout(1500); // Allow for SignalR connection
 
-                // Take full-page screenshot
+                // [DEBUG-WORKITEM:css:landscape-fix] Removed fullPage to respect viewport dimensions ;CLEANUP_OK
                 await page.screenshot({
-                    path: path.join(SCREENSHOT_DIR, `SessionCanvas-${config.name}.png`),
-                    fullPage: true
+                    path: path.join(SCREENSHOT_DIR, `SessionCanvas-${config.name}.png`)
                 });
 
                 console.log(`✅ Screenshot saved: SessionCanvas-${config.name}.png`);
