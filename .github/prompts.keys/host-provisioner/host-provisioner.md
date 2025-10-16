@@ -1,8 +1,8 @@
 # Host Provisioner Key
 
-**Status**: ✅ Verified Functional  
+**Status**: In Progress  
 **Created**: 2025-10-11  
-**Last Updated**: 2025-10-11  
+**Last Updated**: 2025-10-16  
 **Agent**: task  
 
 ## Overview
@@ -145,3 +145,31 @@ Standalone console application for generating secure Host and User tokens for NO
 - **Alternative Test Session**: Session 215 (has dedicated task)
 - **Test Database**: KSESSIONS_DEV
 - **Test Environment**: Development (localhost:9091)
+
+---
+
+## Work Log
+
+### 2025-10-16T03:15:00Z
+- **Status**: In Progress
+- **Changes**: 
+  - Implemented draggable header bar for WinForms application
+  - Changed FormBorderStyle from FixedDialog to None for borderless design
+  - Added custom green header panel (50px) with title and close button
+  - Implemented mouse drag event handlers (MouseDown, MouseMove, MouseUp)
+  - Increased form height from 800px to 850px to accommodate header
+  - Reduced logo size from 200x200px to 100x100px for better space utilization
+  - Added AutoScroll property to main panel for vertical scrolling capability
+  - Adjusted all panel positions to account for smaller logo (gained ~100px vertical space)
+- **Files Affected**: 
+  - `Tools/HostProvisioner/HostProvisioner.WinForms/MainForm.cs`
+  - `Tests/UI/host-provisioner-visual-regression.spec.ts` (new)
+  - `Scripts/run-host-provisioner-percy-tests.ps1` (new)
+  - `package.json` (added npm scripts for Percy testing)
+- **Tests**: Percy visual regression tests created
+  - Initial state documentation
+  - Token generation state documentation
+  - Draggable header feature documentation
+- **Approval Iterations**: 1 (added scrollbar requirement)
+- **Additional Requirements**: Vertical scroll bar added to form
+- **Commit**: d7f68cc47d1992309888eaa33271db3ffb6bc17c

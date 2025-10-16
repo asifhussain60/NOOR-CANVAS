@@ -354,6 +354,13 @@ try {
     # Copy published files to deployment location
     Copy-Item -Path "$PublishPath\*" -Destination $DeployPath -Recurse -Force
     Write-Success "Application files deployed"
+    
+    # [DEBUG-WORKITEM:prod-issues:appsettings-local] Remove appsettings.local.json from production (development override file) ;CLEANUP_OK
+    $localOverride = Join-Path $DeployPath "appsettings.local.json"
+    if (Test-Path $localOverride) {
+        Remove-Item -Path $localOverride -Force
+        Write-Info "Removed appsettings.local.json (development override)"
+    }
 
     # Ensure logs directory exists
     $logsPath = Join-Path $DeployPath "logs"
