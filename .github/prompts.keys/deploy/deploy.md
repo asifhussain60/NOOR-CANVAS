@@ -22,3 +22,18 @@ In Progress
 - **Tests**: Build validation passed (zero errors/warnings)
 - **Commit**: 46b0179f08928454ae841537a4b504a7bbe0ba09
 - **Checkpoint**: checkpoint/deploy/2025-10-16_0847
+
+### 2025-10-16T14:35:00Z
+- **Status**: Complete
+- **Issue**: ncdeploy failing - appsettings.json deleted during clean deployment and not restored
+- **Root Cause**: Clean deployment removes ALL files, dotnet publish no longer includes appsettings.json (template pattern), no preservation logic
+- **Solution**: Preserve configuration files before clean, restore after deployment
+- **Changes**:
+  - Save appsettings.json, appsettings.Production.json before cleaning directory
+  - Restore preserved configs after copying new files
+  - Still removes appsettings.local.json (development override)
+  - Validation now passes with all required files present
+- **Files Affected**: Scripts/ncdeploy.ps1
+- **Tests**: Deployment validation caught missing file (validation working correctly)
+- **Commit**: fca156539fae483d583392f208c1e7b97f68abcc
+- **Checkpoint**: checkpoint/deploy/2025-10-16_1435
