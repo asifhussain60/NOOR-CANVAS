@@ -608,10 +608,37 @@ else
         Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] ASPNETCORE_ENVIRONMENT: {Environment} ;CLEANUP_OK", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "NOT_SET");
         Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] appsettings Development:ShowDevPanels: {ConfigValue} ;CLEANUP_OK", Configuration.GetValue<bool?>("Development:ShowDevPanels")?.ToString() ?? "NOT_SET");
 
+        // [DEBUG-WORKITEM:host-landing:query-token] Extract token from query string if not in route parameter ;CLEANUP_OK
+        if (string.IsNullOrEmpty(FriendlyToken))
+        {
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            
+            // [DEBUG-WORKITEM:host-landing:prod-debug] Try case-insensitive query parameter lookup ;CLEANUP_OK
+            var tokenFromQuery = query["token"] ?? query["Token"] ?? query["TOKEN"];
+            
+            if (!string.IsNullOrEmpty(tokenFromQuery))
+            {
+                // [DEBUG-WORKITEM:host-landing:prod-debug] URL-decode token in case of encoding issues ;CLEANUP_OK
+                FriendlyToken = System.Web.HttpUtility.UrlDecode(tokenFromQuery);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:host-landing:query-token] [{RequestId}] Extracted token from query string: {Token} (raw: {Raw}, decoded: {Decoded}) ;CLEANUP_OK", 
+                    requestId, FriendlyToken, tokenFromQuery, FriendlyToken);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:host-landing:prod-debug] [{RequestId}] Full URL: {Url}, Query: {Query} ;CLEANUP_OK",
+                    requestId, Navigation.Uri, uri.Query);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:host-landing:prod-debug] [{RequestId}] No token found in query string. URL: {Url}, Query: {Query} ;CLEANUP_OK",
+                    requestId, Navigation.Uri, uri.Query);
+            }
+        }
+
         Model ??= new HostLandingViewModel
         {
             LogoText = "NOOR Canvas",
-            FriendlyToken = FriendlyToken ?? "", // Use friendly token from URL parameter
+            FriendlyToken = FriendlyToken ?? "", // Use friendly token from URL parameter or query string
             SessionName = null // Will be loaded if token provided
         };
 
