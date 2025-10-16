@@ -12,7 +12,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Annotations' AND schema_id
 BEGIN
     CREATE TABLE canvas.Annotations
     (
-        AnnotationId INT IDENTITY(1,1) PRIMARY KEY,
+        AnnotationId BIGINT IDENTITY(1,1) PRIMARY KEY,
         SessionId INT NOT NULL,
         CreatedBy NVARCHAR(100) NOT NULL,
         AnnotationData NVARCHAR(MAX) NOT NULL,

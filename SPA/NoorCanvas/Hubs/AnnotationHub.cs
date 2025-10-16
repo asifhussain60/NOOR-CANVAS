@@ -104,14 +104,19 @@ namespace NoorCanvas.Hubs
         {
             try
             {
+                _logger.LogInformation("[TRACE-ANNOTATION:hub-receive] Broadcasting annotation from user {UserId} in session {SessionId} ;CLEANUP_OK",
+                    userId, sessionId);
                 _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation from user {UserId} in session {SessionId}",
                     userId, sessionId);
 
+                _logger.LogInformation("[TRACE-ANNOTATION:db-save] Saving annotation to database ;CLEANUP_OK");
                 // Save the annotation to database
                 var annotation = await _annotationService.CreateAnnotationAsync(sessionId, userId, annotationData);
+                _logger.LogInformation("[TRACE-ANNOTATION:db-saved] Annotation saved with ID {AnnotationId} ;CLEANUP_OK", annotation.AnnotationId);
 
                 // Broadcast to all session participants except the sender
                 var groupName = $"Session_{sessionId}";
+                _logger.LogInformation("[TRACE-ANNOTATION:signalr-broadcast] Sending to group {GroupName} ;CLEANUP_OK", groupName);
                 await Clients.OthersInGroup(groupName).SendAsync("AnnotationCreated", new
                 {
                     annotationId = annotation.AnnotationId,
@@ -121,13 +126,16 @@ namespace NoorCanvas.Hubs
                     annotationData = annotation.AnnotationData,
                     userId = userId
                 });
+                _logger.LogInformation("[TRACE-ANNOTATION:signalr-sent] Successfully broadcast to others in group ;CLEANUP_OK");
 
                 // Confirm to sender
+                _logger.LogInformation("[TRACE-ANNOTATION:confirm-sender] Sending confirmation to caller ;CLEANUP_OK");
                 await Clients.Caller.SendAsync("AnnotationConfirmed", new
                 {
                     annotationId = annotation.AnnotationId,
                     status = "created"
                 });
+                _logger.LogInformation("[TRACE-ANNOTATION:complete] Annotation broadcast complete ;CLEANUP_OK");
 
                 _logger.LogInformation("NOOR-ANNOTATION-HUB: Successfully broadcast annotation {AnnotationId} from user {UserId}",
                     annotation.AnnotationId, userId);

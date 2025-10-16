@@ -702,16 +702,24 @@
                 const sessionId = parseInt(sessionIdInput.value);
                 const userId = userIdInput.value;
                 
+                console.log(`[TRACE-ANNOTATION:broadcast-start] Tool: ${currentTool}, Data:`, annotationData); // ;CLEANUP_OK
+                
                 try {
                     // Render locally first
+                    console.log(`[TRACE-ANNOTATION:render-local] Rendering ${annotationData.type} on overlay1`); // ;CLEANUP_OK
                     renderAnnotation(overlay1, annotationData);
                     
                     // Broadcast to other clients
+                    console.log(`[TRACE-ANNOTATION:invoke-hub] Invoking BroadcastAnnotation for session ${sessionId}`); // ;CLEANUP_OK
                     await hubConnection.invoke('BroadcastAnnotation', sessionId, userId, annotationData);
+                    console.log(`[TRACE-ANNOTATION:broadcast-success] Successfully broadcast ${annotationData.type}`); // ;CLEANUP_OK
                     log(`Annotation broadcasted: ${annotationData.type}`, 'success');
                 } catch (err) {
+                    console.error(`[TRACE-ANNOTATION:broadcast-error] Failed to broadcast:`, err); // ;CLEANUP_OK
                     log(`Failed to broadcast annotation: ${err}`, 'error');
                 }
+            } else {
+                console.warn(`[TRACE-ANNOTATION:broadcast-skip] Skipped broadcast - annotationData: ${!!annotationData}, hubConnection: ${!!hubConnection}`); // ;CLEANUP_OK
             }
             
             // Reset state
@@ -743,8 +751,10 @@
         // Render annotation on SVG overlay
         function renderAnnotation(overlay, annotation) {
             const data = annotation.annotationData || annotation;
+            console.log(`[TRACE-ANNOTATION:render] Rendering ${data.type} on overlay`, data); // ;CLEANUP_OK
             
             if (data.type === 'drawing') {
+                console.log(`[TRACE-ANNOTATION:render-drawing] Path: ${data.path.substring(0, 50)}...`); // ;CLEANUP_OK
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('d', data.path);
                 path.setAttribute('stroke', data.color);
@@ -752,7 +762,9 @@
                 path.setAttribute('fill', 'none');
                 path.setAttribute('data-annotation-id', annotation.annotationId || Date.now());
                 overlay.appendChild(path);
+                console.log(`[TRACE-ANNOTATION:render-drawing-complete] Path element added to overlay`); // ;CLEANUP_OK
             } else if (data.type === 'highlight') {
+                console.log(`[TRACE-ANNOTATION:render-highlight] Rect: ${data.x},${data.y} ${data.width}x${data.height}`); // ;CLEANUP_OK
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 rect.setAttribute('x', data.x);
                 rect.setAttribute('y', data.y);
@@ -762,7 +774,9 @@
                 rect.setAttribute('opacity', '0.3');
                 rect.setAttribute('data-annotation-id', annotation.annotationId || Date.now());
                 overlay.appendChild(rect);
+                console.log(`[TRACE-ANNOTATION:render-highlight-complete] Rect element added to overlay`); // ;CLEANUP_OK
             } else if (data.type === 'note') {
+                console.log(`[TRACE-ANNOTATION:render-note] Circle at ${data.x},${data.y}`); // ;CLEANUP_OK
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', data.x);
                 circle.setAttribute('cy', data.y);
@@ -770,6 +784,7 @@
                 circle.setAttribute('fill', data.color);
                 circle.setAttribute('data-annotation-id', annotation.annotationId || Date.now());
                 overlay.appendChild(circle);
+                console.log(`[TRACE-ANNOTATION:render-note-complete] Circle element added to overlay`); // ;CLEANUP_OK
             }
         }
 
