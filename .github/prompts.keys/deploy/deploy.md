@@ -37,3 +37,20 @@ In Progress
 - **Tests**: Deployment validation caught missing file (validation working correctly)
 - **Commit**: fca156539fae483d583392f208c1e7b97f68abcc
 - **Checkpoint**: checkpoint/deploy/2025-10-16_1435
+
+### 2025-10-16T14:38:00Z
+- **Status**: Complete
+- **Issue**: User wants to run ncdeploy from any directory (not just workspace root)
+- **Solution**: Script already uses $PSScriptRoot - just needs documentation + global alias setup
+- **Changes**:
+  - Added workspace path to deployment banner
+  - Updated script header documentation
+  - Created setup-ncdeploy-alias.ps1 for PowerShell profile integration
+  - Tested running from C:\ - works correctly
+- **Usage**:
+  - Direct: `& "D:\PROJECTS\NOOR CANVAS\Scripts\ncdeploy.ps1"` (from any folder)
+  - Global command: Run `.\Scripts\setup-ncdeploy-alias.ps1` once, then use `ncdeploy` anywhere
+- **Files Affected**: Scripts/ncdeploy.ps1, Scripts/setup-ncdeploy-alias.ps1
+- **Tests**: Verified script runs from C:\ drive, correctly detects workspace
+- **Commit**: f3e033d31c2e46fa1980f8eb3fa03a05c9f89533
+- **Checkpoint**: checkpoint/deploy/2025-10-16_1438
