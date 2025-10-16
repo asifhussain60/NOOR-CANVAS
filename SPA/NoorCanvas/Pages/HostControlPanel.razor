@@ -2280,8 +2280,17 @@
                 var targetElement = assetElements[instanceNumber - 1];
                 var rawHtml = targetElement.OuterHtml;
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML for {AssetType} instance {Instance}: {Length} chars", assetType, instanceNumber, rawHtml.Length);
-                return Task.FromResult(rawHtml);
+                // [TRACE:hcp-annotate:toolbar-injection] Inject annotation toolbar after asset HTML ;CLEANUP_OK
+                Logger.LogInformation("[TRACE:hcp-annotate:toolbar-injection] Injecting annotation toolbar for shareId={ShareId}, assetType={AssetType}, instance={Instance} ;CLEANUP_OK", shareId, assetType, instanceNumber);
+                
+                var annotationToolbarHtml = GenerateAnnotationToolbarHtml(shareId);
+                var htmlWithToolbar = rawHtml + annotationToolbarHtml;
+                
+                Logger.LogInformation("[TRACE:hcp-annotate:toolbar-injection] Toolbar injected successfully. Original HTML length={OriginalLength}, Toolbar length={ToolbarLength}, Final length={FinalLength} ;CLEANUP_OK", 
+                    rawHtml.Length, annotationToolbarHtml.Length, htmlWithToolbar.Length);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML for {AssetType} instance {Instance}: {Length} chars", assetType, instanceNumber, htmlWithToolbar.Length);
+                return Task.FromResult(htmlWithToolbar);
             }
             else
             {
@@ -2368,6 +2377,86 @@
             Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] Error processing asset HTML, using original: {AssetType}", assetType);
             return Task.FromResult(assetHtml);
         }
+    }
+
+    /// <summary>
+    /// Generate annotation toolbar HTML to be injected after shared assets
+    /// [TRACE:hcp-annotate:toolbar-generation] Creates sliding toolbar with tool buttons ;CLEANUP_OK
+    /// </summary>
+    private string GenerateAnnotationToolbarHtml(string shareId)
+    {
+        Logger.LogInformation("[TRACE:hcp-annotate:toolbar-generation] Generating toolbar HTML for shareId={ShareId} ;CLEANUP_OK", shareId);
+        
+        var toolbarHtml = $@"
+<!-- [TRACE:hcp-annotate:toolbar-panel] Sliding Annotation Toolbar for {shareId} ;CLEANUP_OK -->
+<div class=""annotation-toolbar-panel"" data-annotation-toolbar=""{shareId}"" data-share-id=""{shareId}"" style=""display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50px; padding: 12px 24px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4); z-index: 10000; animation: slideUp 0.3s ease-out;"">
+    <div style=""display: flex; align-items: center; gap: 12px;"">
+        <!-- Tool Buttons -->
+        <button class=""annotation-tool-btn"" data-tool=""laser"" data-share-id=""{shareId}"" 
+                style=""background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"" 
+                title=""Laser Pointer"">
+            <i class=""fa-solid fa-location-crosshairs""></i>
+        </button>
+        
+        <button class=""annotation-tool-btn"" data-tool=""draw"" data-share-id=""{shareId}"" 
+                style=""background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"" 
+                title=""Draw"">
+            <i class=""fa-solid fa-pen""></i>
+        </button>
+        
+        <button class=""annotation-tool-btn"" data-tool=""highlight"" data-share-id=""{shareId}"" 
+                style=""background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"" 
+                title=""Highlight"">
+            <i class=""fa-solid fa-highlighter""></i>
+        </button>
+        
+        <button class=""annotation-tool-btn"" data-tool=""note"" data-share-id=""{shareId}"" 
+                style=""background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"" 
+                title=""Add Note"">
+            <i class=""fa-solid fa-sticky-note""></i>
+        </button>
+        
+        <!-- Color Picker -->
+        <input type=""color"" class=""annotation-color-picker"" data-share-id=""{shareId}"" value=""#FF0000"" 
+               style=""width: 40px; height: 40px; border: none; border-radius: 50%; cursor: pointer; background: transparent;"" 
+               title=""Annotation Color"">
+        
+        <!-- Clear Button -->
+        <button class=""annotation-clear-btn"" data-share-id=""{shareId}"" 
+                style=""background: rgba(220, 38, 38, 0.8); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"" 
+                title=""Clear Annotations"">
+            <i class=""fa-solid fa-eraser""></i>
+        </button>
+        
+        <!-- Close Button -->
+        <button class=""annotation-close-btn"" data-share-id=""{shareId}"" 
+                style=""background: rgba(255,255,255,0.3); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-left: 8px;"" 
+                title=""Close Toolbar"">
+            <i class=""fa-solid fa-times""></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    @keyframes slideUp {{
+        from {{ transform: translateX(-50%) translateY(100px); opacity: 0; }}
+        to {{ transform: translateX(-50%) translateY(0); opacity: 1; }}
+    }}
+    
+    .annotation-tool-btn:hover, .annotation-clear-btn:hover, .annotation-close-btn:hover {{
+        transform: scale(1.1);
+        background: rgba(255,255,255,0.4) !important;
+    }}
+    
+    .annotation-tool-btn.active {{
+        background: rgba(255,255,255,0.5) !important;
+        box-shadow: 0 0 15px rgba(255,255,255,0.6);
+    }}
+</style>
+";
+        
+        Logger.LogInformation("[TRACE:hcp-annotate:toolbar-generation] Toolbar HTML generated successfully, length={Length} chars ;CLEANUP_OK", toolbarHtml.Length);
+        return toolbarHtml;
     }
 
     public async ValueTask DisposeAsync()
