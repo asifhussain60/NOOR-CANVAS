@@ -94,3 +94,23 @@ In Progress
 - **Tests**: Build validated, deployment logic reviewed
 - **Commit**: 5f268e31be395dcaf952a3a53f1d8eab8b8d8b2a
 - **Checkpoint**: checkpoint/deploy/2025-10-16_1447
+
+### 2025-10-16T14:53:00Z
+- **Status**: Complete
+- **Issue**: Deployment failing with "Access denied" when cleaning HostProvisioner temp folder, no post-deployment checklist
+- **Root Cause**: Files locked during cleanup, causing script to abort instead of completing gracefully
+- **Solution**: 
+  1. Add try-catch around HostProvisioner cleanup to handle locked files
+  2. Add comprehensive 6-step post-deployment checklist displayed in terminal
+- **Changes**:
+  - Wrapped Remove-Item in try-catch with graceful error handling
+  - Created detailed post-deployment verification checklist with:
+    * 6 verification steps (app test, config verify, HostProvisioner test, logs, features, IIS)
+    * Rollback instructions with git commands
+    * Links to URLs, paths, and log locations
+  - Checklist displays after successful deployment
+  - Script continues even if cleanup fails (warns user)
+- **Files Affected**: Scripts/ncdeploy.ps1
+- **Tests**: Deployment reviewed, checklist format verified
+- **Commit**: 3c9a3134d0aa60e4c556283a92d2978c20ab89db
+- **Checkpoint**: checkpoint/deploy/2025-10-16_1453

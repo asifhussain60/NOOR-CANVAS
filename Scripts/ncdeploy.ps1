@@ -563,9 +563,15 @@ try {
             }
             
             # Clean up temporary publish folder
+            # [DEBUG-WORKITEM:deploy:cleanup-resilience] Handle locked files gracefully ;CLEANUP_OK
             if (Test-Path $HostProvisionerPublishPath) {
-                Remove-Item -Path $HostProvisionerPublishPath -Recurse -Force
-                Write-Info "Cleaned HostProvisioner publish temp folder"
+                try {
+                    Remove-Item -Path $HostProvisionerPublishPath -Recurse -Force -ErrorAction Stop
+                    Write-Info "Cleaned HostProvisioner publish temp folder"
+                } catch {
+                    Write-Warning "Could not clean HostProvisioner publish temp folder (files may be locked): $_"
+                    Write-Info "Temporary files retained at: $HostProvisionerPublishPath"
+                }
             }
         }
     } else {
@@ -744,11 +750,53 @@ try {
         Write-Host "  Backup: $BackupPath\backup-$Timestamp" -ForegroundColor Gray
     }
     
-    Write-Host "`nNext steps:" -ForegroundColor Cyan
-    Write-Host "  1. Verify the application is accessible" -ForegroundColor Gray
-    Write-Host "  2. Check logs at: $logsPath" -ForegroundColor Gray
-    Write-Host "  3. Monitor for any errors" -ForegroundColor Gray
-    Write-Host "  4. Continue development work in 'development' branch" -ForegroundColor Gray
+    # [DEBUG-WORKITEM:deploy:completion-checklist] Post-deployment verification checklist ;CLEANUP_OK
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "  POST-DEPLOYMENT CHECKLIST" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    
+    Write-Host "`n📋 VERIFICATION STEPS:" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  ☐ 1. Test NoorCanvas Application" -ForegroundColor White
+    Write-Host "      → Visit: https://noorcanvas.servehttp.com" -ForegroundColor Gray
+    Write-Host "      → Verify application loads correctly" -ForegroundColor Gray
+    Write-Host "      → Test core functionality (sessions, canvas)" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  ☐ 2. Verify Environment Configuration" -ForegroundColor White
+    Write-Host "      → Check web.config has ASPNETCORE_ENVIRONMENT=Production" -ForegroundColor Gray
+    Write-Host "      → Confirm database connection to KSESSIONS (not KSESSIONS_DEV)" -ForegroundColor Gray
+    Write-Host "      → Review appsettings.json for correct production settings" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  ☐ 3. Test HostProvisioner Tool" -ForegroundColor White
+    Write-Host "      → Launch: D:\Websites\NOOR-CANVAS\HostProvisioner\HostProvisioner.WinForms.exe" -ForegroundColor Gray
+    Write-Host "      → Verify 'Environment: Production' shown at startup" -ForegroundColor Gray
+    Write-Host "      → Confirm 'Database: KSESSIONS' shown at startup" -ForegroundColor Gray
+    Write-Host "      → Test token generation" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  ☐ 4. Monitor Application Logs" -ForegroundColor White
+    Write-Host "      → Check: $DeployPath\logs" -ForegroundColor Gray
+    Write-Host "      → Look for startup errors or warnings" -ForegroundColor Gray
+    Write-Host "      → Verify no database connection errors" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  ☐ 5. Test Recent Features" -ForegroundColor White
+    Write-Host "      → Host token authentication (URL: /host?token=XXXXX)" -ForegroundColor Gray
+    Write-Host "      → Any features deployed in this release" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  ☐ 6. Verify IIS Application Pool" -ForegroundColor White
+    Write-Host "      → Check 'NoorCanvas' app pool is running" -ForegroundColor Gray
+    Write-Host "      → Monitor for unexpected restarts" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "🔄 ROLLBACK (if needed):" -ForegroundColor Yellow
+    Write-Host "  → Restore backup: $BackupPath\backup-$Timestamp" -ForegroundColor Gray
+    Write-Host "  → Or use git: git reset --hard checkpoint/deploy/[timestamp]" -ForegroundColor Gray
+    Write-Host "  → Browse checkpoints: git tag --list 'checkpoint/deploy/*' --sort=-creatordate" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "✅ After verification complete:" -ForegroundColor Green
+    Write-Host "  → Mark deployment as successful in your tracking system" -ForegroundColor Gray
+    Write-Host "  → Continue development work in 'development' branch" -ForegroundColor Gray
+    Write-Host "  → Push changes to remote: git push origin master && git push origin development" -ForegroundColor Gray
     Write-Host ""
 
 } catch {
