@@ -62,7 +62,7 @@ User requested design documentation exploring how annotation system capabilities
 
 **Status**: Documentation complete. Ready for implementation phase when approved.
 
-**Commit SHA**: *(to be updated after commit)*
+**Commit SHA**: `2993f5d9`
 
 **Next Steps**:
 1. Review design document with stakeholders
