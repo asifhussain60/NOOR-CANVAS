@@ -19,8 +19,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj" />
+    <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj">
+      <ExcludeAssets>contentfiles</ExcludeAssets>
+    </ProjectReference>
   </ItemGroup>
+
+  <!-- Exclude NoorCanvas appsettings files to prevent conflict with HostProvisioner's own appsettings -->
+  <Target Name="RemoveNoorCanvasAppSettings" AfterTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="'%(Filename)%(Extension)' == 'appsettings.json' And '%(MSBuildSourceProjectFile)' != '$(MSBuildProjectFile)'" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="'%(Filename)%(Extension)' == 'appsettings.Development.json' And '%(MSBuildSourceProjectFile)' != '$(MSBuildProjectFile)'" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="'%(Filename)%(Extension)' == 'appsettings.Production.json' And '%(MSBuildSourceProjectFile)' != '$(MSBuildProjectFile)'" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <Compile Include="..\Shared\HostProvisionerConfig.cs" Link="Shared\HostProvisionerConfig.cs" />
