@@ -264,5 +264,42 @@ namespace NoorCanvas.Hubs
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to clear annotations" });
             }
         }
+
+        /// <summary>
+        /// Broadcast laser pointer position to all session participants (non-persistent, real-time only).
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task BroadcastLaserPointer(int sessionId, string userId, object position)
+        {
+            try
+            {
+                // Broadcast to all session participants except the sender
+                var groupName = $"Session_{sessionId}";
+                await Clients.OthersInGroup(groupName).SendAsync("LaserPointerMove", position);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting laser pointer from user {UserId} in session {SessionId}",
+                    userId, sessionId);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast laser pointer hide to all session participants.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task HideLaserPointer(int sessionId, string userId)
+        {
+            try
+            {
+                var groupName = $"Session_{sessionId}";
+                await Clients.OthersInGroup(groupName).SendAsync("LaserPointerHide");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting laser pointer hide from user {UserId} in session {SessionId}",
+                    userId, sessionId);
+            }
+        }
     }
 }

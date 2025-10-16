@@ -210,10 +210,31 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 - **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
 
 ### For Playwright Testing
+**CRITICAL**: Playwright has its own server management system - DO NOT manually start the app!
+
 - **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for test execution
-- Playwright manages application lifecycle via `webServer` configuration in `config/testing/playwright.config.cjs`
+- **Never** manually run `dotnet run` before Playwright tests
+- **Never** launch the app in a separate window/terminal for Playwright tests
+- Playwright manages application lifecycle **automatically** via `webServer` configuration in `config/testing/playwright.config.cjs`
 - Use `PW_MODE=standalone` to enable automatic app startup and shutdown
-- Tests run entirely in Node.js context with Playwright managing the .NET app as a subprocess
+- Tests run entirely in Node.js context with Playwright managing the .NET app as a subprocess (not in a separate window)
+- The app runs invisibly as a background process controlled by Playwright
+- Playwright will start the app, run tests, then stop the app automatically
+
+**When PW_MODE=standalone:**
+```bash
+# Playwright does ALL of this automatically:
+# 1. Starts: dotnet run (in background)
+# 2. Waits: for port 9091 to be ready
+# 3. Runs: all tests
+# 4. Stops: the dotnet process
+# 5. Cleans up: automatically
+```
+
+**Manual App Launch is ONLY for:**
+- Development: Use `nc.ps1` or `ncb.ps1` for manual testing in browser
+- Debugging: Use Visual Studio/VS Code debugger
+- **NEVER** for running Playwright tests
 
 #### ✅ Multi-Browser Isolation Success (Oct 1, 2025)
 **Proven Solution**: API-based participant identification eliminates "same name on multiple browsers" issue

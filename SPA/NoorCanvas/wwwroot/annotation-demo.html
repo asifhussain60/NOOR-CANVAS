@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas - Annotation System Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .annotation-iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #D4AF37;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .annotation-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .tool-button {
+            transition: all 0.2s;
+        }
+        
+        .tool-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tool-button.active {
+            background-color: #D4AF37 !important;
+            color: white !important;
+        }
+        
+        .connection-status {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-connected {
+            background-color: #10b981;
+        }
+        
+        .status-disconnected {
+            background-color: #ef4444;
+        }
+        
+        .status-connecting {
+            background-color: #f59e0b;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin: 4px 0;
+            border-left: 3px solid #D4AF37;
+            background: #f9fafb;
+            font-size: 0.875rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .log-entry.info { border-left-color: #3b82f6; }
+        .log-entry.success { border-left-color: #10b981; }
+        .log-entry.error { border-left-color: #ef4444; }
+        .log-entry.warn { border-left-color: #f59e0b; }
+        
+        /* Laser Pointer Styles */
+        .laser-pointer {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.05s ease-out;
+        }
+        
+        .laser-dot {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0.6) 40%, rgba(255,0,0,0) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255,0,0,0.8), 0 0 40px rgba(255,0,0,0.4);
+            animation: pulse-laser 1s infinite;
+        }
+        
+        .laser-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            margin: -20px 0 0 -20px;
+            border: 2px solid rgba(255,0,0,0.6);
+            border-radius: 50%;
+            animation: ripple-laser 1.5s infinite;
+        }
+        
+        @keyframes pulse-laser {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        
+        @keyframes ripple-laser {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        .laser-active {
+            cursor: none !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-green-900 mb-2">
+                        <i class="fas fa-palette text-yellow-600 mr-2"></i>
+                        NOOR Canvas - Annotation System Demo
+                    </h1>
+                    <p class="text-gray-600">Real-time collaborative annotations with SignalR broadcasting</p>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-semibold">SignalR Status:</span>
+                        <span id="connection-status" class="connection-status status-disconnected"></span>
+                        <span id="connection-text" class="text-sm">Disconnected</span>
+                    </div>
+                    <button id="connect-btn" class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 transition">
+                        <i class="fas fa-plug mr-2"></i>Connect
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Start Instructions -->
+        <div class="bg-gradient-to-r from-green-50 to-yellow-50 rounded-lg shadow-lg p-6 mb-6 border-l-4 border-yellow-600">
+            <h2 class="text-xl font-bold text-green-900 mb-4">
+                <i class="fas fa-rocket text-yellow-600 mr-2"></i>Quick Start Guide
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Step 1 -->
+                <div class="bg-white rounded-lg p-4 shadow-sm border-2 border-green-200">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-green-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">1</span>
+                        <h3 class="font-bold text-green-900">Connect</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">Click the <strong>Connect</strong> button in the header to establish SignalR connection</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-white rounded-lg p-4 shadow-sm border-2 border-green-200">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-green-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">2</span>
+                        <h3 class="font-bold text-green-900">Select Tool</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">Choose an annotation tool: <strong>Laser Pointer</strong>, <strong>Draw</strong>, <strong>Highlight</strong>, or <strong>Note</strong></p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-white rounded-lg p-4 shadow-sm border-2 border-green-200">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-green-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">3</span>
+                        <h3 class="font-bold text-green-900">Annotate</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">Use the tool on <strong>View 1</strong> (left panel) to create annotations or point with the laser</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="bg-white rounded-lg p-4 shadow-sm border-2 border-green-200">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-green-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">4</span>
+                        <h3 class="font-bold text-green-900">Watch Sync</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">See your annotations appear in real-time on <strong>View 2</strong> (right panel) via SignalR broadcast</p>
+                </div>
+            </div>
+
+            <!-- Tool Tips -->
+            <div class="mt-4 bg-white rounded-lg p-4 border border-yellow-300">
+                <h4 class="font-bold text-green-900 mb-2">
+                    <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>Tool Tips
+                </h4>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li><i class="fas fa-location-crosshairs text-red-600 mr-2"></i><strong>Laser Pointer:</strong> Move your mouse over View 1 to see a real-time red laser dot synchronized to View 2</li>
+                    <li><i class="fas fa-pen text-blue-600 mr-2"></i><strong>Draw:</strong> Click and drag to create freehand drawings that persist across both views</li>
+                    <li><i class="fas fa-highlighter text-yellow-600 mr-2"></i><strong>Highlight:</strong> Click and drag to create semi-transparent highlight boxes</li>
+                    <li><i class="fas fa-sticky-note text-orange-600 mr-2"></i><strong>Note:</strong> Click to place a note marker and enter text</li>
+                    <li><i class="fas fa-palette text-purple-600 mr-2"></i><strong>Color Picker:</strong> Change annotation colors before drawing</li>
+                    <li><i class="fas fa-trash text-red-600 mr-2"></i><strong>Clear All:</strong> Remove all annotations from both views</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-green-900 mb-4">
+                <i class="fas fa-cog mr-2"></i>Configuration
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Session ID</label>
+                    <input type="number" id="session-id" value="999" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-yellow-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">User ID (for annotations)</label>
+                    <input type="text" id="user-id" value="demo-user-1" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-yellow-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Content URL</label>
+                    <input type="text" id="content-url" value="https://example.com" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-yellow-600">
+                </div>
+            </div>
+        </div>
+
+        <!-- Annotation Tools -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-green-900 mb-4">
+                <i class="fas fa-tools mr-2"></i>Annotation Tools
+            </h2>
+            <div class="flex flex-wrap gap-3">
+                <button class="tool-button bg-gray-200 px-4 py-2 rounded font-semibold" data-tool="select">
+                    <i class="fas fa-mouse-pointer mr-2"></i>Select
+                </button>
+                <button class="tool-button bg-gray-200 px-4 py-2 rounded font-semibold" data-tool="laser">
+                    <i class="fas fa-location-crosshairs mr-2"></i>Laser Pointer
+                </button>
+                <button class="tool-button bg-gray-200 px-4 py-2 rounded font-semibold" data-tool="drawing">
+                    <i class="fas fa-pen mr-2"></i>Draw
+                </button>
+                <button class="tool-button bg-gray-200 px-4 py-2 rounded font-semibold" data-tool="highlight">
+                    <i class="fas fa-highlighter mr-2"></i>Highlight
+                </button>
+                <button class="tool-button bg-gray-200 px-4 py-2 rounded font-semibold" data-tool="note">
+                    <i class="fas fa-sticky-note mr-2"></i>Note
+                </button>
+                <div class="flex items-center gap-2 ml-4">
+                    <label class="text-sm font-semibold text-gray-700">Color:</label>
+                    <input type="color" id="annotation-color" value="#ffff00" class="w-12 h-10 border-0 rounded cursor-pointer">
+                </div>
+                <button id="clear-annotations" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition ml-auto">
+                    <i class="fas fa-trash mr-2"></i>Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Demo Views (Two iframes side by side) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- View 1: Annotation Creator -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-green-900 mb-4">
+                    <i class="fas fa-pencil-alt text-yellow-600 mr-2"></i>
+                    View 1: Annotation Creator
+                </h3>
+                <div class="relative" id="view-1-container">
+                    <iframe id="iframe-1" class="annotation-iframe" srcdoc="<body style='margin:0; padding:20px; font-family: system-ui;'><h1 style='color: #006400;'>Sample Content</h1><p>This is a demo content area. Use the annotation tools above to draw, highlight, or add notes.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p><div style='background: #f0f0f0; padding: 20px; margin: 20px 0; border-radius: 8px;'><h2>Important Section</h2><p>This section can be highlighted and annotated.</p></div></body>"></iframe>
+                    <svg class="annotation-overlay" id="annotation-overlay-1">
+                        <!-- Annotations will be rendered here -->
+                    </svg>
+                    <div id="laser-pointer-1" class="laser-pointer" style="display: none;">
+                        <div class="laser-dot"></div>
+                        <div class="laser-ripple"></div>
+                    </div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Create annotations here - they will broadcast to View 2
+                </div>
+            </div>
+
+            <!-- View 2: Annotation Receiver -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-green-900 mb-4">
+                    <i class="fas fa-eye text-yellow-600 mr-2"></i>
+                    View 2: Annotation Receiver
+                </h3>
+                <div class="relative" id="view-2-container">
+                    <iframe id="iframe-2" class="annotation-iframe" srcdoc="<body style='margin:0; padding:20px; font-family: system-ui;'><h1 style='color: #006400;'>Sample Content</h1><p>This is a demo content area. Use the annotation tools above to draw, highlight, or add notes.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p><div style='background: #f0f0f0; padding: 20px; margin: 20px 0; border-radius: 8px;'><h2>Important Section</h2><p>This section can be highlighted and annotated.</p></div></body>"></iframe>
+                    <svg class="annotation-overlay" id="annotation-overlay-2">
+                        <!-- Received annotations will be rendered here -->
+                    </svg>
+                    <div id="laser-pointer-2" class="laser-pointer" style="display: none;">
+                        <div class="laser-dot"></div>
+                        <div class="laser-ripple"></div>
+                    </div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600">
+                    <i class="fas fa-broadcast-tower mr-1"></i>
+                    This view receives annotations via SignalR
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Log -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-green-900">
+                    <i class="fas fa-list mr-2"></i>Event Log
+                </h2>
+                <button id="clear-log" class="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition">
+                    Clear Log
+                </button>
+            </div>
+            <div id="event-log" class="max-h-64 overflow-y-auto border border-gray-200 rounded p-4 bg-gray-50">
+                <div class="log-entry info">System initialized - Ready to connect</div>
+            </div>
+        </div>
+
+        <!-- Documentation -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-bold text-green-900 mb-4">
+                <i class="fas fa-book mr-2"></i>How It Works
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-green-800 mb-2">Architecture</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Uses existing <code class="bg-gray-100 px-2 py-1 rounded">noor-annotations.js</code></li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>SignalR AnnotationHub for real-time sync</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>SVG overlay for annotation rendering</li>
+                        <li><i class="fas fa-check text-green-600 mr-2"></i>Persists to <code class="bg-gray-100 px-2 py-1 rounded">canvas.Annotations</code> table</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-green-800 mb-2">Features</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-pen text-blue-600 mr-2"></i>Freehand drawing with customizable colors</li>
+                        <li><i class="fas fa-highlighter text-yellow-600 mr-2"></i>Text highlighting and selection</li>
+                        <li><i class="fas fa-sticky-note text-orange-600 mr-2"></i>Sticky notes at specific points</li>
+                        <li><i class="fas fa-broadcast-tower text-green-600 mr-2"></i>Real-time broadcasting to all viewers</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-600 rounded">
+                <h4 class="font-bold text-yellow-900 mb-2">
+                    <i class="fas fa-lightbulb mr-2"></i>Better Alternatives for HostControlPanel.razor
+                </h4>
+                <p class="text-sm text-gray-700 mb-2">For a production implementation in HostControlPanel, consider:</p>
+                <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                    <li><strong>Annotorious</strong> - Open-source image annotation library with rich features</li>
+                    <li><strong>Fabric.js</strong> - Powerful canvas library with built-in annotation support</li>
+                    <li><strong>PDF.js + Annotation Layer</strong> - For PDF document annotations</li>
+                    <li><strong>Current Implementation</strong> - Simple but functional for basic drawing/highlighting</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Configuration
+        let hubConnection = null;
+        let currentTool = 'select';
+        let currentColor = '#ffff00';
+        let isDrawing = false;
+        let currentPath = '';
+        let startPoint = null;
+        let laserPointerActive = false;
+        
+        // DOM Elements
+        const connectBtn = document.getElementById('connect-btn');
+        const sessionIdInput = document.getElementById('session-id');
+        const userIdInput = document.getElementById('user-id');
+        const connectionStatus = document.getElementById('connection-status');
+        const connectionText = document.getElementById('connection-text');
+        const eventLog = document.getElementById('event-log');
+        const toolButtons = document.querySelectorAll('.tool-button');
+        const colorPicker = document.getElementById('annotation-color');
+        const clearAnnotationsBtn = document.getElementById('clear-annotations');
+        const clearLogBtn = document.getElementById('clear-log');
+        const overlay1 = document.getElementById('annotation-overlay-1');
+        const overlay2 = document.getElementById('annotation-overlay-2');
+        const laserPointer1 = document.getElementById('laser-pointer-1');
+        const laserPointer2 = document.getElementById('laser-pointer-2');
+        const view1Container = document.getElementById('view-1-container');
+        const view2Container = document.getElementById('view-2-container');
+
+        // Logging utility
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            eventLog.appendChild(entry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        // Update connection status
+        function updateConnectionStatus(status) {
+            connectionStatus.className = `connection-status status-${status}`;
+            const statusText = {
+                'connected': 'Connected',
+                'disconnected': 'Disconnected',
+                'connecting': 'Connecting...'
+            };
+            connectionText.textContent = statusText[status] || status;
+        }
+
+        // Initialize SignalR connection
+        async function connectSignalR() {
+            try {
+                log('Initializing SignalR connection...', 'info');
+                updateConnectionStatus('connecting');
+
+                hubConnection = new signalR.HubConnectionBuilder()
+                    .withUrl('/hub/annotation')
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+
+                // Register event handlers
+                hubConnection.on('LoadAnnotations', (annotations) => {
+                    log(`Loaded ${annotations.length} existing annotations`, 'success');
+                    annotations.forEach(ann => renderAnnotation(overlay2, ann));
+                });
+
+                hubConnection.on('AnnotationCreated', (data) => {
+                    log(`Received annotation from user: ${data.userId}`, 'success');
+                    renderAnnotation(overlay2, data);
+                });
+
+                hubConnection.on('AnnotationUpdated', (data) => {
+                    log(`Annotation ${data.annotationId} updated`, 'info');
+                    updateAnnotation(overlay2, data);
+                });
+
+                hubConnection.on('AnnotationDeleted', (data) => {
+                    log(`Annotation ${data.annotationId} deleted`, 'warn');
+                    deleteAnnotation(overlay2, data.annotationId);
+                });
+
+                hubConnection.on('AnnotationConfirmed', (data) => {
+                    log(`Annotation confirmed: ${data.status}`, 'success');
+                });
+
+                hubConnection.on('Error', (data) => {
+                    log(`Error: ${data.message}`, 'error');
+                });
+
+                hubConnection.on('UserJoined', (data) => {
+                    log(`User ${data.userId} joined the session`, 'info');
+                });
+
+                hubConnection.on('UserLeft', (data) => {
+                    log(`User ${data.userId} left the session`, 'info');
+                });
+                
+                // Laser pointer events
+                hubConnection.on('LaserPointerMove', (data) => {
+                    showLaserPointer(laserPointer2, data.x, data.y);
+                });
+                
+                hubConnection.on('LaserPointerHide', () => {
+                    hideLaserPointer(laserPointer2);
+                });
+
+                hubConnection.onreconnecting(() => {
+                    log('Connection lost. Reconnecting...', 'warn');
+                    updateConnectionStatus('connecting');
+                });
+
+                hubConnection.onreconnected(() => {
+                    log('Reconnected successfully', 'success');
+                    updateConnectionStatus('connected');
+                    joinSession();
+                });
+
+                hubConnection.onclose(() => {
+                    log('Connection closed', 'error');
+                    updateConnectionStatus('disconnected');
+                });
+
+                // Start connection
+                await hubConnection.start();
+                log('SignalR connection established', 'success');
+                updateConnectionStatus('connected');
+                
+                // Join session
+                await joinSession();
+                
+                connectBtn.textContent = 'Disconnect';
+                connectBtn.onclick = disconnectSignalR;
+            } catch (err) {
+                log(`Connection failed: ${err}`, 'error');
+                updateConnectionStatus('disconnected');
+                console.error(err);
+            }
+        }
+
+        // Join session group
+        async function joinSession() {
+            const sessionId = parseInt(sessionIdInput.value);
+            const userId = userIdInput.value;
+            
+            try {
+                await hubConnection.invoke('JoinSession', sessionId, userId);
+                log(`Joined session ${sessionId} as ${userId}`, 'success');
+            } catch (err) {
+                log(`Failed to join session: ${err}`, 'error');
+            }
+        }
+
+        // Disconnect SignalR
+        async function disconnectSignalR() {
+            if (hubConnection) {
+                const sessionId = parseInt(sessionIdInput.value);
+                const userId = userIdInput.value;
+                
+                try {
+                    await hubConnection.invoke('LeaveSession', sessionId, userId);
+                    await hubConnection.stop();
+                    log('Disconnected from SignalR', 'info');
+                    updateConnectionStatus('disconnected');
+                    connectBtn.textContent = 'Connect';
+                    connectBtn.onclick = connectSignalR;
+                } catch (err) {
+                    log(`Disconnect error: ${err}`, 'error');
+                }
+            }
+        }
+
+        // Tool selection
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toolButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+                log(`Tool changed to: ${currentTool}`, 'info');
+                
+                // Update overlay pointer events and laser pointer
+                if (currentTool === 'select') {
+                    overlay1.style.pointerEvents = 'none';
+                    view1Container.classList.remove('laser-active');
+                    laserPointerActive = false;
+                    hideLaserPointer(laserPointer1);
+                    broadcastLaserHide();
+                } else if (currentTool === 'laser') {
+                    overlay1.style.pointerEvents = 'auto';
+                    view1Container.classList.add('laser-active');
+                    laserPointerActive = true;
+                    log('Laser pointer activated - move mouse over View 1', 'info');
+                } else {
+                    overlay1.style.pointerEvents = 'auto';
+                    view1Container.classList.remove('laser-active');
+                    laserPointerActive = false;
+                    hideLaserPointer(laserPointer1);
+                    broadcastLaserHide();
+                }
+            });
+        });
+
+        // Color picker
+        colorPicker.addEventListener('change', (e) => {
+            currentColor = e.target.value;
+            log(`Color changed to: ${currentColor}`, 'info');
+        });
+
+        // Drawing on overlay
+        function setupDrawing() {
+            overlay1.addEventListener('mousedown', handleDrawStart);
+            overlay1.addEventListener('mousemove', handleDrawMove);
+            overlay1.addEventListener('mouseup', handleDrawEnd);
+        }
+
+        function handleDrawStart(e) {
+            if (currentTool === 'select') return;
+            
+            isDrawing = true;
+            const rect = overlay1.getBoundingClientRect();
+            startPoint = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            
+            if (currentTool === 'drawing') {
+                currentPath = `M${startPoint.x},${startPoint.y}`;
+            }
+        }
+
+        function handleDrawMove(e) {
+            if (!isDrawing || currentTool === 'select') return;
+            
+            const rect = overlay1.getBoundingClientRect();
+            const point = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            
+            if (currentTool === 'drawing') {
+                currentPath += ` L${point.x},${point.y}`;
+                updateDrawingPreview();
+            }
+        }
+
+        async function handleDrawEnd(e) {
+            if (!isDrawing || currentTool === 'select') return;
+            
+            const rect = overlay1.getBoundingClientRect();
+            const endPoint = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            
+            let annotationData = null;
+            
+            if (currentTool === 'drawing' && currentPath) {
+                annotationData = {
+                    type: 'drawing',
+                    path: currentPath,
+                    color: currentColor,
+                    strokeWidth: 2
+                };
+            } else if (currentTool === 'highlight') {
+                annotationData = {
+                    type: 'highlight',
+                    x: Math.min(startPoint.x, endPoint.x),
+                    y: Math.min(startPoint.y, endPoint.y),
+                    width: Math.abs(endPoint.x - startPoint.x),
+                    height: Math.abs(endPoint.y - startPoint.y),
+                    color: currentColor
+                };
+            } else if (currentTool === 'note') {
+                annotationData = {
+                    type: 'note',
+                    x: startPoint.x,
+                    y: startPoint.y,
+                    color: currentColor,
+                    text: 'Note'
+                };
+            }
+            
+            if (annotationData && hubConnection) {
+                const sessionId = parseInt(sessionIdInput.value);
+                const userId = userIdInput.value;
+                
+                try {
+                    // Render locally first
+                    renderAnnotation(overlay1, annotationData);
+                    
+                    // Broadcast to other clients
+                    await hubConnection.invoke('BroadcastAnnotation', sessionId, userId, annotationData);
+                    log(`Annotation broadcasted: ${annotationData.type}`, 'success');
+                } catch (err) {
+                    log(`Failed to broadcast annotation: ${err}`, 'error');
+                }
+            }
+            
+            // Reset state
+            isDrawing = false;
+            currentPath = '';
+            startPoint = null;
+            removePreviewElements();
+        }
+
+        function updateDrawingPreview() {
+            removePreviewElements();
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', currentPath);
+            path.setAttribute('stroke', currentColor);
+            path.setAttribute('stroke-width', '2');
+            path.setAttribute('fill', 'none');
+            path.setAttribute('class', 'annotation-preview');
+            path.setAttribute('opacity', '0.7');
+            
+            overlay1.appendChild(path);
+        }
+
+        function removePreviewElements() {
+            const previews = overlay1.querySelectorAll('.annotation-preview');
+            previews.forEach(p => p.remove());
+        }
+
+        // Render annotation on SVG overlay
+        function renderAnnotation(overlay, annotation) {
+            const data = annotation.annotationData || annotation;
+            
+            if (data.type === 'drawing') {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', data.path);
+                path.setAttribute('stroke', data.color);
+                path.setAttribute('stroke-width', data.strokeWidth || 2);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('data-annotation-id', annotation.annotationId || Date.now());
+                overlay.appendChild(path);
+            } else if (data.type === 'highlight') {
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', data.x);
+                rect.setAttribute('y', data.y);
+                rect.setAttribute('width', data.width);
+                rect.setAttribute('height', data.height);
+                rect.setAttribute('fill', data.color);
+                rect.setAttribute('opacity', '0.3');
+                rect.setAttribute('data-annotation-id', annotation.annotationId || Date.now());
+                overlay.appendChild(rect);
+            } else if (data.type === 'note') {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', data.x);
+                circle.setAttribute('cy', data.y);
+                circle.setAttribute('r', '10');
+                circle.setAttribute('fill', data.color);
+                circle.setAttribute('data-annotation-id', annotation.annotationId || Date.now());
+                overlay.appendChild(circle);
+            }
+        }
+
+        function updateAnnotation(overlay, data) {
+            const existing = overlay.querySelector(`[data-annotation-id="${data.annotationId}"]`);
+            if (existing) {
+                existing.remove();
+                renderAnnotation(overlay, data);
+            }
+        }
+
+        function deleteAnnotation(overlay, annotationId) {
+            const element = overlay.querySelector(`[data-annotation-id="${annotationId}"]`);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        // Clear all annotations
+        clearAnnotationsBtn.addEventListener('click', () => {
+            overlay1.innerHTML = '';
+            overlay2.innerHTML = '';
+            log('All annotations cleared locally', 'warn');
+        });
+
+        // Clear log
+        clearLogBtn.addEventListener('click', () => {
+            eventLog.innerHTML = '<div class="log-entry info">Log cleared</div>';
+        });
+        
+        // ========== LASER POINTER FUNCTIONALITY ==========
+        
+        // Show laser pointer at coordinates
+        function showLaserPointer(pointerElement, x, y) {
+            pointerElement.style.display = 'block';
+            pointerElement.style.left = `${x}px`;
+            pointerElement.style.top = `${y}px`;
+        }
+        
+        // Hide laser pointer
+        function hideLaserPointer(pointerElement) {
+            pointerElement.style.display = 'none';
+        }
+        
+        // Broadcast laser pointer position
+        async function broadcastLaserMove(x, y) {
+            if (!hubConnection || !laserPointerActive) return;
+            
+            const sessionId = parseInt(sessionIdInput.value);
+            const userId = userIdInput.value;
+            
+            try {
+                await hubConnection.invoke('BroadcastLaserPointer', sessionId, userId, { x, y });
+            } catch (err) {
+                // Silently fail for laser pointer (high frequency updates)
+                console.error('Laser pointer broadcast error:', err);
+            }
+        }
+        
+        // Broadcast laser pointer hide
+        async function broadcastLaserHide() {
+            if (!hubConnection) return;
+            
+            const sessionId = parseInt(sessionIdInput.value);
+            const userId = userIdInput.value;
+            
+            try {
+                await hubConnection.invoke('HideLaserPointer', sessionId, userId);
+            } catch (err) {
+                console.error('Laser pointer hide error:', err);
+            }
+        }
+        
+        // Setup laser pointer tracking on View 1
+        function setupLaserPointer() {
+            let throttleTimer = null;
+            
+            view1Container.addEventListener('mousemove', (e) => {
+                if (!laserPointerActive) return;
+                
+                const rect = view1Container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Show local laser pointer
+                showLaserPointer(laserPointer1, x, y);
+                
+                // Throttle SignalR broadcasts (every 50ms)
+                if (!throttleTimer) {
+                    broadcastLaserMove(x, y);
+                    throttleTimer = setTimeout(() => {
+                        throttleTimer = null;
+                    }, 50);
+                }
+            });
+            
+            view1Container.addEventListener('mouseleave', () => {
+                if (!laserPointerActive) return;
+                hideLaserPointer(laserPointer1);
+                broadcastLaserHide();
+            });
+        }
+
+        // Initialize
+        connectBtn.onclick = connectSignalR;
+        setupDrawing();
+        setupLaserPointer();
+        
+        // Set default tool
+        toolButtons[0].classList.add('active');
+        
+        log('Demo initialized - Click Connect to start', 'info');
+        log('NEW: Laser Pointer tool available for synchronized pointing!', 'success');
+    </script>
+</body>
+</html>

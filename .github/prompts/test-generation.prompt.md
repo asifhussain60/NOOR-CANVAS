@@ -72,6 +72,32 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 - ❌ `Start-Job` for app startup (wrong isolation)
 - ❌ Manual app startup without orchestration
 
+⚠️ **CRITICAL CLARIFICATION: Playwright's webServer vs Orchestration Scripts**
+
+**Two Different Server Management Approaches:**
+
+1. **Playwright's Built-in `webServer` Config** (in `playwright.config.cjs`)
+   - Runs `dotnet run` as **invisible background subprocess** within Node.js
+   - **Does NOT launch in separate PowerShell window**
+   - Automatic lifecycle: start → wait → test → stop
+   - Use when: Percy visual tests, simple functional tests
+   - Limitation: Cannot set environment variables properly for DevMode
+
+2. **PowerShell Orchestration Scripts** (in `Scripts/` directory)
+   - Launches `dotnet run` in **separate elevated PowerShell window**
+   - Visible window with app logs
+   - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`)
+   - Use when: E2E tests requiring DevMode, debugging, complex setup
+
+**When to Use Each:**
+- **webServer (automatic)**: Percy visual tests, regression suites, CI/CD pipelines
+- **Orchestration Scripts (manual)**: E2E tests with DevMode, debugging, development
+
+**Common Mistake to Avoid:**
+- Thinking webServer will show a separate window (it won't - it's invisible)
+- Using webServer for tests that need DevMode environment variables
+- Manually starting app before running tests that use webServer (double startup conflict)
+
 
 ### 2. Canonical References (MANDATORY)
 - **`InfrastructureQuickRef.md`**: Database connections, API endpoints, SignalR hubs, Session 212 tokens

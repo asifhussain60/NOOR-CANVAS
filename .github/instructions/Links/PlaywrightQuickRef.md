@@ -1,8 +1,49 @@
 # Playwright Testing Quick Reference
 
 **Version**: 2.0.0  
-**Last Updated**: 2025-10-14  
+**Last Updated**: 2025-10-16  
 **Purpose**: Authoritative Playwright testing reference - eliminates ambiguity in test creation and execution
+
+---
+
+## ⚠️ CRITICAL: Server Management Rules
+
+**PLAYWRIGHT MANAGES THE SERVER AUTOMATICALLY - DO NOT START IT MANUALLY!**
+
+### ❌ NEVER Do This for Playwright Tests:
+```powershell
+# WRONG - Don't manually start the app
+dotnet run
+./Workspaces/Global/nc.ps1
+./Workspaces/Global/ncb.ps1
+Start-Process powershell -ArgumentList "dotnet run"
+```
+
+### ✅ ALWAYS Do This:
+```bash
+# RIGHT - Let Playwright manage everything
+PW_MODE=standalone npx playwright test
+
+# Playwright automatically:
+# 1. Starts dotnet run (background subprocess)
+# 2. Waits for port 9091 to be ready
+# 3. Runs all tests
+# 4. Stops the server
+# 5. Cleans up processes
+```
+
+### How webServer Works:
+- **Not a separate window**: Server runs as invisible Node.js subprocess
+- **Automatic lifecycle**: Start → Wait → Test → Stop
+- **Port monitoring**: Waits for port 9091 to respond before testing
+- **Process cleanup**: Kills server process when tests complete
+- **Error handling**: Stops server even if tests fail
+
+### Manual Server Launch is ONLY for:
+- **Browser Development**: Manual testing in browser (use `nc.ps1`)
+- **Debugging**: Visual Studio/VS Code debugger
+- **Demo Pages**: Showing features to stakeholders
+- **NEVER**: For running automated Playwright tests
 
 ---
 
