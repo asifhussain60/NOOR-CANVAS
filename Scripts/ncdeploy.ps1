@@ -527,6 +527,131 @@ try {
         Write-Warning "HostProvisioner project not found at $HostProvisionerProjectFile. Skipping HostProvisioner deployment."
     }
 
+    # Step 7.6: Post-Deployment Validation (Environment & Database)
+    # [DEBUG-WORKITEM:deploy:validation] Prevent production deployment with dev settings ;CLEANUP_OK
+    Write-Step "Validating production deployment configuration..."
+    
+    $validationFailed = $false
+    $validationErrors = @()
+    
+    # Validation 1: NoorCanvas web.config - verify Production environment and KSESSIONS database
+    Write-Info "→ Validating NoorCanvas configuration..."
+    $webConfigPath = Join-Path $DeployPath "web.config"
+    if (Test-Path $webConfigPath) {
+        $webConfigContent = Get-Content $webConfigPath -Raw
+        
+        # Check environment variable
+        if ($webConfigContent -match 'ASPNETCORE_ENVIRONMENT.*Production') {
+            Write-Host "  ✓ NoorCanvas environment: Production" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ NoorCanvas environment: NOT Production!" -ForegroundColor Red
+            $validationErrors += "NoorCanvas web.config does not specify ASPNETCORE_ENVIRONMENT=Production"
+            $validationFailed = $true
+        }
+        
+        # Check database connection string
+        if ($webConfigContent -match 'Database=KSESSIONS') {
+            Write-Host "  ✓ NoorCanvas database: KSESSIONS (Production)" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ NoorCanvas database: NOT KSESSIONS!" -ForegroundColor Red
+            $validationErrors += "NoorCanvas web.config does not reference KSESSIONS production database"
+            $validationFailed = $true
+        }
+    } else {
+        Write-Host "  ✗ web.config not found!" -ForegroundColor Red
+        $validationErrors += "NoorCanvas web.config missing at $webConfigPath"
+        $validationFailed = $true
+    }
+    
+    # Validation 2: NoorCanvas appsettings.json - verify KSESSIONS database
+    Write-Info "→ Validating NoorCanvas appsettings.json..."
+    $appsettingsPath = Join-Path $DeployPath "appsettings.json"
+    if (Test-Path $appsettingsPath) {
+        $appsettingsContent = Get-Content $appsettingsPath -Raw
+        
+        if ($appsettingsContent -match 'Database=KSESSIONS') {
+            Write-Host "  ✓ NoorCanvas appsettings: KSESSIONS database" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ NoorCanvas appsettings: NOT KSESSIONS database!" -ForegroundColor Red
+            $validationErrors += "NoorCanvas appsettings.json does not reference KSESSIONS production database"
+            $validationFailed = $true
+        }
+    } else {
+        Write-Host "  ✗ appsettings.json not found!" -ForegroundColor Red
+        $validationErrors += "NoorCanvas appsettings.json missing at $appsettingsPath"
+        $validationFailed = $true
+    }
+    
+    # Validation 3: HostProvisioner appsettings.Production.json - verify KSESSIONS database
+    Write-Info "→ Validating HostProvisioner configuration..."
+    $hpAppsettingsProdPath = Join-Path $HostProvisionerDeployPath "appsettings.Production.json"
+    if (Test-Path $hpAppsettingsProdPath) {
+        $hpAppsettingsProdContent = Get-Content $hpAppsettingsProdPath -Raw
+        
+        if ($hpAppsettingsProdContent -match 'Database=KSESSIONS') {
+            Write-Host "  ✓ HostProvisioner appsettings.Production.json: KSESSIONS database" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ HostProvisioner appsettings.Production.json: NOT KSESSIONS database!" -ForegroundColor Red
+            $validationErrors += "HostProvisioner appsettings.Production.json does not reference KSESSIONS production database"
+            $validationFailed = $true
+        }
+    } else {
+        Write-Host "  ✗ HostProvisioner appsettings.Production.json not found!" -ForegroundColor Red
+        $validationErrors += "HostProvisioner appsettings.Production.json missing at $hpAppsettingsProdPath"
+        $validationFailed = $true
+    }
+    
+    # Validation 4: Environment variable check for HostProvisioner
+    Write-Info "→ Checking ASPNETCORE_ENVIRONMENT system variable..."
+    $systemEnv = [System.Environment]::GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Machine")
+    $userEnv = [System.Environment]::GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "User")
+    $processEnv = [System.Environment]::GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Process")
+    
+    if ($systemEnv -eq "Production" -or $userEnv -eq "Production" -or $processEnv -eq "Production") {
+        Write-Host "  ✓ ASPNETCORE_ENVIRONMENT set to Production" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠ ASPNETCORE_ENVIRONMENT not set to Production" -ForegroundColor Yellow
+        Write-Host "    System: $systemEnv" -ForegroundColor Gray
+        Write-Host "    User: $userEnv" -ForegroundColor Gray
+        Write-Host "    Process: $processEnv" -ForegroundColor Gray
+        Write-Warning "HostProvisioner reads ASPNETCORE_ENVIRONMENT from environment variables!"
+        Write-Warning "Without this set, HostProvisioner will default to Development and connect to KSESSIONS_DEV"
+        $validationErrors += "ASPNETCORE_ENVIRONMENT environment variable not set to Production"
+        $validationFailed = $true
+    }
+    
+    # Final validation result
+    if ($validationFailed) {
+        Write-Host "`n========================================" -ForegroundColor Red
+        Write-Host "  VALIDATION FAILED!" -ForegroundColor Red
+        Write-Host "========================================" -ForegroundColor Red
+        Write-Host "`nConfiguration Issues Found:" -ForegroundColor Yellow
+        foreach ($error in $validationErrors) {
+            Write-Host "  ✗ $error" -ForegroundColor Red
+        }
+        
+        Write-Host "`nREMEDIATION STEPS:" -ForegroundColor Cyan
+        Write-Host "1. Set system environment variable:" -ForegroundColor White
+        Write-Host "   [System.Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Production', 'Machine')" -ForegroundColor Gray
+        Write-Host "`n2. Verify NoorCanvas web.config transformation:" -ForegroundColor White
+        Write-Host "   - Check: $webConfigPath" -ForegroundColor Gray
+        Write-Host "   - Should contain: ASPNETCORE_ENVIRONMENT=Production" -ForegroundColor Gray
+        Write-Host "   - Should contain: Database=KSESSIONS" -ForegroundColor Gray
+        Write-Host "`n3. Verify appsettings.json files:" -ForegroundColor White
+        Write-Host "   - NoorCanvas: $appsettingsPath" -ForegroundColor Gray
+        Write-Host "   - HostProvisioner: $hpAppsettingsProdPath" -ForegroundColor Gray
+        Write-Host "   - Both should contain: Database=KSESSIONS" -ForegroundColor Gray
+        Write-Host "`n4. After remediation, restart IIS:" -ForegroundColor White
+        Write-Host "   iisreset" -ForegroundColor Gray
+        
+        throw "Deployment validation failed - production environment not properly configured"
+    } else {
+        Write-Success "All deployment validations passed!"
+        Write-Host "  ✓ NoorCanvas: Production environment, KSESSIONS database" -ForegroundColor Green
+        Write-Host "  ✓ HostProvisioner: KSESSIONS database configured" -ForegroundColor Green
+        Write-Host "  ✓ Environment variables: Properly configured" -ForegroundColor Green
+    }
+
     # Step 8: Push master to origin and return to development branch
     # [DEBUG-WORKITEM:deploy:auto-push:SIMPLE]
     if (-not $SkipMerge) {
