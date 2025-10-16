@@ -919,6 +919,42 @@
             padding: 1rem;
         }
     }
+
+    /* Responsive Layout - Mobile Landscape */
+    /* [DEBUG-WORKITEM:css:landscape] Landscape orientation - sidebar below canvas for better asset rendering ;CLEANUP_OK */
+    @@media (max-width: 1024px) and (orientation: landscape) {
+        .canvas-main-grid {
+            grid-template-columns: 1fr !important;
+            height: auto;
+            gap: 1rem;
+        }
+
+        .canvas-area-container {
+            order: 1;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .canvas-sidebar {
+            order: 2;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for questions in landscape ;CLEANUP_OK */
+        .canvas-questions-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for participants in landscape ;CLEANUP_OK */
+        .canvas-participants-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+    }
 </style>
 
 <!-- Root container matching SessionWaiting.razor structure -->

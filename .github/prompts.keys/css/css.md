@@ -39,6 +39,42 @@ Mobile CSS testing infrastructure with comprehensive device coverage (portrait/l
 
 **Impact**: Session details (Date, Time, Duration, Instructor) now render in 2 columns on mobile instead of single column stack.
 
+### SessionCanvas.razor - Mobile Landscape Layout (2025-10-16)
+**File**: `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+**Change**: Added landscape-specific media query to stack Q&A/Participants sidebar below Canvas panel
+
+```css
+/* Added after line 920 */
+@media (max-width: 1024px) and (orientation: landscape) {
+    .canvas-main-grid {
+        grid-template-columns: 1fr !important;  /* [DEBUG-WORKITEM:css:landscape] ;CLEANUP_OK */
+        height: auto;
+        gap: 1rem;
+    }
+
+    .canvas-area-container {
+        order: 1;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .canvas-sidebar {
+        order: 2;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+```
+
+**Impact**: In landscape orientation (phones/tablets rotated sideways), the Q&A and Participants panel moves below the Canvas panel instead of beside it, providing more horizontal real estate for asset rendering.
+
+**Devices Tested**:
+- iPhone SE Landscape (667x375)
+- iPhone 14 Pro Landscape (932x430)
+- iPad Landscape (1024x768)
+
+**Screenshots**: `Workspaces/PercyScreenshots/SessionCanvas-*-Landscape-*.png`
+
 ## Mobile Testing Strategy
 
 ### Functional Testing (Playwright Device Emulation)
@@ -200,6 +236,26 @@ Mobile CSS testing infrastructure with comprehensive device coverage (portrait/l
 - **session-transcript-css**: CSS cleanup for session transcript styling
 - **canvas**: SessionCanvas functionality and UI components
 - **user-auth**: UserLanding authentication and registration
+
+## Work Log
+
+### 2025-10-16T07:42:00Z
+- **Status**: Complete
+- **Task**: Mobile landscape layout enhancement
+- **Changes**: 
+  - Added landscape-specific media query to SessionCanvas.razor
+  - Q&A/Participants sidebar now appears below Canvas panel in landscape orientation
+  - Provides more horizontal space for asset rendering on rotated mobile devices
+- **Files Affected**:
+  - `SPA/NoorCanvas/Pages/SessionCanvas.razor` (new CSS block after line 920)
+  - `Workspaces/TEMP/mobile-landscape-layout.spec.ts` (Percy visual test)
+  - `Workspaces/TEMP/mobile-landscape-screenshots.spec.ts` (screenshot capture)
+- **Tests**: 
+  - ✅ Screenshot capture passed (3 landscape viewports)
+  - 📸 Screenshots: `Workspaces/PercyScreenshots/SessionCanvas-*-Landscape-*.png`
+- **Devices**: iPhone SE, iPhone 14 Pro, iPad (landscape)
+- **Build**: Clean
+- **Commit**: 31758e0054de2b8d94dd80d79ba141b40728e9a3
 
 ## Notes
 - Tests are located in `Workspaces/TEMP/` for temporary/experimental work
