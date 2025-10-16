@@ -75,3 +75,22 @@ In Progress
   - Confirmed workspace detection shows correct path
 - **Commit**: bc4bfc2d4aa463392822bc7b848cf88856d3c5d8
 - **Checkpoint**: checkpoint/deploy/2025-10-16_1442
+
+### 2025-10-16T14:47:00Z
+- **Status**: Complete
+- **Issue**: ncdeploy validation failing with "appsettings.json MISSING" and git checkout error
+- **Root Cause**: 
+  1. appsettings.json didn't exist in production to preserve, not created from publish
+  2. Git stderr showing "unknown switch 'E'" instead of silent failure
+- **Solution**: 
+  1. Add fallback to create appsettings.json from appsettings.Production.json if missing
+  2. Fix git checkout by redirecting stderr (2>$null) instead of -ErrorAction
+- **Changes**:
+  - Added appsettings.json creation logic after config restoration
+  - Copies from appsettings.Production.json as template
+  - Fixed git checkout command to suppress stderr properly
+  - Both fixes prevent deployment failures
+- **Files Affected**: Scripts/ncdeploy.ps1
+- **Tests**: Build validated, deployment logic reviewed
+- **Commit**: 5f268e31be395dcaf952a3a53f1d8eab8b8d8b2a
+- **Checkpoint**: checkpoint/deploy/2025-10-16_1447
