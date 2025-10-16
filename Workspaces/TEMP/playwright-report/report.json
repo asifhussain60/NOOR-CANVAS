@@ -69,18 +69,18 @@
         {
           "title": "Mobile Views - Screenshot Capture for Documentation",
           "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-          "line": 33,
+          "line": 72,
           "column": 6,
           "specs": [],
           "suites": [
             {
               "title": "SessionWaiting.razor - Screenshots",
               "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-              "line": 39,
+              "line": 78,
               "column": 10,
               "specs": [
                 {
-                  "title": "SessionWaiting - mobile (375px)",
+                  "title": "SessionWaiting - iphonePortrait (375px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -95,19 +95,22 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3190,
+                          "duration": 6369,
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing SessionWaiting - mobile (375px)\n"
+                              "text": "🗑️  Cleaned and recreated: D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\PercyScreenshots\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: SessionWaiting-mobile-375px.png\n"
+                              "text": "📸 Capturing SessionWaiting - iphonePortrait (375px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPhone-portrait-375x667.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:54:41.908Z",
+                          "startTime": "2025-10-16T11:15:52.309Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -115,13 +118,13 @@
                       "status": "expected"
                     }
                   ],
-                  "id": "abf4e9a0393e8fee657d-bd22667c83f08c451350",
+                  "id": "abf4e9a0393e8fee657d-4043634d58de4c8cd982",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 42,
+                  "line": 81,
                   "column": 13
                 },
                 {
-                  "title": "SessionWaiting - tablet (768px)",
+                  "title": "SessionWaiting - iphoneLandscape (667px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -136,19 +139,19 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3337,
+                          "duration": 3306,
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing SessionWaiting - tablet (768px)\n"
+                              "text": "📸 Capturing SessionWaiting - iphoneLandscape (667px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: SessionWaiting-tablet-768px.png\n"
+                              "text": "✅ Screenshot saved: SessionWaiting-iPhone-landscape-667x375.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:54:45.808Z",
+                          "startTime": "2025-10-16T11:15:59.368Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -156,9 +159,337 @@
                       "status": "expected"
                     }
                   ],
-                  "id": "abf4e9a0393e8fee657d-4df57f657e33edbd15cc",
+                  "id": "abf4e9a0393e8fee657d-729e30a7271e2023ba3a",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 42,
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - iphoneProPortrait (390px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3208,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - iphoneProPortrait (390px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPhonePro-portrait-390x844.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:02.708Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-6a2948518efbf420c631",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - iphoneProLandscape (844px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3343,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - iphoneProLandscape (844px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPhonePro-landscape-844x390.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:05.949Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-02f305502b1899c78422",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - androidPortrait (360px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3065,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - androidPortrait (360px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-Android-portrait-360x740.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:09.315Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-c0f570e5380bfbfaf0d5",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - androidLandscape (740px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3125,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - androidLandscape (740px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-Android-landscape-740x360.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:12.398Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-02cf93ad13df2ccb6cfe",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - iPadPortrait (768px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3388,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - iPadPortrait (768px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPad-portrait-768x1024.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:15.542Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-501dd9c1a24f39e2278e",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - iPadLandscape (1024px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3131,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - iPadLandscape (1024px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPad-landscape-1024x768.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:18.950Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-7b5f2acdf511f2893e68",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - iPadProPortrait (834px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3100,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - iPadProPortrait (834px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPadPro-portrait-834x1194.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:22.099Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-cd448f19142616369436",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
+                  "column": 13
+                },
+                {
+                  "title": "SessionWaiting - iPadProLandscape (1194px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3247,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionWaiting - iPadProLandscape (1194px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionWaiting-iPadPro-landscape-1194x834.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:25.218Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-61f27df76e98cf478ad2",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 81,
                   "column": 13
                 },
                 {
@@ -177,19 +508,19 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3249,
+                          "duration": 3461,
                           "errors": [],
                           "stdout": [
                             {
                               "text": "📸 Capturing SessionWaiting - desktop (1280px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: SessionWaiting-desktop-1280px.png\n"
+                              "text": "✅ Screenshot saved: SessionWaiting-desktop-1280x720.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:54:49.193Z",
+                          "startTime": "2025-10-16T11:16:28.486Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -199,7 +530,7 @@
                   ],
                   "id": "abf4e9a0393e8fee657d-6464b1996a39c4cb026e",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 42,
+                  "line": 81,
                   "column": 13
                 }
               ]
@@ -207,11 +538,11 @@
             {
               "title": "UserLanding.razor - Screenshots",
               "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-              "line": 74,
+              "line": 113,
               "column": 10,
               "specs": [
                 {
-                  "title": "UserLanding - mobile (375px)",
+                  "title": "UserLanding - iphonePortrait (375px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -226,19 +557,19 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 2654,
+                          "duration": 2773,
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing UserLanding - mobile (375px)\n"
+                              "text": "📸 Capturing UserLanding - iphonePortrait (375px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: UserLanding-mobile-375px.png\n"
+                              "text": "✅ Screenshot saved: UserLanding-iPhone-portrait-375x667.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:54:52.468Z",
+                          "startTime": "2025-10-16T11:16:31.974Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -246,13 +577,177 @@
                       "status": "expected"
                     }
                   ],
-                  "id": "abf4e9a0393e8fee657d-2bf20fdf0933a032cfa8",
+                  "id": "abf4e9a0393e8fee657d-be071c262dde385d9b79",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 77,
+                  "line": 116,
                   "column": 13
                 },
                 {
-                  "title": "UserLanding - tablet (768px)",
+                  "title": "UserLanding - iphoneLandscape (667px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2605,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - iphoneLandscape (667px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-iPhone-landscape-667x375.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:34.781Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-ea902f6c3d98c7b76fd4",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - iphoneProPortrait (390px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2630,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - iphoneProPortrait (390px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-iPhonePro-portrait-390x844.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:37.408Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-3db12b7359be02692766",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - iphoneProLandscape (844px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2674,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - iphoneProLandscape (844px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-iPhonePro-landscape-844x390.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:40.058Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-3ee225c847ae019980e5",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - androidPortrait (360px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2569,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - androidPortrait (360px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-Android-portrait-360x740.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:42.751Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-372330f9455bb457b679",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - androidLandscape (740px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -271,15 +766,15 @@
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing UserLanding - tablet (768px)\n"
+                              "text": "📸 Capturing UserLanding - androidLandscape (740px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: UserLanding-tablet-768px.png\n"
+                              "text": "✅ Screenshot saved: UserLanding-Android-landscape-740x360.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:54:55.143Z",
+                          "startTime": "2025-10-16T11:16:45.341Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -287,13 +782,54 @@
                       "status": "expected"
                     }
                   ],
-                  "id": "abf4e9a0393e8fee657d-76fd51226bcc402b7a11",
+                  "id": "abf4e9a0393e8fee657d-1998cfbf05c0300427d1",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 77,
+                  "line": 116,
                   "column": 13
                 },
                 {
-                  "title": "UserLanding - desktop (1280px)",
+                  "title": "UserLanding - iPadPortrait (768px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2796,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - iPadPortrait (768px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-iPad-portrait-768x1024.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:47.899Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-cadf5ab9ce5148ac1ddc",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - iPadLandscape (1024px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -312,15 +848,138 @@
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing UserLanding - desktop (1280px)\n"
+                              "text": "📸 Capturing UserLanding - iPadLandscape (1024px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: UserLanding-desktop-1280px.png\n"
+                              "text": "✅ Screenshot saved: UserLanding-iPad-landscape-1024x768.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:54:57.714Z",
+                          "startTime": "2025-10-16T11:16:50.715Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-f6ce7458aa61c6ffcf67",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - iPadProPortrait (834px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2518,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - iPadProPortrait (834px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-iPadPro-portrait-834x1194.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:53.547Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-a2eca96cc672c49d7e7a",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - iPadProLandscape (1194px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2555,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - iPadProLandscape (1194px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-iPadPro-landscape-1194x834.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:56.089Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-94d35159297727ece71f",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 116,
+                  "column": 13
+                },
+                {
+                  "title": "UserLanding - desktop (1280px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2705,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing UserLanding - desktop (1280px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: UserLanding-desktop-1280x720.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:16:58.662Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -330,7 +989,7 @@
                   ],
                   "id": "abf4e9a0393e8fee657d-13f3bafa6287d6de9aff",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 77,
+                  "line": 116,
                   "column": 13
                 }
               ]
@@ -338,11 +997,11 @@
             {
               "title": "SessionCanvas.razor - Screenshots",
               "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-              "line": 108,
+              "line": 147,
               "column": 10,
               "specs": [
                 {
-                  "title": "SessionCanvas - mobile (375px)",
+                  "title": "SessionCanvas - iphonePortrait (375px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -357,19 +1016,19 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3800,
+                          "duration": 4011,
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing SessionCanvas - mobile (375px)\n"
+                              "text": "📸 Capturing SessionCanvas - iphonePortrait (375px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: SessionCanvas-mobile-375px.png\n"
+                              "text": "✅ Screenshot saved: SessionCanvas-iPhone-portrait-375x667.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:55:00.547Z",
+                          "startTime": "2025-10-16T11:17:01.386Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -377,13 +1036,13 @@
                       "status": "expected"
                     }
                   ],
-                  "id": "abf4e9a0393e8fee657d-e889249389e3cacf20de",
+                  "id": "abf4e9a0393e8fee657d-d6ae156c96412fb3c32c",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 111,
+                  "line": 150,
                   "column": 13
                 },
                 {
-                  "title": "SessionCanvas - tablet (768px)",
+                  "title": "SessionCanvas - iphoneLandscape (667px)",
                   "ok": true,
                   "tags": [],
                   "tests": [
@@ -398,19 +1057,19 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3686,
+                          "duration": 4020,
                           "errors": [],
                           "stdout": [
                             {
-                              "text": "📸 Capturing SessionCanvas - tablet (768px)\n"
+                              "text": "📸 Capturing SessionCanvas - iphoneLandscape (667px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: SessionCanvas-tablet-768px.png\n"
+                              "text": "✅ Screenshot saved: SessionCanvas-iPhone-landscape-667x375.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:55:04.366Z",
+                          "startTime": "2025-10-16T11:17:05.416Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -418,9 +1077,337 @@
                       "status": "expected"
                     }
                   ],
-                  "id": "abf4e9a0393e8fee657d-1342121ac4b45bbc0f94",
+                  "id": "abf4e9a0393e8fee657d-71816850fe9520e2ef10",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 111,
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - iphoneProPortrait (390px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3718,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - iphoneProPortrait (390px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-iPhonePro-portrait-390x844.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:09.460Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-cfe4bc1e0fb560563972",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - iphoneProLandscape (844px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4174,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - iphoneProLandscape (844px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-iPhonePro-landscape-844x390.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:13.202Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-e43c8dcc99f3f674c99a",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - androidPortrait (360px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3934,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - androidPortrait (360px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-Android-portrait-360x740.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:17.394Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-00ce2e70e3d8b309b493",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - androidLandscape (740px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3857,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - androidLandscape (740px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-Android-landscape-740x360.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:21.350Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-c6740ac7d8541ce46ad1",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - iPadPortrait (768px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4024,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - iPadPortrait (768px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-iPad-portrait-768x1024.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:25.231Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-771611ab3573dccd010e",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - iPadLandscape (1024px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3306,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - iPadLandscape (1024px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-iPad-landscape-1024x768.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:29.282Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-abb5bc1b0df1130732bc",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - iPadProPortrait (834px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4120,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - iPadProPortrait (834px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-iPadPro-portrait-834x1194.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:32.610Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-9ef6eb434310d3e996bf",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
+                  "column": 13
+                },
+                {
+                  "title": "SessionCanvas - iPadProLandscape (1194px)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4282,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "📸 Capturing SessionCanvas - iPadProLandscape (1194px)\n"
+                            },
+                            {
+                              "text": "✅ Screenshot saved: SessionCanvas-iPadPro-landscape-1194x834.png\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-16T11:17:36.750Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "abf4e9a0393e8fee657d-9283eda2c6a4b8fda17b",
+                  "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
+                  "line": 150,
                   "column": 13
                 },
                 {
@@ -439,19 +1426,19 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3828,
+                          "duration": 3364,
                           "errors": [],
                           "stdout": [
                             {
                               "text": "📸 Capturing SessionCanvas - desktop (1280px)\n"
                             },
                             {
-                              "text": "✅ Screenshot saved: SessionCanvas-desktop-1280px.png\n"
+                              "text": "✅ Screenshot saved: SessionCanvas-desktop-1280x720.png\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2025-10-16T10:55:08.072Z",
+                          "startTime": "2025-10-16T11:17:41.050Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -461,7 +1448,7 @@
                   ],
                   "id": "abf4e9a0393e8fee657d-a39d267753b6a167e0eb",
                   "file": "Workspaces/TEMP/mobile-views-screenshots.spec.ts",
-                  "line": 111,
+                  "line": 150,
                   "column": 13
                 }
               ]
@@ -473,9 +1460,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-10-16T10:54:40.400Z",
-    "duration": 31660.300000000003,
-    "expected": 9,
+    "startTime": "2025-10-16T11:15:50.535Z",
+    "duration": 114013.739,
+    "expected": 33,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

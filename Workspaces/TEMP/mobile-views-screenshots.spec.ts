@@ -1,13 +1,15 @@
 /**
- * Mobile Views Screenshot Capture - Documentation
+ * Mobile Views Screenshot Capture - Percy Integration
  * 
  * Purpose: Capture screenshots of SessionWaiting, UserLanding, and SessionCanvas views
- *          across mobile, tablet, and desktop viewports for documentation
+ *          across comprehensive mobile, tablet, and desktop viewports for visual regression
  * 
  * Test Strategy:
- * - Viewport Sizes: 375px (mobile), 768px (tablet), 1280px (desktop)
- * - Captures full-page screenshots for each view and viewport combination
- * - Saves screenshots to test-results/screenshots/ directory
+ * - Device Coverage: iPhone, iPhone Pro, Android, iPad, iPad Pro (portrait & landscape)
+ * - Desktop: 1280x720
+ * - Total: 11 viewports per view = 33 screenshots
+ * - Auto-cleanup: Folder emptied before each test run
+ * - Saves to: Workspaces/TEMP/PercyScreenshots/
  * 
  * Prerequisites:
  * - App must be running at https://localhost:9091
@@ -18,17 +20,54 @@
  */
 
 import { expect, test } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const APP_URL = 'https://localhost:9091';
 const SESSION_TOKEN_USER = 'KJAHA99L';
 const SESSION_TOKEN_HOST = 'PQ9N5YWW';
 
-// Viewport configurations
+// Absolute path for Percy screenshots
+const SCREENSHOT_DIR = path.resolve(__dirname, '../PercyScreenshots');
+
+// Viewport configurations - comprehensive mobile device coverage
 const VIEWPORTS = {
-    mobile: { width: 375, height: 667, name: 'mobile-375px' },
-    tablet: { width: 768, height: 1024, name: 'tablet-768px' },
-    desktop: { width: 1280, height: 720, name: 'desktop-1280px' }
+    // iPhone SE, iPhone 8 (portrait)
+    iphonePortrait: { width: 375, height: 667, name: 'iPhone-portrait-375x667' },
+    // iPhone SE, iPhone 8 (landscape)
+    iphoneLandscape: { width: 667, height: 375, name: 'iPhone-landscape-667x375' },
+    // iPhone 12/13/14 Pro (portrait)
+    iphoneProPortrait: { width: 390, height: 844, name: 'iPhonePro-portrait-390x844' },
+    // iPhone 12/13/14 Pro (landscape)
+    iphoneProLandscape: { width: 844, height: 390, name: 'iPhonePro-landscape-844x390' },
+    // Samsung Galaxy S8+, Android (portrait)
+    androidPortrait: { width: 360, height: 740, name: 'Android-portrait-360x740' },
+    // Samsung Galaxy S8+, Android (landscape)
+    androidLandscape: { width: 740, height: 360, name: 'Android-landscape-740x360' },
+    // iPad Mini (portrait)
+    iPadPortrait: { width: 768, height: 1024, name: 'iPad-portrait-768x1024' },
+    // iPad Mini (landscape)
+    iPadLandscape: { width: 1024, height: 768, name: 'iPad-landscape-1024x768' },
+    // iPad Pro 11" (portrait)
+    iPadProPortrait: { width: 834, height: 1194, name: 'iPadPro-portrait-834x1194' },
+    // iPad Pro 11" (landscape)
+    iPadProLandscape: { width: 1194, height: 834, name: 'iPadPro-landscape-1194x834' },
+    // Desktop
+    desktop: { width: 1280, height: 720, name: 'desktop-1280x720' }
 };
+
+// Clean and recreate screenshot directory before tests
+test.beforeAll(async () => {
+    if (fs.existsSync(SCREENSHOT_DIR)) {
+        fs.rmSync(SCREENSHOT_DIR, { recursive: true, force: true });
+    }
+    fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
+    console.log(`🗑️  Cleaned and recreated: ${SCREENSHOT_DIR}`);
+});
 
 test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
 
@@ -54,7 +93,7 @@ test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
 
                 // Take full-page screenshot
                 await page.screenshot({
-                    path: `test-results/screenshots/SessionWaiting-${config.name}.png`,
+                    path: path.join(SCREENSHOT_DIR, `SessionWaiting-${config.name}.png`),
                     fullPage: true
                 });
 
@@ -88,7 +127,7 @@ test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
 
                 // Take full-page screenshot
                 await page.screenshot({
-                    path: `test-results/screenshots/UserLanding-${config.name}.png`,
+                    path: path.join(SCREENSHOT_DIR, `UserLanding-${config.name}.png`),
                     fullPage: true
                 });
 
@@ -122,7 +161,7 @@ test.describe('Mobile Views - Screenshot Capture for Documentation', () => {
 
                 // Take full-page screenshot
                 await page.screenshot({
-                    path: `test-results/screenshots/SessionCanvas-${config.name}.png`,
+                    path: path.join(SCREENSHOT_DIR, `SessionCanvas-${config.name}.png`),
                     fullPage: true
                 });
 

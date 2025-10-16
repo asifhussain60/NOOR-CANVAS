@@ -5,7 +5,8 @@
  *          across multiple responsive breakpoints using Percy
  * 
  * Test Strategy:
- * - Percy Snapshots: 375px (mobile), 768px (tablet), 1280px (desktop)
+ * - Percy Snapshots: Portrait & Landscape for all mobile/tablet devices
+ * - Device Coverage: iPhone, iPhone Pro, Android, iPad, iPad Pro, Desktop
  * - Captures pixel-perfect screenshots for visual comparison
  * - Detects CSS regressions across viewport changes
  * 
@@ -26,8 +27,20 @@ const APP_URL = 'https://localhost:9091';
 const SESSION_TOKEN_USER = 'KJAHA99L';
 const SESSION_TOKEN_HOST = 'PQ9N5YWW';
 
-// Percy responsive widths
-const RESPONSIVE_WIDTHS = [375, 768, 1280];
+// Percy responsive widths - comprehensive device coverage (portrait & landscape)
+const RESPONSIVE_WIDTHS = [
+    360,  // Android portrait
+    375,  // iPhone portrait
+    390,  // iPhone Pro portrait
+    667,  // iPhone landscape
+    740,  // Android landscape
+    768,  // iPad portrait
+    834,  // iPad Pro portrait
+    844,  // iPhone Pro landscape
+    1024, // iPad landscape
+    1194, // iPad Pro landscape
+    1280  // Desktop
+];
 
 test.describe('Mobile Views - Visual Regression Tests (Percy)', () => {
 
