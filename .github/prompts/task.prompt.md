@@ -464,6 +464,51 @@ Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
 - **Test Data:** Use Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
 - **Execution:** Via orchestration scripts ONLY (never direct `npx playwright test`)
 
+**⚠️ CRITICAL: Orchestration Script Pattern (MANDATORY)**
+
+**See:** `shared/orchestration-script-template.md` for complete template and enforcement rules.
+
+**ABSOLUTE REQUIREMENTS:**
+1. **Separate PowerShell Window**: NEVER use `Start-Process -FilePath "dotnet"` or `Start-Job`
+2. **Startup Script File**: Create temp script with environment variables, execute with `Start-Process powershell.exe -File`
+3. **Health Check Retry**: Implement retry loop with `Invoke-WebRequest` until app responds HTTP 200
+4. **Process Cleanup**: Track PID via `-PassThru`, cleanup with `Stop-Process -Id $appProcess.Id`
+
+**Script Generation Pattern:**
+```powershell
+# Step 1: Create startup script file
+$startupScript = @"
+`$env:ASPNETCORE_ENVIRONMENT = 'Development'
+Set-Location '$appPath'
+dotnet run
+"@
+$startupScriptPath = "$env:TEMP\noorcanvas-{key}-startup.ps1"
+$startupScript | Out-File -FilePath $startupScriptPath -Encoding UTF8 -Force
+
+# Step 2: Launch in SEPARATE VISIBLE window
+$appProcess = Start-Process powershell.exe `
+    -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", $startupScriptPath `
+    -PassThru `
+    -WindowStyle Normal
+
+# Step 3: Health check with retry
+while (-not $appReady -and $attemptCount -lt 30) {
+    Invoke-WebRequest -Uri "https://localhost:9091" -TimeoutSec 5
+    Start-Sleep -Seconds 2
+}
+
+# Step 4: Run tests
+npx playwright test {test-file}.spec.ts --headed
+
+# Step 5: Cleanup
+Stop-Process -Id $appProcess.Id -Force
+```
+
+**Reference Implementations:**
+- `Scripts/run-debug-panel-e2e-visual-test.ps1` (complete pattern)
+- `Scripts/run-hcp-annotation-percy-tests.ps1` (multi-test)
+- **DO NOT** deviate from this pattern without explicit user approval
+
 **Skip test creation if:**
 - Task is backend-only (no UI impact)
 - Task is documentation/configuration only

@@ -43,6 +43,8 @@ Automatically generate appropriate test coverage for UI changes following establ
 
 ⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
 
+**See:** `orchestration-script-template.md` for complete template, enforcement rules, and reference implementations.
+
 ### Why Orchestration Scripts Are Mandatory
 
 **Orchestration scripts ensure:**
@@ -54,28 +56,32 @@ Automatically generate appropriate test coverage for UI changes following establ
 **Direct execution ALWAYS fails:**
 - ❌ `npx playwright test` directly from VS Code terminal (missing environment, wrong isolation)
 - ❌ `Start-Job` for app startup (wrong isolation model)
+- ❌ `Start-Process -FilePath "dotnet"` (no environment control, no window)
 - ❌ Manual app startup without orchestration script
 
-### Required Script Pattern
+### Required Script Pattern (Summary)
 
-**Script MUST include these components:**
+**Full template in `orchestration-script-template.md`**
+
+**MANDATORY Components:**
 
 ```powershell
-# 1. Kill existing processes
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+# 1. Create startup script file (NOT inline command)
+$startupScript = @"
+`$env:ASPNETCORE_ENVIRONMENT = 'Development'
+Set-Location '$appPath'
+dotnet run
+"@
+$startupScriptPath = "$env:TEMP\noorcanvas-{key}-startup.ps1"
+$startupScript | Out-File -FilePath $startupScriptPath -Encoding UTF8 -Force
 
-# 2. Launch app in separate elevated PowerShell window
-Start-Process powershell -ArgumentList @(
-    "-NoExit",
-    "-Command",
-    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; `
-     `$env:ASPNETCORE_ENVIRONMENT = 'Development'; `
-     Write-Host 'ASPNETCORE_ENVIRONMENT = `$env:ASPNETCORE_ENVIRONMENT' -ForegroundColor Green; `
-     dotnet run"
-) -Verb RunAs
+# 2. Launch app in SEPARATE VISIBLE PowerShell window
+$appProcess = Start-Process powershell.exe `
+    -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", $startupScriptPath `
+    -PassThru `
+    -WindowStyle Normal
 
-# 3. Health check with retry logic
-Write-Host "Waiting for app to start..." -ForegroundColor Yellow
+# 3. Health check with retry logic (NOT fixed delay)
 $maxRetries = 30
 $retryCount = 0
 $appReady = $false
@@ -88,21 +94,22 @@ while (-not $appReady -and $retryCount -lt $maxRetries) {
         }
     } catch {
         $retryCount++
-        Start-Sleep -Seconds 1
+        Start-Sleep -Seconds 2
     }
 }
 
 if (-not $appReady) {
     Write-Host "App failed to start within timeout" -ForegroundColor Red
+    Stop-Process -Id $appProcess.Id -Force
     exit 1
 }
 
 # 4. Run Playwright tests
-cd "D:\PROJECTS\NOOR CANVAS\Tests\UI"
+cd "D:\PROJECTS\NOOR CANVAS\Tests\UI"  # OR Workspaces\TEMP
 npx playwright test {test-file}.spec.ts --headed --reporter=list
 
 # 5. Cleanup
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+Stop-Process -Id $appProcess.Id -Force
 ```
 
 ### Execution Method
