@@ -1,5 +1,35 @@
 # Work Log - css
 
+## 2025-10-16T07:10:00Z
+- **Status**: In Progress
+- **Changes**:
+  - [DEBUG-WORKITEM:css:mobile-grid] Modified SessionWaiting.razor `.session-details-grid` to 2-column layout on mobile (max-width: 767px)
+  - Enhanced Percy screenshot infrastructure with comprehensive device coverage (11 viewports)
+  - Implemented portrait AND landscape orientations for all mobile/tablet devices
+  - Configured auto-cleanup: PercyScreenshots folder emptied before each test run
+  - Screenshots now saved to dedicated folder: `Workspaces/PercyScreenshots/`
+- **Files Affected**:
+  - `SPA/NoorCanvas/Pages/SessionWaiting.razor` (CSS mobile grid updated)
+  - `Workspaces/TEMP/mobile-views-screenshots.spec.ts` (enhanced with 11 viewports + auto-cleanup)
+  - `Workspaces/TEMP/mobile-views-visual.spec.ts` (Percy widths expanded for portrait/landscape)
+  - `Workspaces/PercyScreenshots/` (33 PNG screenshots created)
+- **Device Coverage**:
+  - iPhone (375x667 portrait, 667x375 landscape)
+  - iPhone Pro (390x844 portrait, 844x390 landscape)
+  - Android (360x740 portrait, 740x360 landscape)
+  - iPad (768x1024 portrait, 1024x768 landscape)
+  - iPad Pro (834x1194 portrait, 1194x834 landscape)
+  - Desktop (1280x720)
+- **Test Results**:
+  - ✅ Screenshot tests: 33/33 passed (11 viewports × 3 views)
+  - ✅ All screenshots saved to `Workspaces/PercyScreenshots/`
+  - ✅ Auto-cleanup verified (folder emptied on test start)
+- **Commit**: d51380171a08710597b1d7e293cfb3a4790b1ec8
+
+## 2025-10-16T06:55:00Z
+- **Status**: In Progress
+- **Changes**:k Log - css
+
 ## 2025-10-16T00:00:00Z
 - **Status**: In Progress
 - **Changes**: 

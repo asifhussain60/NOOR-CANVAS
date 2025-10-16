@@ -2,16 +2,42 @@
 
 **Status**: in-progress  
 **Created**: 2025-10-16  
-**Last Updated**: 2025-10-16
+**Last Updated**: 2025-10-16T07:10:00Z
 
 ## Overview
-Mobile CSS testing infrastructure for responsive design validation across SessionWaiting, UserLanding, and SessionCanvas views using Playwright device emulation and Percy visual regression.
+Mobile CSS testing infrastructure with comprehensive device coverage (portrait/landscape orientations) for responsive design validation across SessionWaiting, UserLanding, and SessionCanvas views using Playwright device emulation and Percy visual regression.
 
 ## Key Information
 - **Test Framework**: Playwright + Percy
-- **Device Profiles**: iPhone SE (375x667), iPad (768x1024), Desktop (1280x720)
-- **Percy Breakpoints**: 375px, 768px, 1280px
+- **Device Coverage**: iPhone, iPhone Pro, Android, iPad, iPad Pro (portrait & landscape) + Desktop
+- **Total Viewports**: 11 (5 portrait, 5 landscape, 1 desktop)
+- **Percy Breakpoints**: 360px, 375px, 390px, 667px, 740px, 768px, 834px, 844px, 1024px, 1194px, 1280px
+- **Screenshot Storage**: `Workspaces/PercyScreenshots/` (auto-cleanup on test start)
 - **Test Session**: Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
+
+## CSS Changes
+
+### SessionWaiting.razor - Mobile Grid Layout
+**File**: `SPA/NoorCanvas/Pages/SessionWaiting.razor`
+**Change**: Modified `.session-details-grid` to display in 2-column layout on mobile devices
+
+```css
+/* Before: Single column on mobile */
+@media (max-width: 767px) {
+    .session-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* After: 2-column layout on mobile */
+@media (max-width: 767px) {
+    .session-details-grid {
+        grid-template-columns: 1fr 1fr;  /* [DEBUG-WORKITEM:css:mobile-grid] ;CLEANUP_OK */
+    }
+}
+```
+
+**Impact**: Session details (Date, Time, Duration, Instructor) now render in 2 columns on mobile instead of single column stack.
 
 ## Mobile Testing Strategy
 
@@ -35,16 +61,18 @@ Mobile CSS testing infrastructure for responsive design validation across Sessio
   - Desktop: Full 2-column grid, sidebar height constraints
 
 ### Visual Regression Testing (Percy)
-**Purpose**: Pixel-perfect screenshot comparison across responsive breakpoints
+**Purpose**: Pixel-perfect screenshot comparison across comprehensive responsive breakpoints
 
 **Percy Configuration**:
-- Multi-viewport snapshots: 375px, 768px, 1280px
-- CSS overrides to hide dynamic content (timers, SignalR status)
-- Scoped snapshots for specific components (logos, forms, grids)
+- **Enhanced Device Coverage**: Portrait AND landscape orientations for all mobile/tablet devices
+- **Auto-Cleanup**: `Workspaces/PercyScreenshots/` folder cleared before each test run
+- **Total Screenshots**: 33 (11 viewports × 3 views)
+- **Responsive Widths**: 360px, 375px, 390px, 667px, 740px, 768px, 834px, 844px, 1024px, 1194px, 1280px
 
 **Test Coverage**:
-- Full page layout across all breakpoints
-- Component-specific sizing (logos, forms, grids)
+- Full page layout across all 11 viewports
+- Portrait/landscape orientations for comprehensive mobile coverage
+- Component-specific sizing validation (logos, forms, grids)
 - Responsive transitions between mobile/tablet/desktop
 
 ## Files Created
@@ -56,17 +84,18 @@ Mobile CSS testing infrastructure for responsive design validation across Sessio
    - Tests: SessionWaiting (3 tests), UserLanding (3 tests), SessionCanvas (3 tests)
    - ✅ **Status**: All 9 tests passed
 
-2. **`Workspaces/TEMP/mobile-views-visual.spec.ts`**
+2. **`Workspaces/TEMP/mobile-views-visual.spec.ts`** ⭐ **ENHANCED**
    - Percy visual regression tests
-   - Captures screenshots across responsive breakpoints
-   - Tests: SessionWaiting (3 tests), UserLanding (3 tests), SessionCanvas (3 tests)
+   - Expanded viewport coverage: 11 responsive widths (portrait/landscape)
+   - Tests: SessionWaiting (10 tests), UserLanding (10 tests), SessionCanvas (10 tests)
    - 📝 **Note**: Requires PERCY_TOKEN environment variable for Percy cloud upload
 
-3. **`Workspaces/TEMP/mobile-views-screenshots.spec.ts`**
-   - Screenshot capture for documentation
-   - Saves full-page screenshots to `test-results/screenshots/`
-   - Tests: 9 screenshots (3 views × 3 viewports)
-   - ✅ **Status**: All 9 screenshots captured successfully
+3. **`Workspaces/TEMP/mobile-views-screenshots.spec.ts`** ⭐ **ENHANCED**
+   - Screenshot capture with comprehensive device coverage
+   - **Auto-cleanup**: Folder emptied before each test run
+   - Saves to: `Workspaces/PercyScreenshots/`
+   - Tests: 33 screenshots (11 viewports × 3 views)
+   - ✅ **Status**: All 33 screenshots captured successfully
 
 ### Orchestration
 4. **`Scripts/run-mobile-view-tests.ps1`**
@@ -82,10 +111,10 @@ Mobile CSS testing infrastructure for responsive design validation across Sessio
    - Available via `npx percy` command
 
 ### Screenshots Captured
-6. **`test-results/screenshots/`** (9 PNG files):
-   - **SessionWaiting**: mobile-375px, tablet-768px, desktop-1280px
-   - **UserLanding**: mobile-375px, tablet-768px, desktop-1280px
-   - **SessionCanvas**: mobile-375px, tablet-768px, desktop-1280px
+6. **`Workspaces/PercyScreenshots/`** (33 PNG files): ⭐ **NEW LOCATION**
+   - **SessionWaiting**: 11 viewports (iPhone portrait/landscape, iPhone Pro p/l, Android p/l, iPad p/l, iPad Pro p/l, Desktop)
+   - **UserLanding**: 11 viewports (same coverage)
+   - **SessionCanvas**: 11 viewports (same coverage)
 
 ## Usage Examples
 
