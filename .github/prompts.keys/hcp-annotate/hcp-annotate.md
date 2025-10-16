@@ -145,7 +145,7 @@ Implemented full annotation system following design document (HostControlPanelAn
 
 **Checkpoint Tag**: `checkpoint/hcp-annotate/2025-10-16_2345`
 
-**Status**: Implementation complete. Ready for integration testing and host-to-participant annotation broadcasting validation.
+**Status**: Implementation complete. Diagnostic logging added for troubleshooting visibility issues.
 
 **Next Steps**:
 1. Run Percy test suite to capture visual baselines
@@ -156,10 +156,65 @@ Implemented full annotation system following design document (HostControlPanelAn
 
 ---
 
+### 2025-10-16T23:50:00Z - Diagnostic Logging Added
+
+**Task**: Add diagnostic-level logging to trace annotation toolbar visibility conditions
+
+**Context**:
+User reported annotation panel not appearing. Added comprehensive diagnostic logging to identify which visibility condition is failing (session status, shareHandlersInitialized flag, or TransformedTranscript content).
+
+**Changes**:
+1. **LogAnnotationToolbarVisibility() method**:
+   - Logs all three visibility conditions with clear status indicators
+   - Shows current values: Session Status, shareHandlersInitialized flag, TransformedTranscript length
+   - Computes combined visibility result
+   - Provides detailed warnings for missing conditions
+
+2. **OnAfterRenderAsync() enhancement**:
+   - Calls LogAnnotationToolbarVisibility() on every render
+   - Provides real-time visibility state tracking
+
+3. **StartSession() enhancement**:
+   - Logs state BEFORE annotation initialization
+   - Logs initializeAnnotationSystem() call and result
+   - Logs state AFTER annotation initialization
+   - Provides complete initialization flow visibility
+
+**Diagnostic Output Example**:
+```
+[DIAGNOSTIC:annotation-visibility] ════════════════════════════════════════
+[DIAGNOSTIC:annotation-visibility] ANNOTATION TOOLBAR VISIBILITY CHECK
+[DIAGNOSTIC:annotation-visibility] ════════════════════════════════════════
+[DIAGNOSTIC:annotation-visibility] 1️⃣ Session Status = 'Active' (Active or Ended? True)
+[DIAGNOSTIC:annotation-visibility] 2️⃣ shareHandlersInitialized = True
+[DIAGNOSTIC:annotation-visibility] 3️⃣ TransformedTranscript: HasContent=True, Length=15420 chars
+[DIAGNOSTIC:annotation-visibility] 🎯 RESULT: Annotation Toolbar Should Be Visible = True
+[DIAGNOSTIC:annotation-visibility] ✅ Toolbar VISIBLE - All conditions met
+```
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` - Added LogAnnotationToolbarVisibility(), enhanced StartSession() and OnAfterRenderAsync()
+
+**Validation**:
+- ✅ Build successful (zero errors, zero warnings)
+- ✅ Diagnostic logs use `;CLEANUP_OK` markers for Step 9 cleanup
+
+**Commit SHA**: `79983b1d`
+
+**Troubleshooting Guide**:
+Run the app and check console output for:
+- `[DIAGNOSTIC:annotation-visibility]` - Shows all three conditions and combined result
+- `[DIAGNOSTIC:annotation-init]` - Shows initialization flow and state changes
+- Look for ❌ indicators showing which condition is failing
+
+**Next Steps**: Start session and review diagnostic logs to identify visibility blocker.
+
+---
+
 ## Key Metadata
 
-- **Debug Level**: trace
+- **Debug Level**: diagnostic (added)
 - **Verbosity**: concise
-- **Task Type**: Implementation (UI + SignalR + Tests)
+- **Task Type**: Implementation (UI + SignalR + Tests) + Diagnostic Logging
 - **Related Keys**: annotation
 - **Impact**: High - full annotation system integration into host control panel and session canvas
