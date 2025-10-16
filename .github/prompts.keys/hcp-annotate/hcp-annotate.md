@@ -98,6 +98,68 @@ Implemented full annotation system following design document (HostControlPanelAn
    - Integrated annotation handler setup into SignalR connection initialization
 
 3. **Percy Visual Tests Created**:
+
+---
+
+### 2025-10-16T19:30:00Z - Fix Missing Annotation Toolbar (Toolbar Injection Bug)
+
+**Task**: Fix missing annotation toolbar panel issue - toolbar HTML was not being injected into shared assets
+
+**Context**:
+User reported annotation panel not appearing after implementing annotation system. Investigation revealed toolbar HTML was never being injected into the shared asset HTML in `ExtractRawAssetHtml()` method. JavaScript event handlers were looking for `data-annotation-toolbar` attributes that didn't exist.
+
+**Root Cause**:
+- `ExtractRawAssetHtml()` method extracted raw asset HTML but didn't inject annotation toolbar HTML
+- JavaScript sliding toolbar system (lines 4598+) expected toolbar HTML to be present with `data-annotation-toolbar` attribute
+- Missing toolbar generation method to create the HTML structure
+
+**Fix Implementation**:
+1. **Added `GenerateAnnotationToolbarHtml(string shareId)` method**:
+   - Generates complete toolbar HTML with all tool buttons (laser, draw, highlight, note)
+   - Includes color picker, clear button, close button
+   - Uses `data-annotation-toolbar` attribute for JavaScript selector matching
+   - Styled as fixed-position sliding panel with purple gradient background
+   - Added hover effects and active state styling
+   - Includes Font Awesome icons for all tools
+
+2. **Modified `ExtractRawAssetHtml()` method**:
+   - Added toolbar injection after extracting raw asset HTML
+   - Concatenates toolbar HTML to asset HTML before returning
+   - Added trace logging to track injection process
+   - Logs: shareId, asset type, instance number, HTML lengths (original, toolbar, final)
+
+3. **Trace Logging Added**:
+   - `[TRACE:hcp-annotate:toolbar-injection]` - Tracks when toolbar HTML is injected
+   - `[TRACE:hcp-annotate:toolbar-generation]` - Tracks toolbar HTML generation
+   - All markers tagged with `;CLEANUP_OK` for Step 9 cleanup
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor`:
+  - Added `GenerateAnnotationToolbarHtml()` method (lines 2380-2459)
+  - Modified `ExtractRawAssetHtml()` to inject toolbar (lines 2278-2292)
+
+**Files Created**:
+- `Workspaces/TEMP/hcp-annotation-toolbar-injection.spec.ts` - Playwright test to verify toolbar injection
+- `Scripts/run-hcp-annotation-toolbar-injection-test.ps1` - Test orchestration script
+
+**Test Strategy**:
+1. Verify toolbar HTML exists in DOM after asset share
+2. Verify toolbar appears when share button clicked
+3. Verify close button hides toolbar
+4. Test both HCP and SessionCanvas views
+
+**Build Status**: Clean (0 errors, 0 warnings)
+
+**Manual Verification Needed**:
+- Automated test couldn't run due to app startup issue
+- Manual testing required: Start session → Share asset → Check DevTools for `[data-annotation-toolbar]` element
+- Verify toolbar appears in SessionCanvas after asset is shared
+
+**Commit SHA**: `d7c968f4de661d743467ab190b76cf6df0e4d0b1`
+
+**Status**: In Progress - Fix implemented and builds cleanly, awaiting manual verification
+
+---
    - `hcp-annotation-toolbar-visibility.spec.ts` - 4 tests verifying toolbar appears after transcript/share buttons load
    - `hcp-annotation-laser-pointer.spec.ts` - 3 tests for tool selection and mutual exclusivity
    - `hcp-annotation-color-picker.spec.ts` - 4 tests for color picker and clear button
