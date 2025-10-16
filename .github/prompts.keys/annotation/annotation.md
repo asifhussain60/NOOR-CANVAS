@@ -10,6 +10,17 @@ Annotation system for NOOR Canvas with real-time SignalR synchronization, suppor
 
 ## Work Log
 
+### 2025-10-16T21:32:00Z
+- **Status**: In Progress
+- **Changes**:
+  - Added prominent two-window requirement instructions at top of demo page
+  - Orange warning box explaining SignalR's `Clients.OthersInGroup()` behavior
+  - Visual step-by-step setup guide for testing laser synchronization
+  - Removed duplicate instructions section
+- **Files Affected**:
+  - `SPA/NoorCanvas/wwwroot/annotation-demo.html` - Updated instructions
+- **Commit**: 0e890fa0a763b2af5fab03b326d659d21a302ac4
+
 ### 2025-10-16T21:05:00Z
 - **Status**: In Progress
 - **Changes**: 
@@ -29,7 +40,7 @@ Annotation system for NOOR Canvas with real-time SignalR synchronization, suppor
 - **Tests**: Playwright test created with 6 test scenarios
 - **Debug Logging**: Trace level markers inserted ([TRACE-ANNOTATION:*] ;CLEANUP_OK)
 - **Build**: Clean (zero errors, zero warnings)
-- **Commit**: TBD
+- **Commit**: d004be8e (checkpoint)
 
 ## Technical Details
 
