@@ -19,17 +19,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj">
-      <ExcludeAssets>contentfiles</ExcludeAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj" />
   </ItemGroup>
 
-  <!-- Exclude NoorCanvas appsettings files to prevent conflict with HostProvisioner's own appsettings -->
-  <Target Name="RemoveNoorCanvasAppSettings" AfterTargets="ResolveProjectReferences">
+  <!-- Exclude NoorCanvas appsettings files during publish to prevent NETSDK1152 conflict -->
+  <Target Name="ExcludeNoorCanvasAppSettings" BeforeTargets="ComputeFilesToPublish">
     <ItemGroup>
-      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="'%(Filename)%(Extension)' == 'appsettings.json' And '%(MSBuildSourceProjectFile)' != '$(MSBuildProjectFile)'" />
-      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="'%(Filename)%(Extension)' == 'appsettings.Development.json' And '%(MSBuildSourceProjectFile)' != '$(MSBuildProjectFile)'" />
-      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="'%(Filename)%(Extension)' == 'appsettings.Production.json' And '%(MSBuildSourceProjectFile)' != '$(MSBuildProjectFile)'" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)%(Extension)' == 'appsettings.json' And $([System.String]::Copy('%(FullPath)').Contains('SPA\NoorCanvas'))" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)%(Extension)' == 'appsettings.Development.json' And $([System.String]::Copy('%(FullPath)').Contains('SPA\NoorCanvas'))" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)%(Extension)' == 'appsettings.Production.json' And $([System.String]::Copy('%(FullPath)').Contains('SPA\NoorCanvas'))" />
     </ItemGroup>
   </Target>
 
