@@ -1,7 +1,9 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;",
-    "_Comment": "Connection string is overridden by environment-specific appsettings files. Development uses KSESSIONS_DEV, Production uses KSESSIONS. Both reference config/sharedsettings.json as single source of truth."
+    "DefaultConnection": "Server=YOUR_SERVER;Database=KSESSIONS_DEV;User ID=sa;Password=YOUR_PASSWORD;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;",
+    "_Comment": "Connection string is overridden by environment-specific appsettings files. Development uses KSESSIONS_DEV, Production uses KSESSIONS. Both reference config/sharedsettings.json as single source of truth.",
+    "_MacNote": "On Mac: Copy this file to appsettings.json and use Server=192.168.1.158,1433",
+    "_WindowsNote": "On Windows: Copy this file to appsettings.json and use Server=AHHOME"
   },
   "Serilog": {
     "Using": [
