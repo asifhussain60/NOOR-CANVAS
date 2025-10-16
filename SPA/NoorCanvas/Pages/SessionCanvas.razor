@@ -1057,7 +1057,7 @@
                     </div>
                     
                     <!-- Canvas Content Area -->
-                    <div class="canvas-content-area">
+                    <div class="canvas-content-area" id="canvas-content-area" style="position:relative;">
                         @if (!string.IsNullOrEmpty(Model?.SharedAssetContent))
                         {
                             <div class="canvas-asset-content islamic-content" data-theme="narrow">
@@ -1068,6 +1068,14 @@
                         {
                             <p class="canvas-empty-message canvas-animate-pulse-subtle">Content from the session will appear here.</p>
                         }
+                        
+                        <!-- [TRACE-ANNOTATION:canvas-overlay] Annotation Overlay Layer ;CLEANUP_OK -->
+                        <div id="annotation-layer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;">
+                            <svg id="annotation-overlay" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"></svg>
+                            <div id="laser-pointer" style="display:none;position:absolute;width:24px;height:24px;pointer-events:none;z-index:9999;">
+                                <div class="laser-dot" style="width:100%;height:100%;background:radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0.6) 40%, rgba(255,0,0,0) 100%);border-radius:50%;box-shadow:0 0 20px rgba(255,0,0,0.8), 0 0 40px rgba(255,0,0,0.4);"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Ask a Question Panel -->
@@ -3270,6 +3278,17 @@
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ SignalR connected: State={State}, ConnectionId={ConnectionId}", hubConnection.State, hubConnection.ConnectionId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection started successfully, State: {State}", hubConnection.State);
             
+            // [TRACE-ANNOTATION:canvas-setup-call] Setup annotation event handlers after hub connection starts ;CLEANUP_OK
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("setupAnnotationEventHandlers", DotNetObjectReference.Create(hubConnection));
+                Logger.LogInformation("[TRACE-ANNOTATION:canvas-setup-success] Annotation event handlers registered successfully ;CLEANUP_OK");
+            }
+            catch (Exception annotationEx)
+            {
+                Logger.LogError(annotationEx, "[TRACE-ANNOTATION:canvas-setup-error] Failed to setup annotation handlers ;CLEANUP_OK");
+            }
+            
             if (Model?.SessionId > 0)
             {
                 var connectionTrackingId = Guid.NewGuid().ToString("N")[..8];
@@ -3587,3 +3606,159 @@
         }
     }
 }
+
+<script>
+    // ========== [TRACE-ANNOTATION:canvas-rendering] ANNOTATION RENDERING FUNCTIONS ==========  ;CLEANUP_OK
+    
+    function renderAnnotation(overlayElement, data) {
+        console.log('[TRACE-ANNOTATION:canvas-render] Rendering annotation ;CLEANUP_OK', data);
+        
+        if (data.type === 'drawing') {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', data.path);
+            path.setAttribute('stroke', data.color || '#ffff00');
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke-linecap', 'round');
+            path.setAttribute('stroke-linejoin', 'round');
+            overlayElement.appendChild(path);
+        } else if (data.type === 'highlight') {
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', data.x + '%');
+            rect.setAttribute('y', data.y + '%');
+            rect.setAttribute('width', data.width + '%');
+            rect.setAttribute('height', data.height + '%');
+            rect.setAttribute('fill', data.color || '#ffff00');
+            rect.setAttribute('opacity', '0.3');
+            overlayElement.appendChild(rect);
+        } else if (data.type === 'note') {
+            const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+            foreignObject.setAttribute('x', data.x + '%');
+            foreignObject.setAttribute('y', data.y + '%');
+            foreignObject.setAttribute('width', '200');
+            foreignObject.setAttribute('height', '100');
+            
+            const noteDiv = document.createElement('div');
+            noteDiv.style.backgroundColor = data.color || '#ffff00';
+            noteDiv.style.padding = '8px';
+            noteDiv.style.borderRadius = '4px';
+            noteDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+            noteDiv.style.fontSize = '14px';
+            noteDiv.textContent = data.text || '';
+            
+            foreignObject.appendChild(noteDiv);
+            overlayElement.appendChild(foreignObject);
+        }
+        
+        console.log('[TRACE-ANNOTATION:canvas-render-complete] Annotation rendered successfully ;CLEANUP_OK');
+    }
+
+    function showLaserPointer(x, y) {
+        const laser = document.getElementById('laser-pointer');
+        if (laser) {
+            laser.style.display = 'block';
+            laser.style.left = x + '%';
+            laser.style.top = y + '%';
+        }
+    }
+
+    function hideLaserPointer() {
+        const laser = document.getElementById('laser-pointer');
+        if (laser) {
+            laser.style.display = 'none';
+        }
+    }
+
+    function clearAllAnnotations() {
+        const overlay = document.getElementById('annotation-overlay');
+        if (overlay) {
+            overlay.innerHTML = '';
+            console.log('[TRACE-ANNOTATION:canvas-clear] All annotations cleared ;CLEANUP_OK');
+        }
+    }
+
+    // ========== [TRACE-ANNOTATION:canvas-hub] ANNOTATION HUB EVENT HANDLERS ==========  ;CLEANUP_OK
+    
+    window.setupAnnotationEventHandlers = function(hubConnection) {
+        console.log('[TRACE-ANNOTATION:canvas-setup] Setting up annotation event handlers ;CLEANUP_OK');
+        
+        if (!hubConnection) {
+            console.error('[TRACE-ANNOTATION:canvas-setup-error] Hub connection is null ;CLEANUP_OK');
+            return;
+        }
+        
+        // Event: Annotation created
+        hubConnection.on('AnnotationCreated', (data) => {
+            console.log('[TRACE-ANNOTATION:canvas-receive] Received AnnotationCreated event ;CLEANUP_OK', data);
+            
+            try {
+                let annotationData = data.annotationData;
+                if (typeof annotationData === 'string') {
+                    annotationData = JSON.parse(annotationData);
+                }
+                
+                const overlay = document.getElementById('annotation-overlay');
+                if (overlay) {
+                    renderAnnotation(overlay, annotationData);
+                } else {
+                    console.error('[TRACE-ANNOTATION:canvas-receive-error] Annotation overlay not found ;CLEANUP_OK');
+                }
+            } catch (err) {
+                console.error('[TRACE-ANNOTATION:canvas-receive-error] Error rendering annotation ;CLEANUP_OK', err);
+            }
+        });
+        
+        // Event: Laser pointer move
+        hubConnection.on('LaserPointerMove', (data) => {
+            console.log('[TRACE-ANNOTATION:canvas-laser] Laser pointer move ;CLEANUP_OK', data);
+            showLaserPointer(data.x, data.y);
+        });
+        
+        // Event: Laser pointer hide
+        hubConnection.on('LaserPointerHide', () => {
+            console.log('[TRACE-ANNOTATION:canvas-laser-hide] Hiding laser pointer ;CLEANUP_OK');
+            hideLaserPointer();
+        });
+        
+        // Event: Annotations cleared
+        hubConnection.on('AnnotationsCleared', (data) => {
+            console.log('[TRACE-ANNOTATION:canvas-cleared] Annotations cleared event ;CLEANUP_OK', data);
+            clearAllAnnotations();
+        });
+        
+        // Event: Load existing annotations
+        hubConnection.on('LoadAnnotations', (annotations) => {
+            console.log('[TRACE-ANNOTATION:canvas-load] Loading existing annotations ;CLEANUP_OK', annotations);
+            
+            const overlay = document.getElementById('annotation-overlay');
+            if (!overlay) {
+                console.error('[TRACE-ANNOTATION:canvas-load-error] Annotation overlay not found ;CLEANUP_OK');
+                return;
+            }
+            
+            // Clear existing annotations first
+            overlay.innerHTML = '';
+            
+            // Render each annotation
+            if (Array.isArray(annotations)) {
+                annotations.forEach(ann => {
+                    try {
+                        let annotationData = ann.annotationData;
+                        if (typeof annotationData === 'string') {
+                            annotationData = JSON.parse(annotationData);
+                        }
+                        renderAnnotation(overlay, annotationData);
+                    } catch (err) {
+                        console.error('[TRACE-ANNOTATION:canvas-load-error] Error loading annotation ;CLEANUP_OK', err);
+                    }
+                });
+            }
+            
+            console.log('[TRACE-ANNOTATION:canvas-load-complete] Annotations loaded successfully ;CLEANUP_OK');
+        });
+        
+        console.log('[TRACE-ANNOTATION:canvas-setup-complete] Annotation event handlers setup complete ;CLEANUP_OK');
+    };
+    
+    console.log('[TRACE-ANNOTATION:canvas-loaded] Annotation JavaScript loaded ;CLEANUP_OK');
+</script>
