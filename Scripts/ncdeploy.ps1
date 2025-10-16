@@ -331,10 +331,28 @@ try {
     # Step 4: Clean production directory (FULL CLEAN DEPLOY)
     Write-Step "Performing CLEAN deployment (removing ALL existing files)..."
     
+    # [DEBUG-WORKITEM:deploy:config-preservation] Preserve configuration files before clean ;CLEANUP_OK
+    $preservedConfigs = @{}
+    $configFilesToPreserve = @(
+        "appsettings.json",
+        "appsettings.Production.json",
+        "appsettings.local.json"
+    )
+    
     if (Test-Path $DeployPath) {
+        # Save configuration files before cleaning
+        Write-Info "→ Preserving configuration files..."
+        foreach ($configFile in $configFilesToPreserve) {
+            $configPath = Join-Path $DeployPath $configFile
+            if (Test-Path $configPath) {
+                $preservedConfigs[$configFile] = Get-Content $configPath -Raw
+                Write-Host "  ✓ Preserved $configFile" -ForegroundColor Green
+            }
+        }
+        
         try {
             # Remove ALL files and folders for a clean deployment
-            Write-Info "Removing all files from $DeployPath..."
+            Write-Info "→ Removing all files from $DeployPath..."
             Get-ChildItem -Path $DeployPath -Force | ForEach-Object {
                 Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction Stop
             }
@@ -354,6 +372,16 @@ try {
     # Copy published files to deployment location
     Copy-Item -Path "$PublishPath\*" -Destination $DeployPath -Recurse -Force
     Write-Success "Application files deployed"
+    
+    # [DEBUG-WORKITEM:deploy:config-preservation] Restore preserved configuration files ;CLEANUP_OK
+    if ($preservedConfigs.Count -gt 0) {
+        Write-Info "→ Restoring preserved configuration files..."
+        foreach ($configFile in $preservedConfigs.Keys) {
+            $configPath = Join-Path $DeployPath $configFile
+            Set-Content -Path $configPath -Value $preservedConfigs[$configFile] -NoNewline
+            Write-Host "  ✓ Restored $configFile" -ForegroundColor Green
+        }
+    }
     
     # [DEBUG-WORKITEM:prod-issues:appsettings-local] Remove appsettings.local.json from production (development override file) ;CLEANUP_OK
     $localOverride = Join-Path $DeployPath "appsettings.local.json"
