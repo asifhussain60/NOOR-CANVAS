@@ -11,11 +11,14 @@
     5. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
     6. Builds and deploys HostProvisioner.WinForms to D:\Websites\NOOR-CANVAS\HostProvisioner
     7. Configures HostProvisioner.WinForms for Production environment
-    8. Returns to development branch
+    8. Validates production configuration (environment + database)
+    9. Returns to development branch
     
     Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
     connection strings point to KSESSIONS (production) database.
     HostProvisioner.WinForms is automatically configured for Production environment.
+    
+    Can be run from any directory - automatically uses correct workspace paths.
 
 .PARAMETER SkipMerge
     Skip the git merge step. Use only if already on master with correct code.
@@ -104,6 +107,7 @@ try {
     Write-Host "  NoorCanvas Production Deployment" -ForegroundColor Magenta
     Write-Host "  Target: $DeployPath" -ForegroundColor Magenta
     Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Magenta
+    Write-Host "  Workspace: $WorkspaceRoot" -ForegroundColor Magenta
     Write-Host "  Time: $Timestamp" -ForegroundColor Magenta
     Write-Host "========================================`n" -ForegroundColor Magenta
 
