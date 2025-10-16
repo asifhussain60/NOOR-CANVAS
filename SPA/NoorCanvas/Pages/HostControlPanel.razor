@@ -88,66 +88,6 @@
                                      OnShowDeleteModal="@ShowDeleteModal"
                                      OnQuestionClick="@ShareQuestionAsset"
                                      OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
-            
-            <!-- [TRACE-ANNOTATION:hcp-toolbar-visibility] Annotation Toolbar - Only shows after transcript loaded and share buttons injected ;CLEANUP_OK -->
-            @if (shareHandlersInitialized && !string.IsNullOrEmpty(Model?.TransformedTranscript))
-            {
-                <div id="annotation-controls" class="annotation-toolbar" style="background-color:white;border-radius:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);padding:1.5rem;margin-top:1.5rem;border:2px solid #D4AF37;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                    <div style="display:flex;align-items:center;gap:0.75rem;">
-                        <i class="fa-solid fa-pencil-alt" style="color:#D4AF37;font-size:1.5rem;"></i>
-                        <h3 style="color:#006400;font-size:1.25rem;font-weight:700;margin:0;">Annotation Tools</h3>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <span style="font-size:0.875rem;color:#6B7280;font-weight:600;">Session:</span>
-                        <span style="font-size:0.875rem;color:#D4AF37;font-weight:700;">@SessionId</span>
-                        <div id="annotation-connection-status" style="width:12px;height:12px;border-radius:50%;background-color:#ef4444;margin-left:0.5rem;"></div>
-                    </div>
-                </div>
-                
-                <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
-                    <button class="tool-button active" data-tool="select" title="Select" 
-                            style="padding:0.5rem 1rem;border-radius:0.5rem;background-color:#D4AF37;color:white;border:none;cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        <i class="fa-solid fa-mouse-pointer"></i> Select
-                    </button>
-                    <button class="tool-button" data-tool="laser" title="Laser Pointer" 
-                            style="padding:0.5rem 1rem;border-radius:0.5rem;background-color:#E5E7EB;color:#374151;border:none;cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        <i class="fa-solid fa-location-crosshairs"></i> Laser
-                    </button>
-                    <button class="tool-button" data-tool="drawing" title="Draw" 
-                            style="padding:0.5rem 1rem;border-radius:0.5rem;background-color:#E5E7EB;color:#374151;border:none;cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        <i class="fa-solid fa-pen"></i> Draw
-                    </button>
-                    <button class="tool-button" data-tool="highlight" title="Highlight" 
-                            style="padding:0.5rem 1rem;border-radius:0.5rem;background-color:#E5E7EB;color:#374151;border:none;cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        <i class="fa-solid fa-highlighter"></i> Highlight
-                    </button>
-                    <button class="tool-button" data-tool="note" title="Add Note" 
-                            style="padding:0.5rem 1rem;border-radius:0.5rem;background-color:#E5E7EB;color:#374151;border:none;cursor:pointer;font-weight:600;transition:all 0.2s;">
-                        <i class="fa-solid fa-sticky-note"></i> Note
-                    </button>
-                    
-                    <div style="display:flex;align-items:center;gap:0.5rem;margin-left:1rem;padding-left:1rem;border-left:2px solid #E5E7EB;">
-                        <label style="font-size:0.875rem;color:#374151;font-weight:600;">Color:</label>
-                        <input type="color" id="annotation-color" value="#ffff00" 
-                               style="width:3rem;height:2.5rem;border:2px solid #D4AF37;border-radius:0.375rem;cursor:pointer;" />
-                    </div>
-                    
-                    <button id="clear-annotations" title="Clear All Annotations" 
-                            style="padding:0.5rem 1rem;border-radius:0.5rem;background-color:#DC2626;color:white;border:none;cursor:pointer;font-weight:600;transition:all 0.2s;margin-left:auto;">
-                        <i class="fa-solid fa-trash"></i> Clear All
-                    </button>
-                </div>
-                
-                <!-- [TRACE-ANNOTATION:hcp-help-text] Annotation help text ;CLEANUP_OK -->
-                <div style="margin-top:1rem;padding:0.75rem;background-color:#FEF3C7;border-left:4px solid #F59E0B;border-radius:0.5rem;">
-                    <p style="font-size:0.875rem;color:#92400E;margin:0;">
-                        <i class="fa-solid fa-info-circle" style="color:#F59E0B;margin-right:0.5rem;"></i>
-                        <strong>How to use:</strong> Select a tool, then interact with shared assets in the session canvas to annotate. Participants will see your annotations in real-time.
-                    </p>
-                </div>
-            </div>
-            }
         }
         else if (Model?.SessionStatus == "Waiting" && !isLoading)
         {
@@ -175,6 +115,13 @@
             @messageText
         </div>
     }
+    
+    <!-- [DIAGNOSTIC:annotation-panel:floating] Floating Annotation Panel - Shows after asset broadcast -->
+    <FloatingAnnotationPanel IsVisible="@showAnnotationPanel"
+                            OnClose="@CloseAnnotationPanel"
+                            OnToolChanged="@HandleToolChanged"
+                            OnColorChanged="@HandleColorChanged"
+                            OnClearAll="@HandleClearAnnotations" />
 </div>
 
 @* Debug Panel - Development Only *@
@@ -202,6 +149,12 @@
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
+    
+    // [DIAGNOSTIC:annotation-panel:state] Floating annotation panel state
+    private bool showAnnotationPanel = false;
+    private string currentAnnotationTool = "select";
+    private string currentAnnotationColor = "#ffff00";
+    private string? currentSharedAssetId = null; // Tracks which asset is currently being annotated
     
 
 
@@ -1498,6 +1451,15 @@
             
             // Success notification removed - SignalR broadcast logging preserved above
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🎉 SHARE COMPLETE: Asset broadcasted using direct content approach, broadcastId={BroadcastId}", broadcastId);
+            
+            // [DIAGNOSTIC:annotation-panel:show] Show floating annotation panel after successful broadcast
+            Logger.LogInformation("[DIAGNOSTIC:annotation-panel:show] Showing floating annotation panel for assetId={ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
+            currentSharedAssetId = shareId;
+            showAnnotationPanel = true;
+            await InvokeAsync(StateHasChanged);
+            
+            // [DIAGNOSTIC:annotation-panel:js-attach] Attach annotation tools to shared asset div
+            await JSRuntime.InvokeVoidAsync("attachAnnotationsToAsset", shareId);
         }
         catch (Exception ex)
         {
@@ -2097,6 +2059,36 @@
             showMessage = false;
             await InvokeAsync(StateHasChanged);
         }, null, TimeSpan.FromSeconds(6), Timeout.InfiniteTimeSpan);
+    }
+
+    // [DIAGNOSTIC:annotation-panel:handlers] Floating annotation panel event handlers
+    private async Task CloseAnnotationPanel()
+    {
+        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:close] Closing floating annotation panel for assetId={AssetId}", currentSharedAssetId);
+        showAnnotationPanel = false;
+        currentSharedAssetId = null;
+        await JSRuntime.InvokeVoidAsync("detachAnnotationsFromAsset");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleToolChanged(string tool)
+    {
+        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:tool] Tool changed to: {Tool}, assetId={AssetId}", tool, currentSharedAssetId);
+        currentAnnotationTool = tool;
+        await JSRuntime.InvokeVoidAsync("setAnnotationTool", tool, currentSharedAssetId);
+    }
+
+    private async Task HandleColorChanged(string color)
+    {
+        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:color] Color changed to: {Color}, assetId={AssetId}", color, currentSharedAssetId);
+        currentAnnotationColor = color;
+        await JSRuntime.InvokeVoidAsync("setAnnotationColor", color);
+    }
+
+    private async Task HandleClearAnnotations()
+    {
+        Logger.LogInformation("[DIAGNOSTIC:annotation-panel:clear] Clearing annotations for assetId={AssetId}", currentSharedAssetId);
+        await JSRuntime.InvokeVoidAsync("clearAnnotationsForAsset", currentSharedAssetId);
     }
 
     /// <summary>
@@ -4682,6 +4674,232 @@ Please share this report with the development team for debugging.`;
             console.error('[TRACE-ANNOTATION:hcp-export-error] Failed to initialize annotation system ;CLEANUP_OK', err);
         }
     };
+
+    // ========== [DIAGNOSTIC:annotation-panel:attach] ATTACH ANNOTATIONS TO SHARED ASSET ==========
+    let currentAnnotationTarget = null;
+    let annotationCanvas = null;
+    let annotationContext = null;
+
+    window.attachAnnotationsToAsset = function(assetId) {
+        console.log('[DIAGNOSTIC:annotation-panel:attach] Attaching annotations to asset:', assetId);
+        
+        // Find the shared asset div by data-share-id or shareId
+        const assetDiv = document.querySelector(`[data-share-id="${assetId}"]`) || 
+                        document.querySelector(`[shareId="${assetId}"]`);
+        
+        if (!assetDiv) {
+            console.error('[DIAGNOSTIC:annotation-panel:attach] Asset div not found:', assetId);
+            return;
+        }
+        
+        currentAnnotationTarget = assetDiv;
+        console.log('[DIAGNOSTIC:annotation-panel:attach] Target asset found:', assetDiv);
+        
+        // Create annotation canvas overlay
+        createAnnotationCanvas(assetDiv);
+        
+        // Attach mouse event listeners
+        attachAnnotationListeners(assetDiv);
+    };
+
+    window.detachAnnotationsFromAsset = function() {
+        console.log('[DIAGNOSTIC:annotation-panel:detach] Detaching annotations');
+        
+        if (annotationCanvas) {
+            annotationCanvas.remove();
+            annotationCanvas = null;
+            annotationContext = null;
+        }
+        
+        currentAnnotationTarget = null;
+    };
+
+    window.setAnnotationTool = function(tool, assetId) {
+        console.log('[DIAGNOSTIC:annotation-panel:tool] Setting tool:', tool, 'for asset:', assetId);
+        currentTool = tool;
+    };
+
+    window.setAnnotationColor = function(color) {
+        console.log('[DIAGNOSTIC:annotation-panel:color] Setting color:', color);
+        currentColor = color;
+    };
+
+    window.clearAnnotationsForAsset = function(assetId) {
+        console.log('[DIAGNOSTIC:annotation-panel:clear] Clearing annotations for asset:', assetId);
+        
+        if (annotationContext && annotationCanvas) {
+            annotationContext.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+        }
+        
+        // Broadcast clear to all clients
+        clearAnnotations();
+    };
+
+    function createAnnotationCanvas(targetDiv) {
+        console.log('[DIAGNOSTIC:annotation-panel:canvas] Creating annotation canvas overlay');
+        
+        // Remove existing canvas if any
+        if (annotationCanvas) {
+            annotationCanvas.remove();
+        }
+        
+        // Create canvas element
+        annotationCanvas = document.createElement('canvas');
+        annotationCanvas.style.position = 'absolute';
+        annotationCanvas.style.top = '0';
+        annotationCanvas.style.left = '0';
+        annotationCanvas.style.pointerEvents = 'all';
+        annotationCanvas.style.zIndex = '1000';
+        annotationCanvas.id = 'annotation-canvas-overlay';
+        
+        // Match target div dimensions
+        const rect = targetDiv.getBoundingClientRect();
+        annotationCanvas.width = rect.width;
+        annotationCanvas.height = rect.height;
+        
+        // Make target div position relative if not already
+        if (getComputedStyle(targetDiv).position === 'static') {
+            targetDiv.style.position = 'relative';
+        }
+        
+        // Append canvas to target div
+        targetDiv.appendChild(annotationCanvas);
+        
+        // Get drawing context
+        annotationContext = annotationCanvas.getContext('2d');
+        
+        console.log('[DIAGNOSTIC:annotation-panel:canvas] Canvas created:', annotationCanvas.width, 'x', annotationCanvas.height);
+    }
+
+    function attachAnnotationListeners(targetDiv) {
+        console.log('[DIAGNOSTIC:annotation-panel:listeners] Attaching mouse listeners');
+        
+        if (!annotationCanvas) return;
+        
+        annotationCanvas.addEventListener('mousedown', handleAnnotationMouseDown);
+        annotationCanvas.addEventListener('mousemove', handleAnnotationMouseMove);
+        annotationCanvas.addEventListener('mouseup', handleAnnotationMouseUp);
+        annotationCanvas.addEventListener('mouseleave', handleAnnotationMouseUp);
+    }
+
+    function handleAnnotationMouseDown(e) {
+        if (currentTool === 'select') return;
+        
+        isDrawing = true;
+        const rect = annotationCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        console.log('[DIAGNOSTIC:annotation-panel:draw] Start drawing at:', x, y, 'tool:', currentTool);
+        
+        if (currentTool === 'draw' || currentTool === 'highlight') {
+            drawingPath = [{x, y}];
+        } else if (currentTool === 'note') {
+            // Show note input dialog
+            const note = prompt('Enter your note:');
+            if (note) {
+                drawNote(x, y, note);
+            }
+            isDrawing = false;
+        } else if (currentTool === 'laser') {
+            drawLaserPoint(x, y);
+        }
+    }
+
+    function handleAnnotationMouseMove(e) {
+        if (!isDrawing || currentTool === 'select' || currentTool === 'note') return;
+        
+        const rect = annotationCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        if (currentTool === 'draw' || currentTool === 'highlight') {
+            drawingPath.push({x, y});
+            drawPath();
+        } else if (currentTool === 'laser') {
+            drawLaserPoint(x, y);
+        }
+    }
+
+    function handleAnnotationMouseUp(e) {
+        if (!isDrawing) return;
+        
+        console.log('[DIAGNOSTIC:annotation-panel:draw] End drawing, tool:', currentTool);
+        
+        if ((currentTool === 'draw' || currentTool === 'highlight') && drawingPath.length > 0) {
+            // Broadcast annotation to other clients
+            broadcastAnnotation({
+                tool: currentTool,
+                color: currentColor,
+                path: drawingPath,
+                timestamp: Date.now()
+            });
+        }
+        
+        isDrawing = false;
+        drawingPath = [];
+    }
+
+    function drawPath() {
+        if (!annotationContext || drawingPath.length < 2) return;
+        
+        annotationContext.strokeStyle = currentColor;
+        annotationContext.lineWidth = currentTool === 'highlight' ? 20 : 3;
+        annotationContext.lineCap = 'round';
+        annotationContext.lineJoin = 'round';
+        annotationContext.globalAlpha = currentTool === 'highlight' ? 0.3 : 1.0;
+        
+        annotationContext.beginPath();
+        annotationContext.moveTo(drawingPath[0].x, drawingPath[0].y);
+        
+        for (let i = 1; i < drawingPath.length; i++) {
+            annotationContext.lineTo(drawingPath[i].x, drawingPath[i].y);
+        }
+        
+        annotationContext.stroke();
+        annotationContext.globalAlpha = 1.0;
+    }
+
+    function drawLaserPoint(x, y) {
+        if (!annotationContext) return;
+        
+        annotationContext.fillStyle = '#ff0000';
+        annotationContext.globalAlpha = 0.8;
+        annotationContext.beginPath();
+        annotationContext.arc(x, y, 8, 0, 2 * Math.PI);
+        annotationContext.fill();
+        annotationContext.globalAlpha = 1.0;
+        
+        // Fade out after short delay
+        setTimeout(() => {
+            if (annotationContext && annotationCanvas) {
+                annotationContext.clearRect(x - 10, y - 10, 20, 20);
+            }
+        }, 500);
+    }
+
+    function drawNote(x, y, text) {
+        if (!annotationContext) return;
+        
+        // Draw note icon
+        annotationContext.fillStyle = '#fbbf24';
+        annotationContext.fillRect(x, y, 30, 30);
+        
+        // Draw text
+        annotationContext.fillStyle = '#000';
+        annotationContext.font = '12px Arial';
+        annotationContext.fillText('📝', x + 5, y + 20);
+        
+        // Broadcast annotation
+        broadcastAnnotation({
+            tool: 'note',
+            color: currentColor,
+            x: x,
+            y: y,
+            text: text,
+            timestamp: Date.now()
+        });
+    }
     
     console.log('[TRACE-ANNOTATION:hcp-loaded] Annotation JavaScript loaded ;CLEANUP_OK');
 </script>
