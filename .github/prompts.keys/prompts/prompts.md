@@ -3,11 +3,11 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-10-14T15:30:00Z
+- **Last Updated**: 2025-10-16T12:12:00Z
 - **Owner**: GitHub Copilot
-- **Description**: Comprehensive prompts system refresh with workspace pattern integration - 12 success patterns + 8 failure patterns extracted and documented for integration into prompts
-- **Complexity**: high
-- **Debug Level**: none
+- **Description**: Git tag-based checkpoint system - replaced log files with native git tags for better integration and browsing
+- **Complexity**: medium
+- **Debug Level**: simple
 
 ## File Mappings
 
@@ -390,3 +390,41 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 
 ### Warnings & Errors
 - N/A - No warnings or errors encountered
+
+---
+
+## Work Log
+
+### 2025-10-16T12:12:00Z
+- **Status**: In Progress
+- **Changes**: 
+  - Replaced log file approach with git tag-based checkpoints (user feedback improvement)
+  - Updated Step 8.4 to use `git tag "checkpoint/{key}/{timestamp}"` instead of separate log files
+  - Format: `checkpoint/{key}/{YYYY-MM-DD_HHMM}` (git tags cannot contain colons)
+  - Implemented automatic tag pruning to maintain 28 most recent checkpoints per key
+  - Removed `.github/prompts.keys/.checkpoints/` directory (obsolete)
+  - Updated summary templates and guardrails to reflect tag-based approach
+  - Benefits: Single source of truth, native git browsing, works with all git tools
+- **Files Affected**: 
+  - `.github/prompts/task.prompt.md` - Rewrote Step 8.4 with git tag approach
+  - `.github/prompts.keys/.checkpoints/` - DELETED (replaced by git tags)
+- **Tests**: N/A - Infrastructure change, no tests required
+- **Approval Iterations**: 1 (user requested better approach)
+- **Commit**: b42fab11dd47b1eb1a74afd5ea42b1d9f3f97738
+- **Checkpoint Tag**: checkpoint/prompts/2025-10-16_1212
+
+### 2025-10-16T02:47:00Z
+- **Status**: In Progress (superseded by tag-based approach)
+- **Changes**: 
+  - Added Step 8.4 (Checkpoint Commit & Log) to task.prompt.md
+  - Created `.github/prompts.keys/.checkpoints/` directory for checkpoint logs
+  - Implemented 28-entry limit per key with automatic pruning
+  - Updated Guardrails section with checkpoint commit mandate
+  - Updated Step 7 summary templates to include checkpoint SHA
+  - Updated Expected Outcomes to include checkpoint tracking
+- **Files Affected**: 
+  - `.github/prompts/task.prompt.md` - Added checkpoint commit workflow
+  - `.github/prompts.keys/.checkpoints/prompts.log` - Created checkpoint log
+- **Tests**: N/A - Infrastructure change, no tests required
+- **Approval Iterations**: 0
+- **Commit**: 98ea296ffd7e563d1af10952876363679178fdc6

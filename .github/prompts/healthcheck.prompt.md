@@ -2,11 +2,6 @@
 mode: agent
 ---
 
-## Role
-You are the **Healthcheck Agent**.
-
----
-
 ## Debug Logging Mandate (Code Insertion)
 **healthcheck is a read-only agent and does NOT insert debug logging into source files.**
 
@@ -47,6 +42,7 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 
 # Prompt Optimization Mode (NEW)
 @workspace /healthcheck scope=task notes="holistic analysis and optimization"
+@workspace /healthcheck scope=task.prompt.md notes="Add xyz functionality"
 @workspace /healthcheck scope=refactor.prompt.md verbosity=detailed
 @workspace /healthcheck scope=sync notes="identify competing instructions"
 ```
@@ -123,7 +119,20 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
   - `detailed`: Full audit report with all violations listed
 
 - **notes** *(optional)*  
-  - Context or areas to prioritize in the health audit.  
+  - Context or areas to prioritize in the health audit.
+  - **Standard Healthcheck Mode**: Focuses audit on specific areas or concerns
+  - **Prompt Optimization Mode**: Additional requests evaluated holistically against entire prompt architecture
+  - **Holistic Evaluation**: When provided with prompt scope, notes are analyzed in context of:
+    - Complete prompt workflow and execution steps
+    - All existing parameters and their interactions
+    - Current architectural patterns and conventions
+    - Potential conflicts with existing functionality
+    - Integration requirements across all prompt sections
+  - **Example**: `/healthcheck task.prompt.md notes: Add xyz functionality`
+    - Agent evaluates where xyz fits in task workflow
+    - Identifies potential conflicts with existing steps
+    - Recommends implementation approach aligned with task architecture
+    - Assesses impact on all task parameters and execution flow  
 
 ---
 
@@ -141,6 +150,20 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Validate file exists, abort if not found
 
 #### 2. Holistic Analysis (Read-Only Deep Dive)
+
+**If `notes` parameter provided:**
+- **Evaluate notes in holistic context** of the entire prompt:
+  - Where would this request fit in the existing workflow?
+  - Does it conflict with any existing steps, parameters, or guardrails?
+  - What architectural patterns should it follow?
+  - What's the recommended implementation approach?
+  - What are the cross-functional impacts (e.g., affects Steps 2, 5, and 8)?
+- **Generate contextual recommendations** that consider:
+  - Complete execution flow of the prompt
+  - All parameter interactions and dependencies
+  - Existing conventions and patterns
+  - Potential side effects on other functionality
+  - Integration requirements across all sections
 
 **Analyze for:**
 
@@ -171,99 +194,19 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 
 #### 3. Generate Optimization Report
 
-**Report Structure:**
-```markdown
-# Prompt Optimization Analysis: {prompt-name}
+**Create detailed report in `Workspaces/TEMP/{prompt-name}-optimization-analysis.md`**
 
-**Date:** {ISO-8601 timestamp}
-**Prompt File:** .github/prompts/{prompt-name}.prompt.md
-**Current Size:** {line count} lines
+**Report Structure:** Use template from `.github/prompts/shared/optimization-report-template.md`
 
----
+**Key Sections:**
+- Holistic Evaluation (if notes provided)
+- Critical Issues Identified (4 categories)
+- Optimization Recommendations (Quick Wins, Medium-Term, Structural)
+- Priority Actions (High, Medium, Low)
+- Summary Metrics (table format)
+- Recommended Approach (phased implementation)
 
-## Critical Issues Identified
-
-### 1. Competing Instructions & Conflicts
-- **Issue 1.1:** {Description}
-  - **Location:** Line {X}-{Y}
-  - **Impact:** {How this confuses AI parsing}
-  - **Recommendation:** {Specific fix}
-
-### 2. Bloat & Inefficiencies
-- **Issue 2.1:** {Description}
-  - **Size:** {line count}
-  - **Recommendation:** Extract to shared/{file}.md
-  - **Savings:** {estimated line reduction}
-
-### 3. Structural Inefficiencies
-- **Issue 3.1:** {Description}
-  - **Problem:** {Why this is inefficient}
-  - **Recommendation:** {Specific refactor}
-
-### 4. Missing Critical Guardrails
-- **Issue 4.1:** {Description}
-  - **Risk:** {Potential failure mode}
-  - **Recommendation:** {Add specific guardrail}
-
----
-
-## Optimization Recommendations
-
-### Quick Wins (Immediate Implementation)
-1. **{Recommendation 1}** → {Time estimate}, {Line savings}
-2. **{Recommendation 2}** → {Time estimate}, {Line savings}
-
-### Medium-Term Refactoring (1-2 hours)
-1. **{Recommendation 1}** → {Description}, {Line savings}
-2. **{Recommendation 2}** → {Description}, {Line savings}
-
-### Structural Improvements
-1. **{Recommendation 1}** → {Description}
-2. **{Recommendation 2}** → {Description}
-
----
-
-## Priority Actions
-
-### High Priority (Do First)
-1. ✅ {Action 1} - {Reason}
-2. ✅ {Action 2} - {Reason}
-
-### Medium Priority (Do Next)
-1. {Action 1} - {Reason}
-2. {Action 2} - {Reason}
-
-### Low Priority (Optional)
-1. {Action 1} - {Reason}
-2. {Action 2} - {Reason}
-
----
-
-## Summary Metrics
-
-| Metric | Current | After Optimization | Improvement |
-|--------|---------|-------------------|-------------|
-| **Total Lines** | {X} | {Y} | {-Z%} |
-| **Duplicate Sections** | {X} | 0 | -100% |
-| **Competing Instructions** | {X} | 0 | -100% |
-| **External References** | {X} | {Y} | +{Z}% modularity |
-| **Avg Section Length** | {X} | {Y} | {-Z}% cognitive load |
-
----
-
-## Recommended Approach
-
-**Phase 1 (15 minutes):** Fix critical conflicts
-- {List specific actions}
-
-**Phase 2 (1 hour):** Extract to shared library
-- {List specific actions}
-
-**Phase 3 (30 minutes):** Polish
-- {List specific actions}
-
-**Result:** {Summary of expected improvements}
-```
+**See:** `.github/prompts/shared/optimization-report-template.md` for complete report structure with all placeholders and formatting.
 
 #### 4. Present Report to User
 
@@ -273,7 +216,11 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 ```
 🔍 Prompt Analysis: {prompt-name}
 
-📊 Current Size: {X} lines
+{If notes provided:}
+� Additional Request: {notes summary}
+✅ Holistic Evaluation: Complete (see recommendations below)
+
+�📊 Current Size: {X} lines
 
 ⚠️ Critical Issues Found:
 - {X} competing instructions
@@ -285,6 +232,12 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Estimated reduction: {X}% ({Y} lines)
 - New shared files: {Z}
 - Maintainability improvement: {A}%
+
+{If notes provided:}
+🎯 Holistic Recommendations for Additional Request:
+- Primary: {main recommendation}
+- Integration: {where to add in workflow}
+- Impact: {cross-functional effects}
 
 📋 Full report available in Workspaces/TEMP/{prompt-name}-optimization-analysis.md
 
@@ -497,6 +450,12 @@ Final validation:
 2. **Perform Holistic Analysis:**
    - Execute comprehensive analysis per [Prompt Optimization Mode](#prompt-optimization-mode) workflow
    - Identify competing instructions, bloat, inefficiencies, conflicts
+   - **If notes provided:** Evaluate notes request holistically:
+     - Analyze where request fits in complete prompt workflow
+     - Identify potential conflicts with existing functionality
+     - Determine architectural alignment and best integration approach
+     - Assess cross-functional impacts across all steps/parameters
+     - Generate contextual recommendations aligned with prompt patterns
    - Generate optimization metrics and recommendations
 
 3. **Generate Optimization Report:**
@@ -677,6 +636,16 @@ After completing healthcheck (either mode):
 **Phase**: prompt-optimization
 **Git Commit**: [full-sha-hash]
 **Scope**: prompt/{prompt-name}
+**Additional Request (notes)**: [notes content if provided]
+
+**Holistic Evaluation Results** (if notes provided):
+- Request: [notes content]
+- Workflow Integration: [where it fits in execution flow]
+- Architectural Alignment: [alignment with patterns]
+- Recommended Approach: [primary implementation strategy]
+- Integration Points: [specific steps/sections to modify]
+- Cross-Functional Impacts: [effects on other functionality]
+- Priority: [High/Medium/Low]
 
 **Optimization Results**: [Successful | Partial | Failed]
 

@@ -82,6 +82,7 @@
             <HostControlPanelContent Model="@Model" 
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
+                                     SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
@@ -137,6 +138,7 @@
     private Timer? messageTimer;
     private HubConnection? hubConnection;
     private ErrorDisplay? errorDisplay;
+    private Guid? selectedQuestionId; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Track currently selected/shared question ;CLEANUP_OK
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
@@ -1705,6 +1707,22 @@
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Question found - Text: '{Text}', Asker: {Asker} ;CLEANUP_OK", 
             requestId, questionText?.Substring(0, Math.Min(50, questionText.Length)), originalAskerGuid ?? "NULL");
         
+        // [DEBUG-WORKITEM:hcp] Check if this question is currently shared on canvas ;CLEANUP_OK
+        if (selectedQuestionId.HasValue && selectedQuestionId.Value == questionId)
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp] [{RequestId}] Question is currently shared on canvas - clearing canvas ;CLEANUP_OK", requestId);
+            try
+            {
+                await hubConnection.InvokeAsync("ClearCanvas", SessionId.Value);
+                selectedQuestionId = null; // Clear selection
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp] [{RequestId}] ✅ Canvas cleared successfully ;CLEANUP_OK", requestId);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:hcp] [{RequestId}] ❌ Failed to clear canvas: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            }
+        }
+        
         // Remove from host UI immediately
         Model.Questions.Remove(question);
         await InvokeAsync(StateHasChanged);
@@ -1728,11 +1746,16 @@
     /// <summary>
     /// [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Broadcast clicked question with orange theme from ContextCopilot.txt ;CLEANUP_OK
     /// Applies orange/sienna styling matching ContextCopilot.txt design with 2px/4px borders
+    /// [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Sets selectedQuestionId for visual feedback ;CLEANUP_OK
     /// </summary>
     private async Task ShareQuestionAsset(NoorCanvas.ViewModels.QuestionItem question)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:selection-state:TRACE] [{RequestId}] Setting selectedQuestionId={QuestionId} for visual feedback ;CLEANUP_OK", requestId, question.Id);
+        selectedQuestionId = question.Id; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Update selected question for UI feedback ;CLEANUP_OK
+        StateHasChanged(); // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Force UI refresh to show selection ;CLEANUP_OK
         
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW START ════════ ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] QuestionId: {QuestionId}, Text: '{Text}', BroadcastId: {BroadcastId} ;CLEANUP_OK", 

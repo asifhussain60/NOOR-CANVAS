@@ -91,6 +91,102 @@
                 "di_registration": "services.AddScoped<UnifiedHtmlTransformService>();",
                 "consumer_usage": "private readonly UnifiedHtmlTransformService _transform;\n\nvar html = await _transform.TransformForHostAsync(rawHtml, sessionId);"
             }
+        },
+        {
+            "pattern_id": "centralized-html-transform-patterns",
+            "name": "Centralized HTML Transform Patterns",
+            "category": "structural-change",
+            "scope": "targeted",
+            "description": "When HTML transformation regex patterns are duplicated across multiple services (~120 lines), create centralized pattern class as single source of truth for improved maintainability and testing.",
+            "approach": "1. Identify duplicated regex patterns across services (threshold: 3+ duplicates)\n2. Create HtmlTransformPatterns.cs static class in Services folder\n3. Migrate all regex patterns as public const strings\n4. Add comprehensive XML documentation for each pattern\n5. Update all consuming services to reference centralized patterns\n6. Create unit tests validating all patterns",
+            "risks": [
+                "Pattern changes affect all consumers simultaneously",
+                "Breaking change if pattern constants renamed",
+                "Need to ensure all consumers updated in same commit"
+            ],
+            "mitigations": [
+                "Use semantic versioning for pattern changes",
+                "Document all pattern purposes and test cases",
+                "Update all consumers atomically in single commit",
+                "Add deprecation warnings before removing old patterns"
+            ],
+            "benefits": [
+                "Eliminated 120 lines of duplicate code",
+                "Single source of truth for 13+ patterns",
+                "Easier testing and validation",
+                "Consistent behavior across canvas and hcp workflows"
+            ],
+            "learned_from": [
+                "hcp"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z",
+            "implementation_notes": {
+                "location": "Services/HtmlTransformPatterns.cs",
+                "pattern_count": 13,
+                "consumers": [
+                    "HtmlParsingService",
+                    "AssetProcessingService",
+                    "UnifiedHtmlTransformService"
+                ],
+                "patterns_centralized": [
+                    "DeleteButtonPattern",
+                    "PlainTextButtonPattern",
+                    "HadeesTokenSpanPattern",
+                    "HadeesTokenPlainPattern",
+                    "ImgResponsiveStylePattern",
+                    "StyleWidthHeightPattern",
+                    "ExampleAttributePattern",
+                    "QuoteAttributePattern",
+                    "ImgResponsiveAttributePattern",
+                    "ComplexGradientPattern",
+                    "RgbaPattern",
+                    "ComplexFontFamilyPattern",
+                    "NestedQuotePattern"
+                ]
+            },
+            "code_example": {
+                "centralized_patterns": "public static class HtmlTransformPatterns {\n  public const string DeleteButtonPattern = @\"<button[^>]*delete[^>]*>.*?</button>\";\n  public const string PlainTextButtonPattern = @\"<button[^>]*plain[^>]*>.*?</button>\";\n  public const string HadeesTokenSpanPattern = @\"<span[^>]*>(\\s*-\\s*[^<]+?)</span>\";\n  // ... 10 more patterns\n}",
+                "consumer_usage": "html = Regex.Replace(html, HtmlTransformPatterns.DeleteButtonPattern, \"\", RegexOptions.IgnoreCase);"
+            }
+        },
+        {
+            "pattern_id": "dual-pattern-regex-html",
+            "name": "Dual-Pattern Regex HTML Parsing",
+            "category": "structural-change",
+            "scope": "targeted",
+            "description": "When parsing HTML with inconsistent structures (production uses span tags, dev uses plain text), implement dual regex patterns to handle both formats for 100% coverage.",
+            "approach": "1. Analyze production HTML structure (actual samples required)\n2. Identify format inconsistencies (span tags vs plain text)\n3. Create Pattern 1 for span tag format\n4. Create Pattern 2 for plain text format\n5. Apply both patterns sequentially (order matters)\n6. Test with both production and dev HTML samples",
+            "risks": [
+                "Single pattern assumes consistent HTML structure",
+                "Production HTML may differ from development HTML",
+                "Pattern order can affect results"
+            ],
+            "mitigations": [
+                "Always test with real production HTML samples",
+                "Document which pattern handles which format",
+                "Apply more specific pattern first to avoid conflicts",
+                "Create comprehensive unit tests for both formats"
+            ],
+            "benefits": [
+                "100% coverage for both HTML formats",
+                "Handles production vs development differences",
+                "Prevents regex failures on format variations"
+            ],
+            "learned_from": [
+                "hcp"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z",
+            "implementation_notes": {
+                "pattern_order": "specific → general",
+                "test_coverage": "4 test cases (production HTML, ks-ahadees-subject, legacy, multiple hadees)",
+                "production_format": "<h4>...<i></i>Narrator<span>- Topics</span></h4>",
+                "dev_format": "<h4>...<i></i>Narrator - Topics</h4>"
+            },
+            "code_example": {
+                "dual_pattern_implementation": "// Pattern 1: Span tags (production format)\nvar pattern1 = @\"<span[^>]*>(\\s*-\\s*[^<]+?)</span>\";\nhtml = Regex.Replace(html, pattern1, \"\");\n\n// Pattern 2: Plain text (development format)\nvar pattern2 = @\"(<h4[^>]*>[^<]*<i[^>]*></i>\\s*)([^<]+?)(\\s-\\s[A-Za-z,\\s]+)(</h4>)\";\nhtml = Regex.Replace(html, pattern2, \"$1$2$4\");"
+            }
         }
     ]
 }

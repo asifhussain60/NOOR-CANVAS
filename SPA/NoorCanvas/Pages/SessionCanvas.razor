@@ -556,6 +556,7 @@
     }
 
     /* Form Elements */
+    /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Updated textarea to 3 rows with text wrapping ;CLEANUP_OK */
     .canvas-form-textarea {
         flex: 5;
         padding: 0.75rem;
@@ -565,8 +566,11 @@
         font-family: 'Inter', sans-serif;
         color: #4B3C2B;
         background-color: white;
-        resize: none;
-        height: 3rem;
+        resize: vertical; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Allow vertical resize only ;CLEANUP_OK */
+        height: auto; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Auto height for 3 rows ;CLEANUP_OK */
+        white-space: pre-wrap; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Preserve whitespace and wrap text ;CLEANUP_OK */
+        overflow-wrap: break-word; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Break long words to prevent horizontal scroll ;CLEANUP_OK */
+        line-height: 1.5;
     }
 
     .canvas-form-textarea:disabled {
@@ -575,11 +579,13 @@
         background-color: #F3F4F6;
     }
 
+    /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Updated submit button to match textarea height and center content ;CLEANUP_OK */
     .canvas-form-submit-button {
         flex: 1;
         min-width: 80px;
         padding: 0.5rem;
-        height: 3rem;
+        height: auto; /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Auto height to match textarea ;CLEANUP_OK */
+        align-self: stretch; /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Stretch to match textarea height ;CLEANUP_OK */
         border-radius: 0.5rem;
         color: white;
         font-weight: 600;
@@ -598,8 +604,9 @@
         cursor: not-allowed;
     }
 
+    /* [DEBUG-WORKITEM:canvas:submit-icon:TRACE] Reduced icon size from 1.25rem to 1rem for better button fit ;CLEANUP_OK */
     .canvas-form-submit-icon {
-        font-size: 1.25rem;
+        font-size: 1rem;
         color: white;
     }
 
@@ -912,6 +919,42 @@
             padding: 1rem;
         }
     }
+
+    /* Responsive Layout - Mobile Landscape */
+    /* [DEBUG-WORKITEM:css:landscape] Landscape orientation - sidebar below canvas for better asset rendering ;CLEANUP_OK */
+    @@media (max-width: 1024px) and (orientation: landscape) {
+        .canvas-main-grid {
+            grid-template-columns: 1fr !important;
+            height: auto;
+            gap: 1rem;
+        }
+
+        .canvas-area-container {
+            order: 1;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .canvas-sidebar {
+            order: 2;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for questions in landscape ;CLEANUP_OK */
+        .canvas-questions-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for participants in landscape ;CLEANUP_OK */
+        .canvas-participants-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+    }
 </style>
 
 <!-- Root container matching SessionWaiting.razor structure -->
@@ -1034,12 +1077,13 @@
                             <h4 class="canvas-question-title">Ask a question</h4>
                         </div>
                         <div class="canvas-question-form">
-                            <input type="text" 
+                            @* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Changed input to textarea with 3 rows for text wrapping ;CLEANUP_OK *@
+                            <textarea rows="3"
                                    @bind="QuestionInput" 
                                    @onkeydown="HandleQuestionKeyDown"
                                    class="canvas-form-textarea" 
                                    placeholder="Ask a question..." 
-                                   disabled="@(Model?.SessionStatus != "Active")" />
+                                   disabled="@(Model?.SessionStatus != "Active")"></textarea>
                             <button @onclick="SubmitQuestion" 
                                     type="button"
                                     class="canvas-form-submit-button shadow-golden"
@@ -3131,6 +3175,26 @@
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:broadcast] Error processing HtmlContentReceived event");
+                }
+            });
+
+            // [DEBUG-WORKITEM:hcp] Listen for canvas clear events to show default message ;CLEANUP_OK
+            hubConnection.On("ClearCanvas", async () =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp] ClearCanvas event received, clearing SharedAssetContent ;CLEANUP_OK");
+                    
+                    if (Model != null)
+                    {
+                        Model.SharedAssetContent = null;
+                        await InvokeAsync(StateHasChanged);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp] ✅ Canvas cleared - default message will be displayed ;CLEANUP_OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp] ❌ Error processing ClearCanvas event: {Message} ;CLEANUP_OK", ex.Message);
                 }
             });
 

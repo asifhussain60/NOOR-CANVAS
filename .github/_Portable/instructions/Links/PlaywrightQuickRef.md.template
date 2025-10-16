@@ -1,0 +1,91 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{TEST_FRAMEWORK}}` - Testing framework
+- `{{PROJECT_NAME}}` - Project name
+
+---
+
+# {{TEST_FRAMEWORK}} Quick Reference
+
+## Purpose
+Quick reference guide for writing and running tests in {{PROJECT_NAME}}.
+
+---
+
+## Common Commands
+
+### Run All Tests
+```bash
+{{TEST_COMMAND}}
+```
+
+### Run Specific Test File
+```bash
+[command to run specific test file]
+```
+
+### Run in Debug Mode
+```bash
+[command to run in debug mode]
+```
+
+### Generate Test Report
+```bash
+[command to generate report]
+```
+
+---
+
+## Test Patterns
+
+### Basic Test Structure
+```typescript
+test('descriptive test name', async () => {
+  // Arrange: Set up test conditions
+  
+  // Act: Perform action being tested
+  
+  // Assert: Verify expected results
+});
+```
+
+### Common Assertions
+```typescript
+// Example assertions for your testing framework
+expect(actual).toBe(expected);
+expect(actual).toEqual(expected);
+expect(array).toContain(item);
+expect(value).toBeTruthy();
+```
+
+---
+
+## Best Practices
+
+1. Use canonical test data from InfrastructureQuickRef.md
+2. Write descriptive test names
+3. Keep tests independent and isolated
+4. Clean up resources after tests
+5. Use appropriate timeouts for async operations
+
+---
+
+## Troubleshooting
+
+### Common Issues
+[Document common test failures and solutions]
+
+### Debug Tips
+[Document debugging strategies]
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial quick reference
+  - Basic test patterns documented
+  - Common commands listed
+  - Best practices established

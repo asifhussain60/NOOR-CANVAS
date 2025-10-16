@@ -1,0 +1,95 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+
+---
+
+# Functionality Registry
+
+## Purpose
+Central registry of all implemented features and functionality in {{PROJECT_NAME}}.
+
+---
+
+## Core Features
+
+### Feature 1: [Feature Name]
+- **Status**: ✅ Implemented / 🚧 In Progress / 📝 Planned
+- **Description**: [Brief description]
+- **Components**: [Related components/modules]
+- **API Endpoints**: [Related API endpoints]
+- **Tests**: [Test coverage]
+- **Documentation**: [Links to relevant docs]
+
+### Feature 2: [Feature Name]
+- **Status**: ✅ Implemented / 🚧 In Progress / 📝 Planned
+- **Description**: [Brief description]
+- **Components**: [Related components/modules]
+- **API Endpoints**: [Related API endpoints]
+- **Tests**: [Test coverage]
+- **Documentation**: [Links to relevant docs]
+
+[Add more features as your project develops]
+
+---
+
+## Feature Categories
+
+### User Management
+[List user management features]
+
+### Data Management
+[List data management features]
+
+### Integration Features
+[List integration features]
+
+### Administrative Features
+[List administrative features]
+
+---
+
+## Recently Added Features
+Track recently added features with dates:
+
+- **[Date]**: [Feature name] - [Brief description]
+- **[Date]**: [Feature name] - [Brief description]
+
+---
+
+## Planned Features
+Track planned future features:
+
+- **[Feature name]**: [Brief description and timeline]
+- **[Feature name]**: [Brief description and timeline]
+
+---
+
+## Deprecated Features
+Track deprecated or removed features:
+
+- **[Date]**: [Feature name] - [Reason for deprecation]
+
+---
+
+## Update Protocol
+
+This file should be updated when:
+- New features are implemented
+- Features are deprecated or removed
+- Feature status changes
+- Major feature enhancements occur
+
+**Responsibility**: Sync agent maintains this file during documentation updates.
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial functionality registry
+  - Established registry structure
+  - Documented initial features
+  - Defined update protocol

@@ -48,21 +48,29 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 - Incremental Work (multi-step tasks with continuous documentation)
 - Task Completion (`tasks: mark complete` for comprehensive cross-layer documentation)
 - Work Resumption (continue previously completed tasks)
+- **Continuous Work** (use "Adding to previous key data stream," to auto-detect and continue recent work)
 
 ### How to Invoke
 ```
 @workspace /task key=hcp tasks="Fix hadees token removal in SessionCanvas"
 @workspace /task key=canvas tasks="Add share button\n---\nCreate Playwright test"
 @workspace /task key=hcp tasks="mark complete"
+
+# Auto-detect previous key (Step 0.5 Protocol)
+@workspace Adding to previous key data stream, fix the submit button styling
 ```
+
+**Note:** When message starts with "Adding to previous key data stream,", the agent automatically detects the most recently modified key from git history and continues work on that key.
 
 ### Expected Outcomes
 - ✅ Incremental documentation (key data stream updated after EVERY sub-task)
 - ✅ Git-linked traceability (full SHA commit hashes recorded)
+- ✅ Checkpoint tags (every task creates searchable git tag with 28-tag history per key)
 - ✅ Automatic test creation (Playwright tests generated for UI changes)
 - ✅ Clean build (zero errors, zero warnings - mandatory)
 - ✅ Comprehensive completion (cross-layer documentation when "mark complete")
 - ✅ Concise user output (full details in work-log.md)
+- ✅ Iterative approval refinement (up to 3 re-evaluations for evolving requirements)
 
 ---
 
@@ -134,6 +142,53 @@ git checkout development
 
 ---
 
+### Step 0.5: Previous Key Data Stream Continuation Protocol (CONDITIONAL)
+
+**Trigger Phrase:** User message starts with `"Adding to previous key data stream,"`
+
+**Purpose:** Seamlessly continue work on the most recently modified key without requiring explicit key parameter.
+
+**Detection & Resolution:**
+1. **Scan recent git commits** for key data stream modifications:
+   ```bash
+   git log --pretty=format:"%H %s" --name-only -10 | grep "prompts.keys"
+   ```
+2. **Identify most recent key:**
+   - Parse file path: `.github/prompts.keys/**/{key}.md`
+   - Extract `{key}` from path
+   - Verify last modification timestamp
+3. **Auto-populate key parameter:**
+   - Set `key = {detected-key}`
+   - Inform user: `"📌 Continuing work on key: {detected-key} (last modified: {timestamp})"`
+
+**Validation:**
+- If NO recent key modifications found → Request explicit key from user
+- If MULTIPLE keys modified in last commit → Use most recent timestamp
+- If ambiguous → Present options to user for selection
+
+**Handover to Task Protocol:**
+- Once key is resolved, proceed to **Step 1: Checkpoint Commit**
+- Continue normal task workflow (Steps 1-9)
+- Update the SAME key data stream that was auto-detected
+
+**Example Flow:**
+```
+User: "Adding to previous key data stream, fix the button alignment issue"
+
+Agent Actions:
+1. Scan git log → Finds `.github/prompts.keys/canvas/canvas.md` modified 2 minutes ago
+2. Extract key: "canvas"
+3. Notify: "📌 Continuing work on key: canvas (last modified: 2025-10-15T00:02:00Z)"
+4. Proceed to Step 1 with key="canvas"
+```
+
+**Guardrails:**
+- **ALWAYS verify detected key with user before proceeding** (brief confirmation)
+- **NEVER assume key if git history is ambiguous** (request clarification)
+- **ALWAYS preserve previous work** (append to existing work log, never overwrite)
+
+---
+
 ### Step 1: Checkpoint Commit (MANDATORY)
 
 Create checkpoint commit for rollback capability:
@@ -160,7 +215,7 @@ This ensures rollback capability if the task introduces instability.
 **Key Sub-Phases Overview:**
 
 **Always Execute:**
-- **2.1:** Key Resolution (infer from history or use provided)
+- **2.1:** Key Resolution (infer from history, use provided parameter, or auto-detected from Step 0.5)
 - **2.2:** Key Data Stream Query (read existing work, prevent duplication)
 - **2.3:** Auto-Load File Mappings (load referenced files into context)
 
@@ -204,28 +259,152 @@ This ensures rollback capability if the task introduces instability.
 
 ### Step 4: Approval (MANDATORY)
 
-- Present generated plan to user for confirmation
-- **⚠️ Early Warning:** If Step 2.8.7 detected INCOMPLETE data lifecycle:
-  ```
-  ⚠️ WARNING: Incomplete Data Lifecycle Detected
-  
-  Current implementation missing:
-  - [X] Database Persistence (mutations not saved)
-  - [X] SignalR Broadcast (other clients won't see changes)
-  
-  This will result in:
-  - ❌ Changes disappear after page refresh
-  - ❌ Multi-user desync (only one browser updated)
-  
-  Recommendation:
-  1. Add API endpoint: POST /api/questions/{id}/delete
-  2. Add database mutation: DbContext.Questions.Remove()
-  3. Add SignalR broadcast: Clients.All.SendAsync("QuestionDeleted")
-  
-  Proceed with incomplete implementation? (Not recommended)
-  ```
-- Do not proceed until explicit approval given
-- If no approval: Halt and mark as **Pending Approval**
+**Purpose:** Iterative approval gate with re-evaluation support for additional requirements.
+
+**Workflow:**
+
+1. **Present Generated Plan** to user for confirmation (controlled by `verbosity` parameter)
+
+2. **Parse User Response:**
+   - **Explicit Approval** (proceed to Step 5):
+     - Patterns: `"yes"`, `"y"`, `"proceed"`, `"go ahead"`, `"continue"`, `"approved"`, `"ok"` (case-insensitive)
+     - **CRITICAL:** Response must contain ONLY approval keywords, no additional requests
+     - Example: `"Yes"`, `"proceed"`, `"Y"`, `"ok"`
+   
+   - **Additional Requirements** (loop back to Step 3):
+     - Any response containing new instructions, modifications, or clarifications
+     - Examples: `"Also add X"`, `"Change Y to Z"`, `"What about A?"`, `"Make the button blue"`
+     - Agent appends requirements to context and re-plans
+   
+   - **Rejection** (halt execution):
+     - Patterns: `"no"`, `"cancel"`, `"stop"`, `"halt"`
+     - Mark task as **Pending Approval** and exit
+
+3. **Re-Evaluation Loop** (if additional requirements detected):
+   - **Iteration {N}/3:** Append user's additional requirements to Step 2 context
+   - Return to **Step 3:** Re-plan with updated requirements
+   - Present updated plan with change summary:
+     ```
+     📝 Updated Implementation Plan (Iteration {N}/3)
+     
+     Additional Requirements Added:
+     - {requirement 1}
+     - {requirement 2}
+     
+     Updated Plan:
+     {new plan with changes highlighted}
+     
+     Proceed with updated plan? (yes/proceed to continue, or provide more requirements)
+     ```
+   - **Iteration Limit:** After 3 re-evaluations, require explicit `"proceed"` or `"cancel"`
+   - **Loop Termination:** Only proceed to Step 5 on explicit approval without new requirements
+
+4. **⚠️ Early Warning:** If Step 2.8.7 detected INCOMPLETE data lifecycle:
+   ```
+   ⚠️ WARNING: Incomplete Data Lifecycle Detected
+   
+   Current implementation missing:
+   - [X] Database Persistence (mutations not saved)
+   - [X] SignalR Broadcast (other clients won't see changes)
+   
+   This will result in:
+   - ❌ Changes disappear after page refresh
+   - ❌ Multi-user desync (only one browser updated)
+   
+   Recommendation:
+   1. Add API endpoint: POST /api/questions/{id}/delete
+   2. Add database mutation: DbContext.Questions.Remove()
+   3. Add SignalR broadcast: Clients.All.SendAsync("QuestionDeleted")
+   
+   Proceed with incomplete implementation? (Not recommended)
+   ```
+
+5. **Halt Conditions:**
+   - User provides rejection response
+   - Maximum iterations (3) reached without approval
+   - Explicit "Pending Approval" request
+
+**Output (controlled by verbosity):**
+- **Concise:** Plan summary, iteration count (if re-evaluation occurred), approval request
+- **Detailed:** Full plan, change history across iterations, architectural impact analysis
+
+---
+
+**Examples:**
+
+**Scenario 1: Immediate Approval**
+```
+Agent: {presents plan}
+       
+       Proceed with this plan?
+
+User: "Yes, proceed"
+
+Agent: ✅ Approved. Proceeding to Step 5 (Execute)
+```
+
+**Scenario 2: Additional Requirements (Single Iteration)**
+```
+Agent: {presents initial plan}
+       
+       Proceed with this plan?
+
+User: "Also add a confirmation dialog before deletion"
+
+Agent: 📝 Updated Implementation Plan (Iteration 1/3)
+       
+       Additional Requirements Added:
+       - Add confirmation dialog before deletion
+       
+       Updated Plan:
+       1. Add ConfirmDialog component to SessionCanvas.razor
+       2. Wire up deletion flow with confirmation step
+       3. Add confirmation state management
+       ...
+       
+       Proceed with updated plan?
+
+User: "Yes"
+
+Agent: ✅ Approved after 1 iteration. Proceeding to Step 5 (Execute)
+```
+
+**Scenario 3: Multiple Iterations**
+```
+Agent: {presents initial plan}
+
+User: "Change button color to blue"
+
+Agent: 📝 Updated Implementation Plan (Iteration 1/3)
+       {updated plan with blue button}
+       Proceed with updated plan?
+
+User: "Also add a tooltip on hover"
+
+Agent: 📝 Updated Implementation Plan (Iteration 2/3)
+       {updated plan with blue button + tooltip}
+       Proceed with updated plan?
+
+User: "proceed"
+
+Agent: ✅ Approved after 2 iterations. Proceeding to Step 5 (Execute)
+```
+
+**Scenario 4: Max Iterations Reached**
+```
+Agent: {presents plan after 3rd iteration}
+       
+       ⚠️ Maximum re-evaluations reached (3/3).
+       
+       Please respond with:
+       - "proceed" to implement current plan
+       - "cancel" to halt execution
+       - OR start a new /task invocation with refined requirements
+
+User: "proceed"
+
+Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
+```
 
 ---
 
@@ -305,6 +484,8 @@ SUMMARY: {key-name}
 - Debug Logging: {inserted | removed | none}
 - Tests: {passed/failed count}
 - Build: {Clean | Warnings | Errors}
+- Approval Iterations: {N} (if re-evaluation occurred)
+- Checkpoint: checkpoint/{key}/{timestamp}
 ```
 
 **Detailed:**
@@ -318,6 +499,12 @@ SUMMARY: {key-name}
 - Debug Logging: {details}
 - Tests: {X passed, Y failed with details}
 - Build: {Clean | Warnings | Errors with details}
+- Approval Iterations: {N} (if re-evaluation occurred)
+  - Iteration 1: {additional requirement 1}
+  - Iteration 2: {additional requirement 2}
+- Checkpoint: checkpoint/{key}/{timestamp}
+  - Browse: git tag --list "checkpoint/{key}/*" --sort=-creatordate
+  - Rollback: git reset --hard checkpoint/{key}/{timestamp}
 ```
 
 ---
@@ -344,6 +531,8 @@ SUMMARY: {key-name}
    - **Changes**: {list}
    - **Files Affected**: {list}
    - **Tests**: {results}
+   - **Approval Iterations**: {N} (if re-evaluation occurred)
+   - **Additional Requirements**: {list of requirements added during iterations}
    - **Commit**: {SHA}
    ```
 4. Output to user (brief acknowledgment only):
@@ -362,43 +551,99 @@ SUMMARY: {key-name}
 
 ---
 
+### Step 8.4: Checkpoint Commit & Tag (MANDATORY)
+
+**After all work is complete and key data stream is updated, create a final checkpoint commit with git tag.**
+
+#### Checkpoint Commit Requirements
+1. **Stage all changes:**
+   ```bash
+   git add -A
+   ```
+
+2. **Create checkpoint commit with standardized message:**
+   ```bash
+   git commit -m "checkpoint: {key} - {one-line summary of work}"
+   ```
+   - Example: `git commit -m "checkpoint: canvas - added share button with confirmation dialog"`
+
+3. **Create lightweight git tag:**
+   ```bash
+   git tag "checkpoint/{key}/{ISO-8601-date-compact}"
+   ```
+   - Example: `git tag "checkpoint/canvas/2025-10-16_0230"`
+   - Format: `checkpoint/{key}/{YYYY-MM-DD_HHMM}` (enables filtering by key)
+   - Note: Git tags cannot contain colons, so use underscore for time separator
+
+4. **Retrieve commit SHA:**
+   ```bash
+   git rev-parse HEAD
+   ```
+
+#### Automatic Tag Pruning (28-tag limit per key)
+1. **List existing checkpoints for this key:**
+   ```bash
+   git tag --list "checkpoint/{key}/*" --sort=-creatordate
+   ```
+
+2. **If ≥28 tags exist, delete oldest:**
+   ```bash
+   git tag --list "checkpoint/{key}/*" --sort=creatordate | Select-Object -First {count-to-delete} | ForEach-Object { git tag -d $_ }
+   ```
+
+3. **Maintains most recent 28 checkpoints per key automatically**
+
+#### Rollback & Browsing Capabilities
+
+**Rollback to specific checkpoint:**
+```bash
+git reset --hard {tag-name}
+# Example: git reset --hard checkpoint/canvas/2025-10-16T02:30:00Z
+```
+
+**Browse all checkpoints for a key:**
+```bash
+git tag --list "checkpoint/{key}/*" --sort=-creatordate
+```
+
+**View checkpoint details:**
+```bash
+git show {tag-name} --stat
+```
+
+**Browse all checkpoints across all keys:**
+```bash
+git tag --list "checkpoint/*/*" --sort=-creatordate
+```
+
+**Advantages over separate log files:**
+- ✅ Single source of truth (git history)
+- ✅ No file sync issues
+- ✅ Native git browsing/search
+- ✅ Works with all git tools (GUI clients, IDE integrations)
+- ✅ Automatic cleanup via tag deletion
+- ✅ Can view full diff: `git show checkpoint/canvas/2025-10-16T02:30:00Z`
+
+**Output to User:**
+- **Concise:** `"✓ Checkpoint created: {tag-name}"`
+- **Detailed:** Show tag name, SHA, and rollback command
+
+**Example Checkpoint Log (`.github/prompts.keys/.checkpoints/canvas.log`):**
+```
+2025-10-16T02:30:00Z | a3f5b9c1234 | added share button with confirmation dialog
+2025-10-16T01:15:00Z | b2d4e8f5678 | fixed session title display bug
+2025-10-15T23:45:00Z | c1a7b3d9012 | implemented question deletion with persistence
+...
+(up to 28 most recent checkpoints)
+```
+
+---
+
 ### Step 9: Completion Workflow *(Conditional: When tasks = "mark complete" or "completed")*
 
 **Triggered when user specifies "mark complete" or "completed" as tasks parameter value.**
 
-**See:** `shared/completion-workflow-template.md` for complete template
-
-#### 9.1. Cross-Layer Documentation Analysis
-**Document the COMPLETE, FINAL workflow across ALL layers:**
-
-**Output to User (brief):**
-```
-🎯 Completion Analysis for Key: {key-name}
-
-Documented Layers:
-✓ Frontend: {X components, Y client scripts}
-✓ API: {X endpoints, Y DTOs}
-✓ Services: {X services, Y methods}
-✓ Database: {X tables, Y migrations}
-✓ Configuration: {X settings documented}
-✓ Tests: {X unit, Y integration, Z Playwright}
-
-Cross-layer workflow documented in work-log.md
-```
-
-**Full Documentation Stored In:** `.github/prompts.keys/{key}/work-log.md`
-
-**8 Layer Documentation:**
-1. Frontend Layer (UI components, user journey, styling, client logic)
-2. API Layer (endpoints, DTOs, authentication, error handling)
-3. Service Layer (business logic, transformations, dependencies)
-4. Database Layer (tables, migrations, queries, indexes)
-5. SignalR/Real-Time (hubs, connection management, message flow)
-6. Configuration (appsettings, environment variables, feature flags)
-7. Testing Coverage (unit, integration, Playwright, visual)
-8. Dependencies (NuGet/npm packages, framework versions)
-
-#### 9.2. Obsolete Information Removal & Debug Cleanup
+#### 9.1. Obsolete Information Removal & Debug Cleanup
 
 **Key Data Stream Cleanup:**
 - Remove superseded implementations, failed attempts, temporary workarounds
@@ -422,26 +667,23 @@ Search all modified source files and remove debug logging markers:
 - Build status: Clean
 ```
 
-#### 9.3. Completion Documentation Template
-
-**User sees (brief):**
-```
-✅ Key marked as COMPLETE
-📝 Comprehensive documentation added to work-log.md
-🗑️ Obsolete information removed
-```
-
-**work-log.md contains:** Complete template from `shared/completion-workflow-template.md`
-
-#### 9.4. State Management
+#### 9.2. State Management & Completion
 - Mark key as `complete` in metadata
+- Verify key data stream is up-to-date with final state
 - Archive work log (historical entries intact)
 - Update key index
 
-#### 9.5. Resumption Protocol
+**Output to User:**
+```
+✅ Key marked as COMPLETE
+📝 All information recorded in key data stream
+🗑️ Debug markers removed ({X} markers from {Y} files)
+```
+
+#### 9.3. Resumption Protocol
 **If new tasks arrive for a `complete` key:**
 - Auto-revert status from `complete` to `in-progress`
-- Preserve completion documentation
+- Preserve all historical entries in key data stream
 - Add new work log entry documenting resumption
 - Continue normal workflow (Steps 1-8)
 
@@ -453,12 +695,17 @@ Search all modified source files and remove debug logging markers:
 - **ALWAYS execute Step 2.8.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations)
 - **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
 - **ALWAYS update key data stream after execution** (Step 8 is mandatory)
-- **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword)
-- **ALWAYS preserve completion documentation when resuming completed keys**
+- **ALWAYS create checkpoint commit and git tag after task completion** (Step 8.4 is mandatory)
+- **ALWAYS prune old checkpoint tags to maintain max 28 per key** (automatic cleanup)
+- **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
+- **ALWAYS preserve all historical entries when resuming completed keys**
 - **ALWAYS infer key from recent work** if not explicitly provided
+- **ALWAYS enforce re-evaluation iteration limit** (max 3 iterations at Step 4 approval gate)
+- **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
 - **NEVER implement UI-only mutations** - all CRUD operations MUST have complete data lifecycle (UI → API → DB → Broadcast → UI)
 - **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
 - **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes
+- **NEVER proceed past Step 4 if user response contains additional requirements** - loop back to Step 3 for re-planning
 - Never modify functionality unless explicitly required
 - Always ensure architectural and structural integrity
 - Always pause and request clarification if uncertain

@@ -1,0 +1,7 @@
+{
+    "_Comment": "Local overrides for Windows development. This file is git-ignored and overrides sharedsettings.json. Use AHHOME for faster local SQL Server connections on Windows.",
+    "ConnectionStrings": {
+        "Development": "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;",
+        "Production": "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"
+    }
+}

@@ -1,366 +1,387 @@
 # Portable AI Agent System
 
-**Version:** 2.0.0  
-**Created:** October 12, 2025  
-**Purpose:** Universal AI agent framework for any software project  
-**Setup Time:** 5 minutes
+A complete, self-contained AI agent infrastructure that can be deployed to any software project.
 
 ---
 
 ## 🚀 Quick Start
 
-**Two commands. That's it.**
-
-```powershell
-# 1. Copy this folder to your project
-Copy-Item "_Portable" -Destination "C:\YourProject\.github\_Portable" -Recurse
-
-# 2. Run setup
-cd C:\YourProject\.github\_Portable
-.\setup.bat
-```
-
-**Done!** In 5 minutes you have:
-- ✅ 6 specialized AI agents configured for your project
-- ✅ Workspace structure created
-- ✅ Quality tools configured
-- ✅ Learning system initialized
-- ✅ Project-specific documentation generated
-
-**Next:** `@workspace /question "What agents are available?"`
+1. **Copy this folder** to your project root
+2. **Run setup**: `setup.bat` (Windows) or `./setup.ps1` (PowerShell/Linux/Mac)
+3. **Follow prompts** to configure for your project
+4. **Start using**: `@workspace /question What agents are available?`
 
 ---
 
-## What This System Provides
+## 📋 What's Included
 
-### 6 Specialized AI Agents
+### AI Agent System
+- **8 Specialized Agents** for development tasks
+- **2 Meta-Agents** for system management
+- **Smart Learning System** that improves over time
+- **Comprehensive Documentation** framework
+- **Automated Testing** integration
+- **Code Quality** enforcement
 
-1. **Task Executor** (`/task`)
-   - Feature development and bug fixes
-   - Progressive documentation with git integration
-   - Automatic test generation
-   - Zero errors/warnings policy
-
-2. **Refactor Agent** (`/refactor`)
-   - Code quality improvements
-   - Technical debt reduction
-   - Pattern extraction and reuse
-
-3. **Sync Agent** (`/sync`)
-   - Documentation synchronization
-   - Cross-reference validation
-   - Automated updates
-
-4. **Health Check Agent** (`/healthcheck`)
-   - System integrity validation
-   - 6-level validation pipeline
-   - Comprehensive reporting
-
-5. **Question Agent** (`/question`)
-   - Codebase knowledge queries
-   - Architecture explanations
-   - Pattern discovery
-
-6. **Test Generation Agent** (`/test-generation`)
-   - End-to-end test creation
-   - Multi-browser testing
-   - Proven test patterns
-
-### Universal Compatibility
-
-- ✅ **.NET** (C#, ASP.NET Core, Blazor, Entity Framework)
-- ✅ **JavaScript/TypeScript** (React, Vue, Angular, Next.js, Node.js)
-- ✅ **Python** (Django, Flask, FastAPI)
-- ✅ **Java** (Spring Boot, Maven, Gradle)
-- ✅ **Ruby** (Rails)
-- ✅ **Go**, **PHP**, and more via auto-detection
-
-### Quality & Safety
-
-- 🛡️ **Zero-tolerance**: 0 errors, 0 warnings
-- 🔄 **Automatic rollback** on failures
-- ✅ **6-level validation** pipeline
-- 📊 **Learning from patterns**
-- 🧪 **Automatic test generation**
-- 📝 **Progressive documentation**
+### Complete Infrastructure
+- ✅ Agent prompt definitions
+- ✅ Instruction files
+- ✅ Learning infrastructure
+- ✅ Workspace organization
+- ✅ Template variables system
+- ✅ Setup automation
 
 ---
 
-## Installation
+## 🤖 Available Agents
 
-### Option 1: Automated Setup (Recommended - 5 minutes)
+### Task Agent (`/task`)
+Execute features, bug fixes, and incremental work
+- Phase-based processing
+- Automatic test generation
+- Git integration
+- Progress tracking
+
+### Refactor Agent (`/refactor`)
+Safe code quality improvements and architectural refactoring
+- Preserves functionality
+- Maintains test coverage
+- Analyzer integration
+
+### Sync Agent (`/sync`)
+Keep documentation synchronized with code
+- Architecture updates
+- API contract validation
+- Cross-reference checking
+
+### Healthcheck Agent (`/healthcheck`)
+Validate system health and configuration
+- Build verification
+- Dependency checking
+- Database connectivity
+- Code quality metrics
+
+### Question Agent (`/question`)
+Answer questions about the project
+- Context-aware responses
+- Code examples
+- Documentation references
+
+### Test Generation Agent (`/test`)
+Generate comprehensive automated tests
+- Unit tests
+- Integration tests
+- E2E tests
+- Coverage tracking
+
+### Learning Analysis Agent (`/analyze-learning`)
+Extract patterns and generate insights
+- Success pattern identification
+- Failure pattern avoidance
+- Performance optimization
+- Recommendation generation
+
+### Cohesion Review Agent (`/cohesion-review`)
+Review code quality and architectural alignment
+- Quality metrics
+- Architecture compliance
+- Technical debt tracking
+- Improvement recommendations
+
+### Port Instructions Agent (`/port-instructions`) - Meta
+Regenerate the portable system with latest improvements
+- Creates/updates _Portable folder
+- Extracts templates from current project
+- Maintains portability
+- **Use when:** Updating portable system with improvements
+
+### Total Recall Agent (`/total-recall`) - Meta
+Analyze project and populate all templates with project data
+- Deep project analysis
+- Template population
+- Infrastructure documentation
+- **Use when:** After setup.bat to fully customize AI system
+
+---
+
+## 💾 Technology Compatibility
+
+### Supported Project Types
+
+**Fully Tested:**
+- ✅ .NET (C#, ASP.NET Core, Blazor)
+- ✅ Node.js (JavaScript, TypeScript, Express, React, Vue)
+- ✅ Python (Django, Flask, FastAPI)
+- ✅ Java (Spring Boot, Jakarta EE)
+
+**Community Supported:**
+- 🔶 Ruby (Rails, Sinatra)
+- 🔶 Go (any framework)
+- 🔶 PHP (Laravel, Symfony)
+- 🔶 Other (custom configuration required)
+
+### Database Support
+- SQL Server
+- PostgreSQL
+- MySQL/MariaDB
+- MongoDB
+- Oracle
+- SQLite
+
+### Testing Frameworks
+- Playwright
+- Selenium
+- Jest
+- xUnit/NUnit
+- pytest
+- JUnit
+- RSpec
+
+---
+
+## 📦 Installation
+
+### Automated Setup (Recommended)
 
 **Windows:**
 ```cmd
-.\setup.bat
+setup.bat
 ```
 
 **PowerShell/Linux/Mac:**
-```powershell
-.\setup.ps1
+```bash
+./setup.ps1
 ```
 
-**What it does:**
-1. Detects your project type automatically
-2. Creates workspace structure
-3. Generates project-specific agent configurations
-4. Installs required tools (optional)
-5. Creates PROJECT-SETUP-SUMMARY.md with your configuration
+The setup script will:
+1. Detect your project type
+2. Prompt for configuration
+3. Generate customized files
+4. Create workspace structure
+5. Produce setup summary
 
-### Option 2: Manual Setup (60 minutes)
+### Manual Setup
 
-For advanced users who need customization:
-
-1. Copy template files to `.github/` folder
-2. Replace `{{PROJECT_NAME}}` placeholders manually
-3. Create workspace directories
-4. Install tools based on your stack
-
-**Full guide:** [docs/INSTALLATION-GUIDE.md](docs/INSTALLATION-GUIDE.md)
+1. Copy all files from `.github/_Portable/` to your project's `.github/` folder
+2. Manually replace `{{VARIABLE}}` placeholders in template files
+3. Remove `.template` extensions
+4. Create workspace folders (see structure below)
 
 ---
 
-## Documentation Structure
+## 🗂️ Workspace Structure
 
-### Essential (Read First)
-- **[START-HERE.md](START-HERE.md)** - Complete getting started guide
-- **PROJECT-SETUP-SUMMARY.md** - Auto-generated after setup (in your project root)
+After setup, your project will have:
 
-### Reference (As Needed)
-- **[QUICK-REFERENCE.md](QUICK-REFERENCE.md)** - Command cheat sheet
-- **[QUICK-START-CHECKLIST.md](QUICK-START-CHECKLIST.md)** - Setup verification
-- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+```
+.github/
+├── instructions/          # Core operating instructions
+│   ├── SelfAwareness.instructions.md
+│   └── Links/            # Reference documentation
+├── prompts/              # Agent definitions
+│   └── shared/          # Reusable documentation
+├── learning/            # Learning system
+│   ├── patterns/       # Learned patterns
+│   ├── insights/       # Insights
+│   └── recommendations/  # Improvements
+└── reports/            # Agent reports
 
-### Advanced
-- **[docs/AGENT-REFERENCE.md](docs/AGENT-REFERENCE.md)** - Detailed agent documentation
-- **[docs/ADVANCED-USAGE.md](docs/ADVANCED-USAGE.md)** - Advanced patterns and workflows
-- **[FILE-INDEX.md](FILE-INDEX.md)** - Complete file directory
+Workspaces/
+├── Copilot/           # Agent workspace
+│   ├── _DOCS/        # Documentation
+│   ├── artifacts/    # Build artifacts
+│   ├── config/       # Configurations
+│   └── prompts.keys/ # Work tracking
+├── CodeQuality/      # Code analysis
+└── TEMP/            # Temporary files
+```
 
 ---
 
-## Quick Examples
+## 🎯 Common Workflows
 
-### Start a New Feature
+### Implementing a Feature
 ```
-@workspace /task key=auth tasks="Add user authentication"
-```
-
-### Fix a Bug
-```
-@workspace /task key=bugfix tasks="Fix login redirect issue"
+@workspace /task key=feature-name tasks="Implement user authentication"
 ```
 
-### Improve Code Quality
+### Fixing a Bug
 ```
-@workspace /refactor scope=UserService tasks="Extract validation logic"
-```
-
-### Generate Tests
-```
-@workspace /test-generation feature=login scenario=success-flow multiUser=true
-```
-
-### Ask Questions
-```
-@workspace /question "How does the database connection work?"
+@workspace /task key=bug-123 tasks="Fix login redirect issue
+---
+Add test for redirect
+---
+Update documentation"
 ```
 
-### Validate System
+### Improving Code Quality
+```
+@workspace /refactor key=cleanup scope=service
+```
+
+### Generating Tests
+```
+@workspace /test target=src/services/UserService.ts
+```
+
+### Checking System Health
 ```
 @workspace /healthcheck
 ```
 
----
-
-## Key Features
-
-### Progressive Documentation
-Every task automatically creates and updates work logs with:
-- Git commit SHAs for traceability
-- File change history
-- Test coverage documentation
-- Timestamp-based audit trail
-
-### Automatic Test Generation
-When implementing UI changes, agents automatically:
-- Detect need for end-to-end tests
-- Generate Playwright/Selenium tests
-- Follow proven patterns
-- Validate implementation
-
-### Zero-Tolerance Quality
-All agents enforce:
-- 0 compilation errors
-- 0 compiler warnings
-- 0 analyzer warnings
-- Automatic rollback on violations
-
-### Learning System
-Agents continuously:
-- Learn from successful patterns
-- Avoid repeating mistakes
-- Share knowledge across features
-- Improve over time
-
----
-
-## Architecture
-
+### Updating Documentation
 ```
-Your Project Root/
-├── .github/
-│   ├── _Portable/              # This folder (portable system)
-│   ├── prompts/                # Agent prompt files (generated)
-│   │   ├── task.prompt.md
-│   │   ├── refactor.prompt.md
-│   │   ├── sync.prompt.md
-│   │   └── shared/            # Shared modules
-│   └── instructions/           # System guidelines (generated)
-│       ├── SelfAwareness.instructions.md
-│       └── Links/             # Reference docs
-│
-├── Workspaces/
-│   ├── Copilot/               # Agent workspace
-│   │   ├── _DOCS/            # Analysis and summaries
-│   │   ├── config/           # Agent configurations
-│   │   ├── learning/         # Pattern library
-│   │   └── prompts.keys/     # Work tracking by feature
-│   ├── CodeQuality/          # Analysis tools
-│   └── TEMP/                 # Temporary files
-│
-├── PROJECT-SETUP-SUMMARY.md   # Your configuration (generated)
-└── Your project files...
+@workspace /sync
+```
+
+### Asking Questions
+```
+@workspace /question How does authentication work in this project?
 ```
 
 ---
 
-## Requirements
+## 🔧 Configuration
 
-### Minimum
-- **PowerShell** 5.1+ (Windows) or PowerShell Core 7+ (cross-platform)
-- **Git** (for version control integration)
-- **GitHub Copilot** in VS Code (or compatible IDE)
+### Template Variables
 
-### Recommended
-- **.NET SDK** 6.0+ (for C# projects)
-- **Node.js** 16+ (for JavaScript/TypeScript projects)
-- **Python** 3.8+ (for Python projects)
-- **Roslynator** (for .NET code analysis)
-- **Playwright** (for E2E testing)
+All template files use `{{VARIABLE}}` placeholders that setup.ps1 replaces:
 
-*Note: Setup script auto-installs tools based on detected project type*
+**Project Identity:**
+- `{{PROJECT_NAME}}` - Your project name
+- `{{PROJECT_TYPE}}` - .NET, Node.js, Python, etc.
+- `{{LANGUAGES}}` - Programming languages
+- `{{FRAMEWORKS}}` - Framework names
 
----
+**Build & Test:**
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+- `{{RUN_COMMAND}}` - Run command
+- `{{LINT_COMMAND}}` - Linting command
 
-## Configuration
+**Database:**
+- `{{DATABASE_NAME}}` - Primary database
+- `{{DATABASE_SERVER}}` - Database server
+- `{{DATABASE_TYPE}}` - Database type
+- `{{SCHEMA_PRIMARY}}` - Writable schema
+- `{{SCHEMA_READONLY}}` - Read-only schemas
 
-After setup, customize your installation:
+**Infrastructure:**
+- `{{API_BASE_URL}}` - API base URL
+- `{{APP_PORT}}` - Application port
+- `{{REALTIME_TECH}}` - Real-time technology
+- `{{UI_FRAMEWORK}}` - UI framework
 
-### Agent Behavior
-Edit `.github/prompts/task.prompt.md` (and other prompt files) to:
-- Adjust verbosity levels
-- Modify validation rules
-- Add project-specific guidelines
-- Configure debug logging behavior
-
-### Validation Rules
-Edit `.github/instructions/ValidationFramework.md` to:
-- Define custom validation levels
-- Configure analyzer rules
-- Set quality thresholds
-
-### Learning Patterns
-Edit `Workspaces/Copilot/learning/` files to:
-- Add proven patterns
-- Document anti-patterns
-- Share team knowledge
+See `QUICK-REFERENCE.md` for complete list.
 
 ---
 
-## Compatibility Matrix
+## 📚 Documentation
 
-| Technology | Support | Features Available |
-|------------|---------|-------------------|
-| .NET (C#, ASP.NET Core, Blazor) | ✅ Full | All agents, Roslynator analysis, automatic refactoring |
-| JavaScript/TypeScript (React, Vue, Angular) | ✅ Full | All agents, ESLint analysis, Playwright tests |
-| Python (Django, Flask) | ✅ Full | All agents, Pylint analysis |
-| Java (Spring Boot) | ✅ Good | All agents, basic analysis |
-| Ruby (Rails) | ✅ Good | All agents, basic analysis |
-| Go | ✅ Good | All agents, basic analysis |
-| PHP | ✅ Good | All agents, basic analysis |
-| Other | ⚠️ Experimental | Core agents work, limited analysis |
+- **START-HERE.md** - Quick start guide
+- **QUICK-REFERENCE.md** - Command reference
+- **COMPLETE.md** - Setup completion checklist
+- **STATUS.md** - Version and compatibility info
 
 ---
 
-## Updates
+## 🌟 Features
 
-### Checking for Updates
+### Smart Learning System
+- Captures successful patterns
+- Avoids known failures
+- Improves over time
+- Generates recommendations
+
+### Automated Testing
+- Test generation per phase
+- Multiple test types
+- Coverage tracking
+- Integration with CI/CD
+
+### Code Quality
+- Analyzer integration
+- Linting enforcement
+- Quality metrics
+- Technical debt tracking
+
+### Git Integration
+- Checkpoint commits
+- Rollback support
+- Traceability
+- Clean history
+
+### Documentation Sync
+- Automatic updates
+- Cross-reference validation
+- API contract checking
+- Architecture alignment
+
+---
+
+## 🆘 Troubleshooting
+
+### Setup Issues
+
+**PowerShell execution policy error:**
 ```powershell
-# Compare your version with latest
-cat .github\_Portable\README.md | Select-String "Version:"
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
 ```
 
-### Upgrading
-1. Download latest `_Portable` folder
-2. Backup your `.github/prompts/` and `.github/instructions/` folders
-3. Run setup again
-4. Merge any custom changes back
+**Template variables not replaced:**
+- Run setup.bat/setup.ps1 again
+- Check for .template extensions on files
+- Manually edit files if needed
+
+### Agent Issues
+
+**Agent not responding:**
+- Check SelfAwareness.instructions.md is in place
+- Verify agent prompt file exists
+- Review SystemIndex.md for correct structure
+
+**Build/test failures:**
+- Review error messages carefully
+- Check InfrastructureQuickRef.md configuration
+- Run healthcheck: `@workspace /healthcheck`
 
 ---
 
-## Troubleshooting
+## 📊 Version History
 
-### Setup fails with "PowerShell not found"
-**Solution**: Install PowerShell Core from https://github.com/PowerShell/PowerShell/releases
-
-### Agents don't respond or give errors
-**Solution**: 
-1. Verify `.github/prompts/` folder exists
-2. Check PROJECT-SETUP-SUMMARY.md was created
-3. Restart your IDE
-
-### Build validation keeps failing
-**Solution**:
-1. Run your build command manually
-2. Fix all errors and warnings
-3. Agents enforce 0E/0W policy strictly
-
-**More solutions**: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- **v1.0.0** (Initial Release)
+  - Complete portable system
+  - 8 specialized agents
+  - Learning infrastructure
+  - Multi-language support
+  - Automated setup
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
-This is a portable system extracted from production use. Improvements welcome!
+This portable system improves based on real-world usage:
 
-### Share Your Patterns
-Add successful patterns to `Workspaces/Copilot/learning/` and they'll be reused.
-
-### Report Issues
-Document issues in your project's issue tracker or adapt the system to your needs.
-
----
-
-## License
-
-This system is provided as-is for use in any project. Modify and distribute freely.
+1. **Report Issues** - Document problems encountered
+2. **Share Patterns** - Contribute learned patterns
+3. **Suggest Improvements** - Propose enhancements
+4. **Update Templates** - Improve template quality
 
 ---
 
-## Version History
+## 📄 License
 
-- **v2.0.0** (2025-10-12)
-  - Complete rewrite for universal portability
-  - Removed all project-specific references
-  - Added automatic project detection
-  - Enhanced template system
-  - Improved documentation structure
-
-- **v1.0.0** (2025-10-11)
-  - Initial portable extraction
-  - Basic template support
-  - Manual configuration required
+This AI agent infrastructure is provided as-is for use in software projects. Customize freely for your needs.
 
 ---
 
-**Ready to start?** Run `.\setup.bat` now! 🚀
+## 🔗 Links
+
+- **Documentation**: See `.github/instructions/Links/`
+- **Agent Prompts**: See `.github/prompts/`
+- **Learning System**: See `.github/learning/`
+- **Project Setup**: See `PROJECT-SETUP-SUMMARY.md` (generated after setup)
+
+---
+
+**Ready to get started? Run `setup.bat` or `./setup.ps1` now!**

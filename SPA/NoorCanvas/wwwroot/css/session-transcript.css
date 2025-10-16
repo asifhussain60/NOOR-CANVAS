@@ -1738,3 +1738,24 @@
         font-size: 1.5rem;
     }
 }
+
+/* ============================================================================
+   QUESTION CARD SELECTION STATE
+   ============================================================================
+   [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Visual feedback for
+   selected/shared questions in Host Control Panel Q&A sidebar ;CLEANUP_OK
+   ============================================================================ */
+
+/* Selected question card styling - matches shared-question-card colors */
+.question-card-selected {
+    background-color: #fff7f5 !important; /* Light orange/peach background */
+    border-right-color: #fdba74 !important; /* Orange border */
+    box-shadow: 0 6px 10px rgba(253, 186, 116, 0.3) !important; /* Enhanced orange shadow */
+}
+
+/* Hover state for question cards */
+.question-card-hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+}
+

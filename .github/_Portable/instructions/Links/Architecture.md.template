@@ -1,0 +1,148 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables Used:**
+- `{{PROJECT_NAME}}` - Your project name
+- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, etc.)
+- `{{FRAMEWORKS}}` - Frameworks/libraries used
+- `{{REALTIME_TECH}}` - Real-time technology (SignalR, Socket.IO, WebSockets, etc.)
+- `{{UI_FRAMEWORK}}` - UI framework
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{API_COUNT}}` - Number of API endpoints
+- `{{SERVICE_COUNT}}` - Number of services
+
+---
+
+# Architecture
+
+## Purpose
+This document contains the **detailed system design and architecture** for the {{PROJECT_NAME}} project.  
+It serves as the authoritative reference for developers and Copilot when a deep understanding of the system is required.
+
+**Last Updated:** [Generated during setup]  
+**Current System Status:** {{API_COUNT}} API endpoints, {{SERVICE_COUNT}} Services, {{FRAMEWORKS}} Architecture
+
+---
+
+## Contents
+
+### 1. API Contracts
+- Full descriptions of all exposed APIs
+- Request/response formats
+- Authentication/authorization flows
+- Database integration endpoints
+
+### 2. Data Transfer Objects (DTOs)
+- Complete DTO schemas
+- Field-level details, types, and constraints
+- Integration DTOs
+
+### 3. Database Schema
+- Database tables with columns, datatypes, indexes, and relationships
+- Stored procedures, triggers, and views
+- Data integrity rules
+
+### 4. Application Architecture
+- UI views and their dependencies
+- Services and components
+- Real-time communication (if applicable)
+- Integration between layers
+
+### 5. Interactions and Dependencies
+- How API, DTOs, and database objects interact
+- Known coupling points and contracts
+- Architectural patterns
+
+---
+
+## API Architecture
+
+### API Controllers/Endpoints
+List your API endpoints here organized by functional area:
+
+#### ExampleController
+- **Purpose**: [Describe purpose]
+- **Key Endpoints**: 
+  - `GET /api/example` - [Description]
+  - `POST /api/example` - [Description]
+- **Features**: [List features]
+
+#### [Add more controllers as needed]
+
+---
+
+## Real-Time Communication (if applicable)
+
+### {{REALTIME_TECH}} Hubs/Channels
+Document your real-time communication infrastructure:
+
+#### ExampleHub
+- **Purpose**: Real-time updates for [feature]
+- **Events**: 
+  - `EventName` - [Description]
+- **Methods**:
+  - `MethodName()` - [Description]
+- **Integration**: Connected to [controllers/services]
+
+---
+
+## Services Architecture
+
+### Core Business Services
+
+#### ExampleService
+- **Purpose**: [Service purpose]
+- **Key Methods**: 
+  - `MethodName()` - [Description]
+- **Integration**: [Where used]
+- **Features**: [Key features]
+
+---
+
+## UI Architecture
+
+### Key Pages/Views and Routes
+
+#### ExamplePage (`/example/path`)
+- **Purpose**: [Page purpose]
+- **APIs Used**: [List API dependencies]
+- **Features**: [Key features]
+- **Integration**: [Related components/services]
+
+---
+
+## Database Architecture
+
+### Database Schema
+- **[TableName]**: [Purpose and key columns]
+- **[TableName]**: [Purpose and key columns]
+
+### Data Access Patterns
+- **Architecture Pattern**: [Describe data access approach]
+- **Integration**: [Cross-database or external system integration]
+
+---
+
+## Authentication and Security Architecture
+
+### Authentication Strategy
+- **Auth Type**: {{AUTH_TYPE}}
+- **Token Management**: [Describe token strategy]
+- **Security Features**: [List security measures]
+
+---
+
+## Update Rules
+- Whenever the system architecture changes (new API, altered DTO, schema migration, or new component), update this file.  
+- Ensure **SystemIndex.md** contains a summarized snapshot of changes for quick access.  
+- **Sync Protocol**: Regular synchronization between requirements, implementation, and documentation  
+
+---
+
+## Sync Protocol
+This file must reflect the **REAL current state** of the project.  
+- `sync` agent is responsible for updating this file automatically.  
+- Obsolete data must be removed.  
+- Modified values must be updated to match source of truth in the repo.  
+- **SystemIndex.md** is updated in parallel to maintain system snapshot consistency.

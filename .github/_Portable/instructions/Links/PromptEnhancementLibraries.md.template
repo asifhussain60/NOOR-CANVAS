@@ -1,0 +1,183 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+
+---
+
+# Prompt Enhancement Libraries
+
+## Purpose
+Collection of reusable prompt components, patterns, and libraries to enhance AI agent capabilities.
+
+---
+
+## Prompt Components
+
+### Task Decomposition
+**Use Case**: Breaking down complex tasks into manageable steps
+
+**Pattern**:
+```
+1. Analyze requirements
+2. Identify dependencies
+3. Create execution plan
+4. Implement in phases
+5. Validate each phase
+6. Integrate components
+```
+
+### Context Gathering
+**Use Case**: Systematic context collection before task execution
+
+**Pattern**:
+```
+1. Read relevant documentation
+2. Search codebase for related code
+3. Check existing tests
+4. Identify dependencies
+5. Review recent changes
+```
+
+### Error Handling
+**Use Case**: Robust error handling in agent execution
+
+**Pattern**:
+```
+1. Try operation
+2. Catch specific error types
+3. Log error details
+4. Provide fallback behavior
+5. Report to user with actionable information
+```
+
+---
+
+## Validation Patterns
+
+### Pre-Execution Validation
+- Verify file existence
+- Check configuration validity
+- Validate dependencies
+- Confirm prerequisites
+
+### Post-Execution Validation
+- Run tests
+- Check build success
+- Verify documentation updates
+- Validate code quality
+
+---
+
+## Response Patterns
+
+### Success Response
+```
+✅ Task completed successfully
+
+Changes Made:
+- [List specific changes]
+
+Validation:
+- [List validation performed]
+
+Next Steps:
+- [Suggest next steps]
+```
+
+### Failure Response
+```
+❌ Task failed: [Reason]
+
+What Happened:
+- [Detailed explanation]
+
+What Was Attempted:
+- [List attempts made]
+
+Suggested Fix:
+- [Actionable recommendations]
+```
+
+---
+
+## Code Generation Patterns
+
+### API Endpoint Pattern
+[Template for generating API endpoints in your project]
+
+### Test Generation Pattern
+[Template for generating tests in your project]
+
+### Component Pattern
+[Template for generating components in your project]
+
+---
+
+## Documentation Patterns
+
+### Feature Documentation
+**Template**:
+```markdown
+# Feature Name
+
+## Overview
+[Brief description]
+
+## Usage
+[How to use]
+
+## Implementation Details
+[Technical details]
+
+## API Reference
+[Related APIs]
+
+## Examples
+[Code examples]
+
+## Tests
+[Test coverage]
+```
+
+---
+
+## Search Patterns
+
+### Finding Related Code
+```
+1. Search for feature name
+2. Search for related keywords
+3. Check import statements
+4. Review recent commits
+5. Examine test files
+```
+
+### Finding API Endpoints
+```
+1. Search route attributes
+2. Check controller files
+3. Review API documentation
+4. Examine integration tests
+```
+
+---
+
+## Best Practices
+
+1. Always gather context before acting
+2. Validate assumptions with searches
+3. Use established patterns
+4. Document deviations
+5. Update patterns based on learnings
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial prompt library
+  - Established core patterns
+  - Documented validation approaches
+  - Defined response templates

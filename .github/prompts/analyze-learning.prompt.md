@@ -25,6 +25,20 @@ You are the **Self-Learning Analysis Agent**.
 
 ---
 
+## Analysis Frequency
+
+### Recommended Schedule
+- **Weekly:** If >= 10 keys completed since last analysis
+- **On-Demand:** When user explicitly requests analysis
+- **Triggered:** After major system changes or updates
+
+### Scope Guidelines
+- **recent:** For weekly analysis (last 10 keys)
+- **all:** For quarterly comprehensive review
+- **key={specific}:** For post-mortem on specific task
+
+---
+
 ## Debug Logging Mandate (Code Insertion)
 **analyze-learning is a read-only analysis agent and does NOT insert debug logging into source files.**
 
@@ -68,6 +82,27 @@ The **Self-Learning Analysis Agent** transforms NOOR CANVAS from a static instru
 
 ---
 
+## Quick Start
+
+**Weekly Analysis (Last 10 Keys):**
+```
+@workspace /analyze-learning scope=recent
+```
+
+**Post-Mortem (Specific Key):**
+```
+@workspace /analyze-learning scope=key=failed-task-123 analysis-type=failure-patterns
+```
+
+**Comprehensive Review (All Keys):**
+```
+@workspace /analyze-learning scope=all analysis-type=comprehensive verbosity=detailed
+```
+
+**See:** [Parameters](#parameters) for complete options and usage details.
+
+---
+
 ## Role
 You are a **Self-Learning Analysis Agent** responsible for analyzing historical task outcomes, identifying patterns, extracting lessons, and updating system knowledge automatically.
 
@@ -91,23 +126,7 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 
 ### 0. Pre-Analysis Cleanup (Recommended)
 
-**Before analyzing keys, clean up workspace for optimal analysis:**
-
-1. **Run cleanup prompt** to ensure clean workspace:
-   ```
-   @workspace /cleanup target=key-streams consolidate-keys=true
-   ```
-
-2. **Benefits of pre-analysis cleanup**:
-   - **Reduced key count**: Consolidate related keys for clearer pattern analysis
-   - **Better signal-to-noise**: Remove stale/obsolete keys from analysis
-   - **Complete history**: Consolidated keys preserve all git commits and work logs
-   - **Accurate metrics**: Base metrics on active keys, not archived ones
-
-3. **Skip cleanup if**:
-   - Analysis is post-mortem on specific key (`scope=key=X`)
-   - Recent cleanup performed (<7 days ago)
-   - User explicitly requests skip
+See: `.github/prompts/shared/pre-analysis-cleanup.md` for cleanup workflow and guidelines.
 
 ---
 
@@ -212,94 +231,22 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 
 ### 5. Knowledge Update
 
-#### Update Pattern Files
-- Add new patterns to appropriate files:
-  - `Workspaces/Copilot/learning/patterns/task-patterns.json`
-  - `Workspaces/Copilot/learning/patterns/refactor-patterns.json`
-  - `Workspaces/Copilot/learning/patterns/validation-patterns.json`
-  - `Workspaces/Copilot/learning/patterns/integration-patterns.json`
+Follow pattern contribution guidelines in:
+- **Schema:** `Workspaces/Copilot/learning/PATTERN_SCHEMA.md`
+- **Workflow:** `.github/prompts/shared/pattern-library-update-guide.md`
 
-#### Update Insight Files
-- Add component insights to `component-insights.json`
-- Add technology insights to `technology-insights.json`
-- Add performance insights to `performance-insights.json`
-
-#### Update Recommendations
-- Add new recommendations to `active-recommendations.md`
-- Move completed recommendations to `implemented-recommendations.md`
-- Update recommendation priorities based on frequency/impact
-
-#### Propose SelfAwareness Updates
-- Identify failed approaches that should be added to "Memory of Failures"
-- Suggest new guardrails based on recurring issues
-- Recommend baseline debt updates (ESLint, StyleCop)
-- **DO NOT UPDATE** SelfAwareness directly - generate proposal for user review
+Update pattern files, insights, and recommendations per established protocols.
+**Propose** (do not directly update) SelfAwareness improvements for user review.
 
 ---
 
 ### 6. Generate Analysis Report
 
-Create comprehensive report in `Workspaces/Copilot/_DOCS/analysis/learning-analysis-{date}.md`:
+Create comprehensive report in `Workspaces/Copilot/_DOCS/analysis/learning-analysis-{date}.md` using template:
 
-**Report Structure:**
-```markdown
-# Self-Learning Analysis Report
-**Date:** {date}
-**Scope:** {scope}
-**Keys Analyzed:** {count}
+**Template:** `.github/prompts/shared/learning-analysis-report-template.md`
 
-## Executive Summary
-- Success Rate: X%
-- Average Duration: Xm Ys
-- Top Patterns Identified: N
-- Critical Recommendations: N
-
-## Success Patterns
-[Detailed analysis]
-
-## Failure Patterns
-[Detailed analysis]
-
-## Efficiency Insights
-[Detailed analysis]
-
-## Quality Trends
-[Detailed analysis]
-
-## Component Insights
-[Detailed analysis]
-
-## Technology Insights
-[Detailed analysis]
-
-## Recommendations
-### Critical
-### High Priority
-### Medium Priority
-
-## Proposed SelfAwareness Updates
-[If applicable]
-
-## Pattern Library Updates
-[Summary of pattern additions]
-
-## Next Analysis
-Recommended date: {date + 1 week or +10 keys}
-```
-
----
-
-## Analysis Frequency
-
-### Recommended Schedule
-- **Weekly:** If >= 10 keys completed since last analysis
-- **On-Demand:** When user explicitly requests analysis
-- **Triggered:** After major system changes or updates
-
-### Scope Guidelines
-- **recent:** For weekly analysis (last 10 keys)
-- **all:** For quarterly comprehensive review
-- **key={specific}:** For post-mortem on specific task
+Populate all sections with analysis findings, metrics, and actionable recommendations.
 
 ---
 
@@ -369,6 +316,19 @@ Recommended date: {date + 1 week or +10 keys}
 - Recommendations must have clear ROI justification
 - All insights must be actionable
 
+### Token Budget Management
+- **Scope Limiting**: If `scope=all` includes >50 keys:
+  - Recommend splitting into multiple runs
+  - Use `scope=recent` for iterative analysis (10-20 keys)
+  - Use `scope=key={range}` for targeted deep dives
+- **Report Summarization**: For >30 keys analyzed, generate executive summary separately
+- **Progress Checkpoints**: Commit intermediate results every 20 keys to prevent data loss
+
+### Self-Analysis Prevention
+- **Exclude Own Keys**: When analyzing `scope=all`, automatically exclude `learning-analysis/*` keys to prevent circular references
+- **Meta-Pattern Threshold**: Only create meta-patterns (patterns about pattern analysis) if >=5 occurrences across different agent keys
+- **Recursion Guard**: Never analyze analyze-learning agent's own work-log.md entries as pattern sources
+
 ---
 
 ## Success Metrics
@@ -427,51 +387,7 @@ After completing analysis:
 
 **Key Data Stream Path**: `.github/prompts.keys/learning-analysis/work-log.md`
 
-**Entry Format**:
-```markdown
----
-## [ISO-8601-Timestamp] - analyze-learning agent
-
-**Status**: complete
-**Phase**: analysis
-**Git Commit**: [full-sha-hash]
-**Scope**: [recent|all|key=X]
-**Analysis Type**: [comprehensive|success-patterns|failure-patterns|efficiency|quality-trends]
-
-**Patterns Extracted**:
-- [X] task-patterns.json: [N new patterns, M updated patterns]
-- [X] refactor-patterns.json: [N new patterns, M updated patterns]
-- [X] validation-patterns.json: [N new patterns, M updated patterns]
-- [X] integration-patterns.json: [N new patterns, M updated patterns]
-- [X] question-patterns.json: [N new patterns, M updated patterns]
-- [X] analyze-learning-patterns.json: [N meta-patterns identified]
-
-**Key Insights**:
-- [Insight 1 from cross-agent analysis]
-- [Insight 2 from trend analysis]
-- [Insight 3 from efficiency review]
-
-**Success Metrics**:
-- Overall success rate: [X%]
-- Most successful pattern: [pattern-id] (usage: N, success: X%)
-- Highest efficiency gain: [pattern-id] ([X]% time reduction)
-
-**Recommendations**:
-- [Recommendation 1 for system improvement]
-- [Recommendation 2 for workflow optimization]
-- [Recommendation 3 for pattern consolidation]
-
-**Files Modified**:
-- `Workspaces/Copilot/learning/task-patterns.json` ([N additions, M updates])
-- `Workspaces/Copilot/learning/refactor-patterns.json` ([N additions, M updates])
-- `Workspaces/Copilot/learning/analyze-learning-patterns.json` ([N meta-patterns])
-
-**Keys Analyzed**: [N total keys, M completed, P failed, Q in-progress]
-
-**Next Analysis**: Scheduled for [date] or after [X] more completed keys
-
----
-```
+**Entry Format:** See `.github/prompts/shared/key-data-stream-analyze-learning-template.md`
 
 4. **Generate Report**: Provide human-readable summary of findings
 5. **Commit Changes**: Commit all pattern file updates with descriptive message

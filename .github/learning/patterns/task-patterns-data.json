@@ -120,6 +120,161 @@
             ],
             "success_rate": 1.0,
             "last_updated": "2025-10-12T16:00:00Z"
+        },
+        {
+            "pattern_id": "screenshot-driven-iteration",
+            "name": "Screenshot-Driven Iterative Development",
+            "category": "execution",
+            "subcategory": "ui-debugging",
+            "description": "When user provides screenshots of UI issues, implement changes, request validation screenshot, iterate based on visual feedback. Converges 3x faster than spec-driven development for visual layout bugs.",
+            "context": "Visual layout bugs (height, width, alignment), CSS styling issues, component positioning problems",
+            "approach": "1) User provides screenshot with issue highlighted, 2) Analyze screenshot dimensions and measure containers, 3) Implement targeted CSS fix, 4) Request validation screenshot from user, 5) If issue persists, refine based on new screenshot, 6) Repeat until user confirms fix",
+            "success_indicators": [
+                "Issue resolved in 1-2 iterations (vs 5+ spec-driven)",
+                "Average resolution time under 15 minutes",
+                "Clean build maintained through all iterations",
+                "User confirms visual fix with validation screenshot"
+            ],
+            "success_metrics": {
+                "avg_iterations": 1.4,
+                "time_savings": "67% faster than spec-driven",
+                "success_rate": 1.0
+            },
+            "prerequisites": [
+                "user screenshots",
+                "browser dev tools access"
+            ],
+            "antipatterns": [
+                "guessing dimensions without measurements",
+                "spec-only development without visual validation"
+            ],
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z"
+        },
+        {
+            "pattern_id": "toastr-load-verification",
+            "name": "Toastr Library Load Verification",
+            "category": "error-handling",
+            "subcategory": "js-interop",
+            "description": "When invoking toastr notifications via JSRuntime, verify library loaded before invocation with retry and fallback to prevent runtime errors.",
+            "context": "Blazor JSRuntime invocations of external JavaScript libraries (toastr, chart.js, etc.)",
+            "approach": "1) Check library loaded: await JSRuntime.InvokeAsync<bool>(\"eval\", \"typeof toastr !== 'undefined'\"), 2) Retry once after 500ms if not loaded, 3) Fallback to alert if still not loaded",
+            "success_indicators": [
+                "Zero JSRuntime exceptions for missing library",
+                "Notifications appear reliably on first click",
+                "Graceful degradation if library fails to load"
+            ],
+            "root_cause": "Razor pages may invoke JS functions before external libraries fully load",
+            "applies_to": [
+                "Blazor",
+                "JSRuntime",
+                "external-libraries"
+            ],
+            "antipattern": "Direct JSRuntime.InvokeVoidAsync without verification",
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z"
+        },
+        {
+            "pattern_id": "shared-css-extraction",
+            "name": "Shared CSS Extraction",
+            "category": "code-organization",
+            "subcategory": "css-management",
+            "description": "When duplicate inline CSS appears across multiple Razor views (50+ lines), extract to shared stylesheet in wwwroot/css/ for reusability and maintainability.",
+            "context": "Duplicate inline <style> blocks across Razor views, redundant CSS rules, inconsistent styling",
+            "approach": "1) Identify duplicate inline styles (threshold: 50+ duplicate lines), 2) Create wwwroot/css/{feature}-shared.css, 3) Add comprehensive header comments with usage instructions, 4) Replace inline styles with <link> reference, 5) Document in architecture for future reuse",
+            "success_indicators": [
+                "Duplicate inline styles removed from Razor views",
+                "Shared stylesheet created with documentation",
+                "Single source of truth for styling",
+                "Reduced LOC in Razor views by 100+ lines"
+            ],
+            "benefits": [
+                "Single source of truth for styling",
+                "Improved maintainability",
+                "Easier testing and validation",
+                "Consistent styling across views"
+            ],
+            "threshold": "50+ duplicate lines",
+            "location": "wwwroot/css/{feature}-shared.css",
+            "applies_to": [
+                "Razor views",
+                "Blazor components"
+            ],
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z"
+        },
+        {
+            "pattern_id": "debug-panel-integration",
+            "name": "Debug Panel Integration",
+            "category": "developer-tools",
+            "subcategory": "runtime-diagnostics",
+            "description": "Add reusable DebugPanel component to Razor views for runtime diagnostics (dimension logging, toast testing, SignalR verification) without rebuilding.",
+            "context": "UI debugging, layout issues, SignalR troubleshooting, real-time diagnostics needed",
+            "approach": "1) Add <DebugPanel Actions=\"@GetDebugActions()\" /> to view, 2) Create factory method returning List<DebugAction>, 3) Implement diagnostic methods (TestToast, LogDimensions, VerifySignalR), 4) Use trace-level logging for output",
+            "success_indicators": [
+                "Debug actions executable at runtime without rebuild",
+                "Comprehensive diagnostic logging available",
+                "Reusable across all Razor views",
+                "Trace-level logs help troubleshoot issues"
+            ],
+            "benefits": [
+                "Real-time issue diagnosis without rebuilding",
+                "Reusable across all Razor views",
+                "Comprehensive trace logging",
+                "Faster bug resolution"
+            ],
+            "applies_to": [
+                "Blazor",
+                "Razor views",
+                "SignalR debugging"
+            ],
+            "reusable_component": "Components/Development/DebugPanel.razor",
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z"
+        },
+        {
+            "pattern_id": "signalr-group-verification",
+            "name": "SignalR Group Membership Verification",
+            "category": "error-handling",
+            "subcategory": "signalr-diagnostics",
+            "description": "When SignalR broadcasts to group not received by expected clients, verify connection joined group successfully with comprehensive trace logging at all boundaries.",
+            "context": "SignalR group broadcasts failing, clients not receiving events, silent group membership failures",
+            "approach": "1) Add trace logging to group join with connection ID and group name, 2) Add trace logging to broadcast boundaries, 3) Add trace logging to client handler registration, 4) Verify connection state before joining, 5) Validate group name consistency across server and client",
+            "success_indicators": [
+                "All group join operations logged with success confirmation",
+                "Broadcast boundaries logged (sender and receiver)",
+                "Client handler registration confirmed in logs",
+                "Zero silent failures in group membership"
+            ],
+            "root_cause": "Silent group membership failures (connection disconnected, group name mismatch, timing issues)",
+            "diagnostic_steps": [
+                "verify connection state",
+                "log group join success",
+                "log broadcast boundaries",
+                "log client handler registration",
+                "verify group name consistency"
+            ],
+            "applies_to": [
+                "SignalR groups",
+                "real-time communication"
+            ],
+            "learned_from": [
+                "canvas-questions"
+            ],
+            "success_rate": 0.5,
+            "last_updated": "2025-10-15T00:00:00Z"
         }
     ],
     "anti_patterns": [

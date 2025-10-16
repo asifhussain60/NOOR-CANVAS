@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Deploy NoorCanvas application and HostProvisioner to production from master branch.
+    Deploy NoorCanvas application and HostProvisioner (Windows Forms) to production from master branch.
 
 .DESCRIPTION
     This script orchestrates a complete production deployment workflow:
@@ -9,13 +9,13 @@
     3. Builds and publishes NoorCanvas from master in Release mode
     4. Applies web.config transformations (KSESSIONS production database)
     5. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
-    6. Builds and deploys HostProvisioner to D:\Websites\NOOR-CANVAS\HostProvisioner
-    7. Tests HostProvisioner connection to KSESSIONS database
+    6. Builds and deploys HostProvisioner.WinForms to D:\Websites\NOOR-CANVAS\HostProvisioner
+    7. Configures HostProvisioner.WinForms for Production environment
     8. Returns to development branch
     
     Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
     connection strings point to KSESSIONS (production) database.
-    HostProvisioner is automatically configured for Production environment.
+    HostProvisioner.WinForms is automatically configured for Production environment.
 
 .PARAMETER SkipMerge
     Skip the git merge step. Use only if already on master with correct code.
@@ -108,8 +108,10 @@ try {
     Write-Host "========================================`n" -ForegroundColor Magenta
 
     # Step 0: Git branch management (merge development → master)
+    # [DEBUG-WORKITEM:deploy:merge-feedback:SIMPLE]
     if (-not $SkipMerge) {
         Write-Step "Git: Preparing for deployment merge..."
+        Write-Info "→ Checking current branch and status"
         
         # Change to workspace root for git operations
         Push-Location $WorkspaceRoot
@@ -131,6 +133,7 @@ try {
             }
             
             # Check for uncommitted changes
+            Write-Info "→ Checking for uncommitted changes"
             $gitStatus = git status --porcelain
             if ($gitStatus) {
                 Write-Warning "Uncommitted changes detected:"
@@ -145,14 +148,16 @@ try {
                 } else {
                     Write-Warning "Continuing with deployment despite uncommitted changes (AutoMerge enabled)"
                 }
+            } else {
+                Write-Success "No uncommitted changes"
             }
             
             # Fetch latest changes
-            Write-Info "Fetching latest changes..."
+            Write-Info "→ Fetching latest changes from origin"
             git fetch origin
             
             # Switch to master
-            Write-Info "Switching to master branch..."
+            Write-Info "→ Switching to master branch"
             git checkout master
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch to master branch"
@@ -160,14 +165,14 @@ try {
             Write-Success "On master branch"
             
             # Pull latest master
-            Write-Info "Pulling latest master changes..."
+            Write-Info "→ Pulling latest master changes"
             git pull origin master
             if ($LASTEXITCODE -ne 0) {
                 Write-Warning "Failed to pull master (may not exist remotely). Continuing..."
             }
             
             # Merge development into master
-            Write-Info "Merging development → master..."
+            Write-Info "→ Merging development into master"
             git merge development --no-ff -m "Deploy: Merge development to master ($Timestamp)"
             
             if ($LASTEXITCODE -ne 0) {
@@ -212,8 +217,10 @@ try {
     }
 
     # Step 1: Build the application
+    # [DEBUG-WORKITEM:deploy:build-feedback:SIMPLE]
     if (-not $SkipBuild) {
         Write-Step "Building application in Release mode from master branch..."
+        Write-Info "→ Cleaning previous publish output"
         
         # Clean previous publish output
         if (Test-Path $PublishPath) {
@@ -223,6 +230,7 @@ try {
 
         # Publish the application with Release configuration
         # This triggers web.Release.config transformation
+        Write-Info "→ Publishing with Release configuration and Production transforms"
         $publishArgs = @(
             "publish"
             $ProjectFile
@@ -245,6 +253,7 @@ try {
         Write-Success "Application built and published successfully"
         
         # Verify web.config transformation
+        Write-Info "→ Verifying web.config transformations"
         $webConfigPath = "$PublishPath\web.config"
         if (Test-Path $webConfigPath) {
             $webConfigContent = Get-Content $webConfigPath -Raw
@@ -405,11 +414,12 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
-    # Step 7.5: Deploy HostProvisioner
-    Write-Step "Deploying HostProvisioner..."
+    # Step 7.5: Deploy HostProvisioner (Windows Forms)
+    # [DEBUG-WORKITEM:deploy:hostprovisioner] Deploy WinForms Host Provisioner to production
+    Write-Step "Deploying HostProvisioner (Windows Forms)..."
     
-    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
-    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.csproj"
+    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner.WinForms"
+    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.WinForms.csproj"
     $HostProvisionerPublishPath = "$WorkspaceRoot\Workspaces\hostprovisioner-publish-temp"
     $HostProvisionerDeployPath = "$DeployPath\HostProvisioner"
     
@@ -468,47 +478,36 @@ try {
                 }
             }
             
-            # Also transform HostProvisioner.dll.config if it exists
-            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll.config"
+            # Also transform HostProvisioner.WinForms.dll.config if it exists
+            # [DEBUG-WORKITEM:deploy:hostprovisioner] Transform WinForms config to Production
+            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.WinForms.dll.config"
             if (Test-Path $dllConfigPath) {
-                Write-Info "Transforming HostProvisioner.dll.config to Production environment..."
+                Write-Info "Transforming HostProvisioner.WinForms.dll.config to Production environment..."
                 try {
                     [xml]$dllConfig = Get-Content $dllConfigPath
                     $envSetting = $dllConfig.SelectSingleNode("//appSettings/add[@key='ASPNETCORE_ENVIRONMENT']")
                     if ($envSetting) {
                         $envSetting.SetAttribute("value", "Production")
                         $dllConfig.Save($dllConfigPath)
-                        Write-Success "HostProvisioner.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
+                        Write-Success "HostProvisioner.WinForms.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
                     }
                 } catch {
-                    Write-Warning "Failed to transform HostProvisioner.dll.config: $_"
+                    Write-Warning "Failed to transform HostProvisioner.WinForms.dll.config: $_"
                 }
             }
             
             # Verify HostProvisioner deployment
-            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll"
+            # [DEBUG-WORKITEM:deploy:hostprovisioner] Verify WinForms deployment
+            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.WinForms.dll"
             if (Test-Path $hpDllPath) {
-                Write-Host "  ✓ HostProvisioner.dll" -ForegroundColor Green
+                Write-Host "  ✓ HostProvisioner.WinForms.dll" -ForegroundColor Green
                 
-                # Test database connection
-                Write-Info "Testing HostProvisioner database connection to KSESSIONS..."
-                try {
-                    Push-Location $HostProvisionerDeployPath
-                    $testOutput = & dotnet HostProvisioner.dll test-connection 2>&1
-                    if ($LASTEXITCODE -eq 0) {
-                        Write-Success "HostProvisioner connected to KSESSIONS successfully"
-                        Write-Info $testOutput
-                    } else {
-                        Write-Warning "HostProvisioner connection test failed. Check appsettings.json"
-                        Write-Info $testOutput
-                    }
-                } catch {
-                    Write-Warning "Could not test HostProvisioner connection: $_"
-                } finally {
-                    Pop-Location
-                }
+                # Test database connection (Windows Forms app - skip connection test)
+                # [DEBUG-WORKITEM:deploy:hostprovisioner] WinForms app - no CLI test-connection command
+                Write-Info "HostProvisioner (Windows Forms) deployed successfully"
+                Write-Info "Launch manually: HostProvisioner.WinForms.exe"
             } else {
-                Write-Warning "HostProvisioner.dll not found in deployment"
+                Write-Warning "HostProvisioner.WinForms.dll not found in deployment"
             }
             
             # Clean up temporary publish folder
@@ -521,21 +520,28 @@ try {
         Write-Warning "HostProvisioner project not found at $HostProvisionerProjectFile. Skipping HostProvisioner deployment."
     }
 
-    # Step 8: Return to development branch
+    # Step 8: Push master to origin and return to development branch
+    # [DEBUG-WORKITEM:deploy:auto-push:SIMPLE]
     if (-not $SkipMerge) {
-        Write-Step "Git: Returning to development branch..."
+        Write-Step "Git: Pushing master branch to origin..."
         
         Push-Location $WorkspaceRoot
         try {
+            # Push master to origin after successful deployment
+            git push origin master
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Failed to push master to origin. You may need to push manually."
+                Write-Info "Run: git push origin master"
+            } else {
+                Write-Success "Master branch pushed to origin successfully"
+            }
+            
+            Write-Step "Git: Returning to development branch..."
             git checkout development
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch back to development branch"
             }
             Write-Success "Back on development branch"
-            
-            # Optionally push master to remote
-            Write-Host "`nTo push master branch to remote:" -ForegroundColor Cyan
-            Write-Host "  git push origin master" -ForegroundColor Gray
             
         } finally {
             Pop-Location
@@ -569,6 +575,7 @@ try {
     Write-Host ""
 
 } catch {
+    # [DEBUG-WORKITEM:deploy:error-cleanup:SIMPLE]
     Write-Host "`n========================================" -ForegroundColor Red
     Write-Host "  DEPLOYMENT FAILED!" -ForegroundColor Red
     Write-Host "========================================" -ForegroundColor Red
@@ -578,20 +585,29 @@ try {
     
     # Try to restart the app pool if we stopped it
     if (-not $SkipIIS) {
-        Write-Host "`nAttempting to restart application pool..." -ForegroundColor Yellow
+        Write-Host "`n→ Attempting to restart application pool..." -ForegroundColor Yellow
         try {
             Start-WebAppPool -Name $AppPool -ErrorAction SilentlyContinue
+            Write-Success "Application pool restarted"
         } catch {
-            # Ignore errors here
+            Write-Warning "Could not restart app pool: $_"
         }
     }
     
-    # Try to return to original branch
+    # Try to return to original branch (leaving master clean)
     if ($OriginalBranch -and -not $SkipMerge) {
-        Write-Host "Attempting to return to $OriginalBranch branch..." -ForegroundColor Yellow
+        Write-Host "`n→ Returning to $OriginalBranch branch (leaving master clean)..." -ForegroundColor Yellow
         Push-Location $WorkspaceRoot
         try {
             git checkout $OriginalBranch -ErrorAction SilentlyContinue
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Returned to $OriginalBranch branch"
+                Write-Info "Master branch state: Clean (deployment changes not committed)"
+            } else {
+                Write-Warning "Could not return to $OriginalBranch branch automatically"
+            }
+        } catch {
+            Write-Warning "Error switching branches: $_"
         } finally {
             Pop-Location
         }

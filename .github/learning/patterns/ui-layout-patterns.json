@@ -120,6 +120,114 @@
             "success_rate": 1.0,
             "last_updated": "2025-10-10T11:45:00Z",
             "contributed_by": "analyze-learning"
+        },
+        {
+            "pattern_id": "css-grid-explicit-height-constraints",
+            "name": "CSS Grid Explicit Height Constraints",
+            "category": "ui",
+            "description": "When using CSS Grid with percentage-based max-height, constraint is meaningless without explicit parent height. Use explicit pixel constraints instead to prevent expansion.",
+            "context": "Grid containers where child containers have height: 100% causing vertical expansion, percentage-based max-height not working as expected",
+            "problem": {
+                "description": "Using max-height: 100% on grid child when parent has height: auto provides no constraint context",
+                "broken_code": ".canvas-main-grid { height: auto; } .canvas-area-container { height: 100%; max-height: 100%; }"
+            },
+            "solution": {
+                "description": "Set explicit pixel constraints on min-height and max-height for both grid children to ensure matching heights",
+                "fixed_code": ".canvas-area-container { min-height: 400px; max-height: 700px; } .canvas-sidebar { min-height: 400px; max-height: 700px; }"
+            },
+            "implementation": {
+                "steps": [
+                    "Measure actual dimensions from user screenshot (e.g., 697px x 400px)",
+                    "Round to viewport-friendly maximum (e.g., 700px)",
+                    "Apply matching explicit min/max constraints to both grid children",
+                    "Remove percentage-based height: 100% that caused expansion",
+                    "Verify grid layout respected with explicit constraints"
+                ]
+            },
+            "success_indicators": [
+                "Both containers maintain matching explicit height constraints",
+                "Grid layout respected without expansion",
+                "Content scrolls internally when exceeding max-height",
+                "Visual validation confirms equal heights"
+            ],
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z",
+            "contributed_by": "analyze-learning"
+        },
+        {
+            "pattern_id": "toast-notification-z-index-layering",
+            "name": "Toast Notification Z-Index Layering",
+            "category": "ui",
+            "description": "When toast notifications not visible despite library loaded, root cause is often missing CSS styling with proper z-index to render above other elements (especially debug panels).",
+            "context": "Toastr notifications not appearing, rendering behind other elements, or invisible despite successful JSRuntime invocation",
+            "problem": {
+                "description": "Missing CSS styling causes toasts to render with default z-index behind other positioned elements",
+                "symptoms": [
+                    "Toast invocation succeeds but nothing visible",
+                    "Toast appears behind debug panel or modal overlays",
+                    "No visual feedback on notification calls"
+                ]
+            },
+            "solution": {
+                "description": "Create shared stylesheet with high z-index (999999) and modern toast styling",
+                "approach": "1) Extract toast styles from working example (session-transcript-styling.html), 2) Create wwwroot/css/noor-toastr.css with comprehensive styling, 3) Set z-index higher than debug panel (9999) and all other elements, 4) Add to all Razor views needing toast notifications"
+            },
+            "implementation": {
+                "z_index_hierarchy": {
+                    "toasts": 999999,
+                    "debug_panel": 9999,
+                    "modals": 1050,
+                    "normal_content": 1
+                },
+                "styling_requirements": [
+                    "High z-index ensures visibility above all content",
+                    "Color-coded left borders for toast types (success: green, error: red, warning: amber, info: blue)",
+                    "Modern card design with shadows",
+                    "Responsive design with mobile breakpoints",
+                    "Smooth slide-in/out animations"
+                ]
+            },
+            "success_indicators": [
+                "Toasts appear reliably on first invocation",
+                "Toasts render above all other elements including debug panel",
+                "Color-coded visual distinction between toast types",
+                "Smooth animations enhance user experience"
+            ],
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z",
+            "contributed_by": "analyze-learning"
+        },
+        {
+            "pattern_id": "overflow-visible-badge-positioning",
+            "name": "Overflow Visible for Badge Positioning",
+            "category": "ui",
+            "description": "When absolutely positioned badges with transform: translate() extend beyond container bounds, change overflow-x: hidden to overflow: visible to prevent clipping.",
+            "context": "Vote badges, notification indicators, or absolutely positioned elements being cut off at container edges",
+            "problem": {
+                "description": "overflow-x: hidden clips absolutely positioned elements extending beyond container",
+                "broken_code": ".container { overflow-x: hidden; position: relative; } .badge { position: absolute; transform: translate(50%, -50%); }"
+            },
+            "solution": {
+                "description": "Change to overflow: visible to allow badges to render outside container bounds",
+                "fixed_code": ".container { overflow: visible; position: relative; }"
+            },
+            "success_indicators": [
+                "Badges fully visible even when positioned outside container",
+                "No visual clipping at container edges",
+                "Transform positioning works as expected"
+            ],
+            "learned_from": [
+                "canvas-questions-orangecard"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-15T00:00:00Z",
+            "contributed_by": "analyze-learning"
         }
     ],
     "anti_patterns": []

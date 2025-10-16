@@ -1,0 +1,114 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{API_COUNT}}` - Number of API endpoints
+
+---
+
+# API Contract Validation
+
+## Purpose
+Validates that API contracts match implementation. Ensures documentation stays synchronized with actual API endpoints.
+
+---
+
+## API Inventory
+
+### Total Endpoints
+**Count**: {{API_COUNT}} endpoints
+
+### Endpoints by Controller
+Document your API endpoints organized by controller/module:
+
+#### ExampleController
+- `GET /api/example` - Description
+- `POST /api/example` - Description
+- `PUT /api/example/{id}` - Description
+- `DELETE /api/example/{id}` - Description
+
+[Add more controllers as your project develops]
+
+---
+
+## Validation Rules
+
+### Contract Requirements
+1. All endpoints must be documented
+2. Request/response schemas must be defined
+3. Authentication requirements must be specified
+4. Error responses must be documented
+
+### Sync Protocol
+- Sync agent validates API contracts during documentation updates
+- Mismatches trigger warnings
+- Automated synchronization when possible
+
+---
+
+## Request/Response Schemas
+
+### Example Endpoint
+
+**Endpoint**: `POST /api/example`
+
+**Request**:
+```json
+{
+  "field1": "string",
+  "field2": 123
+}
+```
+
+**Response**:
+```json
+{
+  "id": 1,
+  "field1": "string",
+  "field2": 123,
+  "created": "2025-01-01T00:00:00Z"
+}
+```
+
+[Add more endpoints as needed]
+
+---
+
+## Authentication
+
+### Auth Requirements
+Document authentication requirements for API endpoints:
+- Public endpoints (no auth)
+- Authenticated endpoints (user auth)
+- Admin endpoints (elevated privileges)
+
+---
+
+## Error Responses
+
+### Standard Error Format
+```json
+{
+  "error": "Error message",
+  "code": "ERROR_CODE",
+  "details": {}
+}
+```
+
+### Common Error Codes
+- `400` - Bad Request
+- `401` - Unauthorized
+- `403` - Forbidden
+- `404` - Not Found
+- `500` - Internal Server Error
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial API contract documentation
+  - {{API_COUNT}} endpoints documented
+  - Request/response schemas defined
+  - Validation rules established
