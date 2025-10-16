@@ -308,7 +308,7 @@ public class AssetProcessingService
 
     /// <summary>
     /// Create HTML for a share button based on AssetLookup data.
-    /// Includes hidden annotation toolbar that slides out when share button is clicked.
+    /// Includes floating annotation toolbar that appears above/below share button.
     /// </summary>
     private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
@@ -318,21 +318,13 @@ public class AssetProcessingService
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
         return $@"
-<div class=""ks-share-wrapper"" data-share-container=""{encodedShareId}"" style=""display: flex; align-items: center; gap: 0; position: relative;"">
-    <button class=""ks-share-button ks-share-red"" 
-            data-share-button=""asset"" 
-            data-share-id=""{encodedShareId}"" 
-            data-asset-type=""{encodedAssetType}"" 
-            data-instance-number=""{instanceNumber}"" 
-            type=""button"" 
-            style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; white-space: nowrap;"">
-        📤 SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}
-    </button>
+<!-- [TRACE:annotation-layout:wrapper] Centered share button with floating toolbar -->
+<div class=""ks-share-wrapper"" data-share-container=""{encodedShareId}"" style=""display: flex; flex-direction: column; align-items: center; gap: 0; position: relative;"">
     
-    <!-- [TRACE:annotation-toolbar:hidden] Hidden annotation toolbar - slides out on share click -->
+    <!-- [TRACE:annotation-layout:toolbar-above] Annotation toolbar floats above share button -->
     <div class=""annotation-toolbar"" 
          data-annotation-toolbar=""{encodedShareId}""
-         style=""display: flex; align-items: center; gap: 4px; max-width: 0; overflow: hidden; opacity: 0; transition: max-width 0.3s ease-in-out, opacity 0.3s ease-in-out; padding: 0;"">
+         style=""display: none; align-items: center; justify-content: center; gap: 4px; padding: 4px; background-color: rgba(0, 0, 0, 0.05); border-radius: 4px; margin-bottom: 4px;"">
         
         <!-- Annotation Tool Buttons -->
         <button class=""annotation-tool-btn"" data-tool=""select"" data-target=""{encodedShareId}"" type=""button"" title=""Select"" style=""background-color: transparent; color: #D4AF37; border: 1px solid #D4AF37; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
@@ -364,11 +356,22 @@ public class AssetProcessingService
             🗑️
         </button>
         
-        <!-- Close Button (slides toolbar back) -->
-        <button class=""annotation-close-btn"" data-close-toolbar=""{encodedShareId}"" type=""button"" title=""Close Toolbar"" style=""background-color: #006400; color: white; border: 1px solid #006400; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px; margin-left: 4px;"">
+        <!-- Close Button -->
+        <button class=""annotation-close-btn"" data-close-toolbar=""{encodedShareId}"" type=""button"" title=""Close Toolbar"" style=""background-color: #006400; color: white; border: 1px solid #006400; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; min-width: 32px;"">
             ✖️
         </button>
     </div>
+    
+    <!-- [TRACE:annotation-layout:share-button] Centered share button -->
+    <button class=""ks-share-button ks-share-red"" 
+            data-share-button=""asset"" 
+            data-share-id=""{encodedShareId}"" 
+            data-asset-type=""{encodedAssetType}"" 
+            data-instance-number=""{instanceNumber}"" 
+            type=""button"" 
+            style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer; white-space: nowrap; flex-shrink: 0;"">
+        📤 SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}
+    </button>
 </div>";
     }
 

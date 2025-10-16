@@ -4606,7 +4606,7 @@ Please share this report with the development team for debugging.`;
     let isDrawing = false;
     let drawingPath = [];
     
-    // [TRACE:annotation-toolbar:share-click] Handle share button clicks - slide out toolbar
+    // [TRACE:annotation-toolbar:share-click] Handle share button clicks - show/hide floating toolbar
     document.addEventListener('click', function(e) {
         const shareBtn = e.target.closest('[data-share-button="asset"]');
         
@@ -4614,19 +4614,32 @@ Please share this report with the development team for debugging.`;
             const shareId = shareBtn.getAttribute('data-share-id');
             console.log('[TRACE:annotation-toolbar:share-click] Share button clicked:', shareId, ';CLEANUP_OK');
             
+            // Find the toolbar
+            const toolbar = document.querySelector(`[data-annotation-toolbar="${shareId}"]`);
+            if (!toolbar) {
+                console.error('[TRACE:annotation-toolbar:missing] Toolbar not found for:', shareId, ';CLEANUP_OK');
+                return;
+            }
+            
+            // Check if toolbar is currently visible
+            const isVisible = toolbar.style.display === 'flex';
+            console.log('[TRACE:annotation-toolbar:current-state] Toolbar visible before toggle:', isVisible, 'for:', shareId, ';CLEANUP_OK');
+            
             // Close previous toolbar if different asset
             if (currentActiveToolbar && currentActiveToolbar !== shareId) {
                 console.log('[TRACE:annotation-toolbar:close-previous] Closing previous toolbar:', currentActiveToolbar, ';CLEANUP_OK');
                 closeAnnotationToolbar(currentActiveToolbar);
             }
             
-            // Find and slide out the annotation toolbar for this asset
-            const toolbar = document.querySelector(`[data-annotation-toolbar="${shareId}"]`);
-            if (toolbar) {
-                console.log('[TRACE:annotation-toolbar:slide-out] Sliding out toolbar for:', shareId, ';CLEANUP_OK');
-                toolbar.style.maxWidth = '600px'; // Expand to show all buttons
-                toolbar.style.opacity = '1';
-                toolbar.style.padding = '0 8px';
+            // Toggle toolbar visibility
+            if (isVisible) {
+                console.log('[TRACE:annotation-toolbar:hiding] Hiding toolbar for:', shareId, ';CLEANUP_OK');
+                toolbar.style.display = 'none';
+                currentActiveToolbar = null;
+                removeAnnotationCanvas(shareId);
+            } else {
+                console.log('[TRACE:annotation-toolbar:showing] Showing toolbar for:', shareId, ';CLEANUP_OK');
+                toolbar.style.display = 'flex';
                 currentActiveToolbar = shareId;
                 
                 // Initialize annotation canvas for this asset
@@ -4635,7 +4648,7 @@ Please share this report with the development team for debugging.`;
         }
     });
     
-    // [TRACE:annotation-toolbar:close-click] Handle close button clicks - slide toolbar back
+    // [TRACE:annotation-toolbar:close-click] Handle close button clicks - hide toolbar
     document.addEventListener('click', function(e) {
         const closeBtn = e.target.closest('[data-close-toolbar]');
         
@@ -4650,9 +4663,7 @@ Please share this report with the development team for debugging.`;
         const toolbar = document.querySelector(`[data-annotation-toolbar="${shareId}"]`);
         if (toolbar) {
             console.log('[TRACE:annotation-toolbar:close] Closing toolbar for:', shareId, ';CLEANUP_OK');
-            toolbar.style.maxWidth = '0';
-            toolbar.style.opacity = '0';
-            toolbar.style.padding = '0';
+            toolbar.style.display = 'none';
             
             if (currentActiveToolbar === shareId) {
                 currentActiveToolbar = null;

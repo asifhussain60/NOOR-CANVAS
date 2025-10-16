@@ -22,10 +22,7 @@ $playwrightConfigPath = "$projectRoot\PlayWright"
 
 # Test files
 $testFiles = @(
-    "hcp-annotation-toolbar-visibility.spec.ts",
-    "hcp-annotation-laser-pointer.spec.ts",
-    "hcp-annotation-color-picker.spec.ts",
-    "sessioncanvas-annotation-overlay.spec.ts"
+    "hcp-annotation-toolbar-layout.spec.ts"
 )
 
 Write-Host "📋 Test Configuration:" -ForegroundColor Yellow
