@@ -3,11 +3,11 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-10-14T15:30:00Z
+- **Last Updated**: 2025-10-16T02:47:00Z
 - **Owner**: GitHub Copilot
-- **Description**: Comprehensive prompts system refresh with workspace pattern integration - 12 success patterns + 8 failure patterns extracted and documented for integration into prompts
-- **Complexity**: high
-- **Debug Level**: none
+- **Description**: Checkpoint commit tracking integration - automatic rollback point creation with 28-entry history per key
+- **Complexity**: medium
+- **Debug Level**: simple
 
 ## File Mappings
 
@@ -390,3 +390,23 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 
 ### Warnings & Errors
 - N/A - No warnings or errors encountered
+
+---
+
+## Work Log
+
+### 2025-10-16T02:47:00Z
+- **Status**: In Progress
+- **Changes**: 
+  - Added Step 8.4 (Checkpoint Commit & Log) to task.prompt.md
+  - Created `.github/prompts.keys/.checkpoints/` directory for checkpoint logs
+  - Implemented 28-entry limit per key with automatic pruning
+  - Updated Guardrails section with checkpoint commit mandate
+  - Updated Step 7 summary templates to include checkpoint SHA
+  - Updated Expected Outcomes to include checkpoint tracking
+- **Files Affected**: 
+  - `.github/prompts/task.prompt.md` - Added checkpoint commit workflow
+  - `.github/prompts.keys/.checkpoints/prompts.log` - Created checkpoint log
+- **Tests**: N/A - Infrastructure change, no tests required
+- **Approval Iterations**: 0
+- **Commit**: 98ea296ffd7e563d1af10952876363679178fdc6
