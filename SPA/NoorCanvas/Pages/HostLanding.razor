@@ -608,10 +608,25 @@ else
         Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] ASPNETCORE_ENVIRONMENT: {Environment} ;CLEANUP_OK", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "NOT_SET");
         Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] appsettings Development:ShowDevPanels: {ConfigValue} ;CLEANUP_OK", Configuration.GetValue<bool?>("Development:ShowDevPanels")?.ToString() ?? "NOT_SET");
 
+        // [DEBUG-WORKITEM:host-landing:query-token] Extract token from query string if not in route parameter ;CLEANUP_OK
+        if (string.IsNullOrEmpty(FriendlyToken))
+        {
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var tokenFromQuery = query["token"];
+            
+            if (!string.IsNullOrEmpty(tokenFromQuery))
+            {
+                FriendlyToken = tokenFromQuery;
+                Logger.LogInformation("[DEBUG-WORKITEM:host-landing:query-token] [{RequestId}] Extracted token from query string: {Token} ;CLEANUP_OK", 
+                    requestId, FriendlyToken);
+            }
+        }
+
         Model ??= new HostLandingViewModel
         {
             LogoText = "NOOR Canvas",
-            FriendlyToken = FriendlyToken ?? "", // Use friendly token from URL parameter
+            FriendlyToken = FriendlyToken ?? "", // Use friendly token from URL parameter or query string
             SessionName = null // Will be loaded if token provided
         };
 
