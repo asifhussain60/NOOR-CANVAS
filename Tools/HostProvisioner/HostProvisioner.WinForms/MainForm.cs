@@ -125,8 +125,8 @@ namespace HostProvisioner.WinForms
                 Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 110), // [TRACE:host-provisioner:drag-support] Adjusted for header ;CLEANUP_OK
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
-                Padding = new Padding(32),
-                AutoScroll = true // [TRACE:host-provisioner:scrolling] Enable vertical scrolling ;CLEANUP_OK
+                Padding = new Padding(32)
+                // [DEBUG-WORKITEM:host-provisioner:scrollbar] Removed AutoScroll to eliminate vertical scrollbar ;CLEANUP_OK
             };
             pnlMain.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlMain, 24, Color.White, NoorGold);
 
