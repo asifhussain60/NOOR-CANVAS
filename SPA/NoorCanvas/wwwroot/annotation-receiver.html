@@ -297,8 +297,15 @@
                 // Event handlers
                 hubConnection.on('AnnotationCreated', (data) => {
                     console.log('Annotation received:', data);
-                    showNotification(`Annotation received: ${data.annotationData.type}`);
-                    renderAnnotation(overlay, data.annotationData);
+                    
+                    // Parse annotationData if it's a JSON string
+                    let annotationData = data.annotationData;
+                    if (typeof annotationData === 'string') {
+                        annotationData = JSON.parse(annotationData);
+                    }
+                    
+                    showNotification(`Annotation received: ${annotationData.type}`);
+                    renderAnnotation(overlay, annotationData);
                 });
                 
                 hubConnection.on('LaserPointerMove', (data) => {
@@ -323,7 +330,12 @@
                     console.log('Loading existing annotations:', annotations);
                     if (annotations && annotations.length > 0) {
                         annotations.forEach(ann => {
-                            renderAnnotation(overlay, ann.annotationData);
+                            // Parse annotationData if it's a JSON string
+                            let annotationData = ann.annotationData;
+                            if (typeof annotationData === 'string') {
+                                annotationData = JSON.parse(annotationData);
+                            }
+                            renderAnnotation(overlay, annotationData);
                         });
                         showNotification(`Loaded ${annotations.length} existing annotations`);
                     }

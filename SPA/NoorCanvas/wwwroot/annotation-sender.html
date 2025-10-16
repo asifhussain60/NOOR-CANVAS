@@ -362,7 +362,14 @@
                 // Event handlers
                 hubConnection.on('AnnotationCreated', (data) => {
                     log(`Annotation received from ${data.createdBy}`, 'info');
-                    renderAnnotation(overlay, data.annotationData);
+                    
+                    // Parse annotationData if it's a JSON string
+                    let annotationData = data.annotationData;
+                    if (typeof annotationData === 'string') {
+                        annotationData = JSON.parse(annotationData);
+                    }
+                    
+                    renderAnnotation(overlay, annotationData);
                 });
                 
                 hubConnection.on('LaserPointerMove', (data) => {

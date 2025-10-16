@@ -3,12 +3,28 @@
 **Key**: annotation  
 **Status**: In Progress  
 **Created**: 2025-10-16  
-**Last Updated**: 2025-10-16T21:45:00Z
+**Last Updated**: 2025-10-16T22:00:00Z
 
 ## Overview
 Annotation system for NOOR Canvas with real-time SignalR synchronization, supporting laser pointer, drawing, highlighting, and note tools.
 
 ## Work Log
+
+### 2025-10-16T22:00:00Z
+- **Status**: In Progress
+- **Changes**:
+  - **BUG FIX**: Fixed annotation synchronization between sender and receiver
+  - Added JSON parsing for `annotationData` field in SignalR event handlers
+  - Updated `AnnotationCreated` handler in sender.html to parse JSON string
+  - Updated `AnnotationCreated` handler in receiver.html to parse JSON string
+  - Updated `LoadAnnotations` handler in receiver.html to parse JSON string
+  - **Root Cause**: Hub sends `annotation.AnnotationData` as JSON string (stored in database), but `renderAnnotation()` expects parsed JavaScript object
+  - **Solution**: Parse `annotationData` with `JSON.parse()` before passing to `renderAnnotation()`
+- **Files Affected**:
+  - `SPA/NoorCanvas/wwwroot/annotation-sender.html` - JSON parsing in event handlers
+  - `SPA/NoorCanvas/wwwroot/annotation-receiver.html` - JSON parsing in event handlers
+- **Build**: Clean (zero errors, zero warnings)
+- **Commit**: 6199b586a248782e8f6ea663b782f69bad6c081a
 
 ### 2025-10-16T21:45:00Z
 - **Status**: In Progress
