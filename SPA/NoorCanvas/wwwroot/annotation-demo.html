@@ -207,6 +207,23 @@
                     <li><i class="fas fa-trash text-red-600 mr-2"></i><strong>Clear All:</strong> Remove all annotations from both views</li>
                 </ul>
             </div>
+
+            <!-- Important Note for Testing -->
+            <div class="mt-4 bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
+                <h4 class="font-bold text-blue-900 mb-2">
+                    <i class="fas fa-exclamation-circle text-blue-600 mr-2"></i>Testing Laser Pointer Synchronization
+                </h4>
+                <p class="text-sm text-gray-700 mb-2"><strong>Important:</strong> To see laser pointer synchronization, you need <strong>two separate browser windows or tabs</strong>:</p>
+                <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside ml-4">
+                    <li>Open this page in <strong>Window/Tab 1</strong> (current window)</li>
+                    <li>Open <code class="bg-gray-200 px-1">https://localhost:9091/annotation-demo.html</code> in <strong>Window/Tab 2</strong></li>
+                    <li>Click <strong>Connect</strong> in both windows</li>
+                    <li>Change <strong>User ID</strong> to "demo-user-2" in Window/Tab 2 (different from "demo-user-1")</li>
+                    <li>In Window/Tab 1: Select <strong>Laser Pointer</strong> tool and move your mouse over View 1</li>
+                    <li>In Window/Tab 2: Watch the laser appear on View 2 in real-time!</li>
+                </ol>
+                <p class="text-sm text-gray-600 mt-2"><em>Note: SignalR broadcasts to "other clients" only, so you won't see the laser on View 2 in the same window.</em></p>
+            </div>
         </div>
 
         <!-- Configuration Panel -->
@@ -416,6 +433,7 @@
         // Initialize SignalR connection
         async function connectSignalR() {
             try {
+                console.log('[TRACE-ANNOTATION:connect] Initializing SignalR connection...');
                 log('Initializing SignalR connection...', 'info');
                 updateConnectionStatus('connecting');
 
@@ -425,79 +443,101 @@
                     .configureLogging(signalR.LogLevel.Information)
                     .build();
 
+                console.log('[TRACE-ANNOTATION:connect] HubConnection created, registering event handlers...');
+
                 // Register event handlers
                 hubConnection.on('LoadAnnotations', (annotations) => {
+                    console.log('[TRACE-ANNOTATION:load] Received LoadAnnotations event, count:', annotations?.length);
                     log(`Loaded ${annotations.length} existing annotations`, 'success');
                     annotations.forEach(ann => renderAnnotation(overlay2, ann));
                 });
 
                 hubConnection.on('AnnotationCreated', (data) => {
+                    console.log('[TRACE-ANNOTATION:created] Received AnnotationCreated event from user:', data.userId);
                     log(`Received annotation from user: ${data.userId}`, 'success');
                     renderAnnotation(overlay2, data);
                 });
 
                 hubConnection.on('AnnotationUpdated', (data) => {
+                    console.log('[TRACE-ANNOTATION:updated] Annotation updated:', data.annotationId);
                     log(`Annotation ${data.annotationId} updated`, 'info');
                     updateAnnotation(overlay2, data);
                 });
 
                 hubConnection.on('AnnotationDeleted', (data) => {
+                    console.log('[TRACE-ANNOTATION:deleted] Annotation deleted:', data.annotationId);
                     log(`Annotation ${data.annotationId} deleted`, 'warn');
                     deleteAnnotation(overlay2, data.annotationId);
                 });
 
                 hubConnection.on('AnnotationConfirmed', (data) => {
+                    console.log('[TRACE-ANNOTATION:confirmed] Annotation confirmed:', data.status);
                     log(`Annotation confirmed: ${data.status}`, 'success');
                 });
 
                 hubConnection.on('Error', (data) => {
+                    console.error('[TRACE-ANNOTATION:error] SignalR error:', data.message);
                     log(`Error: ${data.message}`, 'error');
                 });
 
                 hubConnection.on('UserJoined', (data) => {
+                    console.log('[TRACE-ANNOTATION:user-joined] User joined:', data.userId);
                     log(`User ${data.userId} joined the session`, 'info');
                 });
 
                 hubConnection.on('UserLeft', (data) => {
+                    console.log('[TRACE-ANNOTATION:user-left] User left:', data.userId);
                     log(`User ${data.userId} left the session`, 'info');
                 });
                 
                 // Laser pointer events
                 hubConnection.on('LaserPointerMove', (data) => {
+                    console.log('[TRACE-ANNOTATION:laser-move] Received laser pointer move:', data);
+                    log(`Laser pointer moved to (${data.x}, ${data.y})`, 'info');
                     showLaserPointer(laserPointer2, data.x, data.y);
                 });
                 
                 hubConnection.on('LaserPointerHide', () => {
+                    console.log('[TRACE-ANNOTATION:laser-hide] Received laser pointer hide');
+                    log('Laser pointer hidden', 'info');
                     hideLaserPointer(laserPointer2);
                 });
 
                 hubConnection.onreconnecting(() => {
+                    console.log('[TRACE-ANNOTATION:reconnecting] Connection lost, reconnecting...');
                     log('Connection lost. Reconnecting...', 'warn');
                     updateConnectionStatus('connecting');
                 });
 
                 hubConnection.onreconnected(() => {
+                    console.log('[TRACE-ANNOTATION:reconnected] Reconnected successfully');
                     log('Reconnected successfully', 'success');
                     updateConnectionStatus('connected');
                     joinSession();
                 });
 
                 hubConnection.onclose(() => {
+                    console.log('[TRACE-ANNOTATION:close] Connection closed');
                     log('Connection closed', 'error');
                     updateConnectionStatus('disconnected');
                 });
 
                 // Start connection
+                console.log('[TRACE-ANNOTATION:connect] Starting hub connection...');
                 await hubConnection.start();
+                console.log('[TRACE-ANNOTATION:connect] Hub connection started successfully');
                 log('SignalR connection established', 'success');
                 updateConnectionStatus('connected');
                 
                 // Join session
+                console.log('[TRACE-ANNOTATION:connect] Joining session...');
                 await joinSession();
                 
                 connectBtn.textContent = 'Disconnect';
                 connectBtn.onclick = disconnectSignalR;
             } catch (err) {
+                console.error('[TRACE-ANNOTATION:connect] Error connecting to SignalR:', err);
+
                 log(`Connection failed: ${err}`, 'error');
                 updateConnectionStatus('disconnected');
                 console.error(err);
@@ -764,35 +804,48 @@
         
         // Broadcast laser pointer position
         async function broadcastLaserMove(x, y) {
-            if (!hubConnection || !laserPointerActive) return;
+            if (!hubConnection || !laserPointerActive) {
+                console.log('[TRACE-ANNOTATION:laser-broadcast] Skipping broadcast - hubConnection:', !!hubConnection, 'laserPointerActive:', laserPointerActive);
+                return;
+            }
             
             const sessionId = parseInt(sessionIdInput.value);
             const userId = userIdInput.value;
             
+            console.log('[TRACE-ANNOTATION:laser-broadcast] Broadcasting laser move:', { sessionId, userId, x, y });
+            
             try {
                 await hubConnection.invoke('BroadcastLaserPointer', sessionId, userId, { x, y });
+                console.log('[TRACE-ANNOTATION:laser-broadcast] Successfully broadcast laser move');
             } catch (err) {
                 // Silently fail for laser pointer (high frequency updates)
-                console.error('Laser pointer broadcast error:', err);
+                console.error('[TRACE-ANNOTATION:laser-broadcast] Laser pointer broadcast error:', err);
             }
         }
         
         // Broadcast laser pointer hide
         async function broadcastLaserHide() {
-            if (!hubConnection) return;
+            if (!hubConnection) {
+                console.log('[TRACE-ANNOTATION:laser-hide-broadcast] Skipping hide - no hubConnection');
+                return;
+            }
             
             const sessionId = parseInt(sessionIdInput.value);
             const userId = userIdInput.value;
             
+            console.log('[TRACE-ANNOTATION:laser-hide-broadcast] Broadcasting laser hide:', { sessionId, userId });
+            
             try {
                 await hubConnection.invoke('HideLaserPointer', sessionId, userId);
+                console.log('[TRACE-ANNOTATION:laser-hide-broadcast] Successfully broadcast laser hide');
             } catch (err) {
-                console.error('Laser pointer hide error:', err);
+                console.error('[TRACE-ANNOTATION:laser-hide-broadcast] Laser pointer hide error:', err);
             }
         }
         
         // Setup laser pointer tracking on View 1
         function setupLaserPointer() {
+            console.log('[TRACE-ANNOTATION:laser-setup] Setting up laser pointer tracking');
             let throttleTimer = null;
             
             view1Container.addEventListener('mousemove', (e) => {
@@ -802,11 +855,14 @@
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
+                console.log('[TRACE-ANNOTATION:laser-mouse] Mouse move detected:', { x, y, laserPointerActive });
+                
                 // Show local laser pointer
                 showLaserPointer(laserPointer1, x, y);
                 
                 // Throttle SignalR broadcasts (every 50ms)
                 if (!throttleTimer) {
+                    console.log('[TRACE-ANNOTATION:laser-mouse] Throttle passed, broadcasting...');
                     broadcastLaserMove(x, y);
                     throttleTimer = setTimeout(() => {
                         throttleTimer = null;
@@ -816,9 +872,12 @@
             
             view1Container.addEventListener('mouseleave', () => {
                 if (!laserPointerActive) return;
+                console.log('[TRACE-ANNOTATION:laser-mouse] Mouse left view, hiding laser');
                 hideLaserPointer(laserPointer1);
                 broadcastLaserHide();
             });
+            
+            console.log('[TRACE-ANNOTATION:laser-setup] Laser pointer tracking setup complete');
         }
 
         // Initialize

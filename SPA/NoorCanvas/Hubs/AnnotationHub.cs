@@ -44,24 +44,29 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: User {UserId} joining session {SessionId} - ConnectionId: {ConnectionId}",
+                _logger.LogInformation("[TRACE-ANNOTATION:join] User {UserId} joining session {SessionId} - ConnectionId: {ConnectionId} ;CLEANUP_OK",
                     userId, sessionId, Context.ConnectionId);
 
                 var groupName = $"Session_{sessionId}";
+                
+                _logger.LogInformation("[TRACE-ANNOTATION:join] Adding connection to group {GroupName} ;CLEANUP_OK", groupName);
                 await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
                 // Send current annotations to the newly joined user
+                _logger.LogInformation("[TRACE-ANNOTATION:join] Loading annotations for session {SessionId} ;CLEANUP_OK", sessionId);
                 var annotations = await _annotationService.GetSessionAnnotationsAsync(sessionId);
+                _logger.LogInformation("[TRACE-ANNOTATION:join] Found annotations for session {SessionId} ;CLEANUP_OK", sessionId);
+                
                 await Clients.Caller.SendAsync("LoadAnnotations", annotations);
 
                 // Notify others in the session about the new user
                 await Clients.OthersInGroup(groupName).SendAsync("UserJoined", new { userId, connectionId = Context.ConnectionId });
 
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: User {UserId} successfully joined session {SessionId}", userId, sessionId);
+                _logger.LogInformation("[TRACE-ANNOTATION:join] User {UserId} successfully joined session {SessionId} ;CLEANUP_OK", userId, sessionId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error joining session {SessionId} for user {UserId}", sessionId, userId);
+                _logger.LogError(ex, "[TRACE-ANNOTATION:join] Error joining session {SessionId} for user {UserId} ;CLEANUP_OK", sessionId, userId);
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to join session for annotations" });
             }
         }
@@ -268,18 +273,28 @@ namespace NoorCanvas.Hubs
         /// <summary>
         /// Broadcast laser pointer position to all session participants (non-persistent, real-time only).
         /// </summary>
+        /// <param name="sessionId">The session ID.</param>
+        /// <param name="userId">The user ID.</param>
+        /// <param name="position">The laser pointer position data.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task BroadcastLaserPointer(int sessionId, string userId, object position)
         {
             try
             {
+                _logger.LogInformation("[TRACE-ANNOTATION:laser] Broadcasting laser from user {UserId} in session {SessionId}, position: {Position} ;CLEANUP_OK",
+                    userId, sessionId, position);
+                
                 // Broadcast to all session participants except the sender
                 var groupName = $"Session_{sessionId}";
+                _logger.LogInformation("[TRACE-ANNOTATION:laser] Sending to group {GroupName} ;CLEANUP_OK", groupName);
+                
                 await Clients.OthersInGroup(groupName).SendAsync("LaserPointerMove", position);
+                
+                _logger.LogInformation("[TRACE-ANNOTATION:laser] Successfully broadcast laser pointer ;CLEANUP_OK");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting laser pointer from user {UserId} in session {SessionId}",
+                _logger.LogError(ex, "[TRACE-ANNOTATION:laser] Error broadcasting laser pointer from user {UserId} in session {SessionId} ;CLEANUP_OK",
                     userId, sessionId);
             }
         }
@@ -287,17 +302,24 @@ namespace NoorCanvas.Hubs
         /// <summary>
         /// Broadcast laser pointer hide to all session participants.
         /// </summary>
+        /// <param name="sessionId">The session ID.</param>
+        /// <param name="userId">The user ID.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task HideLaserPointer(int sessionId, string userId)
         {
             try
             {
+                _logger.LogInformation("[TRACE-ANNOTATION:laser-hide] Hiding laser from user {UserId} in session {SessionId} ;CLEANUP_OK",
+                    userId, sessionId);
+                    
                 var groupName = $"Session_{sessionId}";
                 await Clients.OthersInGroup(groupName).SendAsync("LaserPointerHide");
+                
+                _logger.LogInformation("[TRACE-ANNOTATION:laser-hide] Successfully broadcast laser hide ;CLEANUP_OK");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting laser pointer hide from user {UserId} in session {SessionId}",
+                _logger.LogError(ex, "[TRACE-ANNOTATION:laser-hide] Error broadcasting laser pointer hide from user {UserId} in session {SessionId} ;CLEANUP_OK",
                     userId, sessionId);
             }
         }
