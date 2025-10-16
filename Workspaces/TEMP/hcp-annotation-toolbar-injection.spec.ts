@@ -44,7 +44,7 @@ test.describe('HCP Annotation Toolbar Injection', () => {
         const firstShareButton = page.locator('button[data-asset-id]').first();
         const shareId = await firstShareButton.getAttribute('data-asset-id');
         console.log('[TRACE:hcp-annotate:test] Clicking share button with ID:', shareId, ';CLEANUP_OK');
-        
+
         await firstShareButton.click();
         await page.waitForTimeout(2000); // Wait for SignalR broadcast
 
@@ -57,11 +57,11 @@ test.describe('HCP Annotation Toolbar Injection', () => {
 
         // Wait for asset to appear in SessionCanvas
         await sessionCanvas.waitForSelector('.canvas-content-area', { timeout: 10000 });
-        
+
         // Check if annotation toolbar exists in the DOM
         const toolbarSelector = `[data-annotation-toolbar="${shareId}"]`;
         const toolbar = sessionCanvas.locator(toolbarSelector);
-        
+
         console.log('[TRACE:hcp-annotate:test] Looking for toolbar with selector:', toolbarSelector, ';CLEANUP_OK');
         await expect(toolbar).toHaveCount(1);
         console.log('[TRACE:hcp-annotate:test] ✅ Annotation toolbar found in DOM ;CLEANUP_OK');
@@ -98,11 +98,11 @@ test.describe('HCP Annotation Toolbar Injection', () => {
         // Get first share button
         const firstShareButton = page.locator('button[data-asset-id]').first();
         const shareId = await firstShareButton.getAttribute('data-asset-id');
-        
+
         // Before click - toolbar should not be visible
         const toolbarSelector = `[data-annotation-toolbar="${shareId}"]`;
         console.log('[TRACE:hcp-annotate:test] Checking toolbar visibility before click ;CLEANUP_OK');
-        
+
         // The toolbar may not exist yet, or should be hidden
         const toolbarBefore = page.locator(toolbarSelector);
         const countBefore = await toolbarBefore.count();
@@ -117,7 +117,7 @@ test.describe('HCP Annotation Toolbar Injection', () => {
         // Click share button
         await firstShareButton.click();
         console.log('[TRACE:hcp-annotate:test] Share button clicked, toolbar should appear ;CLEANUP_OK');
-        
+
         // After click - toolbar should be visible
         await page.waitForTimeout(500); // Allow JavaScript to process click
         const toolbarAfter = page.locator(toolbarSelector);
