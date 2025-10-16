@@ -125,15 +125,16 @@ namespace HostProvisioner.WinForms
                 Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 110), // [TRACE:host-provisioner:drag-support] Adjusted for header ;CLEANUP_OK
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
-                Padding = new Padding(32)
+                Padding = new Padding(32),
+                AutoScroll = true // [TRACE:host-provisioner:scrolling] Enable vertical scrolling ;CLEANUP_OK
             };
             pnlMain.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlMain, 24, Color.White, NoorGold);
 
-            // Logo
+            // Logo - [TRACE:host-provisioner:logo-resize] Reduced from 200x200 to 100x100 ;CLEANUP_OK
             var picLogo = new PictureBox
             {
-                Size = new Size(200, 200),
-                Location = new Point((pnlMain.Width - 200) / 2, 30),
+                Size = new Size(100, 100),
+                Location = new Point((pnlMain.Width - 100) / 2, 30),
                 SizeMode = PictureBoxSizeMode.Zoom
             };
 
@@ -153,23 +154,23 @@ namespace HostProvisioner.WinForms
                 Console.WriteLine($"Logo loading failed: {ex.Message}");
             }
 
-            // Title
+            // Title - [TRACE:host-provisioner:logo-resize] Adjusted position for smaller logo ;CLEANUP_OK
             var lblTitle = new Label
             {
                 Text = "Host Provisioner",
                 Font = new Font("Poppins", 24F, FontStyle.Bold),
                 ForeColor = NoorGreen,
                 AutoSize = true,
-                Location = new Point(0, 250),
+                Location = new Point(0, 150),
                 Width = pnlMain.Width,
                 TextAlign = ContentAlignment.MiddleCenter
             };
-            lblTitle.Location = new Point((pnlMain.Width - lblTitle.PreferredWidth) / 2, 250);
+            lblTitle.Location = new Point((pnlMain.Width - lblTitle.PreferredWidth) / 2, 150);
 
             // Environment panel - Compact info card (increased height for two lines)
             var pnlEnv = new Panel
             {
-                Location = new Point(40, 310),
+                Location = new Point(40, 210), // [TRACE:host-provisioner:logo-resize] Adjusted from 310 for smaller logo ;CLEANUP_OK
                 Size = new Size(pnlMain.Width - 80, 85), // Increased from 70 to 85 for two lines
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.None,
@@ -209,7 +210,7 @@ namespace HostProvisioner.WinForms
             // Session ID input panel - Modern input card (increased padding)
             var pnlInput = new Panel
             {
-                Location = new Point(40, 415), // Adjusted from 400 to account for taller environment panel
+                Location = new Point(40, 315), // [TRACE:host-provisioner:logo-resize] Adjusted from 415 for smaller logo ;CLEANUP_OK
                 Size = new Size(pnlMain.Width - 80, 150),
                 BackColor = NoorBeige,
                 BorderStyle = BorderStyle.None,
@@ -258,7 +259,7 @@ namespace HostProvisioner.WinForms
             // Host Token panel - Modern token display
             var pnlHost = new Panel
             {
-                Location = new Point(40, 585), // Adjusted from 570 to account for environment panel change
+                Location = new Point(40, 485), // [TRACE:host-provisioner:logo-resize] Adjusted from 585 for smaller logo ;CLEANUP_OK
                 Size = new Size(pnlMain.Width - 80, 90),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
@@ -327,7 +328,7 @@ namespace HostProvisioner.WinForms
             // User Token panel - Modern token display
             var pnlUser = new Panel
             {
-                Location = new Point(40, 690), // Adjusted from 675 to account for environment panel change
+                Location = new Point(40, 590), // [TRACE:host-provisioner:logo-resize] Adjusted from 690 for smaller logo ;CLEANUP_OK
                 Size = new Size(pnlMain.Width - 80, 90),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
