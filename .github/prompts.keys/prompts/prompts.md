@@ -3,9 +3,9 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-10-16T02:47:00Z
+- **Last Updated**: 2025-10-16T12:12:00Z
 - **Owner**: GitHub Copilot
-- **Description**: Checkpoint commit tracking integration - automatic rollback point creation with 28-entry history per key
+- **Description**: Git tag-based checkpoint system - replaced log files with native git tags for better integration and browsing
 - **Complexity**: medium
 - **Debug Level**: simple
 
@@ -395,8 +395,26 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 
 ## Work Log
 
-### 2025-10-16T02:47:00Z
+### 2025-10-16T12:12:00Z
 - **Status**: In Progress
+- **Changes**: 
+  - Replaced log file approach with git tag-based checkpoints (user feedback improvement)
+  - Updated Step 8.4 to use `git tag "checkpoint/{key}/{timestamp}"` instead of separate log files
+  - Format: `checkpoint/{key}/{YYYY-MM-DD_HHMM}` (git tags cannot contain colons)
+  - Implemented automatic tag pruning to maintain 28 most recent checkpoints per key
+  - Removed `.github/prompts.keys/.checkpoints/` directory (obsolete)
+  - Updated summary templates and guardrails to reflect tag-based approach
+  - Benefits: Single source of truth, native git browsing, works with all git tools
+- **Files Affected**: 
+  - `.github/prompts/task.prompt.md` - Rewrote Step 8.4 with git tag approach
+  - `.github/prompts.keys/.checkpoints/` - DELETED (replaced by git tags)
+- **Tests**: N/A - Infrastructure change, no tests required
+- **Approval Iterations**: 1 (user requested better approach)
+- **Commit**: b42fab11dd47b1eb1a74afd5ea42b1d9f3f97738
+- **Checkpoint Tag**: checkpoint/prompts/2025-10-16_1212
+
+### 2025-10-16T02:47:00Z
+- **Status**: In Progress (superseded by tag-based approach)
 - **Changes**: 
   - Added Step 8.4 (Checkpoint Commit & Log) to task.prompt.md
   - Created `.github/prompts.keys/.checkpoints/` directory for checkpoint logs

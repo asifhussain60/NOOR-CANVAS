@@ -569,10 +569,11 @@ SUMMARY: {key-name}
 
 3. **Create lightweight git tag:**
    ```bash
-   git tag "checkpoint/{key}/{ISO-8601-date}"
+   git tag "checkpoint/{key}/{ISO-8601-date-compact}"
    ```
-   - Example: `git tag "checkpoint/canvas/2025-10-16T02:30:00Z"`
-   - Format: `checkpoint/{key}/{timestamp}` (enables filtering by key)
+   - Example: `git tag "checkpoint/canvas/2025-10-16_0230"`
+   - Format: `checkpoint/{key}/{YYYY-MM-DD_HHMM}` (enables filtering by key)
+   - Note: Git tags cannot contain colons, so use underscore for time separator
 
 4. **Retrieve commit SHA:**
    ```bash
