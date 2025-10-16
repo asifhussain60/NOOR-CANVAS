@@ -239,13 +239,14 @@ window.NoorShareSystem = {
 
     // Show toast notifications
     showToast: function (message, type = 'info') {
-        // Try to use existing NOOR toast system
-        if (typeof window.showNoorToast === 'function') {
-            window.showNoorToast(message, 'Share System', type);
-            return;
-        }
+        // DISABLED: Toast notifications removed from UI per user request
+        // Original code:
+        // if (typeof window.showNoorToast === 'function') {
+        //     window.showNoorToast(message, 'Share System', type);
+        //     return;
+        // }
 
-        // Fallback to simple alert
+        // Log to console only (no visual toast)
         console.log(`[NOOR-SHARE] TOAST [${type.toUpperCase()}]: ${message}`);
     },
 
