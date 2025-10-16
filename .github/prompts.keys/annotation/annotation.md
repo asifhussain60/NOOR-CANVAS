@@ -3,12 +3,33 @@
 **Key**: annotation  
 **Status**: In Progress  
 **Created**: 2025-10-16  
-**Last Updated**: 2025-10-16T22:00:00Z
+**Last Updated**: 2025-10-16T22:15:00Z
 
 ## Overview
 Annotation system for NOOR Canvas with real-time SignalR synchronization, supporting laser pointer, drawing, highlighting, and note tools.
 
 ## Work Log
+
+### 2025-10-16T22:15:00Z
+- **Status**: In Progress
+- **Changes**:
+  - **FEATURE**: Added database clear functionality to Clear All buttons
+  - Updated sender Clear All button to invoke `BroadcastClearAnnotations` SignalR method
+  - Added Clear All button to receiver page UI (red button with trash icon)
+  - Added `AnnotationsCleared` event handler to both sender and receiver pages
+  - Clear All now deletes annotations from database and broadcasts to all connected clients
+  - Both pages clear local overlay and show notification when annotations cleared
+  - Added trace logging to `BroadcastClearAnnotations` hub method
+- **Files Affected**:
+  - `SPA/NoorCanvas/wwwroot/annotation-sender.html` - Updated Clear All button handler + event listener
+  - `SPA/NoorCanvas/wwwroot/annotation-receiver.html` - Added Clear All button + handlers
+  - `SPA/NoorCanvas/Hubs/AnnotationHub.cs` - Added trace logging to BroadcastClearAnnotations
+- **Technical Details**:
+  - Uses existing `BroadcastClearAnnotations` hub method (deletes from canvas.Annotations table)
+  - Broadcasts `AnnotationsCleared` event to all clients in session group
+  - Trace markers: `[TRACE-ANNOTATION:clear-*]` for debugging
+- **Build**: Clean (zero errors, zero warnings)
+- **Commit**: 68019d4fca1b9d2c6712eb7408f79e4c1908ca87
 
 ### 2025-10-16T22:00:00Z
 - **Status**: In Progress

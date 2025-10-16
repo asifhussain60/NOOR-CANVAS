@@ -253,14 +253,18 @@ namespace NoorCanvas.Hubs
         {
             try
             {
+                _logger.LogInformation("[TRACE-ANNOTATION:clear-request] User {UserId} requesting clear for session {SessionId} ;CLEANUP_OK",
+                    userId, sessionId);
                 _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation clear from user {UserId} in session {SessionId}",
                     userId, sessionId);
 
                 // Clear user's annotations from database
+                _logger.LogInformation("[TRACE-ANNOTATION:clear-db] Clearing annotations from database ;CLEANUP_OK");
                 await _annotationService.ClearSessionAnnotationsAsync(sessionId, userId);
 
                 // Broadcast to all session participants
                 var groupName = $"Session_{sessionId}";
+                _logger.LogInformation("[TRACE-ANNOTATION:clear-broadcast] Broadcasting to group {GroupName} ;CLEANUP_OK", groupName);
                 await Clients.Group(groupName).SendAsync("AnnotationsCleared", new
                 {
                     sessionId = sessionId,
@@ -268,10 +272,13 @@ namespace NoorCanvas.Hubs
                     clearedAt = DateTime.UtcNow
                 });
 
+                _logger.LogInformation("[TRACE-ANNOTATION:clear-complete] Successfully broadcast annotation clear for session {SessionId} ;CLEANUP_OK", sessionId);
                 _logger.LogInformation("NOOR-ANNOTATION-HUB: Successfully broadcast annotation clear for session {SessionId}", sessionId);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "[TRACE-ANNOTATION:clear-error] Error broadcasting annotation clear from user {UserId} in session {SessionId} ;CLEANUP_OK",
+                    userId, sessionId);
                 _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation clear from user {UserId} in session {SessionId}",
                     userId, sessionId);
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to clear annotations" });

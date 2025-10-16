@@ -176,9 +176,14 @@
 
         <!-- Content Area -->
         <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-xl font-bold text-blue-900 mb-4">
-                <i class="fas fa-file-alt mr-2"></i>Content Display (Annotations Appear Here)
-            </h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-blue-900">
+                    <i class="fas fa-file-alt mr-2"></i>Content Display (Annotations Appear Here)
+                </h2>
+                <button id="clear-annotations" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                    <i class="fas fa-trash mr-2"></i>Clear All
+                </button>
+            </div>
             <div id="content-container" class="content-container relative border-2 border-gray-300 rounded-lg">
                 <!-- Sample Content (Identical to Sender) -->
                 <div class="prose max-w-none">
@@ -250,6 +255,7 @@
         const connectionText = document.getElementById('connection-text');
         const overlay = document.getElementById('annotation-overlay');
         const laserPointer = document.getElementById('laser-pointer');
+        const clearAnnotationsBtn = document.getElementById('clear-annotations');
         
         // ========== URL PARAMETERS ==========
         const urlParams = new URLSearchParams(window.location.search);
@@ -339,6 +345,12 @@
                         });
                         showNotification(`Loaded ${annotations.length} existing annotations`);
                     }
+                });
+                
+                hubConnection.on('AnnotationsCleared', (data) => {
+                    console.log('[TRACE-ANNOTATION:cleared-event] Received AnnotationsCleared event', data); // ;CLEANUP_OK
+                    overlay.innerHTML = '';
+                    showNotification(`All annotations cleared by ${data.clearedBy}`, 'info');
                 });
                 
                 hubConnection.onreconnecting(() => {
@@ -442,6 +454,35 @@
         function hideLaserPointer(pointerElement) {
             pointerElement.style.display = 'none';
         }
+        
+        // ========== CLEAR ANNOTATIONS ==========
+        clearAnnotationsBtn.addEventListener('click', async () => {
+            try {
+                console.log('[TRACE-ANNOTATION:clear-button] Clear All button clicked'); // ;CLEANUP_OK
+                
+                const sessionId = parseInt(sessionIdInput.value);
+                const userId = userIdInput.value;
+                
+                if (!hubConnection || hubConnection.state !== signalR.HubConnectionState.Connected) {
+                    showNotification('Not connected to SignalR - cannot clear annotations', 'error');
+                    return;
+                }
+                
+                console.log('[TRACE-ANNOTATION:clear-invoke] Invoking BroadcastClearAnnotations', { sessionId, userId }); // ;CLEANUP_OK
+                
+                // Clear annotations from database and broadcast to all clients
+                await hubConnection.invoke('BroadcastClearAnnotations', sessionId, userId);
+                
+                // Clear local overlay
+                overlay.innerHTML = '';
+                
+                showNotification(`Annotations cleared for session ${sessionId}`, 'success');
+                console.log('[TRACE-ANNOTATION:clear-complete] Annotations cleared successfully'); // ;CLEANUP_OK
+            } catch (error) {
+                console.error('[TRACE-ANNOTATION:clear-error] Error clearing annotations:', error); // ;CLEANUP_OK
+                showNotification(`Error clearing annotations: ${error.message}`, 'error');
+            }
+        });
         
         // ========== INITIALIZATION ==========
         connectBtn.onclick = connectSignalR;

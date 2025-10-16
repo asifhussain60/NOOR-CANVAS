@@ -380,6 +380,12 @@
                     hideLaserPointer(laserPointer);
                 });
                 
+                hubConnection.on('AnnotationsCleared', (data) => {
+                    console.log('[TRACE-ANNOTATION:cleared-event] Received AnnotationsCleared event', data); // ;CLEANUP_OK
+                    overlay.innerHTML = '';
+                    log(`All annotations cleared by ${data.clearedBy}`, 'warn');
+                });
+                
                 hubConnection.onreconnecting(() => {
                     log('Connection lost. Reconnecting...', 'warn');
                     updateConnectionStatus('connecting');
@@ -674,9 +680,32 @@
         }
         
         // ========== CLEAR ANNOTATIONS ==========
-        clearAnnotationsBtn.addEventListener('click', () => {
-            overlay.innerHTML = '';
-            log('All annotations cleared locally', 'warn');
+        clearAnnotationsBtn.addEventListener('click', async () => {
+            try {
+                console.log('[TRACE-ANNOTATION:clear-button] Clear All button clicked'); // ;CLEANUP_OK
+                
+                const sessionId = parseInt(sessionIdInput.value);
+                const userId = userIdInput.value;
+                
+                if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
+                    log('Not connected to SignalR - cannot clear annotations', 'error');
+                    return;
+                }
+                
+                console.log('[TRACE-ANNOTATION:clear-invoke] Invoking BroadcastClearAnnotations', { sessionId, userId }); // ;CLEANUP_OK
+                
+                // Clear annotations from database and broadcast to all clients
+                await connection.invoke('BroadcastClearAnnotations', sessionId, userId);
+                
+                // Clear local overlay
+                overlay.innerHTML = '';
+                
+                log(`Annotations cleared for session ${sessionId}`, 'success');
+                console.log('[TRACE-ANNOTATION:clear-complete] Annotations cleared successfully'); // ;CLEANUP_OK
+            } catch (error) {
+                console.error('[TRACE-ANNOTATION:clear-error] Error clearing annotations:', error); // ;CLEANUP_OK
+                log(`Error clearing annotations: ${error.message}`, 'error');
+            }
         });
         
         // ========== CLEAR LOG ==========
