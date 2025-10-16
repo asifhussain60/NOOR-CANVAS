@@ -387,6 +387,19 @@ try {
         }
     }
     
+    # [DEBUG-WORKITEM:deploy:appsettings-fallback] Create appsettings.json if missing ;CLEANUP_OK
+    $appsettingsPath = Join-Path $DeployPath "appsettings.json"
+    if (-not (Test-Path $appsettingsPath)) {
+        Write-Info "→ appsettings.json not found, copying from appsettings.Production.json..."
+        $appsettingsProdPath = Join-Path $DeployPath "appsettings.Production.json"
+        if (Test-Path $appsettingsProdPath) {
+            Copy-Item -Path $appsettingsProdPath -Destination $appsettingsPath -Force
+            Write-Host "  ✓ Created appsettings.json from Production template" -ForegroundColor Green
+        } else {
+            Write-Warning "Neither appsettings.json nor appsettings.Production.json found - deployment may fail validation"
+        }
+    }
+    
     # [DEBUG-WORKITEM:prod-issues:appsettings-local] Remove appsettings.local.json from production (development override file) ;CLEANUP_OK
     $localOverride = Join-Path $DeployPath "appsettings.local.json"
     if (Test-Path $localOverride) {
@@ -763,7 +776,8 @@ try {
         Write-Host "`n→ Returning to $OriginalBranch branch (leaving master clean)..." -ForegroundColor Yellow
         Push-Location $WorkspaceRoot
         try {
-            git checkout $OriginalBranch -ErrorAction SilentlyContinue
+            # [DEBUG-WORKITEM:deploy:git-checkout-fix] Redirect stderr to suppress error messages ;CLEANUP_OK
+            git checkout $OriginalBranch 2>$null
             if ($LASTEXITCODE -eq 0) {
                 Write-Success "Returned to $OriginalBranch branch"
                 Write-Info "Master branch state: Clean (deployment changes not committed)"
