@@ -15,10 +15,10 @@
  * programmatically using a helper utility and validate them.
  */
 
-import { test, expect } from '@playwright/test';
 import percySnapshot from '@percy/playwright';
-import * as path from 'path';
+import { test } from '@playwright/test';
 import * as fs from 'fs';
+import * as path from 'path';
 
 // [TRACE:host-provisioner:percy-tests] Configuration for Host Provisioner testing ;CLEANUP_OK
 const SCREENSHOT_DIR = path.join('D:', 'PROJECTS', 'NOOR CANVAS', 'Workspaces', 'PercyScreenshots', 'HostProvisioner');
@@ -38,7 +38,7 @@ test.describe('Host Provisioner Visual Regression Tests', () => {
 
         // [TRACE:host-provisioner:percy-tests] Since WinForms can't be tested directly with Playwright,
         // we document the visual state through screenshots captured manually or via automation ;CLEANUP_OK
-        
+
         // Create a documentation page showing the Host Provisioner state
         const htmlContent = `
 <!DOCTYPE html>
