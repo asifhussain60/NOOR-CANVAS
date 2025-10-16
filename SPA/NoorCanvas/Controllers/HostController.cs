@@ -147,6 +147,10 @@ namespace NoorCanvas.Controllers
                 
                 _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Validating friendly token: {Token}",
                     requestId, friendlyToken);
+                
+                // [DEBUG-WORKITEM:host-landing:prod-debug] Enhanced token diagnostics for production ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:host-landing:prod-debug] Token details - Length: {Length}, Contains whitespace: {HasWhitespace}, Trimmed: '{Trimmed}' ;CLEANUP_OK",
+                    friendlyToken?.Length ?? 0, friendlyToken?.Any(char.IsWhiteSpace) ?? false, friendlyToken?.Trim());
 
                 if (string.IsNullOrWhiteSpace(friendlyToken))
                 {
@@ -154,6 +158,9 @@ namespace NoorCanvas.Controllers
                     _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Empty token provided", requestId);
                     return BadRequest(new { error = "Token is required", valid = false, requestId });
                 }
+                
+                // [DEBUG-WORKITEM:host-landing:prod-debug] Trim token to handle any whitespace issues ;CLEANUP_OK
+                friendlyToken = friendlyToken.Trim();
 
                 // Check if token format is valid (8 characters, alphanumeric)
                 if (friendlyToken.Length != 8 || !friendlyToken.All(c => char.IsLetterOrDigit(c)))

@@ -613,13 +613,25 @@ else
         {
             var uri = new Uri(Navigation.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var tokenFromQuery = query["token"];
+            
+            // [DEBUG-WORKITEM:host-landing:prod-debug] Try case-insensitive query parameter lookup ;CLEANUP_OK
+            var tokenFromQuery = query["token"] ?? query["Token"] ?? query["TOKEN"];
             
             if (!string.IsNullOrEmpty(tokenFromQuery))
             {
-                FriendlyToken = tokenFromQuery;
-                Logger.LogInformation("[DEBUG-WORKITEM:host-landing:query-token] [{RequestId}] Extracted token from query string: {Token} ;CLEANUP_OK", 
-                    requestId, FriendlyToken);
+                // [DEBUG-WORKITEM:host-landing:prod-debug] URL-decode token in case of encoding issues ;CLEANUP_OK
+                FriendlyToken = System.Web.HttpUtility.UrlDecode(tokenFromQuery);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:host-landing:query-token] [{RequestId}] Extracted token from query string: {Token} (raw: {Raw}, decoded: {Decoded}) ;CLEANUP_OK", 
+                    requestId, FriendlyToken, tokenFromQuery, FriendlyToken);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:host-landing:prod-debug] [{RequestId}] Full URL: {Url}, Query: {Query} ;CLEANUP_OK",
+                    requestId, Navigation.Uri, uri.Query);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:host-landing:prod-debug] [{RequestId}] No token found in query string. URL: {Url}, Query: {Query} ;CLEANUP_OK",
+                    requestId, Navigation.Uri, uri.Query);
             }
         }
 
