@@ -1309,29 +1309,32 @@
             await ShowMessageAsync("No transcript available to share.");
             return;
         }
-
-        if (string.IsNullOrEmpty(HostToken))
-        {
-            Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] ShareTranscript called but HostToken is null ;CLEANUP_OK");
-            await ShowMessageAsync("Error: Host token not available.");
-            return;
-        }
         
         try
         {
             isLoading = true;
             await InvokeAsync(StateHasChanged);
             
-            Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:share] Navigating host to TranscriptCanvas - HostToken: {HostToken}, SessionId: {SessionId} ;CLEANUP_OK", 
-                HostToken, SessionId);
+            Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:share] Broadcasting transcript share to participants - SessionId: {SessionId} ;CLEANUP_OK", 
+                SessionId);
             
-            // Navigate host to TranscriptCanvas.razor
-            Navigation.NavigateTo($"/transcript/canvas/{HostToken}", forceLoad: true);
+            // Broadcast to participants in waiting room via SignalR
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.InvokeAsync("BroadcastTranscriptShared", SessionId.Value, Model.SessionTranscript);
+                Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:share] Transcript shared successfully via SignalR broadcast ;CLEANUP_OK");
+                await ShowMessageAsync("Transcript shared with participants!");
+            }
+            else
+            {
+                Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] SignalR hub connection not available ;CLEANUP_OK");
+                await ShowMessageAsync("Error: Connection not available. Please try again.");
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[TRACE-WORKITEM:transcript-canvas:share] Error navigating to transcript canvas ;CLEANUP_OK");
-            await ShowMessageAsync("Error loading transcript. Please try again.");
+            Logger.LogError(ex, "[TRACE-WORKITEM:transcript-canvas:share] Error broadcasting transcript share ;CLEANUP_OK");
+            await ShowMessageAsync("Error sharing transcript. Please try again.");
         }
         finally
         {
