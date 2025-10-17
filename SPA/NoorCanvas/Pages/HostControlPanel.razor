@@ -125,8 +125,8 @@
                            OnCancelDelete="@CancelDelete"
                            OnConfirmDelete="@ConfirmDelete" />
 
-    <!-- [FABRIC:annotation-panel] Floating Annotation Panel ;CLEANUP_OK -->
-    <div id="hcp-annotation-panel" style="display:none; position:fixed; bottom:20px; right:20px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:16px; padding:16px 20px; box-shadow:0 8px 32px rgba(102, 126, 234, 0.4); z-index:10000; animation:slideIn 0.3s ease-out;">
+    <!-- [FABRIC:annotation-panel] Floating Annotation Panel - [TRACE:hcp-annotate] Visible by default for testing ;CLEANUP_OK -->
+    <div id="hcp-annotation-panel" style="display:block; position:fixed; bottom:20px; right:20px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:16px; padding:16px 20px; box-shadow:0 8px 32px rgba(102, 126, 234, 0.4); z-index:10000; animation:slideIn 0.3s ease-out;">
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
             <span style="color:white; font-weight:600; font-size:14px;">Annotation Tools</span>
             <button id="close-annotation-panel" style="background:rgba(255,255,255,0.2); border:none; color:white; width:24px; height:24px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-left:auto;">
@@ -1468,16 +1468,16 @@
             // SignalR broadcast logging preserved for troubleshooting
             Logger.LogInformation("[ASSET-SHARE-BROADCAST] âœ… Asset shared successfully - AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId}", assetType, instanceNumber, broadcastId);
             
-            // [FABRIC:annotation] Show annotation panel after successful share ;CLEANUP_OK
-            Logger.LogInformation("[TRACE:hcp-annotate] About to call showAnnotationPanel for shareId={ShareId} ;CLEANUP_OK", shareId);
+            // [FABRIC:annotation] [TRACE:hcp-annotate] Track shared asset for annotation (panel visible by default) ;CLEANUP_OK
+            Logger.LogInformation("[TRACE:hcp-annotate] Asset shared, tracking shareId={ShareId} for annotation ;CLEANUP_OK", shareId);
             try
             {
-                await JSRuntime.InvokeVoidAsync("eval", $"console.log('[TRACE:hcp-annotate] JSRuntime.InvokeVoidAsync executing for shareId: {shareId} ;CLEANUP_OK'); if (typeof showAnnotationPanel === 'function') {{ showAnnotationPanel('{shareId}'); }} else {{ console.error('[TRACE:hcp-annotate] CRITICAL: showAnnotationPanel function not found ;CLEANUP_OK'); }}");
-                Logger.LogInformation("[TRACE:hcp-annotate] JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK");
+                await JSRuntime.InvokeVoidAsync("showAnnotationPanel", shareId);
+                Logger.LogInformation("[TRACE:hcp-annotate] showAnnotationPanel invoked for shareId={ShareId} ;CLEANUP_OK", shareId);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "[TRACE:hcp-annotate] CRITICAL: JSRuntime.InvokeVoidAsync failed for shareId={ShareId} ;CLEANUP_OK", shareId);
+                Logger.LogError(ex, "[TRACE:hcp-annotate] showAnnotationPanel invocation failed for shareId={ShareId} ;CLEANUP_OK", shareId);
             }
             
             // Success notification removed - SignalR broadcast logging preserved above
@@ -3767,20 +3767,11 @@
     let currentSharedAssetId = null;
     let annotationHubConnection = null;
 
-    // [FABRIC:annotation] Define annotation panel function early to prevent timing issues ;CLEANUP_OK
+    // [FABRIC:annotation] [TRACE:hcp-annotate] Panel now visible by default - simplified for testing ;CLEANUP_OK
     window.showAnnotationPanel = function(shareId) {
-        console.log('[TRACE:hcp-annotate] showAnnotationPanel called for:', shareId, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-annotate] showAnnotationPanel called for shareId:', shareId, '(panel visible by default) ;CLEANUP_OK');
         currentSharedAssetId = shareId;
-        const panel = document.getElementById('hcp-annotation-panel');
-        console.log('[TRACE:hcp-annotate] Panel element lookup result:', panel, ';CLEANUP_OK');
-        console.log('[TRACE:hcp-annotate] Panel current display style:', panel ? panel.style.display : 'N/A', ';CLEANUP_OK');
-        if (panel) {
-            panel.style.display = 'block';
-            console.log('[TRACE:hcp-annotate] Panel display set to block, new value:', panel.style.display, ';CLEANUP_OK');
-            console.log('[TRACE:hcp-annotate] Panel computed style:', window.getComputedStyle(panel).display, ';CLEANUP_OK');
-        } else {
-            console.error('[TRACE:hcp-annotate] CRITICAL: Panel element not found in DOM ;CLEANUP_OK');
-        }
+        // Panel is now display:block by default, no visibility toggle needed
     };
 
     // Individual Asset Sharing Function (called by auto-injected SHARE buttons)

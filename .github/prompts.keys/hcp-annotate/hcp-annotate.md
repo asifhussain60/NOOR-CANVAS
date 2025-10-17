@@ -362,10 +362,65 @@ Test directory: D:\PROJECTS\NOOR CANVAS\Tests\UI
 
 ---
 
+---
+
+### 2025-10-17T02:45:00Z - Simplified Annotation Toolbar Visibility
+
+**Task**: Simplify annotation toolbar to be visible by default for testing functionality
+
+**Context**:
+User requested simplification: make annotation toolbar visible by default instead of complex conditional visibility logic. This allows focus on testing actual annotation functionality rather than debugging visibility issues.
+
+**Changes**:
+1. **Changed annotation panel default display** (Line 129):
+   - Before: `style="display:none; ..."`
+   - After: `style="display:block; ..."`
+   - Added trace comment documenting change
+
+2. **Simplified `showAnnotationPanel` JavaScript function** (Lines 3771-3776):
+   - Removed complex visibility toggling logic
+   - Removed setProperty with !important flag
+   - Now just logs shareId and sets currentSharedAssetId
+   - Panel visible by default, no DOM manipulation needed
+
+3. **Simplified C# invocation** (Lines 1468-1480):
+   - Changed from eval string to direct JSRuntime invocation
+   - Simplified logging: "tracking shareId for annotation"
+   - Removed CRITICAL error handling (not needed for simple tracking)
+
+**Trace Logging Added**:
+- `[TRACE:hcp-annotate] Visible by default for testing` - Panel HTML comment
+- `[TRACE:hcp-annotate] Panel now visible by default - simplified for testing` - JavaScript function
+- `[TRACE:hcp-annotate] Track shared asset for annotation (panel visible by default)` - C# method
+- All markers tagged with `;CLEANUP_OK` for Step 9 cleanup
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` - 3 locations (HTML, JavaScript, C#)
+
+**Benefits**:
+- ✅ Annotation toolbar visible immediately when page loads
+- ✅ Easier to test annotation tool functionality
+- ✅ Simplified codebase (removed complex visibility logic)
+- ✅ Reduced JavaScript complexity (no DOM manipulation)
+
+**Validation**:
+- ✅ Build successful (zero errors, zero warnings)
+- ✅ All trace logging uses `;CLEANUP_OK` markers
+
+**Commit SHA**: `d4f95443`
+
+**Next Steps**:
+1. Manual testing: Verify toolbar appears on page load
+2. Test annotation tools (laser, draw, highlight, note)
+3. Test SignalR broadcasting to SessionCanvas
+4. Once functionality confirmed, add back conditional visibility if needed
+
+---
+
 ## Key Metadata
 
 - **Debug Level**: trace
 - **Verbosity**: concise
-- **Task Type**: Infrastructure Improvement (Test Validation Pipeline)
+- **Task Type**: Bug Fix / Simplification
 - **Related Keys**: annotation
-- **Impact**: High - prevents syntax errors from causing test failures, improves developer experience
+- **Impact**: High - unblocks annotation functionality testing
