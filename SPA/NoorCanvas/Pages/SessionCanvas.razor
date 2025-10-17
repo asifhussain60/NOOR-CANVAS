@@ -1278,10 +1278,6 @@
     </div>
 }
 
-<!-- [DIAGNOSTIC:hcp-annotate:canvas] Transparent Fabric.js Canvas Overlay for Receiving Annotations ;CLEANUP_OK -->
-<canvas id="sessioncanvas-annotation-canvas" 
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 900; pointer-events: none;"></canvas>
-
 <DebugPanel CurrentViewName="SessionCanvas" 
             DebugActions="GetSessionCanvasDebugActions()" 
             GenericMessage="Session Canvas debug actions" />
@@ -3261,28 +3257,6 @@
                 }
             });
 
-            // [DIAGNOSTIC:hcp-annotate:receiver] Handle annotation broadcasts from host ;CLEANUP_OK
-            hubConnection.On<object>("AnnotationCreated", async (annotationData) =>
-            {
-                var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DIAGNOSTIC:hcp-annotate:receiver] [{RequestId}] Annotation received ;CLEANUP_OK", requestId);
-                
-                try
-                {
-                    var jsonString = System.Text.Json.JsonSerializer.Serialize(annotationData);
-                    Logger.LogDebug("[DIAGNOSTIC:hcp-annotate:receiver] [{RequestId}] Payload: {Json} ;CLEANUP_OK", requestId, jsonString);
-                    
-                    // Call JavaScript to render annotation on canvas
-                    await JSRuntime.InvokeVoidAsync("renderAnnotationOnCanvas", annotationData);
-                    
-                    Logger.LogInformation("[DIAGNOSTIC:hcp-annotate:receiver] [{RequestId}] ✅ Annotation rendered ;CLEANUP_OK", requestId);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[DIAGNOSTIC:hcp-annotate:receiver] [{RequestId}] Error rendering annotation ;CLEANUP_OK", requestId);
-                }
-            });
-
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
@@ -3613,124 +3587,3 @@
         }
     }
 }
-
-<script>
-    // [DIAGNOSTIC:hcp-annotate:renderer] SessionCanvas Annotation Renderer ;CLEANUP_OK
-    (function() {
-        console.log('[DIAGNOSTIC:hcp-annotate:renderer] Initializing SessionCanvas annotation renderer ;CLEANUP_OK');
-        
-        let participantCanvas = null;
-        
-        // Initialize Fabric.js canvas for receiving annotations
-        function initializeParticipantCanvas() {
-            const canvasElement = document.getElementById('sessioncanvas-annotation-canvas');
-            if (!canvasElement) {
-                console.error('[DIAGNOSTIC:hcp-annotate:renderer] Canvas element not found ;CLEANUP_OK');
-                return;
-            }
-            
-            // Check if Fabric.js is loaded
-            if (typeof fabric === 'undefined') {
-                console.error('[DIAGNOSTIC:hcp-annotate:renderer] Fabric.js not loaded ;CLEANUP_OK');
-                return;
-            }
-            
-            // Set canvas dimensions to viewport size
-            canvasElement.width = window.innerWidth;
-            canvasElement.height = window.innerHeight;
-            
-            // Initialize Fabric canvas (read-only for participants)
-            participantCanvas = new fabric.Canvas('sessioncanvas-annotation-canvas', {
-                isDrawingMode: false,
-                selection: false,
-                backgroundColor: null
-            });
-            
-            // Make all objects non-selectable (participants can only view)
-            participantCanvas.selection = false;
-            participantCanvas.forEachObject(function(obj) {
-                obj.selectable = false;
-                obj.evented = false;
-            });
-            
-            console.log('[DIAGNOSTIC:hcp-annotate:renderer] Participant canvas initialized ;CLEANUP_OK');
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                if (participantCanvas) {
-                    canvasElement.width = window.innerWidth;
-                    canvasElement.height = window.innerHeight;
-                    participantCanvas.setDimensions({ 
-                        width: window.innerWidth, 
-                        height: window.innerHeight 
-                    });
-                }
-            });
-        }
-        
-        // Global function to render received annotations
-        window.renderAnnotationOnCanvas = function(annotationData) {
-            console.log('[DIAGNOSTIC:hcp-annotate:renderer] renderAnnotationOnCanvas called ;CLEANUP_OK', annotationData);
-            
-            if (!participantCanvas) {
-                console.error('[DIAGNOSTIC:hcp-annotate:renderer] Participant canvas not initialized ;CLEANUP_OK');
-                return;
-            }
-            
-            try {
-                const { annotationType, annotationData: data, timestamp, annotationId } = annotationData;
-                
-                console.log('[DIAGNOSTIC:hcp-annotate:renderer] Rendering annotation:', annotationType, ';CLEANUP_OK');
-                
-                // Parse annotation data
-                const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-                
-                if (annotationType === 'laser') {
-                    // Render laser pointer (transient - remove after 1 second)
-                    const laserPoint = new fabric.Circle({
-                        radius: 8,
-                        fill: 'red',
-                        opacity: 0.8,
-                        left: parsedData.x - 8,
-                        top: parsedData.y - 8,
-                        selectable: false,
-                        evented: false
-                    });
-                    
-                    participantCanvas.add(laserPoint);
-                    participantCanvas.renderAll();
-                    
-                    // Remove after 500ms (laser is transient)
-                    setTimeout(() => {
-                        participantCanvas.remove(laserPoint);
-                        participantCanvas.renderAll();
-                    }, 500);
-                    
-                } else {
-                    // Render permanent annotation (path, text, etc.)
-                    fabric.util.enlivenObjects([parsedData], (objects) => {
-                        objects.forEach(obj => {
-                            obj.selectable = false;
-                            obj.evented = false;
-                            participantCanvas.add(obj);
-                        });
-                        participantCanvas.renderAll();
-                    });
-                }
-                
-                console.log('[DIAGNOSTIC:hcp-annotate:renderer] ? Annotation rendered successfully ;CLEANUP_OK');
-            } catch (error) {
-                console.error('[DIAGNOSTIC:hcp-annotate:renderer] Error rendering annotation:', error, ';CLEANUP_OK');
-            }
-        };
-        
-        // Initialize on DOM ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeParticipantCanvas);
-        } else {
-            initializeParticipantCanvas();
-        }
-        
-        console.log('[DIAGNOSTIC:hcp-annotate:renderer] SessionCanvas annotation renderer ready ;CLEANUP_OK');
-    })();
-</script>
