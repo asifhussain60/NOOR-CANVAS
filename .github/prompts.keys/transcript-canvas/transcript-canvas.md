@@ -1,13 +1,57 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-17T16:00:00Z  
-**Git Commit:** 4803134c14c7f5f4e52d32af397da058472f31da
+**Last Updated:** 2025-10-17T16:28:00Z  
+**Git Commit:** cc16e27ff92f8c1153f4ad104a702d705216eb9e
 
 ## Overview
-Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved.
+Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved. Fixed UI visibility to show transcript when Share Transcript clicked.
 
 ## Work Log
+
+### 2025-10-17T16:28:00Z - Fixed Transcript Panel Visibility
+**Commit:** cc16e27ff92f8c1153f4ad104a702d705216eb9e  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Problem:**
+- User clicked "Share Transcript" button but transcript did not display
+- Backend was loading transcript correctly via API (`GetSessionDetailsFromApiAsync`)
+- Issue: UI conditional rendering only showed transcript panel for Active/Ended sessions
+- ShareTranscript sets `isBroadcastMode = true` but session status remains "Waiting"
+
+**Root Cause Analysis:**
+- Line 81: `@if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended")`
+- This condition excluded broadcast mode where status is still "Waiting"
+- Transcript loaded into `Model.TransformedTranscript` but panel hidden
+
+**Solution:**
+- Updated conditional rendering to include `|| isBroadcastMode`
+- Updated else-if condition to exclude when `isBroadcastMode` is true
+- Added TRACE debug marker documenting the UI visibility logic
+
+**Changes:**
+1. **HostControlPanel.razor** (line 81)
+   - **Before:** `@if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended")`
+   - **After:** `@if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" || isBroadcastMode)`
+   - **Added:** Debug marker `[DIAGNOSTIC:transcript-canvas:share:UI]`
+
+2. **HostControlPanel.razor** (line 98)
+   - **Before:** `else if (Model?.SessionStatus == "Waiting" && !isLoading)`
+   - **After:** `else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode)`
+
+**Verification:**
+- Both StartSession and ShareTranscript use common API: `GetSessionDetailsFromApiAsync()`
+- StartSession: Sets status to "Active", re-transforms transcript with share buttons
+- ShareTranscript: Sets `isBroadcastMode = true`, transforms transcript without share buttons
+- UI now correctly shows transcript in both scenarios
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (2 lines modified)
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+---
 
 ### 2025-10-17T16:00:00Z - Implemented Broadcast Mode with Single Button
 **Commit:** 4803134c14c7f5f4e52d32af397da058472f31da  
