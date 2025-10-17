@@ -1,13 +1,43 @@
 # transcript-canvas
 
 **Status:** Complete  
-**Last Updated:** 2025-10-17T00:00:00Z  
-**Git Commit:** [Pending]
+**Last Updated:** 2025-10-17T02:30:00Z  
+**Git Commit:** d0ffbfa7a4fd86dd70068edc9a6fcac9d229baa9
 
 ## Overview
-Created TranscriptCanvas view accessible via user token for transcript sharing functionality. Modified HostControlPanel to include "Share Transcript" button alongside reduced-width "Start Session" button.
+Created TranscriptCanvas view accessible via user token for transcript sharing functionality. Modified HostControlPanel to include "Share Transcript" button alongside reduced-width "Start Session" button. **REVERTED:** Removed "Share Transcript" button and restored centered "Start Session" button.
 
 ## Work Log
+
+### 2025-10-17T02:30:00Z - Button Layout Reversion
+**Commit:** d0ffbfa7a4fd86dd70068edc9a6fcac9d229baa9  
+**Agent:** task  
+**Debug Level:** simple
+
+**Changes:**
+1. **HostControlPanelSidebar.razor**
+   - Removed 2-column grid layout (45%/55% split)
+   - Removed "Share Transcript" button completely
+   - Restored centered "Start Session" button with 60% width
+   - Changed container from grid to flexbox with center justification
+   - Removed OnShareTranscript EventCallback parameter
+   - Updated debug marker: `[DEBUG-WORKITEM:transcript-canvas:centered-button]`
+
+2. **HostControlPanel.razor**
+   - Removed OnShareTranscript binding from HostControlPanelSidebar component
+   - Removed ShareTranscript() method completely (lines 1294-1305)
+   - Cleaned up all transcript sharing functionality
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+**Architecture Notes:**
+- Button now centered within Session Controls panel
+- Single-button layout maintains visual balance
+- TranscriptCanvas.razor remains available at `/transcript/canvas/{userToken}` but no UI access point
+
+**Debug Markers:** Simple level (marked with ;CLEANUP_OK)
+
+---
 
 ### 2025-10-17T00:00:00Z - Initial Implementation
 **Commit:** [Pending]  
