@@ -497,12 +497,38 @@ while (-not $appReady -and $attemptCount -lt 30) {
     Start-Sleep -Seconds 2
 }
 
-# Step 4: Run tests
+# Step 4: Validate test syntax (MANDATORY)
+& "$workspaceRoot\Scripts\validate-test-syntax.ps1" -TestFile $testFilePath
+if ($LASTEXITCODE -ne 0) { exit 1 }
+
+# Step 5: Run tests
 npx playwright test {test-file}.spec.ts --headed
 
-# Step 5: Cleanup
+# Step 6: Cleanup
 Stop-Process -Id $appProcess.Id -Force
 ```
+
+**⚠️ CRITICAL: Lint Validation Requirement (MANDATORY)**
+
+**BEFORE executing ANY Playwright test**, the orchestration script **MUST** validate test file syntax using `Scripts\validate-test-syntax.ps1`.
+
+**Validation Steps:**
+1. Check for ESLint configuration (test directory, parent directory, or fallback to PlayWright config)
+2. Run ESLint validation with syntax checking
+3. If ESLint unavailable, fall back to TypeScript compiler check (`tsc --noEmit`)
+4. **HALT execution** if syntax errors detected
+5. Display clear error messages with fix instructions
+
+**Why This Is Required:**
+- ✅ Prevents wasted test runs due to syntax errors
+- ✅ Catches typos, missing imports, type errors before execution
+- ✅ Reduces debugging time (syntax errors vs. runtime errors)
+- ✅ Ensures consistent code quality across all tests
+
+**Enforcement:**
+- Task agent **MUST** include lint validation step in all orchestration scripts
+- Syntax validation failure = immediate halt (stop-on-failure behavior)
+- No exceptions without explicit user approval
 
 **Reference Implementations:**
 - `Scripts/run-debug-panel-e2e-visual-test.ps1` (complete pattern)

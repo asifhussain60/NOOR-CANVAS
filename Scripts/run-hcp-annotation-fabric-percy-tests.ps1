@@ -144,9 +144,42 @@ if (-not $appReady) {
 }
 
 # =============================================================================
-# STEP 4: RUN PLAYWRIGHT TESTS
+# STEP 4: VALIDATE TEST SYNTAX (LINT CHECK)
 # =============================================================================
-Write-Host "`n[4/5] Running Playwright tests..." -ForegroundColor Yellow
+Write-Host "`n[4/6] Validating test syntax..." -ForegroundColor Yellow
+
+foreach ($testFile in $testFiles) {
+    $testFilePath = Join-Path $testPath $testFile
+    
+    Write-Host "   [>] Validating: $testFile" -ForegroundColor Gray
+    
+    # Run lint validation script
+    & "$workspaceRoot\Scripts\validate-test-syntax.ps1" -TestFile $testFilePath
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "`n   [X] STOPPING: Test file has syntax errors" -ForegroundColor Red
+        Write-Host "   Fix syntax errors in $testFile before running tests" -ForegroundColor Yellow
+        
+        if (-not $KeepAppRunning) {
+            Write-Host "   Stopping app..." -ForegroundColor Yellow
+            Stop-Process -Id $appProcess.Id -Force -ErrorAction SilentlyContinue
+        }
+        
+        # Remove temp startup script
+        if (Test-Path $startupScriptPath) {
+            Remove-Item $startupScriptPath -Force -ErrorAction SilentlyContinue
+        }
+        
+        exit 1
+    }
+    
+    Write-Host "   [+] $testFile syntax validated" -ForegroundColor Green
+}
+
+# =============================================================================
+# STEP 5: RUN PLAYWRIGHT TESTS
+# =============================================================================
+Write-Host "`n[5/6] Running Playwright tests..." -ForegroundColor Yellow
 
 # Set BASE_URL environment variable for Playwright
 $env:BASE_URL = $appUrl
@@ -229,9 +262,9 @@ foreach ($testFile in $testFiles) {
 }
 
 # =============================================================================
-# STEP 5: CLEANUP
+# STEP 6: CLEANUP
 # =============================================================================
-Write-Host "`n[5/5] Cleanup..." -ForegroundColor Yellow
+Write-Host "`n[6/6] Cleanup..." -ForegroundColor Yellow
 
 if ($KeepAppRunning) {
     Write-Host "   Keeping app running (PID: $($appProcess.Id))" -ForegroundColor Yellow
