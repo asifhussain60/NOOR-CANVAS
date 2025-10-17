@@ -36,7 +36,7 @@ test.describe('Share Transcript Navigation', () => {
             console.log('📱 Loading Participant Waiting Room...');
             await participantPage.goto(`${BASE_URL}/session/waiting/${USER_TOKEN}`);
             await participantPage.waitForLoadState('networkidle');
-            
+
             // Wait for waiting room to be ready
             const waitingRoomTitle = participantPage.locator('h2, h1, [class*="title"]').first();
             await expect(waitingRoomTitle).toBeVisible({ timeout: 10000 });
