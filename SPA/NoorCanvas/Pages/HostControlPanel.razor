@@ -77,8 +77,8 @@
                                  OnFormatDurationFromString="@FormatDurationFromString" />
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
-        <!-- Only show transcript and Q&A panels after session has started -->
-        @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended")
+        <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
+        @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" || isBroadcastMode)
         {
             <HostControlPanelContent Model="@Model" 
                                      HostToken="@HostToken"
@@ -92,7 +92,7 @@
                                      OnQuestionClick="@ShareQuestionAsset"
                                      OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
         }
-        else if (Model?.SessionStatus == "Waiting" && !isLoading)
+        else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode)
         {
             <!-- Informational message when session hasn't started yet -->
             <div style="background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:3rem;text-align:center;">
