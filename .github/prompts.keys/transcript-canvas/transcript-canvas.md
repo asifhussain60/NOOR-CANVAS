@@ -1,13 +1,79 @@
 # transcript-canvas
 
-**Status:** Complete  
-**Last Updated:** 2025-01-23T10:30:00Z  
-**Git Commit:** 55c017729fc6c064444e194aacae66864b11d1b8
+**Status:** Active  
+**Last Updated:** 2025-10-17T14:55:00Z  
+**Git Commit:** b295670d91e7de3dc1f38f90c70f24a1e4cf4596
 
 ## Overview
-Implemented "Share Transcript" broadcast functionality where host clicks button to load transcript in HostControlPanel with single broadcast button (host stays in same view). When broadcast button is clicked, full transcript HTML is sent via SignalR to all participants who are then navigated to TranscriptCanvas.razor. "Start Session" button maintains existing multi-button asset sharing behavior.
+Fixed "Share Transcript" button navigation - clicking the button now properly navigates the host from HostControlPanel to TranscriptCanvas.razor. Previous implementation was setting a broadcast mode flag but not performing navigation. Fixed to use Navigation.NavigateTo() with HostToken parameter.
 
 ## Work Log
+
+### 2025-10-17T14:55:00Z - Fixed ShareTranscript Navigation
+**Commit:** b295670d91e7de3dc1f38f90c70f24a1e4cf4596  
+**Agent:** GitHub Copilot (task.prompt.md)  
+**Debug Level:** trace
+
+**Problem Statement:**
+- User reported: "clicking on 'Share Transcript' does nothing"
+- Expected behavior: Navigate from HostControlPanel (waiting room) to TranscriptCanvas.razor
+- Actual behavior: Button click had no visible effect (was only setting internal flag)
+
+**Root Cause:**
+- ShareTranscript() method was setting `isBroadcastMode = true` flag but NOT navigating
+- Previous implementation focused on SignalR broadcast pattern, not host navigation
+- Navigation code was documented in work log but never actually implemented
+
+**Changes:**
+1. **HostControlPanel.razor** - ShareTranscript() method (lines 1298-1337)
+   - **REMOVED:** `isBroadcastMode = true` flag setting (old broadcast pattern)
+   - **REMOVED:** `Model.TransformedTranscript` assignment (no longer needed)
+   - **ADDED:** HostToken null validation with user-friendly error message
+   - **ADDED:** `Navigation.NavigateTo($"/transcript/canvas/{HostToken}", forceLoad: true)`
+   - **UPDATED:** Debug markers from `[DEBUG-WORKITEM:...]` to `[TRACE-WORKITEM:...]`
+   - **KEPT:** Model null check, SessionTranscript empty check, error handling
+   
+2. **Workspaces/TEMP/share-transcript-navigation.spec.ts** (NEW)
+   - Comprehensive Playwright test with Percy visual regression
+   - Browser console log tracking for JavaScript error detection
+   - Tests navigation from HostControlPanel to TranscriptCanvas
+   - Uses Session 212 canonical test data (HOST_TOKEN: 'PQ9N5YWW')
+   - 5 Percy snapshots: Initial state, before click, success, disabled state, error state
+   - Console error filtering (ignores favicon/manifest/sw.js, reports critical errors)
+   
+3. **Scripts/run-share-transcript-test.ps1** (NEW)
+   - PowerShell orchestration script following mandatory pattern
+   - Separate PowerShell window for app (prevents terminal blocking)
+   - Extended health check: 60 seconds timeout (accommodates Norton antivirus delays)
+   - App lifecycle: Kill existing → Launch new → Health check → Run test → Cleanup
+   - Percy integration with PERCY_TOKEN detection
+   - Process tracking with $appProcess variable for proper cleanup
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+**Test Infrastructure:**
+- **Test File:** `Workspaces/TEMP/share-transcript-navigation.spec.ts`
+- **Orchestration Script:** `Scripts/run-share-transcript-test.ps1`
+- **Execution:** `.\Scripts\run-share-transcript-test.ps1` (manual run required due to terminal limitations)
+- **Test Data:** Session 212, Host Token: PQ9N5YWW
+- **Percy Snapshots:** 5 visual regression checkpoints
+
+**Architecture Notes:**
+- Navigation Flow: HostControlPanel → Click "Share Transcript" → Navigate to `/transcript/canvas/{HostToken}` → TranscriptCanvas.razor renders
+- forceLoad: true ensures clean page transition (reloads entire page)
+- HostToken validation prevents navigation errors when token is missing
+- TranscriptCanvas route accepts any session token (host or user tokens work)
+- Console log tracking detects JavaScript errors during navigation
+
+**Debug Markers:** Trace level (per user request, marked with ;CLEANUP_OK)
+
+**Testing Notes:**
+- Manual test execution required (app in one window, test in another)
+- Norton antivirus may delay app startup (60s timeout configured)
+- Console logs filtered to exclude non-critical errors (favicon, manifest, service worker)
+- Percy visual regression requires PERCY_TOKEN environment variable
+
+---
 
 ### 2025-01-23T10:30:00Z - Implemented Share Transcript Broadcast
 **Commit:** 55c017729fc6c064444e194aacae66864b11d1b8  
