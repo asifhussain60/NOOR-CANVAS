@@ -1,13 +1,75 @@
 # transcript-canvas
 
-**Status:** In Progress  
-**Last Updated:** 2025-10-17T14:05:00Z  
-**Git Commit:** fcd9375d17623d6c60048520c2e52d226b4c22ed
+**Status:** Complete  
+**Last Updated:** 2025-01-23T10:30:00Z  
+**Git Commit:** 55c017729fc6c064444e194aacae66864b11d1b8
 
 ## Overview
-Created TranscriptCanvas view accessible via user token for transcript sharing functionality. Modified HostControlPanel to include "Share Transcript" button alongside "Start Session" button in a 2-column grid layout (45%/55% split).
+Implemented "Share Transcript" broadcast functionality where host clicks button to load transcript in HostControlPanel with single broadcast button (host stays in same view). When broadcast button is clicked, full transcript HTML is sent via SignalR to all participants who are then navigated to TranscriptCanvas.razor. "Start Session" button maintains existing multi-button asset sharing behavior.
 
 ## Work Log
+
+### 2025-01-23T10:30:00Z - Implemented Share Transcript Broadcast
+**Commit:** 55c017729fc6c064444e194aacae66864b11d1b8  
+**Agent:** GitHub Copilot  
+**Debug Level:** simple
+
+**Changes:**
+1. **HostControlPanel.razor**
+   - Modified ShareTranscript() method: removed Navigation.NavigateTo, now loads transcript with `isBroadcastMode = true`
+   - Added `isBroadcastMode` state flag to differentiate "Start Session" (multi-button) vs "Share Transcript" (single broadcast button)
+   - Implemented BroadcastFullTranscript() method to call SignalR hub
+   - Host stays in HostControlPanel (no navigation)
+   - Debug markers: `[DEBUG-WORKITEM:transcript-canvas:share]`, `[DEBUG-WORKITEM:transcript-canvas:broadcast]`
+
+2. **HostControlPanelContent.razor**
+   - Added `IsBroadcastMode` parameter (bool)
+   - Added `OnBroadcastTranscript` EventCallback
+   - Added broadcast button UI at top of transcript area when `IsBroadcastMode == true`
+   - Button styled with golden theme (#D4AF37), icon: `fa-share-nodes`
+   - Passes parameters from HostControlPanel: `IsBroadcastMode="@isBroadcastMode"`, `OnBroadcastTranscript="@BroadcastFullTranscript"`
+
+3. **SessionHub.cs**
+   - Added BroadcastTranscriptShared(int sessionId, string transcriptHtml) method
+   - Follows BroadcastSessionBegan pattern
+   - Broadcasts "TranscriptShared" event to `session_{sessionId}` group
+   - Payload: { sessionId, transcriptHtml, sharedAt, timestamp }
+   - Debug markers: `[DEBUG-WORKITEM:transcript-canvas:broadcast]`
+
+4. **SessionWaiting.razor**
+   - Added `hubConnection.On<object>("TranscriptShared", ...)` listener
+   - Navigates participants to `/transcript/canvas/{SessionToken}` on event
+   - Error handling with try/catch and logging
+   - Debug markers: `[DEBUG-WORKITEM:transcript-canvas:broadcast]`
+
+5. **TranscriptCanvas.razor**
+   - Added `hubConnection.On<object>("TranscriptShared", ...)` listener
+   - Receives transcriptHtml from event payload
+   - Sets `Model.SessionTranscript = transcriptHtml` for rendering
+   - Calls StateHasChanged() to update UI
+   - Debug markers: `[DEBUG-WORKITEM:transcript-canvas:broadcast]`
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+**Architecture Notes:**
+- **Two-Button Differentiation:**
+  - "Start Session": Loads transcript with individual asset share buttons (existing behavior)
+  - "Share Transcript": Loads raw transcript with single "Broadcast Transcript to Participants" button (new behavior)
+- **Host Flow:** Click "Share Transcript" → Transcript loads in HostControlPanel → Click broadcast button → SignalR sends HTML to all participants → Host stays in control panel
+- **Participant Flow:** In SessionWaiting.razor → Receive "TranscriptShared" event → Navigate to /transcript/canvas/{SessionToken} → Render received HTML
+- **SignalR Event:** "TranscriptShared" with payload { sessionId, transcriptHtml, sharedAt, timestamp }
+- **State Management:** `isBroadcastMode` flag in HostControlPanel tracks transcript loading mode
+- **UI Components:** Broadcast button shows only when `IsBroadcastMode == true` in HostControlPanelContent
+
+**Debug Markers:** Simple level (marked with ;CLEANUP_OK)
+
+**Testing Notes:**
+- Host should stay in HostControlPanel after clicking "Share Transcript"
+- Broadcast button should appear at top of transcript area
+- Participants in waiting room should navigate to TranscriptCanvas when broadcast button clicked
+- Transcript should render with session-transcript.css only (no asset buttons)
+
+---
 
 ### 2025-10-17T14:05:00Z - Re-implemented Share Transcript Button
 **Commit:** fcd9375d17623d6c60048520c2e52d226b4c22ed  
