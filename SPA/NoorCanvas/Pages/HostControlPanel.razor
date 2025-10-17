@@ -1297,18 +1297,12 @@
     // [DIAGNOSTIC:transcript-canvas:share] Load transcript with single broadcast button (host stays in HostControlPanel) ;CLEANUP_OK
     private async Task ShareTranscript()
     {
-        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] ════════ SHARE TRANSCRIPT FLOW START ════════ ;CLEANUP_OK");
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW START ════════ ;CLEANUP_OK", requestId);
         
         if (Model == null || SessionId == null)
         {
-            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(Model.SessionTranscript))
-        {
-            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] ShareTranscript called but SessionTranscript is empty ;CLEANUP_OK");
-            await ShowMessageAsync("No transcript available to share.");
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK", requestId);
             return;
         }
         
@@ -1317,27 +1311,44 @@
             isLoading = true;
             await InvokeAsync(StateHasChanged);
             
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-1] SessionId={SessionId}, TranscriptLength={Length} chars ;CLEANUP_OK", 
-                SessionId, Model.SessionTranscript.Length);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-1] [{RequestId}] SessionId={SessionId}, fetching latest transcript from API ;CLEANUP_OK", 
+                requestId, SessionId);
+            
+            // HOOK INTO API CALL: Fetch latest transcript from API (same as Start Session button flow)
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-2] [{RequestId}] Calling GetSessionDetailsFromApiAsync to refresh transcript ;CLEANUP_OK", requestId);
+            var sessionDetails = await GetSessionDetailsFromApiAsync((long)SessionId.Value, requestId);
+            
+            if (sessionDetails == null || string.IsNullOrEmpty(sessionDetails.Transcript))
+            {
+                Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] API returned no transcript data ;CLEANUP_OK", requestId);
+                await ShowMessageAsync("No transcript available to share.");
+                return;
+            }
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] API returned transcript: {Length} chars ;CLEANUP_OK", 
+                requestId, sessionDetails.Transcript.Length);
+            
+            // Update Model with fresh transcript from API
+            Model.SessionTranscript = sessionDetails.Transcript;
             
             // CRITICAL: Set broadcast mode flag - this differentiates from Start Session flow
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-2] Setting isBroadcastMode=true (Host stays in HostControlPanel, no asset share buttons) ;CLEANUP_OK");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-4] [{RequestId}] Setting isBroadcastMode=true (Host stays in HostControlPanel, no asset share buttons) ;CLEANUP_OK", requestId);
             isBroadcastMode = true;
             
             // Transform transcript: remove delete buttons and share buttons
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] Calling TransformTranscriptForBroadcast() ;CLEANUP_OK");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-5] [{RequestId}] Calling TransformTranscriptForBroadcast() ;CLEANUP_OK", requestId);
             var transformedHtml = await TransformTranscriptForBroadcastAsync();
             Model.TransformedTranscript = transformedHtml;
             
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-4] Transcript loaded into Model.TransformedTranscript, Length={Length} chars ;CLEANUP_OK", 
-                Model.TransformedTranscript.Length);
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] Host will see transcript with single 'Broadcast to All' button at top ;CLEANUP_OK");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-6] [{RequestId}] Transcript loaded into Model.TransformedTranscript, Length={Length} chars ;CLEANUP_OK", 
+                requestId, Model.TransformedTranscript.Length);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] [{RequestId}] Host will see transcript with single 'Broadcast to All' button at top ;CLEANUP_OK", requestId);
             
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:share:ERROR] Exception during ShareTranscript, Message={Message} ;CLEANUP_OK", ex.Message);
+            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] Exception during ShareTranscript, Message={Message} ;CLEANUP_OK", requestId, ex.Message);
             await ShowMessageAsync("Error loading transcript. Please try again.");
             isBroadcastMode = false;
         }
@@ -1345,7 +1356,7 @@
         {
             isLoading = false;
             await InvokeAsync(StateHasChanged);
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:EXIT] ════════ SHARE TRANSCRIPT FLOW END ════════ ;CLEANUP_OK");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:EXIT] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW END ════════ ;CLEANUP_OK", requestId);
         }
     }
 

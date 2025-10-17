@@ -1,13 +1,93 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-17T15:30:00Z  
-**Git Commit:** 95b8ffaf5a7dbfbf5d6dfe320da53d152e6692d4
+**Last Updated:** 2025-10-17T16:00:00Z  
+**Git Commit:** 4803134c14c7f5f4e52d32af397da058472f31da
 
 ## Overview
-TranscriptCanvas.razor visual distinction from SessionCanvas.razor using purple theme and prominent header badge.
+Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved.
 
 ## Work Log
+
+### 2025-10-17T16:00:00Z - Implemented Broadcast Mode with Single Button
+**Commit:** 4803134c14c7f5f4e52d32af397da058472f31da  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** diagnostic
+
+**Requirements:**
+- ShareTranscript button should load transcript in HostControlPanel (host stays)
+- Show ONE broadcast button at top (not individual asset share buttons)
+- Clicking broadcast button sends full transcript to participants via SignalR
+- CRITICAL: Preserve existing Start Session functionality
+
+**Changes:**
+1. **HostControlPanel.razor - ShareTranscript() method** (lines 1300-1345)
+   - **Changed:** Instead of direct SignalR broadcast, sets `isBroadcastMode = true`
+   - **Added:** Call to `TransformTranscriptForBroadcastAsync()` to clean HTML
+   - **Store:** Transformed HTML in `Model.TransformedTranscript`
+   - **Result:** Host stays in HostControlPanel, sees transcript with broadcast button
+   - **Diagnostic Logging:** ENTRY, STEP-1 through STEP-4, COMPLETE, EXIT with flow separators
+
+2. **HostControlPanel.razor - BroadcastFullTranscript() method** (lines 1349-1398)
+   - **Enhanced:** Comprehensive diagnostic logging at each step
+   - **Validation:** Check Model, SessionId, hubConnection, transcript content
+   - **SignalR Call:** `hubConnection.InvokeAsync("BroadcastTranscriptShared", SessionId, Model.SessionTranscript)`
+   - **Reset:** Sets `isBroadcastMode = false` after broadcast
+   - **Diagnostic Logging:** ENTRY, STEP-1 through STEP-5, COMPLETE with flow separators
+
+3. **HostControlPanel.razor - NEW TransformTranscriptForBroadcastAsync()** (lines 1400-1458)
+   - **Purpose:** Remove delete buttons, share buttons, data-asset-id attributes
+   - **Different from Start Session:** Does NOT inject individual share buttons
+   - **Regex Patterns:**
+     - Delete buttons: `<button[^>]*class\s*=\s*[""'][^""']*delete[^""']*[""'][^>]*>.*?</button>`
+     - Share buttons: `<button[^>]*onclick\s*=\s*[""']shareIndividualAsset\([^)]*\)[""'][^>]*>.*?</button>`
+     - Asset IDs: `\s+data-asset-id\s*=\s*[""'][^""']*[""']`
+   - **Diagnostic Logging:** ENTRY, STEP-1 through STEP-4, COMPLETE, ERROR
+
+4. **HostControlPanelContent.razor** (NO CHANGES NEEDED)
+   - **Already Has:** Broadcast button UI when `IsBroadcastMode == true` (lines 26-44)
+   - **Button Text:** "📡 Broadcast Transcript to Participants"
+   - **Styling:** Golden theme (#D4AF37) with hover effects
+   - **Callback:** Triggers `OnBroadcastTranscript` which calls `BroadcastFullTranscript()`
+
+**Flow:**
+```
+Host clicks "Share Transcript" button
+  → [DIAGNOSTIC:transcript-canvas:share:ENTRY]
+  → ShareTranscript() sets isBroadcastMode = true
+  → TransformTranscriptForBroadcastAsync() cleans HTML
+  → Model.TransformedTranscript loaded
+  → [DIAGNOSTIC:transcript-canvas:share:COMPLETE]
+  → Host sees transcript with ONE "Broadcast to All" button at top
+
+Host clicks "Broadcast to All" button
+  → [DIAGNOSTIC:transcript-canvas:broadcast:ENTRY]
+  → BroadcastFullTranscript() validates and sends via SignalR
+  → Participants receive broadcast, navigate to TranscriptCanvas
+  → [DIAGNOSTIC:transcript-canvas:broadcast:COMPLETE]
+  → isBroadcastMode reset to false
+  → Host stays in HostControlPanel
+```
+
+**Start Session Flow PRESERVED:**
+- Start Session still injects individual share buttons per asset
+- Uses different `Model.TransformedTranscript` path
+- Broadcast mode flag differentiates the two flows
+- No code changes to StartSession() method
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (3 methods modified/added)
+
+**Diagnostic Logging Strategy:**
+- **Prefix:** `[DIAGNOSTIC:transcript-canvas:{component}:{step}]`
+- **Components:** share, transform, broadcast
+- **Steps:** ENTRY, STEP-N, COMPLETE, ERROR, EXIT
+- **Visual Separators:** `════════` for major flow boundaries
+- **Suffix:** `;CLEANUP_OK` for easy removal
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+---
 
 ### 2025-10-17T15:30:00Z - Added Visual Distinction to TranscriptCanvas
 **Commit:** 95b8ffaf5a7dbfbf5d6dfe320da53d152e6692d4  
