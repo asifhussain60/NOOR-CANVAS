@@ -1517,6 +1517,55 @@
         }
     }
     
+    /// <summary>
+    /// [DIAGNOSTIC:hcp-annotate:signalr] Broadcast annotation data to all session participants ;CLEANUP_OK
+    /// </summary>
+    [JSInvokable]
+    public async Task BroadcastAnnotation(string annotationType, string annotationData)
+    {
+        var annotationId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DIAGNOSTIC:hcp-annotate:broadcast] Broadcasting annotation: type={Type}, id={Id} ;CLEANUP_OK", 
+            annotationType, annotationId);
+        
+        if (SessionId == null || hubConnection == null)
+        {
+            Logger.LogError("[DIAGNOSTIC:hcp-annotate:broadcast] Cannot broadcast: SessionId or hubConnection null ;CLEANUP_OK");
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            Logger.LogError("[DIAGNOSTIC:hcp-annotate:broadcast] SignalR not connected: State={State} ;CLEANUP_OK", 
+                hubConnection.State);
+            return;
+        }
+
+        try
+        {
+            var payload = new
+            {
+                annotationType = annotationType,
+                annotationData = annotationData,
+                timestamp = DateTime.UtcNow,
+                annotationId = annotationId
+            };
+            
+            // Broadcast via AnnotationHub using existing hub connection
+            // The hub will automatically broadcast to all clients in the session group
+            await hubConnection.InvokeAsync("BroadcastAnnotation", 
+                SessionId.Value, 
+                HostToken ?? "unknown-host", 
+                payload);
+            
+            Logger.LogInformation("[DIAGNOSTIC:hcp-annotate:broadcast] ✅ Annotation broadcasted successfully: id={Id} ;CLEANUP_OK", 
+                annotationId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:hcp-annotate:broadcast] ❌ Error broadcasting annotation ;CLEANUP_OK");
+        }
+    }
+    
     private async Task TestShareAsset()
     {
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
@@ -4729,15 +4778,41 @@ Please share this report with the development team for debugging.`;
             });
         }
         
-        // SignalR broadcast functions (placeholders - will implement in next step)
-        function broadcastLaserPosition(x, y) {
-            // TODO: Implement SignalR broadcast
-            console.log('[DIAGNOSTIC:hcp-annotate:signalr] Broadcasting laser position:', x, y, ';CLEANUP_OK');
+        // SignalR broadcast functions
+        async function broadcastLaserPosition(x, y) {
+            try {
+                const annotationData = JSON.stringify({ x: x, y: y });
+                await DotNet.invokeMethodAsync('NoorCanvas', 'BroadcastAnnotation', 'laser', annotationData);
+                console.log('[DIAGNOSTIC:hcp-annotate:signalr] Laser position broadcasted:', x, y, ';CLEANUP_OK');
+            } catch (error) {
+                console.error('[DIAGNOSTIC:hcp-annotate:signalr] Error broadcasting laser position:', error, ';CLEANUP_OK');
+            }
         }
         
-        function broadcastAnnotation(obj) {
-            // TODO: Implement SignalR broadcast
-            console.log('[DIAGNOSTIC:hcp-annotate:signalr] Broadcasting annotation:', obj, ';CLEANUP_OK');
+        async function broadcastAnnotation(obj) {
+            try {
+                const annotationData = JSON.stringify(obj.toJSON());
+                const annotationType = obj.type || 'unknown';
+                await DotNet.invokeMethodAsync('NoorCanvas', 'BroadcastAnnotation', annotationType, annotationData);
+                console.log('[DIAGNOSTIC:hcp-annotate:signalr] Annotation broadcasted:', obj.type, ';CLEANUP_OK');
+            } catch (error) {
+                console.error('[DIAGNOSTIC:hcp-annotate:signalr] Error broadcasting annotation:', error, ';CLEANUP_OK');
+            }
+        }
+        
+        // Listen for drawing events and broadcast them
+        if (fabricCanvas) {
+            fabricCanvas.on('path:created', function(e) {
+                console.log('[DIAGNOSTIC:hcp-annotate:drawing] Path created, broadcasting ;CLEANUP_OK');
+                broadcastAnnotation(e.path);
+            });
+            
+            fabricCanvas.on('object:added', function(e) {
+                if (e.target && e.target.type !== 'path') {
+                    console.log('[DIAGNOSTIC:hcp-annotate:object] Object added, broadcasting ;CLEANUP_OK');
+                    broadcastAnnotation(e.target);
+                }
+            });
         }
         
         // Initialize on DOM ready
