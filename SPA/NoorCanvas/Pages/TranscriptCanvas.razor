@@ -3184,6 +3184,39 @@
                 }
             });
 
+            // [DEBUG-WORKITEM:transcript-canvas:broadcast] Listen for transcript shared events to render full transcript ;CLEANUP_OK
+            hubConnection.On<object>("TranscriptShared", async (transcriptData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] TranscriptShared event received ;CLEANUP_OK");
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(transcriptData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    if (root.TryGetProperty("transcriptHtml", out var htmlElement))
+                    {
+                        var transcriptHtml = htmlElement.GetString();
+                        Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Received transcript HTML: {Length} chars ;CLEANUP_OK", 
+                            transcriptHtml?.Length ?? 0);
+                        
+                        if (Model != null && !string.IsNullOrEmpty(transcriptHtml))
+                        {
+                            // Set transcript directly in Model for rendering
+                            Model.SessionTranscript = transcriptHtml;
+                            await InvokeAsync(StateHasChanged);
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] ✅ Transcript rendered in canvas view ;CLEANUP_OK");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:transcript-canvas:broadcast] ❌ Error processing TranscriptShared event ;CLEANUP_OK");
+                }
+            });
+
             // [DEBUG-WORKITEM:hcp] Listen for canvas clear events to show default message ;CLEANUP_OK
             hubConnection.On("ClearCanvas", async () =>
             {

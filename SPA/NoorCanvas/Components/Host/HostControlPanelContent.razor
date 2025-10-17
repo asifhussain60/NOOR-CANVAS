@@ -23,6 +23,28 @@
         
         <!-- Transcript Content Area with Independent Scrolling -->
         <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+            @* [DEBUG-WORKITEM:transcript-canvas:broadcast] Show broadcast button when in broadcast mode ;CLEANUP_OK *@
+            @if (IsBroadcastMode && !string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                <div style="display:flex;justify-content:center;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #E5E7EB;">
+                    <button @onclick="OnBroadcastTranscript" 
+                            disabled="@IsLoading"
+                            style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(212,175,55,0.4);color:white;font-weight:600;font-size:1rem;background-color:#D4AF37;border:none;cursor:@(IsLoading ? "not-allowed" : "pointer");opacity:@(IsLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                            onmouseover="this.style.backgroundColor='#C5B358'; this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.backgroundColor='#D4AF37'; this.style.transform='scale(1)'">
+                        @if (IsLoading)
+                        {
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-share-nodes" style="font-size:1rem;"></i>
+                        }
+                        <span>Broadcast Transcript to Participants</span>
+                    </button>
+                </div>
+            }
+            
             @if (IsLoading)
             {
                 <div style="color:#6B7280;text-align:center;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
@@ -116,7 +138,9 @@
     [Parameter] public HostControlPanelViewModel? Model { get; set; }
     [Parameter] public string? HostToken { get; set; }
     [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public bool IsBroadcastMode { get; set; } // [DEBUG-WORKITEM:transcript-canvas:broadcast] Show broadcast button when true ;CLEANUP_OK
     [Parameter] public EventCallback OnEndSession { get; set; }
+    [Parameter] public EventCallback OnBroadcastTranscript { get; set; } // [DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcast full transcript ;CLEANUP_OK
     [Parameter] public EventCallback<Guid> OnMarkQuestionAnswered { get; set; }
     [Parameter] public EventCallback<Guid> OnShowDeleteModal { get; set; }
     [Parameter] public EventCallback<NoorCanvas.ViewModels.QuestionItem> OnQuestionClick { get; set; }

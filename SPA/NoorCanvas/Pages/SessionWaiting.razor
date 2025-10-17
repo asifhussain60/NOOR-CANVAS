@@ -1469,6 +1469,41 @@ background-color: #effff9;
                 });
             });
 
+            // [DEBUG-WORKITEM:transcript-canvas:broadcast] Listen for transcript shared events to navigate to transcript canvas ;CLEANUP_OK
+            _hubConnection.On<object>("TranscriptShared", async (transcriptData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] TranscriptShared event received in waiting room ;CLEANUP_OK");
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(transcriptData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    int sessionId = 0;
+                    if (root.TryGetProperty("sessionId", out var sessionIdElement))
+                    {
+                        sessionId = sessionIdElement.GetInt32();
+                    }
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Transcript shared for session {SessionId}, navigating to transcript canvas ;CLEANUP_OK", sessionId);
+                    
+                    // Navigate all participants to transcript canvas view
+                    await InvokeAsync(() =>
+                    {
+                        if (!string.IsNullOrEmpty(SessionToken))
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Navigating to /transcript/canvas/{SessionToken} ;CLEANUP_OK", SessionToken);
+                            Navigation.NavigateTo($"/transcript/canvas/{SessionToken}");
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:transcript-canvas:broadcast] Error handling TranscriptShared event ;CLEANUP_OK");
+                }
+            });
+
             // [DEBUG-WORKITEM:session-ended:hub] Listen for session ended events ;CLEANUP_OK
             _hubConnection.On<object>("SessionEnded", async (endData) =>
             {

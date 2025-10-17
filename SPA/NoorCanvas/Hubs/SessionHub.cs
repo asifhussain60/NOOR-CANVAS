@@ -549,6 +549,30 @@ public class SessionHub : Hub
     }
 
     /// <summary>
+    /// [DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcast full transcript HTML to all participants ;CLEANUP_OK
+    /// </summary>
+    /// <param name="sessionId">Session ID to broadcast to.</param>
+    /// <param name="transcriptHtml">Full transcript HTML content to share.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task BroadcastTranscriptShared(int sessionId, string transcriptHtml)
+    {
+        var groupName = $"session_{sessionId}";
+
+        _logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcasting TranscriptShared to session {SessionId}, contentLength: {Length} chars ;CLEANUP_OK", 
+            sessionId, transcriptHtml?.Length ?? 0);
+
+        await Clients.Group(groupName).SendAsync("TranscriptShared", new
+        {
+            sessionId = sessionId,
+            transcriptHtml = transcriptHtml,
+            sharedAt = DateTime.UtcNow,
+            timestamp = DateTime.UtcNow
+        });
+
+        _logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] TranscriptShared broadcast completed for session {SessionId} ;CLEANUP_OK", sessionId);
+    }
+
+    /// <summary>
     /// Broadcast participant joined event to session group (called from ParticipantController).
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>

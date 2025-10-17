@@ -83,8 +83,10 @@
             <HostControlPanelContent Model="@Model" 
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
+                                     IsBroadcastMode="@isBroadcastMode"
                                      SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
+                                     OnBroadcastTranscript="@BroadcastFullTranscript"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
                                      OnQuestionClick="@ShareQuestionAsset"
@@ -134,6 +136,7 @@
     private bool showDeleteModal = false;
     private bool showMessage = false;
     private bool shareHandlersInitialized = false;
+    private bool isBroadcastMode = false; // [DEBUG-WORKITEM:transcript-canvas:share] Track if transcript loaded for broadcast ;CLEANUP_OK
     private string messageText = "";
     private Guid questionToDeleteId;
     private Timer? messageTimer;
@@ -1291,17 +1294,91 @@
         }
     }
 
-    // [DEBUG-WORKITEM:transcript-canvas:share] Navigate to transcript canvas view with user token ;CLEANUP_OK
-    private void ShareTranscript()
+    // [DEBUG-WORKITEM:transcript-canvas:share] Load transcript with single broadcast button (host stays in HostControlPanel) ;CLEANUP_OK
+    private async Task ShareTranscript()
     {
-        if (string.IsNullOrEmpty(UserToken))
+        if (Model == null || SessionId == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:share] ShareTranscript called but UserToken is null or empty ;CLEANUP_OK");
+            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:share] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Model.SessionTranscript))
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:share] ShareTranscript called but SessionTranscript is empty ;CLEANUP_OK");
+            await ShowMessageAsync("No transcript available to share.");
             return;
         }
         
-        Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Navigating to transcript canvas: /transcript/canvas/{UserToken} ;CLEANUP_OK", UserToken);
-        Navigation.NavigateTo($"https://localhost:9091/transcript/canvas/{UserToken}", forceLoad: true);
+        try
+        {
+            isLoading = true;
+            await InvokeAsync(StateHasChanged);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Loading transcript for broadcast mode - SessionId: {SessionId} ;CLEANUP_OK", SessionId);
+            
+            // Set broadcast mode flag and load transcript without asset buttons
+            isBroadcastMode = true;
+            Model.TransformedTranscript = Model.SessionTranscript; // Use raw transcript without transformation (no asset buttons)
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Transcript loaded for broadcast - Length: {Length} chars ;CLEANUP_OK", 
+                Model.TransformedTranscript?.Length ?? 0);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:transcript-canvas:share] Error loading transcript for broadcast ;CLEANUP_OK");
+            await ShowMessageAsync("Error loading transcript. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // [DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcast full transcript to all participants via SignalR ;CLEANUP_OK
+    private async Task BroadcastFullTranscript()
+    {
+        if (Model == null || SessionId == null || hubConnection == null)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:broadcast] BroadcastFullTranscript called but Model, SessionId, or hubConnection is null ;CLEANUP_OK");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Model.SessionTranscript))
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:broadcast] BroadcastFullTranscript called but SessionTranscript is empty ;CLEANUP_OK");
+            await ShowMessageAsync("No transcript available to broadcast.");
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            await InvokeAsync(StateHasChanged);
+
+            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcasting full transcript - SessionId: {SessionId}, Length: {Length} chars ;CLEANUP_OK", 
+                SessionId.Value, Model.SessionTranscript.Length);
+
+            // Call SignalR hub to broadcast transcript to all participants
+            await hubConnection.InvokeAsync("BroadcastTranscriptShared", SessionId.Value, Model.SessionTranscript);
+
+            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Transcript broadcast sent successfully ;CLEANUP_OK");
+            
+            // Reset broadcast mode - host stays in control panel
+            isBroadcastMode = false;
+            await ShowMessageAsync("Transcript shared with all participants successfully!");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:transcript-canvas:broadcast] Error broadcasting transcript ;CLEANUP_OK");
+            await ShowMessageAsync("Error broadcasting transcript. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private async Task EndSession()
