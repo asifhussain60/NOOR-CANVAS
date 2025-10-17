@@ -3203,8 +3203,8 @@
                         
                         if (Model != null && !string.IsNullOrEmpty(transcriptHtml))
                         {
-                            // Set transcript directly in Model for rendering
-                            Model.SessionTranscript = transcriptHtml;
+                            // Set transcript in SharedAssetContent for rendering
+                            Model.SharedAssetContent = transcriptHtml;
                             await InvokeAsync(StateHasChanged);
                             
                             Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] ✅ Transcript rendered in canvas view ;CLEANUP_OK");
