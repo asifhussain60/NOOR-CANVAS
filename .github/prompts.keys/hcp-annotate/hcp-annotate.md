@@ -273,10 +273,99 @@ Run the app and check console output for:
 
 ---
 
+### 2025-10-17T00:15:00Z - Test Syntax Validation Infrastructure
+
+**Task**: Add mandatory lint validation for Playwright test files before execution to prevent syntax errors causing test failures
+
+**Context**:
+User requested iterative test execution with stop-on-failure behavior. Identified that syntax errors in test files were not being caught before test execution, leading to cryptic errors and wasted test runs. User clarified issue was wrong parameter usage (`-HeadedMode` vs `-Headed`), but requested broader improvement: add lint checking to all test orchestration.
+
+**Root Cause Analysis**:
+- User invoked: `.\Scripts\run-hcp-annotation-fabric-percy-tests.ps1 -HeadedMode`
+- Script expects: `-Headed` (switch parameter)
+- PowerShell error: "Unexpected token '}'" (misleading parser error from parameter binding failure)
+- Actual issue: Invalid parameter name
+
+**Solution Implemented**:
+
+1. **Created `Scripts/validate-test-syntax.ps1`**:
+   - Validates TypeScript/JavaScript test files for syntax errors
+   - Uses ESLint with project configuration (fallback to PlayWright/.eslintrc.js)
+   - Falls back to TypeScript compiler check (`tsc --noEmit`) if ESLint unavailable
+   - Returns exit code 0 on success, 1 on syntax errors
+   - Fixed parameter conflict: Changed `-Verbose` (built-in) to `-ShowDebug`
+
+2. **Updated `orchestration-script-template.md`**:
+   - Added Step 4: Validate Test Syntax (lint check)
+   - Renumbered steps: 4→5 (Run Tests), 5→6 (Cleanup)
+   - Added stop-on-failure logic for syntax validation
+   - Includes cleanup on lint failure (stop app, remove temp script)
+
+3. **Updated `task.prompt.md` Step 6.1**:
+   - Added **MANDATORY** lint validation requirement
+   - Documented enforcement rules: Task agent MUST include lint validation
+   - Added validation steps and rationale
+   - Syntax errors now caught before test execution
+
+4. **Updated `run-hcp-annotation-fabric-percy-tests.ps1`**:
+   - Integrated lint validation as Step 4/6
+   - Validates all test files before execution
+   - Stops orchestration on syntax errors
+   - Displays clear error messages with file names
+
+**Validation Results**:
+```
+[Test Syntax Validator]
+Validating: Tests\UI\hcp-annotation-fabric-system.spec.ts
+Resolved path: D:\PROJECTS\NOOR CANVAS\Tests\UI\hcp-annotation-fabric-system.spec.ts
+Test directory: D:\PROJECTS\NOOR CANVAS\Tests\UI
+[+] Found ESLint config: D:\PROJECTS\NOOR CANVAS\PlayWright\.eslintrc.js
+[*] Running ESLint...
+[+] ESLint validation passed - No syntax errors
+   [+] hcp-annotation-fabric-system.spec.ts syntax validated
+```
+
+**Orchestration Flow (Updated)**:
+1. Step 1/6: Kill existing processes
+2. Step 2/6: Launch app in separate PowerShell window
+3. Step 3/6: Health check with retry logic
+4. **Step 4/6: Validate test syntax (NEW)**
+5. Step 5/6: Run Playwright tests
+6. Step 6/6: Cleanup
+
+**Benefits**:
+- ✅ Catches syntax errors before test execution (saves time)
+- ✅ Clear error messages with file context
+- ✅ Stop-on-failure behavior for lint errors
+- ✅ Consistent validation across all test files
+- ✅ Falls back to TypeScript compiler if ESLint unavailable
+
+**Files Created**:
+- `Scripts/validate-test-syntax.ps1` - Lint validation helper script
+
+**Files Modified**:
+- `.github/prompts/shared/orchestration-script-template.md` - Added Step 4 lint validation
+- `.github/prompts/task.prompt.md` - Added lint validation mandate to Step 6.1
+- `Scripts/run-hcp-annotation-fabric-percy-tests.ps1` - Integrated lint validation
+
+**Testing**:
+- ✅ Lint validation script tested independently: PASSED
+- ✅ Orchestration script runs with lint step: PASSED
+- ✅ Test execution proceeds after validation: CONFIRMED
+
+**Commit SHA**: `0fa4ec17`
+
+**Next Steps**:
+1. Apply lint validation to other orchestration scripts (run-debug-panel-percy-tests.ps1, etc.)
+2. Run full test suite with stop-on-failure to fix issues iteratively
+3. Document any test failures and fixes in this key
+
+---
+
 ## Key Metadata
 
-- **Debug Level**: diagnostic (added)
+- **Debug Level**: trace
 - **Verbosity**: concise
-- **Task Type**: Implementation (UI + SignalR + Tests) + Diagnostic Logging
+- **Task Type**: Infrastructure Improvement (Test Validation Pipeline)
 - **Related Keys**: annotation
-- **Impact**: High - full annotation system integration into host control panel and session canvas
+- **Impact**: High - prevents syntax errors from causing test failures, improves developer experience
