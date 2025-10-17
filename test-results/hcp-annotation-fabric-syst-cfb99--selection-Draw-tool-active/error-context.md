@@ -1,22 +1,57 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e3]:
-  - generic [ref=e6]:
-    - heading "This site can’t be reached" [level=1] [ref=e7]:
-      - generic [ref=e8]: This site can’t be reached
-    - paragraph [ref=e9]:
-      - strong [ref=e10]: localhost
-      - text: refused to connect.
-    - generic [ref=e11]:
-      - paragraph [ref=e12]: "Try:"
-      - list [ref=e13]:
-        - listitem [ref=e14]: Checking the connection
-        - listitem [ref=e15]:
-          - link "Checking the proxy and the firewall" [ref=e16] [cursor=pointer]:
-            - /url: "#buttons"
-    - generic [ref=e17]: ERR_CONNECTION_REFUSED
-  - generic [ref=e18]:
-    - button "Reload" [ref=e20] [cursor=pointer]
-    - button "Details" [ref=e21] [cursor=pointer]
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - img "NOOR Canvas" [ref=e7]
+        - heading " HOST CONTROL PANEL" [level=1] [ref=e8]:
+          - generic [ref=e9]: 
+          - generic [ref=e10]: HOST CONTROL PANEL
+        - paragraph [ref=e11]: Manage your session with professional-grade controls
+      - text:   
+      - generic [ref=e13]:
+        - generic [ref=e17]: 
+        - generic [ref=e18]:
+          - heading "Need For Messengers" [level=2] [ref=e19]
+          - paragraph [ref=e20]: We Look at the Purpose of Sending Messengers, and Their Role in Our Spiritual Awakening.
+        - generic [ref=e21]:
+          - heading "SESSION CONTROLS" [level=3] [ref=e22]:
+            - generic [ref=e23]: ⚙
+            - generic [ref=e24]: SESSION CONTROLS
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: 
+              - paragraph [ref=e28]: Session Time
+              - paragraph [ref=e29]: 6:00 AM
+            - generic [ref=e30]:
+              - generic [ref=e31]: 
+              - paragraph [ref=e32]: Duration
+              - paragraph [ref=e33]: TBD
+          - generic [ref=e34]:
+            - heading " User Registration Link" [level=4] [ref=e35]:
+              - generic [ref=e36]: 
+              - generic [ref=e37]: User Registration Link
+            - generic [ref=e39]:
+              - link "https://localhost:9091/user/landing/KJAHA99L" [ref=e40] [cursor=pointer]:
+                - /url: https://localhost:9091/user/landing/KJAHA99L
+              - button " Copy" [ref=e41] [cursor=pointer]:
+                - generic [ref=e42] [cursor=pointer]: 
+                - text: Copy
+            - paragraph [ref=e43]: Click the link to open in a new window, or use the copy button to share with participants
+          - button "Start Session" [ref=e45] [cursor=pointer]:
+            - generic [ref=e46] [cursor=pointer]: ▶
+            - generic [ref=e47] [cursor=pointer]: Start Session
+      - generic [ref=e48]:
+        - generic [ref=e49]: 
+        - heading "Session Ready to Start" [level=3] [ref=e50]
+        - paragraph [ref=e51]: Click the "Start Session" button above to begin the session and access the transcript and Q&A panels.
+        - generic [ref=e52]:
+          - generic [ref=e53]: 
+          - generic [ref=e54]: Session transcript and participant questions will appear here once started
+    - text:      
+  - button "" [ref=e56] [cursor=pointer]:
+    - generic [ref=e57] [cursor=pointer]: 
+  - text:    
 ```

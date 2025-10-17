@@ -148,6 +148,10 @@ if (-not $appReady) {
 # =============================================================================
 Write-Host "`n[4/5] Running Playwright tests..." -ForegroundColor Yellow
 
+# Set BASE_URL environment variable for Playwright
+$env:BASE_URL = $appUrl
+Write-Host "   BASE_URL set to: $env:BASE_URL" -ForegroundColor Gray
+
 Set-Location $testPath
 
 $testResults = @()
@@ -161,7 +165,16 @@ foreach ($testFile in $testFiles) {
     if (-not (Test-Path $testFilePath)) {
         Write-Host "   [!] Test file not found: $testFilePath" -ForegroundColor Yellow
         $failedTests += $testFile
-        continue
+        
+        # STOP ON FAILURE: Test file not found
+        Write-Host "`n   [X] STOPPING: Test file not found" -ForegroundColor Red
+        Write-Host "   Fix the test file path and try again" -ForegroundColor Yellow
+        
+        if (-not $KeepAppRunning) {
+            Stop-Process -Id $appProcess.Id -Force -ErrorAction SilentlyContinue
+        }
+        
+        exit 1
     }
     
     $testArgs = @("playwright", "test", $testFile)
@@ -171,6 +184,7 @@ foreach ($testFile in $testFiles) {
     $testArgs += "--reporter=list"
     
     Write-Host "   Command: npx $($testArgs -join ' ')" -ForegroundColor Gray
+    Write-Host "   BASE_URL: $env:BASE_URL" -ForegroundColor Gray
     
     & npx @testArgs
     
@@ -191,6 +205,26 @@ foreach ($testFile in $testFiles) {
             Status = "FAILED"
             ExitCode = $testExitCode
         }
+        
+        # STOP ON FAILURE: Test execution failed
+        Write-Host "`n   [X] STOPPING: Test failed" -ForegroundColor Red
+        Write-Host "   Fix the failing test before running subsequent tests" -ForegroundColor Yellow
+        Write-Host "   Check browser console logs and trace output above" -ForegroundColor Yellow
+        
+        if (-not $KeepAppRunning) {
+            Write-Host "`n   Stopping app..." -ForegroundColor Yellow
+            Stop-Process -Id $appProcess.Id -Force -ErrorAction SilentlyContinue
+        } else {
+            Write-Host "`n   App still running (PID: $($appProcess.Id))" -ForegroundColor Yellow
+            Write-Host "   To stop: Stop-Process -Id $($appProcess.Id)" -ForegroundColor Cyan
+        }
+        
+        # Remove temp startup script
+        if (Test-Path $startupScriptPath) {
+            Remove-Item $startupScriptPath -Force -ErrorAction SilentlyContinue
+        }
+        
+        exit 1
     }
 }
 
