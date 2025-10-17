@@ -47,6 +47,119 @@ PW_MODE=standalone npx playwright test
 
 ---
 
+## 📝 CRITICAL: Code Style Rules
+
+### Emoji Usage in Test Scripts
+**❌ NEVER use emojis in console.log statements or test code**
+
+```typescript
+// WRONG - Contains emojis
+console.log('📱 Loading Host Control Panel...');
+console.log('✅ Test passed');
+console.log('🖱️ Clicking button...');
+
+// RIGHT - ASCII only
+console.log('[INFO] Loading Host Control Panel...');
+console.log('[PASS] Test passed');
+console.log('[ACTION] Clicking button...');
+```
+
+**Rationale:**
+- Emojis cause encoding issues in CI/CD pipelines
+- PowerShell terminals may not render emojis correctly
+- Log files become unreadable with special characters
+- ASCII ensures cross-platform compatibility
+
+### Console Logging Standards
+```typescript
+// Use structured ASCII prefixes
+console.log('[STEP] Navigate to page');       // Test steps
+console.log('[VERIFY] Element is visible');   // Verification
+console.log('[PASS] Test completed');         // Success
+console.log('[WARN] Non-critical error');     // Warnings
+console.log('[ERROR] Critical failure');      // Errors
+console.log('[INFO] Additional context');     // Information
+```
+
+---
+
+## 🖥️ CRITICAL: Application Management for Manual Testing
+
+**When YOU (Copilot) need to run tests that require manual app startup:**
+
+### Step 1: Launch Application in Separate PowerShell Window
+```powershell
+# Start app in NEW window (not background process)
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run" -WindowStyle Normal
+
+# Store the process info
+# The app will run in its own window, visible to user
+```
+
+### Step 2: Wait for Application to be Ready
+```powershell
+# Wait for app startup (15-20 seconds typical)
+Start-Sleep -Seconds 20
+
+# Verify app is listening
+netstat -ano | findstr "LISTENING" | findstr ":9091"
+```
+
+### Step 3: Run Tests in Current Terminal
+```powershell
+# Run Playwright tests in the CURRENT terminal window
+npx playwright test path/to/test.spec.ts --headed --reporter=list
+```
+
+### Step 4: Clean Up After Tests Complete
+```powershell
+# Find and kill the app PowerShell window process
+$appProcess = Get-Process powershell | Where-Object { 
+    $_.MainWindowTitle -like "*dotnet run*" -or 
+    $_.CommandLine -like "*NoorCanvas*dotnet run*" 
+}
+
+if ($appProcess) {
+    Stop-Process -Id $appProcess.Id -Force
+    Write-Host "[CLEANUP] Killed application process: $($appProcess.Id)"
+} else {
+    Write-Host "[WARN] Could not find application process to clean up"
+}
+
+# Alternative: Kill by port
+$portProcess = netstat -ano | findstr ":9091" | findstr "LISTENING"
+if ($portProcess -match '\s+(\d+)$') {
+    $pid = $matches[1]
+    Stop-Process -Id $pid -Force
+    Write-Host "[CLEANUP] Killed process on port 9091: $pid"
+}
+```
+
+### Complete Workflow Example
+```powershell
+# 1. Launch app
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run" -WindowStyle Normal
+
+# 2. Wait for startup
+Start-Sleep -Seconds 20
+
+# 3. Run tests
+npx playwright test Workspaces/TEMP/share-transcript-navigation.spec.ts --headed
+
+# 4. Cleanup
+$pid = (netstat -ano | findstr ":9091" | findstr "LISTENING" | Select-String -Pattern '\s+(\d+)$').Matches.Groups[1].Value
+if ($pid) { Stop-Process -Id $pid -Force }
+```
+
+### When to Use This Approach
+- **✅ Use when**: Test file is in `Workspaces/TEMP/` (temporary test)
+- **✅ Use when**: Debugging specific issues that need visual app window
+- **✅ Use when**: Percy visual regression tests need manual verification
+- **❌ NEVER use**: For standard CI/CD tests in `PlayWright/tests/`
+- **❌ NEVER use**: When `webServer` configuration is available in `playwright.config.cjs`
+
+---
+
 ## 🎯 Testing Strategy Overview
 
 **NOOR CANVAS uses three complementary testing approaches:**

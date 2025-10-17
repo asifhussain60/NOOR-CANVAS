@@ -23,24 +23,24 @@ test.describe('Share Transcript Navigation', () => {
             participantPage.on('console', msg => participantLogs.push(`[PARTICIPANT ${msg.type()}] ${msg.text()}`));
 
             // Step 1: Load Host Control Panel
-            console.log('📱 Loading Host Control Panel...');
+            console.log('[STEP] Loading Host Control Panel...');
             await hostPage.goto(`${BASE_URL}/host/control-panel/${HOST_TOKEN}`);
             await hostPage.waitForLoadState('networkidle');
             await expect(hostPage.locator('h2')).toContainText('Session', { timeout: 10000 });
-            console.log('✅ Host Control Panel loaded');
+            console.log('[PASS] Host Control Panel loaded');
 
             // Percy snapshot: Host Control Panel
             await percySnapshot(hostPage, 'Share Transcript - Host Control Panel');
 
             // Step 2: Load Participant Waiting Room
-            console.log('📱 Loading Participant Waiting Room...');
+            console.log('[STEP] Loading Participant Waiting Room...');
             await participantPage.goto(`${BASE_URL}/session/waiting/${USER_TOKEN}`);
             await participantPage.waitForLoadState('networkidle');
 
             // Wait for waiting room to be ready
             const waitingRoomTitle = participantPage.locator('h2, h1, [class*="title"]').first();
             await expect(waitingRoomTitle).toBeVisible({ timeout: 10000 });
-            console.log('✅ Participant Waiting Room loaded');
+            console.log('[PASS] Participant Waiting Room loaded');
 
             // Percy snapshot: Waiting Room Before Share
             await percySnapshot(participantPage, 'Share Transcript - Waiting Room Before Share');
@@ -48,22 +48,22 @@ test.describe('Share Transcript Navigation', () => {
             // Step 3: Verify Share Transcript button is visible on host panel
             const shareButton = hostPage.locator('button:has-text("Share Transcript")');
             await expect(shareButton).toBeVisible({ timeout: 10000 });
-            console.log('✅ Share Transcript button visible');
+            console.log('[PASS] Share Transcript button visible');
 
             // Percy snapshot: Before Share Click
             await percySnapshot(hostPage, 'Share Transcript - Before Click');
 
             // Step 4: Click Share Transcript button
-            console.log('🖱️ Host clicking Share Transcript button...');
+            console.log('[ACTION] Host clicking Share Transcript button...');
             await shareButton.click();
 
             // Wait for toast/message confirmation
             await hostPage.waitForTimeout(1000);
 
             // Step 5: Verify participant navigated to TranscriptCanvas
-            console.log('⏳ Waiting for participant navigation to TranscriptCanvas...');
+            console.log('[WAIT] Waiting for participant navigation to TranscriptCanvas...');
             await participantPage.waitForURL(`**/transcript/canvas/${USER_TOKEN}`, { timeout: 15000 });
-            console.log('✅ Participant navigated to TranscriptCanvas');
+            console.log('[PASS] Participant navigated to TranscriptCanvas');
 
             // Wait for TranscriptCanvas to load
             await participantPage.waitForLoadState('networkidle');
@@ -78,26 +78,26 @@ test.describe('Share Transcript Navigation', () => {
             // Step 6: Verify host stayed on control panel (did NOT navigate)
             const hostUrl = hostPage.url();
             expect(hostUrl).toContain(`/host/control-panel/${HOST_TOKEN}`);
-            console.log('✅ Host remained on control panel:', hostUrl);
+            console.log('[VERIFY] Host remained on control panel:', hostUrl);
 
             // Step 7: Verify participant URL is correct
             const participantUrl = participantPage.url();
             expect(participantUrl).toContain(`/transcript/canvas/${USER_TOKEN}`);
-            console.log('✅ Participant on TranscriptCanvas:', participantUrl);
+            console.log('[VERIFY] Participant on TranscriptCanvas:', participantUrl);
 
             // Step 8: Check for errors
             const hostErrors = hostLogs.filter(log => log.includes('[HOST error]') || log.includes('ERROR'));
             const participantErrors = participantLogs.filter(log => log.includes('[PARTICIPANT error]') || log.includes('ERROR'));
 
             if (hostErrors.length > 0) {
-                console.warn('⚠️ Host errors detected:', hostErrors);
+                console.warn('[WARN] Host errors detected:', hostErrors);
             }
 
             if (participantErrors.length > 0) {
-                console.warn('⚠️ Participant errors detected:', participantErrors);
+                console.warn('[WARN] Participant errors detected:', participantErrors);
             }
 
-            console.log('✅ Test completed successfully - participants navigated, host stayed on control panel');
+            console.log('[PASS] Test completed successfully - participants navigated, host stayed on control panel');
 
         } finally {
             // Cleanup
