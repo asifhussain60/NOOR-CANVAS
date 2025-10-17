@@ -134,23 +134,23 @@
             </button>
         </div>
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <!-- Tool Buttons -->
-            <button data-annotation-tool="laser" title="Laser Pointer" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+            <!-- Tool Buttons with rounded corners -->
+            <button data-annotation-tool="laser" title="Laser Pointer" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
                 <i class="fa-solid fa-location-crosshairs"></i>
             </button>
-            <button data-annotation-tool="draw" title="Draw" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+            <button data-annotation-tool="draw" title="Draw" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
                 <i class="fa-solid fa-pen"></i>
             </button>
-            <button data-annotation-tool="highlight" title="Highlight" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+            <button data-annotation-tool="highlight" title="Highlight" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
                 <i class="fa-solid fa-highlighter"></i>
             </button>
-            <button data-annotation-tool="text" title="Add Text" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+            <button data-annotation-tool="text" title="Add Text" style="background:rgba(255,255,255,0.2); border:none; color:white; width:40px; height:40px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
                 <i class="fa-solid fa-font"></i>
             </button>
             <!-- Color Picker -->
-            <input type="color" id="annotation-color" value="#FF0000" title="Annotation Color" style="width:40px; height:40px; border:2px solid white; border-radius:50%; cursor:pointer; background:transparent;">
+            <input type="color" id="annotation-color" value="#FF0000" title="Annotation Color" style="width:40px; height:40px; border:2px solid white; border-radius:8px; cursor:pointer; background:transparent;">
             <!-- Clear Button -->
-            <button id="clear-annotations" title="Clear All Annotations" style="background:rgba(220, 38, 38, 0.9); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+            <button id="clear-annotations" title="Clear All Annotations" style="background:rgba(220, 38, 38, 0.9); border:none; color:white; width:40px; height:40px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
                 <i class="fa-solid fa-eraser"></i>
             </button>
         </div>
@@ -1469,7 +1469,16 @@
             Logger.LogInformation("[ASSET-SHARE-BROADCAST] âœ… Asset shared successfully - AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId}", assetType, instanceNumber, broadcastId);
             
             // [FABRIC:annotation] Show annotation panel after successful share ;CLEANUP_OK
-            await JSRuntime.InvokeVoidAsync("showAnnotationPanel", shareId);
+            Logger.LogInformation("[TRACE:hcp-annotate] About to call showAnnotationPanel for shareId={ShareId} ;CLEANUP_OK", shareId);
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", $"console.log('[TRACE:hcp-annotate] JSRuntime.InvokeVoidAsync executing for shareId: {shareId} ;CLEANUP_OK'); if (typeof showAnnotationPanel === 'function') {{ showAnnotationPanel('{shareId}'); }} else {{ console.error('[TRACE:hcp-annotate] CRITICAL: showAnnotationPanel function not found ;CLEANUP_OK'); }}");
+                Logger.LogInformation("[TRACE:hcp-annotate] JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[TRACE:hcp-annotate] CRITICAL: JSRuntime.InvokeVoidAsync failed for shareId={ShareId} ;CLEANUP_OK", shareId);
+            }
             
             // Success notification removed - SignalR broadcast logging preserved above
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ðŸŽ‰ SHARE COMPLETE: Asset broadcasted using direct content approach, broadcastId={BroadcastId}", broadcastId);
@@ -3752,6 +3761,27 @@
 
 <script>
 
+    // [FABRIC:annotation] Annotation state management - defined early ;CLEANUP_OK
+    let currentAnnotationTool = 'laser';
+    let currentAnnotationColor = '#FF0000';
+    let currentSharedAssetId = null;
+    let annotationHubConnection = null;
+
+    // [FABRIC:annotation] Define annotation panel function early to prevent timing issues ;CLEANUP_OK
+    window.showAnnotationPanel = function(shareId) {
+        console.log('[TRACE:hcp-annotate] showAnnotationPanel called for:', shareId, ';CLEANUP_OK');
+        currentSharedAssetId = shareId;
+        const panel = document.getElementById('hcp-annotation-panel');
+        console.log('[TRACE:hcp-annotate] Panel element lookup result:', panel, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-annotate] Panel current display style:', panel ? panel.style.display : 'N/A', ';CLEANUP_OK');
+        if (panel) {
+            panel.style.display = 'block';
+            console.log('[TRACE:hcp-annotate] Panel display set to block, new value:', panel.style.display, ';CLEANUP_OK');
+            console.log('[TRACE:hcp-annotate] Panel computed style:', window.getComputedStyle(panel).display, ';CLEANUP_OK');
+        } else {
+            console.error('[TRACE:hcp-annotate] CRITICAL: Panel element not found in DOM ;CLEANUP_OK');
+        }
+    };
 
     // Individual Asset Sharing Function (called by auto-injected SHARE buttons)
     window.shareIndividualAsset = async function(assetId, assetType) {
@@ -4491,12 +4521,6 @@ Please share this report with the development team for debugging.`;
 
     // ========== [FABRIC:annotation] ANNOTATION SYSTEM FOR HOST CONTROL PANEL ==========  ;CLEANUP_OK
     
-    // State management
-    let currentAnnotationTool = 'laser';
-    let currentAnnotationColor = '#FF0000';
-    let currentSharedAssetId = null;
-    let annotationHubConnection = null;
-    
     // Initialize annotation hub connection
     async function initializeAnnotationHubConnection() {
         try {
@@ -4518,17 +4542,7 @@ Please share this report with the development team for debugging.`;
         }
     }
     
-    // Show annotation panel after asset is shared
-    window.showAnnotationPanel = function(shareId) {
-        currentSharedAssetId = shareId;
-        const panel = document.getElementById('hcp-annotation-panel');
-        if (panel) {
-            panel.style.display = 'block';
-            console.log('[FABRIC:annotation] Panel shown for asset:', shareId, ';CLEANUP_OK');
-        }
-    };
-    
-    // Close annotation panel
+    // Close annotation panel and wire up event handlers
     document.addEventListener('DOMContentLoaded', function() {
         const closeBtn = document.getElementById('close-annotation-panel');
         if (closeBtn) {

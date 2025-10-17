@@ -12,7 +12,7 @@ import { expect, test } from '@playwright/test';
 const SESSION_ID = 212;
 const HOST_TOKEN = 'PQ9N5YWW';
 const USER_TOKEN = 'KJAHA99L';
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+const BASE_URL = process.env.BASE_URL || 'https://localhost:9091';
 
 test.describe('HCP Annotation System - Fabric.js', () => {
     test.beforeEach(async ({ page }) => {
@@ -34,6 +34,13 @@ test.describe('HCP Annotation System - Fabric.js', () => {
     });
 
     test('02 - Share asset: Annotation panel appears', async ({ page }) => {
+        // Enable console logging to capture trace logs
+        page.on('console', msg => {
+            if (msg.text().includes('[TRACE:hcp-annotate]')) {
+                console.log(`BROWSER LOG: ${msg.text()}`);
+            }
+        });
+
         // Wait for session to be active (may need to start session first)
         const sessionStatus = page.locator('text=Session Status');
         await expect(sessionStatus).toBeVisible({ timeout: 30000 });
@@ -41,10 +48,22 @@ test.describe('HCP Annotation System - Fabric.js', () => {
         // Find and click first share button
         const shareButton = page.locator('[data-share-button="asset"]').first();
         await shareButton.waitFor({ state: 'visible', timeout: 10000 });
+
+        // Get panel before click to verify initial state
+        const panel = page.locator('#hcp-annotation-panel');
+        const initialDisplay = await panel.evaluate(el => window.getComputedStyle(el).display);
+        console.log(`Initial panel display style: ${initialDisplay}`);
+
         await shareButton.click();
 
+        // Wait a moment for JavaScript to execute
+        await page.waitForTimeout(1000);
+
+        // Check panel display after click
+        const afterClickDisplay = await panel.evaluate(el => window.getComputedStyle(el).display);
+        console.log(`After click panel display style: ${afterClickDisplay}`);
+
         // Wait for annotation panel to appear
-        const panel = page.locator('#hcp-annotation-panel');
         await expect(panel).toBeVisible({ timeout: 5000 });
 
         // Take Percy snapshot
