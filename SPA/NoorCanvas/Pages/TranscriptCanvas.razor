@@ -67,8 +67,9 @@
         .canvas-main-grid { grid-template-columns: 1fr; }
     }
     
+    /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple-tinted background to distinguish from SessionCanvas ;CLEANUP_OK */
     .session-canvas-root {
-        background-color: #F8F5F1;
+        background-color: #F5F3F8;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -210,6 +211,21 @@
         margin: 0;
     }
 
+    /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Prominent badge to identify transcript view ;CLEANUP_OK */
+    .canvas-transcript-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #663399, #8A4FBA);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-left: 1rem;
+        box-shadow: 0 2px 8px rgba(102, 51, 153, 0.3);
+        text-transform: uppercase;
+    }
+
     .canvas-session-description {
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
@@ -305,6 +321,7 @@
         /* [DIAGNOSTIC:canvas:height:TRACE] Removed max-height: 700px - was preventing expansion to fit assets ;CLEANUP_OK */
     }
 
+/* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple border accent to distinguish from SessionCanvas green ;CLEANUP_OK */
 .canvas-content-area {
     flex: 1;
     padding: 1rem;
@@ -314,8 +331,8 @@
     overflow: visible; /* [DIAGNOSTIC:canvas:height:TRACE] Allow natural expansion to fit asset ;CLEANUP_OK */
     display: flex;
     flex-direction: column;
-    border: #006400 dotted 3px;
-    background-color: #eeffee;
+    border: #663399 dotted 3px;
+    background-color: #F8F4FF;
     min-height: 400px;
     /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
 }
@@ -1008,8 +1025,12 @@
                     </div>
                     
                     <!-- Session Info -->
+                    <!-- [TRACE-WORKITEM:transcript-canvas:visual-distinction] Added TRANSCRIPT VIEW badge ;CLEANUP_OK -->
                     <div class="canvas-header-session-info">
-                        <h1 class="canvas-session-title">@(Model?.SessionName ?? "Session Canvas")</h1>
+                        <h1 class="canvas-session-title">
+                            @(Model?.SessionName ?? "Session Canvas")
+                            <span class="canvas-transcript-badge">📜 Transcript View</span>
+                        </h1>
                         @if (!string.IsNullOrEmpty(Model?.SessionDescription))
                         {
                             <p class="canvas-session-description">@Model.SessionDescription</p>
