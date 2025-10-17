@@ -37,6 +37,10 @@
     <!-- jQuery - Still needed for other components -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
+    <!-- [DIAGNOSTIC:hcp-annotate:fabric] Fabric.js for canvas-based annotations ;CLEANUP_OK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" 
+            onerror="console.error('[DIAGNOSTIC:hcp-annotate:fabric] CDN failed, loading local fallback ;CLEANUP_OK'); this.onerror=null; this.src='~/lib/fabric.js/fabric.min.js';"></script>
+    
     <style>
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f1f1;
@@ -74,6 +78,90 @@
                                  OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
                                  OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
                                  OnFormatDurationFromString="@FormatDurationFromString" />
+        
+        <!-- [DIAGNOSTIC:hcp-annotate:toolbar] Sticky Annotation Toolbar - Visible only when session is Active ;CLEANUP_OK -->
+        @if (Model?.SessionStatus == "Active")
+        {
+            <div id="hcp-annotation-toolbar" 
+                 style="position: sticky; top: 0; z-index: 1000; background: linear-gradient(135deg, rgba(212, 175, 55, 0.95) 0%, rgba(0, 100, 0, 0.95) 100%); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1rem; border: 2px solid rgba(212, 175, 55, 0.3);">
+                
+                <span style="color: white; font-weight: 600; font-size: 14px; margin-right: 8px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);">
+                    <i class="fa-solid fa-pen-fancy"></i> Annotation Tools:
+                </span>
+                
+                <button id="tool-select" 
+                        class="annotation-tool-btn" 
+                        data-tool="select" 
+                        type="button" 
+                        title="Select & Move (Ctrl+1)"
+                        style="background-color: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; transition: all 0.2s ease; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-arrow-pointer"></i> Select
+                </button>
+                
+                <button id="tool-laser" 
+                        class="annotation-tool-btn" 
+                        data-tool="laser" 
+                        type="button" 
+                        title="Laser Pointer (Ctrl+2)"
+                        style="background-color: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; transition: all 0.2s ease; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-location-dot"></i> Laser
+                </button>
+                
+                <button id="tool-draw" 
+                        class="annotation-tool-btn" 
+                        data-tool="draw" 
+                        type="button" 
+                        title="Free Draw (Ctrl+3)"
+                        style="background-color: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; transition: all 0.2s ease; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-pen"></i> Draw
+                </button>
+                
+                <button id="tool-highlight" 
+                        class="annotation-tool-btn" 
+                        data-tool="highlight" 
+                        type="button" 
+                        title="Highlight (Ctrl+4)"
+                        style="background-color: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; transition: all 0.2s ease; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-highlighter"></i> Highlight
+                </button>
+                
+                <button id="tool-text" 
+                        class="annotation-tool-btn" 
+                        data-tool="text" 
+                        type="button" 
+                        title="Add Text (Ctrl+5)"
+                        style="background-color: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; transition: all 0.2s ease; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-font"></i> Text
+                </button>
+                
+                <div style="width: 2px; height: 32px; background: rgba(255, 255, 255, 0.3); margin: 0 8px;"></div>
+                
+                <label for="annotation-color-picker" style="color: white; font-size: 13px; font-weight: 500; margin-right: 4px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);">
+                    Color:
+                </label>
+                <input type="color" 
+                       id="annotation-color-picker" 
+                       value="#ffff00" 
+                       title="Annotation Color"
+                       style="width: 44px; height: 44px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 8px; cursor: pointer; padding: 2px; background: transparent; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" />
+                
+                <div style="width: 2px; height: 32px; background: rgba(255, 255, 255, 0.3); margin: 0 8px;"></div>
+                
+                <button id="clear-annotations" 
+                        type="button" 
+                        title="Clear All Annotations (Ctrl+X)"
+                        style="background-color: rgba(220, 38, 38, 0.9); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-trash"></i> Clear
+                </button>
+                
+                <button id="close-annotation-toolbar" 
+                        type="button" 
+                        title="Close Toolbar (Esc)"
+                        style="background-color: rgba(0, 0, 0, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; min-width: 44px; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+        }
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
         <!-- Only show transcript and Q&A panels after session has started -->
@@ -116,6 +204,10 @@
         </div>
     }
 </div>
+
+<!-- [DIAGNOSTIC:hcp-annotate:canvas] Transparent Fabric.js Canvas Overlay for Annotations ;CLEANUP_OK -->
+<canvas id="hcp-annotation-canvas" 
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 900; pointer-events: none; display: none;"></canvas>
 
 @* Debug Panel - Development Only *@
 <DebugPanel CurrentViewName="HostControlPanel" 
@@ -1422,6 +1514,55 @@
             Logger.LogError("[ASSET-SHARE-BROADCAST] ❌ Asset sharing failed - AssetType={AssetType}, Instance={InstanceNumber}, Exception={ExceptionType}, broadcastId={BroadcastId}", assetType, instanceNumber, ex.GetType().Name, broadcastId);
             
             await ShowErrorMessageAsync($"KSESSIONS-style asset sharing failed: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// [DIAGNOSTIC:hcp-annotate:signalr] Broadcast annotation data to all session participants ;CLEANUP_OK
+    /// </summary>
+    [JSInvokable]
+    public async Task BroadcastAnnotation(string annotationType, string annotationData)
+    {
+        var annotationId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DIAGNOSTIC:hcp-annotate:broadcast] Broadcasting annotation: type={Type}, id={Id} ;CLEANUP_OK", 
+            annotationType, annotationId);
+        
+        if (SessionId == null || hubConnection == null)
+        {
+            Logger.LogError("[DIAGNOSTIC:hcp-annotate:broadcast] Cannot broadcast: SessionId or hubConnection null ;CLEANUP_OK");
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            Logger.LogError("[DIAGNOSTIC:hcp-annotate:broadcast] SignalR not connected: State={State} ;CLEANUP_OK", 
+                hubConnection.State);
+            return;
+        }
+
+        try
+        {
+            var payload = new
+            {
+                annotationType = annotationType,
+                annotationData = annotationData,
+                timestamp = DateTime.UtcNow,
+                annotationId = annotationId
+            };
+            
+            // Broadcast via AnnotationHub using existing hub connection
+            // The hub will automatically broadcast to all clients in the session group
+            await hubConnection.InvokeAsync("BroadcastAnnotation", 
+                SessionId.Value, 
+                HostToken ?? "unknown-host", 
+                payload);
+            
+            Logger.LogInformation("[DIAGNOSTIC:hcp-annotate:broadcast] ✅ Annotation broadcasted successfully: id={Id} ;CLEANUP_OK", 
+                annotationId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:hcp-annotate:broadcast] ❌ Error broadcasting annotation ;CLEANUP_OK");
         }
     }
     
@@ -4375,5 +4516,317 @@ Please share this report with the development team for debugging.`;
     // Note: CSS animations handled inline to avoid Razor parsing issues
     
     console.log('[DEBUG-WORKITEM:assetshare:continue] Share button JavaScript functions defined');
+
+    // [DIAGNOSTIC:hcp-annotate:init] Annotation System Initialization ;CLEANUP_OK
+    (function() {
+        console.log('[DIAGNOSTIC:hcp-annotate:init] Starting annotation system initialization ;CLEANUP_OK');
+        
+        let fabricCanvas = null;
+        let currentTool = null;
+        let currentColor = '#ffff00';
+        let activeAssetId = null;
+        let isDrawing = false;
+        let laserPointer = null;
+        
+        // Initialize Fabric.js canvas when DOM is ready
+        function initializeAnnotationCanvas() {
+            console.log('[DIAGNOSTIC:hcp-annotate:init] Initializing Fabric.js canvas ;CLEANUP_OK');
+            
+            const canvasElement = document.getElementById('hcp-annotation-canvas');
+            if (!canvasElement) {
+                console.error('[DIAGNOSTIC:hcp-annotate:init] Canvas element not found ;CLEANUP_OK');
+                return;
+            }
+            
+            // Check if Fabric.js is loaded
+            if (typeof fabric === 'undefined') {
+                console.error('[DIAGNOSTIC:hcp-annotate:init] Fabric.js not loaded ;CLEANUP_OK');
+                return;
+            }
+            
+            // Set canvas dimensions to viewport size
+            canvasElement.width = window.innerWidth;
+            canvasElement.height = window.innerHeight;
+            
+            // Initialize Fabric canvas
+            fabricCanvas = new fabric.Canvas('hcp-annotation-canvas', {
+                isDrawingMode: false,
+                selection: false,
+                backgroundColor: null
+            });
+            
+            console.log('[DIAGNOSTIC:hcp-annotate:init] Fabric.js canvas initialized ;CLEANUP_OK');
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (fabricCanvas) {
+                    canvasElement.width = window.innerWidth;
+                    canvasElement.height = window.innerHeight;
+                    fabricCanvas.setDimensions({ 
+                        width: window.innerWidth, 
+                        height: window.innerHeight 
+                    });
+                }
+            });
+        }
+        
+        // Toolbar button handlers
+        function setupToolbarHandlers() {
+            console.log('[DIAGNOSTIC:hcp-annotate:toolbar] Setting up toolbar handlers ;CLEANUP_OK');
+            
+            // Tool selection buttons
+            document.querySelectorAll('.annotation-tool-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tool = this.dataset.tool;
+                    selectTool(tool);
+                });
+            });
+            
+            // Color picker
+            const colorPicker = document.getElementById('annotation-color-picker');
+            if (colorPicker) {
+                colorPicker.addEventListener('change', function() {
+                    currentColor = this.value;
+                    console.log('[DIAGNOSTIC:hcp-annotate:color] Color changed to:', currentColor, ';CLEANUP_OK');
+                    updateBrushColor();
+                });
+            }
+            
+            // Clear button
+            const clearBtn = document.getElementById('clear-annotations');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearAnnotations);
+            }
+            
+            // Close toolbar button
+            const closeBtn = document.getElementById('close-annotation-toolbar');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeToolbar);
+            }
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey) {
+                    switch(e.key) {
+                        case '1': e.preventDefault(); selectTool('select'); break;
+                        case '2': e.preventDefault(); selectTool('laser'); break;
+                        case '3': e.preventDefault(); selectTool('draw'); break;
+                        case '4': e.preventDefault(); selectTool('highlight'); break;
+                        case '5': e.preventDefault(); selectTool('text'); break;
+                        case 'x': e.preventDefault(); clearAnnotations(); break;
+                    }
+                }
+                if (e.key === 'Escape') {
+                    closeToolbar();
+                }
+            });
+        }
+        
+        function selectTool(tool) {
+            console.log('[DIAGNOSTIC:hcp-annotate:tool] Selecting tool:', tool, ';CLEANUP_OK');
+            currentTool = tool;
+            
+            if (!fabricCanvas) {
+                console.error('[DIAGNOSTIC:hcp-annotate:tool] Fabric canvas not initialized ;CLEANUP_OK');
+                return;
+            }
+            
+            // Show canvas overlay
+            document.getElementById('hcp-annotation-canvas').style.display = 'block';
+            document.getElementById('hcp-annotation-canvas').style.pointerEvents = 'all';
+            
+            // Update button states
+            document.querySelectorAll('.annotation-tool-btn').forEach(btn => {
+                if (btn.dataset.tool === tool) {
+                    btn.style.backgroundColor = 'rgba(212, 175, 55, 0.8)';
+                    btn.style.borderColor = 'rgba(212, 175, 55, 1)';
+                } else {
+                    btn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    btn.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                }
+            });
+            
+            // Configure canvas based on tool
+            switch(tool) {
+                case 'select':
+                    fabricCanvas.isDrawingMode = false;
+                    fabricCanvas.selection = true;
+                    fabricCanvas.defaultCursor = 'default';
+                    break;
+                    
+                case 'laser':
+                    fabricCanvas.isDrawingMode = false;
+                    fabricCanvas.selection = false;
+                    fabricCanvas.defaultCursor = 'crosshair';
+                    enableLaserPointer();
+                    break;
+                    
+                case 'draw':
+                    fabricCanvas.isDrawingMode = true;
+                    fabricCanvas.selection = false;
+                    fabricCanvas.freeDrawingBrush.color = currentColor;
+                    fabricCanvas.freeDrawingBrush.width = 3;
+                    break;
+                    
+                case 'highlight':
+                    fabricCanvas.isDrawingMode = true;
+                    fabricCanvas.selection = false;
+                    fabricCanvas.freeDrawingBrush.color = currentColor;
+                    fabricCanvas.freeDrawingBrush.width = 20;
+                    fabricCanvas.freeDrawingBrush.opacity = 0.3;
+                    break;
+                    
+                case 'text':
+                    fabricCanvas.isDrawingMode = false;
+                    fabricCanvas.selection = false;
+                    fabricCanvas.defaultCursor = 'text';
+                    enableTextMode();
+                    break;
+            }
+        }
+        
+        function enableLaserPointer() {
+            console.log('[DIAGNOSTIC:hcp-annotate:laser] Enabling laser pointer ;CLEANUP_OK');
+            
+            // Remove existing laser pointer
+            if (laserPointer) {
+                fabricCanvas.remove(laserPointer);
+            }
+            
+            // Create laser pointer circle
+            laserPointer = new fabric.Circle({
+                radius: 8,
+                fill: 'red',
+                opacity: 0.8,
+                left: -100,
+                top: -100,
+                selectable: false,
+                evented: false
+            });
+            
+            fabricCanvas.add(laserPointer);
+            
+            // Track mouse movement
+            fabricCanvas.on('mouse:move', function(options) {
+                if (currentTool === 'laser' && laserPointer) {
+                    const pointer = fabricCanvas.getPointer(options.e);
+                    laserPointer.set({
+                        left: pointer.x - 8,
+                        top: pointer.y - 8
+                    });
+                    fabricCanvas.renderAll();
+                    
+                    // TODO: Broadcast laser position via SignalR
+                    broadcastLaserPosition(pointer.x, pointer.y);
+                }
+            });
+        }
+        
+        function enableTextMode() {
+            console.log('[DIAGNOSTIC:hcp-annotate:text] Enabling text mode ;CLEANUP_OK');
+            
+            fabricCanvas.on('mouse:down', function(options) {
+                if (currentTool === 'text') {
+                    const pointer = fabricCanvas.getPointer(options.e);
+                    const text = prompt('Enter text:');
+                    if (text) {
+                        const textObj = new fabric.Text(text, {
+                            left: pointer.x,
+                            top: pointer.y,
+                            fill: currentColor,
+                            fontSize: 24,
+                            fontFamily: 'Inter, sans-serif'
+                        });
+                        fabricCanvas.add(textObj);
+                        
+                        // TODO: Broadcast text annotation via SignalR
+                        broadcastAnnotation(textObj);
+                    }
+                }
+            });
+        }
+        
+        function updateBrushColor() {
+            if (fabricCanvas && fabricCanvas.freeDrawingBrush) {
+                fabricCanvas.freeDrawingBrush.color = currentColor;
+            }
+        }
+        
+        function clearAnnotations() {
+            console.log('[DIAGNOSTIC:hcp-annotate:clear] Clearing all annotations ;CLEANUP_OK');
+            if (fabricCanvas) {
+                fabricCanvas.clear();
+                
+                // TODO: Broadcast clear command via SignalR
+            }
+        }
+        
+        function closeToolbar() {
+            console.log('[DIAGNOSTIC:hcp-annotate:close] Closing annotation toolbar ;CLEANUP_OK');
+            
+            // Hide canvas overlay
+            document.getElementById('hcp-annotation-canvas').style.display = 'none';
+            document.getElementById('hcp-annotation-canvas').style.pointerEvents = 'none';
+            
+            // Deselect tool
+            currentTool = null;
+            
+            // Reset button states
+            document.querySelectorAll('.annotation-tool-btn').forEach(btn => {
+                btn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            });
+        }
+        
+        // SignalR broadcast functions
+        async function broadcastLaserPosition(x, y) {
+            try {
+                const annotationData = JSON.stringify({ x: x, y: y });
+                await DotNet.invokeMethodAsync('NoorCanvas', 'BroadcastAnnotation', 'laser', annotationData);
+                console.log('[DIAGNOSTIC:hcp-annotate:signalr] Laser position broadcasted:', x, y, ';CLEANUP_OK');
+            } catch (error) {
+                console.error('[DIAGNOSTIC:hcp-annotate:signalr] Error broadcasting laser position:', error, ';CLEANUP_OK');
+            }
+        }
+        
+        async function broadcastAnnotation(obj) {
+            try {
+                const annotationData = JSON.stringify(obj.toJSON());
+                const annotationType = obj.type || 'unknown';
+                await DotNet.invokeMethodAsync('NoorCanvas', 'BroadcastAnnotation', annotationType, annotationData);
+                console.log('[DIAGNOSTIC:hcp-annotate:signalr] Annotation broadcasted:', obj.type, ';CLEANUP_OK');
+            } catch (error) {
+                console.error('[DIAGNOSTIC:hcp-annotate:signalr] Error broadcasting annotation:', error, ';CLEANUP_OK');
+            }
+        }
+        
+        // Listen for drawing events and broadcast them
+        if (fabricCanvas) {
+            fabricCanvas.on('path:created', function(e) {
+                console.log('[DIAGNOSTIC:hcp-annotate:drawing] Path created, broadcasting ;CLEANUP_OK');
+                broadcastAnnotation(e.path);
+            });
+            
+            fabricCanvas.on('object:added', function(e) {
+                if (e.target && e.target.type !== 'path') {
+                    console.log('[DIAGNOSTIC:hcp-annotate:object] Object added, broadcasting ;CLEANUP_OK');
+                    broadcastAnnotation(e.target);
+                }
+            });
+        }
+        
+        // Initialize on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeAnnotationCanvas();
+                setupToolbarHandlers();
+            });
+        } else {
+            initializeAnnotationCanvas();
+            setupToolbarHandlers();
+        }
+        
+        console.log('[DIAGNOSTIC:hcp-annotate:init] Annotation system initialization complete ;CLEANUP_OK');
+    })();
 </script>
 
