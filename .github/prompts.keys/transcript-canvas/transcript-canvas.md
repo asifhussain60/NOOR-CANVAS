@@ -1,13 +1,135 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-17T16:28:00Z  
-**Git Commit:** cc16e27ff92f8c1153f4ad104a702d705216eb9e
+**Last Updated:** 2025-10-17T19:16:00Z  
+**Git Commit:** 35be954f
 
 ## Overview
-Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved. Fixed UI visibility to show transcript when Share Transcript clicked.
+Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved. TranscriptCanvas.razor layout redesigned to maximize canvas panel with collapsible sidebar.
 
 ## Work Log
+
+### 2025-10-17T19:16:00Z - Maximized Canvas Panel with Collapsible Sidebar
+**Commit:** 35be954f  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Problem:**
+- TranscriptCanvas displayed two-panel layout (canvas left, sidebar right 300px fixed)
+- User screenshot showed empty Q&A/Participants sidebar consuming valuable space
+- Transcript content should dominate view, sidebar should be on-demand
+
+**Solution: Option A - Full-Width Canvas with Toggle Button**
+- Changed grid from `1fr 300px` to `1fr 0` (sidebar hidden by default)
+- Added purple toggle button (fixed bottom-right) to reveal sidebar
+- Sidebar slides in with smooth 0.3s CSS transition
+- Mobile responsive: sidebar becomes fixed overlay on small screens
+
+**Implementation Details:**
+
+1. **CSS Grid Layout** (TranscriptCanvas.razor, line ~310)
+   ```css
+   .canvas-main-grid {
+       grid-template-columns: 1fr 0; /* Canvas full-width, sidebar hidden */
+       transition: grid-template-columns 0.3s ease-in-out;
+   }
+   
+   .canvas-main-grid.sidebar-visible {
+       grid-template-columns: 1fr 300px; /* Sidebar revealed on toggle */
+   }
+   ```
+
+2. **Sidebar Visibility** (TranscriptCanvas.razor, line ~405)
+   ```css
+   .canvas-sidebar {
+       width: 0;
+       opacity: 0;
+       transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+   }
+   
+   .canvas-main-grid.sidebar-visible .canvas-sidebar {
+       width: 300px;
+       opacity: 1;
+   }
+   ```
+
+3. **Toggle Button** (TranscriptCanvas.razor, line ~425)
+   ```css
+   .canvas-sidebar-toggle {
+       position: fixed;
+       bottom: 2rem;
+       right: 2rem;
+       background: #663399; /* Purple theme */
+       width: 60px;
+       height: 60px;
+       border-radius: 50%;
+       z-index: 50;
+   }
+   ```
+
+4. **C# State Management** (TranscriptCanvas.razor, line ~1390)
+   ```csharp
+   private bool IsSidebarVisible { get; set; } = false;
+   
+   private void ToggleSidebar()
+   {
+       IsSidebarVisible = !IsSidebarVisible;
+       Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar toggled - IsSidebarVisible={IsSidebarVisible}, ActiveTab={ActiveTab} ;CLEANUP_OK", 
+           IsSidebarVisible, ActiveTab);
+       StateHasChanged();
+   }
+   ```
+
+5. **HTML Structure** (TranscriptCanvas.razor, line ~1115)
+   ```razor
+   <div class="canvas-main-grid @(IsSidebarVisible ? "sidebar-visible" : "")">
+       <!-- Canvas area gets full width -->
+       <div class="canvas-area-container">...</div>
+       
+       <!-- Sidebar hidden unless toggle clicked -->
+       <div class="canvas-sidebar">...</div>
+   </div>
+   
+   <!-- Toggle button -->
+   <button @onclick="ToggleSidebar" class="canvas-sidebar-toggle">
+       <i class="fa-solid @(IsSidebarVisible ? "fa-chevron-right" : "fa-chevron-left")"></i>
+   </button>
+   ```
+
+6. **Mobile Responsive** (TranscriptCanvas.razor, line ~945)
+   ```css
+   @media (max-width: 768px) {
+       .canvas-sidebar {
+           position: fixed;
+           top: 0; right: 0; bottom: 0;
+           z-index: 100;
+           width: 0;
+       }
+       
+       .canvas-main-grid.sidebar-visible .canvas-sidebar {
+           width: 100%; /* Full-screen overlay on mobile */
+       }
+   }
+   ```
+
+**Trace Debug Markers:**
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Grid layout changes
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Sidebar visibility state
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Toggle button interactions
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Mobile responsive breakpoints
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (105 insertions, 4 deletions)
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+**User Experience:**
+- **Desktop:** Canvas maximized by default, purple toggle button at bottom-right
+- **Toggle Click:** Sidebar slides in from right (300px), toggle icon rotates 180°
+- **Mobile:** Sidebar becomes full-screen overlay when toggled
+- **Visual Theme:** Purple (#663399) matches TranscriptCanvas identity vs SessionCanvas (green)
+
+---
 
 ### 2025-10-17T16:28:00Z - Fixed Transcript Panel Visibility
 **Commit:** cc16e27ff92f8c1153f4ad104a702d705216eb9e  
