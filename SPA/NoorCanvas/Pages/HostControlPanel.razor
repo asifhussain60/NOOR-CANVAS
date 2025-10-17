@@ -1299,14 +1299,21 @@
     {
         if (Model == null || SessionId == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:share] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK");
+            Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK");
             return;
         }
 
         if (string.IsNullOrEmpty(Model.SessionTranscript))
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:share] ShareTranscript called but SessionTranscript is empty ;CLEANUP_OK");
+            Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] ShareTranscript called but SessionTranscript is empty ;CLEANUP_OK");
             await ShowMessageAsync("No transcript available to share.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(HostToken))
+        {
+            Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] ShareTranscript called but HostToken is null ;CLEANUP_OK");
+            await ShowMessageAsync("Error: Host token not available.");
             return;
         }
         
@@ -1315,18 +1322,15 @@
             isLoading = true;
             await InvokeAsync(StateHasChanged);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Loading transcript for broadcast mode - SessionId: {SessionId} ;CLEANUP_OK", SessionId);
+            Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:share] Navigating host to TranscriptCanvas - HostToken: {HostToken}, SessionId: {SessionId} ;CLEANUP_OK", 
+                HostToken, SessionId);
             
-            // Set broadcast mode flag and load transcript without asset buttons
-            isBroadcastMode = true;
-            Model.TransformedTranscript = Model.SessionTranscript; // Use raw transcript without transformation (no asset buttons)
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Transcript loaded for broadcast - Length: {Length} chars ;CLEANUP_OK", 
-                Model.TransformedTranscript?.Length ?? 0);
+            // Navigate host to TranscriptCanvas.razor
+            Navigation.NavigateTo($"/transcript/canvas/{HostToken}", forceLoad: true);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:transcript-canvas:share] Error loading transcript for broadcast ;CLEANUP_OK");
+            Logger.LogError(ex, "[TRACE-WORKITEM:transcript-canvas:share] Error navigating to transcript canvas ;CLEANUP_OK");
             await ShowMessageAsync("Error loading transcript. Please try again.");
         }
         finally
