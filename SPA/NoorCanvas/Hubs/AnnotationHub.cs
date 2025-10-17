@@ -338,5 +338,90 @@ namespace NoorCanvas.Hubs
                     userId, sessionId);
             }
         }
+
+        /// <summary>
+        /// [FABRIC:annotation] Set annotation tool for the current shared asset.
+        /// Broadcasts tool and color changes to all participants.
+        /// </summary>
+        /// <param name="sessionId">The session ID.</param>
+        /// <param name="shareId">The shared asset ID.</param>
+        /// <param name="tool">The selected tool (laser, draw, highlight, text).</param>
+        /// <param name="color">The annotation color.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task SetAnnotationTool(int sessionId, string shareId, string tool, string color)
+        {
+            try
+            {
+                _logger.LogInformation("[FABRIC:annotation:tool] Setting tool={Tool}, color={Color} for shareId={ShareId} in session={SessionId} ;CLEANUP_OK",
+                    tool, color, shareId, sessionId);
+                
+                var groupName = $"Session_{sessionId}";
+                await Clients.OthersInGroup(groupName).SendAsync("AnnotationToolChanged", new
+                {
+                    shareId = shareId,
+                    tool = tool,
+                    color = color
+                });
+                
+                _logger.LogInformation("[FABRIC:annotation:tool] Successfully broadcast tool change ;CLEANUP_OK");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[FABRIC:annotation:tool] Error broadcasting tool change ;CLEANUP_OK");
+            }
+        }
+
+        /// <summary>
+        /// [FABRIC:annotation] Broadcast laser pointer movement with throttling on client side.
+        /// </summary>
+        /// <param name="sessionId">The session ID.</param>
+        /// <param name="shareId">The shared asset ID.</param>
+        /// <param name="normalizedX">Normalized X coordinate (0-1).</param>
+        /// <param name="normalizedY">Normalized Y coordinate (0-1).</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task BroadcastLaserMove(int sessionId, string shareId, double normalizedX, double normalizedY)
+        {
+            try
+            {
+                var groupName = $"Session_{sessionId}";
+                await Clients.OthersInGroup(groupName).SendAsync("LaserPointerMove", new
+                {
+                    shareId = shareId,
+                    x = normalizedX,
+                    y = normalizedY
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[FABRIC:annotation:laser-move] Error broadcasting laser move ;CLEANUP_OK");
+            }
+        }
+
+        /// <summary>
+        /// [FABRIC:annotation] Clear annotations for a specific shared asset.
+        /// </summary>
+        /// <param name="sessionId">The session ID.</param>
+        /// <param name="shareId">The shared asset ID.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ClearAnnotations(int sessionId, string shareId)
+        {
+            try
+            {
+                _logger.LogInformation("[FABRIC:annotation:clear] Clearing annotations for shareId={ShareId} in session={SessionId} ;CLEANUP_OK",
+                    shareId, sessionId);
+                
+                var groupName = $"Session_{sessionId}";
+                await Clients.Group(groupName).SendAsync("AnnotationsCleared", new
+                {
+                    shareId = shareId
+                });
+                
+                _logger.LogInformation("[FABRIC:annotation:clear] Successfully broadcast clear for shareId={ShareId} ;CLEANUP_OK", shareId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[FABRIC:annotation:clear] Error broadcasting clear for shareId={ShareId} ;CLEANUP_OK", shareId);
+            }
+        }
     }
 }
