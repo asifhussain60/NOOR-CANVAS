@@ -1294,18 +1294,20 @@
         }
     }
 
-    // [DEBUG-WORKITEM:transcript-canvas:share] Load transcript with single broadcast button (host stays in HostControlPanel) ;CLEANUP_OK
+    // [DIAGNOSTIC:transcript-canvas:share] Load transcript with single broadcast button (host stays in HostControlPanel) ;CLEANUP_OK
     private async Task ShareTranscript()
     {
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] ════════ SHARE TRANSCRIPT FLOW START ════════ ;CLEANUP_OK");
+        
         if (Model == null || SessionId == null)
         {
-            Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK");
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK");
             return;
         }
 
         if (string.IsNullOrEmpty(Model.SessionTranscript))
         {
-            Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] ShareTranscript called but SessionTranscript is empty ;CLEANUP_OK");
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] ShareTranscript called but SessionTranscript is empty ;CLEANUP_OK");
             await ShowMessageAsync("No transcript available to share.");
             return;
         }
@@ -1315,46 +1317,53 @@
             isLoading = true;
             await InvokeAsync(StateHasChanged);
             
-            Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:share] Broadcasting transcript share to participants - SessionId: {SessionId} ;CLEANUP_OK", 
-                SessionId);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-1] SessionId={SessionId}, TranscriptLength={Length} chars ;CLEANUP_OK", 
+                SessionId, Model.SessionTranscript.Length);
             
-            // Broadcast to participants in waiting room via SignalR
-            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
-            {
-                await hubConnection.InvokeAsync("BroadcastTranscriptShared", SessionId.Value, Model.SessionTranscript);
-                Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:share] Transcript shared successfully via SignalR broadcast ;CLEANUP_OK");
-                await ShowMessageAsync("Transcript shared with participants!");
-            }
-            else
-            {
-                Logger.LogWarning("[TRACE-WORKITEM:transcript-canvas:share] SignalR hub connection not available ;CLEANUP_OK");
-                await ShowMessageAsync("Error: Connection not available. Please try again.");
-            }
+            // CRITICAL: Set broadcast mode flag - this differentiates from Start Session flow
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-2] Setting isBroadcastMode=true (Host stays in HostControlPanel, no asset share buttons) ;CLEANUP_OK");
+            isBroadcastMode = true;
+            
+            // Transform transcript: remove delete buttons and share buttons
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] Calling TransformTranscriptForBroadcast() ;CLEANUP_OK");
+            var transformedHtml = await TransformTranscriptForBroadcastAsync();
+            Model.TransformedTranscript = transformedHtml;
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-4] Transcript loaded into Model.TransformedTranscript, Length={Length} chars ;CLEANUP_OK", 
+                Model.TransformedTranscript.Length);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] Host will see transcript with single 'Broadcast to All' button at top ;CLEANUP_OK");
+            
+            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[TRACE-WORKITEM:transcript-canvas:share] Error broadcasting transcript share ;CLEANUP_OK");
-            await ShowMessageAsync("Error sharing transcript. Please try again.");
+            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:share:ERROR] Exception during ShareTranscript, Message={Message} ;CLEANUP_OK", ex.Message);
+            await ShowMessageAsync("Error loading transcript. Please try again.");
+            isBroadcastMode = false;
         }
         finally
         {
             isLoading = false;
             await InvokeAsync(StateHasChanged);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:EXIT] ════════ SHARE TRANSCRIPT FLOW END ════════ ;CLEANUP_OK");
         }
     }
 
-    // [DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcast full transcript to all participants via SignalR ;CLEANUP_OK
+    // [DIAGNOSTIC:transcript-canvas:broadcast] Broadcast full transcript to all participants via SignalR ;CLEANUP_OK
     private async Task BroadcastFullTranscript()
     {
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:ENTRY] ════════ BROADCAST FULL TRANSCRIPT FLOW START ════════ ;CLEANUP_OK");
+        
         if (Model == null || SessionId == null || hubConnection == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:broadcast] BroadcastFullTranscript called but Model, SessionId, or hubConnection is null ;CLEANUP_OK");
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:broadcast:ERROR] Validation failed - Model={HasModel}, SessionId={SessionId}, HubConnection={HasHub} ;CLEANUP_OK", 
+                Model != null, SessionId, hubConnection != null);
             return;
         }
 
         if (string.IsNullOrEmpty(Model.SessionTranscript))
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:broadcast] BroadcastFullTranscript called but SessionTranscript is empty ;CLEANUP_OK");
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:broadcast:ERROR] SessionTranscript is empty ;CLEANUP_OK");
             await ShowMessageAsync("No transcript available to broadcast.");
             return;
         }
@@ -1364,27 +1373,87 @@
             isLoading = true;
             await InvokeAsync(StateHasChanged);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcasting full transcript - SessionId: {SessionId}, Length: {Length} chars ;CLEANUP_OK", 
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-1] Validation passed - SessionId={SessionId}, TranscriptLength={Length} chars ;CLEANUP_OK", 
                 SessionId.Value, Model.SessionTranscript.Length);
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-2] HubConnection State={State} ;CLEANUP_OK", hubConnection.State);
 
             // Call SignalR hub to broadcast transcript to all participants
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-3] Invoking SignalR BroadcastTranscriptShared, Target=session_{SessionId} ;CLEANUP_OK", 
+                SessionId.Value);
+            
             await hubConnection.InvokeAsync("BroadcastTranscriptShared", SessionId.Value, Model.SessionTranscript);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Transcript broadcast sent successfully ;CLEANUP_OK");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-4] SignalR call completed successfully ;CLEANUP_OK");
             
             // Reset broadcast mode - host stays in control panel
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-5] Resetting isBroadcastMode to false ;CLEANUP_OK");
             isBroadcastMode = false;
+            
             await ShowMessageAsync("Transcript shared with all participants successfully!");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:COMPLETE] ════════ BROADCAST FLOW COMPLETE ════════ ;CLEANUP_OK");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:transcript-canvas:broadcast] Error broadcasting transcript ;CLEANUP_OK");
+            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:broadcast:ERROR] Exception during broadcast - Message={Message}, StackTrace={Stack} ;CLEANUP_OK", 
+                ex.Message, ex.StackTrace);
             await ShowMessageAsync("Error broadcasting transcript. Please try again.");
         }
         finally
         {
             isLoading = false;
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// [DIAGNOSTIC:transcript-canvas:transform] Transform transcript HTML for broadcast mode
+    /// Removes delete buttons and share buttons, keeps content clean for single broadcast button display
+    /// CRITICAL: Does NOT inject individual share buttons (different from Start Session flow)
+    /// </summary>
+    private Task<string> TransformTranscriptForBroadcastAsync()
+    {
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:ENTRY] TransformTranscriptForBroadcast called ;CLEANUP_OK");
+        
+        if (Model == null || string.IsNullOrEmpty(Model.SessionTranscript))
+        {
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:transform:ERROR] Model or SessionTranscript is null/empty ;CLEANUP_OK");
+            return Task.FromResult(string.Empty);
+        }
+
+        var html = Model.SessionTranscript;
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-1] Input HTML length={Length} chars ;CLEANUP_OK", html.Length);
+
+        try
+        {
+            // Remove delete buttons using regex (same pattern as AssetProcessingService)
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-2] Removing delete buttons ;CLEANUP_OK");
+            html = System.Text.RegularExpressions.Regex.Replace(html, 
+                @"<button[^>]*class\s*=\s*[""'][^""']*delete[^""']*[""'][^>]*>.*?</button>", 
+                "", 
+                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
+            // Remove individual share buttons (different from Start Session - we want NO asset buttons)
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-3] Removing individual asset share buttons ;CLEANUP_OK");
+            html = System.Text.RegularExpressions.Regex.Replace(html, 
+                @"<button[^>]*onclick\s*=\s*[""']shareIndividualAsset\([^)]*\)[""'][^>]*>.*?</button>", 
+                "", 
+                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
+            // Remove any data-asset-id attributes (clean markup)
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-4] Removing data-asset-id attributes ;CLEANUP_OK");
+            html = System.Text.RegularExpressions.Regex.Replace(html, 
+                @"\s+data-asset-id\s*=\s*[""'][^""']*[""']", 
+                "", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:COMPLETE] Output HTML length={Length} chars, Ready for broadcast mode display ;CLEANUP_OK", html.Length);
+            return Task.FromResult(html);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:transform:ERROR] Exception during transformation - Message={Message} ;CLEANUP_OK", ex.Message);
+            return Task.FromResult(Model.SessionTranscript); // Return original on error
         }
     }
 
