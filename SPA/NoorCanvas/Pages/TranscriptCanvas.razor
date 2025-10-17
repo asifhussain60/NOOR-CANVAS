@@ -299,12 +299,19 @@
 
     /* Main Grid Layout */
     /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Default to full-width canvas, sidebar hidden (0 width) ;CLEANUP_OK */
     .canvas-main-grid {
         display: grid;
-        grid-template-columns: 1fr 300px;
+        grid-template-columns: 1fr 0;
         gap: 1.5rem;
         height: auto;
         align-items: stretch;
+        transition: grid-template-columns 0.3s ease-in-out;
+    }
+
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visible state - toggle expands to 300px ;CLEANUP_OK */
+    .canvas-main-grid.sidebar-visible {
+        grid-template-columns: 1fr 300px;
     }
 
     /* Canvas Area Styles */
@@ -399,6 +406,7 @@
 
     /* Sidebar Styles */
     /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar hidden by default (width 0), expands on toggle ;CLEANUP_OK */
     .canvas-sidebar {
         background-color: white;
         border-radius: 0.75rem;
@@ -412,7 +420,55 @@
         overflow: hidden;
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
         max-width: 100%;
-        width: 100%;
+        width: 0; /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Hidden by default ;CLEANUP_OK */
+        opacity: 0;
+        transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    }
+
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visible state ;CLEANUP_OK */
+    .canvas-main-grid.sidebar-visible .canvas-sidebar {
+        width: 300px;
+        opacity: 1;
+    }
+
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle button to show/hide sidebar ;CLEANUP_OK */
+    .canvas-sidebar-toggle {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #663399; /* Purple theme to match TranscriptCanvas */
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(102, 51, 153, 0.3);
+        cursor: pointer;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .canvas-sidebar-toggle:hover {
+        background: #7C4DBC; /* Lighter purple on hover */
+        box-shadow: 0 6px 16px rgba(102, 51, 153, 0.5);
+        transform: scale(1.05);
+    }
+
+    .canvas-sidebar-toggle:active {
+        transform: scale(0.95);
+    }
+
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle icon rotation animation ;CLEANUP_OK */
+    .canvas-sidebar-toggle-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .canvas-sidebar-toggle.sidebar-visible .canvas-sidebar-toggle-icon {
+        transform: rotate(180deg);
     }
 
     .canvas-tabs {
@@ -886,6 +942,7 @@
     /* Responsive Layout - Mobile */
     @@media (max-width: 768px) {
         /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Single column layout with canvas panel full-width, sidebar below ;CLEANUP_OK */
+        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar hidden by default, toggle always visible ;CLEANUP_OK */
         .canvas-main-grid {
             grid-template-columns: 1fr;
             height: auto;
@@ -900,11 +957,34 @@
         }
 
         /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Sidebar appears below canvas, full width ;CLEANUP_OK */
+        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar hidden unless toggle clicked ;CLEANUP_OK */
         .canvas-sidebar {
             order: 2;
-            width: 100%;
+            width: 0;
+            opacity: 0;
             max-width: 100%;
             min-height: 400px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar slides in from right when visible ;CLEANUP_OK */
+        .canvas-main-grid.sidebar-visible .canvas-sidebar {
+            width: 100%;
+            opacity: 1;
+        }
+
+        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: toggle button always visible ;CLEANUP_OK */
+        .canvas-sidebar-toggle {
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
         }
 
         .canvas-header-content {
@@ -1056,7 +1136,8 @@
             </div>
             
             <!-- Main Canvas Area -->
-            <div class="canvas-main-grid">
+            <!-- [TRACE-WORKITEM:transcript-canvas:layout-redesign] Grid class toggles sidebar visibility ;CLEANUP_OK -->
+            <div class="canvas-main-grid @(IsSidebarVisible ? "sidebar-visible" : "")">
                 
                 <!-- Canvas Content Area -->
                 <div class="canvas-area-container">
@@ -1273,6 +1354,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle button to show/hide sidebar ;CLEANUP_OK -->
+            <button @onclick="ToggleSidebar" 
+                    class="canvas-sidebar-toggle @(IsSidebarVisible ? "sidebar-visible" : "")"
+                    title="@(IsSidebarVisible ? "Hide Q&A Panel" : "Show Q&A Panel")">
+                <i class="fa-solid @(IsSidebarVisible ? "fa-chevron-right" : "fa-chevron-left") canvas-sidebar-toggle-icon"></i>
+            </button>
+
         </div>
     }
     </div>
@@ -1328,6 +1417,9 @@
     private int? QuestionToDeleteIndex { get; set; }
     private bool IsModalVisible { get; set; } = false;
     private HashSet<string> VotedQuestionIds { get; set; } = new HashSet<string>();
+
+    // [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visibility toggle state ;CLEANUP_OK
+    private bool IsSidebarVisible { get; set; } = false;
 
     private enum Tab { QA, Participants }
     private Tab ActiveTab { get; set; } = Tab.QA;
@@ -2451,6 +2543,15 @@
     {
         QuestionToDeleteIndex = null;
         IsModalVisible = false;
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle sidebar visibility ;CLEANUP_OK
+    private void ToggleSidebar()
+    {
+        IsSidebarVisible = !IsSidebarVisible;
+        Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar toggled - IsSidebarVisible={IsSidebarVisible}, ActiveTab={ActiveTab} ;CLEANUP_OK", 
+            IsSidebarVisible, ActiveTab);
+        StateHasChanged();
     }
 
     private async Task DeleteConfirmed()
