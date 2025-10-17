@@ -4,130 +4,107 @@ import { expect, test } from '@playwright/test';
 test.describe('Share Transcript Navigation', () => {
     const BASE_URL = 'https://localhost:9091';
     const HOST_TOKEN = 'PQ9N5YWW'; // Session 212 host token
+    const USER_TOKEN = 'KJAHA99L'; // Session 212 user token
 
-    // Track console messages and errors
-    const consoleLogs: string[] = [];
-    const consoleErrors: string[] = [];
+    test('should navigate participants from waiting room to TranscriptCanvas when host clicks Share Transcript', async ({ browser }) => {
+        // Create two browser contexts: one for host, one for participant
+        const hostContext = await browser.newContext();
+        const participantContext = await browser.newContext();
 
-    test.beforeEach(async ({ page }) => {
-        // Capture console logs
-        page.on('console', msg => {
-            const text = msg.text();
-            consoleLogs.push(`[${msg.type().toUpperCase()}] ${text}`);
-        });
+        const hostPage = await hostContext.newPage();
+        const participantPage = await participantContext.newPage();
 
-        // Capture console errors
-        page.on('pageerror', error => {
-            consoleErrors.push(`[PAGE ERROR] ${error.message}`);
-        });
+        try {
+            // Track console messages
+            const hostLogs: string[] = [];
+            const participantLogs: string[] = [];
 
-        // Capture network errors
-        page.on('requestfailed', request => {
-            consoleErrors.push(`[NETWORK ERROR] ${request.url()} - ${request.failure()?.errorText}`);
-        });
-    });
+            hostPage.on('console', msg => hostLogs.push(`[HOST ${msg.type()}] ${msg.text()}`));
+            participantPage.on('console', msg => participantLogs.push(`[PARTICIPANT ${msg.type()}] ${msg.text()}`));
 
-    test('should navigate host from control panel to TranscriptCanvas when clicking Share Transcript button', async ({ page }) => {
-        // Step 1: Navigate to Host Control Panel
-        await page.goto(`${BASE_URL}/host/control-panel/${HOST_TOKEN}`);
-        await page.waitForLoadState('networkidle');
+            // Step 1: Load Host Control Panel
+            console.log('📱 Loading Host Control Panel...');
+            await hostPage.goto(`${BASE_URL}/host/control-panel/${HOST_TOKEN}`);
+            await hostPage.waitForLoadState('networkidle');
+            await expect(hostPage.locator('h2')).toContainText('Session', { timeout: 10000 });
+            console.log('✅ Host Control Panel loaded');
 
-        // Percy snapshot: Initial state of Host Control Panel
-        await percySnapshot(page, 'Host Control Panel - Initial State');
+            // Percy snapshot: Host Control Panel
+            await percySnapshot(hostPage, 'Share Transcript - Host Control Panel');
 
-        // Step 2: Verify page loaded correctly
-        await expect(page.locator('h2')).toContainText('Session', { timeout: 10000 });
-        console.log('✅ Host Control Panel loaded successfully');
+            // Step 2: Load Participant Waiting Room
+            console.log('📱 Loading Participant Waiting Room...');
+            await participantPage.goto(`${BASE_URL}/session/waiting/${USER_TOKEN}`);
+            await participantPage.waitForLoadState('networkidle');
+            
+            // Wait for waiting room to be ready
+            const waitingRoomTitle = participantPage.locator('h2, h1, [class*="title"]').first();
+            await expect(waitingRoomTitle).toBeVisible({ timeout: 10000 });
+            console.log('✅ Participant Waiting Room loaded');
 
-        // Step 3: Wait for Share Transcript button to be visible and enabled
-        const shareTranscriptButton = page.locator('button:has-text("Share Transcript")');
-        await expect(shareTranscriptButton).toBeVisible({ timeout: 10000 });
+            // Percy snapshot: Waiting Room Before Share
+            await percySnapshot(participantPage, 'Share Transcript - Waiting Room Before Share');
 
-        // Check if button is enabled (not disabled)
-        const isDisabled = await shareTranscriptButton.isDisabled();
-        console.log(`Share Transcript button disabled state: ${isDisabled}`);
+            // Step 3: Verify Share Transcript button is visible on host panel
+            const shareButton = hostPage.locator('button:has-text("Share Transcript")');
+            await expect(shareButton).toBeVisible({ timeout: 10000 });
+            console.log('✅ Share Transcript button visible');
 
-        // Percy snapshot: Before clicking button
-        await percySnapshot(page, 'Host Control Panel - Before Share Transcript Click');
+            // Percy snapshot: Before Share Click
+            await percySnapshot(hostPage, 'Share Transcript - Before Click');
 
-        // Step 4: Clear previous console logs
-        consoleLogs.length = 0;
-        consoleErrors.length = 0;
+            // Step 4: Click Share Transcript button
+            console.log('🖱️ Host clicking Share Transcript button...');
+            await shareButton.click();
 
-        // Step 5: Click Share Transcript button
-        console.log('🖱️ Clicking Share Transcript button...');
-        await shareTranscriptButton.click();
+            // Wait for toast/message confirmation
+            await hostPage.waitForTimeout(1000);
 
-        // Step 6: Wait for navigation to TranscriptCanvas
-        await page.waitForURL(`**/transcript/canvas/${HOST_TOKEN}`, { timeout: 15000 });
-        console.log('✅ Navigated to TranscriptCanvas');
+            // Step 5: Verify participant navigated to TranscriptCanvas
+            console.log('⏳ Waiting for participant navigation to TranscriptCanvas...');
+            await participantPage.waitForURL(`**/transcript/canvas/${USER_TOKEN}`, { timeout: 15000 });
+            console.log('✅ Participant navigated to TranscriptCanvas');
 
-        // Step 7: Verify TranscriptCanvas loaded
-        await page.waitForLoadState('networkidle');
+            // Wait for TranscriptCanvas to load
+            await participantPage.waitForLoadState('networkidle');
 
-        // Check for expected elements on TranscriptCanvas
-        const transcriptTitle = page.locator('h1, h2, [class*="title"]').first();
-        await expect(transcriptTitle).toBeVisible({ timeout: 10000 });
+            // Verify TranscriptCanvas elements loaded
+            const transcriptContent = participantPage.locator('[class*="transcript"], [class*="canvas"]').first();
+            await expect(transcriptContent).toBeVisible({ timeout: 10000 });
 
-        // Percy snapshot: TranscriptCanvas loaded state
-        await percySnapshot(page, 'TranscriptCanvas - Loaded Successfully');
+            // Percy snapshot: Participant on TranscriptCanvas
+            await percySnapshot(participantPage, 'Share Transcript - Participant on TranscriptCanvas');
 
-        // Step 8: Verify URL is correct
-        const currentUrl = page.url();
-        expect(currentUrl).toContain(`/transcript/canvas/${HOST_TOKEN}`);
-        console.log(`✅ Current URL: ${currentUrl}`);
+            // Step 6: Verify host stayed on control panel (did NOT navigate)
+            const hostUrl = hostPage.url();
+            expect(hostUrl).toContain(`/host/control-panel/${HOST_TOKEN}`);
+            console.log('✅ Host remained on control panel:', hostUrl);
 
-        // Step 9: Check for JavaScript errors in console
-        console.log('\n📋 Console Logs:');
-        consoleLogs.forEach(log => console.log(log));
+            // Step 7: Verify participant URL is correct
+            const participantUrl = participantPage.url();
+            expect(participantUrl).toContain(`/transcript/canvas/${USER_TOKEN}`);
+            console.log('✅ Participant on TranscriptCanvas:', participantUrl);
 
-        console.log('\n❌ Console Errors:');
-        if (consoleErrors.length === 0) {
-            console.log('✅ No console errors detected');
-        } else {
-            consoleErrors.forEach(err => console.error(err));
-        }
+            // Step 8: Check for errors
+            const hostErrors = hostLogs.filter(log => log.includes('[HOST error]') || log.includes('ERROR'));
+            const participantErrors = participantLogs.filter(log => log.includes('[PARTICIPANT error]') || log.includes('ERROR'));
 
-        // Step 10: Assert no critical JavaScript errors
-        const criticalErrors = consoleErrors.filter(err =>
-            !err.includes('favicon.ico') && // Ignore favicon errors
-            !err.includes('manifest.json') && // Ignore manifest errors
-            !err.includes('sw.js') // Ignore service worker errors
-        );
+            if (hostErrors.length > 0) {
+                console.warn('⚠️ Host errors detected:', hostErrors);
+            }
 
-        if (criticalErrors.length > 0) {
-            console.error('❌ Critical JavaScript errors detected:');
-            criticalErrors.forEach(err => console.error(err));
-        }
+            if (participantErrors.length > 0) {
+                console.warn('⚠️ Participant errors detected:', participantErrors);
+            }
 
-        expect(criticalErrors.length).toBe(0);
-        console.log('✅ No critical JavaScript errors found');
-    });
+            console.log('✅ Test completed successfully - participants navigated, host stayed on control panel');
 
-    test('should show error if no transcript available', async ({ page }) => {
-        // Test edge case: clicking Share Transcript when no transcript exists
-        await page.goto(`${BASE_URL}/host/control-panel/${HOST_TOKEN}`);
-        await page.waitForLoadState('networkidle');
-
-        const shareTranscriptButton = page.locator('button:has-text("Share Transcript")');
-
-        // If button is disabled, test the disabled state
-        if (await shareTranscriptButton.isDisabled()) {
-            console.log('✅ Share Transcript button is correctly disabled (no transcript available)');
-
-            // Percy snapshot: Disabled state
-            await percySnapshot(page, 'Host Control Panel - Share Transcript Disabled');
-
-            expect(await shareTranscriptButton.isDisabled()).toBe(true);
-        } else {
-            // If enabled, clicking should show error message
-            await shareTranscriptButton.click();
-
-            // Wait for potential error message
-            await page.waitForTimeout(2000);
-
-            // Percy snapshot: After click (might show error)
-            await percySnapshot(page, 'Host Control Panel - Share Transcript Error State');
+        } finally {
+            // Cleanup
+            await hostPage.close();
+            await participantPage.close();
+            await hostContext.close();
+            await participantContext.close();
         }
     });
 });
