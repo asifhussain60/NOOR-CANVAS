@@ -1392,9 +1392,9 @@
             return;
         }
         
-        var transcriptUrl = $"{Navigation.BaseUri}transcript/canvas/{UserToken}";
+        var transcriptUrl = $"/transcript/canvas/{UserToken}";
         Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Navigating to: {Url} ;CLEANUP_OK", transcriptUrl);
-        Navigation.NavigateTo(transcriptUrl, forceLoad: true);
+        Navigation.NavigateTo(transcriptUrl);
     }
 
     private async Task EndSession()

@@ -1008,12 +1008,18 @@
                     </div>
                     
                     <!-- Session Info -->
-                    <div class="canvas-header-session-info">
-                        <h1 class="canvas-session-title">@(Model?.SessionName ?? "Session Canvas")</h1>
-                        @if (!string.IsNullOrEmpty(Model?.SessionDescription))
-                        {
-                            <p class="canvas-session-description">@Model.SessionDescription</p>
-                        }
+                    <!-- [DEBUG-WORKITEM:transcript-canvas:badge] Visual distinction badge for transcript view ;CLEANUP_OK -->
+                    <div class="canvas-header-session-info" style="display:flex;align-items:center;gap:1rem;">
+                        <div style="flex:1;">
+                            <h1 class="canvas-session-title">@(Model?.SessionName ?? "Session Canvas")</h1>
+                            @if (!string.IsNullOrEmpty(Model?.SessionDescription))
+                            {
+                                <p class="canvas-session-description">@Model.SessionDescription</p>
+                            }
+                        </div>
+                        <div style="background:linear-gradient(135deg,#D4AF37,#FFD700);color:white;padding:0.5rem 1rem;border-radius:0.75rem;font-weight:700;font-size:0.875rem;box-shadow:0 4px 12px rgba(212,175,55,0.4);white-space:nowrap;">
+                            <i class="fa-solid fa-scroll" style="margin-right:0.5rem;"></i>TRANSCRIPT VIEW
+                        </div>
                     </div>
                     
                     <!-- SignalR Connection Status -->

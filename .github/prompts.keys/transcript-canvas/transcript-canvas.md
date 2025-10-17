@@ -45,3 +45,28 @@ Created TranscriptCanvas view accessible via user token for transcript sharing f
 - Button layout uses CSS Grid for responsive 45%/55% split
 
 **Debug Markers:** Simple level (marked with ;CLEANUP_OK)
+
+### 2025-10-17T17:45:00Z - Visual Distinction & Routing Fix
+**Commit:** [Pending]  
+**Agent:** task  
+**Debug Level:** simple
+
+**Changes:**
+1. **TranscriptCanvas.razor**
+   - Added prominent "TRANSCRIPT VIEW" badge in header (golden gradient styling)
+   - Badge positioned next to session info with scroll icon
+   - Flex layout ensures no obstruction of content
+   - Styling: `linear-gradient(135deg,#D4AF37,#FFD700)` with shadow
+
+2. **HostControlPanel.razor**
+   - Fixed ShareTranscript() to use relative path `/transcript/canvas/{UserToken}`
+   - Removed `forceLoad: true` for smoother SPA navigation
+   - Removed redundant BaseUri concatenation
+
+**Build Status:** Clean (16.5s)
+
+**Visual Impact:**
+- TranscriptCanvas now clearly distinguishable from SessionCanvas
+- Badge non-intrusive, positioned in header area
+- Consistent with NOOR Canvas golden theme
+
