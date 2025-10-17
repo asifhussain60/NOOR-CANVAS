@@ -70,6 +70,7 @@
                                  UserToken="@UserToken"
                                  IsLoading="@isLoading"
                                  OnStartSession="@StartSession"
+                                 OnShareTranscript="@ShareTranscript"
                                  OnGetSignalRStatusColor="@GetSignalRStatusColor"
                                  OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
                                  OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
@@ -1288,6 +1289,19 @@
             isLoading = false;
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    // [DEBUG-WORKITEM:transcript-canvas:share] Navigate to transcript canvas view with user token ;CLEANUP_OK
+    private void ShareTranscript()
+    {
+        if (string.IsNullOrEmpty(UserToken))
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:transcript-canvas:share] ShareTranscript called but UserToken is null or empty ;CLEANUP_OK");
+            return;
+        }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:share] Navigating to transcript canvas: /transcript/canvas/{UserToken} ;CLEANUP_OK", UserToken);
+        Navigation.NavigateTo($"https://localhost:9091/transcript/canvas/{UserToken}", forceLoad: true);
     }
 
     private async Task EndSession()
