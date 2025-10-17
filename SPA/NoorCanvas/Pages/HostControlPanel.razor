@@ -1342,9 +1342,15 @@
             
             Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-6] [{RequestId}] Transcript loaded into Model.TransformedTranscript, Length={Length} chars ;CLEANUP_OK", 
                 requestId, Model.TransformedTranscript.Length);
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] [{RequestId}] Host will see transcript with single 'Broadcast to All' button at top ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] [{RequestId}] Host will see transcript, auto-broadcasting to participants ;CLEANUP_OK", requestId);
             
             await InvokeAsync(StateHasChanged);
+            
+            // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Automatically broadcast to participants (like Start Session button)
+            // This navigates all participants from waiting room to TranscriptCanvas.razor
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-7] [{RequestId}] Auto-calling BroadcastFullTranscript() to navigate participants to TranscriptCanvas ;CLEANUP_OK", requestId);
+            await BroadcastFullTranscript();
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-8] [{RequestId}] BroadcastFullTranscript() completed, participants should now see TranscriptCanvas ;CLEANUP_OK", requestId);
         }
         catch (Exception ex)
         {
@@ -1397,9 +1403,9 @@
 
             Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-4] SignalR call completed successfully ;CLEANUP_OK");
             
-            // Reset broadcast mode - host stays in control panel
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-5] Resetting isBroadcastMode to false ;CLEANUP_OK");
-            isBroadcastMode = false;
+            // Keep broadcast mode active so host can continue viewing transcript
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-5] Keeping isBroadcastMode=true so host can view transcript after broadcast ;CLEANUP_OK");
+            // NOTE: isBroadcastMode remains true - host stays in control panel with transcript visible
             
             await ShowMessageAsync("Transcript shared with all participants successfully!");
             Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:COMPLETE] ════════ BROADCAST FLOW COMPLETE ════════ ;CLEANUP_OK");
