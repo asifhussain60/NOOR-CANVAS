@@ -1,13 +1,37 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-17T14:55:00Z  
-**Git Commit:** b295670d91e7de3dc1f38f90c70f24a1e4cf4596
+**Last Updated:** 2025-10-17T15:30:00Z  
+**Git Commit:** 95b8ffaf5a7dbfbf5d6dfe320da53d152e6692d4
 
 ## Overview
-Fixed "Share Transcript" button navigation - clicking the button now properly navigates the host from HostControlPanel to TranscriptCanvas.razor. Previous implementation was setting a broadcast mode flag but not performing navigation. Fixed to use Navigation.NavigateTo() with HostToken parameter.
+TranscriptCanvas.razor visual distinction from SessionCanvas.razor using purple theme and prominent header badge.
 
 ## Work Log
+
+### 2025-10-17T15:30:00Z - Added Visual Distinction to TranscriptCanvas
+**Commit:** 95b8ffaf5a7dbfbf5d6dfe320da53d152e6692d4  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Changes:**
+1. **Background color** - Changed from #F8F5F1 (cream) to #F5F3F8 (purple tint)
+2. **Canvas border** - Changed from #006400 (dark green) to #663399 (purple)
+3. **Canvas background** - Changed from #eeffee (light green) to #F8F4FF (light purple)
+4. **Header badge** - Added "📜 TRANSCRIPT VIEW" badge with purple gradient
+   - Style: Purple gradient (135deg, #663399 → #8A4FBA)
+   - Position: Inline with session title
+   - Typography: Uppercase, 0.875rem, 600 weight, letter-spacing 0.05em
+   - Shadow: rgba(102, 51, 153, 0.3)
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (4 style blocks + 1 markup change)
+
+**Debug Markers:** All trace-level markers added with `;CLEANUP_OK` suffix
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+---
 
 ### 2025-10-17T14:55:00Z - Fixed ShareTranscript Navigation
 **Commit:** b295670d91e7de3dc1f38f90c70f24a1e4cf4596  
