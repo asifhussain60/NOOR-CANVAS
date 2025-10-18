@@ -284,16 +284,20 @@ try {
     }
     
     # Step 3: Launch application (only if not already running)
+    $AlreadyRunning = $false
     if (Test-AppResponding) {
         Write-Host "✅ Application already running at $AppUrl" -ForegroundColor Green
+        $AlreadyRunning = $true
     }
     else {
         $AppProcess = Start-ApplicationInBackground
     }
     
-    # Step 4: Wait for application to be ready
-    if (-not (Wait-ForApplicationReady)) {
-        throw "Application failed to start"
+    # Step 4: Wait for application to be ready (skip if already running)
+    if (-not $AlreadyRunning) {
+        if (-not (Wait-ForApplicationReady)) {
+            throw "Application failed to start"
+        }
     }
     
     # Step 5: Run Playwright(+Percy) tests or screenshot-only
@@ -302,10 +306,15 @@ try {
     $prevUrl = $env:NC_URL
     $env:NC_URL = $NavigateUrl
     try {
-        $patternToRun = if ($ScreenshotOnly) { ".github/prompts.keys/transcript-canvas/tests/transcript-canvas-screenshot.spec.ts" } else { $TestPattern }
+        $patternToRun = $TestPattern
+        if ($ScreenshotOnly) {
+            $patternToRun = ".github/prompts.keys/transcript-canvas/tests/transcript-canvas-screenshot.spec.ts"
+        }
         $TestExitCode = Invoke-PlaywrightPercyTests -Pattern $patternToRun -Headed $headed
     }
-    finally { $env:NC_URL = $prevUrl }
+    finally {
+        $env:NC_URL = $prevUrl
+    }
     
     # Step 6: Report results
     Write-Host ""
