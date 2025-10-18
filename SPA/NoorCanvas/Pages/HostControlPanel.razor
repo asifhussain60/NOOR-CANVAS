@@ -1362,6 +1362,27 @@
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 500ms for DOM render... ;CLEANUP_OK", requestId);
             await Task.Delay(500); // Allow DOM to render before JavaScript manipulation
             
+            // [TRACE:hcp-tcanvas:inject] Additional DOM diagnostics ;CLEANUP_OK
+            try
+            {
+                var containerInnerHtmlLength = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container')?.innerHTML?.length || 0");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container innerHTML length in DOM: {Length} chars ;CLEANUP_OK", requestId, containerInnerHtmlLength);
+                
+                if (containerInnerHtmlLength == 0)
+                {
+                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ Container is EMPTY in DOM - content not rendered yet ;CLEANUP_OK", requestId);
+                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting additional 1000ms for Blazor rendering... ;CLEANUP_OK", requestId);
+                    await Task.Delay(1000);
+                    
+                    containerInnerHtmlLength = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container')?.innerHTML?.length || 0");
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container innerHTML after retry: {Length} chars ;CLEANUP_OK", requestId, containerInnerHtmlLength);
+                }
+            }
+            catch (Exception domEx)
+            {
+                Logger.LogWarning(domEx, "[TRACE:hcp-tcanvas:inject] [{RequestId}] DOM inspection failed (non-fatal): {Message} ;CLEANUP_OK", requestId, domEx.Message);
+            }
+            
             try
             {
                 Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Creating DotNetObjectReference... ;CLEANUP_OK", requestId);
