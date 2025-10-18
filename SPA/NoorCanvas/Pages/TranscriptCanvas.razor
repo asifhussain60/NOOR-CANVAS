@@ -284,10 +284,13 @@
         text-align: center;
     }
 
+    /* [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Welcome content layout for inline toggle button ;CLEANUP_OK */
     .canvas-welcome-content {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        gap: 1rem;
     }
 
     .canvas-welcome-text {
@@ -295,6 +298,7 @@
         font-size: 1.25rem;
         font-weight: 600;
         color: #006400;
+        flex: 1;
     }
 
     /* Main Grid Layout */
@@ -329,6 +333,7 @@
     }
 
 /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple border accent to distinguish from SessionCanvas green ;CLEANUP_OK */
+/* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll disabled - host controls position ;CLEANUP_OK */
 .canvas-content-area {
     flex: 1;
     padding: 1rem;
@@ -343,18 +348,18 @@
     min-height: 400px;
     /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
 }
+    /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll DISABLED - host has exclusive control ;CLEANUP_OK */
     .canvas-asset-content {
         width: 100%;
         flex: 1;
-        overflow-y: visible; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Changed from auto to visible - parent will handle overflow ;CLEANUP_OK */
-        overflow-x: hidden;
+        overflow: hidden !important; /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Disable native scrolling ;CLEANUP_OK */
         background-color: white;
         padding: 20px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Content expands naturally, parent shrinks/grows with asset height ;CLEANUP_OK */
+        user-select: none; /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Prevent text selection during scroll attempts ;CLEANUP_OK */
     }
 
     .canvas-empty-message {
@@ -431,16 +436,15 @@
         opacity: 1;
     }
 
-    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle button to show/hide sidebar ;CLEANUP_OK */
+    /* [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Toggle button repositioned inline with welcome message, sticky behavior ;CLEANUP_OK */
     .canvas-sidebar-toggle {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
+        position: sticky;
+        top: 1rem;
         background: #663399; /* Purple theme to match TranscriptCanvas */
         color: white;
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         border: none;
         box-shadow: 0 4px 12px rgba(102, 51, 153, 0.3);
         cursor: pointer;
@@ -448,8 +452,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         transition: all 0.3s ease;
+        flex-shrink: 0;
     }
 
     .canvas-sidebar-toggle:hover {
@@ -1143,6 +1148,7 @@
                 <div class="canvas-area-container">
                     
                     <!-- Welcome Message Panel -->
+                    <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Welcome panel with inline toggle button ;CLEANUP_OK -->
                     <div class="canvas-welcome-panel">
                         <div class="canvas-welcome-content">
                             <span class="canvas-welcome-text">
@@ -1155,6 +1161,13 @@
                                     @("Welcome To The Session")
                                 }
                             </span>
+                            
+                            <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Toggle button repositioned inline, sticky to top ;CLEANUP_OK -->
+                            <button @onclick="ToggleSidebar" 
+                                    class="canvas-sidebar-toggle @(IsSidebarVisible ? "sidebar-visible" : "")"
+                                    title="@(IsSidebarVisible ? "Hide Q&A Panel" : "Show Q&A Panel")">
+                                <i class="fa-solid @(IsSidebarVisible ? "fa-chevron-right" : "fa-chevron-left") canvas-sidebar-toggle-icon"></i>
+                            </button>
                         </div>
                     </div>
                     
@@ -1355,12 +1368,7 @@
                 </div>
             </div>
 
-            <!-- [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle button to show/hide sidebar ;CLEANUP_OK -->
-            <button @onclick="ToggleSidebar" 
-                    class="canvas-sidebar-toggle @(IsSidebarVisible ? "sidebar-visible" : "")"
-                    title="@(IsSidebarVisible ? "Hide Q&A Panel" : "Show Q&A Panel")">
-                <i class="fa-solid @(IsSidebarVisible ? "fa-chevron-right" : "fa-chevron-left") canvas-sidebar-toggle-icon"></i>
-            </button>
+            <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Toggle button moved to welcome panel for inline display ;CLEANUP_OK -->
 
         </div>
     }
@@ -3440,6 +3448,32 @@
                 }
             });
 
+            // [TRACE-WORKITEM:transcript-canvas:scroll-sync] Receive scroll position from host ;CLEANUP_OK
+            hubConnection.On<double>("ScrollPositionReceived", async (scrollPercentage) =>
+            {
+                Logger.LogInformation(
+                    "[SCROLL-SYNC:PARTICIPANT] Host scroll received: {Percentage:P2}",
+                    scrollPercentage
+                );
+                
+                try
+                {
+                    // Force participant scroll to host's position (participants cannot scroll independently)
+                    await JSRuntime.InvokeVoidAsync("forceParticipantScroll", scrollPercentage);
+                    
+                    Logger.LogDebug(
+                        "[SCROLL-SYNC:PARTICIPANT] ✅ Scroll synced to host position: {Percentage:P2}",
+                        scrollPercentage
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, 
+                        "[SCROLL-SYNC:PARTICIPANT] Failed to sync scroll position"
+                    );
+                }
+            });
+
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
@@ -3890,4 +3924,83 @@
         
         console.log('[DIAGNOSTIC:hcp-annotate:renderer] SessionCanvas annotation renderer ready ;CLEANUP_OK');
     })();
+
+    // [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll prevention - host controls position exclusively ;CLEANUP_OK
+    (function() {
+        console.log('[SCROLL-LOCK] Initializing participant scroll prevention system');
+        
+        function preventParticipantScrolling() {
+            const container = document.querySelector('.canvas-asset-content');
+            if (!container) {
+                console.warn('[SCROLL-LOCK] Canvas content container not found, retrying...');
+                return false;
+            }
+            
+            // Block mouse wheel scrolling
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[SCROLL-LOCK] Wheel scroll blocked');
+            }, { passive: false });
+            
+            // Block touch scrolling (mobile)
+            container.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                console.log('[SCROLL-LOCK] Touch scroll blocked');
+            }, { passive: false });
+            
+            // Block keyboard scrolling (arrow keys, page up/down, home/end)
+            container.addEventListener('keydown', (e) => {
+                if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Space'].includes(e.key)) {
+                    e.preventDefault();
+                    console.log('[SCROLL-LOCK] Keyboard scroll blocked:', e.key);
+                }
+            });
+            
+            // Also prevent scrolling on the parent canvas-content-area
+            const contentArea = document.querySelector('.canvas-content-area');
+            if (contentArea) {
+                contentArea.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
+                contentArea.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+            }
+            
+            console.log('[SCROLL-LOCK] ✅ Participant scroll prevention active - host has exclusive control');
+            return true;
+        }
+        
+        // Try to initialize immediately
+        if (!preventParticipantScrolling()) {
+            // Retry after DOM content loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(preventParticipantScrolling, 500);
+                });
+            } else {
+                setTimeout(preventParticipantScrolling, 500);
+            }
+        }
+    })();
+
+    // [TRACE-WORKITEM:transcript-canvas:scroll-sync] Force participant scroll to host's position ;CLEANUP_OK
+    window.forceParticipantScroll = function(scrollPercentage) {
+        const container = document.querySelector('.canvas-asset-content');
+        if (!container) {
+            console.warn('[SCROLL-SYNC] Canvas container not found');
+            return;
+        }
+        
+        // Calculate target scroll position based on percentage
+        const targetScrollTop = container.scrollHeight * scrollPercentage;
+        
+        // Force instant scroll (no smooth behavior to ensure tight sync)
+        container.scrollTop = targetScrollTop;
+        
+        console.log(`[SCROLL-SYNC] ✅ Forced to host position: ${(scrollPercentage * 100).toFixed(1)}%`);
+    };
 </script>

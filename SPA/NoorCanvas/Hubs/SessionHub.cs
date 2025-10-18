@@ -573,6 +573,27 @@ public class SessionHub : Hub
     }
 
     /// <summary>
+    /// [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Broadcast host scroll position to participants ;CLEANUP_OK
+    /// Participants receive scroll percentage and are locked to host's view (presentation mode).
+    /// </summary>
+    /// <param name="sessionId">The session ID to broadcast scroll position for.</param>
+    /// <param name="scrollPercentage">The scroll position as a percentage (0.0 to 1.0).</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task BroadcastScrollPosition(int sessionId, double scrollPercentage)
+    {
+        var groupName = $"session_{sessionId}";
+
+        _logger.LogInformation(
+            "[SCROLL-SYNC:HUB] Broadcasting scroll position to {GroupName}: {Percentage:P2}",
+            groupName, scrollPercentage);
+
+        // Exclude host from receiving own scroll broadcasts
+        await Clients.OthersInGroup(groupName).SendAsync(
+            "ScrollPositionReceived",
+            scrollPercentage);
+    }
+
+    /// <summary>
     /// Broadcast participant joined event to session group (called from ParticipantController).
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
