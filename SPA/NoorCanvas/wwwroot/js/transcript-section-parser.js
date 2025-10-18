@@ -42,20 +42,28 @@ window.TranscriptSectionParser = {
      * @returns {Promise<object>} Result with section count and success status
      */
     injectShareButtons: async function (containerId, dotNetRef) {
-        console.log('[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION START ════════ ;CLEANUP_OK');
+        console.log('%c[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION START ════════', 'background: #006400; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Timestamp:', new Date().toISOString(), ';CLEANUP_OK');
         console.log('[TRACE:hcp-tcanvas:inject] ContainerId:', containerId, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] DotNetRef provided:', !!dotNetRef, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Document ready state:', document.readyState, ';CLEANUP_OK');
 
         // Wait for container to exist with content
+        console.log('%c[TRACE:hcp-tcanvas:inject] Waiting for container...', 'color: #D4AF37; font-weight: bold;', ';CLEANUP_OK');
         const container = await this.waitForContainer(containerId);
+        
         if (!container) {
-            console.error('[TRACE:hcp-tcanvas:inject] ❌ Container NOT FOUND after timeout:', containerId, ';CLEANUP_OK');
+            console.error('%c[TRACE:hcp-tcanvas:inject] ❌ Container NOT FOUND after timeout', 'background: #DC2626; color: white; font-weight: bold; padding: 4px;', containerId, ';CLEANUP_OK');
             console.error('[TRACE:hcp-tcanvas:inject] Available IDs in document:', Array.from(document.querySelectorAll('[id]')).map(el => el.id), ';CLEANUP_OK');
+            console.error('[TRACE:hcp-tcanvas:inject] All elements with transcript-* id:', Array.from(document.querySelectorAll('[id^="transcript"]')).map(el => ({ id: el.id, tag: el.tagName, visible: el.offsetParent !== null })), ';CLEANUP_OK');
             return { success: false, sections: 0, error: 'Container not found after waiting 5 seconds' };
         }
 
-        console.log('[TRACE:hcp-tcanvas:inject] ✅ Container found ;CLEANUP_OK');
-        console.log('[TRACE:hcp-tcanvas:inject] Container innerHTML length:', container.innerHTML.length, ';CLEANUP_OK');
-        console.log('[TRACE:hcp-tcanvas:inject] Container first 500 chars:', container.innerHTML.substring(0, 500), ';CLEANUP_OK');
+        console.log('%c[TRACE:hcp-tcanvas:inject] ✅ Container found!', 'background: #10B981; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Container innerHTML length:', container.innerHTML.length, 'chars ;CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Container visible:', container.offsetParent !== null, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Container dimensions:', { width: container.offsetWidth, height: container.offsetHeight }, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Container first 800 chars:', container.innerHTML.substring(0, 800), ';CLEANUP_OK');
 
         // Find all h2 elements in the transcript
         const h2Elements = Array.from(container.querySelectorAll('h2'));
@@ -92,18 +100,21 @@ window.TranscriptSectionParser = {
         }
 
         let sectionsProcessed = 0;
-        console.log(`[TRACE:hcp-tcanvas:inject] Starting section wrapping and button injection ;CLEANUP_OK`);
+        console.log('%c[TRACE:hcp-tcanvas:inject] Starting section wrapping and button injection', 'background: #10B981; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Will process', h2Elements.length, 'sections ;CLEANUP_OK');
 
         // Process each h2: wrap section content and inject share button above
         h2Elements.forEach((h2, index) => {
-            console.log(`[TRACE:hcp-tcanvas:inject] Processing h2[${index}]: ${h2.textContent?.substring(0, 50)} ;CLEANUP_OK`);
+            console.log(`%c[TRACE:hcp-tcanvas:inject] ━━━ Processing h2[${index}] ━━━`, 'color: #D4AF37; font-weight: bold;', ';CLEANUP_OK');
+            console.log(`[TRACE:hcp-tcanvas:inject]   h2 text: "${h2.textContent?.substring(0, 80)}" ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   h2 parent: ${h2.parentNode?.tagName}.${h2.parentNode?.className} ;CLEANUP_OK`);
 
             // Extract h2 text for button label
             const h2Text = h2.textContent?.trim() || `Section ${index + 1}`;
             const sectionId = `transcript-section-${index}`;
 
             // Collect all content from this h2 until the next h2 (or end of container)
-            console.log(`[TRACE:hcp-tcanvas:inject] Collecting content for section ${index} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Collecting content for section ${index}... ;CLEANUP_OK`);
             const sectionContent = [];
             let currentElement = h2;
 
@@ -113,6 +124,7 @@ window.TranscriptSectionParser = {
 
                 // Stop if we hit another h2
                 if (nextElement && nextElement.tagName === 'H2') {
+                    console.log(`[TRACE:hcp-tcanvas:inject]   Stopped at next h2: "${nextElement.textContent?.substring(0, 50)}" ;CLEANUP_OK`);
                     break;
                 }
 
@@ -120,7 +132,7 @@ window.TranscriptSectionParser = {
                 currentElement = nextElement;
             }
 
-            console.log(`[TRACE:hcp-tcanvas:inject] Section ${index} contains ${sectionContent.length} elements ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Section ${index} contains ${sectionContent.length} elements ;CLEANUP_OK`);
 
             // Create invisible wrapper div for the section
             const wrapper = document.createElement('div');
@@ -128,7 +140,7 @@ window.TranscriptSectionParser = {
             wrapper.setAttribute('data-section-index', index.toString());
             wrapper.style.cssText = 'position: relative;'; // Invisible container
 
-            console.log(`[TRACE:hcp-tcanvas:inject] Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
 
             // Create share button to inject ABOVE the section
             const shareButton = document.createElement('button');
@@ -167,36 +179,54 @@ window.TranscriptSectionParser = {
                 this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
             };
 
-            console.log(`[TRACE:hcp-tcanvas:inject] Created share button for section ${index} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Created share button: "Share ${h2Text.substring(0, 40)}" ;CLEANUP_OK`);
 
             // Left-justify the h2 (ensure no centering)
             h2.style.textAlign = 'left';
-            console.log(`[TRACE:hcp-tcanvas:inject] Applied left text-align to h2[${index}] ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Applied left text-align to h2[${index}] ;CLEANUP_OK`);
 
             // Insert share button BEFORE the first element of the section (before h2)
             const insertionPoint = sectionContent[0];
+            console.log(`[TRACE:hcp-tcanvas:inject]   Insertion point: ${insertionPoint.tagName} ;CLEANUP_OK`);
+            
             insertionPoint.parentNode.insertBefore(shareButton, insertionPoint);
-            console.log(`[TRACE:hcp-tcanvas:inject] Inserted share button above h2[${index}] ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Inserted share button above h2[${index}] ;CLEANUP_OK`);
 
             // Wrap section content in the invisible div
             // Insert wrapper before the first element
             insertionPoint.parentNode.insertBefore(wrapper, insertionPoint);
 
             // Move all section elements into wrapper
-            sectionContent.forEach(element => {
+            sectionContent.forEach((element, elIdx) => {
                 wrapper.appendChild(element);
+                if (elIdx === 0) {
+                    console.log(`[TRACE:hcp-tcanvas:inject]   Moving ${sectionContent.length} elements into wrapper... ;CLEANUP_OK`);
+                }
             });
 
-            console.log(`[TRACE:hcp-tcanvas:inject] Wrapped section ${index} content in div#${sectionId} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Wrapped section ${index} content in div#${sectionId} ;CLEANUP_OK`);
 
             sectionsProcessed++;
         });
 
         // Set up click delegation on container (SessionCanvas pattern)
+        console.log('[TRACE:hcp-tcanvas:inject] Setting up click delegation on container... ;CLEANUP_OK');
         this.setupClickDelegation(containerId, dotNetRef);
 
-        console.log(`[TRACE:hcp-tcanvas:inject] ✅ Successfully processed ${sectionsProcessed} sections ;CLEANUP_OK`);
-        console.log('[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION COMPLETE ════════ ;CLEANUP_OK');
+        console.log('%c[TRACE:hcp-tcanvas:inject] ✅ SUCCESS!', 'background: #10B981; color: white; font-weight: bold; padding: 4px;', `Processed ${sectionsProcessed} sections ;CLEANUP_OK`);
+        console.log('%c[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION COMPLETE ════════', 'background: #006400; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
+        
+        // Final verification
+        const verifyButtons = container.querySelectorAll('.transcript-section-share-btn');
+        console.log('[TRACE:hcp-tcanvas:inject] Final verification - buttons in DOM:', verifyButtons.length, ';CLEANUP_OK');
+        verifyButtons.forEach((btn, idx) => {
+            console.log(`[TRACE:hcp-tcanvas:inject]   Button[${idx}]:`, {
+                text: btn.textContent,
+                visible: btn.offsetParent !== null,
+                dimensions: { width: btn.offsetWidth, height: btn.offsetHeight }
+            }, ';CLEANUP_OK');
+        });
+        
         return { success: true, sections: sectionsProcessed };
     },
 
@@ -206,14 +236,19 @@ window.TranscriptSectionParser = {
      * @param {object} dotNetRef - DotNet object reference for C# callbacks
      */
     setupClickDelegation: function (containerId, dotNetRef) {
+        console.log('[TRACE:hcp-tcanvas:delegation] Setting up click delegation... ;CLEANUP_OK');
         const container = document.getElementById(containerId);
+        
         if (!container) {
-            console.error('[DEBUG-WORKITEM:hcp-tcanvas:parse] Cannot setup delegation - container not found');
+            console.error('%c[TRACE:hcp-tcanvas:delegation] ❌ Cannot setup delegation - container not found', 'background: #DC2626; color: white;', ';CLEANUP_OK');
             return;
         }
 
+        console.log('[TRACE:hcp-tcanvas:delegation] ✅ Container found, attaching click listener... ;CLEANUP_OK');
+
         // Remove existing listener to prevent duplicates
         if (container._transcriptSectionClickHandler) {
+            console.log('[TRACE:hcp-tcanvas:delegation] Removing old click handler to prevent duplicates ;CLEANUP_OK');
             container.removeEventListener('click', container._transcriptSectionClickHandler);
         }
 
@@ -227,7 +262,8 @@ window.TranscriptSectionParser = {
             }
 
             event.preventDefault();
-            console.log('[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION CLICK ════════ ;CLEANUP_OK');
+            console.log('%c[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION CLICK ════════', 'background: #D4AF37; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
+            console.log('[TRACE:hcp-tcanvas:share-section] Button clicked:', shareButton.textContent, ';CLEANUP_OK');
 
             const sectionId = shareButton.getAttribute('data-section-id');
             const h2Index = parseInt(shareButton.getAttribute('data-h2-index'));

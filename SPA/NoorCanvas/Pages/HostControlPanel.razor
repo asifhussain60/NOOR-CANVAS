@@ -1303,6 +1303,7 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW START ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] Button injection will happen via OnAfterRenderAsync callback ;CLEANUP_OK", requestId);
         
         if (Model == null || SessionId == null)
         {
@@ -1329,8 +1330,10 @@
                 return;
             }
             
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] API returned transcript: {Length} chars ;CLEANUP_OK", 
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] ✅ API returned transcript: {Length} chars ;CLEANUP_OK", 
                 requestId, sessionDetails.Transcript.Length);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] Transcript preview (first 300 chars): {Preview} ;CLEANUP_OK",
+                requestId, sessionDetails.Transcript.Substring(0, Math.Min(300, sessionDetails.Transcript.Length)));
             
             // Update Model with fresh transcript from API
             Model.SessionTranscript = sessionDetails.Transcript;
@@ -1378,24 +1381,41 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ HANDLE TRANSCRIPT RENDERED ════════ ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Component rendered with transcript content, injecting buttons... ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Component rendered with transcript content ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Model.TransformedTranscript length: {Length} chars ;CLEANUP_OK", requestId, Model?.TransformedTranscript?.Length ?? 0);
         
         try
         {
             // Small delay to ensure DOM is fully updated
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 100ms for DOM to stabilize... ;CLEANUP_OK", requestId);
             await Task.Delay(100);
             
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync to inject share buttons ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Creating DotNetObjectReference for callbacks ;CLEANUP_OK", requestId);
             var dotNetRef = DotNetObjectReference.Create(this);
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons') ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container ID: transcript-content-container ;CLEANUP_OK", requestId);
+            
             var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JavaScript injection call returned ;CLEANUP_OK", requestId);
             
             var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
             var sections = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
             var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
             
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Result - Success: {Success}, Sections: {Sections}, Error: {Error} ;CLEANUP_OK", 
+                requestId, success, sections, error ?? "none");
+            
             if (success && sections > 0)
             {
                 Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ✅ Share buttons injected successfully: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
+            }
+            else if (success && sections == 0)
+            {
+                Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ No sections found - Transcript might not have H2 elements ;CLEANUP_OK", requestId);
+                Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] First 500 chars of transcript: {Preview} ;CLEANUP_OK", 
+                    requestId, Model?.TransformedTranscript?.Substring(0, Math.Min(500, Model?.TransformedTranscript?.Length ?? 0)) ?? "empty");
             }
             else
             {
@@ -1406,7 +1426,10 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "[TRACE:hcp-tcanvas:inject] [{RequestId}] ❌ Exception during button injection: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:inject] [{RequestId}] Exception stack trace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
         }
+        
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ HANDLE TRANSCRIPT RENDERED COMPLETE ════════ ;CLEANUP_OK", requestId);
     }
 
     // [DIAGNOSTIC:transcript-canvas:broadcast] Broadcast full transcript to all participants via SignalR ;CLEANUP_OK
