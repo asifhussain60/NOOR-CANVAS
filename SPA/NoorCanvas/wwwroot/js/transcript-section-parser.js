@@ -188,7 +188,7 @@ window.TranscriptSectionParser = {
             // [FIX] Correct insertion order: Button BEFORE h2 in final DOM
             // Strategy: Insert button, insert wrapper, move h2+content into wrapper
             // Result: container → [button] → [wrapper → h2+content]
-            
+
             const insertionPoint = sectionContent[0]; // This is the h2
             const parentContainer = insertionPoint.parentNode;
             console.log(`[TRACE:hcp-tcanvas:inject]   Parent container: ${parentContainer.tagName}.${parentContainer.id} ;CLEANUP_OK`);
