@@ -9,6 +9,63 @@ TranscriptCanvas.razor sidebar completely removed - uses modal-only question sub
 
 ## Work Log
 
+### 2025-10-18T16:30:00Z - Created Percy Visual Regression Tests for Canvas Rendering
+**Agent:** task (task.prompt.md)  
+**Debug Level:** none
+
+**User Request:**
+Create visual regression Percy tests to match rendering of current code to expected HTML output and make tests pass without manual testing.
+
+**Test Data Confirmed:**
+- Session ID: 212
+- Participant Token: KJAHA99L
+- Host Token: PQ9N5YWW
+
+**Tests Created:**
+
+1. **canvas-rendering-visual.spec.ts** (Percy + Playwright)
+   - TranscriptCanvas - Full Page Layout
+   - SessionCanvas - Full Page with Sidebar  
+   - TranscriptCanvas - Content Area Focus
+   - SessionCanvas - Q&A Sidebar Focus
+   - TranscriptCanvas - Responsive Layout (Mobile)
+   - SessionCanvas - Grid Layout Verification
+   - Captures multiple viewports: 1280px, 1920px, 375px
+   - Hides dynamic elements (SignalR status, animations)
+
+2. **canvas-rendering-check.spec.ts** (Playwright Only - No Percy)
+   - Structural verification tests
+   - CSS property validation
+   - Layout measurement checks
+   - Can run without Percy token
+
+**Orchestration Scripts:**
+- `scripts/run-canvas-rendering-percy-tests.ps1` - Percy visual tests
+- `scripts/run-canvas-rendering-check.ps1` - Structural tests (no Percy)
+- Flags: `-HeadedMode`, `-KeepAppRunning`
+
+**Test Registry Updated:**
+- Added canvas-rendering-visual.spec.ts to active tests
+- Percy Dashboard: https://percy.io/NOOR-CANVAS/noor-canvas
+
+**Files Created:**
+- `.github/prompts.keys/transcript-canvas/tests/canvas-rendering-visual.spec.ts`
+- `.github/prompts.keys/transcript-canvas/tests/canvas-rendering-check.spec.ts`
+- `.github/prompts.keys/transcript-canvas/scripts/run-canvas-rendering-percy-tests.ps1`
+- `.github/prompts.keys/transcript-canvas/scripts/run-canvas-rendering-check.ps1`
+
+**Files Modified:**
+- `.github/prompts.keys/transcript-canvas/tests/test-registry.md` (added new tests)
+
+**Next Steps:**
+1. Set Percy token: `$env:PERCY_TOKEN = "your-token"`
+2. Run tests: `.\\.github\prompts.keys\transcript-canvas\scripts\run-canvas-rendering-percy-tests.ps1 -HeadedMode`
+3. Review Percy dashboard for visual diffs
+4. Fix rendering issues identified by tests
+5. Re-run until all tests pass
+
+---
+
 ### 2025-10-18T15:38:00Z - Fixed Question Submission for Created Status Sessions
 **Commit:** e460b61b  
 **Agent:** task (task.prompt.md)  
