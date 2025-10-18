@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "dgSpecHash": "Fw91PzQ6Gj0=",
-  "success": true,
+  "dgSpecHash": "uMonAPmj7Fs=",
+  "success": false,
   "projectFilePath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner.WinForms\\HostProvisioner.WinForms.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\asifh\\.nuget\\packages\\anglesharp\\1.0.7\\anglesharp.1.0.7.nupkg.sha512",
@@ -10,9 +10,15 @@
     "C:\\Users\\asifh\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\htmlagilitypack\\1.12.3\\htmlagilitypack.1.12.3.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.authorization\\8.0.12\\microsoft.aspnetcore.authorization.8.0.12.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.components\\8.0.12\\microsoft.aspnetcore.components.8.0.12.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.components.analyzers\\8.0.12\\microsoft.aspnetcore.components.analyzers.8.0.12.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.components.forms\\8.0.12\\microsoft.aspnetcore.components.forms.8.0.12.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.components.web\\8.0.12\\microsoft.aspnetcore.components.web.8.0.12.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\8.0.0\\microsoft.aspnetcore.connections.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.http.connections.client\\8.0.0\\microsoft.aspnetcore.http.connections.client.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.http.connections.common\\8.0.0\\microsoft.aspnetcore.http.connections.common.8.0.0.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.metadata\\8.0.12\\microsoft.aspnetcore.metadata.8.0.12.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.signalr.client\\8.0.0\\microsoft.aspnetcore.signalr.client.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.signalr.client.core\\8.0.0\\microsoft.aspnetcore.signalr.client.core.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.aspnetcore.signalr.common\\8.0.0\\microsoft.aspnetcore.signalr.common.8.0.0.nupkg.sha512",
@@ -50,9 +56,11 @@
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\8.0.0\\microsoft.extensions.fileproviders.physical.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\8.0.0\\microsoft.extensions.filesystemglobbing.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\8.0.0\\microsoft.extensions.hosting.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.localization\\8.0.12\\microsoft.extensions.localization.8.0.12.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.localization.abstractions\\8.0.12\\microsoft.extensions.localization.abstractions.8.0.12.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.logging\\8.0.0\\microsoft.extensions.logging.8.0.0.nupkg.sha512",
-    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
-    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.options\\8.0.0\\microsoft.extensions.options.8.0.0.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.options\\8.0.2\\microsoft.extensions.options.8.0.2.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.identity.client\\4.47.2\\microsoft.identity.client.4.47.2.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.identity.client.extensions.msal\\2.19.3\\microsoft.identity.client.extensions.msal.2.19.3.nupkg.sha512",
@@ -62,11 +70,13 @@
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.identitymodel.protocols\\6.24.0\\microsoft.identitymodel.protocols.6.24.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.identitymodel.protocols.openidconnect\\6.24.0\\microsoft.identitymodel.protocols.openidconnect.6.24.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.identitymodel.tokens\\6.24.0\\microsoft.identitymodel.tokens.6.24.0.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\microsoft.jsinterop\\8.0.12\\microsoft.jsinterop.8.0.12.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\asifh\\.nuget\\packages\\mudblazor\\8.13.0\\mudblazor.8.13.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\openai\\2.1.0\\openai.2.1.0.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\serilog\\3.1.1\\serilog.3.1.1.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\serilog.aspnetcore\\8.0.0\\serilog.aspnetcore.8.0.0.nupkg.sha512",
@@ -112,5 +122,28 @@
     "C:\\Users\\asifh\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Warning As Error: Detected package downgrade: Microsoft.Extensions.DependencyInjection from 8.0.1 to 8.0.0. Reference the package directly from the project to select a different version. \r\n HostProvisioner.WinForms -> NoorCanvas -> MudBlazor 8.13.0 -> Microsoft.AspNetCore.Components.Web 8.0.12 -> Microsoft.Extensions.DependencyInjection (>= 8.0.1) \r\n HostProvisioner.WinForms -> Microsoft.Extensions.DependencyInjection (>= 8.0.0)",
+      "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner.WinForms\\HostProvisioner.WinForms.csproj",
+      "filePath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner.WinForms\\HostProvisioner.WinForms.csproj",
+      "libraryId": "Microsoft.Extensions.DependencyInjection",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Warning As Error: Detected package downgrade: Microsoft.Extensions.DependencyInjection.Abstractions from 8.0.2 to 8.0.0. Reference the package directly from the project to select a different version. \r\n HostProvisioner.WinForms -> NoorCanvas -> MudBlazor 8.13.0 -> Microsoft.Extensions.Localization 8.0.12 -> Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0.2) \r\n HostProvisioner.WinForms -> Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0.0)",
+      "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner.WinForms\\HostProvisioner.WinForms.csproj",
+      "filePath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner.WinForms\\HostProvisioner.WinForms.csproj",
+      "libraryId": "Microsoft.Extensions.DependencyInjection.Abstractions",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
 }
