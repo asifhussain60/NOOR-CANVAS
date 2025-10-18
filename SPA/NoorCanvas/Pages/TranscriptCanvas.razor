@@ -569,6 +569,15 @@
         cursor: pointer;
     }
 
+    /* [DEBUG-WORKITEM:transcript-canvas:modal-submit-visibility] Ensure modal Submit button has visible golden background ;CLEANUP_OK */
+    .canvas-modal-buttons .canvas-form-submit-button {
+        background-color: #D4AF37; /* Golden */
+        box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); /* match shadow-golden */
+    }
+    .canvas-modal-buttons .canvas-form-submit-button:hover {
+        background-color: #b4942c; /* Darker on hover for contrast */
+    }
+
     .canvas-form-submit-button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -1083,12 +1092,14 @@
             
             <div class="canvas-modal-buttons">
                 <button @onclick="SubmitQuestionFromModal" 
+                        type="button"
                         class="canvas-form-submit-button"
                         style="flex:1;">
                     <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
                     <span class="canvas-form-submit-text">Submit</span>
                 </button>
                 <button @onclick="CloseQuestionModal" 
+                        type="button"
                         class="canvas-modal-button canvas-modal-button-cancel"
                         style="flex:1;">
                     Cancel
@@ -1149,6 +1160,8 @@
 
     // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal visibility state ;CLEANUP_OK
     private bool IsQuestionModalVisible { get; set; } = false;
+    // Track submit result to decide modal close behavior
+    private bool _lastSubmitSucceeded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -1958,6 +1971,7 @@
         if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
+            _lastSubmitSucceeded = false;
             return;
         }
 
@@ -1998,6 +2012,7 @@
                 await InvokeAsync(StateHasChanged);
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question input cleared and UI refreshed ;CLEANUP_OK", requestId);
+                _lastSubmitSucceeded = true;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
@@ -2006,17 +2021,20 @@
                 
                 // Redirect to UserLanding.razor with session token for proper authentication
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
+                _lastSubmitSucceeded = false;
                 return;
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Logger.LogError("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
+                _lastSubmitSucceeded = false;
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Exception during question submission: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+            _lastSubmitSucceeded = false;
         }
     }
 
@@ -2291,8 +2309,43 @@
     // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Submit question from modal ;CLEANUP_OK
     private async Task SubmitQuestionFromModal()
     {
-        await SubmitQuestion(); // Reuse existing question submission logic
-        CloseQuestionModal(); // Close modal after successful submission
+        try
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            _lastSubmitSucceeded = false;
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", $"[TRANSCRIPT-CANVAS] Modal Submit clicked - requestId={requestId}");
+            }
+
+            await SubmitQuestion(); // Reuse existing question submission logic
+
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", $"[TRANSCRIPT-CANVAS] Submit completed - success={_lastSubmitSucceeded}, requestId={requestId}");
+            }
+
+            if (_lastSubmitSucceeded)
+            {
+                CloseQuestionModal(); // Close modal only after successful submission
+            }
+            else
+            {
+                // Provide gentle feedback in console to assist debugging when submission fails
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("console.warn", "Question submission failed or unauthorized. Modal remains open.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRANSCRIPT-CANVAS] Exception in SubmitQuestionFromModal: {Message}", ex.Message);
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"[TRANSCRIPT-CANVAS] Exception in SubmitQuestionFromModal: {ex.Message}");
+            }
+        }
     }
 
     private async Task DeleteConfirmed()
