@@ -3,7 +3,7 @@
 ## Key Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-18T00:00:00Z
-- **Last Updated**: 2025-10-18T00:00:00Z
+- **Last Updated**: 2025-10-18T14:20:00Z
 
 ---
 
@@ -16,7 +16,45 @@ Update HostControlPanel.razor "Share Transcript" button to dynamically parse ses
 
 ## Work Log
 
-### User Request (2025-10-18T12:00:00Z)
+### Work Completed (2025-10-18T14:20:00Z)
+- **Status**: In Progress - Script loading fix implemented
+- **Problem**: TranscriptSectionParser JavaScript not loading on certain page navigations
+- **Root Cause**: Script tag in `<HeadContent>` not re-evaluated during Blazor routing
+- **Solution**: Dynamic script injection fallback
+- **Changes**:
+  - Added `typeof window.TranscriptSectionParser !== 'undefined'` check before calling
+  - If undefined: dynamically inject script tag with `createElement('script')`
+  - Cache-busting query parameter: `?v=${Date.now()}`
+  - 1000ms wait for script load with verification
+  - Throw `InvalidOperationException` if still undefined after injection
+  - Comprehensive trace logging for script load diagnostics
+- **Files Affected**:
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (dynamic script loading fallback)
+- **Diagnostics**:
+  - Script existence check: `typeof window.TranscriptSectionParser !== 'undefined'`
+  - Dynamic injection logs: Script ID, src path, timestamp
+  - Post-load verification: Boolean check after 1000ms delay
+  - Error path: Clear exception message if script fails to load
+- **Build**: Clean (0 errors, 0 warnings)
+- **Logs Confirmed**: Script loading messages appearing in console
+- **Commit**: 3929c845 "Add dynamic script loading fallback for TranscriptSectionParser"
+- **Checkpoint**: checkpoint/hcptcanvas/2025-01-18_1419
+
+---
+
+### User Report (2025-10-18T13:00:00Z)
+"Not working" - No share buttons injecting. User provided console logs and HTML showing:
+- NO "TranscriptSectionParser" messages in console
+- NO script loading evidence
+- Container exists: `transcript-content-container`
+- HTML contains h2 elements
+- Other JavaScript files loading successfully
+
+**Diagnosis**: Script file never loaded despite tag existing in HostControlPanel.razor
+
+**High-Priority Constraints**: CRITICAL - Script not loading blocks all button injection
+
+--- User Request (2025-10-18T12:00:00Z)
 No share buttons are being injected for the h2 blocks. Follow SessionCanvas.razor injection pattern and tie it to asset and broadcasting logic.
 
 **High-Priority Constraints**: None detected
