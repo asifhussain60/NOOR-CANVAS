@@ -852,36 +852,7 @@
             min-height: 300px;
         }
 
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Sidebar appears below canvas, full width ;CLEANUP_OK */
-        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar hidden unless toggle clicked ;CLEANUP_OK */
-        .canvas-sidebar {
-            order: 2;
-            width: 0;
-            opacity: 0;
-            max-width: 100%;
-            min-height: 400px;
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 100;
-            transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        }
-
-        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar slides in from right when visible ;CLEANUP_OK */
-        .canvas-main-grid.sidebar-visible .canvas-sidebar {
-            width: 100%;
-            opacity: 1;
-        }
-
-        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: toggle button always visible ;CLEANUP_OK */
-        .canvas-sidebar-toggle {
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 50px;
-            height: 50px;
-            font-size: 1.25rem;
-        }
+        /* [TRACE-WORKITEM:transcript-canvas:sidebar-removal] Sidebar CSS removed - mobile uses full-width canvas ;CLEANUP_OK */
 
         .canvas-header-content {
             padding: 1rem 0.5rem;
@@ -914,7 +885,7 @@
     }
 
     /* Responsive Layout - Mobile Landscape */
-    /* [DEBUG-WORKITEM:css:landscape] Landscape orientation - sidebar below canvas for better asset rendering ;CLEANUP_OK */
+    /* [TRACE-WORKITEM:transcript-canvas:sidebar-removal] Sidebar CSS removed - landscape uses full-width canvas ;CLEANUP_OK */
     @@media (max-width: 1024px) and (orientation: landscape) {
         .canvas-main-grid {
             grid-template-columns: 1fr !important;
@@ -926,26 +897,6 @@
             order: 1;
             width: 100%;
             max-width: 100%;
-        }
-
-        .canvas-sidebar {
-            order: 2;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for questions in landscape ;CLEANUP_OK */
-        .canvas-questions-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-        }
-
-        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for participants in landscape ;CLEANUP_OK */
-        .canvas-participants-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
         }
     }
 </style>
