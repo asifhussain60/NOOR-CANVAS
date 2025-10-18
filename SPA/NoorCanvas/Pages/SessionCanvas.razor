@@ -1,4 +1,4 @@
-@page "/session/canvas/{sessionToken?}"
+﻿@page "/session/canvas/{sessionToken?}"
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
@@ -30,6 +30,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/session-transcript.css">
+    <link rel="stylesheet" href="~/css/canvas-common.css">
     
     <!-- [DIAGNOSTIC:notyf:libs] Notyf - Modern Toast Notifications (Replaced toastr.js 2025-10-14) ;CLEANUP_OK -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" 
@@ -46,29 +47,16 @@
 </HeadContent>
 
 <style>
-    .poppins { font-family: 'Poppins', sans-serif; }
-    .inter { font-family: 'Inter', sans-serif; }
-    .shadow-golden { box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); }
-    .canvas-tab-button.active { border-bottom-color: #D4AF37; color: #006400; }
-    .canvas-custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .canvas-custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    .canvas-custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
-    .canvas-custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C5B358; }
-    .canvas-animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @@keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .8; }
-    }
+    /* ============================================================================
+       SESSION CANVAS VIEW-SPECIFIC STYLES
+       
+       Green-themed overrides for SessionCanvas.razor with sidebar layout
+       Common canvas styles loaded from ~/css/canvas-common.css
+       ============================================================================ */
 
-    /* [DEBUG-WORKITEM:canvas:toastr-styling:trace] Toast styling moved to ~/css/noor-toastr.css for reuse across all views ;CLEANUP_OK */
-
-    .canvas-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
-    @@media (max-width: 1024px) {
-        .canvas-main-grid { grid-template-columns: 1fr; }
-    }
-    
+    /* Green Theme - Root Container */
     .session-canvas-root {
-        background-color: #F8F5F1;
+        background-color: #F8F5F1; /* Light tan tint */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,311 +65,18 @@
         font-family: 'Inter', sans-serif;
     }
 
-    .session-canvas-container {
-        width: 95%;
-        max-width: 85rem;
-        background-color: #FFFFFF;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-        border: 1px solid #E5E7EB;
+    /* Green Theme - Content Area Border */
+    .canvas-content-area {
+        border-color: #006400; /* Green border */
+        background-color: #eeffee; /* Light green background */
     }
 
-    /* Error State Styles */
-    .canvas-error-container {
-        width: 100%;
-        max-width: 56rem;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        text-align: center;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-        border: 1px solid #fecaca;
-    }
-
-    .canvas-error-logo {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .canvas-error-logo-img {
-        width: 200px;
-        height: 200px;
-        object-fit: contain;
-    }
-
-    .canvas-error-icon-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .canvas-error-icon {
-        font-size: 2rem;
-        color: #DC2626;
-    }
-
-    .canvas-error-message {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.125rem;
-        color: #706357;
-        margin: 0 0 1.5rem 0;
-    }
-
-    .canvas-error-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .canvas-home-button {
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        font-weight: 600;
-        color: white;
-        background-color: #3B82F6;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .canvas-home-button:hover {
-        background-color: #2563EB;
-    }
-
-    .canvas-home-button-icon {
-        margin-right: 0.5rem;
-    }
-
-    /* Session Content Styles */
-    .canvas-content-wrapper {
-        width: 100%;
-        max-width: 80rem;
-        margin: 0 auto;
-    }
-
-    .canvas-header {
-        background-color: white;
-        border-radius: 1rem;
-        padding: 10px;
-        margin-bottom: 0.75rem;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        border: 2px solid #D4AF37;
-        position: relative;
-    }
-
-    .canvas-header-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .canvas-header-logo {
-        flex-shrink: 0;
-        margin: 0 auto;
-        display: block;
-    }
-
-    .canvas-header-logo-img {
-        width: 250px;
-        height: 250px;
-        object-fit: contain;
-        display: block;
-        margin: 0 auto;
-    }
-
-    .canvas-header-session-info {
-        flex: 1;
-        text-align: center;
-    }
-
-    .canvas-session-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 2.5rem;
-        color: #816611;
-        margin: 0;
-    }
-
-    .canvas-session-description {
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        color: #6B7280;
-        margin: 0.25rem 0 0 0;
-    }
-
-    .canvas-signalr-status {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.5rem;
-    }
-
-    .canvas-signalr-indicator {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 48px;
-        height: 48px;
-        border: 2px solid;
-        border-radius: 50%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .canvas-signalr-icon {
-        font-size: 1.25rem;
-    }
-
-    .canvas-retry-button {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: white;
-        background-color: #EF4444;
-        padding: 0.375rem 0.75rem;
-        border-radius: 0.375rem;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .canvas-retry-button:hover {
-        background-color: #DC2626;
-    }
-
-    /* Welcome Panel Styles */
-    .canvas-welcome-panel {
-        background-color: #ffffff;
-        border-radius: 1.5rem;
-        margin: 1rem auto;
-        max-width: 50rem;
-        text-align: center;
-    }
-
-    .canvas-welcome-content {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .canvas-welcome-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #006400;
-    }
-
-    /* Main Grid Layout */
-    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
+    /* Green Theme - Grid Layout (with sidebar) */
     .canvas-main-grid {
-        display: grid;
-        grid-template-columns: 1fr 300px;
-        gap: 1.5rem;
-        height: auto;
-        align-items: stretch;
+        grid-template-columns: 1fr 300px; /* Canvas + sidebar */
     }
 
-    /* Canvas Area Styles */
-    /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height to allow canvas to expand for tall assets ;CLEANUP_OK */
-    .canvas-area-container {
-        background-color: white;
-        border-radius: 1rem;
-        padding: 1rem;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        border: 2px solid #D4AF37;
-        display: flex;
-        flex-direction: column;
-        min-height: 400px;
-        /* [DIAGNOSTIC:canvas:height:TRACE] Removed max-height: 700px - was preventing expansion to fit assets ;CLEANUP_OK */
-    }
-
-.canvas-content-area {
-    flex: 1;
-    padding: 1rem;
-    border-radius: 1rem;
-    transition: all 0.2s;
-    margin: 10px;
-    overflow: visible; /* [DIAGNOSTIC:canvas:height:TRACE] Allow natural expansion to fit asset ;CLEANUP_OK */
-    display: flex;
-    flex-direction: column;
-    border: #006400 dotted 3px;
-    background-color: #eeffee;
-    min-height: 400px;
-    /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
-}
-    .canvas-asset-content {
-        width: 100%;
-        flex: 1;
-        overflow-y: visible; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Changed from auto to visible - parent will handle overflow ;CLEANUP_OK */
-        overflow-x: hidden;
-        background-color: white;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Content expands naturally, parent shrinks/grows with asset height ;CLEANUP_OK */
-    }
-
-    .canvas-empty-message {
-        font-family: 'Inter', sans-serif;
-        color: #9CA3AF;
-        font-size: 1.125rem;
-        text-align: center;
-        margin: auto;
-    }
-
-    /* Question Panel Styles */
-    .canvas-question-panel {
-        background-color: #FDFBEB;
-        border-radius: 0.75rem;
-        transition: all 0.3s;
-        overflow: hidden;
-        border: 1px solid #D4AF37;
-        margin-top: auto;
-        margin: 10px;
-    }
-
-    .canvas-question-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.5rem;
-    }
-
-    .canvas-question-icon {
-        color: #D4AF37;
-        font-size: 1rem;
-    }
-
-    .canvas-question-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        font-size: 0.875rem;
-        color: #4B3C2B;
-        margin: 0;
-    }
-
-    .canvas-question-form {
-        display: flex;
-        align-items: stretch;
-        gap: 0.75rem;
-        padding: 0 0.75rem 0.75rem 0.75rem;
-    }
-
-    /* Sidebar Styles */
-    /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
+    /* Green Theme - Sidebar */
     .canvas-sidebar {
         background-color: white;
         border-radius: 0.75rem;
@@ -391,498 +86,47 @@
         display: flex;
         flex-direction: column;
         min-height: 400px;
-        /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height: 700px - allows sidebar to match canvas height ;CLEANUP_OK */
         overflow: hidden;
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
         max-width: 100%;
         width: 100%;
     }
 
-    .canvas-tabs {
-        display: flex;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #E5E7EB;
-        background-color: #F8F5F1;
-        border-radius: 0.75rem 0.75rem 0 0;
-    }
-
-    .canvas-tab-button {
-        flex: 1;
-        padding: 0.75rem 1rem;
-        text-align: center;
-        color: #4B3C2B;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        border-bottom: 3px solid transparent;
-        transition: all 0.2s;
-        cursor: pointer;
-        background: transparent;
-        border: none;
-    }
-
-    .canvas-tab-button-left {
-        border-radius: 0.75rem 0 0 0;
-    }
-
-    .canvas-tab-button-right {
-        border-radius: 0 0.75rem 0 0;
-    }
-
-    .canvas-tab-button.active {
-        background: #FFFFFF;
-        border-bottom-color: #D4AF37;
-        color: #006400;
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-    }
-
-    .canvas-tab-icon {
-        margin-right: 0.5rem;
-        font-size: 1rem;
-    }
-
-    .canvas-tab-content {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        min-height: 0;
-    }
-
-    .canvas-tab-content.hidden {
-        display: none;
-    }
-
-    .canvas-tab-padding {
-        padding-right: 0.75rem;
-    }
-
-    .canvas-section-title {
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 0.875rem;
-        color: #4B3C2B;
-        margin: 0 0 1rem 0;
-    }
-
+    /* Green Theme - Questions Container */
     .canvas-questions-container {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Width constraint prevents question cards from expanding sidebar horizontally ;CLEANUP_OK */
         max-width: 100%;
         width: 100%;
     }
 
+    /* Green Theme - Participants Container */
     .canvas-participants-container {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
     }
 
-    .canvas-empty-state {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
-        color: #9CA3AF;
-        text-align: center;
-        padding: 1rem 0;
-        font-style: italic;
-    }
-
-    /* Modal Styles */
-    .canvas-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
-    }
-
-    .canvas-modal-content {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-        max-width: 24rem;
-        width: 100%;
-        text-align: center;
-        transform: scale(0.95);
-        transition: all 0.2s;
-    }
-
-    .canvas-modal-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #4B3C2B;
-        margin: 0 0 1rem 0;
-    }
-
-    .canvas-modal-message {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
-        color: #6B7280;
-        margin: 0 0 1.5rem 0;
-    }
-
-    .canvas-modal-buttons {
-        display: flex;
-        justify-content: space-around;
-        gap: 1rem;
-    }
-
-    .canvas-modal-button {
-        flex: 1;
-        padding: 0.5rem 1rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .canvas-modal-button-delete {
-        color: white;
-        background-color: #8B0000;
-    }
-
-    .canvas-modal-button-cancel {
-        color: #4B3C2B;
-        background-color: #E5E7EB;
-    }
-
-    /* Form Elements */
-    /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Updated textarea to 3 rows with text wrapping ;CLEANUP_OK */
-    .canvas-form-textarea {
-        flex: 5;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        border: 1px solid #D4AF37;
-        outline: none;
-        font-family: 'Inter', sans-serif;
-        color: #4B3C2B;
-        background-color: white;
-        resize: vertical; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Allow vertical resize only ;CLEANUP_OK */
-        height: auto; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Auto height for 3 rows ;CLEANUP_OK */
-        white-space: pre-wrap; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Preserve whitespace and wrap text ;CLEANUP_OK */
-        overflow-wrap: break-word; /* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Break long words to prevent horizontal scroll ;CLEANUP_OK */
-        line-height: 1.5;
-    }
-
-    .canvas-form-textarea:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        background-color: #F3F4F6;
-    }
-
-    /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Updated submit button to match textarea height and center content ;CLEANUP_OK */
-    .canvas-form-submit-button {
-        flex: 1;
-        min-width: 80px;
-        padding: 0.5rem;
-        height: auto; /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Auto height to match textarea ;CLEANUP_OK */
-        align-self: stretch; /* [DEBUG-WORKITEM:canvas:submit-button-height:TRACE] Stretch to match textarea height ;CLEANUP_OK */
-        border-radius: 0.5rem;
-        color: white;
-        font-weight: 600;
-        transition: all 0.2s;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.25rem;
-        border: 1px solid #D4AF37;
-        cursor: pointer;
-    }
-
-    .canvas-form-submit-button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* [DEBUG-WORKITEM:canvas:submit-icon:TRACE] Reduced icon size from 1.25rem to 1rem for better button fit ;CLEANUP_OK */
-    .canvas-form-submit-icon {
-        font-size: 1rem;
-        color: white;
-    }
-
-    .canvas-form-submit-text {
-        font-size: 1rem;
-        color: white;
-    }
-
-    /* Question Items - Refactored from ContextCopilot.txt */
-    /* [DEBUG-WORKITEM:canvas-questions-orangecard:css-trace] Base question card styling with overflow:visible for badge positioning ;CLEANUP_OK */
-    .canvas-question-item {
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15);
-        padding: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        max-width: 300px;
-        width: 100%;
-        border-width: 2px;
-        border-left-width: 6px;
-        border-style: solid;
-        overflow: visible; /* [DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] Changed from overflow-x:hidden - allows badge translate(50%, -50%) to render outside card bounds ;CLEANUP_OK */
-        word-wrap: break-word;
-        margin-bottom: 1rem;
-        position: relative; /* [DEBUG-WORKITEM:canvas-questions-orangecard:positioning-trace] Required for absolute positioned badge child element ;CLEANUP_OK */
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Box-sizing ensures padding included in width calculation, preventing overflow ;CLEANUP_OK */
-        box-sizing: border-box;
-    }
-
-    /* Green Theme - Own Question */
-    .question-item-style-green {
-        border-color: #006400;
-        background-color: #ECFDF5;
-    }
-
-    /* Sienna Theme - Other Users' Question */
-    /* [DEBUG-WORKITEM:canvas-questions-orangecard:theme-trace] Sienna color scheme from ContextCopilot.txt - border:#A0522D, background:#FAEBD7 ;CLEANUP_OK */
-    .question-item-style-sienna {
-        border-color: #A0522D; /* Sienna */
-        background-color: #FAEBD7; /* Antique White */
-        border-width: 2px;
-        border-left-width: 6px; /* [DEBUG-WORKITEM:canvas-questions-orangecard:border-trace] Thick left border matches design requirement ;CLEANUP_OK */
-    }
-
-    .canvas-question-text {
-        word-wrap: break-word; /* Ensure long words wrap */
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        line-height: 1.375;
-        font-weight: normal;
-    }
-
-    .question-text-color-green {
-        color: #006400;
-    }
-
-    .question-text-color-sienna {
-        color: #A0522D;
-    }
-
-    .owner-label-color {
-        color: #800000;
-    }
-
-    .vote-button-style-sienna {
-        color: #8B4513; /* Darker brown for the icon */
-        cursor: default;
-        opacity: 0.5;
-    }
-
-    .vote-button-style-sienna-owner {
-        color: #8B4513; /* Darker brown for the icon */
-        cursor: default;
-        opacity: 0.5;
-    }
-
-    .vote-count-color-sienna {
-        color: #A0522D;
-        font-weight: bold;
-    }
-
-    .canvas-question-actions {
-        display: flex;
-        justify-content: flex-end;
-        width: 100%;
-        gap: 0.25rem;
-    }
-
-    .canvas-question-edit-button {
-        padding: 0.25rem;
-        border: 1px solid #3B82F6;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        transition: all 0.15s;
-        background: transparent;
-    }
-
-    .canvas-question-edit-button:hover {
-        background-color: #EFF6FF;
-    }
-
-    .canvas-question-edit-button i {
-        font-size: 1rem;
-        color: #3B82F6;
-    }
-
-    .canvas-question-delete-button {
-        padding: 0.25rem;
-        border: 1px solid #EF4444;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        transition: all 0.15s;
-        background: transparent;
-    }
-
-    .canvas-question-delete-button:hover {
-        background-color: #FEF2F2;
-    }
-
-    .canvas-question-delete-button i {
-        font-size: 1rem;
-        color: #EF4444;
-    }
-
-    .canvas-question-content {
-        width: 100%;
-    }
-
-    .canvas-question-header {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .canvas-question-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding-top: 0.5rem;
-    }
-
-    .canvas-question-owner-label {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
-        font-weight: 500;
-        white-space: nowrap;
-    }
-
-    .canvas-question-vote-section {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .canvas-question-vote-button {
-        padding: 0.375rem;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        background: none;
-        border: none;
-        transition: transform 0.15s;
-        position: relative;
-    }
-
-    .canvas-question-vote-button:not(:disabled):hover {
-        transform: scale(1.1);
-    }
-
-    .canvas-question-vote-button i {
-        font-size: 1.25rem;
-    }
-
-    .canvas-question-vote-count {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background-color: #DC2626;
-        color: #FFFFFF;
-        font-size: 0.75rem;
-        font-weight: bold;
-        padding: 0.125rem 0.375rem;
-        border-radius: 9999px;
-        min-width: 1.25rem;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Participant Items */
-    .canvas-participant-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-        background-color: white;
-        transition: background-color 0.2s;
-        border: 1px solid #E5E7EB;
+    /* Green Theme - Asset Content Overflow */
+    .canvas-asset-content {
+        overflow-y: visible;
         overflow-x: hidden;
-    }
-
-    .canvas-participant-flag {
-        height: 16px;
-        width: auto;
-        border-radius: 0.125rem;
-        border: 1px solid #D1D5DB;
-    }
-
-    .canvas-participant-flag-fallback {
-        width: 24px;
-        height: 16px;
-        background-color: #4B3C2B;
-        border-radius: 0.125rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .canvas-participant-flag-text {
-        color: #FBF9F6;
-        font-size: 0.625rem;
-        font-weight: 600;
-    }
-
-    .canvas-participant-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #4B3C2B;
-    }
-
-    /* Utility Classes */
-
-    .canvas-retry-icon {
-        margin-right: 0.5rem;
-    }
-
-    /* Empty State Styles */
-    .canvas-empty-state-container {
-        text-align: center;
-        color: #9CA3AF;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
-        padding: 2rem 0;
-    }
-
-    .canvas-empty-state-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        display: block;
     }
 
     /* Responsive Layout - Mobile */
     @@media (max-width: 768px) {
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Single column layout with canvas panel full-width, sidebar below ;CLEANUP_OK */
         .canvas-main-grid {
             grid-template-columns: 1fr;
             height: auto;
             gap: 1rem;
         }
 
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Canvas area takes full width on mobile ;CLEANUP_OK */
         .canvas-area-container {
             width: 100%;
             max-width: 100%;
             min-height: 300px;
         }
 
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Sidebar appears below canvas, full width ;CLEANUP_OK */
         .canvas-sidebar {
             order: 2;
             width: 100%;
@@ -908,12 +152,10 @@
             right: 0.5rem;
         }
 
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Question cards scale to container width on mobile ;CLEANUP_OK */
         .canvas-question-item {
             max-width: 100%;
         }
 
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Container takes full mobile width ;CLEANUP_OK */
         .session-canvas-container {
             width: 100%;
             padding: 1rem;
@@ -921,10 +163,9 @@
     }
 
     /* Responsive Layout - Mobile Landscape */
-    /* [DEBUG-WORKITEM:css:landscape] Landscape orientation - sidebar below canvas for better asset rendering ;CLEANUP_OK */
     @@media (max-width: 1024px) and (orientation: landscape) {
         .canvas-main-grid {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr 300px;
             height: auto;
             gap: 1rem;
         }
@@ -941,14 +182,12 @@
             max-width: 100%;
         }
 
-        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for questions in landscape ;CLEANUP_OK */
         .canvas-questions-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
         }
 
-        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for participants in landscape ;CLEANUP_OK */
         .canvas-participants-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1352,8 +591,8 @@
 
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas ViewModel initialized, starting session data load", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] Logo restored to original large size: 250px × 100px ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Logo centered above title with 250px × 250px dimensions ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] Logo restored to original large size: 250px Ã— 100px ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Logo centered above title with 250px Ã— 250px dimensions ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Canvas div height set to fixed 600px for shareable assets ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Responsive layout configured - sidebar moves below on mobile ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
@@ -1387,12 +626,12 @@
                 
                 if (!toastrAvailable)
                 {
-                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: toastr library NOT loaded - CDN may be blocked or script failed ;CLEANUP_OK", requestId);
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] âŒ CRITICAL: toastr library NOT loaded - CDN may be blocked or script failed ;CLEANUP_OK", requestId);
                 }
                 
                 if (!showNoorToastAvailable)
                 {
-                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: showNoorToast function NOT defined - _Host.cshtml script may not be executing ;CLEANUP_OK", requestId);
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] âŒ CRITICAL: showNoorToast function NOT defined - _Host.cshtml script may not be executing ;CLEANUP_OK", requestId);
                 }
             }
             catch (Exception ex)
@@ -2179,7 +1418,7 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ════════ UPDATE QUESTION CALLED ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] â•â•â•â•â•â•â•â• UPDATE QUESTION CALLED â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Current state: ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - EditingQuestionIndex: {Index} ;CLEANUP_OK", requestId, EditingQuestionIndex);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - Model.Questions: {QuestionsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
@@ -2194,7 +1433,7 @@
         
         if (!EditingQuestionIndex.HasValue || Model?.Questions == null || EditingQuestionIndex.Value >= Model.Questions.Count)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Invalid edit state - EditingQuestionIndex={Index}, QuestionsCount={Count} ;CLEANUP_OK", 
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] âŒ Invalid edit state - EditingQuestionIndex={Index}, QuestionsCount={Count} ;CLEANUP_OK", 
                 requestId, EditingQuestionIndex, Model?.Questions?.Count);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Invalid edit state ;CLEANUP_OK", requestId);
             return;
@@ -2202,7 +1441,7 @@
 
         if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Validation failed - QuestionInput empty={Empty}, SessionToken empty={TokenEmpty}, Http null={HttpNull} ;CLEANUP_OK",
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] âŒ Validation failed - QuestionInput empty={Empty}, SessionToken empty={TokenEmpty}, Http null={HttpNull} ;CLEANUP_OK",
                 requestId, string.IsNullOrWhiteSpace(QuestionInput), string.IsNullOrEmpty(SessionToken), Http == null);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
             return;
@@ -2240,7 +1479,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ Update API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] âœ… Update API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
                     requestId, responseContent);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully - Response: {Response} ;CLEANUP_OK", requestId, responseContent);
                 
@@ -2255,35 +1494,35 @@
                 EditingQuestionIndex = null;
                 await InvokeAsync(StateHasChanged);
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] âœ… Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Waiting for SignalR QuestionUpdated event... ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] âŒ User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
                 Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Update API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
+                Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] âŒ Update API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
                     requestId, response.StatusCode, errorContent);
                 Logger.LogError("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question update failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] 💥 EXCEPTION during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ðŸ’¥ EXCEPTION during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
             Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:update] [{RequestId}] Exception during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
         }
     }
 
     private async Task VoteQuestion(string questionId)
     {
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ VOTE FLOW START ════════ QuestionId={QuestionId}, UserGuid={UserGuid}, SessionToken={SessionToken}, HubConnection={HubState} ;CLEANUP_OK", 
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] â•â•â•â•â•â•â•â• VOTE FLOW START â•â•â•â•â•â•â•â• QuestionId={QuestionId}, UserGuid={UserGuid}, SessionToken={SessionToken}, HubConnection={HubState} ;CLEANUP_OK", 
             questionId, CurrentUserGuid, SessionToken, hubConnection?.State.ToString() ?? "NULL");
         
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] VoteQuestion CALLED - QuestionId={QuestionId}, UserGuid={UserGuid}, AlreadyVoted={AlreadyVoted} ;CLEANUP_OK", 
@@ -2373,7 +1612,7 @@
     private void EditQuestion(int index)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] ════════ EDIT BUTTON CLICKED ════════ Index={Index} ;CLEANUP_OK", requestId, index);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] â•â•â•â•â•â•â•â• EDIT BUTTON CLICKED â•â•â•â•â•â•â•â• Index={Index} ;CLEANUP_OK", requestId, index);
         
         if (Model?.Questions != null && index >= 0 && index < Model.Questions.Count)
         {
@@ -2398,7 +1637,7 @@
     private void ShowDeleteModal(int index)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ════════ DELETE BUTTON CLICKED ════════ Index={Index} ;CLEANUP_OK", requestId, index);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] â•â•â•â•â•â•â•â• DELETE BUTTON CLICKED â•â•â•â•â•â•â•â• Index={Index} ;CLEANUP_OK", requestId, index);
         
         if (Model?.Questions != null && index >= 0 && index < Model.Questions.Count)
         {
@@ -2430,7 +1669,7 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ════════ DELETE CONFIRMED ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] â•â•â•â•â•â•â•â• DELETE CONFIRMED â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Current state: ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Http: {HttpNull} ;CLEANUP_OK", requestId, Http == null);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - QuestionToDeleteIndex: {Index} ;CLEANUP_OK", requestId, QuestionToDeleteIndex);
@@ -2442,7 +1681,7 @@
         
         if (Http == null || QuestionToDeleteIndex == null || Model?.Questions == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Invalid delete state - aborting ;CLEANUP_OK", requestId);
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] âŒ Invalid delete state - aborting ;CLEANUP_OK", requestId);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Invalid delete state ;CLEANUP_OK", requestId);
             IsModalVisible = false;
             return;
@@ -2476,7 +1715,7 @@
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ✅ Delete API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] âœ… Delete API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
                         requestId, responseContent);
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Waiting for SignalR QuestionDeleted event to update UI... ;CLEANUP_OK", requestId);
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully ;CLEANUP_OK", requestId);
@@ -2485,7 +1724,7 @@
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Delete API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] âŒ Delete API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
                         requestId, response.StatusCode, errorContent);
                     Logger.LogError("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deletion failed: {StatusCode} - {Error} ;CLEANUP_OK", 
                         requestId, response.StatusCode, errorContent);
@@ -2493,13 +1732,13 @@
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] 💥 EXCEPTION during API call: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ðŸ’¥ EXCEPTION during API call: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
                 Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Exception during question deletion: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
             }
         }
         else
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Invalid index - Index={Index}, Count={Count} ;CLEANUP_OK", 
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] âŒ Invalid index - Index={Index}, Count={Count} ;CLEANUP_OK", 
                 requestId, index, Model.Questions.Count);
         }
         
@@ -2517,15 +1756,15 @@
             // Dispose existing connection if any
             if (hubConnection != null)
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Disposing existing SignalR connection");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸ”„ Disposing existing SignalR connection");
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Disposing existing SignalR connection");
                 await hubConnection.DisposeAsync();
                 hubConnection = null;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔗 Creating SignalR hub connection to /hub/session");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸ”— Creating SignalR hub connection to /hub/session");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Creating SignalR hub connection to /hub/session");
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ INITIALIZING SIGNALR ════════ SessionId={SessionId}, UserGuid={UserGuid} ;CLEANUP_OK",
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] â•â•â•â•â•â•â•â• INITIALIZING SIGNALR â•â•â•â•â•â•â•â• SessionId={SessionId}, UserGuid={UserGuid} ;CLEANUP_OK",
                 Model?.SessionId ?? 0, CurrentUserGuid);
             
             hubConnection = new HubConnectionBuilder()
@@ -2538,14 +1777,14 @@
             // Connection state change events
             hubConnection.Closed += async (error) =>
             {
-                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ SignalR connection closed: {Error}", error?.Message ?? "No error");
+                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] âŒ SignalR connection closed: {Error}", error?.Message ?? "No error");
                 Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection closed: {Error}", error?.Message ?? "No error");
                 await InvokeAsync(StateHasChanged);
             };
 
             hubConnection.Reconnecting += async (error) =>
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 SignalR reconnecting: {Error}", error?.Message ?? "No error");
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸ”„ SignalR reconnecting: {Error}", error?.Message ?? "No error");
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnecting: {Error}", error?.Message ?? "No error");
                 await InvokeAsync(StateHasChanged);
             };
@@ -2615,9 +1854,9 @@
             hubConnection.On<object>("QuestionUpdated", async (questionData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 📝 QuestionUpdated SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ðŸ“ QuestionUpdated SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                 
                 try
                 {
@@ -2628,7 +1867,7 @@
                     
                     if (Model?.Questions == null || questionData == null)
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ⚠️ Cannot process update - preconditions failed ;CLEANUP_OK", requestId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] âš ï¸ Cannot process update - preconditions failed ;CLEANUP_OK", requestId);
                         Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Model.Questions is NULL: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
                         Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - questionData is NULL: {IsNull} ;CLEANUP_OK", requestId, questionData == null);
                         return;
@@ -2658,7 +1897,7 @@
                             var oldText = question.Text;
                             question.Text = newText ?? question.Text;
                             
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ✅ QUESTION FOUND - Updating text ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] âœ… QUESTION FOUND - Updating text ;CLEANUP_OK", requestId);
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - OldText: {OldText} ;CLEANUP_OK", requestId, oldText?.Substring(0, Math.Min(50, oldText?.Length ?? 0)));
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - NewText: {NewText} ;CLEANUP_OK", requestId, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
                             
@@ -2666,30 +1905,30 @@
                             
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Current State AFTER update: ;CLEANUP_OK", requestId);
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ✅ SessionCanvas UI updated successfully ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] âœ… SessionCanvas UI updated successfully ;CLEANUP_OK", requestId);
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Question updated via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND in SessionCanvas.Questions ;CLEANUP_OK", requestId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] âŒ QUESTION NOT FOUND in SessionCanvas.Questions ;CLEANUP_OK", requestId);
                             Logger.LogDebug("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Available Question IDs: {QuestionIds} ;CLEANUP_OK", 
                                 requestId, string.Join(", ", Model.Questions.Select(q => q.QuestionId)));
                         }
                     }
                     else
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ⚠️ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] âš ï¸ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 💥 EXCEPTION processing QuestionUpdated: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ðŸ’¥ EXCEPTION processing QuestionUpdated: {Message} ;CLEANUP_OK", requestId, ex.Message);
                     Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
                 }
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] SessionCanvas QuestionUpdated handler COMPLETE ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
             });
 
             hubConnection.On<string, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
@@ -2727,7 +1966,7 @@
             // Also handle QuestionVoteUpdate (without "d") event from API
             hubConnection.On<object>("QuestionVoteUpdate", async (voteData) =>
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ SIGNALR RECEIVED QuestionVoteUpdate ════════ ;CLEANUP_OK");
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] â•â•â•â•â•â•â•â• SIGNALR RECEIVED QuestionVoteUpdate â•â•â•â•â•â•â•â• ;CLEANUP_OK");
                 
                 try
                 {
@@ -2769,7 +2008,7 @@
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Calling StateHasChanged to refresh UI ;CLEANUP_OK");
                             await InvokeAsync(StateHasChanged);
                             
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ UI UPDATED - Question {QuestionId} now shows {Votes} votes ;CLEANUP_OK", 
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] âœ… UI UPDATED - Question {QuestionId} now shows {Votes} votes ;CLEANUP_OK", 
                                 questionId, votes);
                             
                             Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] UI refreshed with new vote count (API format) - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
@@ -2777,7 +2016,7 @@
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] ❌ QUESTION NOT FOUND in Model.Questions - QuestionId={QuestionId}, TotalQuestions={Total} ;CLEANUP_OK", 
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] âŒ QUESTION NOT FOUND in Model.Questions - QuestionId={QuestionId}, TotalQuestions={Total} ;CLEANUP_OK", 
                                 questionId, Model.Questions.Count);
                             
                             // Log all question IDs for debugging
@@ -2787,13 +2026,13 @@
                     }
                     else
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] ❌ Model.Questions is null or QuestionId is null - Questions={QuestionsNull}, QuestionId={QuestionId} ;CLEANUP_OK", 
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] âŒ Model.Questions is null or QuestionId is null - Questions={QuestionsNull}, QuestionId={QuestionId} ;CLEANUP_OK", 
                             Model?.Questions == null, questionId ?? "NULL");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:upvote] ❌ EXCEPTION in SignalR handler: {Message} ;CLEANUP_OK", ex.Message);
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:upvote] âŒ EXCEPTION in SignalR handler: {Message} ;CLEANUP_OK", ex.Message);
                     Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:signalr] Error processing QuestionVoteUpdate: {Message} ;CLEANUP_OK", ex.Message);
                 }
             });
@@ -2802,9 +2041,9 @@
             hubConnection.On<object>("QuestionAnswered", async (answerData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ QuestionAnswered SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] âœ… QuestionAnswered SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                 
                 try
                 {
@@ -2831,9 +2070,9 @@
                             // Show toast if THIS user asked the question
                             if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
                             {
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 🎉 THIS USER asked the question - showing success toast ;CLEANUP_OK", requestId);
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionAnswered) ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ðŸŽ‰ THIS USER asked the question - showing success toast ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸ“¢ TOAST INVOCATION START (QuestionAnswered) ;CLEANUP_OK", requestId);
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
@@ -2845,27 +2084,27 @@
                                         "The host has addressed your question during the session.", 
                                         "Question Answered", 
                                         "success");
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] âœ… JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
                                 }
                                 catch (Exception toastEx)
                                 {
-                                    Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                                    Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸ’¥ JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
                                 }
                                 
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸ“¢ TOAST INVOCATION END ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                             }
                             else
                             {
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionAnswered) ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸš« TOAST NOT SHOWN (QuestionAnswered) ;CLEANUP_OK", requestId);
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
                             }
                             
                             await InvokeAsync(StateHasChanged);
-                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ Question {QuestionId} removed from participant view ;CLEANUP_OK", requestId, questionId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] âœ… Question {QuestionId} removed from participant view ;CLEANUP_OK", requestId, questionId);
                         }
                         else
                         {
@@ -2875,21 +2114,21 @@
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 💥 Error processing QuestionAnswered: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ðŸ’¥ Error processing QuestionAnswered: {Message} ;CLEANUP_OK", requestId, ex.Message);
                 }
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] SessionCanvas QuestionAnswered handler COMPLETE ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
             });
 
             // Handle question deletion
             hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🗑️ QuestionDeleted SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ðŸ—‘ï¸ QuestionDeleted SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State BEFORE deletion: ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Model.Questions: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null ? "NULL" : "NOT NULL");
@@ -2925,7 +2164,7 @@
                             var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
                             if (question != null)
                             {
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ QUESTION FOUND - Removing from UI ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] âœ… QUESTION FOUND - Removing from UI ;CLEANUP_OK", requestId);
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question Text: '{Text}' ;CLEANUP_OK", requestId, question.Text);
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question User: '{UserName}' ;CLEANUP_OK", requestId, question.UserName);
                                 
@@ -2934,9 +2173,9 @@
                                 // [FIX-ISSUE-3] Show toast if THIS user asked the question that was deleted by host
                                 if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
                                 {
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] 🎯 THIS USER asked the question that was deleted - showing info toast ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionDeleted) ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] ðŸŽ¯ THIS USER asked the question that was deleted - showing info toast ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸ“¢ TOAST INVOCATION START (QuestionDeleted) ;CLEANUP_OK", requestId);
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
@@ -2948,20 +2187,20 @@
                                             "The host has removed your question. It may be addressed differently or outside this Q&A session.", 
                                             "Question Removed", 
                                             "info");
-                                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
+                                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] âœ… JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
                                     }
                                     catch (Exception toastEx)
                                     {
-                                        Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                                        Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸ’¥ JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
                                     }
                                     
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸ“¢ TOAST INVOCATION END ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                                 }
                                 else
                                 {
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionDeleted) ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ðŸš« TOAST NOT SHOWN (QuestionDeleted) ;CLEANUP_OK", requestId);
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
@@ -2971,36 +2210,36 @@
                                 
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ SessionCanvas UI updated successfully ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] âœ… SessionCanvas UI updated successfully ;CLEANUP_OK", requestId);
                             }
                             else
                             {
-                                Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND in SessionCanvas.Questions ;CLEANUP_OK", requestId);
+                                Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] âŒ QUESTION NOT FOUND in SessionCanvas.Questions ;CLEANUP_OK", requestId);
                                 Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Available QuestionIds: {QuestionIds} ;CLEANUP_OK", 
                                     requestId, string.Join(", ", Model.Questions.Select(q => q.QuestionId)));
                             }
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] âš ï¸ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION processing QuestionDeleted: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ðŸ’¥ EXCEPTION processing QuestionDeleted: {Message} ;CLEANUP_OK", requestId, ex.Message);
                         Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
                     }
                 }
                 else
                 {
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Cannot process delete - preconditions failed ;CLEANUP_OK", requestId);
+                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] âš ï¸ Cannot process delete - preconditions failed ;CLEANUP_OK", requestId);
                     Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Model.Questions is NULL: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
                     Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - deleteData is NULL: {IsNull} ;CLEANUP_OK", requestId, deleteData == null);
                 }
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] SessionCanvas QuestionDeleted handler COMPLETE ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ;CLEANUP_OK", requestId);
             });
 
             // Participant events
@@ -3044,7 +2283,7 @@
                 
                 try
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION START ════════ ;CLEANUP_OK", trackingId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] â•â•â•â•â•â•â•â• ASSET SHARED RECEPTION START â•â•â•â•â•â•â•â• ;CLEANUP_OK", trackingId);
                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] AssetShared event received at {ReceiveTime}ms ;CLEANUP_OK", 
                         trackingId, receiveTime);
                     
@@ -3054,7 +2293,7 @@
                     
                     if (string.IsNullOrEmpty(json))
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ JSON serialization resulted in null/empty ;CLEANUP_OK", trackingId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] âš ï¸ JSON serialization resulted in null/empty ;CLEANUP_OK", trackingId);
                         return;
                     }
                     
@@ -3086,28 +2325,28 @@
                                 await InvokeAsync(StateHasChanged);
                                 
                                 var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ✅ Question asset displayed at {DisplayTime}ms (latency: {Latency}ms) ;CLEANUP_OK", 
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] âœ… Question asset displayed at {DisplayTime}ms (latency: {Latency}ms) ;CLEANUP_OK", 
                                     trackingId, displayTime, displayTime - receiveTime);
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION COMPLETE ════════ ;CLEANUP_OK", trackingId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] â•â•â•â•â•â•â•â• ASSET SHARED RECEPTION COMPLETE â•â•â•â•â•â•â•â• ;CLEANUP_OK", trackingId);
                             }
                             else
                             {
-                                Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ Cannot display - htmlContent empty or Model null ;CLEANUP_OK", trackingId);
+                                Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] âš ï¸ Cannot display - htmlContent empty or Model null ;CLEANUP_OK", trackingId);
                             }
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No htmlContent property in asset element ;CLEANUP_OK", trackingId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] âš ï¸ No htmlContent property in asset element ;CLEANUP_OK", trackingId);
                         }
                     }
                     else
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No asset property in broadcast payload ;CLEANUP_OK", trackingId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] âš ï¸ No asset property in broadcast payload ;CLEANUP_OK", trackingId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ❌ Error processing AssetShared event: {Message} ;CLEANUP_OK", 
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] âŒ Error processing AssetShared event: {Message} ;CLEANUP_OK", 
                         trackingId, ex.Message);
                 }
             });
@@ -3134,16 +2373,16 @@
                         var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                         Logger.LogInformation("[DOM-TIMING] Content displayed at {DisplayTime}ms, trackingId={TrackingId}", 
                             displayTime, trackingId);
-                        Logger.LogInformation("[ASSET-SHARE-POC] ✅ Content displayed successfully, trackingId={TrackingId}", trackingId);
+                        Logger.LogInformation("[ASSET-SHARE-POC] âœ… Content displayed successfully, trackingId={TrackingId}", trackingId);
                     }
                     else
                     {
-                        Logger.LogWarning("[ASSET-SHARE-POC] ⚠️ No content or model null, trackingId={TrackingId}", trackingId);
+                        Logger.LogWarning("[ASSET-SHARE-POC] âš ï¸ No content or model null, trackingId={TrackingId}", trackingId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[ASSET-SHARE-POC] ❌ Error displaying content, trackingId={TrackingId}", trackingId);
+                    Logger.LogError(ex, "[ASSET-SHARE-POC] âŒ Error displaying content, trackingId={TrackingId}", trackingId);
                 }
             });
 
@@ -3189,12 +2428,12 @@
                     {
                         Model.SharedAssetContent = null;
                         await InvokeAsync(StateHasChanged);
-                        Logger.LogInformation("[DEBUG-WORKITEM:hcp] ✅ Canvas cleared - default message will be displayed ;CLEANUP_OK");
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp] âœ… Canvas cleared - default message will be displayed ;CLEANUP_OK");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp] ❌ Error processing ClearCanvas event: {Message} ;CLEANUP_OK", ex.Message);
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp] âŒ Error processing ClearCanvas event: {Message} ;CLEANUP_OK", ex.Message);
                 }
             });
 
@@ -3257,44 +2496,44 @@
                 }
             });
 
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸš€ Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] â•â•â•â•â•â•â•â• REGISTERING SIGNALR HANDLERS â•â•â•â•â•â•â•â• ;CLEANUP_OK");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Handlers registered: QuestionReceived, QuestionUpdated, QuestionVoteUpdated, QuestionVoteUpdate, QuestionDeleted, ParticipantJoined, ParticipantLeft, SessionEnded ;CLEANUP_OK");
             
             await hubConnection.StartAsync();
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ SIGNALR CONNECTED - State={State}, ConnectionId={ConnectionId} ;CLEANUP_OK", 
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] âœ… SIGNALR CONNECTED - State={State}, ConnectionId={ConnectionId} ;CLEANUP_OK", 
                 hubConnection.State, hubConnection.ConnectionId ?? "NULL");
             
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ SignalR connected: State={State}, ConnectionId={ConnectionId}", hubConnection.State, hubConnection.ConnectionId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] âœ… SignalR connected: State={State}, ConnectionId={ConnectionId}", hubConnection.State, hubConnection.ConnectionId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection started successfully, State: {State}", hubConnection.State);
             
             if (Model?.SessionId > 0)
             {
                 var connectionTrackingId = Guid.NewGuid().ToString("N")[..8];
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ JOINING SIGNALR GROUP ════════ SessionId={SessionId}, GroupName=Session_{SessionId}, Role=participant ;CLEANUP_OK",
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] â•â•â•â•â•â•â•â• JOINING SIGNALR GROUP â•â•â•â•â•â•â•â• SessionId={SessionId}, GroupName=Session_{SessionId}, Role=participant ;CLEANUP_OK",
                     Model.SessionId, Model.SessionId);
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Attempting to join session group: session_{SessionId}", Model.SessionId);
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 🔗 GROUP JOIN: Attempting to join session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸ”„ Attempting to join session group: session_{SessionId}", Model.SessionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] ðŸ”— GROUP JOIN: Attempting to join session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
                 
                 await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ JoinSession CALL COMPLETE - Waiting for server confirmation ;CLEANUP_OK");
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] âœ… JoinSession CALL COMPLETE - Waiting for server confirmation ;CLEANUP_OK");
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Joined SignalR group: session_{SessionId}", Model.SessionId);
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] ✅ GROUP SUCCESS: Joined session_{SessionId} as participant, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] âœ… Joined SignalR group: session_{SessionId}", Model.SessionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] âœ… GROUP SUCCESS: Joined session_{SessionId} as participant, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
                 
                 // Test message to verify group membership
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🧪 Testing group membership for session_{SessionId}", Model.SessionId);
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 📡 GROUP READY: SessionCanvas ready to receive broadcasts in session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸ§ª Testing group membership for session_{SessionId}", Model.SessionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] ðŸ“¡ GROUP READY: SessionCanvas ready to receive broadcasts in session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
             }
             else
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] ⚠️ SessionId not available - cannot join SignalR group");
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 📊 Model state: SessionId={SessionId}, SessionName={SessionName}", Model?.SessionId, Model?.SessionName);
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] âš ï¸ SessionId not available - cannot join SignalR group");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ðŸ“Š Model state: SessionId={SessionId}, SessionName={SessionName}", Model?.SessionId, Model?.SessionName);
             }
             
             // Trigger UI update to show connected status
@@ -3445,7 +2684,7 @@
     {
         var timestamp = DateTime.Now.ToString("HH:mm:ss");
         return $@"<div style=""background:#FEF2F2;color:#DC2626;padding:15px;border-radius:8px;border:1px solid #FCA5A5;text-align:center;"">
-<h4 style=""margin:0 0 8px 0;"">⚠️ Content Error</h4>
+<h4 style=""margin:0 0 8px 0;"">âš ï¸ Content Error</h4>
 <p style=""margin:0;font-size:14px;"">{System.Web.HttpUtility.HtmlEncode(message)}</p>
 <p style=""margin:8px 0 0 0;font-size:12px;opacity:0.8;"">Time: {timestamp} (Advanced Parser)</p>
 </div>";

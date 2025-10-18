@@ -1,0 +1,840 @@
+/* ============================================================================
+   CANVAS COMMON STYLES
+   
+   Shared styles between TranscriptCanvas.razor and SessionCanvas.razor
+   View-specific theme colors (purple/green) remain in component CSS
+   ============================================================================ */
+
+/* Font Families */
+.poppins { font-family: 'Poppins', sans-serif; }
+.inter { font-family: 'Inter', sans-serif; }
+
+/* Shadow Utilities */
+.shadow-golden { box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); }
+
+/* Custom Scrollbar */
+.canvas-custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.canvas-custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.canvas-custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+.canvas-custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C5B358; }
+
+/* Animations */
+.canvas-animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .8; }
+}
+
+/* ============================================================================
+   ERROR STATE STYLES
+   ============================================================================ */
+
+.canvas-error-container {
+    width: 100%;
+    max-width: 56rem;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    border: 1px solid #fecaca;
+}
+
+.canvas-error-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.canvas-error-logo-img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.canvas-error-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.canvas-error-icon {
+    font-size: 2rem;
+    color: #DC2626;
+}
+
+.canvas-error-message {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.125rem;
+    color: #706357;
+    margin: 0 0 1.5rem 0;
+}
+
+.canvas-error-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.canvas-home-button {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #3B82F6;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.canvas-home-button:hover {
+    background-color: #2563EB;
+}
+
+.canvas-home-button-icon {
+    margin-right: 0.5rem;
+}
+
+/* ============================================================================
+   SESSION CONTENT STYLES
+   ============================================================================ */
+
+.canvas-content-wrapper {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+}
+
+.canvas-header {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 10px;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    border: 2px solid #D4AF37;
+    position: relative;
+}
+
+.canvas-header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.canvas-header-logo {
+    flex-shrink: 0;
+    margin: 0 auto;
+    display: block;
+}
+
+.canvas-header-logo-img {
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.canvas-header-session-info {
+    flex: 1;
+    text-align: center;
+}
+
+.canvas-session-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #816611;
+    margin: 0;
+}
+
+.canvas-session-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: #6B7280;
+    margin: 0.25rem 0 0 0;
+}
+
+/* ============================================================================
+   SIGNALR STATUS INDICATOR
+   ============================================================================ */
+
+.canvas-signalr-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.canvas-signalr-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 2px solid;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.canvas-signalr-icon {
+    font-size: 1.25rem;
+}
+
+.canvas-retry-button {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    background-color: #EF4444;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.canvas-retry-button:hover {
+    background-color: #DC2626;
+}
+
+.canvas-retry-icon {
+    margin-right: 0.5rem;
+}
+
+/* ============================================================================
+   WELCOME PANEL STYLES
+   ============================================================================ */
+
+.canvas-welcome-panel {
+    background-color: #ffffff;
+    border-radius: 1.5rem;
+    margin: 1rem auto;
+    max-width: 50rem;
+    text-align: center;
+}
+
+.canvas-welcome-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.canvas-welcome-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #006400;
+    flex: 1;
+}
+
+/* ============================================================================
+   MAIN GRID LAYOUT
+   ============================================================================ */
+
+.canvas-main-grid {
+    display: grid;
+    gap: 1.5rem;
+    height: auto;
+    align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+    .canvas-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================================
+   CANVAS AREA CONTAINER
+   ============================================================================ */
+
+.canvas-area-container {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    border: 2px solid #D4AF37;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.canvas-content-area {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 1rem;
+    transition: all 0.2s;
+    margin: 10px;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    border-width: 3px;
+    border-style: dotted;
+    min-height: 400px;
+}
+
+.canvas-asset-content {
+    width: 100%;
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+
+.canvas-empty-message {
+    font-family: 'Inter', sans-serif;
+    color: #9CA3AF;
+    font-size: 1.125rem;
+    text-align: center;
+    margin: auto;
+}
+
+/* ============================================================================
+   QUESTION PANEL STYLES
+   ============================================================================ */
+
+.canvas-question-panel {
+    background-color: #FDFBEB;
+    border-radius: 0.75rem;
+    transition: all 0.3s;
+    overflow: hidden;
+    border: 1px solid #D4AF37;
+    margin-top: auto;
+    margin: 10px;
+}
+
+.canvas-question-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.canvas-question-icon {
+    color: #D4AF37;
+    font-size: 1rem;
+}
+
+.canvas-question-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #4B3C2B;
+    margin: 0;
+}
+
+.canvas-question-form {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0 0.75rem 0.75rem 0.75rem;
+}
+
+/* ============================================================================
+   MODAL STYLES
+   ============================================================================ */
+
+.canvas-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.canvas-modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    max-width: 24rem;
+    width: 100%;
+    text-align: center;
+    transform: scale(0.95);
+    transition: all 0.2s;
+}
+
+.canvas-modal-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #4B3C2B;
+    margin: 0 0 1rem 0;
+}
+
+.canvas-modal-message {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin: 0 0 1.5rem 0;
+}
+
+.canvas-modal-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+}
+
+.canvas-modal-button {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.canvas-modal-button-delete {
+    color: white;
+    background-color: #8B0000;
+}
+
+.canvas-modal-button-cancel {
+    color: #4B3C2B;
+    background-color: #E5E7EB;
+}
+
+/* ============================================================================
+   FORM ELEMENTS
+   ============================================================================ */
+
+.canvas-form-textarea {
+    flex: 5;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #D4AF37;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    color: #4B3C2B;
+    background-color: white;
+    resize: vertical;
+    height: auto;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+}
+
+.canvas-form-textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #F3F4F6;
+}
+
+.canvas-form-submit-button {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.5rem;
+    height: auto;
+    align-self: stretch;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    border: 1px solid #D4AF37;
+    cursor: pointer;
+}
+
+.canvas-form-submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.canvas-form-submit-icon {
+    font-size: 1rem;
+    color: white;
+}
+
+.canvas-form-submit-text {
+    font-size: 1rem;
+    color: white;
+}
+
+/* ============================================================================
+   QUESTION ITEMS
+   ============================================================================ */
+
+.canvas-question-item {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 300px;
+    width: 100%;
+    border-width: 2px;
+    border-left-width: 6px;
+    border-style: solid;
+    overflow: visible;
+    word-wrap: break-word;
+    margin-bottom: 1rem;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.question-item-style-green {
+    border-color: #006400;
+    background-color: #ECFDF5;
+}
+
+.question-item-style-sienna {
+    border-color: #A0522D;
+    background-color: #FAEBD7;
+}
+
+.canvas-question-text {
+    word-wrap: break-word;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.375;
+    font-weight: normal;
+}
+
+.question-text-color-green {
+    color: #006400;
+}
+
+.question-text-color-sienna {
+    color: #A0522D;
+}
+
+.owner-label-color {
+    color: #800000;
+}
+
+.vote-button-style-sienna {
+    color: #8B4513;
+    cursor: default;
+    opacity: 0.5;
+}
+
+.vote-button-style-sienna-owner {
+    color: #8B4513;
+    cursor: default;
+    opacity: 0.5;
+}
+
+.vote-count-color-sienna {
+    color: #A0522D;
+    font-weight: bold;
+}
+
+.canvas-question-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 0.25rem;
+}
+
+.canvas-question-edit-button {
+    padding: 0.25rem;
+    border: 1px solid #3B82F6;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+}
+
+.canvas-question-edit-button:hover {
+    background-color: #EFF6FF;
+}
+
+.canvas-question-edit-button i {
+    font-size: 1rem;
+    color: #3B82F6;
+}
+
+.canvas-question-delete-button {
+    padding: 0.25rem;
+    border: 1px solid #EF4444;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+}
+
+.canvas-question-delete-button:hover {
+    background-color: #FEF2F2;
+}
+
+.canvas-question-delete-button i {
+    font-size: 1rem;
+    color: #EF4444;
+}
+
+.canvas-question-content {
+    width: 100%;
+}
+
+.canvas-question-header {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.canvas-question-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-top: 0.5rem;
+}
+
+.canvas-question-owner-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.canvas-question-vote-section {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.canvas-question-vote-button {
+    padding: 0.375rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    transition: transform 0.15s;
+    position: relative;
+}
+
+.canvas-question-vote-button:not(:disabled):hover {
+    transform: scale(1.1);
+}
+
+.canvas-question-vote-button i {
+    font-size: 1.25rem;
+}
+
+.canvas-question-vote-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #DC2626;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.125rem 0.375rem;
+    border-radius: 9999px;
+    min-width: 1.25rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================================
+   PARTICIPANT ITEMS
+   ============================================================================ */
+
+.canvas-participant-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background-color: white;
+    transition: background-color 0.2s;
+    border: 1px solid #E5E7EB;
+    overflow-x: hidden;
+}
+
+.canvas-participant-flag {
+    height: 16px;
+    width: auto;
+    border-radius: 0.125rem;
+    border: 1px solid #D1D5DB;
+}
+
+.canvas-participant-flag-fallback {
+    width: 24px;
+    height: 16px;
+    background-color: #4B3C2B;
+    border-radius: 0.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-participant-flag-text {
+    color: #FBF9F6;
+    font-size: 0.625rem;
+    font-weight: 600;
+}
+
+.canvas-participant-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4B3C2B;
+}
+
+/* ============================================================================
+   SECTION/EMPTY STATE STYLES
+   ============================================================================ */
+
+.canvas-section-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #4B3C2B;
+    margin: 0 0 1rem 0;
+}
+
+.canvas-empty-state {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: #9CA3AF;
+    text-align: center;
+    padding: 1rem 0;
+    font-style: italic;
+}
+
+.canvas-empty-state-container {
+    text-align: center;
+    color: #9CA3AF;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    padding: 2rem 0;
+}
+
+.canvas-empty-state-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* ============================================================================
+   TAB SYSTEM (SessionCanvas specific, but shared structure)
+   ============================================================================ */
+
+.canvas-tabs {
+    display: flex;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #E5E7EB;
+    background-color: #F8F5F1;
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.canvas-tab-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    color: #4B3C2B;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+.canvas-tab-button-left {
+    border-radius: 0.75rem 0 0 0;
+}
+
+.canvas-tab-button-right {
+    border-radius: 0 0.75rem 0 0;
+}
+
+.canvas-tab-button.active {
+    background: #FFFFFF;
+    border-bottom-color: #D4AF37;
+    color: #006400;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+}
+
+.canvas-tab-icon {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.canvas-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.canvas-tab-content.hidden {
+    display: none;
+}
+
+.canvas-tab-padding {
+    padding-right: 0.75rem;
+}
+
+/* ============================================================================
+   RESPONSIVE LAYOUT - MOBILE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .canvas-main-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+        gap: 1rem;
+    }
+
+    .canvas-area-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .canvas-header-logo-img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .canvas-session-title {
+        font-size: 1.5rem;
+    }
+
+    .canvas-session-description {
+        font-size: 0.875rem;
+    }
+
+    .canvas-signalr-status {
+        position: static;
+        margin-top: 1rem;
+        flex-direction: row;
+        justify-content: center;
+    }
+}
