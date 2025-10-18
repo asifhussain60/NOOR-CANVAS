@@ -310,12 +310,6 @@
         gap: 1.5rem;
         height: auto;
         align-items: stretch;
-        transition: grid-template-columns 0.3s ease-in-out;
-    }
-
-    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visible state - toggle expands to 300px ;CLEANUP_OK */
-    .canvas-main-grid.sidebar-visible {
-        grid-template-columns: 1fr 300px;
     }
 
     /* Canvas Area Styles */
@@ -409,34 +403,8 @@
         padding: 0 0.75rem 0.75rem 0.75rem;
     }
 
-    /* Sidebar Styles */
-    /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
-    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar hidden by default (width 0), expands on toggle ;CLEANUP_OK */
-    .canvas-sidebar {
-        background-color: white;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        border: 2px solid #D4AF37;
-        display: flex;
-        flex-direction: column;
-        min-height: 400px;
-        /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height: 700px - allows sidebar to match canvas height ;CLEANUP_OK */
-        overflow: hidden;
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
-        max-width: 100%;
-        width: 0; /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Hidden by default ;CLEANUP_OK */
-        opacity: 0;
-        transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    }
-
-    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visible state ;CLEANUP_OK */
-    .canvas-main-grid.sidebar-visible .canvas-sidebar {
-        width: 300px;
-        opacity: 1;
-    }
-
-    /* [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Toggle button repositioned inline with welcome message, sticky behavior ;CLEANUP_OK */
+    /* Toggle Button Styles (for question modal) */
+    /* [TRACE-WORKITEM:transcript-canvas:modal-conversion] Toggle button repositioned inline with welcome message, opens question modal ;CLEANUP_OK */
     .canvas-sidebar-toggle {
         position: sticky;
         top: 1rem;
@@ -467,93 +435,16 @@
         transform: scale(0.95);
     }
 
-    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle icon rotation animation ;CLEANUP_OK */
     .canvas-sidebar-toggle-icon {
         transition: transform 0.3s ease;
     }
 
-    .canvas-sidebar-toggle.sidebar-visible .canvas-sidebar-toggle-icon {
-        transform: rotate(180deg);
-    }
-
-    .canvas-tabs {
-        display: flex;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #E5E7EB;
-        background-color: #F8F5F1;
-        border-radius: 0.75rem 0.75rem 0 0;
-    }
-
-    .canvas-tab-button {
-        flex: 1;
-        padding: 0.75rem 1rem;
-        text-align: center;
-        color: #4B3C2B;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        border-bottom: 3px solid transparent;
-        transition: all 0.2s;
-        cursor: pointer;
-        background: transparent;
-        border: none;
-    }
-
-    .canvas-tab-button-left {
-        border-radius: 0.75rem 0 0 0;
-    }
-
-    .canvas-tab-button-right {
-        border-radius: 0 0.75rem 0 0;
-    }
-
-    .canvas-tab-button.active {
-        background: #FFFFFF;
-        border-bottom-color: #D4AF37;
-        color: #006400;
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-    }
-
-    .canvas-tab-icon {
-        margin-right: 0.5rem;
-        font-size: 1rem;
-    }
-
-    .canvas-tab-content {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        min-height: 0;
-    }
-
-    .canvas-tab-content.hidden {
-        display: none;
-    }
-
-    .canvas-tab-padding {
-        padding-right: 0.75rem;
-    }
-
-    .canvas-section-title {
+    /* Section/Empty State Styles (reused in modal context) */
         font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 0.875rem;
         color: #4B3C2B;
         margin: 0 0 1rem 0;
-    }
-
-    .canvas-questions-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Width constraint prevents question cards from expanding sidebar horizontally ;CLEANUP_OK */
-        max-width: 100%;
-        width: 100%;
-    }
-
-    .canvas-participants-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
     }
 
     .canvas-empty-state {
