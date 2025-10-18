@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas - Annotation Receiver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .annotation-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .connection-status {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-connected {
+            background-color: #10b981;
+        }
+        
+        .status-disconnected {
+            background-color: #ef4444;
+        }
+        
+        .status-connecting {
+            background-color: #f59e0b;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Laser Pointer Styles */
+        .laser-pointer {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.05s ease-out;
+        }
+        
+        .laser-dot {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0.6) 40%, rgba(255,0,0,0) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255,0,0,0.8), 0 0 40px rgba(255,0,0,0.4);
+            animation: pulse-laser 1s infinite;
+        }
+        
+        @keyframes pulse-laser {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        .content-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            min-height: 600px;
+        }
+        
+        .notification-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: #10b981;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+            z-index: 10000;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-blue-900">
+                        <i class="fas fa-tv text-purple-600 mr-2"></i>
+                        NOOR Canvas - Annotation Receiver
+                    </h1>
+                    <p class="text-gray-600 mt-2">Receive and display annotations in real-time via SignalR</p>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-semibold text-gray-700">Connection:</span>
+                        <span class="connection-status status-disconnected" id="connection-status"></span>
+                        <span class="text-sm text-gray-600" id="connection-text">Disconnected</span>
+                    </div>
+                    <button id="connect-btn" class="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800 transition">
+                        <i class="fas fa-plug mr-2"></i>Connect
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Setup -->
+        <div class="bg-purple-100 border-2 border-purple-300 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-purple-900 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>Quick Setup
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-purple-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">1</span>
+                        <h3 class="font-bold text-purple-900">Enter Session ID</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">Use the same Session ID as the sender window</p>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-purple-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">2</span>
+                        <h3 class="font-bold text-purple-900">Connect</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">Click the Connect button to join the session</p>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-purple-700 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2">3</span>
+                        <h3 class="font-bold text-purple-900">Watch Annotations</h3>
+                    </div>
+                    <p class="text-sm text-gray-700">All sender annotations will appear here in real-time!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-blue-900 mb-4">
+                <i class="fas fa-cog mr-2"></i>Configuration
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Session ID</label>
+                    <input type="number" id="session-id" value="999" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">User ID</label>
+                    <input type="text" id="user-id" value="receiver-user" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-600">
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-blue-900">
+                    <i class="fas fa-file-alt mr-2"></i>Content Display (Annotations Appear Here)
+                </h2>
+                <button id="clear-annotations" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                    <i class="fas fa-trash mr-2"></i>Clear All
+                </button>
+            </div>
+            <div id="content-container" class="content-container relative border-2 border-gray-300 rounded-lg">
+                <!-- Sample Content (Identical to Sender) -->
+                <div class="prose max-w-none">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">Sample Document for Annotation</h1>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <img src="https://via.placeholder.com/400x300/10b981/ffffff?text=Sample+Image+1" 
+                                 alt="Sample 1" 
+                                 class="rounded-lg shadow-md w-full">
+                        </div>
+                        <div>
+                            <img src="https://via.placeholder.com/400x300/3b82f6/ffffff?text=Sample+Image+2" 
+                                 alt="Sample 2" 
+                                 class="rounded-lg shadow-md w-full">
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-700 mb-3">Introduction</h2>
+                    <p class="text-gray-600 mb-4">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                        Use the annotation tools above to draw, highlight, or add notes to this content. All annotations will be synchronized in real-time 
+                        to the receiver window via SignalR.
+                    </p>
+                    
+                    <h2 class="text-2xl font-bold text-gray-700 mb-3">Important Section</h2>
+                    <p class="text-gray-600 mb-4">
+                        This section can be highlighted and annotated. Try using the laser pointer to point at specific areas, or draw arrows to emphasize 
+                        key points. The highlight tool is perfect for marking important paragraphs like this one.
+                    </p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                        <h3 class="text-xl font-bold text-blue-900 mb-2">Key Points</h3>
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>All annotations are broadcast in real-time via SignalR</li>
+                            <li>Laser pointer shows your cursor position to remote viewers</li>
+                            <li>Drawings and highlights persist across sessions</li>
+                            <li>Multiple users can annotate simultaneously</li>
+                        </ul>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-700 mb-3">Conclusion</h2>
+                    <p class="text-gray-600">
+                        Experiment with different annotation tools to see how they work. Open the receiver window to see your annotations 
+                        appear in real-time as you create them. This is perfect for remote collaboration, teaching, or presentations.
+                    </p>
+                </div>
+                
+                <!-- SVG Overlay for Annotations -->
+                <svg id="annotation-overlay" class="annotation-overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+                
+                <!-- Laser Pointer -->
+                <div id="laser-pointer" class="laser-pointer" style="display: none;">
+                    <div class="laser-dot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== STATE MANAGEMENT ==========
+        let hubConnection = null;
+        
+        // ========== DOM ELEMENTS ==========
+        const connectBtn = document.getElementById('connect-btn');
+        const sessionIdInput = document.getElementById('session-id');
+        const userIdInput = document.getElementById('user-id');
+        const connectionStatus = document.getElementById('connection-status');
+        const connectionText = document.getElementById('connection-text');
+        const overlay = document.getElementById('annotation-overlay');
+        const laserPointer = document.getElementById('laser-pointer');
+        const clearAnnotationsBtn = document.getElementById('clear-annotations');
+        
+        // ========== URL PARAMETERS ==========
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionParam = urlParams.get('session');
+        if (sessionParam) {
+            sessionIdInput.value = sessionParam;
+        }
+        
+        // ========== UTILITY FUNCTIONS ==========
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification-badge';
+            notification.textContent = message;
+            
+            if (type === 'error') {
+                notification.style.background = '#ef4444';
+            } else if (type === 'info') {
+                notification.style.background = '#3b82f6';
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function updateConnectionStatus(status) {
+            connectionStatus.className = `connection-status status-${status}`;
+            connectionText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+        
+        // ========== SIGNALR CONNECTION ==========
+        async function connectSignalR() {
+            try {
+                showNotification('Connecting to SignalR hub...', 'info');
+                updateConnectionStatus('connecting');
+                
+                hubConnection = new signalR.HubConnectionBuilder()
+                    .withUrl('/hub/annotation')
+                    .withAutomaticReconnect()
+                    .build();
+                
+                // Event handlers
+                hubConnection.on('AnnotationCreated', (data) => {
+                    console.log('Annotation received:', data);
+                    
+                    // Parse annotationData if it's a JSON string
+                    let annotationData = data.annotationData;
+                    if (typeof annotationData === 'string') {
+                        annotationData = JSON.parse(annotationData);
+                    }
+                    
+                    showNotification(`Annotation received: ${annotationData.type}`);
+                    renderAnnotation(overlay, annotationData);
+                });
+                
+                hubConnection.on('LaserPointerMove', (data) => {
+                    console.log('Laser pointer move:', data);
+                    showLaserPointer(laserPointer, data.x, data.y);
+                });
+                
+                hubConnection.on('LaserPointerHide', () => {
+                    console.log('Laser pointer hide');
+                    hideLaserPointer(laserPointer);
+                });
+                
+                hubConnection.on('UserJoined', (data) => {
+                    showNotification(`User ${data.userId} joined the session`, 'info');
+                });
+                
+                hubConnection.on('UserLeft', (data) => {
+                    showNotification(`User ${data.userId} left the session`, 'info');
+                });
+                
+                hubConnection.on('LoadAnnotations', (annotations) => {
+                    console.log('Loading existing annotations:', annotations);
+                    if (annotations && annotations.length > 0) {
+                        annotations.forEach(ann => {
+                            // Parse annotationData if it's a JSON string
+                            let annotationData = ann.annotationData;
+                            if (typeof annotationData === 'string') {
+                                annotationData = JSON.parse(annotationData);
+                            }
+                            renderAnnotation(overlay, annotationData);
+                        });
+                        showNotification(`Loaded ${annotations.length} existing annotations`);
+                    }
+                });
+                
+                hubConnection.on('AnnotationsCleared', (data) => {
+                    console.log('[TRACE-ANNOTATION:cleared-event] Received AnnotationsCleared event', data); // ;CLEANUP_OK
+                    overlay.innerHTML = '';
+                    showNotification(`All annotations cleared by ${data.clearedBy}`, 'info');
+                });
+                
+                hubConnection.onreconnecting(() => {
+                    showNotification('Connection lost. Reconnecting...', 'error');
+                    updateConnectionStatus('connecting');
+                });
+                
+                hubConnection.onreconnected(() => {
+                    showNotification('Reconnected successfully', 'success');
+                    updateConnectionStatus('connected');
+                    joinSession();
+                });
+                
+                hubConnection.onclose(() => {
+                    showNotification('Connection closed', 'error');
+                    updateConnectionStatus('disconnected');
+                });
+                
+                await hubConnection.start();
+                showNotification('SignalR connection established', 'success');
+                updateConnectionStatus('connected');
+                
+                await joinSession();
+                
+                connectBtn.textContent = 'Disconnect';
+                connectBtn.innerHTML = '<i class="fas fa-plug mr-2"></i>Disconnect';
+                connectBtn.onclick = disconnectSignalR;
+            } catch (err) {
+                showNotification(`Connection failed: ${err}`, 'error');
+                updateConnectionStatus('disconnected');
+                console.error(err);
+            }
+        }
+        
+        async function joinSession() {
+            const sessionId = parseInt(sessionIdInput.value);
+            const userId = userIdInput.value;
+            
+            try {
+                await hubConnection.invoke('JoinSession', sessionId, userId);
+                showNotification(`Joined session ${sessionId} as ${userId}`, 'success');
+            } catch (err) {
+                showNotification(`Failed to join session: ${err}`, 'error');
+            }
+        }
+        
+        async function disconnectSignalR() {
+            if (hubConnection) {
+                const sessionId = parseInt(sessionIdInput.value);
+                const userId = userIdInput.value;
+                
+                try {
+                    await hubConnection.invoke('LeaveSession', sessionId, userId);
+                    await hubConnection.stop();
+                    showNotification('Disconnected from SignalR', 'info');
+                    updateConnectionStatus('disconnected');
+                    connectBtn.textContent = 'Connect';
+                    connectBtn.innerHTML = '<i class="fas fa-plug mr-2"></i>Connect';
+                    connectBtn.onclick = connectSignalR;
+                } catch (err) {
+                    showNotification(`Disconnect error: ${err}`, 'error');
+                }
+            }
+        }
+        
+        // ========== ANNOTATION RENDERING ==========
+        function renderAnnotation(overlayElement, data) {
+            if (data.type === 'drawing') {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', data.path);
+                path.setAttribute('stroke', data.color);
+                path.setAttribute('stroke-width', data.strokeWidth || 2);
+                path.setAttribute('fill', 'none');
+                overlayElement.appendChild(path);
+            } else if (data.type === 'highlight') {
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', data.x);
+                rect.setAttribute('y', data.y);
+                rect.setAttribute('width', data.width);
+                rect.setAttribute('height', data.height);
+                rect.setAttribute('fill', data.color);
+                rect.setAttribute('opacity', '0.3');
+                overlayElement.appendChild(rect);
+            } else if (data.type === 'note') {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', data.x);
+                circle.setAttribute('cy', data.y);
+                circle.setAttribute('r', '10');
+                circle.setAttribute('fill', data.color);
+                overlayElement.appendChild(circle);
+            }
+        }
+        
+        // ========== LASER POINTER FUNCTIONALITY ==========
+        function showLaserPointer(pointerElement, x, y) {
+            pointerElement.style.display = 'block';
+            pointerElement.style.left = `${x}px`;
+            pointerElement.style.top = `${y}px`;
+        }
+        
+        function hideLaserPointer(pointerElement) {
+            pointerElement.style.display = 'none';
+        }
+        
+        // ========== CLEAR ANNOTATIONS ==========
+        clearAnnotationsBtn.addEventListener('click', async () => {
+            try {
+                console.log('[TRACE-ANNOTATION:clear-button] Clear All button clicked'); // ;CLEANUP_OK
+                
+                const sessionId = parseInt(sessionIdInput.value);
+                const userId = userIdInput.value;
+                
+                if (!hubConnection || hubConnection.state !== signalR.HubConnectionState.Connected) {
+                    showNotification('Not connected to SignalR - cannot clear annotations', 'error');
+                    return;
+                }
+                
+                console.log('[TRACE-ANNOTATION:clear-invoke] Invoking BroadcastClearAnnotations', { sessionId, userId }); // ;CLEANUP_OK
+                
+                // Clear annotations from database and broadcast to all clients
+                await hubConnection.invoke('BroadcastClearAnnotations', sessionId, userId);
+                
+                // Clear local overlay
+                overlay.innerHTML = '';
+                
+                showNotification(`Annotations cleared for session ${sessionId}`, 'success');
+                console.log('[TRACE-ANNOTATION:clear-complete] Annotations cleared successfully'); // ;CLEANUP_OK
+            } catch (error) {
+                console.error('[TRACE-ANNOTATION:clear-error] Error clearing annotations:', error); // ;CLEANUP_OK
+                showNotification(`Error clearing annotations: ${error.message}`, 'error');
+            }
+        });
+        
+        // ========== INITIALIZATION ==========
+        connectBtn.onclick = connectSignalR;
+        
+        showNotification('Receiver initialized - Click Connect to start', 'info');
+    </script>
+</body>
+</html>
