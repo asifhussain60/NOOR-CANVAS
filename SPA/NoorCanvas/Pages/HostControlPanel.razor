@@ -1738,57 +1738,65 @@
     }
 
     /// <summary>
-    /// [DEBUG-WORKITEM:hcp-tcanvas:share-section] Share individual transcript section (h2 + content) via SignalR ;CLEANUP_OK
-    /// Called from JavaScript via JSInvokable (SessionCanvas pattern)
+    /// [TRACE:hcp-tcanvas:share-section] Share individual transcript section (h2 + content) via SignalR ;CLEANUP_OK
+    /// Called from JavaScript via JSInvokable when user clicks section share button
     /// </summary>
     [JSInvokable]
-    public async Task ShareTranscriptSection(string sectionId, int h2Index)
+    public async Task ShareTranscriptSection(string sectionId, string sectionHtml, string h2Text)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] ShareTranscriptSection called: sectionId={SectionId}, h2Index={H2Index}, requestId={RequestId} ;CLEANUP_OK", 
-            sectionId, h2Index, requestId);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION C# METHOD ════════ ;CLEANUP_OK");
+        Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Method called with sectionId={SectionId}, h2Text={H2Text}, htmlLength={HtmlLength} ;CLEANUP_OK", 
+            requestId, sectionId, h2Text, sectionHtml?.Length ?? 0);
 
         if (SessionId == null || hubConnection == null)
         {
-            Logger.LogError("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Cannot share section: SessionId or hubConnection is null ;CLEANUP_OK");
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ Cannot share section: SessionId or hubConnection is null ;CLEANUP_OK", requestId);
             await ShowMessageAsync("Cannot share section: Session not available");
             return;
         }
 
         if (hubConnection.State != HubConnectionState.Connected)
         {
-            Logger.LogError("[DEBUG-WORKITEM:hcp-tcanvas:share-section] SignalR not connected: State={State} ;CLEANUP_OK", hubConnection.State);
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ SignalR not connected: State={State} ;CLEANUP_OK", requestId, hubConnection.State);
             await ShowMessageAsync($"SignalR connection not ready: {hubConnection.State}");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(sectionHtml))
+        {
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ No HTML content provided for section ;CLEANUP_OK", requestId);
+            await ShowMessageAsync("Section content is empty");
             return;
         }
 
         try
         {
-            // Extract section HTML using JavaScript interop
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Extracting section HTML via JavaScript ;CLEANUP_OK");
-            var sectionHtml = await JSRuntime.InvokeAsync<string>("TranscriptSectionParser.extractSectionHtml", "transcript-content-container", h2Index);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Section HTML preview (first 200 chars): {Preview}... ;CLEANUP_OK", 
+                requestId, sectionHtml.Substring(0, Math.Min(200, sectionHtml.Length)));
 
-            if (string.IsNullOrEmpty(sectionHtml))
-            {
-                Logger.LogError("[DEBUG-WORKITEM:hcp-tcanvas:share-section] No HTML content extracted for h2Index={H2Index} ;CLEANUP_OK", h2Index);
-                await ShowMessageAsync($"Section content not found for index {h2Index}");
-                return;
-            }
-
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Section HTML extracted: {Length} chars ;CLEANUP_OK", sectionHtml.Length);
-
-            // Broadcast via SignalR (reuse existing BroadcastHtml method with contentType)
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Broadcasting section via SignalR: sessionId={SessionId}, contentType=transcript-section ;CLEANUP_OK", SessionId.Value);
+            // Transform section HTML for broadcast (remove any host-only elements)
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transforming section HTML for participant view ;CLEANUP_OK", requestId);
+            var transformedHtml = HtmlTransform.TransformForParticipant(sectionHtml);
             
-            await hubConnection.InvokeAsync("BroadcastHtml", SessionId.Value.ToString(), sectionHtml, "transcript-section");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transformed HTML length: {Length} chars ;CLEANUP_OK", requestId, transformedHtml.Length);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Section shared successfully: sectionId={SectionId}, requestId={RequestId} ;CLEANUP_OK", sectionId, requestId);
+            // Broadcast via SignalR to session group
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Broadcasting section via SignalR: targetGroup=session_{SessionId}, contentType=transcript-section ;CLEANUP_OK", 
+                requestId, SessionId.Value);
             
-            await ShowMessageAsync($"Section shared successfully!");
+            await hubConnection.InvokeAsync("BroadcastTranscriptSection", SessionId.Value.ToString(), transformedHtml, h2Text);
+
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ✅ Section shared successfully: sectionId={SectionId}, h2Text={H2Text} ;CLEANUP_OK", 
+                requestId, sectionId, h2Text);
+            
+            await ShowMessageAsync($"'{h2Text}' shared successfully!");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION COMPLETE ════════ ;CLEANUP_OK");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-tcanvas:share-section] Error sharing transcript section: {Message} ;CLEANUP_OK", ex.Message);
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ ERROR sharing transcript section: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Stack trace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
             await ShowMessageAsync($"Error sharing section: {ex.Message}");
         }
     }

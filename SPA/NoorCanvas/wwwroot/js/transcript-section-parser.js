@@ -32,7 +32,7 @@ window.TranscriptSectionParser = {
         console.log('[TRACE:hcp-tcanvas:inject] Container first 500 chars:', container.innerHTML.substring(0, 500), ';CLEANUP_OK');
 
         // Find all h2 elements in the transcript
-        const h2Elements = container.querySelectorAll('h2');
+        const h2Elements = Array.from(container.querySelectorAll('h2'));
         console.log(`[TRACE:hcp-tcanvas:inject] Found ${h2Elements.length} h2 elements ;CLEANUP_OK`);
 
         // Log details about each h2 found
@@ -66,21 +66,50 @@ window.TranscriptSectionParser = {
         }
 
         let sectionsProcessed = 0;
+        console.log(`[TRACE:hcp-tcanvas:inject] Starting section wrapping and button injection ;CLEANUP_OK`);
 
-        // Inject share button after each h2
+        // Process each h2: wrap section content and inject share button above
         h2Elements.forEach((h2, index) => {
-            // Check if button already exists (prevent duplicates)
-            const existingButton = h2.nextElementSibling?.classList?.contains('transcript-section-share-btn');
-            if (existingButton) {
-                console.log(`[DEBUG-WORKITEM:hcp-tcanvas:parse] Share button already exists for section ${index}, skipping ;CLEANUP_OK`);
-                return;
+            console.log(`[TRACE:hcp-tcanvas:inject] Processing h2[${index}]: ${h2.textContent?.substring(0, 50)} ;CLEANUP_OK`);
+
+            // Extract h2 text for button label
+            const h2Text = h2.textContent?.trim() || `Section ${index + 1}`;
+            const sectionId = `transcript-section-${index}`;
+
+            // Collect all content from this h2 until the next h2 (or end of container)
+            console.log(`[TRACE:hcp-tcanvas:inject] Collecting content for section ${index} ;CLEANUP_OK`);
+            const sectionContent = [];
+            let currentElement = h2;
+
+            // Collect h2 and following siblings until next h2
+            while (currentElement) {
+                const nextElement = currentElement.nextElementSibling;
+                
+                // Stop if we hit another h2
+                if (nextElement && nextElement.tagName === 'H2') {
+                    break;
+                }
+                
+                sectionContent.push(currentElement);
+                currentElement = nextElement;
             }
 
-            // Create share button
+            console.log(`[TRACE:hcp-tcanvas:inject] Section ${index} contains ${sectionContent.length} elements ;CLEANUP_OK`);
+
+            // Create invisible wrapper div for the section
+            const wrapper = document.createElement('div');
+            wrapper.id = sectionId;
+            wrapper.setAttribute('data-section-index', index.toString());
+            wrapper.style.cssText = 'position: relative;'; // Invisible container
+            
+            console.log(`[TRACE:hcp-tcanvas:inject] Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
+
+            // Create share button to inject ABOVE the section
             const shareButton = document.createElement('button');
             shareButton.className = 'transcript-section-share-btn';
-            shareButton.setAttribute('data-section-id', `section-${index}`);
+            shareButton.setAttribute('data-section-id', sectionId);
             shareButton.setAttribute('data-h2-index', index.toString());
+            shareButton.setAttribute('data-h2-text', h2Text);
             shareButton.style.cssText = `
                 background-color: #D4AF37;
                 color: white;
@@ -98,9 +127,9 @@ window.TranscriptSectionParser = {
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 transition: all 0.2s ease;
             `;
-            shareButton.innerHTML = '<i class="fa-solid fa-share-nodes"></i> SHARE SECTION';
+            shareButton.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share ${h2Text}`;
 
-            // Hover effects via inline event handlers (compatible with Blazor)
+            // Hover effects
             shareButton.onmouseenter = function () {
                 this.style.backgroundColor = '#C5B358';
                 this.style.transform = 'translateY(-1px)';
@@ -112,17 +141,36 @@ window.TranscriptSectionParser = {
                 this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
             };
 
-            // Insert button after h2 element
-            h2.parentNode.insertBefore(shareButton, h2.nextSibling);
-            sectionsProcessed++;
+            console.log(`[TRACE:hcp-tcanvas:inject] Created share button for section ${index} ;CLEANUP_OK`);
 
-            console.log(`[DEBUG-WORKITEM:hcp-tcanvas:parse] Injected share button for section ${index} ;CLEANUP_OK`);
+            // Left-justify the h2 (ensure no centering)
+            h2.style.textAlign = 'left';
+            console.log(`[TRACE:hcp-tcanvas:inject] Applied left text-align to h2[${index}] ;CLEANUP_OK`);
+
+            // Insert share button BEFORE the first element of the section (before h2)
+            const insertionPoint = sectionContent[0];
+            insertionPoint.parentNode.insertBefore(shareButton, insertionPoint);
+            console.log(`[TRACE:hcp-tcanvas:inject] Inserted share button above h2[${index}] ;CLEANUP_OK`);
+
+            // Wrap section content in the invisible div
+            // Insert wrapper before the first element
+            insertionPoint.parentNode.insertBefore(wrapper, insertionPoint);
+            
+            // Move all section elements into wrapper
+            sectionContent.forEach(element => {
+                wrapper.appendChild(element);
+            });
+            
+            console.log(`[TRACE:hcp-tcanvas:inject] Wrapped section ${index} content in div#${sectionId} ;CLEANUP_OK`);
+
+            sectionsProcessed++;
         });
 
         // Set up click delegation on container (SessionCanvas pattern)
         this.setupClickDelegation(containerId, dotNetRef);
 
-        console.log(`[DEBUG-WORKITEM:hcp-tcanvas:parse] Successfully injected ${sectionsProcessed} share buttons ;CLEANUP_OK`);
+        console.log(`[TRACE:hcp-tcanvas:inject] ✅ Successfully processed ${sectionsProcessed} sections ;CLEANUP_OK`);
+        console.log('[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION COMPLETE ════════ ;CLEANUP_OK');
         return { success: true, sections: sectionsProcessed };
     },
 
@@ -153,28 +201,42 @@ window.TranscriptSectionParser = {
             }
 
             event.preventDefault();
-            console.log('[DEBUG-WORKITEM:hcp-tcanvas:share-section] Share button clicked ;CLEANUP_OK');
+            console.log('[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION CLICK ════════ ;CLEANUP_OK');
 
             const sectionId = shareButton.getAttribute('data-section-id');
             const h2Index = parseInt(shareButton.getAttribute('data-h2-index'));
+            const h2Text = shareButton.getAttribute('data-h2-text') || `Section ${h2Index}`;
 
-            console.log(`[DEBUG-WORKITEM:hcp-tcanvas:share-section] Sharing section: ${sectionId}, h2Index: ${h2Index} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:share-section] Button clicked - sectionId: ${sectionId}, h2Index: ${h2Index}, h2Text: ${h2Text} ;CLEANUP_OK`);
+
+            // Extract section HTML from the wrapper div
+            const sectionWrapper = document.getElementById(sectionId);
+            if (!sectionWrapper) {
+                console.error(`[TRACE:hcp-tcanvas:share-section] ❌ Section wrapper NOT FOUND: ${sectionId} ;CLEANUP_OK`);
+                return;
+            }
+
+            const sectionHtml = sectionWrapper.innerHTML;
+            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview: ${sectionHtml.substring(0, 200)}... ;CLEANUP_OK`);
 
             // Visual feedback - button state
             const originalText = shareButton.innerHTML;
             const originalBg = shareButton.style.backgroundColor;
-            shareButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SHARING...';
+            shareButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sharing...';
             shareButton.style.backgroundColor = '#f59e0b';
             shareButton.disabled = true;
+            console.log(`[TRACE:hcp-tcanvas:share-section] Updated button UI to 'Sharing...' state ;CLEANUP_OK`);
 
             try {
-                // Call C# method via DotNet interop (SessionCanvas pattern)
-                console.log('[DEBUG-WORKITEM:hcp-tcanvas:share-section] Calling C# ShareTranscriptSection method ;CLEANUP_OK');
-                await dotNetRef.invokeMethodAsync('ShareTranscriptSection', sectionId, h2Index);
+                // Call C# method via DotNet interop
+                console.log('[TRACE:hcp-tcanvas:share-section] Calling C# ShareTranscriptSection(sectionId, sectionHtml, h2Text) ;CLEANUP_OK');
+                await dotNetRef.invokeMethodAsync('ShareTranscriptSection', sectionId, sectionHtml, h2Text);
 
                 // Success feedback
-                shareButton.innerHTML = '<i class="fa-solid fa-check"></i> SHARED';
+                shareButton.innerHTML = '<i class="fa-solid fa-check"></i> Shared!';
                 shareButton.style.backgroundColor = '#059669';
+                console.log(`[TRACE:hcp-tcanvas:share-section] ✅ C# method completed successfully ;CLEANUP_OK`);
 
                 setTimeout(() => {
                     shareButton.innerHTML = originalText;
@@ -182,12 +244,12 @@ window.TranscriptSectionParser = {
                     shareButton.disabled = false;
                 }, 2000);
 
-                console.log('[DEBUG-WORKITEM:hcp-tcanvas:share-section] Section shared successfully ;CLEANUP_OK');
+                console.log('[TRACE:hcp-tcanvas:share-section] ════════ SHARE COMPLETE ════════ ;CLEANUP_OK');
             } catch (error) {
-                console.error('[DEBUG-WORKITEM:hcp-tcanvas:share-section] Error sharing section:', error);
+                console.error('[TRACE:hcp-tcanvas:share-section] ❌ ERROR sharing section:', error, ';CLEANUP_OK');
 
                 // Error feedback
-                shareButton.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> ERROR';
+                shareButton.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
                 shareButton.style.backgroundColor = '#DC2626';
 
                 setTimeout(() => {
