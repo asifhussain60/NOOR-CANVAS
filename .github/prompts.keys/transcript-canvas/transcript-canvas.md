@@ -1,13 +1,68 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-18T06:35:00Z  
-**Git Commit:** b402dd5e
+**Last Updated:** 2025-10-18T15:38:00Z  
+**Git Commit:** 8b96be2f
 
 ## Overview
-TranscriptCanvas.razor sidebar completely removed - uses modal-only question submission. SessionCanvas.razor sidebar preserved.
+TranscriptCanvas.razor sidebar completely removed - uses modal-only question submission. SessionCanvas.razor sidebar preserved. Question submission now supports "Created" status sessions.
 
 ## Work Log
+
+### 2025-10-18T15:38:00Z - Fixed Question Submission for Created Status Sessions
+**Commit:** 8b96be2f (pending)  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** none
+
+**User Request:**
+User reported: "question is not broadcasting to host" with JavaScript console error showing submission failure.
+
+**Problem:**
+- Participant submitted question via TranscriptCanvas modal
+- Backend rejected with "Session not found or inactive" (404 NotFound)
+- Console logs showed: `NOOR-QA-SUBMIT: [3fc212a3] Session not found or inactive for token: KJAHA99L`
+- Root Cause: `QuestionController.cs` line 105 filtered sessions to ONLY "Active" OR "Configured" statuses
+- Session 212 has `Status="Created"` → excluded from filter → query returned null
+
+**Solution:**
+Added `s.Status == "Created"` to session lookup query in `SubmitQuestion()` method.
+
+**Code Change:**
+```csharp
+// Before (line 105)
+var session = await _context.Sessions
+    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
+                            (s.Status == "Active" || s.Status == "Configured"));
+
+// After
+var session = await _context.Sessions
+    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
+                            (s.Status == "Created" || s.Status == "Active" || s.Status == "Configured"));
+```
+
+**Validation:**
+- Build: Clean (0 errors, 0 warnings, 27.8s)
+- Impact: Low risk - widens filter to include additional valid session state
+- Expected Behavior: Questions now accepted for "Created" status sessions, enabling full workflow
+
+**Files Modified:**
+- `SPA/NoorCanvas/Controllers/QuestionController.cs` (1 line - session status filter)
+
+**Files Created:**
+- `.github/prompts.keys/transcript-canvas/tests/question-submission-broadcast.spec.ts` (Playwright E2E test)
+- `.github/prompts.keys/transcript-canvas/scripts/run-question-broadcast-test.ps1` (orchestration script)
+
+**Manual Testing Recommended:**
+1. Launch app: `nc` command
+2. Open HostControlPanel: `https://localhost:9091/host/PQ9N5YWW`
+3. Open TranscriptCanvas: `https://localhost:9091/transcript/canvas/KJAHA99L`
+4. Submit question from participant view
+5. Verify SignalR broadcast (`HostQuestionUpdated` event)
+6. Confirm question appears in host Q&A panel
+
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-18_1538`
+
+---
 
 ### 2025-10-18T06:35:00Z - Fixed HTML Structure Issues
 **Commit:** b402dd5e  
