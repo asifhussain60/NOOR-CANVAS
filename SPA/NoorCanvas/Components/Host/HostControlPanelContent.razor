@@ -54,7 +54,9 @@
             }
             else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
             {
-                <div style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;" 
+                <!-- [DEBUG-WORKITEM:hcp-tcanvas:parse] Container ID for JavaScript section parser ;CLEANUP_OK -->
+                <div id="transcript-content-container" 
+                     style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;" 
                      @ref="transcriptContainer">
                     <div class="html-viewer-content session-transcript-content" data-islamic-content>
                         @* Safe HTML rendering - Fixed appendChild error by proper MarkupString casting *@

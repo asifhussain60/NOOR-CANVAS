@@ -34,6 +34,9 @@
     <!-- NOOR Canvas Notyf Wrapper - Unified toast API with diagnostics -->
     <script src="~/js/noor-notyf-wrapper.js" asp-append-version="true"></script>
     
+    <!-- [DEBUG-WORKITEM:hcp-tcanvas:parse] Transcript Section Parser - h2 grouping & share button injection ;CLEANUP_OK -->
+    <script src="~/js/transcript-section-parser.js" asp-append-version="true"></script>
+    
     <!-- jQuery - Still needed for other components -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
@@ -1345,6 +1348,34 @@
             Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] [{RequestId}] Host will see transcript, auto-broadcasting to participants ;CLEANUP_OK", requestId);
             
             await InvokeAsync(StateHasChanged);
+
+            // [DEBUG-WORKITEM:hcp-tcanvas:parse] Inject share buttons for each h2 section ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Injecting share buttons into transcript sections ;CLEANUP_OK", requestId);
+            await Task.Delay(500); // Allow DOM to render before JavaScript manipulation
+            
+            try
+            {
+                var dotNetRef = DotNetObjectReference.Create(this);
+                var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+                
+                var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
+                var sections = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
+                
+                if (success)
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Share buttons injected: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
+                }
+                else
+                {
+                    var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : "Unknown error";
+                    Logger.LogWarning("[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Share button injection warning: {Error} ;CLEANUP_OK", requestId, error);
+                }
+            }
+            catch (Exception jsEx)
+            {
+                Logger.LogError(jsEx, "[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Error injecting share buttons: {Message} ;CLEANUP_OK", requestId, jsEx.Message);
+                // Non-fatal - continue with broadcast even if button injection fails
+            }
             
             // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Automatically broadcast to participants (like Start Session button)
             // This navigates all participants from waiting room to TranscriptCanvas.razor
@@ -1606,6 +1637,62 @@
             Logger.LogError("[ASSET-SHARE-BROADCAST] ❌ Asset sharing failed - AssetType={AssetType}, Instance={InstanceNumber}, Exception={ExceptionType}, broadcastId={BroadcastId}", assetType, instanceNumber, ex.GetType().Name, broadcastId);
             
             await ShowErrorMessageAsync($"KSESSIONS-style asset sharing failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-tcanvas:share-section] Share individual transcript section (h2 + content) via SignalR ;CLEANUP_OK
+    /// Called from JavaScript via JSInvokable (SessionCanvas pattern)
+    /// </summary>
+    [JSInvokable]
+    public async Task ShareTranscriptSection(string sectionId, int h2Index)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] ShareTranscriptSection called: sectionId={SectionId}, h2Index={H2Index}, requestId={RequestId} ;CLEANUP_OK", 
+            sectionId, h2Index, requestId);
+
+        if (SessionId == null || hubConnection == null)
+        {
+            Logger.LogError("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Cannot share section: SessionId or hubConnection is null ;CLEANUP_OK");
+            await ShowMessageAsync("Cannot share section: Session not available");
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            Logger.LogError("[DEBUG-WORKITEM:hcp-tcanvas:share-section] SignalR not connected: State={State} ;CLEANUP_OK", hubConnection.State);
+            await ShowMessageAsync($"SignalR connection not ready: {hubConnection.State}");
+            return;
+        }
+
+        try
+        {
+            // Extract section HTML using JavaScript interop
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Extracting section HTML via JavaScript ;CLEANUP_OK");
+            var sectionHtml = await JSRuntime.InvokeAsync<string>("TranscriptSectionParser.extractSectionHtml", "transcript-content-container", h2Index);
+
+            if (string.IsNullOrEmpty(sectionHtml))
+            {
+                Logger.LogError("[DEBUG-WORKITEM:hcp-tcanvas:share-section] No HTML content extracted for h2Index={H2Index} ;CLEANUP_OK", h2Index);
+                await ShowMessageAsync($"Section content not found for index {h2Index}");
+                return;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Section HTML extracted: {Length} chars ;CLEANUP_OK", sectionHtml.Length);
+
+            // Broadcast via SignalR (reuse existing BroadcastHtml method with contentType)
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Broadcasting section via SignalR: sessionId={SessionId}, contentType=transcript-section ;CLEANUP_OK", SessionId.Value);
+            
+            await hubConnection.InvokeAsync("BroadcastHtml", SessionId.Value.ToString(), sectionHtml, "transcript-section");
+
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Section shared successfully: sectionId={SectionId}, requestId={RequestId} ;CLEANUP_OK", sectionId, requestId);
+            
+            await ShowMessageAsync($"Section shared successfully!");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-tcanvas:share-section] Error sharing transcript section: {Message} ;CLEANUP_OK", ex.Message);
+            await ShowMessageAsync($"Error sharing section: {ex.Message}");
         }
     }
     

@@ -3080,10 +3080,14 @@
                     using var doc = System.Text.Json.JsonDocument.Parse(json);
                     var root = doc.RootElement;
                     
+                    // [DEBUG-WORKITEM:hcp-tcanvas:share-section] Check if this is a transcript section share ;CLEANUP_OK
+                    var contentType = root.TryGetProperty("contentType", out var contentTypeElement) ? contentTypeElement.GetString() : "general";
+                    
                     if (root.TryGetProperty("htmlContent", out var htmlElement))
                     {
                         var htmlContent = htmlElement.GetString();
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] Received HTML content: {Length} chars", htmlContent?.Length ?? 0);
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] Received HTML content: {Length} chars, contentType={ContentType}", 
+                            htmlContent?.Length ?? 0, contentType);
                         
                         if (Model != null)
                         {
@@ -3091,7 +3095,14 @@
                             await InvokeAsync(StateHasChanged);
                         }
                         
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] HTML content displayed in session canvas");
+                        if (contentType == "transcript-section")
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:share-section] Transcript section received and displayed ;CLEANUP_OK");
+                        }
+                        else
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] HTML content displayed in session canvas");
+                        }
                     }
                 }
                 catch (Exception ex)
