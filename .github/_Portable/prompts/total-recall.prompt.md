@@ -631,6 +631,341 @@ grep -r "WebSocket\|ws://" --include="*"
 
 ---
 
+### Step 5.5: Application Hosting Detection
+
+> **Purpose:** Detect how the application is hosted, launched, and served to populate the 8 application hosting variables defined in `port-instructions.prompt.md`. This enables test orchestration scripts to be portable across different frameworks.
+
+#### 5.5.1 Detect Server Type
+
+**ASP.NET Core / Kestrel:**
+```bash
+# Look for Program.cs or Startup.cs
+find . -name "Program.cs" -o -name "Startup.cs" | head -n 5
+
+# Check for WebApplication.CreateBuilder pattern
+grep -r "WebApplication.CreateBuilder\|CreateDefaultBuilder" --include="Program.cs"
+```
+
+**IIS:**
+```bash
+# Look for web.config
+find . -name "web.config" -o -name "Web.config"
+
+# Check for IIS-specific settings
+grep -r "<system.webServer>\|<aspNetCore" --include="*.config"
+```
+
+**Node.js / Express:**
+```bash
+# Look for server entry points
+find . -name "server.js" -o -name "app.js" -o -name "index.js" | grep -v node_modules
+
+# Check for Express patterns
+grep -r "express()\|app.listen" --include="*.js" --include="*.ts" | grep -v node_modules
+```
+
+**Python / Flask:**
+```bash
+# Look for Flask applications
+grep -r "Flask(__name__)\|app.run" --include="*.py"
+```
+
+**Python / Django:**
+```bash
+# Look for manage.py or wsgi.py
+find . -name "manage.py" -o -name "wsgi.py"
+```
+
+**Java / Spring Boot:**
+```bash
+# Look for @SpringBootApplication
+grep -r "@SpringBootApplication" --include="*.java"
+```
+
+**Document:**
+```markdown
+**{{APP_SERVER_TYPE}}:** Kestrel | IIS | Express | Flask | Django | Spring Boot | [Other]
+```
+
+#### 5.5.2 Extract Launch Command
+
+**ASP.NET Core:**
+```bash
+# Check .csproj for assembly name
+grep "<AssemblyName>" *.csproj
+
+# Typical commands:
+# dotnet run
+# dotnet run --no-build
+# dotnet {{AssemblyName}}.dll
+```
+
+**Node.js:**
+```bash
+# Check package.json scripts
+cat package.json | grep -A 10 '"scripts"'
+
+# Common patterns:
+# npm start
+# node server.js
+# npm run dev
+```
+
+**Python Flask:**
+```bash
+# Check for Flask run commands
+grep -r "flask run\|python.*app\.py" --include="*.sh" --include="*.bat" --include="README*"
+```
+
+**Document:**
+```markdown
+**{{APP_LAUNCH_COMMAND}}:** dotnet run | npm start | python app.py | [Command]
+**{{APP_LAUNCH_ARGS}}:** --no-build | --environment Production | [Args]
+```
+
+#### 5.5.3 Detect Port Configuration
+
+**ASP.NET Core (appsettings.json):**
+```bash
+# Check appsettings.json for Kestrel configuration
+grep -A 5 '"Kestrel"\|"Urls"' appsettings*.json
+
+# Example:
+# "Kestrel": { "Endpoints": { "Http": { "Url": "http://localhost:5000" } } }
+# "Urls": "http://localhost:5000;https://localhost:5001"
+```
+
+**ASP.NET Core (Program.cs):**
+```bash
+# Check for UseUrls or hardcoded ports
+grep -r "UseUrls\|builder.WebHost.UseUrls" --include="Program.cs"
+```
+
+**Node.js:**
+```bash
+# Check for PORT environment variable or hardcoded port
+grep -r "process.env.PORT\|app.listen\|server.listen" --include="*.js" --include="*.ts" | grep -v node_modules
+```
+
+**Python:**
+```bash
+# Check for port in app.run or environment variable
+grep -r "app.run.*port\|os.environ.get.*PORT" --include="*.py"
+```
+
+**Document:**
+```markdown
+**{{APP_PORT}}:** 5000 | 3000 | 8080 | [Port]
+**{{APP_PORT_SOURCE}}:** appsettings.json | Program.cs | package.json | env | [Source]
+```
+
+#### 5.5.4 Determine Startup Time
+
+**Measure via health check polling:**
+```powershell
+# DO NOT hardcode delays - measure actual startup time
+
+$startTime = Get-Date
+
+# Launch app (example for .NET)
+$app = Start-Process "dotnet" -ArgumentList "run --no-build" `
+    -WorkingDirectory "path/to/project" `
+    -PassThru -WindowStyle Minimized
+
+# Poll health check endpoint
+$timeout = 60  # Maximum wait time
+$healthCheck = "http://localhost:5000/health"  # Or root endpoint
+
+do {
+    Start-Sleep -Milliseconds 500
+    try {
+        $response = Invoke-WebRequest -Uri $healthCheck -TimeoutSec 2 -UseBasicParsing
+        if ($response.StatusCode -eq 200) {
+            $endTime = Get-Date
+            $startupTime = ($endTime - $startTime).TotalSeconds
+            Write-Host "✅ App ready in $startupTime seconds"
+            break
+        }
+    }
+    catch {
+        # Still starting...
+    }
+    
+    $elapsed = ((Get-Date) - $startTime).TotalSeconds
+    if ($elapsed -gt $timeout) {
+        Write-Host "❌ Timeout: App did not start in $timeout seconds"
+        Stop-Process -Id $app.Id -Force
+        exit 1
+    }
+} while ($true)
+```
+
+**Document:**
+```markdown
+**{{APP_STARTUP_TIME_SECONDS}}:** 8 | 12 | 15 | [Measured time]
+**{{APP_STARTUP_TIME_NOTES}}:** "Measured via health check polling" | "Includes DB migration" | [Notes]
+```
+
+#### 5.5.5 Identify Health Check URL
+
+**ASP.NET Core:**
+```bash
+# Look for MapHealthChecks in Program.cs or Startup.cs
+grep -r "MapHealthChecks\|UseHealthChecks" --include="*.cs"
+
+# Example: app.MapHealthChecks("/health");
+```
+
+**Node.js / Express:**
+```bash
+# Look for health or status endpoints
+grep -r "'/health'\|'/status'\|'/ping'" --include="*.js" --include="*.ts" | grep -v node_modules
+```
+
+**Fallback:**
+```markdown
+If no dedicated health check endpoint exists, use root endpoint:
+- http://localhost:{{PORT}}/
+- Wait for 200 OK response
+```
+
+**Document:**
+```markdown
+**{{APP_HEALTH_CHECK_URL}}:** http://localhost:5000/health | http://localhost:3000/ | [URL]
+**{{APP_HEALTH_CHECK_METHOD}}:** GET | HEAD | [Method]
+**{{APP_HEALTH_CHECK_EXPECTED_STATUS}}:** 200 | 204 | [Status Code]
+```
+
+#### 5.5.6 Extract Process Name
+
+**ASP.NET Core:**
+```bash
+# Process name is typically the assembly name
+grep "<AssemblyName>" *.csproj
+
+# Example: <AssemblyName>NoorCanvas</AssemblyName>
+# Process: NoorCanvas.exe (Windows) or dotnet (cross-platform)
+```
+
+**Node.js:**
+```bash
+# Process name is typically "node"
+# Can be customized via PM2 or similar process managers
+grep -r "pm2\|nodemon" package.json
+```
+
+**Document:**
+```markdown
+**{{APP_PROCESS_NAME}}:** NoorCanvas | node | python | java | [Process Name]
+**{{APP_PROCESS_NAME_PATTERN}}:** "dotnet*" | "node*" | [Wildcard Pattern]
+```
+
+#### 5.5.7 Detect Environment Variables
+
+**ASP.NET Core:**
+```bash
+# Check for ASPNETCORE_ENVIRONMENT usage
+grep -r "ASPNETCORE_ENVIRONMENT\|IHostEnvironment" --include="*.cs"
+
+# Check launchSettings.json
+cat Properties/launchSettings.json | grep -A 20 '"environmentVariables"'
+```
+
+**Node.js:**
+```bash
+# Check for NODE_ENV or other env vars
+grep -r "process.env\|NODE_ENV" --include="*.js" --include="*.ts" | grep -v node_modules
+
+# Check .env files
+find . -name ".env*" -not -path "*/node_modules/*"
+```
+
+**Document:**
+```markdown
+**{{APP_ENV_VARIABLE_PREFIX}}:** ASPNETCORE_ | NODE_ | SPRING_ | [Prefix]
+
+**{{APP_ENV_VARIABLES}}:**
+- ASPNETCORE_ENVIRONMENT=Development
+- ASPNETCORE_URLS=http://localhost:5000
+- ConnectionStrings__DefaultConnection=[Connection String]
+- [Additional env vars]
+```
+
+#### 5.5.8 Locate Configuration Files
+
+**ASP.NET Core:**
+```bash
+# appsettings.json hierarchy
+find . -name "appsettings*.json" -not -path "*/bin/*" -not -path "*/obj/*"
+```
+
+**Node.js:**
+```bash
+# Config files
+find . -name "config.js" -o -name "config.json" -o -name ".env*" | grep -v node_modules
+```
+
+**Python:**
+```bash
+# Settings modules
+find . -name "settings.py" -o -name "config.py"
+```
+
+**Document:**
+```markdown
+**{{APP_ENV_SETTINGS}}:**
+
+**Configuration Files:**
+- appsettings.json (Base settings)
+- appsettings.Development.json (Development overrides)
+- appsettings.Production.json (Production overrides)
+
+**Config Hierarchy:**
+1. appsettings.json (lowest priority)
+2. appsettings.{Environment}.json
+3. Environment variables
+4. Command-line arguments (highest priority)
+
+**Key Settings:**
+- ConnectionStrings: {{Location}}
+- Logging: {{Location}}
+- Kestrel/Server: {{Location}}
+- Application-specific: {{Location}}
+```
+
+#### 5.5.9 Populate Template Variables
+
+**Update `.github/_Portable/DATA/app-hosting.env`:**
+```bash
+# Application Hosting & Launch Variables
+APP_SERVER_TYPE=Kestrel
+APP_LAUNCH_COMMAND=dotnet run
+APP_LAUNCH_ARGS=--no-build
+APP_PORT=5000
+APP_STARTUP_TIME_SECONDS=8
+APP_HEALTH_CHECK_URL=http://localhost:5000/health
+APP_PROCESS_NAME=NoorCanvas
+APP_ENV_VARIABLE_PREFIX=ASPNETCORE_
+APP_ENV_SETTINGS=appsettings.json
+```
+
+**Reference in Test Orchestration:**
+```powershell
+# Source the app hosting variables
+. ".github/_Portable/DATA/app-hosting.env"
+
+# Use in test scripts
+$app = Start-Process $APP_LAUNCH_COMMAND `
+    -ArgumentList $APP_LAUNCH_ARGS `
+    -PassThru -WindowStyle Minimized
+
+# Poll health check
+$healthCheck = $APP_HEALTH_CHECK_URL
+# ... (health check polling logic from test-orchestration-patterns.md)
+```
+
+---
+
 ### Step 6: Service Layer Architecture
 
 #### 6.1 Service Discovery

@@ -45,8 +45,13 @@ Step 2: Context Gathering
 ├─→ 2.9: QuickRef Localization (IF first use of key)
 │    └─→ Cache InfrastructureQuickRef, PlaywrightQuickRef
 │
-└─→ 2.10: View Documentation (IF annotate parameter)
-     └─→ AI-powered screenshot analysis
+├─→ 2.10: View Documentation (IF annotate parameter)
+│    └─→ AI-powered screenshot analysis
+│
+└─→ 2.11: Refactoring Opportunity Detection (IF modifying existing code)
+     ├─→ Analyze method length, duplication, complexity, naming
+     ├─→ Present findings to user for approval
+     └─→ Add approved refactorings as optional subtasks in Step 3
 ```
 
 ---
@@ -483,11 +488,193 @@ Step 2: Context Gathering
 - Early warnings from 2.8.7 (incomplete data lifecycle)
 - Framework validation results from 2.5
 - Architecture violation alerts from 2.8
+- Refactoring recommendations from 2.11 (requires user approval)
 
 **Bypasses Steps (Efficiency):**
 - If 2.6 HIGH confidence → Skip 2.8, go straight to Step 3
 - If 2.4 not triggered → Skip 2.5, 2.6, 2.7
 - If documentation mode → Skip execution steps later
+
+---
+
+### 2.11. Refactoring Opportunity Detection
+
+**Purpose:** Proactively identify code quality improvements during code modifications
+
+**When:** CONDITIONAL - Only when modifying existing code (NOT for new features)
+
+**Trigger Conditions:**
+- Task involves editing existing files (NOT creating new files)
+- User request contains keywords: "fix", "update", "modify", "change", "refactor"
+- Files being modified are >100 lines (significant enough to benefit from refactoring)
+
+**Skip Conditions:**
+- Task is creating new feature from scratch
+- Task is purely configuration/documentation
+- Files being modified are <100 lines (too small to warrant refactoring analysis)
+- User explicitly says "no refactoring" or "quick fix only"
+
+**Analysis Targets:**
+
+1. **Method Length** (detect long methods):
+   ```
+   - Scan for methods >50 lines
+   - Flag methods >100 lines as HIGH priority
+   - Suggest Extract Method refactoring
+   - Example: "Method ProcessTranscript (127 lines) → Extract ParseSections, ValidateStructure"
+   ```
+
+2. **Code Duplication** (detect similar blocks):
+   ```
+   - Compare code blocks within same file
+   - Identify repeated patterns (>10 lines similar)
+   - Suggest Extract Method or Extract Helper
+   - Example: "HTML transformation logic repeated 3 times → Extract TransformHtmlSection method"
+   ```
+
+3. **Cyclomatic Complexity** (detect complex logic):
+   ```
+   - Count branches (if/else, switch, loops, ternary)
+   - Flag methods with >10 branches
+   - Suggest Simplify Conditional or Extract Method
+   - Example: "Method ValidateInput has 15 nested conditions → Extract validation methods"
+   ```
+
+4. **Poor Naming** (detect unclear identifiers):
+   ```
+   - Flag single-letter variables (except loop counters i, j, k)
+   - Flag ambiguous names (data, temp, obj, val, x, y)
+   - Suggest descriptive alternatives
+   - Example: "Variable 'x' → 'transcriptSectionIndex'"
+   ```
+
+5. **Missing Documentation** (detect undocumented public APIs):
+   ```
+   - Scan for public methods without XML comments
+   - Scan for complex methods without inline comments
+   - Suggest adding documentation
+   - Example: "Public method ShareTranscriptSection missing XML documentation"
+   ```
+
+6. **Magic Numbers** (detect unexplained constants):
+   ```
+   - Flag numeric literals (except 0, 1, -1, 100)
+   - Suggest named constants
+   - Example: "Literal '8000' → Extract constant DefaultTimeoutMilliseconds"
+   ```
+
+**Integration with Roslynator:**
+
+When .NET/C# code is detected, suggest specific Roslynator analyzers:
+
+```
+- RCS1123: Add parentheses when necessary
+- RCS1036: Remove redundant empty line
+- RCS1118: Mark local variable as const
+- RCS1077: Optimize LINQ method call
+- RCS1163: Unused parameter
+```
+
+**Reference:** See `.github/instructions/Links/RoslynatorRefactoringsQuickRef.md` for complete refactoring catalog
+
+**Output Format:**
+
+```markdown
+🔍 Refactoring Opportunities Detected (Step 2.11)
+
+## Code Quality Issues Found
+
+### High Priority
+1. **Long Method**: `ProcessTranscript` (127 lines)
+   - **Issue**: Method exceeds complexity threshold
+   - **Suggestion**: Extract Method refactoring
+     - `ParseSections()` - lines 15-45
+     - `ValidateStructure()` - lines 46-78
+     - `TransformHtml()` - lines 79-120
+   - **Benefit**: Improved testability, readability, maintainability
+   - **Roslynator**: Use RCS1138 (Add summary to documentation comment)
+
+2. **Code Duplication**: HTML transformation logic (3 occurrences)
+   - **Issue**: Same transformation code in lines 89-103, 145-159, 201-215
+   - **Suggestion**: Extract `TransformHtmlSection(string html)` helper method
+   - **Benefit**: DRY principle, single source of truth, easier bug fixes
+   - **Roslynator**: Use RCS1213 (Remove unused member declaration)
+
+### Medium Priority
+3. **Poor Naming**: Variable `x` (line 45)
+   - **Issue**: Single-letter variable name unclear
+   - **Suggestion**: Rename to `transcriptSectionIndex`
+   - **Benefit**: Self-documenting code
+
+4. **Magic Number**: Literal `8000` (line 67)
+   - **Issue**: Unexplained timeout value
+   - **Suggestion**: Extract constant `private const int DefaultTimeoutMilliseconds = 8000;`
+   - **Benefit**: Centralized configuration, easier tuning
+
+### Low Priority
+5. **Missing Documentation**: Public method `ShareTranscriptSection`
+   - **Issue**: No XML documentation for public API
+   - **Suggestion**: Add `/// <summary>` documentation
+   - **Benefit**: IntelliSense support, API clarity
+
+## User Approval Required
+
+**Include refactoring in implementation plan?**
+- ✅ Yes - Include all refactoring tasks as separate subtasks (recommended)
+- ⚠️  Partial - Select specific refactorings to include
+- ❌ No - Skip refactoring, proceed with minimal changes only
+
+**If approved, refactoring will be added as optional subtasks with clear rollback points.**
+```
+
+**Approval Handling:**
+
+1. **User says "yes" or "include refactoring"**:
+   - Add refactoring as separate subtasks in Step 3 plan
+   - Each refactoring task has independent checkpoint
+   - User can skip individual refactoring tasks later
+
+2. **User says "partial" or selects specific items**:
+   - Present numbered list of refactorings
+   - User selects by number (e.g., "1, 3, 5")
+   - Include only selected refactorings in plan
+
+3. **User says "no" or "skip refactoring"**:
+   - Proceed with minimal changes only
+   - Document detected issues in work-log for future reference
+
+4. **No response / ambiguous**:
+   - Default to "no" (safe default - don't add unasked work)
+
+**Integration with Step 3 (Planning):**
+
+If refactoring approved, add as separate phase in implementation plan:
+
+```markdown
+### Subtasks
+
+#### Phase 1: Core Implementation
+1. Fix share button injection bug
+2. Add SignalR handler for transcript sections
+
+#### Phase 2: Refactoring (Optional - Safe to skip)
+3. [REFACTOR] Extract Method: ProcessTranscript → ParseSections, ValidateStructure
+4. [REFACTOR] Extract Helper: TransformHtmlSection (eliminate duplication)
+5. [REFACTOR] Rename variable: x → transcriptSectionIndex
+
+**Checkpoint**: Create git tag before Phase 2 for easy rollback if issues arise
+```
+
+**Token Budget:**
+
+- Analysis is lightweight (static analysis, no external tool invocation)
+- Limit analysis to files ALREADY loaded in context (no additional file reads)
+- Skip analysis if token budget >40,000 (prioritize core task execution)
+
+**Verbosity Control:**
+
+- **Concise**: Summary count only (e.g., "🔍 5 refactoring opportunities detected")
+- **Detailed**: Full analysis with code snippets, Roslynator references, approval prompt
 
 ---
 
@@ -501,7 +688,7 @@ Reference this comprehensive guide in task.prompt.md:
 **Purpose:** Build comprehensive context before planning.
 
 **See:** `.github/prompts/shared/context-gathering-phases.md` for:
-- Complete decision tree (10 sub-phases)
+- Complete decision tree (11 sub-phases)
 - Conditional execution logic
 - Skip conditions and terminal states
 - Performance optimization strategies
@@ -516,8 +703,10 @@ Reference this comprehensive guide in task.prompt.md:
 - 2.8.7: Data Lifecycle Validation (if CRUD)
 - 2.9: QuickRef Localization (first use)
 - 2.10: View Documentation (if annotate param)
+- 2.11: Refactoring Opportunity Detection (if modifying existing code)
 
 **Output (controlled by verbosity):**
 - Concise: Brief phase summaries, routing decisions
 - Detailed: Complete context dump, analysis results
 ```
+

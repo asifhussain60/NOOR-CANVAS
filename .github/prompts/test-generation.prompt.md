@@ -23,77 +23,95 @@ CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION
 
 ### 1. Server Management Protocol
 
+> **CANONICAL REFERENCE**: `.github/prompts/shared/test-orchestration-patterns.md`
+> 
+> This section provides a summary. For complete patterns, troubleshooting, and working examples, see the canonical reference above.
+
 **Before running any Playwright or Percy automated tests, the NoorCanvas application MUST be launched via an orchestration script. Direct execution of `npx playwright test` is PROHIBITED.**
 
-**Required Orchestration Script Pattern** (Create in `Scripts/` directory):
+#### Critical Orchestration Mandates
+
+**ALWAYS:**
+- ✅ Use `Start-Process -PassThru -WindowStyle Minimized` (NEVER `Start-Job`)
+- ✅ Include `try/finally` cleanup blocks with `Stop-Process -Id $app.Id -Force`
+- ✅ Use health check polling with timeout (NEVER fixed `Start-Sleep` delays)
+- ✅ Minimize PowerShell window with `-WindowStyle Minimized` parameter
+- ✅ Use ASCII characters ONLY in scripts (NO emojis, Unicode, special characters)
+- ✅ Source app hosting variables from `.github/_Portable/DATA/app-hosting.env`
+
+**NEVER:**
+- ❌ `Start-Job` (causes orphaned processes, unreliable cleanup)
+- ❌ Fixed delays like `Start-Sleep -Seconds 10` before tests
+- ❌ Running `npx playwright test` without orchestration
+- ❌ Unicode characters in PowerShell scripts (encoding issues)
+
+#### Minimal Orchestration Template
+
+**See `.github/prompts/shared/test-orchestration-patterns.md` for complete template with comments and error handling.**
 
 ```powershell
-# Scripts/run-{feature}-e2e-test.ps1
+# Scripts/run-{feature}-test.ps1
 
-# Step 1: Kill existing processes
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+# STEP 1: Cleanup existing processes
+Get-Process -Name "{{APP_PROCESS_NAME}}" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-# Step 2: Launch app in SEPARATE elevated PowerShell window
-$startupScript = @"
-cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
-`$env:ASPNETCORE_ENVIRONMENT = 'Development'
-`$env:ASPNETCORE_URLS = 'https://localhost:9091'
-dotnet run
-"@
-$startupScript | Out-File "$env:TEMP\noorcanvas-startup.ps1" -Encoding UTF8
-Start-Process powershell -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File","$env:TEMP\noorcanvas-startup.ps1" -Verb RunAs
+# STEP 2: Launch app with Start-Process -PassThru
+$app = Start-Process "{{APP_LAUNCH_COMMAND}}" `
+    -ArgumentList "{{APP_LAUNCH_ARGS}}" `
+    -WorkingDirectory "{{APP_WORKING_DIR}}" `
+    -PassThru -WindowStyle Minimized
 
-# Step 3: Health check with retry (10 attempts, 3-second delays)
-$healthCheckRetries = 10
-for ($i = 1; $i -le $healthCheckRetries; $i++) {
-    try {
-        $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5
-        Write-Host "[OK] App Ready" -ForegroundColor Green
-        break
-    }
-    catch {
-        Write-Host "  Waiting for app ($i/$healthCheckRetries)..." -ForegroundColor Gray
-        Start-Sleep -Seconds 3
-    }
+try {
+    # STEP 3: Health check polling (NOT fixed delays)
+    $timeout = 60
+    $startTime = Get-Date
+    $healthCheck = "{{APP_HEALTH_CHECK_URL}}"
+    
+    do {
+        Start-Sleep -Milliseconds 500
+        try {
+            $response = Invoke-WebRequest -Uri $healthCheck -TimeoutSec 2 -UseBasicParsing
+            if ($response.StatusCode -eq 200) {
+                Write-Host "[OK] App ready"
+                break
+            }
+        }
+        catch { }
+        
+        $elapsed = ((Get-Date) - $startTime).TotalSeconds
+        if ($elapsed -gt $timeout) {
+            Write-Host "[ERROR] Timeout waiting for app"
+            exit 1
+        }
+    } while ($true)
+    
+    # STEP 4: Run tests
+    npx playwright test Tests/UI/{test-file}.spec.ts --reporter=list --headed
 }
-
-# Step 4: Execute Playwright tests
-npx playwright test Tests/UI/{test-file}.spec.ts --reporter=list --headed
-
-# Step 5: Cleanup (terminate app process)
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+finally {
+    # STEP 5: ALWAYS cleanup (even if tests fail)
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
 ```
 
 **Reference Implementation**: `Scripts/run-debug-panel-e2e-visual-test.ps1`
 
-**Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
+**Execution**: `.\Scripts\run-{feature}-test.ps1`
 
-**CRITICAL: PowerShell Script Character Encoding Rules**
-- [MANDATORY] Use ASCII characters ONLY in generated PowerShell scripts
-- [MANDATORY] No emojis (checkmarks, warning symbols, X marks, arrows, etc.)
-- [MANDATORY] No Unicode characters (special quotes, bullets, box-drawing chars)
-- [MANDATORY] Replace visual indicators with ASCII equivalents:
-  - Instead of checkmark: Use "[OK]" or "[PASS]" or "[YES]"
-  - Instead of X mark: Use "[FAIL]" or "[ERROR]" or "[NO]"
-  - Instead of warning symbol: Use "WARNING:" or "[WARN]" or "CAUTION:"
-  - Instead of bullet points in comments: Use "-" or "*"
-- [REASON] PowerShell encoding issues cause syntax errors with non-ASCII characters
-- [REASON] Script portability across different PowerShell versions and environments
+#### Why Start-Process vs Start-Job
 
-**WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
-- [YES] Separate PowerShell window ensures environment isolation
-- [YES] `ASPNETCORE_ENVIRONMENT=Development` properly enables DevMode
-- [YES] `ASPNETCORE_URLS=https://localhost:9091` enforces HTTPS-only binding to avoid 9090 conflicts
-- [YES] Health check retry logic prevents race conditions
-- [YES] Automated cleanup prevents port conflicts
-- [NO] Direct `npx playwright test` ALWAYS FAILS (missing environment vars)
+| Factor | Start-Process -PassThru | Start-Job |
+|--------|------------------------|-----------|
+| **Process ID Access** | ✅ Direct via `$app.Id` | ❌ Requires complex extraction |
+| **Cleanup Reliability** | ✅ `Stop-Process -Id $app.Id` | ❌ Often orphans processes |
+| **Window Control** | ✅ `-WindowStyle Minimized` | ❌ No control |
+| **Environment Variables** | ✅ Inherited automatically | ⚠️ Requires manual passing |
+| **Error Visibility** | ✅ Visible in separate window | ❌ Hidden in job |
+| **Recommended** | ✅ YES | ❌ NO |
 
-**PROHIBITED EXECUTION METHODS**:
-- [NO] `npx playwright test` from VS Code terminal
-- [NO] `Start-Job` for app startup (wrong isolation)
-- [NO] Manual app startup without orchestration
+**See test-orchestration-patterns.md Section 4 for detailed comparison and troubleshooting.**
 
-WARNING: **CRITICAL CLARIFICATION: Playwright's webServer vs Orchestration Scripts**
+#### Playwright's webServer vs Orchestration Scripts
 
 **Two Different Server Management Approaches:**
 
@@ -105,9 +123,9 @@ WARNING: **CRITICAL CLARIFICATION: Playwright's webServer vs Orchestration Scrip
    - Limitation: Cannot set environment variables properly for DevMode
 
 2. **PowerShell Orchestration Scripts** (in `Scripts/` directory)
-   - Launches `dotnet run` in **separate elevated PowerShell window**
+   - Launches `dotnet run` in **separate PowerShell window** (minimized)
    - Visible window with app logs
-    - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`, `ASPNETCORE_URLS=https://localhost:9091`)
+   - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`, `ASPNETCORE_URLS=https://localhost:9091`)
    - Use when: E2E tests requiring DevMode, debugging, complex setup
 
 **When to Use Each:**
@@ -559,16 +577,54 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 7. **Documentation**: Inline comments explaining critical waits and assertions
 
 ### 2. PowerShell Orchestration Script (.github/prompts.keys/{key}/scripts/run-{feature}-test.ps1)
+
+> **MANDATORY**: Follow canonical patterns from `.github/prompts/shared/test-orchestration-patterns.md`
+
+**Critical Requirements:**
+- ✅ **ALWAYS** use `Start-Process -PassThru -WindowStyle Minimized` (NEVER `Start-Job`)
+- ✅ **ALWAYS** include `try/finally` cleanup block with `Stop-Process -Id $app.Id -Force`
+- ✅ **ALWAYS** use health check polling with timeout (NEVER fixed `Start-Sleep` delays)
+- ✅ **ALWAYS** use ASCII characters ONLY (NO emojis, Unicode, special characters)
+- ✅ **OPTIONAL** source variables from `.github/_Portable/DATA/app-hosting.env` for portability
+
+**Script Structure:**
 1. **File header**: ASCII-only comments describing purpose and usage
-2. **Process cleanup**: Kill existing NoorCanvas processes
-3. **App launch**: Start-Process with separate PowerShell window and environment vars (must set `ASPNETCORE_URLS=https://localhost:9091`)
-4. **Health check**: Retry logic with ASCII-only progress indicators
-5. **Test execution**: npx playwright test command with FULL PATH to test file
-   ```powershell
-   npx playwright test ".github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed
-   ```
-6. **Cleanup**: Stop app processes after test completion
-7. **Error handling**: Exit codes and ASCII-only error messages
+2. **Process cleanup**: `Get-Process -Name "{{APP_PROCESS_NAME}}" | Stop-Process -Force`
+3. **App launch**: `$app = Start-Process ... -PassThru -WindowStyle Minimized`
+4. **try block start**: Wrap health check and test execution
+5. **Health check polling**: Loop with 500ms intervals, timeout after 60 seconds
+6. **Test execution**: `npx playwright test ".github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed`
+7. **finally block**: `Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue`
+
+**Example** (see test-orchestration-patterns.md for complete template with comments):
+```powershell
+# Scripts/run-{feature}-test.ps1
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+$app = Start-Process "dotnet" -ArgumentList "run --no-build" `
+    -WorkingDirectory "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+    -PassThru -WindowStyle Minimized
+
+try {
+    $timeout = 60
+    $startTime = Get-Date
+    do {
+        Start-Sleep -Milliseconds 500
+        try {
+            $response = Invoke-WebRequest -Uri "https://localhost:9091" -TimeoutSec 2 -UseBasicParsing
+            if ($response.StatusCode -eq 200) { break }
+        } catch { }
+        if (((Get-Date) - $startTime).TotalSeconds -gt $timeout) {
+            Write-Host "[ERROR] Timeout"; exit 1
+        }
+    } while ($true)
+    
+    npx playwright test ".github/prompts.keys/{key}/tests/{feature}.spec.ts" --reporter=list
+}
+finally {
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
+```
 
 ### 3. Test Registry Update (.github/prompts.keys/{key}/tests/test-registry.md)
 1. **Create registry** if it doesn't exist (use template above)

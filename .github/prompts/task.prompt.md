@@ -235,6 +235,7 @@ This ensures rollback capability if the task introduces instability.
   - **2.8.7:** Data Lifecycle Validation (CRUD: verify UI → API → DB → Broadcast → UI)
 - **2.9:** QuickRef Localization (cache InfrastructureQuickRef, PlaywrightQuickRef - first use only)
 - **2.10:** View Documentation (AI screenshot analysis if `annotate` parameter provided)
+- **2.11:** Refactoring Opportunity Detection (conditional - runs when modifying existing code)
 
 **Routing Logic:**
 - Error reported → 2.4 triages → Routes to 2.5, 2.6, 2.7, or 2.8
