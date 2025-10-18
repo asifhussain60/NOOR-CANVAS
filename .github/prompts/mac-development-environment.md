@@ -102,7 +102,7 @@ source ~/.zshrc
 **Solution:** Use `nohup` to run in true background:
 ```bash
 cd /Users/asifhussain/NOOR-CANVAS/SPA/NoorCanvas
-nohup dotnet run --configuration Release --no-build --urls "https://localhost:9091;http://localhost:9090" > /tmp/noorcanvas.log 2>&1 &
+nohup dotnet run --configuration Release --no-build --urls "https://localhost:9091" > /tmp/noorcanvas.log 2>&1 &
 ```
 
 **Explanation:** Running commands in the same terminal session can interrupt background processes. `nohup` prevents this.

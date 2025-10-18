@@ -1,5 +1,6 @@
 ---
 mode: agent
+description: Structural Integrity Agent that refactors code with zero behavior change and zero warnings policy
 ---
 
 ## Role

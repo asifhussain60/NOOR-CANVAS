@@ -266,11 +266,11 @@ foreach ($learningFile in $learningFiles) {
 
 ```powershell
 # Update port-instructions.prompt.md
-Copy-Item ".github/prompts/port-instructions.prompt.md" `
+Copy-Item ".github/_Portable/prompts/port-instructions.prompt.md" `
           ".github/_Portable/prompts/port-instructions.prompt.md" -Force
 
 # Update total-recall.prompt.md
-Copy-Item ".github/prompts/total-recall.prompt.md" `
+Copy-Item ".github/_Portable/prompts/total-recall.prompt.md" `
           ".github/_Portable/prompts/total-recall.prompt.md" -Force
 
 Write-Host "✅ Updated: Meta-prompts (port-instructions, total-recall)"

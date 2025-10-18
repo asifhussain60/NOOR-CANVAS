@@ -70,6 +70,7 @@ Start-Process powershell -ArgumentList @(
     "-Command",
     "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; `
      `$env:ASPNETCORE_ENVIRONMENT = 'Development'; `
+   `$env:ASPNETCORE_URLS = 'https://localhost:9091'; `
      Write-Host 'ASPNETCORE_ENVIRONMENT = `$env:ASPNETCORE_ENVIRONMENT' -ForegroundColor Green; `
      dotnet run"
 ) -Verb RunAs

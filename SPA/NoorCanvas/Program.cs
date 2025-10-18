@@ -238,9 +238,10 @@ app.MapFallbackToPage("/_Host");
 // Map SignalR Hubs with enhanced logging
 app.MapHub<SessionHub>("/hub/session");        // PRIMARY: Production sessions, HTML broadcasting
 app.MapHub<QAHub>("/hub/qa");                  // Q&A functionality
+app.MapHub<AnnotationHub>("/hub/annotation");  // Annotation system for collaborative drawing
 app.MapHub<TestHub>("/hub/test");              // TESTING: Development/debugging only
 
-Log.Information("NOOR-SIGNALR: SignalR hubs mapped - SessionHub (/hub/session), QAHub (/hub/qa), TestHub (/hub/test)");
+Log.Information("NOOR-SIGNALR: SignalR hubs mapped - SessionHub (/hub/session), QAHub (/hub/qa), AnnotationHub (/hub/annotation), TestHub (/hub/test)");
 
 // Health endpoint (also available at /healthz via controller)
 app.MapGet("/healthz", () => new

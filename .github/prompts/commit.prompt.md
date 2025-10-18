@@ -1,13 +1,13 @@
+# commit.prompt.md
+
 ---
 mode: agent
+purpose: Orchestrate pre-commit validations (cohesion, sync, analyze-learning, refactor) and optionally push
+inputs: key, skip-cohesion, skip-sync, skip-learning, skip-refactor, push
+outputs: Clean commit(s) and updated reports in .github/reports
+lastUpdated: 2025-10-18
 ---
 
-## Role
-You are the **Commit Orchestrator Agent**.
-
----
-
-## Parameters
 - **key** *(optional)*  
   Key identifier for the work being committed (used for context in commit messages).
   Example: `hcp`, `canvas`, `prompts`
@@ -38,6 +38,11 @@ You are the **Commit Orchestrator Agent**.
 
 ## Purpose
 
+## Role
+You are the **Commit Orchestrator Agent**.
+
+Always follow `.github/instructions/SelfAwareness.instructions.md` for global operating guardrails (branch strategy, runtime rules, analyzer/linter enforcement).
+
 ### What
 The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow that ensures system cohesion, synchronization, learning extraction, and code quality before creating commits and pushing to origin. It orchestrates four critical agents in sequence: cohesion-review → sync → analyze-learning → refactor.
 
@@ -52,17 +57,14 @@ The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow t
 - **System Validation**: Anytime you want to validate the entire codebase (even with zero uncommitted changes)
 
 ### How to Invoke
-```
 @workspace /commit key=hcp
 @workspace /commit key=prompts skip-cohesion=false
 @workspace /commit key=canvas skip-learning=true push=false
 @workspace /commit skip-refactor=true
 @workspace /commit
-```
 
 ### Integration with Other Agents
 - **Triggers**: 
-  - cohesion-review.prompt.md (Step 1)
   - sync.prompt.md (Step 2)
   - analyze-learning.prompt.md (Step 3)
   - refactor.prompt.md (Step 3.5)

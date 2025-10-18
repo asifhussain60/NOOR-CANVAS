@@ -93,6 +93,52 @@ namespace NoorCanvas.Services
                 }
                 _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:continue] Cleaned {Count} elements with event handlers ;CLEANUP_OK", nodesWithEvents.Count);
             }
+
+            // FIX: Convert mixed <th>/<td> tags in <tbody> to consistent <td> tags
+            // This fixes "Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node'" errors
+            // Issue discovered in Session 212 - malformed Froala Editor output
+            FixMalformedTableStructure(htmlDoc);
+        }
+
+        private void FixMalformedTableStructure(HtmlDocument htmlDoc)
+        {
+            // Find all tbody elements
+            var tbodyNodes = htmlDoc.DocumentNode.SelectNodes("//tbody");
+            if (tbodyNodes != null)
+            {
+                int fixedCount = 0;
+                foreach (var tbody in tbodyNodes)
+                {
+                    // Find all <th> tags inside this tbody
+                    var thNodes = tbody.SelectNodes(".//th");
+                    if (thNodes != null)
+                    {
+                        foreach (var th in thNodes.ToList())
+                        {
+                            // Create a new <td> element with same attributes
+                            var td = htmlDoc.CreateElement("td");
+                            
+                            // Copy all attributes from <th> to <td>
+                            foreach (var attr in th.Attributes)
+                            {
+                                td.SetAttributeValue(attr.Name, attr.Value);
+                            }
+                            
+                            // Copy inner HTML
+                            td.InnerHtml = th.InnerHtml;
+                            
+                            // Replace <th> with <td>
+                            th.ParentNode.ReplaceChild(td, th);
+                            fixedCount++;
+                        }
+                    }
+                }
+
+                if (fixedCount > 0)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:hcptcanvas:htmlfix] Fixed {Count} mixed TH/TD tags in TBODY elements - preventing appendChild errors ;CLEANUP_OK", fixedCount);
+                }
+            }
         }
 
         private static void SanitizeAttributes(HtmlDocument htmlDoc)

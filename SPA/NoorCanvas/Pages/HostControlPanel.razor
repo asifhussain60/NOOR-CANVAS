@@ -34,6 +34,9 @@
     <!-- NOOR Canvas Notyf Wrapper - Unified toast API with diagnostics -->
     <script src="~/js/noor-notyf-wrapper.js" asp-append-version="true"></script>
     
+    <!-- [DEBUG-WORKITEM:hcp-tcanvas:parse] Transcript Section Parser - h2 grouping & share button injection ;CLEANUP_OK -->
+    <script src="~/js/transcript-section-parser.js" asp-append-version="true"></script>
+    
     <!-- jQuery - Still needed for other components -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
@@ -70,26 +73,30 @@
                                  UserToken="@UserToken"
                                  IsLoading="@isLoading"
                                  OnStartSession="@StartSession"
+                                 OnShareTranscript="@ShareTranscript"
                                  OnGetSignalRStatusColor="@GetSignalRStatusColor"
                                  OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
                                  OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
                                  OnFormatDurationFromString="@FormatDurationFromString" />
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
-        <!-- Only show transcript and Q&A panels after session has started -->
-        @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended")
+        <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
+        @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" || isBroadcastMode)
         {
             <HostControlPanelContent Model="@Model" 
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
+                                     IsBroadcastMode="@isBroadcastMode"
                                      SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
+                                     OnBroadcastTranscript="@BroadcastFullTranscript"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
                                      OnQuestionClick="@ShareQuestionAsset"
-                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
+                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
+                                     OnTranscriptRendered="@HandleTranscriptRendered" />
         }
-        else if (Model?.SessionStatus == "Waiting" && !isLoading)
+        else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode)
         {
             <!-- Informational message when session hasn't started yet -->
             <div style="background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:3rem;text-align:center;">
@@ -133,6 +140,7 @@
     private bool showDeleteModal = false;
     private bool showMessage = false;
     private bool shareHandlersInitialized = false;
+    private bool isBroadcastMode = false; // [DEBUG-WORKITEM:transcript-canvas:share] Track if transcript loaded for broadcast ;CLEANUP_OK
     private string messageText = "";
     private Guid questionToDeleteId;
     private Timer? messageTimer;
@@ -1290,6 +1298,302 @@
         }
     }
 
+    // [DIAGNOSTIC:transcript-canvas:share] Load transcript with single broadcast button (host stays in HostControlPanel) ;CLEANUP_OK
+    private async Task ShareTranscript()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW START ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] Button injection will happen via OnAfterRenderAsync callback ;CLEANUP_OK", requestId);
+        
+        if (Model == null || SessionId == null)
+        {
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK", requestId);
+            return;
+        }
+        
+        try
+        {
+            isLoading = true;
+            await InvokeAsync(StateHasChanged);
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-1] [{RequestId}] SessionId={SessionId}, fetching latest transcript from API ;CLEANUP_OK", 
+                requestId, SessionId);
+            
+            // HOOK INTO API CALL: Fetch latest transcript from API (same as Start Session button flow)
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-2] [{RequestId}] Calling GetSessionDetailsFromApiAsync to refresh transcript ;CLEANUP_OK", requestId);
+            var sessionDetails = await GetSessionDetailsFromApiAsync((long)SessionId.Value, requestId);
+            
+            if (sessionDetails == null || string.IsNullOrEmpty(sessionDetails.Transcript))
+            {
+                Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] API returned no transcript data ;CLEANUP_OK", requestId);
+                await ShowMessageAsync("No transcript available to share.");
+                return;
+            }
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] ✅ API returned transcript: {Length} chars ;CLEANUP_OK", 
+                requestId, sessionDetails.Transcript.Length);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] Transcript preview (first 300 chars): {Preview} ;CLEANUP_OK",
+                requestId, sessionDetails.Transcript.Substring(0, Math.Min(300, sessionDetails.Transcript.Length)));
+            
+            // Update Model with fresh transcript from API
+            Model.SessionTranscript = sessionDetails.Transcript;
+            
+            // CRITICAL: Set broadcast mode flag - this differentiates from Start Session flow
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-4] [{RequestId}] Setting isBroadcastMode=true (Host stays in HostControlPanel, no asset share buttons) ;CLEANUP_OK", requestId);
+            isBroadcastMode = true;
+            
+            // Transform transcript: remove delete buttons and share buttons
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-5] [{RequestId}] Calling TransformTranscriptForBroadcast() ;CLEANUP_OK", requestId);
+            var transformedHtml = await TransformTranscriptForBroadcastAsync();
+            Model.TransformedTranscript = transformedHtml;
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-6] [{RequestId}] Transcript loaded into Model.TransformedTranscript, Length={Length} chars ;CLEANUP_OK", 
+                requestId, Model.TransformedTranscript.Length);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] [{RequestId}] Host will see transcript, auto-broadcasting to participants ;CLEANUP_OK", requestId);
+            
+            await InvokeAsync(StateHasChanged);
+
+            // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Button injection now handled by HandleTranscriptRendered() callback
+            // This is called from HostControlPanelContent.razor OnAfterRenderAsync after DOM rendering completes
+            
+            // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Automatically broadcast to participants (like Start Session button)
+            // This navigates all participants from waiting room to TranscriptCanvas.razor
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-7] [{RequestId}] Auto-calling BroadcastFullTranscript() to navigate participants to TranscriptCanvas ;CLEANUP_OK", requestId);
+            await BroadcastFullTranscript();
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-8] [{RequestId}] BroadcastFullTranscript() completed, participants should now see TranscriptCanvas ;CLEANUP_OK", requestId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] Exception during ShareTranscript, Message={Message} ;CLEANUP_OK", requestId, ex.Message);
+            await ShowMessageAsync("Error loading transcript. Please try again.");
+            isBroadcastMode = false;
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:EXIT] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW END ════════ ;CLEANUP_OK", requestId);
+        }
+    }
+
+    // [TRACE:hcp-tcanvas:inject] Handle transcript rendered callback - inject share buttons AFTER DOM is ready ;CLEANUP_OK
+    private async Task HandleTranscriptRendered()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ HANDLE TRANSCRIPT RENDERED ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Component rendered with transcript content ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Model.TransformedTranscript length: {Length} chars ;CLEANUP_OK", requestId, Model?.TransformedTranscript?.Length ?? 0);
+        
+        try
+        {
+            // Small delay to ensure DOM is fully updated
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 100ms for DOM to stabilize... ;CLEANUP_OK", requestId);
+            await Task.Delay(100);
+            
+            // [TRACE:hcp-tcanvas:script-loading] Check if TranscriptSectionParser script is loaded, dynamically inject if missing ;CLEANUP_OK
+            Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] Checking if TranscriptSectionParser is loaded... ;CLEANUP_OK", requestId);
+            var scriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.TranscriptSectionParser !== 'undefined'");
+            
+            if (!scriptLoaded)
+            {
+                Logger.LogWarning("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ⚠️ TranscriptSectionParser NOT LOADED - attempting dynamic script injection ;CLEANUP_OK", requestId);
+                
+                // Dynamically inject script tag
+                await JSRuntime.InvokeVoidAsync("eval", @"
+                    (function() {
+                        const scriptId = 'transcript-section-parser-dynamic';
+                        if (!document.getElementById(scriptId)) {
+                            console.log('[TRACE:hcp-tcanvas:script-loading] Creating script element for dynamic injection ;CLEANUP_OK');
+                            const script = document.createElement('script');
+                            script.id = scriptId;
+                            script.src = '/js/transcript-section-parser.js?v=' + Date.now();
+                            document.head.appendChild(script);
+                            console.log('[TRACE:hcp-tcanvas:script-loading] Script dynamically injected: ' + script.src + ' ;CLEANUP_OK');
+                        }
+                    })();
+                ");
+                
+                // Wait for script to load
+                Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] Waiting 1000ms for script to load... ;CLEANUP_OK", requestId);
+                await Task.Delay(1000);
+                
+                // Verify script loaded
+                scriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.TranscriptSectionParser !== 'undefined'");
+                if (!scriptLoaded)
+                {
+                    Logger.LogError("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ❌ TranscriptSectionParser still undefined after dynamic injection ;CLEANUP_OK", requestId);
+                    throw new InvalidOperationException("TranscriptSectionParser script failed to load even after dynamic injection");
+                }
+                
+                Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ✅ TranscriptSectionParser loaded successfully after dynamic injection ;CLEANUP_OK", requestId);
+            }
+            else
+            {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ✅ TranscriptSectionParser already loaded ;CLEANUP_OK", requestId);
+            }
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Creating DotNetObjectReference for callbacks ;CLEANUP_OK", requestId);
+            var dotNetRef = DotNetObjectReference.Create(this);
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons') ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container ID: transcript-content-container ;CLEANUP_OK", requestId);
+            
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JavaScript injection call returned ;CLEANUP_OK", requestId);
+            
+            var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
+            var sections = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
+            var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Result - Success: {Success}, Sections: {Sections}, Error: {Error} ;CLEANUP_OK", 
+                requestId, success, sections, error ?? "none");
+            
+            if (success && sections > 0)
+            {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ✅ Share buttons injected successfully: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
+            }
+            else if (success && sections == 0)
+            {
+                Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ No sections found - Transcript might not have H2 elements ;CLEANUP_OK", requestId);
+                Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] First 500 chars of transcript: {Preview} ;CLEANUP_OK", 
+                    requestId, Model?.TransformedTranscript?.Substring(0, Math.Min(500, Model?.TransformedTranscript?.Length ?? 0)) ?? "empty");
+            }
+            else
+            {
+                Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ Button injection issue - Success={Success}, Sections={Sections}, Error={Error} ;CLEANUP_OK", 
+                    requestId, success, sections, error ?? "none");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:inject] [{RequestId}] ❌ Exception during button injection: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:inject] [{RequestId}] Exception stack trace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
+        }
+        
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ HANDLE TRANSCRIPT RENDERED COMPLETE ════════ ;CLEANUP_OK", requestId);
+    }
+
+    // [DIAGNOSTIC:transcript-canvas:broadcast] Broadcast full transcript to all participants via SignalR ;CLEANUP_OK
+    private async Task BroadcastFullTranscript()
+    {
+        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:ENTRY] ════════ BROADCAST FULL TRANSCRIPT FLOW START ════════ ;CLEANUP_OK");
+        
+        if (Model == null || SessionId == null || hubConnection == null)
+        {
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:broadcast:ERROR] Validation failed - Model={HasModel}, SessionId={SessionId}, HubConnection={HasHub} ;CLEANUP_OK", 
+                Model != null, SessionId, hubConnection != null);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Model.SessionTranscript))
+        {
+            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:broadcast:ERROR] SessionTranscript is empty ;CLEANUP_OK");
+            await ShowMessageAsync("No transcript available to broadcast.");
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            await InvokeAsync(StateHasChanged);
+
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-1] Validation passed - SessionId={SessionId}, TranscriptLength={Length} chars ;CLEANUP_OK", 
+                SessionId.Value, Model.SessionTranscript.Length);
+            
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-2] HubConnection State={State} ;CLEANUP_OK", hubConnection.State);
+
+            // Call SignalR hub to broadcast transcript to all participants
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-3] Invoking SignalR BroadcastTranscriptShared, Target=session_{SessionId} ;CLEANUP_OK", 
+                SessionId.Value);
+            
+            await hubConnection.InvokeAsync("BroadcastTranscriptShared", SessionId.Value, Model.SessionTranscript);
+
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-4] SignalR call completed successfully ;CLEANUP_OK");
+            
+            // Keep broadcast mode active so host can continue viewing transcript
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:STEP-5] Keeping isBroadcastMode=true so host can view transcript after broadcast ;CLEANUP_OK");
+            // NOTE: isBroadcastMode remains true - host stays in control panel with transcript visible
+            
+            await ShowMessageAsync("Transcript shared with all participants successfully!");
+            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:broadcast:COMPLETE] ════════ BROADCAST FLOW COMPLETE ════════ ;CLEANUP_OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:broadcast:ERROR] Exception during broadcast - Message={Message}, StackTrace={Stack} ;CLEANUP_OK", 
+                ex.Message, ex.StackTrace);
+            await ShowMessageAsync("Error broadcasting transcript. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Handle transcript scroll and broadcast to participants ;CLEANUP_OK
+    /// Throttled to 200ms intervals to prevent network flooding
+    /// Participants receive scroll position and are locked to host's view
+    /// </summary>
+    private Task<string> TransformTranscriptForBroadcastAsync()
+    {
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] ════════ TRANSFORM TRANSCRIPT START ════════ ;CLEANUP_OK");
+        
+        if (Model == null || string.IsNullOrEmpty(Model.SessionTranscript))
+        {
+            Logger.LogWarning("[TRACE:hcp-tcanvas:transform] ❌ Model or SessionTranscript is null/empty ;CLEANUP_OK");
+            return Task.FromResult(string.Empty);
+        }
+
+        var html = Model.SessionTranscript;
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Input HTML length={Length} chars ;CLEANUP_OK", html.Length);
+        
+        // Count h2 elements in original HTML
+        var h2CountBefore = System.Text.RegularExpressions.Regex.Matches(html, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] h2 elements in original HTML: {Count} ;CLEANUP_OK", h2CountBefore);
+        
+        // Show first 500 chars of HTML for diagnosis
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] First 500 chars: {Preview} ;CLEANUP_OK", html.Substring(0, Math.Min(500, html.Length)));
+
+        try
+        {
+            // Remove delete buttons using regex (same pattern as AssetProcessingService)
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing delete buttons ;CLEANUP_OK");
+            html = System.Text.RegularExpressions.Regex.Replace(html, 
+                @"<button[^>]*class\s*=\s*[""'][^""']*delete[^""']*[""'][^>]*>.*?</button>", 
+                "", 
+                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
+            // Remove individual share buttons (different from Start Session - we want NO asset buttons)
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing individual asset share buttons ;CLEANUP_OK");
+            html = System.Text.RegularExpressions.Regex.Replace(html, 
+                @"<button[^>]*onclick\s*=\s*[""']shareIndividualAsset\([^)]*\)[""'][^>]*>.*?</button>", 
+                "", 
+                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
+            // Remove any data-asset-id attributes (clean markup)
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing data-asset-id attributes ;CLEANUP_OK");
+            html = System.Text.RegularExpressions.Regex.Replace(html, 
+                @"\s+data-asset-id\s*=\s*[""'][^""']*[""']", 
+                "", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            // Count h2 elements after transformation
+            var h2CountAfter = System.Text.RegularExpressions.Regex.Matches(html, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] h2 elements AFTER transformation: {Count} ;CLEANUP_OK", h2CountAfter);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Output HTML length={Length} chars ;CLEANUP_OK", html.Length);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] ════════ TRANSFORM TRANSCRIPT COMPLETE ════════ ;CLEANUP_OK");
+            
+            return Task.FromResult(html);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:transform] 💥 Exception during transformation: {Message} ;CLEANUP_OK", ex.Message);
+            return Task.FromResult(Model.SessionTranscript); // Return original on error
+        }
+    }
+
     private async Task EndSession()
     {
         if (Model == null || SessionId == null || string.IsNullOrEmpty(HostToken)) return;
@@ -1422,6 +1726,70 @@
             Logger.LogError("[ASSET-SHARE-BROADCAST] ❌ Asset sharing failed - AssetType={AssetType}, Instance={InstanceNumber}, Exception={ExceptionType}, broadcastId={BroadcastId}", assetType, instanceNumber, ex.GetType().Name, broadcastId);
             
             await ShowErrorMessageAsync($"KSESSIONS-style asset sharing failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// [TRACE:hcp-tcanvas:share-section] Share individual transcript section (h2 + content) via SignalR ;CLEANUP_OK
+    /// Called from JavaScript via JSInvokable when user clicks section share button
+    /// </summary>
+    [JSInvokable]
+    public async Task ShareTranscriptSection(string sectionId, string sectionHtml, string h2Text)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION C# METHOD ════════ ;CLEANUP_OK");
+        Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Method called with sectionId={SectionId}, h2Text={H2Text}, htmlLength={HtmlLength} ;CLEANUP_OK", 
+            requestId, sectionId, h2Text, sectionHtml?.Length ?? 0);
+
+        if (SessionId == null || hubConnection == null)
+        {
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ Cannot share section: SessionId or hubConnection is null ;CLEANUP_OK", requestId);
+            await ShowMessageAsync("Cannot share section: Session not available");
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ SignalR not connected: State={State} ;CLEANUP_OK", requestId, hubConnection.State);
+            await ShowMessageAsync($"SignalR connection not ready: {hubConnection.State}");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(sectionHtml))
+        {
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ No HTML content provided for section ;CLEANUP_OK", requestId);
+            await ShowMessageAsync("Section content is empty");
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Section HTML preview (first 200 chars): {Preview}... ;CLEANUP_OK", 
+                requestId, sectionHtml.Substring(0, Math.Min(200, sectionHtml.Length)));
+
+            // Transform section HTML for broadcast (remove any host-only elements)
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transforming section HTML for participant view ;CLEANUP_OK", requestId);
+            var transformedHtml = HtmlTransform.TransformForParticipant(sectionHtml);
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transformed HTML length: {Length} chars ;CLEANUP_OK", requestId, transformedHtml.Length);
+
+            // Broadcast via SignalR to session group
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Broadcasting section via SignalR: targetGroup=session_{SessionId}, contentType=transcript-section ;CLEANUP_OK", 
+                requestId, SessionId.Value);
+            
+            await hubConnection.InvokeAsync("BroadcastTranscriptSection", SessionId.Value.ToString(), transformedHtml, h2Text);
+
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] ✅ Section shared successfully: sectionId={SectionId}, h2Text={H2Text} ;CLEANUP_OK", 
+                requestId, sectionId, h2Text);
+            
+            await ShowMessageAsync($"'{h2Text}' shared successfully!");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] ════════ SHARE SECTION COMPLETE ════════ ;CLEANUP_OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:share-section] [{RequestId}] ❌ ERROR sharing transcript section: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Stack trace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
+            await ShowMessageAsync($"Error sharing section: {ex.Message}");
         }
     }
     
@@ -3350,10 +3718,182 @@
         return html;
     }
     
+    /// <summary>
+    /// [TRACE:hcp-tcanvas:test] Comprehensive test for transcript section sharing functionality ;CLEANUP_OK
+    /// Tests: DOM state, h2 detection, button injection, click handlers, JSInvokable interop
+    /// </summary>
+    private async Task TestTranscriptSectionSharing()
+    {
+        var testId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] ════════ TRANSCRIPT SECTION SHARING TEST START ════════ ;CLEANUP_OK", testId);
+        
+        try
+        {
+            var results = new List<string>();
+            
+            // Test 1: Check if Model.TransformedTranscript has content
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 1: Checking Model.TransformedTranscript ;CLEANUP_OK", testId);
+            if (string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                results.Add("❌ FAILED: Model.TransformedTranscript is null or empty");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 1 FAILED: No transcript content ;CLEANUP_OK", testId);
+                await ShowMessageAsync(string.Join("\n", results));
+                return;
+            }
+            results.Add($"✅ PASSED: Transcript length = {Model.TransformedTranscript.Length} chars");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 1 PASSED: Transcript length = {Length} ;CLEANUP_OK", testId, Model.TransformedTranscript.Length);
+            
+            // Test 2: Count h2 elements in HTML using regex
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 2: Counting h2 elements in HTML ;CLEANUP_OK", testId);
+            var h2Matches = System.Text.RegularExpressions.Regex.Matches(Model.TransformedTranscript, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var h2Count = h2Matches.Count;
+            
+            if (h2Count == 0)
+            {
+                results.Add("⚠️ WARNING: No h2 elements found in HTML (regex check)");
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 2 WARNING: No h2 elements found ;CLEANUP_OK", testId);
+                
+                // Show HTML preview for diagnosis
+                var preview = Model.TransformedTranscript.Substring(0, Math.Min(500, Model.TransformedTranscript.Length));
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] HTML preview: {Preview} ;CLEANUP_OK", testId, preview);
+                results.Add($"HTML preview: {preview}");
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Found {h2Count} h2 elements in HTML");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 2 PASSED: Found {H2Count} h2 elements ;CLEANUP_OK", testId, h2Count);
+            }
+            
+            // Test 3: Check if container exists in DOM via JavaScript
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 3: Checking DOM container existence ;CLEANUP_OK", testId);
+            await Task.Delay(500); // Ensure DOM is rendered
+            
+            var containerExists = await JSRuntime.InvokeAsync<bool>("eval", "document.getElementById('transcript-content-container') !== null");
+            if (!containerExists)
+            {
+                results.Add("❌ FAILED: Container 'transcript-content-container' not found in DOM");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 3 FAILED: Container not found ;CLEANUP_OK", testId);
+                await ShowMessageAsync(string.Join("\n", results));
+                return;
+            }
+            results.Add("✅ PASSED: Container exists in DOM");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 3 PASSED: Container found ;CLEANUP_OK", testId);
+            
+            // Test 4: Count h2 elements in DOM via JavaScript
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 4: Counting h2 elements in DOM ;CLEANUP_OK", testId);
+            var domH2Count = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container').querySelectorAll('h2').length");
+            
+            if (domH2Count == 0)
+            {
+                results.Add("⚠️ WARNING: No h2 elements found in DOM (JavaScript query)");
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 4 WARNING: No h2 in DOM ;CLEANUP_OK", testId);
+                
+                // Check for alternative elements
+                var allHeadings = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container').querySelectorAll('h1,h2,h3,h4,h5,h6').length");
+                results.Add($"Found {allHeadings} total heading elements (h1-h6)");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] Alternative check: {AllHeadings} total headings ;CLEANUP_OK", testId, allHeadings);
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Found {domH2Count} h2 elements in DOM");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 4 PASSED: {DomH2Count} h2 in DOM ;CLEANUP_OK", testId, domH2Count);
+            }
+            
+            // Test 5: Inject share buttons and verify
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5: Injecting share buttons ;CLEANUP_OK", testId);
+            var dotNetRef = DotNetObjectReference.Create(this);
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            
+            var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
+            var sectionsInjected = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
+            var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
+            
+            if (!success)
+            {
+                results.Add($"❌ FAILED: Button injection failed - {error}");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5 FAILED: {Error} ;CLEANUP_OK", testId, error);
+            }
+            else if (sectionsInjected == 0)
+            {
+                results.Add("⚠️ WARNING: Button injection succeeded but 0 buttons injected");
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5 WARNING: 0 buttons injected ;CLEANUP_OK", testId);
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Injected {sectionsInjected} share buttons");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5 PASSED: {SectionsInjected} buttons injected ;CLEANUP_OK", testId, sectionsInjected);
+            }
+            
+            // Test 6: Verify buttons exist in DOM
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 6: Verifying buttons in DOM ;CLEANUP_OK", testId);
+            var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('.transcript-section-share-btn').length");
+            
+            if (buttonCount == 0)
+            {
+                results.Add("❌ FAILED: No share buttons found in DOM after injection");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 6 FAILED: No buttons in DOM ;CLEANUP_OK", testId);
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Found {buttonCount} share buttons in DOM");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 6 PASSED: {ButtonCount} buttons in DOM ;CLEANUP_OK", testId, buttonCount);
+            }
+            
+            // Test 7: Test section extraction
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7: Testing section HTML extraction ;CLEANUP_OK", testId);
+            if (domH2Count > 0)
+            {
+                var sectionHtml = await JSRuntime.InvokeAsync<string>("TranscriptSectionParser.extractSectionHtml", "transcript-content-container", 0);
+                
+                if (string.IsNullOrEmpty(sectionHtml))
+                {
+                    results.Add("❌ FAILED: Section HTML extraction returned empty");
+                    Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7 FAILED: Empty extraction ;CLEANUP_OK", testId);
+                }
+                else
+                {
+                    results.Add($"✅ PASSED: Extracted section HTML ({sectionHtml.Length} chars)");
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7 PASSED: Extracted {Length} chars ;CLEANUP_OK", testId, sectionHtml.Length);
+                }
+            }
+            else
+            {
+                results.Add("⏭️ SKIPPED: No h2 elements to extract");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7 SKIPPED: No h2 elements ;CLEANUP_OK", testId);
+            }
+            
+            // Display results
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] ════════ TEST RESULTS ════════ ;CLEANUP_OK", testId);
+            foreach (var result in results)
+            {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] {Result} ;CLEANUP_OK", testId, result);
+            }
+            
+            await ShowMessageAsync($"Transcript Section Sharing Test Complete:\n\n{string.Join("\n", results)}");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] ════════ TRANSCRIPT SECTION SHARING TEST END ════════ ;CLEANUP_OK", testId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:test] [{TestId}] 💥 Test exception: {Message} ;CLEANUP_OK", testId, ex.Message);
+            await ShowMessageAsync($"Test failed with exception:\n{ex.Message}");
+        }
+    }
+    
     // Debug Actions Factory
     private List<NoorCanvas.Models.Debug.IDebugAction> GetHostControlPanelDebugActions()
     {
         var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        // [TRACE:hcp-tcanvas:test] Test Transcript Section Sharing ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Test Transcript Section Sharing",
+            "Comprehensive test: container, h2 detection, button injection, handlers",
+            async () => await TestTranscriptSectionSharing(),
+            "fa-solid fa-vial"
+        )
+        {
+            IsEnabled = !string.IsNullOrEmpty(Model?.TransformedTranscript) && !isLoading
+        });
         
         // Test Share Asset Action
         actions.Add(new NoorCanvas.Models.Debug.DebugAction(
@@ -3638,8 +4178,6 @@
 }
 
 <script>
-
-
     // Individual Asset Sharing Function (called by auto-injected SHARE buttons)
     window.shareIndividualAsset = async function(assetId, assetType) {
         console.log('NOOR-ASSET-SHARE: Sharing individual asset:', assetId, 'Type:', assetType);

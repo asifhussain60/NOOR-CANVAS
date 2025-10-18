@@ -53,15 +53,26 @@
                 <UserRegistrationLink UserToken="@UserToken" BaseUrl="@Navigation.BaseUri.TrimEnd('/')" />
             }
             
-            <div style="width:100%;display:flex;justify-content:center;gap:1rem;flex-direction:column;">
+            <!-- [DEBUG-WORKITEM:transcript-canvas:two-button] Two-button layout: Start Session (45%) + Share Transcript (55%) ;CLEANUP_OK -->
+            <div style="width:100%;display:grid;grid-template-columns:45% 55%;gap:1rem;">
                 <button @onclick="OnStartSession" 
                         disabled="@(IsLoading || Model?.SessionStatus == "Active")"
-                        style="width:100%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;@(IsLoading || Model?.SessionStatus == "Active" ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
+                        style="width:100%;padding:1rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1rem;background-color:#006400;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(IsLoading || Model?.SessionStatus == "Active" ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
                         onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
                         onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
                     @* FontAwesome icon with Unicode fallback to prevent garbled text *@
-                    <i class="fa-solid fa-play" style="font-size:1.25rem;" aria-hidden="true">▶</i>
+                    <i class="fa-solid fa-play" style="font-size:1rem;" aria-hidden="true">▶</i>
                     <span>Start Session</span>
+                </button>
+                
+                <button @onclick="OnShareTranscript" 
+                        disabled="@(IsLoading || string.IsNullOrEmpty(UserToken))"
+                        style="width:100%;padding:1rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(212,175,55,0.4);color:white;font-weight:700;font-size:1rem;background-color:#D4AF37;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(IsLoading || string.IsNullOrEmpty(UserToken) ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
+                        onmouseover="this.style.backgroundColor='#C5A028'; this.style.transform='scale(1.05)'"
+                        onmouseout="this.style.backgroundColor='#D4AF37'; this.style.transform='scale(1)'">
+                    @* FontAwesome icon with Unicode fallback to prevent garbled text *@
+                    <i class="fa-solid fa-scroll" style="font-size:1rem;" aria-hidden="true">📜</i>
+                    <span>Share Transcript</span>
                 </button>
             </div>
         </div>
@@ -73,6 +84,7 @@
     [Parameter] public string? UserToken { get; set; }
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public EventCallback OnStartSession { get; set; }
+    [Parameter] public EventCallback OnShareTranscript { get; set; }
     [Parameter] public Func<string> OnGetSignalRStatusColor { get; set; } = () => "#EF4444";
     [Parameter] public Func<string> OnGetSignalRStatusIcon { get; set; } = () => "fa-solid fa-wifi";
     [Parameter] public Func<string?, string> OnFormatSessionDescriptionToProperCase { get; set; } = (desc) => desc ?? "";

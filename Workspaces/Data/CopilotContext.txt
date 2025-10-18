@@ -1,0 +1,146 @@
+(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+(anonymous) @ (index):64
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:266 [DIAGNOSTIC:notyf:autoload] DOM still loading, waiting for DOMContentLoaded event ;CLEANUP_OK
+noor-share-system.js:294 [NOOR-SHARE] 🚀 Definitive share button system loaded and ready
+VM113 PQ9N5YWW:25 [DIAGNOSTIC:notyf:signalr] ✅ Q&A toast notification system initialized with Notyf ;CLEANUP_OK
+noor-logging.js:66 [19:10:19.880 INFO] NOOR-INIT: NOOR Canvas application loaded Object
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:268 [DIAGNOSTIC:notyf:autoload] DOMContentLoaded fired, initializing Notyf ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:68 [DIAGNOSTIC:notyf:init] 🚀 Starting Notyf initialization ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:69 [DIAGNOSTIC:notyf:init] Config: duration=3000ms, position=right-bottom ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:80 [DIAGNOSTIC:notyf:init] ✅ Notyf library detected: function ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:86 [DIAGNOSTIC:notyf:init] ✅ Notyf instance created successfully ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:87 [DIAGNOSTIC:notyf:init] Instance type: object ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:88 [DIAGNOSTIC:notyf:init] Has success method: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:89 [DIAGNOSTIC:notyf:init] Has error method: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:90 [DIAGNOSTIC:notyf:init] Has open method: true ;CLEANUP_OK
+noor-logging.js:66 [19:10:19.929 INFO] NOOR-BROWSER: Browser logger initialized Object
+noor-annotations.js:330 NOOR-ANNOTATION: JavaScript module loaded and ready
+noor-share-system.js:274 [NOOR-SHARE] DOM ready, system available for initialization
+VM114 PQ9N5YWW:11 🎨 CSS DEBUG: Starting CSS verification...
+VM114 PQ9N5YWW:16 ✅ CSS DEBUG: noor-canvas.css link found: https://localhost:9091/css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk
+VM114 PQ9N5YWW:40 📋 CSS DEBUG: All loaded CSS files:
+VM114 PQ9N5YWW:42   1. https://localhost:9091/css/bootstrap/bootstrap.min.css
+VM114 PQ9N5YWW:42   2. https://localhost:9091/NoorCanvas.styles.css?v=bAe9wRsTLxsOJwwDWShD_-VHowVpNXGln5MlgF-XUVk
+VM114 PQ9N5YWW:42   3. https://localhost:9091/css/fonts/fonts.css?v=G6Wns9j7CKAGfSZlu1ePXb60LtW9RmcpvH_gOHbZG48
+VM114 PQ9N5YWW:42   4. https://localhost:9091/css/session-transcript.css?v=qeh7z9iTQkp6ldYBs96j5digTvFLkCS8cHb31z0McnE
+VM114 PQ9N5YWW:42   5. https://localhost:9091/css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk
+VM114 PQ9N5YWW:42   6. https://localhost:9091/css/debug-panel.css?v=-clSxQTKYJ_8_FGGWwmh-ofBgXnBJabNqiI7jEGZVD0
+VM114 PQ9N5YWW:42   7. https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css
+VM114 PQ9N5YWW:42   8. https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css
+VM114 PQ9N5YWW:42   9. https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=Lato:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@400;600;700&family=Noto+Nastaliq+Urdu&display=swap
+VM114 PQ9N5YWW:42   10. https://fonts.googleapis.com/css2?family=Harmattan:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap
+VM114 PQ9N5YWW:42   11. https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cairo:wght@400;700&display=swap
+blazor.server.js:1 [2025-10-18T19:10:20.171Z] Information: Normalizing '_blazor' to 'https://localhost:9091/_blazor'.
+ContentIsolatedWorld.js:1 Initializing CS WAX...
+VM114 PQ9N5YWW:31 ⚠️ CSS DEBUG: No .noor-btn elements found to test
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:282 [DIAGNOSTIC:notyf:debug] === NOTYF STATE AFTER 1 SECOND === ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:283 [DIAGNOSTIC:notyf:debug] Init Attempted: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:284 [DIAGNOSTIC:notyf:debug] Init Success: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:285 [DIAGNOSTIC:notyf:debug] Notyf Instance Exists: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:286 [DIAGNOSTIC:notyf:debug] Notyf Type: object ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:287 [DIAGNOSTIC:notyf:debug] showNoorToast Available: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:288 [DIAGNOSTIC:notyf:debug] NoorToast.show Available: true ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:289 [DIAGNOSTIC:notyf:debug] ================================ ;CLEANUP_OK
+blazor.server.js:1 [2025-10-18T19:10:21.170Z] Information: WebSocket connected to wss://localhost:9091/_blazor?id=wD3umjFUGtPGvVyMZPobsQ.
+ContentIsolatedWorld.js:1 WAX CS initialized
+noor-logging.js:73 [19:10:22.222 INFO] BLAZOR-STARTUP: Blazor server connection auto-established
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:256 [DIAGNOSTIC:notyf:compat] 🔄 Backward compatibility wrapper called ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:257 [DIAGNOSTIC:notyf:compat] Redirecting to NoorToast.show() ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:123 [DIAGNOSTIC:notyf:show] 🎯 Toast invoked at 2025-10-18T19:10:25.038Z ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:124 [DIAGNOSTIC:notyf:show] Type: "undefined" ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:125 [DIAGNOSTIC:notyf:show] Title: "success" ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:126 [DIAGNOSTIC:notyf:show] Message: "Clean Canvas completed successfully" ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:141 [DIAGNOSTIC:notyf:show] Full message: "success: Clean Canvas completed successfully" ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:149 [DIAGNOSTIC:notyf:show] Normalized type: "info" ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:172 [DIAGNOSTIC:notyf:show] Calling notyf.open() with info config ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:183 [DIAGNOSTIC:notyf:show] ✅ Toast displayed in 1.00ms ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:190 [DIAGNOSTIC:notyf:dom] Container found: .notyf ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:191 [DIAGNOSTIC:notyf:dom] z-index: 9999 ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:192 [DIAGNOSTIC:notyf:dom] position: fixed ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:193 [DIAGNOSTIC:notyf:dom] top: 0px ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:194 [DIAGNOSTIC:notyf:dom] right: 0px ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:195 [DIAGNOSTIC:notyf:dom] visibility: visible ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:196 [DIAGNOSTIC:notyf:dom] display: flex ;CLEANUP_OK
+noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:203 [DIAGNOSTIC:notyf:dom] ✅ Toast element found: .notyf__toast ;CLEANUP_OK
+noor-logging.js:66 [19:10:42.624 ERROR] UNHANDLED-ERROR: Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node': Unexpected end of input Object
+PQ9N5YWW:8 Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node': Unexpected end of input
+    at G (blazor.server.js:1:20794)
+    at G (blazor.server.js:1:20990)
+    at j (blazor.server.js:1:19561)
+    at de.insertMarkup (blazor.server.js:1:27421)
+    at de.insertFrame (blazor.server.js:1:26242)
+    at de.insertFrameRange (blazor.server.js:1:27792)
+    at de.insertElement (blazor.server.js:1:26680)
+    at de.insertFrame (blazor.server.js:1:25680)
+    at de.applyEdits (blazor.server.js:1:24333)
+    at de.updateComponent (blazor.server.js:1:23620)
+G @ blazor.server.js:1
+G @ blazor.server.js:1
+j @ blazor.server.js:1
+insertMarkup @ blazor.server.js:1
+insertFrame @ blazor.server.js:1
+insertFrameRange @ blazor.server.js:1
+insertElement @ blazor.server.js:1
+insertFrame @ blazor.server.js:1
+applyEdits @ blazor.server.js:1
+updateComponent @ blazor.server.js:1
+(anonymous) @ blazor.server.js:1
+processBatch @ blazor.server.js:1
+(anonymous) @ blazor.server.js:1
+_invokeClientMethod @ blazor.server.js:1
+_processIncomingData @ blazor.server.js:1
+(anonymous) @ blazor.server.js:1
+(anonymous) @ blazor.server.js:1
+inter-800.ttf:1  Failed to load resource: the server responded with a status of 404 ()
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+kashmiri-trad-arabic.woff2:1  Failed to load resource: the server responded with a status of 404 ()
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+kashmiri-trad-arabic.woff:1  Failed to load resource: the server responded with a status of 404 ()
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+kashmiri-trad-arabic.ttf:1  Failed to load resource: the server responded with a status of 404 ()
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
+noor-share-system.js:15 [NOOR-SHARE] Initializing definitive share button system
+noor-share-system.js:203 [NOOR-SHARE] 🎨 Styling 0 existing share buttons
+noor-share-system.js:29 [NOOR-SHARE] ✅ Share system initialized successfully
