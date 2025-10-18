@@ -241,7 +241,7 @@ function Stop-ApplicationProcess {
 try {
     # Step 1: Verify Percy configuration
     if (-not (Test-PercyConfiguration)) {
-        exit 1
+        throw "Percy configuration validation failed"
     }
     
     # Step 2: Build application (unless skipped)
@@ -290,10 +290,10 @@ catch {
 }
 finally {
     # Step 7: Cleanup (unless KeepAppRunning flag set)
-    if (-not $KeepAppRunning) {
+    if ($AppProcess -and -not $KeepAppRunning) {
         Stop-ApplicationProcess -Process $AppProcess
     }
-    else {
+    elseif ($AppProcess -and $KeepAppRunning) {
         Write-Host ""
         Write-Host "⏸️  Application kept running (PID: $($AppProcess.Id))" -ForegroundColor Yellow
         Write-Host "   Press Ctrl+C in application window to stop" -ForegroundColor Gray

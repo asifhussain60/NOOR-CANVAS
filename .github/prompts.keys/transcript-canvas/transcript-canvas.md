@@ -1,13 +1,63 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-18T03:57:00Z  
-**Git Commit:** 254e66f4
+**Last Updated:** 2025-10-18T06:35:00Z  
+**Git Commit:** b402dd5e
 
 ## Overview
 TranscriptCanvas.razor sidebar completely removed - uses modal-only question submission. SessionCanvas.razor sidebar preserved.
 
 ## Work Log
+
+### 2025-10-18T06:35:00Z - Fixed HTML Structure Issues
+**Commit:** b402dd5e  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Problem:**
+- TranscriptCanvas.razor had broken HTML from incomplete sidebar removal
+- Double `>>` syntax error at line 986 (`<div class="canvas-main-grid">>`)
+- Orphaned closing divs with incorrect indentation (lines 1051-1056)
+- Missing closing tag for `session-canvas-root` div (line 905) - caused `RZ9980: Unclosed tag 'div'` compiler error
+
+**Solution:**
+1. Removed extra `>` from canvas-main-grid div (line 986)
+2. Fixed orphaned closing tag indentation after button element (lines 1051-1056)
+3. Added missing closing tags for `session-canvas-container` and `session-canvas-root` divs before annotation canvas
+
+**Validation:**
+- Razor Compiler: Clean build (0 errors, 0 warnings) - `RZ9980` error resolved
+- Tag Balance: 30 opening `<div>`, 30 closing `</div>` ✅
+- Syntax: No double `>>` in HTML tags ✅
+- Total HTML elements: 228 across 3738 lines
+- Application Launch: Successful (database connections verified, SignalR hubs mapped)
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (3 HTML structure fixes)
+
+**Files Created:**
+- `Tests/UI/transcript-canvas-html-structure.spec.ts` (Percy visual regression tests - 5 test cases)
+- `Scripts/run-transcript-canvas-percy-tests.ps1` (orchestration script - has syntax error at line 284, requires fix)
+
+**Percy Test Coverage:**
+- Desktop viewport (1280x720): Verify sidebar removal, full-width canvas
+- Tablet viewport (768x1024): Responsive layout validation
+- Mobile viewport (375x667): Mobile rendering validation
+- Question modal interaction: Toggle button → modal open → close
+- HTML structure validation: No orphaned elements, complete tag closure
+
+**Known Issues:**
+- PowerShell orchestration script has syntax error (line 284: "Unexpected token '}'") - blocking Percy test execution
+- Visual validation pending (app launched successfully via `nc` command)
+
+**Next Steps:**
+- Fix orchestration script syntax error
+- Execute Percy visual regression tests
+- Capture screenshot evidence of corrected HTML rendering
+
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-18_0635`
+
+---
 
 ### 2025-10-18T03:57:00Z - Removed Remaining Sidebar Responsive CSS
 **Commit:** 254e66f4  

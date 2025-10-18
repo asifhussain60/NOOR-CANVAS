@@ -55,7 +55,7 @@ Step 2: Context Gathering
 
 ### 2.1. Key Resolution & Continuation Detection
 
-**Purpose:** Determine which key (task context) to work within
+**Purpose:** Determine which key (task context) to work within and detect high-priority constraints
 
 **When:** ALWAYS (first sub-phase)
 
@@ -66,17 +66,24 @@ Step 2: Context Gathering
    - Infer from `#terminalLastCommand`, `#getTerminalOutput`
    - Query `.github/prompts.keys/` for recently modified files
    - If uncertain → Request clarification from user
-3. Log resolution process in key data stream
+3. **2.1.5: High-Priority Constraint Detection** (NEW):
+   - Scan user request for ALL CAPS emphasis patterns
+   - Extract constraints (do NOT remove, EXACTLY match, MUST include, etc.)
+   - Categorize constraints (Preservation, Exactness, Mandatory Inclusion, Behavioral)
+   - Create high-priority task entries for Step 6.3 verification
+4. Log resolution process in key data stream
+
+**See:** `.github/prompts/shared/high-priority-task-detection.md` for complete constraint detection protocol
 
 **Output:**
-- Concise: `🔑 Key: {key-name}`
-- Detailed: `🔑 Key Resolution: {key-name} (source: {explicit|inferred-from-history|inferred-from-terminal|user-provided})`
+- Concise: `🔑 Key: {key-name}` + `HIGH-PRIORITY: {N} constraints detected`
+- Detailed: `🔑 Key Resolution: {key-name} (source: {explicit|inferred-from-history|inferred-from-terminal|user-provided})` + constraint details
 
 ---
 
 ### 2.2. Key Data Stream Query
 
-**Purpose:** Read existing work to prevent duplication and understand context
+**Purpose:** Read existing work to prevent duplication and understand context, record user request
 
 **When:** ALWAYS (after key resolution)
 
@@ -90,11 +97,16 @@ Step 2: Context Gathering
 3. If NOT found:
    - Create new key file with initial metadata
    - Mark status as `in-progress`
-4. Log verification results
+4. **2.2.1: Record User Request** (NEW):
+   - Create succinct 1-2 sentence summary of user's original request
+   - Include high-priority constraints (ALL CAPS emphasis)
+   - Timestamp entry for traceability
+   - This becomes the "User Request" section in key data stream
+5. Log verification results
 
 **Output:**
-- Concise: `📋 Key Status: {new|in-progress|complete} ({X} previous entries)`
-- Detailed: Show recent work log entries, files affected, last commit
+- Concise: `📋 Key Status: {new|in-progress|complete} ({X} previous entries)` + `Recorded user request`
+- Detailed: Show recent work log entries, files affected, last commit, full user request summary
 
 ---
 

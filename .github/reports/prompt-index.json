@@ -1,0 +1,122 @@
+﻿[
+    {
+        "file":  ".github\\\\prompts\\\\analyze-learning.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "ValidationFramework.md"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\cohesion-review.prompt.md",
+        "mode":  "agent",
+        "purpose":  "Audit prompts and instructions for redundancy, gaps, conflicts, and optimization opportunities.",
+        "inputs":  "key, scope, depth",
+        "outputs":  "Markdown report in .github/reports/ and suggested edits for prompts/shared",
+        "hasRole":  false,
+        "hasKeyParam":  true,
+        "references":  "Architecture.md, SystemIndex.md, InfrastructureQuickRef.md, PlaywrightQuickRef.md, ValidationFramework.md, API-Contract-Validation.md, AnalyzerConfig.MD, PlaywrightConfig.MD, PlaywrightTestPaths.MD, FunctionalityRegistry.md"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\commit.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  ""
+    },
+    {
+        "file":  ".github\\\\prompts\\\\healthcheck.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "SystemIndex.md, ValidationFramework.md, Architecture.md, API-Contract-Validation.md, InfrastructureQuickRef.md, AnalyzerConfig.MD, PlaywrightConfig.MD"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\plan.prompt.md",
+        "mode":  "agent",
+        "purpose":  "Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.",
+        "inputs":  "key, user_request, context, scope, constraints, include_suggestions",
+        "outputs":  "Finalized plan recorded in .github/prompts.keys/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "PlaywrightQuickRef.md, PlaywrightTestPaths.MD, PlaywrightConfig.MD, InfrastructureQuickRef.md"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\port-instructions.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  false,
+        "references":  "SystemIndex.md, Architecture.md, InfrastructureQuickRef.md, ValidationFramework.md, API-Contract-Validation.md, AnalyzerConfig.MD, PlaywrightQuickRef.md, PlaywrightConfig.MD, PlaywrightTestPaths.MD, FunctionalityRegistry.md"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\question.prompt.md",
+        "mode":  "ask",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "PlaywrightTestPaths.MD, PlaywrightConfig.MD, ARCHITECTURE.MD, InfrastructureQuickRef.md, SystemIndex.md, Architecture.md, API-Contract-Validation.md, FunctionalityRegistry.md, AnalyzerConfig.MD"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\refactor.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "AnalyzerConfig.MD, API-Contract-Validation.md, ValidationFramework.md, SystemIndex.md, Architecture.md, InfrastructureQuickRef.md, ARCHITECTURE.MD"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\sync.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  false,
+        "references":  "SystemIndex.md, Architecture.md, AnalyzerConfig.MD, PlaywrightConfig.MD, ValidationFramework.md, InfrastructureQuickRef.md, API-Contract-Validation.md, PlaywrightQuickRef.md, PlaywrightTestPaths.MD"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\task.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "InfrastructureQuickRef.md, SystemIndex.md, Architecture.md, PlaywrightQuickRef.md, ValidationFramework.md"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\test-generation.prompt.md",
+        "mode":  "agent",
+        "purpose":  "Generate Playwright end-to-end tests for user-facing functionality",
+        "inputs":  "feature, scenario, endpoints, tokens, key",
+        "outputs":  "TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)",
+        "hasRole":  true,
+        "hasKeyParam":  true,
+        "references":  "InfrastructureQuickRef.md, PlaywrightConfig.MD, PlaywrightTestPaths.MD, PlaywrightQuickRef.md"
+    },
+    {
+        "file":  ".github\\\\prompts\\\\total-recall.prompt.md",
+        "mode":  "agent",
+        "purpose":  "",
+        "inputs":  "",
+        "outputs":  "",
+        "hasRole":  true,
+        "hasKeyParam":  false,
+        "references":  "InfrastructureQuickRef.md, Architecture.md, SystemIndex.md, API-Contract-Validation.md, FunctionalityRegistry.md, ValidationFramework.md, PlaywrightQuickRef.md"
+    }
+]
