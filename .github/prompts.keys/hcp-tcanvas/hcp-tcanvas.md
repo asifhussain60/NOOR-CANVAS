@@ -16,6 +16,13 @@ Update HostControlPanel.razor "Share Transcript" button to dynamically parse ses
 
 ## Work Log
 
+### User Request (2025-10-18T12:00:00Z)
+No share buttons are being injected for the h2 blocks. Follow SessionCanvas.razor injection pattern and tie it to asset and broadcasting logic.
+
+**High-Priority Constraints**: None detected
+
+---
+
 ### Work Completed (2025-10-18T00:30:00Z)
 - **Status**: In Progress
 - **Changes**: 

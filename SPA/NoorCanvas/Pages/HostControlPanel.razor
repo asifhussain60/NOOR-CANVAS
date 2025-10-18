@@ -1349,9 +1349,16 @@
             
             await InvokeAsync(StateHasChanged);
 
-            // [DEBUG-WORKITEM:hcp-tcanvas:parse] Inject share buttons for each h2 section ;CLEANUP_OK
+            // [TRACE:hcp-tcanvas:inject] Inject share buttons for each h2 section ;CLEANUP_OK
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ BUTTON INJECTION SEQUENCE START ════════ ;CLEANUP_OK", requestId);
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Model.TransformedTranscript length: {Length} chars ;CLEANUP_OK", requestId, Model.TransformedTranscript?.Length ?? 0);
+            
+            // [TRACE:hcp-tcanvas:inject] Pre-injection DOM inspection ;CLEANUP_OK
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Checking DOM state before injection... ;CLEANUP_OK", requestId);
+            var h2PreviewHtml = Model.TransformedTranscript?.Substring(0, Math.Min(1000, Model.TransformedTranscript.Length));
+            var h2CountRegex = System.Text.RegularExpressions.Regex.Matches(h2PreviewHtml ?? "", @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Preview HTML (first 1000 chars) contains {H2Count} h2 tags ;CLEANUP_OK", requestId, h2CountRegex);
+            
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 500ms for DOM render... ;CLEANUP_OK", requestId);
             await Task.Delay(500); // Allow DOM to render before JavaScript manipulation
             
@@ -1379,6 +1386,7 @@
                 else if (success && sections == 0)
                 {
                     Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ No sections found - possible h2 detection issue: {Error} ;CLEANUP_OK", requestId, error);
+                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] HTML preview: {Preview} ;CLEANUP_OK", requestId, h2PreviewHtml);
                 }
                 else
                 {
@@ -3650,10 +3658,182 @@
         return html;
     }
     
+    /// <summary>
+    /// [TRACE:hcp-tcanvas:test] Comprehensive test for transcript section sharing functionality ;CLEANUP_OK
+    /// Tests: DOM state, h2 detection, button injection, click handlers, JSInvokable interop
+    /// </summary>
+    private async Task TestTranscriptSectionSharing()
+    {
+        var testId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] ════════ TRANSCRIPT SECTION SHARING TEST START ════════ ;CLEANUP_OK", testId);
+        
+        try
+        {
+            var results = new List<string>();
+            
+            // Test 1: Check if Model.TransformedTranscript has content
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 1: Checking Model.TransformedTranscript ;CLEANUP_OK", testId);
+            if (string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                results.Add("❌ FAILED: Model.TransformedTranscript is null or empty");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 1 FAILED: No transcript content ;CLEANUP_OK", testId);
+                await ShowMessageAsync(string.Join("\n", results));
+                return;
+            }
+            results.Add($"✅ PASSED: Transcript length = {Model.TransformedTranscript.Length} chars");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 1 PASSED: Transcript length = {Length} ;CLEANUP_OK", testId, Model.TransformedTranscript.Length);
+            
+            // Test 2: Count h2 elements in HTML using regex
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 2: Counting h2 elements in HTML ;CLEANUP_OK", testId);
+            var h2Matches = System.Text.RegularExpressions.Regex.Matches(Model.TransformedTranscript, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var h2Count = h2Matches.Count;
+            
+            if (h2Count == 0)
+            {
+                results.Add("⚠️ WARNING: No h2 elements found in HTML (regex check)");
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 2 WARNING: No h2 elements found ;CLEANUP_OK", testId);
+                
+                // Show HTML preview for diagnosis
+                var preview = Model.TransformedTranscript.Substring(0, Math.Min(500, Model.TransformedTranscript.Length));
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] HTML preview: {Preview} ;CLEANUP_OK", testId, preview);
+                results.Add($"HTML preview: {preview}");
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Found {h2Count} h2 elements in HTML");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 2 PASSED: Found {H2Count} h2 elements ;CLEANUP_OK", testId, h2Count);
+            }
+            
+            // Test 3: Check if container exists in DOM via JavaScript
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 3: Checking DOM container existence ;CLEANUP_OK", testId);
+            await Task.Delay(500); // Ensure DOM is rendered
+            
+            var containerExists = await JSRuntime.InvokeAsync<bool>("eval", "document.getElementById('transcript-content-container') !== null");
+            if (!containerExists)
+            {
+                results.Add("❌ FAILED: Container 'transcript-content-container' not found in DOM");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 3 FAILED: Container not found ;CLEANUP_OK", testId);
+                await ShowMessageAsync(string.Join("\n", results));
+                return;
+            }
+            results.Add("✅ PASSED: Container exists in DOM");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 3 PASSED: Container found ;CLEANUP_OK", testId);
+            
+            // Test 4: Count h2 elements in DOM via JavaScript
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 4: Counting h2 elements in DOM ;CLEANUP_OK", testId);
+            var domH2Count = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container').querySelectorAll('h2').length");
+            
+            if (domH2Count == 0)
+            {
+                results.Add("⚠️ WARNING: No h2 elements found in DOM (JavaScript query)");
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 4 WARNING: No h2 in DOM ;CLEANUP_OK", testId);
+                
+                // Check for alternative elements
+                var allHeadings = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container').querySelectorAll('h1,h2,h3,h4,h5,h6').length");
+                results.Add($"Found {allHeadings} total heading elements (h1-h6)");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] Alternative check: {AllHeadings} total headings ;CLEANUP_OK", testId, allHeadings);
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Found {domH2Count} h2 elements in DOM");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 4 PASSED: {DomH2Count} h2 in DOM ;CLEANUP_OK", testId, domH2Count);
+            }
+            
+            // Test 5: Inject share buttons and verify
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5: Injecting share buttons ;CLEANUP_OK", testId);
+            var dotNetRef = DotNetObjectReference.Create(this);
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            
+            var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
+            var sectionsInjected = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
+            var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
+            
+            if (!success)
+            {
+                results.Add($"❌ FAILED: Button injection failed - {error}");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5 FAILED: {Error} ;CLEANUP_OK", testId, error);
+            }
+            else if (sectionsInjected == 0)
+            {
+                results.Add("⚠️ WARNING: Button injection succeeded but 0 buttons injected");
+                Logger.LogWarning("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5 WARNING: 0 buttons injected ;CLEANUP_OK", testId);
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Injected {sectionsInjected} share buttons");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 5 PASSED: {SectionsInjected} buttons injected ;CLEANUP_OK", testId, sectionsInjected);
+            }
+            
+            // Test 6: Verify buttons exist in DOM
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 6: Verifying buttons in DOM ;CLEANUP_OK", testId);
+            var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('.transcript-section-share-btn').length");
+            
+            if (buttonCount == 0)
+            {
+                results.Add("❌ FAILED: No share buttons found in DOM after injection");
+                Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 6 FAILED: No buttons in DOM ;CLEANUP_OK", testId);
+            }
+            else
+            {
+                results.Add($"✅ PASSED: Found {buttonCount} share buttons in DOM");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 6 PASSED: {ButtonCount} buttons in DOM ;CLEANUP_OK", testId, buttonCount);
+            }
+            
+            // Test 7: Test section extraction
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7: Testing section HTML extraction ;CLEANUP_OK", testId);
+            if (domH2Count > 0)
+            {
+                var sectionHtml = await JSRuntime.InvokeAsync<string>("TranscriptSectionParser.extractSectionHtml", "transcript-content-container", 0);
+                
+                if (string.IsNullOrEmpty(sectionHtml))
+                {
+                    results.Add("❌ FAILED: Section HTML extraction returned empty");
+                    Logger.LogError("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7 FAILED: Empty extraction ;CLEANUP_OK", testId);
+                }
+                else
+                {
+                    results.Add($"✅ PASSED: Extracted section HTML ({sectionHtml.Length} chars)");
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7 PASSED: Extracted {Length} chars ;CLEANUP_OK", testId, sectionHtml.Length);
+                }
+            }
+            else
+            {
+                results.Add("⏭️ SKIPPED: No h2 elements to extract");
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] TEST 7 SKIPPED: No h2 elements ;CLEANUP_OK", testId);
+            }
+            
+            // Display results
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] ════════ TEST RESULTS ════════ ;CLEANUP_OK", testId);
+            foreach (var result in results)
+            {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] {Result} ;CLEANUP_OK", testId, result);
+            }
+            
+            await ShowMessageAsync($"Transcript Section Sharing Test Complete:\n\n{string.Join("\n", results)}");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:test] [{TestId}] ════════ TRANSCRIPT SECTION SHARING TEST END ════════ ;CLEANUP_OK", testId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:test] [{TestId}] 💥 Test exception: {Message} ;CLEANUP_OK", testId, ex.Message);
+            await ShowMessageAsync($"Test failed with exception:\n{ex.Message}");
+        }
+    }
+    
     // Debug Actions Factory
     private List<NoorCanvas.Models.Debug.IDebugAction> GetHostControlPanelDebugActions()
     {
         var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        // [TRACE:hcp-tcanvas:test] Test Transcript Section Sharing ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Test Transcript Section Sharing",
+            "Comprehensive test: container, h2 detection, button injection, handlers",
+            async () => await TestTranscriptSectionSharing(),
+            "fa-solid fa-vial"
+        )
+        {
+            IsEnabled = !string.IsNullOrEmpty(Model?.TransformedTranscript) && !isLoading
+        });
         
         // Test Share Asset Action
         actions.Add(new NoorCanvas.Models.Debug.DebugAction(
