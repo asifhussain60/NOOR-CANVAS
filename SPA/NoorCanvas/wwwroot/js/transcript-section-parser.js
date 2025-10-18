@@ -120,19 +120,33 @@ window.TranscriptSectionParser = {
 
             // Collect h2 and following siblings until next h2
             while (currentElement) {
+                // [TRACE] Log current element being processed ;CLEANUP_OK
+                console.log(`[TRACE:hcp-tcanvas:inject]     Processing element: ${currentElement.tagName}, textContent: "${currentElement.textContent?.substring(0, 60)}..." ;CLEANUP_OK`);
+
                 const nextElement = currentElement.nextElementSibling;
 
-                // Stop if we hit another h2
+                // Add current element first
+                sectionContent.push(currentElement);
+                console.log(`[TRACE:hcp-tcanvas:inject]     ✅ Added element to section (total now: ${sectionContent.length}) ;CLEANUP_OK`);
+
+                // Stop if next element is another h2
                 if (nextElement && nextElement.tagName === 'H2') {
-                    console.log(`[TRACE:hcp-tcanvas:inject]   Stopped at next h2: "${nextElement.textContent?.substring(0, 50)}" ;CLEANUP_OK`);
+                    console.log(`[TRACE:hcp-tcanvas:inject]   🛑 Stopped - next element is h2: "${nextElement.textContent?.substring(0, 50)}" ;CLEANUP_OK`);
                     break;
                 }
 
-                sectionContent.push(currentElement);
+                if (!nextElement) {
+                    console.log(`[TRACE:hcp-tcanvas:inject]   🛑 Stopped - no more siblings (end of container) ;CLEANUP_OK`);
+                }
+
                 currentElement = nextElement;
             }
 
             console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Section ${index} contains ${sectionContent.length} elements ;CLEANUP_OK`);
+            // [TRACE] Log each element in the section ;CLEANUP_OK
+            sectionContent.forEach((el, elIdx) => {
+                console.log(`[TRACE:hcp-tcanvas:inject]     Element[${elIdx}]: ${el.tagName} - "${el.textContent?.substring(0, 50)}..." ;CLEANUP_OK`);
+            });
 
             // Create invisible wrapper div for the section
             const wrapper = document.createElement('div');
@@ -284,9 +298,18 @@ window.TranscriptSectionParser = {
                 return;
             }
 
+            console.log(`[TRACE:hcp-tcanvas:share-section] Found section wrapper: ${sectionId} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:share-section] Wrapper element: ${sectionWrapper.tagName}, children count: ${sectionWrapper.children.length} ;CLEANUP_OK`);
+
+            // [TRACE] Log each child element in the wrapper ;CLEANUP_OK
+            Array.from(sectionWrapper.children).forEach((child, childIdx) => {
+                console.log(`[TRACE:hcp-tcanvas:share-section]   Child[${childIdx}]: ${child.tagName} - "${child.textContent?.substring(0, 50)}..." ;CLEANUP_OK`);
+            });
+
             const sectionHtml = sectionWrapper.innerHTML;
             console.log(`[TRACE:hcp-tcanvas:share-section] Extracted section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
-            console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview: ${sectionHtml.substring(0, 200)}... ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (first 300 chars): ${sectionHtml.substring(0, 300)}... ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (last 200 chars): ...${sectionHtml.substring(sectionHtml.length - 200)} ;CLEANUP_OK`);
 
             // Visual feedback - button state
             const originalText = shareButton.innerHTML;

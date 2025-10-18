@@ -2,7 +2,7 @@
 // Tests H2 section sharing from HostControlPanel to participant SessionCanvas
 // Session 212 test data with tokens: KJAHA99L (participant) / PQ9N5YWW (host)
 
-import { test, expect, chromium } from '@playwright/test';
+import { chromium, expect, test } from '@playwright/test';
 
 test.describe('Transcript Section Broadcast (Session 212)', () => {
     test('should broadcast H2 section from host to participant', async () => {
@@ -16,11 +16,11 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
 
         // Launch two browser contexts (host and participant)
         const browser = await chromium.launch({ headless: false });
-        
+
         // Context 1: Participant (will receive the broadcast)
         const participantContext = await browser.newContext();
         const participantPage = await participantContext.newPage();
-        
+
         // Context 2: Host (will send the broadcast)
         const hostContext = await browser.newContext();
         const hostPage = await hostContext.newPage();
@@ -34,13 +34,13 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
             console.log('[TEST] Step 1: Participant joining session...');
             await participantPage.goto(`${baseUrl}/SessionCanvas?token=${participantToken}`);
             await participantPage.waitForLoadState('networkidle');
-            
+
             // Wait for SignalR connection
             await participantPage.waitForFunction(() => {
-                return document.body.innerText.includes('Connected') || 
-                       window.location.href.includes('SessionCanvas');
+                return document.body.innerText.includes('Connected') ||
+                    window.location.href.includes('SessionCanvas');
             }, { timeout: 10000 });
-            
+
             console.log('[TEST] ✅ Participant connected to session');
 
             // Step 2: Host joins session
@@ -48,7 +48,7 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
             await hostPage.goto(`${baseUrl}/HostControlPanel?token=${hostToken}`);
             await hostPage.waitForLoadState('networkidle');
             await hostPage.waitForTimeout(2000); // Wait for host UI to load
-            
+
             console.log('[TEST] ✅ Host connected to session');
 
             // Step 3: Host clicks "Share Transcript" button
@@ -56,7 +56,7 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
             const shareTranscriptButton = hostPage.locator('button:has-text("Share Transcript")');
             await expect(shareTranscriptButton).toBeVisible({ timeout: 10000 });
             await expect(shareTranscriptButton).toBeEnabled();
-            
+
             await shareTranscriptButton.click();
             console.log('[TEST] ✅ Share Transcript button clicked');
 
@@ -89,7 +89,7 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
                     window.broadcastReceived = false;
                     // @ts-ignore
                     window.receivedPayload = null;
-                    
+
                     // Listen for SignalR broadcast
                     // @ts-ignore
                     if (window.hubConnection) {
@@ -118,7 +118,7 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
             const firstShareButton = hostPage.locator('.transcript-section-share-btn').first();
             const buttonText = await firstShareButton.textContent();
             console.log(`[TEST] First button text: "${buttonText}"`);
-            
+
             await firstShareButton.click();
             console.log('[TEST] ✅ First share button clicked');
 
@@ -144,7 +144,7 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
                 console.log(`[TEST] HTML Length: ${result.payload.sectionHtml?.length || 0} chars`);
                 console.log(`[TEST] Timestamp: ${result.payload.timestamp}`);
                 console.log(`[TEST] Tracking ID: ${result.payload.trackingId}`);
-                
+
                 expect(result.received).toBe(true);
                 expect(result.payload.h2Text).toBeTruthy();
                 expect(result.payload.sectionHtml).toBeTruthy();
@@ -152,12 +152,12 @@ test.describe('Transcript Section Broadcast (Session 212)', () => {
             } else {
                 console.error('[TEST] ❌ Broadcast NOT received on participant side');
                 console.error('[TEST] Checking SignalR connection status...');
-                
+
                 const connectionStatus = await participantPage.evaluate(() => {
                     // @ts-ignore
                     return window.hubConnection ? window.hubConnection.state : 'NO CONNECTION';
                 });
-                
+
                 console.error(`[TEST] Participant SignalR state: ${connectionStatus}`);
                 throw new Error('Broadcast not received on participant side');
             }
