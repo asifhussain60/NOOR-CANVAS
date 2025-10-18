@@ -16,9 +16,9 @@ window.TranscriptSectionParser = {
      * @param {object} dotNetRef - DotNet object reference for C# method callbacks
      * @returns {object} Result with section count and success status
      */
-    injectShareButtons: function(containerId, dotNetRef) {
+    injectShareButtons: function (containerId, dotNetRef) {
         console.log('[DEBUG-WORKITEM:hcp-tcanvas:parse] Injecting share buttons into transcript sections ;CLEANUP_OK');
-        
+
         const container = document.getElementById(containerId);
         if (!container) {
             console.error('[DEBUG-WORKITEM:hcp-tcanvas:parse] Container not found:', containerId);
@@ -70,12 +70,12 @@ window.TranscriptSectionParser = {
             shareButton.innerHTML = '<i class="fa-solid fa-share-nodes"></i> SHARE SECTION';
 
             // Hover effects via inline event handlers (compatible with Blazor)
-            shareButton.onmouseenter = function() {
+            shareButton.onmouseenter = function () {
                 this.style.backgroundColor = '#C5B358';
                 this.style.transform = 'translateY(-1px)';
                 this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.15)';
             };
-            shareButton.onmouseleave = function() {
+            shareButton.onmouseleave = function () {
                 this.style.backgroundColor = '#D4AF37';
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
@@ -100,7 +100,7 @@ window.TranscriptSectionParser = {
      * @param {string} containerId - ID of the container element
      * @param {object} dotNetRef - DotNet object reference for C# callbacks
      */
-    setupClickDelegation: function(containerId, dotNetRef) {
+    setupClickDelegation: function (containerId, dotNetRef) {
         const container = document.getElementById(containerId);
         if (!container) {
             console.error('[DEBUG-WORKITEM:hcp-tcanvas:parse] Cannot setup delegation - container not found');
@@ -113,10 +113,10 @@ window.TranscriptSectionParser = {
         }
 
         // Create new click handler
-        const clickHandler = async function(event) {
+        const clickHandler = async function (event) {
             // Check if clicked element is a share button
             const shareButton = event.target.closest('.transcript-section-share-btn');
-            
+
             if (!shareButton) {
                 return; // Not a share button click, ignore
             }
@@ -154,7 +154,7 @@ window.TranscriptSectionParser = {
                 console.log('[DEBUG-WORKITEM:hcp-tcanvas:share-section] Section shared successfully ;CLEANUP_OK');
             } catch (error) {
                 console.error('[DEBUG-WORKITEM:hcp-tcanvas:share-section] Error sharing section:', error);
-                
+
                 // Error feedback
                 shareButton.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> ERROR';
                 shareButton.style.backgroundColor = '#DC2626';
@@ -169,7 +169,7 @@ window.TranscriptSectionParser = {
 
         // Store handler reference for cleanup
         container._transcriptSectionClickHandler = clickHandler;
-        
+
         // Add event listener with delegation
         container.addEventListener('click', clickHandler);
         console.log('[DEBUG-WORKITEM:hcp-tcanvas:parse] Click delegation setup complete ;CLEANUP_OK');
@@ -181,9 +181,9 @@ window.TranscriptSectionParser = {
      * @param {number} h2Index - Index of the h2 element to extract
      * @returns {string} HTML string containing h2 and its content
      */
-    extractSectionHtml: function(containerId, h2Index) {
+    extractSectionHtml: function (containerId, h2Index) {
         console.log(`[DEBUG-WORKITEM:hcp-tcanvas:parse] Extracting section HTML for h2Index: ${h2Index} ;CLEANUP_OK`);
-        
+
         const container = document.getElementById(containerId);
         if (!container) {
             console.error('[DEBUG-WORKITEM:hcp-tcanvas:parse] Container not found');
