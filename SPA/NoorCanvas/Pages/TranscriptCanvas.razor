@@ -1141,8 +1141,8 @@
             </div>
             
             <!-- Main Canvas Area -->
-            <!-- [TRACE-WORKITEM:transcript-canvas:layout-redesign] Grid class toggles sidebar visibility ;CLEANUP_OK -->
-            <div class="canvas-main-grid @(IsSidebarVisible ? "sidebar-visible" : "")">
+            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar removed, grid simplified to single column ;CLEANUP_OK -->
+            <div class="canvas-main-grid">>
                 
                 <!-- Canvas Content Area -->
                 <div class="canvas-area-container">
@@ -1210,170 +1210,16 @@
         </div>
                     </div>
                 </div>
-                
-                <!-- Q&A and Participants Sidebar -->
-                <div class="canvas-sidebar">
-                    
-                    <!-- Tabs -->
-                    <div class="canvas-tabs">
-                        <button @onclick="() => ActiveTab = Tab.QA" 
-                                class="canvas-tab-button canvas-tab-button-left @(ActiveTab == Tab.QA ? "active" : "")"
-                                style="background:@(ActiveTab == Tab.QA ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
-                            <i class="fa-solid fa-question-circle canvas-tab-icon"></i>
-                            Q&A
-                        </button>
-                        <button @onclick="() => ActiveTab = Tab.Participants" 
-                                class="canvas-tab-button canvas-tab-button-right @(ActiveTab == Tab.Participants ? "active" : "")"
-                                style="background:@(ActiveTab == Tab.Participants ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
-                            <i class="fa-solid fa-users canvas-tab-icon"></i>
-                            Participants
-                        </button>
-                    </div>
-
-                    <!-- Q&A Content -->
-                    <div class="canvas-tab-content canvas-custom-scrollbar @(ActiveTab == Tab.QA ? "" : "hidden")">
-                        <div class="canvas-tab-padding">
-                            <h3 class="canvas-section-title">Recent Questions</h3>
-                            <div class="canvas-questions-container">
-                                @if (Model?.Questions?.Any() == true)
-                                {
-                                    @foreach (var question in Model.Questions.OrderByDescending(q => q.Votes))
-                                    {
-                                        var index = Model.Questions.IndexOf(question);
-                                        var isMyQuestion = question.IsMyQuestion;
-                                        var hasVoted = VotedQuestionIds.Contains(question.QuestionId);
-
-                                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership-trace] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK", 
-                                            question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion);
-                                        
-                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes}, Theme={Theme} ;CLEANUP_OK",
-                                            isMyQuestion, hasVoted, question.Votes, isMyQuestion ? "Green" : "Sienna");
-
-                                        @if (isMyQuestion)
-                                        {
-                                            <!-- GREEN THEME: Own Question Card (Horizontal Top Row) -->
-                                            <div class="canvas-question-item question-item-style-green">
-                                                
-                                                <!-- TOP ROW: Owner Label (left) + Action Buttons (right) -->
-                                                <div class="canvas-question-footer">
-                                                    <span class="canvas-question-owner-label owner-label-color">
-                                                        Your Question
-                                                    </span>
-                                                    
-                                                    <div class="canvas-question-actions">
-                                                        <span @onclick="() => EditQuestion(index)" class="canvas-question-edit-button">
-                                                            <i class="fa-solid fa-pen"></i>
-                                                        </span>
-                                                        <span @onclick="() => ShowDeleteModal(index)" class="canvas-question-delete-button">
-                                                            <i class="fa-solid fa-trash-can"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- BOTTOM ROW: Question Text -->
-                                                <div class="canvas-question-content">
-                                                    <div class="canvas-question-header">
-                                                        <span class="canvas-question-text question-text-color-green">
-                                                            @question.Text
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
-                                                question.QuestionId);
-                                            
-                                            <!-- SIENNA THEME: Other Users' Question Card (Compact Single-Row Layout from ContextCopilot.txt) -->
-                                            <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
-                                                
-                                                <!-- Absolute Positioned Vote Badge (Red Circle) -->
-                                                <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
-                                                    @question.Votes
-                                                </div>
-                                                
-                                                <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) -->
-                                                <div class="canvas-question-content" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;">
-                                                    
-                                                    <!-- LEFT SIDE: Question Text (Allows space for the right side) -->
-                                                    <div class="canvas-question-header" style="flex-grow:1;margin-right:1rem;">
-                                                        <span class="canvas-question-text question-text-color-sienna" style="font-size:1rem;line-height:1.375;font-weight:normal;">
-                                                            @question.Text
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <!-- RIGHT SIDE: Compact Vote Button -->
-                                                    <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
-                                                        <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
-                                                                @onclick:preventDefault="true"
-                                                                @onclick:stopPropagation="true"
-                                                                class="canvas-question-vote-button vote-button-style-sienna-owner"
-                                                                data-question-id="@question.QuestionId"
-                                                                style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
-                                                                disabled="@hasVoted"
-                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                            <i class="fa-solid fa-thumbs-up" style="font-size:1.5rem;"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                
-                                            </div>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    <div class="canvas-empty-state-container">
-                                        <i class="fa-solid fa-question-circle canvas-empty-state-icon"></i>
-                                        No questions yet. Be the first to ask!
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Participants Content -->
-                    <div class="canvas-tab-content canvas-custom-scrollbar @(ActiveTab == Tab.Participants ? "" : "hidden")">
-                        <h3 class="canvas-section-title">All Participants</h3>
-                        <div class="canvas-participants-container">
-                            @if (Model?.Participants?.Any() == true)
-                            {
-                                @foreach (var participant in Model.Participants)
-                                {
-                                    <div class="canvas-participant-item">
-                                        @if (!string.IsNullOrEmpty(participant.Flag))
-                                        {
-                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" class="canvas-participant-flag">
-                                        }
-                                        else
-                                        {
-                                            <div class="canvas-participant-flag-fallback">
-                                                <span class="canvas-participant-flag-text">@(participant.Country?.ToUpper() ?? "US")</span>
-                                            </div>
-                                        }
-                                        <span class="canvas-participant-name">@participant.Name</span>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="canvas-empty-state-container">
-                                    <i class="fa-solid fa-users canvas-empty-state-icon"></i>
-                                    No participants yet
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Toggle button moved to welcome panel for inline display ;CLEANUP_OK -->
+            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar removed, question modal only ;CLEANUP_OK -->
 
         </div>
     }
     </div>
 </div>
+
+<!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar HTML completely removed (tabs, Q&A panel, participants panel) - Question modal only ;CLEANUP_OK -->
 
 <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question Modal - Centered popup for asking questions ;CLEANUP_OK -->
 @if (IsQuestionModalVisible)
@@ -1457,14 +1303,8 @@
     private bool IsModalVisible { get; set; } = false;
     private HashSet<string> VotedQuestionIds { get; set; } = new HashSet<string>();
 
-    // [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visibility toggle state ;CLEANUP_OK
-    private bool IsSidebarVisible { get; set; } = false;
-
     // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal visibility state ;CLEANUP_OK
     private bool IsQuestionModalVisible { get; set; } = false;
-
-    private enum Tab { QA, Participants }
-    private Tab ActiveTab { get; set; } = Tab.QA;
 
     protected override async Task OnInitializedAsync()
     {
@@ -2585,15 +2425,6 @@
     {
         QuestionToDeleteIndex = null;
         IsModalVisible = false;
-    }
-
-    // [TRACE-WORKITEM:transcript-canvas:layout-redesign] Toggle sidebar visibility ;CLEANUP_OK
-    private void ToggleSidebar()
-    {
-        IsSidebarVisible = !IsSidebarVisible;
-        Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar toggled - IsSidebarVisible={IsSidebarVisible}, ActiveTab={ActiveTab} ;CLEANUP_OK", 
-            IsSidebarVisible, ActiveTab);
-        StateHasChanged();
     }
 
     // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Open question modal ;CLEANUP_OK
