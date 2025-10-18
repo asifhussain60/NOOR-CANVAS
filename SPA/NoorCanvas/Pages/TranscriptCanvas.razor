@@ -3111,6 +3111,56 @@
                 }
             });
 
+            // [TRACE:hcp-tcanvas:receiver] Listen for transcript SECTION shared events (h2 + content) ;CLEANUP_OK
+            hubConnection.On<object>("ReceiveTranscriptSection", async (sectionData) =>
+            {
+                var trackingId = Guid.NewGuid().ToString("N")[..8];
+                try
+                {
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] ════════ PARTICIPANT: RECEIVE SECTION ════════ ;CLEANUP_OK");
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] ReceiveTranscriptSection event received ;CLEANUP_OK", trackingId);
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(sectionData);
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] Payload JSON: {Json} ;CLEANUP_OK", trackingId, json);
+                    
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    if (root.TryGetProperty("sectionHtml", out var htmlElement) && 
+                        root.TryGetProperty("h2Text", out var h2Element))
+                    {
+                        var sectionHtml = htmlElement.GetString();
+                        var h2Text = h2Element.GetString();
+                        
+                        Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] Section HTML: {Length} chars, H2: {H2Text} ;CLEANUP_OK", 
+                            trackingId, sectionHtml?.Length ?? 0, h2Text);
+                        
+                        if (Model != null && !string.IsNullOrEmpty(sectionHtml))
+                        {
+                            // Set section in SharedAssetContent for rendering
+                            Model.SharedAssetContent = sectionHtml;
+                            await InvokeAsync(StateHasChanged);
+                            
+                            Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] ✅ Section '{H2Text}' rendered in transcript canvas ;CLEANUP_OK", trackingId, h2Text);
+                            Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] ════════ SECTION DISPLAY COMPLETE ════════ ;CLEANUP_OK");
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] ⚠️ Model is null or sectionHtml is empty ;CLEANUP_OK", trackingId);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] ⚠️ Missing sectionHtml or h2Text in payload ;CLEANUP_OK", trackingId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[TRACE:hcp-tcanvas:receiver] [{TrackingId}] ❌ Error processing ReceiveTranscriptSection: {Message} ;CLEANUP_OK", trackingId, ex.Message);
+                    Logger.LogError("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] Stack: {StackTrace} ;CLEANUP_OK", trackingId, ex.StackTrace);
+                }
+            });
+
             // [DEBUG-WORKITEM:transcript-canvas:broadcast] Listen for transcript shared events to render full transcript ;CLEANUP_OK
             hubConnection.On<object>("TranscriptShared", async (transcriptData) =>
             {
