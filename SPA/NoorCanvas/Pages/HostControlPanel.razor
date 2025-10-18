@@ -1390,6 +1390,48 @@
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 100ms for DOM to stabilize... ;CLEANUP_OK", requestId);
             await Task.Delay(100);
             
+            // [TRACE:hcp-tcanvas:script-loading] Check if TranscriptSectionParser script is loaded, dynamically inject if missing ;CLEANUP_OK
+            Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] Checking if TranscriptSectionParser is loaded... ;CLEANUP_OK", requestId);
+            var scriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.TranscriptSectionParser !== 'undefined'");
+            
+            if (!scriptLoaded)
+            {
+                Logger.LogWarning("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ⚠️ TranscriptSectionParser NOT LOADED - attempting dynamic script injection ;CLEANUP_OK", requestId);
+                
+                // Dynamically inject script tag
+                await JSRuntime.InvokeVoidAsync("eval", @"
+                    (function() {
+                        const scriptId = 'transcript-section-parser-dynamic';
+                        if (!document.getElementById(scriptId)) {
+                            console.log('[TRACE:hcp-tcanvas:script-loading] Creating script element for dynamic injection ;CLEANUP_OK');
+                            const script = document.createElement('script');
+                            script.id = scriptId;
+                            script.src = '/js/transcript-section-parser.js?v=' + Date.now();
+                            document.head.appendChild(script);
+                            console.log('[TRACE:hcp-tcanvas:script-loading] Script dynamically injected: ' + script.src + ' ;CLEANUP_OK');
+                        }
+                    })();
+                ");
+                
+                // Wait for script to load
+                Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] Waiting 1000ms for script to load... ;CLEANUP_OK", requestId);
+                await Task.Delay(1000);
+                
+                // Verify script loaded
+                scriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.TranscriptSectionParser !== 'undefined'");
+                if (!scriptLoaded)
+                {
+                    Logger.LogError("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ❌ TranscriptSectionParser still undefined after dynamic injection ;CLEANUP_OK", requestId);
+                    throw new InvalidOperationException("TranscriptSectionParser script failed to load even after dynamic injection");
+                }
+                
+                Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ✅ TranscriptSectionParser loaded successfully after dynamic injection ;CLEANUP_OK", requestId);
+            }
+            else
+            {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:script-loading] [{RequestId}] ✅ TranscriptSectionParser already loaded ;CLEANUP_OK", requestId);
+            }
+            
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Creating DotNetObjectReference for callbacks ;CLEANUP_OK", requestId);
             var dotNetRef = DotNetObjectReference.Create(this);
             
