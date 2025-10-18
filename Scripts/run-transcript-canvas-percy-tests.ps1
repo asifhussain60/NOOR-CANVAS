@@ -79,8 +79,13 @@ param(
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
+# PowerShell 5.1 compatibility: force TLS 1.2 and bypass cert validation for localhost dev
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
+
 # Configuration
-$AppProjectPath = "SPA\NoorCanvas"
+$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot ".."))
+$AppProjectPath = Join-Path $RepoRoot.Path "SPA/NoorCanvas"
 $AppUrl = "https://localhost:9091"
 $HealthCheckEndpoint = "$AppUrl/health"
 $MaxHealthCheckAttempts = 30
@@ -102,21 +107,23 @@ Write-Host "══════════════════════�
 Write-Host "   NOOR Canvas - TranscriptCanvas HTML Structure Percy Tests   " -ForegroundColor Cyan
 Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host ""
+Write-Host ("[INFO] RepoRoot: {0}" -f $RepoRoot.Path) -ForegroundColor Gray
+Write-Host ("[INFO] AppProjectPath: {0}" -f $AppProjectPath) -ForegroundColor Gray
 
 #region Helper Functions
 
 function Test-PercyConfiguration {
-    Write-Host "🔍 Checking Percy configuration..." -ForegroundColor Yellow
+    Write-Host "[CHECK] Checking Percy configuration..." -ForegroundColor Yellow
     
     if (-not $env:PERCY_TOKEN) {
         if ($AllowNoPercy) {
-            Write-Host "⚠️  PERCY_TOKEN not set. Proceeding without Percy (AllowNoPercy enabled)" -ForegroundColor Yellow
+            Write-Host "[WARN] PERCY_TOKEN not set. Proceeding without Percy (AllowNoPercy enabled)" -ForegroundColor Yellow
             return $true
         }
         else {
-            Write-Host "❌ PERCY_TOKEN environment variable not set" -ForegroundColor Red
+            Write-Host "[ERROR] PERCY_TOKEN environment variable not set" -ForegroundColor Red
             Write-Host ""
-            Write-Host "💡 To configure Percy:" -ForegroundColor Yellow
+            Write-Host "To configure Percy:" -ForegroundColor Yellow
             Write-Host "   1. Run: .\setup-percy.ps1" -ForegroundColor White
             Write-Host "   2. Or set manually: `$env:PERCY_TOKEN = 'your-token'" -ForegroundColor White
             Write-Host "   3. Or re-run with -AllowNoPercy to skip Percy" -ForegroundColor White
@@ -125,22 +132,22 @@ function Test-PercyConfiguration {
         }
     }
     
-    Write-Host "✅ Percy token configured" -ForegroundColor Green
+    Write-Host "[OK] Percy token configured" -ForegroundColor Green
     return $true
 }
 
 function Build-Application {
-    Write-Host "🔨 Building NOOR Canvas application..." -ForegroundColor Yellow
+    Write-Host "[BUILD] Building NOOR Canvas application..." -ForegroundColor Yellow
     
     Push-Location $AppProjectPath
     try {
         $buildOutput = dotnet build --configuration Release 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Build failed:" -ForegroundColor Red
+            Write-Host "[ERROR] Build failed:" -ForegroundColor Red
             Write-Host $buildOutput -ForegroundColor Red
             throw "Application build failed"
         }
-        Write-Host "✅ Build completed successfully" -ForegroundColor Green
+        Write-Host "[OK] Build completed successfully" -ForegroundColor Green
     }
     finally {
         Pop-Location
@@ -148,7 +155,7 @@ function Build-Application {
 }
 
 function Start-ApplicationInBackground {
-    Write-Host "🚀 Launching NOOR Canvas in dedicated PowerShell window..." -ForegroundColor Yellow
+    Write-Host "[LAUNCH] Launching NOOR Canvas in dedicated PowerShell window..." -ForegroundColor Yellow
     
     Push-Location $AppProjectPath
     try {
@@ -159,11 +166,11 @@ function Start-ApplicationInBackground {
             "dotnet run --no-build --configuration Release --urls=$AppUrl"
         ) -PassThru -WindowStyle Normal
         
-        Write-Host "✅ Application launched (PID: $($AppProcess.Id))" -ForegroundColor Green
+    Write-Host "[OK] Application launched (PID: $($AppProcess.Id))" -ForegroundColor Green
         $script:StartedApp = $true
         
         # Grace period for application startup
-        Write-Host "⏳ Waiting $AppStartupGracePeriodSeconds seconds for application startup..." -ForegroundColor Yellow
+    Write-Host "[WAIT] Waiting $AppStartupGracePeriodSeconds seconds for application startup..." -ForegroundColor Yellow
         Start-Sleep -Seconds $AppStartupGracePeriodSeconds
         
         return $AppProcess
@@ -174,7 +181,7 @@ function Start-ApplicationInBackground {
 }
 
 function Wait-ForApplicationReady {
-    Write-Host "⏳ Waiting for application health check..." -ForegroundColor Yellow
+    Write-Host "[WAIT] Waiting for application health check..." -ForegroundColor Yellow
     
     $attempts = 0
     $isReady = $false
@@ -184,11 +191,11 @@ function Wait-ForApplicationReady {
         
         try {
             # Ignore SSL certificate validation for localhost
-            $response = Invoke-WebRequest -Uri $HealthCheckEndpoint -SkipCertificateCheck -TimeoutSec 5 -ErrorAction SilentlyContinue
+            $response = Invoke-WebRequest -Uri $HealthCheckEndpoint -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue
             
             if ($response.StatusCode -eq 200) {
                 $isReady = $true
-                Write-Host "✅ Application is ready!" -ForegroundColor Green
+                Write-Host "[OK] Application is ready!" -ForegroundColor Green
                 return $true
             }
         }
@@ -202,13 +209,13 @@ function Wait-ForApplicationReady {
         }
     }
     
-    Write-Host "❌ Application did not become ready after $MaxHealthCheckAttempts attempts" -ForegroundColor Red
+    Write-Host "[ERROR] Application did not become ready after $MaxHealthCheckAttempts attempts" -ForegroundColor Red
     return $false
 }
 
 function Test-AppResponding {
     try {
-        $response = Invoke-WebRequest -Uri $HealthCheckEndpoint -SkipCertificateCheck -TimeoutSec 3 -ErrorAction Stop
+        $response = Invoke-WebRequest -Uri $HealthCheckEndpoint -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
         return ($response.StatusCode -eq 200)
     }
     catch { return $false }
@@ -218,13 +225,13 @@ function Invoke-PlaywrightPercyTests {
     param([string]$Pattern, [bool]$Headed)
     
     Write-Host ""
-    Write-Host "🎭 Running Playwright + Percy visual regression tests..." -ForegroundColor Yellow
+    Write-Host "[TEST] Running Playwright + Percy visual regression tests..." -ForegroundColor Yellow
     Write-Host "   Test Pattern: $Pattern" -ForegroundColor Gray
     Write-Host "   Mode: $(if ($Headed) { 'Headed (visible browser)' } else { 'Headless' })" -ForegroundColor Gray
     Write-Host ""
     
     $usePercy = [string]::IsNullOrWhiteSpace($env:PERCY_TOKEN) -eq $false
-    if ($ScreenshotOnly -and ($Pattern -eq $null -or $Pattern -eq '')) {
+    if ($ScreenshotOnly -and ($null -eq $Pattern -or $Pattern -eq '')) {
         $Pattern = ".github/prompts.keys/transcript-canvas/tests/transcript-canvas-screenshot.spec.ts"
     }
 
@@ -239,9 +246,9 @@ function Invoke-PlaywrightPercyTests {
     }
     else {
         # Run without Percy
-        $args = @("npx", "playwright", "test", $Pattern)
-        if ($Headed) { $args += "--headed" }
-        & $args[0] $args[1..($args.Length - 1)]
+    $cmdArgs = @("npx", "playwright", "test", $Pattern)
+    if ($Headed) { $cmdArgs += "--headed" }
+    & $cmdArgs[0] $cmdArgs[1..($cmdArgs.Length - 1)]
     }
     
     return $LASTEXITCODE
@@ -286,7 +293,7 @@ try {
     # Step 3: Launch application (only if not already running)
     $AlreadyRunning = $false
     if (Test-AppResponding) {
-        Write-Host "✅ Application already running at $AppUrl" -ForegroundColor Green
+    Write-Host "[OK] Application already running at $AppUrl" -ForegroundColor Green
         $AlreadyRunning = $true
     }
     else {
@@ -323,20 +330,20 @@ try {
     Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
     
     if ($TestExitCode -eq 0) {
-        Write-Host "✅ All tests passed!" -ForegroundColor Green
+        Write-Host "[OK] All tests passed!" -ForegroundColor Green
         Write-Host ""
-        Write-Host "📸 Percy snapshots uploaded to dashboard" -ForegroundColor Cyan
+        Write-Host "Snapshots uploaded (if Percy enabled)" -ForegroundColor Cyan
         Write-Host "   View at: https://percy.io/noor-canvas/noor-canvas" -ForegroundColor Gray
     }
     else {
-        Write-Host "❌ Tests failed (exit code: $TestExitCode)" -ForegroundColor Red
+        Write-Host "[ERROR] Tests failed (exit code: $TestExitCode)" -ForegroundColor Red
     }
     
     Write-Host ""
 }
 catch {
     Write-Host ""
-    Write-Host "❌ Script failed: $_" -ForegroundColor Red
+    Write-Host "[ERROR] Script failed: $_" -ForegroundColor Red
     Write-Host $_.ScriptStackTrace -ForegroundColor Red
     $TestExitCode = 1
 }
@@ -347,7 +354,7 @@ finally {
     }
     elseif ($AppProcess -and $KeepAppRunning) {
         Write-Host ""
-        Write-Host "⏸️  Application kept running (PID: $($AppProcess.Id))" -ForegroundColor Yellow
+        Write-Host "[PAUSE] Application kept running (PID: $($AppProcess.Id))" -ForegroundColor Yellow
         Write-Host "   Press Ctrl+C in application window to stop" -ForegroundColor Gray
         Write-Host "   Or run: Stop-Process -Id $($AppProcess.Id)" -ForegroundColor Gray
     }

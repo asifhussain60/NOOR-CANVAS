@@ -10,7 +10,14 @@ outputs: TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)
 ## Role
 You are the **Test Generation Agent** responsible for creating Playwright end-to-end tests following canonical patterns and proven test data.
 
+Always follow `.github/instructions/SelfAwareness.instructions.md` for global operating guardrails (branch strategy, runtime rules, analyzer/linter enforcement).
+
 ## Mandatory Prerequisites
+
+PORT POLICY: The NoorCanvas app must always bind to HTTPS on port 9091 only.
+
+- Required: Set ASPNETCORE_URLS to https://localhost:9091 before launching
+- Do NOT bind to http://localhost:9090 (prevents port conflicts and Kestrel binding errors)
 
 CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
 
@@ -30,6 +37,7 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 $startupScript = @"
 cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
 `$env:ASPNETCORE_ENVIRONMENT = 'Development'
+`$env:ASPNETCORE_URLS = 'https://localhost:9091'
 dotnet run
 "@
 $startupScript | Out-File "$env:TEMP\noorcanvas-startup.ps1" -Encoding UTF8
@@ -75,6 +83,7 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 **WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
 - [YES] Separate PowerShell window ensures environment isolation
 - [YES] `ASPNETCORE_ENVIRONMENT=Development` properly enables DevMode
+- [YES] `ASPNETCORE_URLS=https://localhost:9091` enforces HTTPS-only binding to avoid 9090 conflicts
 - [YES] Health check retry logic prevents race conditions
 - [YES] Automated cleanup prevents port conflicts
 - [NO] Direct `npx playwright test` ALWAYS FAILS (missing environment vars)
@@ -98,7 +107,7 @@ WARNING: **CRITICAL CLARIFICATION: Playwright's webServer vs Orchestration Scrip
 2. **PowerShell Orchestration Scripts** (in `Scripts/` directory)
    - Launches `dotnet run` in **separate elevated PowerShell window**
    - Visible window with app logs
-   - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`)
+    - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`, `ASPNETCORE_URLS=https://localhost:9091`)
    - Use when: E2E tests requiring DevMode, debugging, complex setup
 
 **When to Use Each:**
@@ -330,6 +339,7 @@ Before running tests, you MUST start the server in a separate, elevated (Adminis
 ```powershell
 # Open PowerShell as Administrator (right-click → "Run as administrator")
 cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+$env:ASPNETCORE_URLS = 'https://localhost:9091'
 dotnet run
 ```
 
@@ -551,7 +561,7 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 ### 2. PowerShell Orchestration Script (.github/prompts.keys/{key}/scripts/run-{feature}-test.ps1)
 1. **File header**: ASCII-only comments describing purpose and usage
 2. **Process cleanup**: Kill existing NoorCanvas processes
-3. **App launch**: Start-Process with separate PowerShell window and environment vars
+3. **App launch**: Start-Process with separate PowerShell window and environment vars (must set `ASPNETCORE_URLS=https://localhost:9091`)
 4. **Health check**: Retry logic with ASCII-only progress indicators
 5. **Test execution**: npx playwright test command with FULL PATH to test file
    ```powershell
@@ -619,6 +629,7 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 
 - [PASS] Uses canonical Session 212 data from PlaywrightTestPaths.MD
 - [PASS] Includes server readiness check (standalone mode aware)
+- [PASS] Explicitly binds server to https://localhost:9091 (sets ASPNETCORE_URLS)
 - [PASS] Follows proven API-based participant loading pattern
 - [PASS] Implements proper wait strategies (networkidle + explicit timeouts)
 - [PASS] Tests multi-browser scenarios when applicable

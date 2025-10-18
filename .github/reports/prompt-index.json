@@ -2,9 +2,9 @@
     {
         "file":  ".github\\\\prompts\\\\analyze-learning.prompt.md",
         "mode":  "agent",
-        "purpose":  "",
-        "inputs":  "",
-        "outputs":  "",
+        "purpose":  "Analyze historical task outcomes to extract success/failure patterns and update learning infrastructure",
+        "inputs":  "scope, analysis-type, verbosity, key",
+        "outputs":  "Updated pattern files under .github/learning/ and analysis report in Workspaces/Copilot/_DOCS/analysis/",
         "hasRole":  true,
         "hasKeyParam":  true,
         "references":  "ValidationFramework.md"
@@ -15,16 +15,16 @@
         "purpose":  "Audit prompts and instructions for redundancy, gaps, conflicts, and optimization opportunities.",
         "inputs":  "key, scope, depth",
         "outputs":  "Markdown report in .github/reports/ and suggested edits for prompts/shared",
-        "hasRole":  false,
+        "hasRole":  true,
         "hasKeyParam":  true,
         "references":  "Architecture.md, SystemIndex.md, InfrastructureQuickRef.md, PlaywrightQuickRef.md, ValidationFramework.md, API-Contract-Validation.md, AnalyzerConfig.MD, PlaywrightConfig.MD, PlaywrightTestPaths.MD, FunctionalityRegistry.md"
     },
     {
         "file":  ".github\\\\prompts\\\\commit.prompt.md",
         "mode":  "agent",
-        "purpose":  "",
-        "inputs":  "",
-        "outputs":  "",
+        "purpose":  "Orchestrate pre-commit validations (cohesion, sync, analyze-learning, refactor) and optionally push",
+        "inputs":  "key, skip-cohesion, skip-sync, skip-learning, skip-refactor, push",
+        "outputs":  "Clean commit(s) and updated reports in .github/reports",
         "hasRole":  true,
         "hasKeyParam":  true,
         "references":  ""
@@ -61,7 +61,7 @@
     },
     {
         "file":  ".github\\\\prompts\\\\question.prompt.md",
-        "mode":  "ask",
+        "mode":  "",
         "purpose":  "",
         "inputs":  "",
         "outputs":  "",

@@ -2,6 +2,7 @@
 
 ---
 mode: agent
+description: Deep-scan reconnaissance agent that populates instructions with project-specific intelligence
 ---
 
 ## Role
@@ -172,13 +173,12 @@ find . -name "pom.xml" -o -name "build.gradle" -o -name "build.gradle.kts"
 ## Technology Stack Analysis
 
 ### Backend
-- **Language:** [C#, Java, Python, etc.]
+- **Language:** e.g. C# / Java / Python
 - **Framework:** [ASP.NET Core, Spring Boot, Django, etc.]
 - **Version:** [6.0, 17, 3.2, etc.]
 
-### Frontend
 - **UI Framework:** [Blazor, React, Vue, Angular, etc.]
-- **Language:** [C#, TypeScript, JavaScript, etc.]
+- **Language:** e.g. C# / TypeScript / JavaScript
 - **Build Tool:** [Webpack, Vite, MSBuild, etc.]
 
 ### Database
@@ -1021,20 +1021,20 @@ find . -name ".editorconfig" -o -name ".eslintrc*" -o -name "roslynator.config" 
 ## Quick Navigation
 
 ### By Layer
-- [Controllers](#controllers) ({{controller_count}})
-- [Services](#services) ({{service_count}})
-- [UI Pages](#pages) ({{page_count}})
-- [Components](#components) ({{component_count}})
-- [API Endpoints](#api) ({{endpoint_count}})
+- Controllers - anchor: controllers - count: {{controller_count}}
+- Services - anchor: services - count: {{service_count}}
+- UI Pages - anchor: pages - count: {{page_count}}
+- Components - anchor: components - count: {{component_count}}
+- API Endpoints - anchor: api - count: {{endpoint_count}}
 
 ### By Feature
 [... organize by business domain ...]
 
 ### By Technology
-- [Database](#database)
-- [Real-Time](#realtime)
-- [Authentication](#auth)
-- [Testing](#testing)
+- Database - anchor: database
+- Real-Time - anchor: realtime
+- Authentication - anchor: auth
+- Testing - anchor: testing
 ```
 
 #### 10.4 API-Contract-Validation.md

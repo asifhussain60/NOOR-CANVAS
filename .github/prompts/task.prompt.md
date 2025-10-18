@@ -2,6 +2,7 @@
 
 ---
 mode: agent
+description: Execution engine that plans, executes, validates, and updates key data streams with audits
 ---
 
 ## Role
@@ -24,7 +25,7 @@ Controls debug logging inserted into source files OR documentation mode.
 **See:** `.github/prompts/shared/debug-logging-mandate.md` for marker patterns
 
 ### verbosity *(optional, default=`concise`)*
-Controls agent output detail level shown to user (does NOT affect functionality).  
+Controls agent output detail level shown to user (does NOT affect functionality).
 **Options:** `concise` (brief summaries, progress markers), `detailed` (full analysis, complete context dumps)
 
 ### tasks *(optional, multi-line)*
