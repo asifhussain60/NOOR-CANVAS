@@ -19,18 +19,18 @@ window.TranscriptSectionParser = {
      */
     waitForContainer: async function (containerId, maxAttempts = 20, intervalMs = 250) {
         console.log('[TRACE:hcp-tcanvas:wait] Waiting for container:', containerId, ';CLEANUP_OK');
-        
+
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             const container = document.getElementById(containerId);
             if (container && container.innerHTML.length > 0) {
                 console.log(`[TRACE:hcp-tcanvas:wait] ✅ Container found after ${attempt} attempts (${attempt * intervalMs}ms) ;CLEANUP_OK`);
                 return container;
             }
-            
+
             console.log(`[TRACE:hcp-tcanvas:wait] Attempt ${attempt}/${maxAttempts} - container ${container ? 'found but empty' : 'not found'} ;CLEANUP_OK`);
             await new Promise(resolve => setTimeout(resolve, intervalMs));
         }
-        
+
         console.error(`[TRACE:hcp-tcanvas:wait] ❌ Container not found after ${maxAttempts * intervalMs}ms ;CLEANUP_OK`);
         return null;
     },

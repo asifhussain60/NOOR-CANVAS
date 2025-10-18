@@ -149,6 +149,20 @@
     [Parameter] public EventCallback<NoorCanvas.ViewModels.QuestionItem> OnQuestionClick { get; set; }
     [Parameter] public Func<string, MarkupString> OnRenderSafeHtml { get; set; } = (html) => new MarkupString(html);
     [Parameter] public Guid? SelectedQuestionId { get; set; }
+    [Parameter] public EventCallback OnTranscriptRendered { get; set; } // [TRACE:hcp-tcanvas:inject] Callback when transcript container is rendered ;CLEANUP_OK
     
     private ElementReference transcriptContainer;
+    private bool hasNotifiedTranscriptRendered = false;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        
+        // [TRACE:hcp-tcanvas:inject] Notify parent when transcript container has content rendered ;CLEANUP_OK
+        if (!hasNotifiedTranscriptRendered && !string.IsNullOrEmpty(Model?.TransformedTranscript))
+        {
+            hasNotifiedTranscriptRendered = true;
+            await OnTranscriptRendered.InvokeAsync();
+        }
+    }
 }

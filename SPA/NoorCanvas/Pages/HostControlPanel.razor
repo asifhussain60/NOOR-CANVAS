@@ -93,7 +93,8 @@
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
                                      OnQuestionClick="@ShareQuestionAsset"
-                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
+                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
+                                     OnTranscriptRendered="@HandleTranscriptRendered" />
         }
         else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode)
         {
@@ -1349,118 +1350,8 @@
             
             await InvokeAsync(StateHasChanged);
 
-            // [TRACE:hcp-tcanvas:inject] Inject share buttons for each h2 section ;CLEANUP_OK
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ BUTTON INJECTION SEQUENCE START ════════ ;CLEANUP_OK", requestId);
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Model.TransformedTranscript length: {Length} chars ;CLEANUP_OK", requestId, Model.TransformedTranscript?.Length ?? 0);
-            
-            // [TRACE:hcp-tcanvas:inject] Pre-injection DOM inspection ;CLEANUP_OK
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Checking DOM state before injection... ;CLEANUP_OK", requestId);
-            var h2PreviewHtml = Model.TransformedTranscript?.Substring(0, Math.Min(1000, Model.TransformedTranscript.Length));
-            var h2CountRegex = System.Text.RegularExpressions.Regex.Matches(h2PreviewHtml ?? "", @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Preview HTML (first 1000 chars) contains {H2Count} h2 tags ;CLEANUP_OK", requestId, h2CountRegex);
-            
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 500ms for DOM render... ;CLEANUP_OK", requestId);
-            await Task.Delay(500); // Allow DOM to render before JavaScript manipulation
-            
-            // [TRACE:hcp-tcanvas:inject] Additional DOM diagnostics ;CLEANUP_OK
-            try
-            {
-                var containerInnerHtmlLength = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container')?.innerHTML?.length || 0");
-                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container innerHTML length in DOM: {Length} chars ;CLEANUP_OK", requestId, containerInnerHtmlLength);
-                
-                if (containerInnerHtmlLength == 0)
-                {
-                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ Container is EMPTY in DOM - content not rendered yet ;CLEANUP_OK", requestId);
-                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting additional 1000ms for Blazor rendering... ;CLEANUP_OK", requestId);
-                    await Task.Delay(1000);
-                    
-                    containerInnerHtmlLength = await JSRuntime.InvokeAsync<int>("eval", "document.getElementById('transcript-content-container')?.innerHTML?.length || 0");
-                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container innerHTML after retry: {Length} chars ;CLEANUP_OK", requestId, containerInnerHtmlLength);
-                }
-            }
-            catch (Exception domEx)
-            {
-                Logger.LogWarning(domEx, "[TRACE:hcp-tcanvas:inject] [{RequestId}] DOM inspection failed (non-fatal): {Message} ;CLEANUP_OK", requestId, domEx.Message);
-            }
-            
-            try
-            {
-                // [CRITICAL:hcp-tcanvas:inject] Check if script loaded, load dynamically if missing ;CLEANUP_OK
-                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Checking if TranscriptSectionParser is loaded... ;CLEANUP_OK", requestId);
-                var isScriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.TranscriptSectionParser !== 'undefined'");
-                
-                if (!isScriptLoaded)
-                {
-                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ TranscriptSectionParser NOT LOADED - attempting dynamic script injection ;CLEANUP_OK", requestId);
-                    
-                    // Dynamically load the script
-                    await JSRuntime.InvokeVoidAsync("eval", @"
-                        (function() {
-                            if (!document.getElementById('transcript-section-parser-script')) {
-                                const script = document.createElement('script');
-                                script.id = 'transcript-section-parser-script';
-                                script.src = '/js/transcript-section-parser.js?v=' + Date.now();
-                                document.head.appendChild(script);
-                                console.log('[TRACE:hcp-tcanvas:inject] Script dynamically injected ;CLEANUP_OK');
-                            }
-                        })();
-                    ");
-                    
-                    // Wait for script to load
-                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 1000ms for script to load... ;CLEANUP_OK", requestId);
-                    await Task.Delay(1000);
-                    
-                    isScriptLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.TranscriptSectionParser !== 'undefined'");
-                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Script loaded after dynamic injection: {Loaded} ;CLEANUP_OK", requestId, isScriptLoaded);
-                    
-                    if (!isScriptLoaded)
-                    {
-                        Logger.LogError("[TRACE:hcp-tcanvas:inject] [{RequestId}] ❌ CRITICAL: Script failed to load even after dynamic injection! ;CLEANUP_OK", requestId);
-                        throw new InvalidOperationException("TranscriptSectionParser script failed to load");
-                    }
-                }
-                else
-                {
-                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ✅ TranscriptSectionParser already loaded ;CLEANUP_OK", requestId);
-                }
-                
-                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Creating DotNetObjectReference... ;CLEANUP_OK", requestId);
-                var dotNetRef = DotNetObjectReference.Create(this);
-                
-                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons', 'transcript-content-container', dotNetRef) ;CLEANUP_OK", requestId);
-                var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
-                
-                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JSRuntime call completed ;CLEANUP_OK", requestId);
-                
-                var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
-                var sections = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
-                var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
-                
-                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Injection result: Success={Success}, Sections={Sections}, Error={Error} ;CLEANUP_OK", 
-                    requestId, success, sections, error ?? "none");
-                
-                if (success && sections > 0)
-                {
-                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ✅ Share buttons injected successfully: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
-                }
-                else if (success && sections == 0)
-                {
-                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ No sections found - possible h2 detection issue: {Error} ;CLEANUP_OK", requestId, error);
-                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] HTML preview: {Preview} ;CLEANUP_OK", requestId, h2PreviewHtml);
-                }
-                else
-                {
-                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ❌ Share button injection failed: {Error} ;CLEANUP_OK", requestId, error);
-                }
-            }
-            catch (Exception jsEx)
-            {
-                Logger.LogError(jsEx, "[TRACE:hcp-tcanvas:inject] [{RequestId}] 💥 Exception during button injection: {Message} ;CLEANUP_OK", requestId, jsEx.Message);
-                Logger.LogError("[TRACE:hcp-tcanvas:inject] [{RequestId}] Stack trace: {StackTrace} ;CLEANUP_OK", requestId, jsEx.StackTrace);
-                // Non-fatal - continue with broadcast even if button injection fails
-            }
-            
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ BUTTON INJECTION SEQUENCE END ════════ ;CLEANUP_OK", requestId);
+            // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Button injection now handled by HandleTranscriptRendered() callback
+            // This is called from HostControlPanelContent.razor OnAfterRenderAsync after DOM rendering completes
             
             // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Automatically broadcast to participants (like Start Session button)
             // This navigates all participants from waiting room to TranscriptCanvas.razor
@@ -1479,6 +1370,42 @@
             isLoading = false;
             await InvokeAsync(StateHasChanged);
             Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:EXIT] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW END ════════ ;CLEANUP_OK", requestId);
+        }
+    }
+
+    // [TRACE:hcp-tcanvas:inject] Handle transcript rendered callback - inject share buttons AFTER DOM is ready ;CLEANUP_OK
+    private async Task HandleTranscriptRendered()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ HANDLE TRANSCRIPT RENDERED ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Component rendered with transcript content, injecting buttons... ;CLEANUP_OK", requestId);
+        
+        try
+        {
+            // Small delay to ensure DOM is fully updated
+            await Task.Delay(100);
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync to inject share buttons ;CLEANUP_OK", requestId);
+            var dotNetRef = DotNetObjectReference.Create(this);
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            
+            var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
+            var sections = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
+            var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
+            
+            if (success && sections > 0)
+            {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ✅ Share buttons injected successfully: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
+            }
+            else
+            {
+                Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ Button injection issue - Success={Success}, Sections={Sections}, Error={Error} ;CLEANUP_OK", 
+                    requestId, success, sections, error ?? "none");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:inject] [{RequestId}] ❌ Exception during button injection: {Message} ;CLEANUP_OK", requestId, ex.Message);
         }
     }
 
