@@ -30,8 +30,9 @@ No share buttons are being injected for the h2 blocks. Follow SessionCanvas.razo
   - Added `TestTranscriptSectionSharing()` method with 7-phase validation
   - Added debug panel action for manual testing
   - Improved error diagnostics with HTML preview on h2 detection failure
+  - Added DOM render timing diagnostics (container innerHTML length check, retry logic)
 - **Files Affected**:
-  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (trace logging, test method, debug action)
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (trace logging, test method, debug action, DOM diagnostics)
 - **Test Coverage**:
   - Phase 1: Model.TransformedTranscript content check
   - Phase 2: Regex h2 element count in HTML
@@ -40,10 +41,14 @@ No share buttons are being injected for the h2 blocks. Follow SessionCanvas.razo
   - Phase 5: Share button injection via TranscriptSectionParser
   - Phase 6: Button presence validation in DOM
   - Phase 7: Section HTML extraction accuracy test
+- **Diagnostics**:
+  - Pre-injection: HTML preview, regex h2 count
+  - DOM timing: Container innerHTML length, 1000ms retry if empty
+  - Post-injection: Button count verification, error capture
 - **Build**: Clean (0 errors, 0 warnings)
 - **Lint Validation**: PASS (Razor: 1 file)
 - **Debug Level**: trace
-- **Commit**: 89055625d2f7b668dc741566ed9501c5740dd4f0
+- **Commit**: a00ef25af86652167706d3925e933895c5ff3d01
 
 ---
 
