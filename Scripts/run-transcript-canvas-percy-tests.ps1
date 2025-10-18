@@ -70,7 +70,10 @@ param(
     [string]$TestPattern = "Tests/UI/transcript-canvas-html-structure.spec.ts",
     [switch]$SkipBuild,
     [switch]$KeepAppRunning,
-    [switch]$HeadlessTests
+    [switch]$HeadlessTests,
+    [switch]$AllowNoPercy,
+    [switch]$ScreenshotOnly,
+    [string]$NavigateUrl
 )
 
 $ErrorActionPreference = "Stop"
@@ -87,6 +90,12 @@ $AppStartupGracePeriodSeconds = 5
 # Script state
 $AppProcess = $null
 $TestExitCode = 0
+$StartedApp = $false
+
+# Default NavigateUrl if not provided
+if (-not $NavigateUrl -or [string]::IsNullOrWhiteSpace($NavigateUrl)) {
+    $NavigateUrl = "$AppUrl/transcript/canvas/KJAHA99L"
+}
 
 Write-Host ""
 Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
@@ -100,13 +109,20 @@ function Test-PercyConfiguration {
     Write-Host "🔍 Checking Percy configuration..." -ForegroundColor Yellow
     
     if (-not $env:PERCY_TOKEN) {
-        Write-Host "❌ PERCY_TOKEN environment variable not set" -ForegroundColor Red
-        Write-Host ""
-        Write-Host "💡 To configure Percy:" -ForegroundColor Yellow
-        Write-Host "   1. Run: .\setup-percy.ps1" -ForegroundColor White
-        Write-Host "   2. Or set manually: `$env:PERCY_TOKEN = 'your-token'" -ForegroundColor White
-        Write-Host ""
-        return $false
+        if ($AllowNoPercy) {
+            Write-Host "⚠️  PERCY_TOKEN not set. Proceeding without Percy (AllowNoPercy enabled)" -ForegroundColor Yellow
+            return $true
+        }
+        else {
+            Write-Host "❌ PERCY_TOKEN environment variable not set" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "💡 To configure Percy:" -ForegroundColor Yellow
+            Write-Host "   1. Run: .\setup-percy.ps1" -ForegroundColor White
+            Write-Host "   2. Or set manually: `$env:PERCY_TOKEN = 'your-token'" -ForegroundColor White
+            Write-Host "   3. Or re-run with -AllowNoPercy to skip Percy" -ForegroundColor White
+            Write-Host ""
+            return $false
+        }
     }
     
     Write-Host "✅ Percy token configured" -ForegroundColor Green
@@ -144,6 +160,7 @@ function Start-ApplicationInBackground {
         ) -PassThru -WindowStyle Normal
         
         Write-Host "✅ Application launched (PID: $($AppProcess.Id))" -ForegroundColor Green
+        $script:StartedApp = $true
         
         # Grace period for application startup
         Write-Host "⏳ Waiting $AppStartupGracePeriodSeconds seconds for application startup..." -ForegroundColor Yellow
@@ -189,6 +206,14 @@ function Wait-ForApplicationReady {
     return $false
 }
 
+function Test-AppResponding {
+    try {
+        $response = Invoke-WebRequest -Uri $HealthCheckEndpoint -SkipCertificateCheck -TimeoutSec 3 -ErrorAction Stop
+        return ($response.StatusCode -eq 200)
+    }
+    catch { return $false }
+}
+
 function Invoke-PlaywrightPercyTests {
     param([string]$Pattern, [bool]$Headed)
     
@@ -198,18 +223,26 @@ function Invoke-PlaywrightPercyTests {
     Write-Host "   Mode: $(if ($Headed) { 'Headed (visible browser)' } else { 'Headless' })" -ForegroundColor Gray
     Write-Host ""
     
-    $playwrightArgs = @(
-        "percy", "exec", "--",
-        "npx", "playwright", "test",
-        $Pattern
-    )
-    
-    if ($Headed) {
-        $playwrightArgs += "--headed"
+    $usePercy = [string]::IsNullOrWhiteSpace($env:PERCY_TOKEN) -eq $false
+    if ($ScreenshotOnly -and ($Pattern -eq $null -or $Pattern -eq '')) {
+        $Pattern = ".github/prompts.keys/transcript-canvas/tests/transcript-canvas-screenshot.spec.ts"
     }
-    
-    # Run tests
-    & $playwrightArgs[0] $playwrightArgs[1..($playwrightArgs.Length - 1)]
+
+    if ($usePercy) {
+        $playwrightArgs = @(
+            "percy", "exec", "--",
+            "npx", "playwright", "test",
+            $Pattern
+        )
+        if ($Headed) { $playwrightArgs += "--headed" }
+        & $playwrightArgs[0] $playwrightArgs[1..($playwrightArgs.Length - 1)]
+    }
+    else {
+        # Run without Percy
+        $args = @("npx", "playwright", "test", $Pattern)
+        if ($Headed) { $args += "--headed" }
+        & $args[0] $args[1..($args.Length - 1)]
+    }
     
     return $LASTEXITCODE
 }
@@ -239,10 +272,8 @@ function Stop-ApplicationProcess {
 #region Main Execution
 
 try {
-    # Step 1: Verify Percy configuration
-    if (-not (Test-PercyConfiguration)) {
-        throw "Percy configuration validation failed"
-    }
+    # Step 1: Verify Percy configuration (allow fallback when permitted)
+    if (-not (Test-PercyConfiguration)) { throw "Percy configuration validation failed" }
     
     # Step 2: Build application (unless skipped)
     if (-not $SkipBuild) {
@@ -252,17 +283,29 @@ try {
         Write-Host "⏭️  Skipping build (using existing binaries)" -ForegroundColor Yellow
     }
     
-    # Step 3: Launch application
-    $AppProcess = Start-ApplicationInBackground
+    # Step 3: Launch application (only if not already running)
+    if (Test-AppResponding) {
+        Write-Host "✅ Application already running at $AppUrl" -ForegroundColor Green
+    }
+    else {
+        $AppProcess = Start-ApplicationInBackground
+    }
     
     # Step 4: Wait for application to be ready
     if (-not (Wait-ForApplicationReady)) {
         throw "Application failed to start"
     }
     
-    # Step 5: Run Playwright + Percy tests
+    # Step 5: Run Playwright(+Percy) tests or screenshot-only
     $headed = -not $HeadlessTests
-    $TestExitCode = Invoke-PlaywrightPercyTests -Pattern $TestPattern -Headed $headed
+    # Pass target URL to Playwright via env var
+    $prevUrl = $env:NC_URL
+    $env:NC_URL = $NavigateUrl
+    try {
+        $patternToRun = if ($ScreenshotOnly) { ".github/prompts.keys/transcript-canvas/tests/transcript-canvas-screenshot.spec.ts" } else { $TestPattern }
+        $TestExitCode = Invoke-PlaywrightPercyTests -Pattern $patternToRun -Headed $headed
+    }
+    finally { $env:NC_URL = $prevUrl }
     
     # Step 6: Report results
     Write-Host ""
@@ -290,7 +333,7 @@ catch {
 }
 finally {
     # Step 7: Cleanup (unless KeepAppRunning flag set)
-    if ($AppProcess -and -not $KeepAppRunning) {
+    if ($StartedApp -and $AppProcess -and -not $KeepAppRunning) {
         Stop-ApplicationProcess -Process $AppProcess
     }
     elseif ($AppProcess -and $KeepAppRunning) {
