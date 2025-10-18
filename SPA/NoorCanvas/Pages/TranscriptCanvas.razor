@@ -1162,11 +1162,11 @@
                                 }
                             </span>
                             
-                            <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Toggle button repositioned inline, sticky to top ;CLEANUP_OK -->
-                            <button @onclick="ToggleSidebar" 
-                                    class="canvas-sidebar-toggle @(IsSidebarVisible ? "sidebar-visible" : "")"
-                                    title="@(IsSidebarVisible ? "Hide Q&A Panel" : "Show Q&A Panel")">
-                                <i class="fa-solid @(IsSidebarVisible ? "fa-chevron-right" : "fa-chevron-left") canvas-sidebar-toggle-icon"></i>
+                            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Button converted to open question modal ;CLEANUP_OK -->
+                            <button @onclick="OpenQuestionModal" 
+                                    class="canvas-sidebar-toggle"
+                                    title="Ask a Question">
+                                <i class="fa-solid fa-comment-dots canvas-sidebar-toggle-icon"></i>
                             </button>
                         </div>
                     </div>
@@ -1375,7 +1375,38 @@
     </div>
 </div>
 
-
+<!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question Modal - Centered popup for asking questions ;CLEANUP_OK -->
+@if (IsQuestionModalVisible)
+{
+    <div class="canvas-modal-overlay" @onclick="CloseQuestionModal">
+        <div class="canvas-modal-content" @onclick:stopPropagation="true" style="max-width:500px;">
+            <h4 class="canvas-modal-title">Ask a Question</h4>
+            
+            <div style="margin-bottom:1rem;">
+                <textarea @bind="QuestionInput" 
+                          class="canvas-form-textarea"
+                          placeholder="Type your question here..."
+                          rows="4"
+                          disabled="@(EditingQuestionIndex != null)"
+                          style="width:100%;"></textarea>
+            </div>
+            
+            <div class="canvas-modal-buttons">
+                <button @onclick="SubmitQuestionFromModal" 
+                        class="canvas-form-submit-button"
+                        style="flex:1;">
+                    <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
+                    <span class="canvas-form-submit-text">Submit</span>
+                </button>
+                <button @onclick="CloseQuestionModal" 
+                        class="canvas-modal-button canvas-modal-button-cancel"
+                        style="flex:1;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Confirmation Modal -->
 @if (IsModalVisible)
@@ -1428,6 +1459,9 @@
 
     // [TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar visibility toggle state ;CLEANUP_OK
     private bool IsSidebarVisible { get; set; } = false;
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal visibility state ;CLEANUP_OK
+    private bool IsQuestionModalVisible { get; set; } = false;
 
     private enum Tab { QA, Participants }
     private Tab ActiveTab { get; set; } = Tab.QA;
@@ -2560,6 +2594,30 @@
         Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar toggled - IsSidebarVisible={IsSidebarVisible}, ActiveTab={ActiveTab} ;CLEANUP_OK", 
             IsSidebarVisible, ActiveTab);
         StateHasChanged();
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Open question modal ;CLEANUP_OK
+    private void OpenQuestionModal()
+    {
+        IsQuestionModalVisible = true;
+        QuestionInput = string.Empty; // Clear previous input
+        Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal opened ;CLEANUP_OK");
+        StateHasChanged();
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Close question modal ;CLEANUP_OK
+    private void CloseQuestionModal()
+    {
+        IsQuestionModalVisible = false;
+        Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal closed ;CLEANUP_OK");
+        StateHasChanged();
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Submit question from modal ;CLEANUP_OK
+    private async Task SubmitQuestionFromModal()
+    {
+        await SubmitQuestion(); // Reuse existing question submission logic
+        CloseQuestionModal(); // Close modal after successful submission
     }
 
     private async Task DeleteConfirmed()

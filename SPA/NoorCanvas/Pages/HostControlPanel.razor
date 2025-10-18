@@ -87,7 +87,6 @@
                                      SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
                                      OnBroadcastTranscript="@BroadcastFullTranscript"
-                                     OnTranscriptScroll="@HandleTranscriptScroll"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
                                      OnQuestionClick="@ShareQuestionAsset"
@@ -147,11 +146,6 @@
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
-    
-    // [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Scroll synchronization fields ;CLEANUP_OK
-    private ElementReference transcriptContainerRef;
-    private DateTime lastScrollBroadcast = DateTime.MinValue;
-    private const int ScrollThrottleMs = 200; // Throttle scroll broadcasts to max 5 per second
     
 
 
@@ -1433,46 +1427,6 @@
     /// [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Handle transcript scroll and broadcast to participants ;CLEANUP_OK
     /// Throttled to 200ms intervals to prevent network flooding
     /// Participants receive scroll position and are locked to host's view
-    /// </summary>
-    private async Task HandleTranscriptScroll()
-    {
-        try
-        {
-            // Throttle scroll broadcasts
-            var elapsed = (DateTime.UtcNow - lastScrollBroadcast).TotalMilliseconds;
-            if (elapsed < ScrollThrottleMs)
-            {
-                return;
-            }
-            
-            lastScrollBroadcast = DateTime.UtcNow;
-            
-            // Get scroll position from JavaScript
-            var scrollData = await JSRuntime.InvokeAsync<ScrollData>("getScrollPosition", transcriptContainerRef);
-            
-            // Calculate scroll percentage (0.0 to 1.0)
-            var scrollPercentage = scrollData.ScrollHeight > 0 
-                ? scrollData.ScrollTop / scrollData.ScrollHeight 
-                : 0.0;
-            
-            // Broadcast to participants via SignalR
-            if (hubConnection?.State == HubConnectionState.Connected && SessionId.HasValue)
-            {
-                await hubConnection.InvokeAsync("BroadcastScrollPosition", SessionId.Value, scrollPercentage);
-                Logger.LogInformation("[SCROLL-SYNC:HOST] Broadcasted scroll: {Percentage:P2} (top={Top}, height={Height})", 
-                    scrollPercentage, scrollData.ScrollTop, scrollData.ScrollHeight);
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[SCROLL-SYNC:HOST] Failed to broadcast scroll position");
-        }
-    }
-
-    /// <summary>
-    /// [DIAGNOSTIC:transcript-canvas:transform] Transform transcript HTML for broadcast mode
-    /// Removes delete buttons and share buttons, keeps content clean for single broadcast button display
-    /// CRITICAL: Does NOT inject individual share buttons (different from Start Session flow)
     /// </summary>
     private Task<string> TransformTranscriptForBroadcastAsync()
     {
@@ -3865,33 +3819,9 @@
         public string EnhancedHtml { get; set; } = "";
         public string ErrorMessage { get; set; } = "";
     }
-
-    /// <summary>
-    /// [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Data transfer object for JavaScript scroll position ;CLEANUP_OK
-    /// </summary>
-    public class ScrollData
-    {
-        public double ScrollTop { get; set; }
-        public double ScrollHeight { get; set; }
-        public double ClientHeight { get; set; }
-    }
 }
 
 <script>
-    // [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Get scroll position from element ;CLEANUP_OK
-    window.getScrollPosition = function(element) {
-        if (!element) {
-            console.error('[SCROLL-SYNC:JS] Element reference is null');
-            return { scrollTop: 0, scrollHeight: 0, clientHeight: 0 };
-        }
-        
-        return {
-            scrollTop: element.scrollTop,
-            scrollHeight: element.scrollHeight,
-            clientHeight: element.clientHeight
-        };
-    };
-
     // Individual Asset Sharing Function (called by auto-injected SHARE buttons)
     window.shareIndividualAsset = async function(assetId, assetType) {
         console.log('NOOR-ASSET-SHARE: Sharing individual asset:', assetId, 'Type:', assetType);

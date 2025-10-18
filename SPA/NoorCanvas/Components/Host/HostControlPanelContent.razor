@@ -54,10 +54,8 @@
             }
             else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
             {
-                <!-- [TRACE-WORKITEM:transcript-canvas:scroll-sync] Host transcript with scroll broadcast ;CLEANUP_OK -->
                 <div style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;" 
-                     @ref="transcriptContainer"
-                     @onscroll="() => OnTranscriptScroll.InvokeAsync()">
+                     @ref="transcriptContainer">
                     <div class="html-viewer-content session-transcript-content" data-islamic-content>
                         @* Safe HTML rendering - Fixed appendChild error by proper MarkupString casting *@
                         @((MarkupString)OnRenderSafeHtml(Model?.TransformedTranscript ?? ""))
@@ -144,7 +142,6 @@
     [Parameter] public bool IsBroadcastMode { get; set; } // [DEBUG-WORKITEM:transcript-canvas:broadcast] Show broadcast button when true ;CLEANUP_OK
     [Parameter] public EventCallback OnEndSession { get; set; }
     [Parameter] public EventCallback OnBroadcastTranscript { get; set; } // [DEBUG-WORKITEM:transcript-canvas:broadcast] Broadcast full transcript ;CLEANUP_OK
-    [Parameter] public EventCallback OnTranscriptScroll { get; set; } // [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Broadcast scroll position to participants ;CLEANUP_OK
     [Parameter] public EventCallback<Guid> OnMarkQuestionAnswered { get; set; }
     [Parameter] public EventCallback<Guid> OnShowDeleteModal { get; set; }
     [Parameter] public EventCallback<NoorCanvas.ViewModels.QuestionItem> OnQuestionClick { get; set; }
