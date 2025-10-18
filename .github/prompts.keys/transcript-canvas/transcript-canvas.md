@@ -1,13 +1,39 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-17T19:16:00Z  
-**Git Commit:** 35be954f
+**Last Updated:** 2025-10-18T03:57:00Z  
+**Git Commit:** 254e66f4
 
 ## Overview
-Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved. TranscriptCanvas.razor layout redesigned to maximize canvas panel with collapsible sidebar.
+TranscriptCanvas.razor sidebar completely removed - uses modal-only question submission. SessionCanvas.razor sidebar preserved.
 
 ## Work Log
+
+### 2025-10-18T03:57:00Z - Removed Remaining Sidebar Responsive CSS
+**Commit:** 254e66f4  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Task:** Clean up remaining sidebar CSS from TranscriptCanvas.razor (mobile/landscape responsive styles)
+
+**Changes:**
+- Removed mobile sidebar slide-in animation (`.canvas-sidebar` in `@media (max-width: 768px)`)
+- Removed `.canvas-main-grid.sidebar-visible .canvas-sidebar` mobile override
+- Removed `.canvas-sidebar-toggle` mobile positioning
+- Removed landscape sidebar 2-column grids (`.canvas-questions-container`, `.canvas-participants-container`)
+- SessionCanvas.razor sidebar unaffected (verified 4 references intact)
+
+**Validation:**
+- Build: Clean (0 errors, 0 warnings)
+- Lint: No errors in TranscriptCanvas.razor
+- SessionCanvas.razor: Sidebar functionality preserved
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (removed responsive sidebar CSS)
+
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-18_0357`
+
+---
 
 ### 2025-10-17T19:16:00Z - Maximized Canvas Panel with Collapsible Sidebar
 **Commit:** 35be954f  
