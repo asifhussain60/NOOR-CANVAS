@@ -17,20 +17,51 @@ window.TranscriptSectionParser = {
      * @returns {object} Result with section count and success status
      */
     injectShareButtons: function (containerId, dotNetRef) {
-        console.log('[DEBUG-WORKITEM:hcp-tcanvas:parse] Injecting share buttons into transcript sections ;CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION START ════════ ;CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] ContainerId:', containerId, ';CLEANUP_OK');
 
         const container = document.getElementById(containerId);
         if (!container) {
-            console.error('[DEBUG-WORKITEM:hcp-tcanvas:parse] Container not found:', containerId);
+            console.error('[TRACE:hcp-tcanvas:inject] ❌ Container NOT FOUND:', containerId, ';CLEANUP_OK');
+            console.error('[TRACE:hcp-tcanvas:inject] Available IDs in document:', Array.from(document.querySelectorAll('[id]')).map(el => el.id), ';CLEANUP_OK');
             return { success: false, sections: 0, error: 'Container not found' };
         }
 
+        console.log('[TRACE:hcp-tcanvas:inject] ✅ Container found ;CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Container innerHTML length:', container.innerHTML.length, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Container first 500 chars:', container.innerHTML.substring(0, 500), ';CLEANUP_OK');
+
         // Find all h2 elements in the transcript
         const h2Elements = container.querySelectorAll('h2');
-        console.log(`[DEBUG-WORKITEM:hcp-tcanvas:parse] Found ${h2Elements.length} h2 elements ;CLEANUP_OK`);
+        console.log(`[TRACE:hcp-tcanvas:inject] Found ${h2Elements.length} h2 elements ;CLEANUP_OK`);
+
+        // Log details about each h2 found
+        h2Elements.forEach((h2, idx) => {
+            console.log(`[TRACE:hcp-tcanvas:inject] h2[${idx}]:`, {
+                text: h2.textContent?.substring(0, 50),
+                parent: h2.parentNode?.tagName,
+                nextSibling: h2.nextElementSibling?.tagName || 'none',
+                classes: h2.className
+            }, ';CLEANUP_OK');
+        });
 
         if (h2Elements.length === 0) {
-            console.warn('[DEBUG-WORKITEM:hcp-tcanvas:parse] No h2 elements found in transcript');
+            console.warn('[TRACE:hcp-tcanvas:inject] ⚠️ NO h2 elements found in transcript ;CLEANUP_OK');
+            console.warn('[TRACE:hcp-tcanvas:inject] Checking for alternative selectors: ;CLEANUP_OK');
+            console.warn('[TRACE:hcp-tcanvas:inject]   - All headings (h1-h6):', container.querySelectorAll('h1,h2,h3,h4,h5,h6').length, ';CLEANUP_OK');
+            console.warn('[TRACE:hcp-tcanvas:inject]   - Direct children:', container.children.length, ';CLEANUP_OK');
+            console.warn('[TRACE:hcp-tcanvas:inject]   - All descendants:', container.querySelectorAll('*').length, ';CLEANUP_OK');
+
+            // Sample first 5 child elements for diagnosis
+            Array.from(container.children).slice(0, 5).forEach((child, idx) => {
+                console.warn(`[TRACE:hcp-tcanvas:inject]   Child[${idx}]:`, {
+                    tagName: child.tagName,
+                    className: child.className,
+                    id: child.id,
+                    text: child.textContent?.substring(0, 50)
+                }, ';CLEANUP_OK');
+            });
+
             return { success: true, sections: 0, error: 'No h2 sections found' };
         }
 

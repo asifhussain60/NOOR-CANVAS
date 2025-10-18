@@ -1350,32 +1350,49 @@
             await InvokeAsync(StateHasChanged);
 
             // [DEBUG-WORKITEM:hcp-tcanvas:parse] Inject share buttons for each h2 section ;CLEANUP_OK
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Injecting share buttons into transcript sections ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ BUTTON INJECTION SEQUENCE START ════════ ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Model.TransformedTranscript length: {Length} chars ;CLEANUP_OK", requestId, Model.TransformedTranscript?.Length ?? 0);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Waiting 500ms for DOM render... ;CLEANUP_OK", requestId);
             await Task.Delay(500); // Allow DOM to render before JavaScript manipulation
             
             try
             {
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Creating DotNetObjectReference... ;CLEANUP_OK", requestId);
                 var dotNetRef = DotNetObjectReference.Create(this);
+                
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons', 'transcript-content-container', dotNetRef) ;CLEANUP_OK", requestId);
                 var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+                
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JSRuntime call completed ;CLEANUP_OK", requestId);
                 
                 var success = injectionResult.TryGetProperty("success", out var successProp) && successProp.GetBoolean();
                 var sections = injectionResult.TryGetProperty("sections", out var sectionsProp) ? sectionsProp.GetInt32() : 0;
+                var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : null;
                 
-                if (success)
+                Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Injection result: Success={Success}, Sections={Sections}, Error={Error} ;CLEANUP_OK", 
+                    requestId, success, sections, error ?? "none");
+                
+                if (success && sections > 0)
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Share buttons injected: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
+                    Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ✅ Share buttons injected successfully: {SectionCount} sections ;CLEANUP_OK", requestId, sections);
+                }
+                else if (success && sections == 0)
+                {
+                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ⚠️ No sections found - possible h2 detection issue: {Error} ;CLEANUP_OK", requestId, error);
                 }
                 else
                 {
-                    var error = injectionResult.TryGetProperty("error", out var errorProp) ? errorProp.GetString() : "Unknown error";
-                    Logger.LogWarning("[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Share button injection warning: {Error} ;CLEANUP_OK", requestId, error);
+                    Logger.LogWarning("[TRACE:hcp-tcanvas:inject] [{RequestId}] ❌ Share button injection failed: {Error} ;CLEANUP_OK", requestId, error);
                 }
             }
             catch (Exception jsEx)
             {
-                Logger.LogError(jsEx, "[DEBUG-WORKITEM:hcp-tcanvas:parse] [{RequestId}] Error injecting share buttons: {Message} ;CLEANUP_OK", requestId, jsEx.Message);
+                Logger.LogError(jsEx, "[TRACE:hcp-tcanvas:inject] [{RequestId}] 💥 Exception during button injection: {Message} ;CLEANUP_OK", requestId, jsEx.Message);
+                Logger.LogError("[TRACE:hcp-tcanvas:inject] [{RequestId}] Stack trace: {StackTrace} ;CLEANUP_OK", requestId, jsEx.StackTrace);
                 // Non-fatal - continue with broadcast even if button injection fails
             }
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] ════════ BUTTON INJECTION SEQUENCE END ════════ ;CLEANUP_OK", requestId);
             
             // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Automatically broadcast to participants (like Start Session button)
             // This navigates all participants from waiting room to TranscriptCanvas.razor
@@ -1461,46 +1478,58 @@
     /// </summary>
     private Task<string> TransformTranscriptForBroadcastAsync()
     {
-        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:ENTRY] TransformTranscriptForBroadcast called ;CLEANUP_OK");
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] ════════ TRANSFORM TRANSCRIPT START ════════ ;CLEANUP_OK");
         
         if (Model == null || string.IsNullOrEmpty(Model.SessionTranscript))
         {
-            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:transform:ERROR] Model or SessionTranscript is null/empty ;CLEANUP_OK");
+            Logger.LogWarning("[TRACE:hcp-tcanvas:transform] ❌ Model or SessionTranscript is null/empty ;CLEANUP_OK");
             return Task.FromResult(string.Empty);
         }
 
         var html = Model.SessionTranscript;
-        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-1] Input HTML length={Length} chars ;CLEANUP_OK", html.Length);
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Input HTML length={Length} chars ;CLEANUP_OK", html.Length);
+        
+        // Count h2 elements in original HTML
+        var h2CountBefore = System.Text.RegularExpressions.Regex.Matches(html, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] h2 elements in original HTML: {Count} ;CLEANUP_OK", h2CountBefore);
+        
+        // Show first 500 chars of HTML for diagnosis
+        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] First 500 chars: {Preview} ;CLEANUP_OK", html.Substring(0, Math.Min(500, html.Length)));
 
         try
         {
             // Remove delete buttons using regex (same pattern as AssetProcessingService)
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-2] Removing delete buttons ;CLEANUP_OK");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing delete buttons ;CLEANUP_OK");
             html = System.Text.RegularExpressions.Regex.Replace(html, 
                 @"<button[^>]*class\s*=\s*[""'][^""']*delete[^""']*[""'][^>]*>.*?</button>", 
                 "", 
                 System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             
             // Remove individual share buttons (different from Start Session - we want NO asset buttons)
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-3] Removing individual asset share buttons ;CLEANUP_OK");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing individual asset share buttons ;CLEANUP_OK");
             html = System.Text.RegularExpressions.Regex.Replace(html, 
                 @"<button[^>]*onclick\s*=\s*[""']shareIndividualAsset\([^)]*\)[""'][^>]*>.*?</button>", 
                 "", 
                 System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             
             // Remove any data-asset-id attributes (clean markup)
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:STEP-4] Removing data-asset-id attributes ;CLEANUP_OK");
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing data-asset-id attributes ;CLEANUP_OK");
             html = System.Text.RegularExpressions.Regex.Replace(html, 
                 @"\s+data-asset-id\s*=\s*[""'][^""']*[""']", 
                 "", 
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:transform:COMPLETE] Output HTML length={Length} chars, Ready for broadcast mode display ;CLEANUP_OK", html.Length);
+            // Count h2 elements after transformation
+            var h2CountAfter = System.Text.RegularExpressions.Regex.Matches(html, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] h2 elements AFTER transformation: {Count} ;CLEANUP_OK", h2CountAfter);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Output HTML length={Length} chars ;CLEANUP_OK", html.Length);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] ════════ TRANSFORM TRANSCRIPT COMPLETE ════════ ;CLEANUP_OK");
+            
             return Task.FromResult(html);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:transform:ERROR] Exception during transformation - Message={Message} ;CLEANUP_OK", ex.Message);
+            Logger.LogError(ex, "[TRACE:hcp-tcanvas:transform] 💥 Exception during transformation: {Message} ;CLEANUP_OK", ex.Message);
             return Task.FromResult(Model.SessionTranscript); // Return original on error
         }
     }
