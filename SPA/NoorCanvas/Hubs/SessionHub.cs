@@ -207,6 +207,50 @@ public class SessionHub : Hub
         }
     }
 
+    /// <summary>
+    /// [TRACE:hcp-tcanvas:broadcast] Broadcast transcript section (h2 + content) to session participants ;CLEANUP_OK
+    /// Called from HostControlPanel when host clicks section share button
+    /// </summary>
+    public async Task BroadcastTranscriptSection(string sessionId, string sectionHtml, string h2Text)
+    {
+        var groupName = $"session_{sessionId}";
+        var trackingId = Guid.NewGuid().ToString("N")[..8];
+
+        _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] ════════ HUB: BROADCAST SECTION ════════ ;CLEANUP_OK");
+        _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] SessionId={SessionId}, GroupName={GroupName}, ConnectionId={ConnectionId} ;CLEANUP_OK",
+            trackingId, sessionId, groupName, Context.ConnectionId);
+        _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] H2 Text: {H2Text}, HTML Length: {HtmlLength} chars ;CLEANUP_OK",
+            trackingId, h2Text, sectionHtml?.Length ?? 0);
+
+        try
+        {
+            var payload = new
+            {
+                sessionId = sessionId,
+                sectionHtml = sectionHtml,
+                h2Text = h2Text,
+                timestamp = DateTime.UtcNow,
+                sharedBy = Context.ConnectionId,
+                trackingId = trackingId
+            };
+
+            _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] Sending ReceiveTranscriptSection to group {GroupName} ;CLEANUP_OK",
+                trackingId, groupName);
+
+            await Clients.Group(groupName).SendAsync("ReceiveTranscriptSection", payload);
+
+            _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] ✅ Section broadcasted successfully to {GroupName} ;CLEANUP_OK",
+                trackingId, groupName);
+            _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] ════════ BROADCAST COMPLETE ════════ ;CLEANUP_OK");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] ❌ ERROR broadcasting section to {GroupName}: {Message} ;CLEANUP_OK",
+                trackingId, groupName, ex.Message);
+            throw;
+        }
+    }
+
     public async Task Ping()
     {
         await Clients.Caller.SendAsync("Pong", DateTime.UtcNow);
