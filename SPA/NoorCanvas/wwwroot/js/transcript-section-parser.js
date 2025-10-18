@@ -51,7 +51,7 @@ window.TranscriptSectionParser = {
         // Wait for container to exist with content
         console.log('%c[TRACE:hcp-tcanvas:inject] Waiting for container...', 'color: #D4AF37; font-weight: bold;', ';CLEANUP_OK');
         const container = await this.waitForContainer(containerId);
-        
+
         if (!container) {
             console.error('%c[TRACE:hcp-tcanvas:inject] ❌ Container NOT FOUND after timeout', 'background: #DC2626; color: white; font-weight: bold; padding: 4px;', containerId, ';CLEANUP_OK');
             console.error('[TRACE:hcp-tcanvas:inject] Available IDs in document:', Array.from(document.querySelectorAll('[id]')).map(el => el.id), ';CLEANUP_OK');
@@ -188,7 +188,7 @@ window.TranscriptSectionParser = {
             // Insert share button BEFORE the first element of the section (before h2)
             const insertionPoint = sectionContent[0];
             console.log(`[TRACE:hcp-tcanvas:inject]   Insertion point: ${insertionPoint.tagName} ;CLEANUP_OK`);
-            
+
             insertionPoint.parentNode.insertBefore(shareButton, insertionPoint);
             console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Inserted share button above h2[${index}] ;CLEANUP_OK`);
 
@@ -215,7 +215,7 @@ window.TranscriptSectionParser = {
 
         console.log('%c[TRACE:hcp-tcanvas:inject] ✅ SUCCESS!', 'background: #10B981; color: white; font-weight: bold; padding: 4px;', `Processed ${sectionsProcessed} sections ;CLEANUP_OK`);
         console.log('%c[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION COMPLETE ════════', 'background: #006400; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
-        
+
         // Final verification
         const verifyButtons = container.querySelectorAll('.transcript-section-share-btn');
         console.log('[TRACE:hcp-tcanvas:inject] Final verification - buttons in DOM:', verifyButtons.length, ';CLEANUP_OK');
@@ -226,7 +226,7 @@ window.TranscriptSectionParser = {
                 dimensions: { width: btn.offsetWidth, height: btn.offsetHeight }
             }, ';CLEANUP_OK');
         });
-        
+
         return { success: true, sections: sectionsProcessed };
     },
 
@@ -238,7 +238,7 @@ window.TranscriptSectionParser = {
     setupClickDelegation: function (containerId, dotNetRef) {
         console.log('[TRACE:hcp-tcanvas:delegation] Setting up click delegation... ;CLEANUP_OK');
         const container = document.getElementById(containerId);
-        
+
         if (!container) {
             console.error('%c[TRACE:hcp-tcanvas:delegation] ❌ Cannot setup delegation - container not found', 'background: #DC2626; color: white;', ';CLEANUP_OK');
             return;
