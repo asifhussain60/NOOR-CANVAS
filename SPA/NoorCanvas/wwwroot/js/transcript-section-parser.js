@@ -185,26 +185,32 @@ window.TranscriptSectionParser = {
             h2.style.textAlign = 'left';
             console.log(`[TRACE:hcp-tcanvas:inject]   Applied left text-align to h2[${index}] ;CLEANUP_OK`);
 
-            // Insert share button BEFORE the first element of the section (before h2)
-            const insertionPoint = sectionContent[0];
-            console.log(`[TRACE:hcp-tcanvas:inject]   Insertion point: ${insertionPoint.tagName} ;CLEANUP_OK`);
+            // [FIX] Correct insertion order: Button BEFORE h2 in final DOM
+            // Strategy: Insert button, insert wrapper, move h2+content into wrapper
+            // Result: container → [button] → [wrapper → h2+content]
+            
+            const insertionPoint = sectionContent[0]; // This is the h2
+            const parentContainer = insertionPoint.parentNode;
+            console.log(`[TRACE:hcp-tcanvas:inject]   Parent container: ${parentContainer.tagName}.${parentContainer.id} ;CLEANUP_OK`);
 
-            insertionPoint.parentNode.insertBefore(shareButton, insertionPoint);
-            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Inserted share button above h2[${index}] ;CLEANUP_OK`);
+            // Step 1: Insert wrapper div BEFORE h2 (but h2 is still outside wrapper at this point)
+            parentContainer.insertBefore(wrapper, insertionPoint);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Step 1: Inserted wrapper div before h2 ;CLEANUP_OK`);
 
-            // Wrap section content in the invisible div
-            // Insert wrapper before the first element
-            insertionPoint.parentNode.insertBefore(wrapper, insertionPoint);
+            // Step 2: Insert button BEFORE wrapper (so button comes first in DOM)
+            parentContainer.insertBefore(shareButton, wrapper);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Step 2: Inserted button BEFORE wrapper ;CLEANUP_OK`);
 
-            // Move all section elements into wrapper
+            // Step 3: Move all section elements (h2 + content) into wrapper
+            // This removes them from parent and adds them to wrapper
             sectionContent.forEach((element, elIdx) => {
                 wrapper.appendChild(element);
                 if (elIdx === 0) {
-                    console.log(`[TRACE:hcp-tcanvas:inject]   Moving ${sectionContent.length} elements into wrapper... ;CLEANUP_OK`);
+                    console.log(`[TRACE:hcp-tcanvas:inject]   Step 3: Moving ${sectionContent.length} elements into wrapper... ;CLEANUP_OK`);
                 }
             });
 
-            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Wrapped section ${index} content in div#${sectionId} ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Final DOM: Button → Wrapper(h2 + ${sectionContent.length - 1} elements) ;CLEANUP_OK`);
 
             sectionsProcessed++;
         });
