@@ -284,10 +284,13 @@
         text-align: center;
     }
 
+    /* [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Welcome content layout for inline toggle button ;CLEANUP_OK */
     .canvas-welcome-content {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        gap: 1rem;
     }
 
     .canvas-welcome-text {
@@ -295,13 +298,15 @@
         font-size: 1.25rem;
         font-weight: 600;
         color: #006400;
+        flex: 1;
     }
 
     /* Main Grid Layout */
     /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
+    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Default to full-width canvas, sidebar hidden (0 width) ;CLEANUP_OK */
     .canvas-main-grid {
         display: grid;
-        grid-template-columns: 1fr 300px;
+        grid-template-columns: 1fr 0;
         gap: 1.5rem;
         height: auto;
         align-items: stretch;
@@ -322,6 +327,7 @@
     }
 
 /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple border accent to distinguish from SessionCanvas green ;CLEANUP_OK */
+/* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll disabled - host controls position ;CLEANUP_OK */
 .canvas-content-area {
     flex: 1;
     padding: 1rem;
@@ -336,18 +342,18 @@
     min-height: 400px;
     /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
 }
+    /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll DISABLED - host has exclusive control ;CLEANUP_OK */
     .canvas-asset-content {
         width: 100%;
         flex: 1;
-        overflow-y: visible; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Changed from auto to visible - parent will handle overflow ;CLEANUP_OK */
-        overflow-x: hidden;
+        overflow: hidden !important; /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Disable native scrolling ;CLEANUP_OK */
         background-color: white;
         padding: 20px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Content expands naturally, parent shrinks/grows with asset height ;CLEANUP_OK */
+        user-select: none; /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Prevent text selection during scroll attempts ;CLEANUP_OK */
     }
 
     .canvas-empty-message {
@@ -397,102 +403,49 @@
         padding: 0 0.75rem 0.75rem 0.75rem;
     }
 
-    /* Sidebar Styles */
-    /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
-    .canvas-sidebar {
-        background-color: white;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        border: 2px solid #D4AF37;
-        display: flex;
-        flex-direction: column;
-        min-height: 400px;
-        /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height: 700px - allows sidebar to match canvas height ;CLEANUP_OK */
-        overflow: hidden;
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
-        max-width: 100%;
-        width: 100%;
-    }
-
-    .canvas-tabs {
-        display: flex;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #E5E7EB;
-        background-color: #F8F5F1;
-        border-radius: 0.75rem 0.75rem 0 0;
-    }
-
-    .canvas-tab-button {
-        flex: 1;
-        padding: 0.75rem 1rem;
-        text-align: center;
-        color: #4B3C2B;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        border-bottom: 3px solid transparent;
-        transition: all 0.2s;
-        cursor: pointer;
-        background: transparent;
+    /* Toggle Button Styles (for question modal) */
+    /* [TRACE-WORKITEM:transcript-canvas:modal-conversion] Toggle button repositioned inline with welcome message, opens question modal ;CLEANUP_OK */
+    .canvas-sidebar-toggle {
+        position: sticky;
+        top: 1rem;
+        background: #663399; /* Purple theme to match TranscriptCanvas */
+        color: white;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
         border: none;
+        box-shadow: 0 4px 12px rgba(102, 51, 153, 0.3);
+        cursor: pointer;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
     }
 
-    .canvas-tab-button-left {
-        border-radius: 0.75rem 0 0 0;
+    .canvas-sidebar-toggle:hover {
+        background: #7C4DBC; /* Lighter purple on hover */
+        box-shadow: 0 6px 16px rgba(102, 51, 153, 0.5);
+        transform: scale(1.05);
     }
 
-    .canvas-tab-button-right {
-        border-radius: 0 0.75rem 0 0;
+    .canvas-sidebar-toggle:active {
+        transform: scale(0.95);
     }
 
-    .canvas-tab-button.active {
-        background: #FFFFFF;
-        border-bottom-color: #D4AF37;
-        color: #006400;
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    .canvas-sidebar-toggle-icon {
+        transition: transform 0.3s ease;
     }
 
-    .canvas-tab-icon {
-        margin-right: 0.5rem;
-        font-size: 1rem;
-    }
-
-    .canvas-tab-content {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        min-height: 0;
-    }
-
-    .canvas-tab-content.hidden {
-        display: none;
-    }
-
-    .canvas-tab-padding {
-        padding-right: 0.75rem;
-    }
-
+    /* Section/Empty State Styles (reused in modal context) */
     .canvas-section-title {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 0.875rem;
         color: #4B3C2B;
         margin: 0 0 1rem 0;
-    }
-
-    .canvas-questions-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Width constraint prevents question cards from expanding sidebar horizontally ;CLEANUP_OK */
-        max-width: 100%;
-        width: 100%;
-    }
-
-    .canvas-participants-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
     }
 
     .canvas-empty-state {
@@ -614,6 +567,15 @@
         gap: 0.25rem;
         border: 1px solid #D4AF37;
         cursor: pointer;
+    }
+
+    /* [DEBUG-WORKITEM:transcript-canvas:modal-submit-visibility] Ensure modal Submit button has visible golden background ;CLEANUP_OK */
+    .canvas-modal-buttons .canvas-form-submit-button {
+        background-color: #D4AF37; /* Golden */
+        box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); /* match shadow-golden */
+    }
+    .canvas-modal-buttons .canvas-form-submit-button:hover {
+        background-color: #b4942c; /* Darker on hover for contrast */
     }
 
     .canvas-form-submit-button:disabled {
@@ -886,6 +848,7 @@
     /* Responsive Layout - Mobile */
     @@media (max-width: 768px) {
         /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Single column layout with canvas panel full-width, sidebar below ;CLEANUP_OK */
+        /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar hidden by default, toggle always visible ;CLEANUP_OK */
         .canvas-main-grid {
             grid-template-columns: 1fr;
             height: auto;
@@ -899,13 +862,7 @@
             min-height: 300px;
         }
 
-        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Sidebar appears below canvas, full width ;CLEANUP_OK */
-        .canvas-sidebar {
-            order: 2;
-            width: 100%;
-            max-width: 100%;
-            min-height: 400px;
-        }
+        /* [TRACE-WORKITEM:transcript-canvas:sidebar-removal] Sidebar CSS removed - mobile uses full-width canvas ;CLEANUP_OK */
 
         .canvas-header-content {
             padding: 1rem 0.5rem;
@@ -938,7 +895,7 @@
     }
 
     /* Responsive Layout - Mobile Landscape */
-    /* [DEBUG-WORKITEM:css:landscape] Landscape orientation - sidebar below canvas for better asset rendering ;CLEANUP_OK */
+    /* [TRACE-WORKITEM:transcript-canvas:sidebar-removal] Sidebar CSS removed - landscape uses full-width canvas ;CLEANUP_OK */
     @@media (max-width: 1024px) and (orientation: landscape) {
         .canvas-main-grid {
             grid-template-columns: 1fr !important;
@@ -950,26 +907,6 @@
             order: 1;
             width: 100%;
             max-width: 100%;
-        }
-
-        .canvas-sidebar {
-            order: 2;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for questions in landscape ;CLEANUP_OK */
-        .canvas-questions-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-        }
-
-        /* [DEBUG-WORKITEM:css:landscape-2col] 2-column grid for participants in landscape ;CLEANUP_OK */
-        .canvas-participants-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
         }
     }
 </style>
@@ -1056,12 +993,15 @@
             </div>
             
             <!-- Main Canvas Area -->
+            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar removed, grid simplified to single column ;CLEANUP_OK -->
+            <!-- [TRACE-WORKITEM:transcript-canvas:html-structure-fix] Fixed double >> syntax error ;CLEANUP_OK -->
             <div class="canvas-main-grid">
                 
                 <!-- Canvas Content Area -->
                 <div class="canvas-area-container">
                     
                     <!-- Welcome Message Panel -->
+                    <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Welcome panel with inline toggle button ;CLEANUP_OK -->
                     <div class="canvas-welcome-panel">
                         <div class="canvas-welcome-content">
                             <span class="canvas-welcome-text">
@@ -1074,6 +1014,13 @@
                                     @("Welcome To The Session")
                                 }
                             </span>
+                            
+                            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Button converted to open question modal ;CLEANUP_OK -->
+                            <button @onclick="OpenQuestionModal" 
+                                    class="canvas-sidebar-toggle"
+                                    title="Ask a Question">
+                                <i class="fa-solid fa-comment-dots canvas-sidebar-toggle-icon"></i>
+                            </button>
                         </div>
                     </div>
                     
@@ -1113,172 +1060,54 @@
                                 <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
                                 <span class="canvas-form-submit-text">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
                             </button>
-        </div>
-                    </div>
-                </div>
-                
-                <!-- Q&A and Participants Sidebar -->
-                <div class="canvas-sidebar">
-                    
-                    <!-- Tabs -->
-                    <div class="canvas-tabs">
-                        <button @onclick="() => ActiveTab = Tab.QA" 
-                                class="canvas-tab-button canvas-tab-button-left @(ActiveTab == Tab.QA ? "active" : "")"
-                                style="background:@(ActiveTab == Tab.QA ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
-                            <i class="fa-solid fa-question-circle canvas-tab-icon"></i>
-                            Q&A
-                        </button>
-                        <button @onclick="() => ActiveTab = Tab.Participants" 
-                                class="canvas-tab-button canvas-tab-button-right @(ActiveTab == Tab.Participants ? "active" : "")"
-                                style="background:@(ActiveTab == Tab.Participants ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
-                            <i class="fa-solid fa-users canvas-tab-icon"></i>
-                            Participants
-                        </button>
-                    </div>
-
-                    <!-- Q&A Content -->
-                    <div class="canvas-tab-content canvas-custom-scrollbar @(ActiveTab == Tab.QA ? "" : "hidden")">
-                        <div class="canvas-tab-padding">
-                            <h3 class="canvas-section-title">Recent Questions</h3>
-                            <div class="canvas-questions-container">
-                                @if (Model?.Questions?.Any() == true)
-                                {
-                                    @foreach (var question in Model.Questions.OrderByDescending(q => q.Votes))
-                                    {
-                                        var index = Model.Questions.IndexOf(question);
-                                        var isMyQuestion = question.IsMyQuestion;
-                                        var hasVoted = VotedQuestionIds.Contains(question.QuestionId);
-
-                                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership-trace] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK", 
-                                            question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion);
-                                        
-                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes}, Theme={Theme} ;CLEANUP_OK",
-                                            isMyQuestion, hasVoted, question.Votes, isMyQuestion ? "Green" : "Sienna");
-
-                                        @if (isMyQuestion)
-                                        {
-                                            <!-- GREEN THEME: Own Question Card (Horizontal Top Row) -->
-                                            <div class="canvas-question-item question-item-style-green">
-                                                
-                                                <!-- TOP ROW: Owner Label (left) + Action Buttons (right) -->
-                                                <div class="canvas-question-footer">
-                                                    <span class="canvas-question-owner-label owner-label-color">
-                                                        Your Question
-                                                    </span>
-                                                    
-                                                    <div class="canvas-question-actions">
-                                                        <span @onclick="() => EditQuestion(index)" class="canvas-question-edit-button">
-                                                            <i class="fa-solid fa-pen"></i>
-                                                        </span>
-                                                        <span @onclick="() => ShowDeleteModal(index)" class="canvas-question-delete-button">
-                                                            <i class="fa-solid fa-trash-can"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- BOTTOM ROW: Question Text -->
-                                                <div class="canvas-question-content">
-                                                    <div class="canvas-question-header">
-                                                        <span class="canvas-question-text question-text-color-green">
-                                                            @question.Text
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
-                                                question.QuestionId);
-                                            
-                                            <!-- SIENNA THEME: Other Users' Question Card (Compact Single-Row Layout from ContextCopilot.txt) -->
-                                            <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
-                                                
-                                                <!-- Absolute Positioned Vote Badge (Red Circle) -->
-                                                <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
-                                                    @question.Votes
-                                                </div>
-                                                
-                                                <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) -->
-                                                <div class="canvas-question-content" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;">
-                                                    
-                                                    <!-- LEFT SIDE: Question Text (Allows space for the right side) -->
-                                                    <div class="canvas-question-header" style="flex-grow:1;margin-right:1rem;">
-                                                        <span class="canvas-question-text question-text-color-sienna" style="font-size:1rem;line-height:1.375;font-weight:normal;">
-                                                            @question.Text
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <!-- RIGHT SIDE: Compact Vote Button -->
-                                                    <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
-                                                        <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
-                                                                @onclick:preventDefault="true"
-                                                                @onclick:stopPropagation="true"
-                                                                class="canvas-question-vote-button vote-button-style-sienna-owner"
-                                                                data-question-id="@question.QuestionId"
-                                                                style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
-                                                                disabled="@hasVoted"
-                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                            <i class="fa-solid fa-thumbs-up" style="font-size:1.5rem;"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                
-                                            </div>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    <div class="canvas-empty-state-container">
-                                        <i class="fa-solid fa-question-circle canvas-empty-state-icon"></i>
-                                        No questions yet. Be the first to ask!
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Participants Content -->
-                    <div class="canvas-tab-content canvas-custom-scrollbar @(ActiveTab == Tab.Participants ? "" : "hidden")">
-                        <h3 class="canvas-section-title">All Participants</h3>
-                        <div class="canvas-participants-container">
-                            @if (Model?.Participants?.Any() == true)
-                            {
-                                @foreach (var participant in Model.Participants)
-                                {
-                                    <div class="canvas-participant-item">
-                                        @if (!string.IsNullOrEmpty(participant.Flag))
-                                        {
-                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" class="canvas-participant-flag">
-                                        }
-                                        else
-                                        {
-                                            <div class="canvas-participant-flag-fallback">
-                                                <span class="canvas-participant-flag-text">@(participant.Country?.ToUpper() ?? "US")</span>
-                                            </div>
-                                        }
-                                        <span class="canvas-participant-name">@participant.Name</span>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="canvas-empty-state-container">
-                                    <i class="fa-solid fa-users canvas-empty-state-icon"></i>
-                                    No participants yet
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar removed, question modal only ;CLEANUP_OK -->
+
         </div>
     }
     </div>
 </div>
 
+<!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar HTML completely removed (tabs, Q&A panel, participants panel) - Question modal only ;CLEANUP_OK -->
 
+<!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question Modal - Centered popup for asking questions ;CLEANUP_OK -->
+@if (IsQuestionModalVisible)
+{
+    <div class="canvas-modal-overlay" @onclick="CloseQuestionModal">
+        <div class="canvas-modal-content" @onclick:stopPropagation="true" style="max-width:500px;">
+            <h4 class="canvas-modal-title">Ask a Question</h4>
+            
+            <div style="margin-bottom:1rem;">
+                <textarea @bind="QuestionInput" 
+                          class="canvas-form-textarea"
+                          placeholder="Type your question here..."
+                          rows="4"
+                          disabled="@(EditingQuestionIndex != null)"
+                          style="width:100%;"></textarea>
+            </div>
+            
+            <div class="canvas-modal-buttons">
+                <button @onclick="SubmitQuestionFromModal" 
+                        type="button"
+                        class="canvas-form-submit-button"
+                        style="flex:1;">
+                    <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
+                    <span class="canvas-form-submit-text">Submit</span>
+                </button>
+                <button @onclick="CloseQuestionModal" 
+                        type="button"
+                        class="canvas-modal-button canvas-modal-button-cancel"
+                        style="flex:1;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Confirmation Modal -->
 @if (IsModalVisible)
@@ -1329,8 +1158,10 @@
     private bool IsModalVisible { get; set; } = false;
     private HashSet<string> VotedQuestionIds { get; set; } = new HashSet<string>();
 
-    private enum Tab { QA, Participants }
-    private Tab ActiveTab { get; set; } = Tab.QA;
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal visibility state ;CLEANUP_OK
+    private bool IsQuestionModalVisible { get; set; } = false;
+    // Track submit result to decide modal close behavior
+    private bool _lastSubmitSucceeded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -2140,6 +1971,7 @@
         if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
+            _lastSubmitSucceeded = false;
             return;
         }
 
@@ -2180,6 +2012,7 @@
                 await InvokeAsync(StateHasChanged);
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question input cleared and UI refreshed ;CLEANUP_OK", requestId);
+                _lastSubmitSucceeded = true;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
@@ -2188,17 +2021,20 @@
                 
                 // Redirect to UserLanding.razor with session token for proper authentication
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
+                _lastSubmitSucceeded = false;
                 return;
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Logger.LogError("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
+                _lastSubmitSucceeded = false;
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Exception during question submission: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+            _lastSubmitSucceeded = false;
         }
     }
 
@@ -2451,6 +2287,65 @@
     {
         QuestionToDeleteIndex = null;
         IsModalVisible = false;
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Open question modal ;CLEANUP_OK
+    private void OpenQuestionModal()
+    {
+        IsQuestionModalVisible = true;
+        QuestionInput = string.Empty; // Clear previous input
+        Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal opened ;CLEANUP_OK");
+        StateHasChanged();
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Close question modal ;CLEANUP_OK
+    private void CloseQuestionModal()
+    {
+        IsQuestionModalVisible = false;
+        Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:modal-conversion] Question modal closed ;CLEANUP_OK");
+        StateHasChanged();
+    }
+
+    // [TRACE-WORKITEM:transcript-canvas:modal-conversion] Submit question from modal ;CLEANUP_OK
+    private async Task SubmitQuestionFromModal()
+    {
+        try
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            _lastSubmitSucceeded = false;
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", $"[TRANSCRIPT-CANVAS] Modal Submit clicked - requestId={requestId}");
+            }
+
+            await SubmitQuestion(); // Reuse existing question submission logic
+
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", $"[TRANSCRIPT-CANVAS] Submit completed - success={_lastSubmitSucceeded}, requestId={requestId}");
+            }
+
+            if (_lastSubmitSucceeded)
+            {
+                CloseQuestionModal(); // Close modal only after successful submission
+            }
+            else
+            {
+                // Provide gentle feedback in console to assist debugging when submission fails
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("console.warn", "Question submission failed or unauthorized. Modal remains open.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[TRANSCRIPT-CANVAS] Exception in SubmitQuestionFromModal: {Message}", ex.Message);
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"[TRANSCRIPT-CANVAS] Exception in SubmitQuestionFromModal: {ex.Message}");
+            }
+        }
     }
 
     private async Task DeleteConfirmed()
@@ -3339,6 +3234,32 @@
                 }
             });
 
+            // [TRACE-WORKITEM:transcript-canvas:scroll-sync] Receive scroll position from host ;CLEANUP_OK
+            hubConnection.On<double>("ScrollPositionReceived", async (scrollPercentage) =>
+            {
+                Logger.LogInformation(
+                    "[SCROLL-SYNC:PARTICIPANT] Host scroll received: {Percentage:P2}",
+                    scrollPercentage
+                );
+                
+                try
+                {
+                    // Force participant scroll to host's position (participants cannot scroll independently)
+                    await JSRuntime.InvokeVoidAsync("forceParticipantScroll", scrollPercentage);
+                    
+                    Logger.LogDebug(
+                        "[SCROLL-SYNC:PARTICIPANT] ✅ Scroll synced to host position: {Percentage:P2}",
+                        scrollPercentage
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, 
+                        "[SCROLL-SYNC:PARTICIPANT] Failed to sync scroll position"
+                    );
+                }
+            });
+
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
@@ -3789,4 +3710,83 @@
         
         console.log('[DIAGNOSTIC:hcp-annotate:renderer] SessionCanvas annotation renderer ready ;CLEANUP_OK');
     })();
+
+    // [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll prevention - host controls position exclusively ;CLEANUP_OK
+    (function() {
+        console.log('[SCROLL-LOCK] Initializing participant scroll prevention system');
+        
+        function preventParticipantScrolling() {
+            const container = document.querySelector('.canvas-asset-content');
+            if (!container) {
+                console.warn('[SCROLL-LOCK] Canvas content container not found, retrying...');
+                return false;
+            }
+            
+            // Block mouse wheel scrolling
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[SCROLL-LOCK] Wheel scroll blocked');
+            }, { passive: false });
+            
+            // Block touch scrolling (mobile)
+            container.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                console.log('[SCROLL-LOCK] Touch scroll blocked');
+            }, { passive: false });
+            
+            // Block keyboard scrolling (arrow keys, page up/down, home/end)
+            container.addEventListener('keydown', (e) => {
+                if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Space'].includes(e.key)) {
+                    e.preventDefault();
+                    console.log('[SCROLL-LOCK] Keyboard scroll blocked:', e.key);
+                }
+            });
+            
+            // Also prevent scrolling on the parent canvas-content-area
+            const contentArea = document.querySelector('.canvas-content-area');
+            if (contentArea) {
+                contentArea.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
+                contentArea.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+            }
+            
+            console.log('[SCROLL-LOCK] ✅ Participant scroll prevention active - host has exclusive control');
+            return true;
+        }
+        
+        // Try to initialize immediately
+        if (!preventParticipantScrolling()) {
+            // Retry after DOM content loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(preventParticipantScrolling, 500);
+                });
+            } else {
+                setTimeout(preventParticipantScrolling, 500);
+            }
+        }
+    })();
+
+    // [TRACE-WORKITEM:transcript-canvas:scroll-sync] Force participant scroll to host's position ;CLEANUP_OK
+    window.forceParticipantScroll = function(scrollPercentage) {
+        const container = document.querySelector('.canvas-asset-content');
+        if (!container) {
+            console.warn('[SCROLL-SYNC] Canvas container not found');
+            return;
+        }
+        
+        // Calculate target scroll position based on percentage
+        const targetScrollTop = container.scrollHeight * scrollPercentage;
+        
+        // Force instant scroll (no smooth behavior to ensure tight sync)
+        container.scrollTop = targetScrollTop;
+        
+        console.log(`[SCROLL-SYNC] ✅ Forced to host position: ${(scrollPercentage * 100).toFixed(1)}%`);
+    };
 </script>

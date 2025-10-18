@@ -1,5 +1,44 @@
 # transcript-canvas Work Log
 
+## 2025-10-18T00:00:00Z - Modal Submit No-Op Fix
+**Commit:** PENDING  
+**Agent:** Task Executor (task.prompt.md)  
+**Key:** transcript-canvas  
+**Debug Level:** diagnostic  
+**Verbosity:** concise
+
+### User Request
+"Clicking on submit is not doing anything. Check browser console logs."
+
+### Investigation Summary
+- Submit button existed in modal but lacked an explicit background in that context, making it appear inactive on white backgrounds.
+- Button type wasn\'t explicitly declared, risking default form-submit behavior swallowing the click in some browsers.
+- No console breadcrumbs during modal submit made diagnosis hard.
+
+### Changes Implemented
+1. Styling: Scoped visible styling for modal submit button
+    - In `TranscriptCanvas.razor` CSS, added modal-specific rule to give `.canvas-modal-buttons .canvas-form-submit-button` a golden background and hover state.
+2. Robustness: Explicit button types in modal
+    - Set `type="button"` on both Submit and Cancel buttons to avoid implicit form submission/navigation.
+3. Diagnostics: Console logging for modal submit flow
+    - On click, logs requestId, and after HTTP call, logs success result; warns on failure; logs error on exception.
+4. UX: Close modal only on successful submit
+    - Track `_lastSubmitSucceeded` and only close when the POST succeeds; keep modal open on failure for retry.
+
+### Validation
+- Build: PASS (dotnet build task)
+- Lint: PASS (C# analyzers via build); no TS/JS changes
+- Tests: Added draft Playwright spec and orchestration (not executed yet)
+
+### Files Changed
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (CSS + modal markup + submit flow)
+- `.github/prompts.keys/transcript-canvas/tests/transcript-modal-submit-console.spec.ts` (new) – navigates to transcript canvas, opens modal, triggers submit, asserts console markers (draft)
+- `.github/prompts.keys/transcript-canvas/scripts/run-transcript-modal-submit-console-test.ps1` (new) – orchestration helper
+
+### Notes
+- SignalR broadcast path remains unchanged; if submissions succeed, `QuestionReceived` should still reach participants.
+- Console markers: `[TRANSCRIPT-CANVAS] Modal Submit clicked` and `Submit completed - success=...` are the primary breadcrumbs.
+
 ## 2025-10-17T14:55:00Z - ShareTranscript Navigation Fix
 **Commit:** b295670d91e7de3dc1f38f90c70f24a1e4cf4596  
 **Agent:** GitHub Copilot (task.prompt.md)  

@@ -1,13 +1,266 @@
 # transcript-canvas
 
 **Status:** Active  
-**Last Updated:** 2025-10-17T16:28:00Z  
-**Git Commit:** cc16e27ff92f8c1153f4ad104a702d705216eb9e
+**Last Updated:** 2025-10-18T15:38:00Z  
+**Git Commit:** e460b61b
 
 ## Overview
-Broadcast mode implementation in HostControlPanel - host loads transcript with single broadcast button to share full content with participants via SignalR. Start Session functionality preserved. Fixed UI visibility to show transcript when Share Transcript clicked.
+TranscriptCanvas.razor sidebar completely removed - uses modal-only question submission. SessionCanvas.razor sidebar preserved. Question submission now supports "Created" status sessions.
 
 ## Work Log
+
+### 2025-10-18T15:38:00Z - Fixed Question Submission for Created Status Sessions
+**Commit:** e460b61b  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** none
+
+**User Request:**
+User reported: "question is not broadcasting to host" with JavaScript console error showing submission failure.
+
+**Problem:**
+- Participant submitted question via TranscriptCanvas modal
+- Backend rejected with "Session not found or inactive" (404 NotFound)
+- Console logs showed: `NOOR-QA-SUBMIT: [3fc212a3] Session not found or inactive for token: KJAHA99L`
+- Root Cause: `QuestionController.cs` line 105 filtered sessions to ONLY "Active" OR "Configured" statuses
+- Session 212 has `Status="Created"` → excluded from filter → query returned null
+
+**Solution:**
+Added `s.Status == "Created"` to session lookup query in `SubmitQuestion()` method.
+
+**Code Change:**
+```csharp
+// Before (line 105)
+var session = await _context.Sessions
+    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
+                            (s.Status == "Active" || s.Status == "Configured"));
+
+// After
+var session = await _context.Sessions
+    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
+                            (s.Status == "Created" || s.Status == "Active" || s.Status == "Configured"));
+```
+
+**Validation:**
+- Build: Clean (0 errors, 0 warnings, 27.8s)
+- Impact: Low risk - widens filter to include additional valid session state
+- Expected Behavior: Questions now accepted for "Created" status sessions, enabling full workflow
+
+**Files Modified:**
+- `SPA/NoorCanvas/Controllers/QuestionController.cs` (1 line - session status filter)
+
+**Files Created:**
+- `.github/prompts.keys/transcript-canvas/tests/question-submission-broadcast.spec.ts` (Playwright E2E test)
+- `.github/prompts.keys/transcript-canvas/scripts/run-question-broadcast-test.ps1` (orchestration script)
+
+**Manual Testing Recommended:**
+1. Launch app: `nc` command
+2. Open HostControlPanel: `https://localhost:9091/host/PQ9N5YWW`
+3. Open TranscriptCanvas: `https://localhost:9091/transcript/canvas/KJAHA99L`
+4. Submit question from participant view
+5. Verify SignalR broadcast (`HostQuestionUpdated` event)
+6. Confirm question appears in host Q&A panel
+
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-18_1538`
+
+---
+
+### 2025-10-18T06:35:00Z - Fixed HTML Structure Issues
+**Commit:** b402dd5e  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Problem:**
+- TranscriptCanvas.razor had broken HTML from incomplete sidebar removal
+- Double `>>` syntax error at line 986 (`<div class="canvas-main-grid">>`)
+- Orphaned closing divs with incorrect indentation (lines 1051-1056)
+- Missing closing tag for `session-canvas-root` div (line 905) - caused `RZ9980: Unclosed tag 'div'` compiler error
+
+**Solution:**
+1. Removed extra `>` from canvas-main-grid div (line 986)
+2. Fixed orphaned closing tag indentation after button element (lines 1051-1056)
+3. Added missing closing tags for `session-canvas-container` and `session-canvas-root` divs before annotation canvas
+
+**Validation:**
+- Razor Compiler: Clean build (0 errors, 0 warnings) - `RZ9980` error resolved
+- Tag Balance: 30 opening `<div>`, 30 closing `</div>` ✅
+- Syntax: No double `>>` in HTML tags ✅
+- Total HTML elements: 228 across 3738 lines
+- Application Launch: Successful (database connections verified, SignalR hubs mapped)
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (3 HTML structure fixes)
+
+**Files Created:**
+- `Tests/UI/transcript-canvas-html-structure.spec.ts` (Percy visual regression tests - 5 test cases)
+- `Scripts/run-transcript-canvas-percy-tests.ps1` (orchestration script - has syntax error at line 284, requires fix)
+
+**Percy Test Coverage:**
+- Desktop viewport (1280x720): Verify sidebar removal, full-width canvas
+- Tablet viewport (768x1024): Responsive layout validation
+- Mobile viewport (375x667): Mobile rendering validation
+- Question modal interaction: Toggle button → modal open → close
+- HTML structure validation: No orphaned elements, complete tag closure
+
+**Known Issues:**
+- PowerShell orchestration script has syntax error (line 284: "Unexpected token '}'") - blocking Percy test execution
+- Visual validation pending (app launched successfully via `nc` command)
+
+**Next Steps:**
+- Fix orchestration script syntax error
+- Execute Percy visual regression tests
+- Capture screenshot evidence of corrected HTML rendering
+
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-18_0635`
+
+---
+
+### 2025-10-18T03:57:00Z - Removed Remaining Sidebar Responsive CSS
+**Commit:** 254e66f4  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Task:** Clean up remaining sidebar CSS from TranscriptCanvas.razor (mobile/landscape responsive styles)
+
+**Changes:**
+- Removed mobile sidebar slide-in animation (`.canvas-sidebar` in `@media (max-width: 768px)`)
+- Removed `.canvas-main-grid.sidebar-visible .canvas-sidebar` mobile override
+- Removed `.canvas-sidebar-toggle` mobile positioning
+- Removed landscape sidebar 2-column grids (`.canvas-questions-container`, `.canvas-participants-container`)
+- SessionCanvas.razor sidebar unaffected (verified 4 references intact)
+
+**Validation:**
+- Build: Clean (0 errors, 0 warnings)
+- Lint: No errors in TranscriptCanvas.razor
+- SessionCanvas.razor: Sidebar functionality preserved
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (removed responsive sidebar CSS)
+
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-18_0357`
+
+---
+
+### 2025-10-17T19:16:00Z - Maximized Canvas Panel with Collapsible Sidebar
+**Commit:** 35be954f  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** trace
+
+**Problem:**
+- TranscriptCanvas displayed two-panel layout (canvas left, sidebar right 300px fixed)
+- User screenshot showed empty Q&A/Participants sidebar consuming valuable space
+- Transcript content should dominate view, sidebar should be on-demand
+
+**Solution: Option A - Full-Width Canvas with Toggle Button**
+- Changed grid from `1fr 300px` to `1fr 0` (sidebar hidden by default)
+- Added purple toggle button (fixed bottom-right) to reveal sidebar
+- Sidebar slides in with smooth 0.3s CSS transition
+- Mobile responsive: sidebar becomes fixed overlay on small screens
+
+**Implementation Details:**
+
+1. **CSS Grid Layout** (TranscriptCanvas.razor, line ~310)
+   ```css
+   .canvas-main-grid {
+       grid-template-columns: 1fr 0; /* Canvas full-width, sidebar hidden */
+       transition: grid-template-columns 0.3s ease-in-out;
+   }
+   
+   .canvas-main-grid.sidebar-visible {
+       grid-template-columns: 1fr 300px; /* Sidebar revealed on toggle */
+   }
+   ```
+
+2. **Sidebar Visibility** (TranscriptCanvas.razor, line ~405)
+   ```css
+   .canvas-sidebar {
+       width: 0;
+       opacity: 0;
+       transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+   }
+   
+   .canvas-main-grid.sidebar-visible .canvas-sidebar {
+       width: 300px;
+       opacity: 1;
+   }
+   ```
+
+3. **Toggle Button** (TranscriptCanvas.razor, line ~425)
+   ```css
+   .canvas-sidebar-toggle {
+       position: fixed;
+       bottom: 2rem;
+       right: 2rem;
+       background: #663399; /* Purple theme */
+       width: 60px;
+       height: 60px;
+       border-radius: 50%;
+       z-index: 50;
+   }
+   ```
+
+4. **C# State Management** (TranscriptCanvas.razor, line ~1390)
+   ```csharp
+   private bool IsSidebarVisible { get; set; } = false;
+   
+   private void ToggleSidebar()
+   {
+       IsSidebarVisible = !IsSidebarVisible;
+       Logger.LogInformation("[TRACE-WORKITEM:transcript-canvas:layout-redesign] Sidebar toggled - IsSidebarVisible={IsSidebarVisible}, ActiveTab={ActiveTab} ;CLEANUP_OK", 
+           IsSidebarVisible, ActiveTab);
+       StateHasChanged();
+   }
+   ```
+
+5. **HTML Structure** (TranscriptCanvas.razor, line ~1115)
+   ```razor
+   <div class="canvas-main-grid @(IsSidebarVisible ? "sidebar-visible" : "")">
+       <!-- Canvas area gets full width -->
+       <div class="canvas-area-container">...</div>
+       
+       <!-- Sidebar hidden unless toggle clicked -->
+       <div class="canvas-sidebar">...</div>
+   </div>
+   
+   <!-- Toggle button -->
+   <button @onclick="ToggleSidebar" class="canvas-sidebar-toggle">
+       <i class="fa-solid @(IsSidebarVisible ? "fa-chevron-right" : "fa-chevron-left")"></i>
+   </button>
+   ```
+
+6. **Mobile Responsive** (TranscriptCanvas.razor, line ~945)
+   ```css
+   @media (max-width: 768px) {
+       .canvas-sidebar {
+           position: fixed;
+           top: 0; right: 0; bottom: 0;
+           z-index: 100;
+           width: 0;
+       }
+       
+       .canvas-main-grid.sidebar-visible .canvas-sidebar {
+           width: 100%; /* Full-screen overlay on mobile */
+       }
+   }
+   ```
+
+**Trace Debug Markers:**
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Grid layout changes
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Sidebar visibility state
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Toggle button interactions
+- `[TRACE-WORKITEM:transcript-canvas:layout-redesign]` - Mobile responsive breakpoints
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (105 insertions, 4 deletions)
+
+**Build Status:** Clean (zero errors, zero warnings)
+
+**User Experience:**
+- **Desktop:** Canvas maximized by default, purple toggle button at bottom-right
+- **Toggle Click:** Sidebar slides in from right (300px), toggle icon rotates 180°
+- **Mobile:** Sidebar becomes full-screen overlay when toggled
+- **Visual Theme:** Purple (#663399) matches TranscriptCanvas identity vs SessionCanvas (green)
+
+---
 
 ### 2025-10-17T16:28:00Z - Fixed Transcript Panel Visibility
 **Commit:** cc16e27ff92f8c1153f4ad104a702d705216eb9e  

@@ -1,7 +1,7 @@
 ---
 mode: agent
 purpose: Generate Playwright end-to-end tests for user-facing functionality
-inputs: feature, scenario, endpoints, tokens
+inputs: feature, scenario, endpoints, tokens, key
 outputs: TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)
 ---
 
@@ -10,9 +10,16 @@ outputs: TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)
 ## Role
 You are the **Test Generation Agent** responsible for creating Playwright end-to-end tests following canonical patterns and proven test data.
 
+Always follow `.github/instructions/SelfAwareness.instructions.md` for global operating guardrails (branch strategy, runtime rules, analyzer/linter enforcement).
+
 ## Mandatory Prerequisites
 
-⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
+PORT POLICY: The NoorCanvas app must always bind to HTTPS on port 9091 only.
+
+- Required: Set ASPNETCORE_URLS to https://localhost:9091 before launching
+- Do NOT bind to http://localhost:9090 (prevents port conflicts and Kestrel binding errors)
+
+CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
 
 ### 1. Server Management Protocol
 
@@ -30,6 +37,7 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 $startupScript = @"
 cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
 `$env:ASPNETCORE_ENVIRONMENT = 'Development'
+`$env:ASPNETCORE_URLS = 'https://localhost:9091'
 dotnet run
 "@
 $startupScript | Out-File "$env:TEMP\noorcanvas-startup.ps1" -Encoding UTF8
@@ -40,7 +48,7 @@ $healthCheckRetries = 10
 for ($i = 1; $i -le $healthCheckRetries; $i++) {
     try {
         $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5
-        Write-Host "✓ App Ready" -ForegroundColor Green
+        Write-Host "[OK] App Ready" -ForegroundColor Green
         break
     }
     catch {
@@ -60,19 +68,32 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 
 **Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
 
+**CRITICAL: PowerShell Script Character Encoding Rules**
+- [MANDATORY] Use ASCII characters ONLY in generated PowerShell scripts
+- [MANDATORY] No emojis (checkmarks, warning symbols, X marks, arrows, etc.)
+- [MANDATORY] No Unicode characters (special quotes, bullets, box-drawing chars)
+- [MANDATORY] Replace visual indicators with ASCII equivalents:
+  - Instead of checkmark: Use "[OK]" or "[PASS]" or "[YES]"
+  - Instead of X mark: Use "[FAIL]" or "[ERROR]" or "[NO]"
+  - Instead of warning symbol: Use "WARNING:" or "[WARN]" or "CAUTION:"
+  - Instead of bullet points in comments: Use "-" or "*"
+- [REASON] PowerShell encoding issues cause syntax errors with non-ASCII characters
+- [REASON] Script portability across different PowerShell versions and environments
+
 **WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
-- ✅ Separate PowerShell window ensures environment isolation
-- ✅ `ASPNETCORE_ENVIRONMENT=Development` properly enables DevMode
-- ✅ Health check retry logic prevents race conditions
-- ✅ Automated cleanup prevents port conflicts
-- ❌ Direct `npx playwright test` ALWAYS FAILS (missing environment vars)
+- [YES] Separate PowerShell window ensures environment isolation
+- [YES] `ASPNETCORE_ENVIRONMENT=Development` properly enables DevMode
+- [YES] `ASPNETCORE_URLS=https://localhost:9091` enforces HTTPS-only binding to avoid 9090 conflicts
+- [YES] Health check retry logic prevents race conditions
+- [YES] Automated cleanup prevents port conflicts
+- [NO] Direct `npx playwright test` ALWAYS FAILS (missing environment vars)
 
 **PROHIBITED EXECUTION METHODS**:
-- ❌ `npx playwright test` from VS Code terminal
-- ❌ `Start-Job` for app startup (wrong isolation)
-- ❌ Manual app startup without orchestration
+- [NO] `npx playwright test` from VS Code terminal
+- [NO] `Start-Job` for app startup (wrong isolation)
+- [NO] Manual app startup without orchestration
 
-⚠️ **CRITICAL CLARIFICATION: Playwright's webServer vs Orchestration Scripts**
+WARNING: **CRITICAL CLARIFICATION: Playwright's webServer vs Orchestration Scripts**
 
 **Two Different Server Management Approaches:**
 
@@ -86,7 +107,7 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 2. **PowerShell Orchestration Scripts** (in `Scripts/` directory)
    - Launches `dotnet run` in **separate elevated PowerShell window**
    - Visible window with app logs
-   - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`)
+    - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`, `ASPNETCORE_URLS=https://localhost:9091`)
    - Use when: E2E tests requiring DevMode, debugging, complex setup
 
 **When to Use Each:**
@@ -167,9 +188,61 @@ Examples:
 - `question-multi-user-sync.spec.ts`
 
 ### Test Location
-- **ALL new tests**: `Workspaces/TEMP/` (MANDATORY)
-- **Production promotion**: Tests move to `Tests/UI/` ONLY during task completion workflow
-- **Rationale**: Keeps Tests/UI/ clean, allows experimentation, clear quality gate
+- **ALL new tests**: `.github/prompts.keys/{key}/tests/` (MANDATORY - within key data stream)
+- **Test Registry**: `.github/prompts.keys/{key}/tests/test-registry.md` (log of all tests for this key)
+- **Orchestration Scripts**: `.github/prompts.keys/{key}/scripts/` (test execution scripts)
+- **Production promotion**: Tests copy to `Tests/UI/` ONLY during task completion workflow (Step 9)
+- **Temporary cleanup**: Tests in key directory deleted after production promotion
+- **Rationale**: 
+  - Keeps all key context in one place (key data stream + tests + scripts)
+  - Test registry prevents duplication
+  - Auto-cleanup prevents folder bloat
+  - Clear quality gate before production promotion
+
+**Directory Structure Example:**
+```
+.github/prompts.keys/canvas/
+├── canvas.md (key data stream)
+├── tests/
+│   ├── test-registry.md (log of all tests)
+│   ├── share-button-functional.spec.ts
+│   ├── share-button-visual.spec.ts
+│   └── question-deletion-functional.spec.ts
+└── scripts/
+    ├── run-share-button-test.ps1
+    └── run-question-deletion-test.ps1
+```
+
+**Test Registry Format** (`.github/prompts.keys/{key}/tests/test-registry.md`):
+```markdown
+# Test Registry: {key}
+
+## Active Tests
+
+### share-button-functional.spec.ts
+- **Created**: 2025-10-18T12:30:00Z
+- **Type**: Functional E2E
+- **Scenario**: Share button click with confirmation dialog
+- **Status**: Active
+- **Last Run**: 2025-10-18T13:00:00Z (PASS)
+- **Orchestration**: scripts/run-share-button-test.ps1
+
+### share-button-visual.spec.ts
+- **Created**: 2025-10-18T12:35:00Z
+- **Type**: Visual Regression (Percy)
+- **Scenario**: Share button styling across viewports
+- **Status**: Active
+- **Last Run**: 2025-10-18T13:05:00Z (PASS)
+- **Orchestration**: scripts/run-share-button-test.ps1
+
+## Archived Tests (Promoted to Production)
+
+### question-deletion-functional.spec.ts
+- **Promoted**: 2025-10-15T10:00:00Z
+- **Destination**: Tests/UI/question-deletion-functional.spec.ts
+- **Commit**: a3f5b9c1234
+- **Status**: Deleted from key directory (now in production)
+```
 
 ## Template Structure
 
@@ -266,6 +339,7 @@ Before running tests, you MUST start the server in a separate, elevated (Adminis
 ```powershell
 # Open PowerShell as Administrator (right-click → "Run as administrator")
 cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+$env:ASPNETCORE_URLS = 'https://localhost:9091'
 dotnet run
 ```
 
@@ -473,29 +547,144 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 
 ## Output Format
 
-Generate complete TypeScript test file with:
+Generate complete TypeScript test file, PowerShell orchestration script, AND update test registry:
+
+### 1. TypeScript Test File (.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts)
 1. **File header**: Feature description, prerequisites, references
 2. **Imports**: Playwright test framework
 3. **Test suite**: Descriptive test.describe block
-4. **Server check**: beforeAll hook with readiness verification
+4. **Server check**: beforeAll hook with readiness verification (if not using webServer)
 5. **Test cases**: One or more test() blocks with clear step comments
 6. **Cleanup**: Proper context/page closure in finally blocks
 7. **Documentation**: Inline comments explaining critical waits and assertions
 
+### 2. PowerShell Orchestration Script (.github/prompts.keys/{key}/scripts/run-{feature}-test.ps1)
+1. **File header**: ASCII-only comments describing purpose and usage
+2. **Process cleanup**: Kill existing NoorCanvas processes
+3. **App launch**: Start-Process with separate PowerShell window and environment vars (must set `ASPNETCORE_URLS=https://localhost:9091`)
+4. **Health check**: Retry logic with ASCII-only progress indicators
+5. **Test execution**: npx playwright test command with FULL PATH to test file
+   ```powershell
+   npx playwright test ".github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed
+   ```
+6. **Cleanup**: Stop app processes after test completion
+7. **Error handling**: Exit codes and ASCII-only error messages
+
+### 3. Test Registry Update (.github/prompts.keys/{key}/tests/test-registry.md)
+1. **Create registry** if it doesn't exist (use template above)
+2. **Check for duplicates**: Search registry for existing test with same feature/scenario
+3. **Add new entry** to Active Tests section:
+   ```markdown
+   ### {feature}-{test-type}.spec.ts
+   - **Created**: {ISO-8601 timestamp}
+   - **Type**: {Functional E2E | Visual Regression}
+   - **Scenario**: {scenario description}
+   - **Status**: Active
+   - **Last Run**: N/A (not yet executed)
+   - **Orchestration**: scripts/run-{feature}-test.ps1
+   ```
+4. **Prevent duplication**: If similar test exists, update existing entry instead of creating new test
+
+**CRITICAL REMINDER: All PowerShell scripts MUST use ASCII characters only (see PowerShell Script Character Encoding Rules above)**
+
+## Test Lifecycle Management
+
+### Test Creation (Step 6.1 of task.prompt.md)
+1. Generate test file in `.github/prompts.keys/{key}/tests/`
+2. Generate orchestration script in `.github/prompts.keys/{key}/scripts/`
+3. Update test registry with new entry
+4. Document test paths in key data stream
+
+### Test Execution (During Development)
+1. Run via orchestration script: `.\github\prompts.keys\{key}\scripts\run-{feature}-test.ps1`
+2. Update test registry with execution results (Last Run, Status)
+3. Document test results in key data stream
+
+### Test Promotion (Step 9: Completion Workflow)
+1. **Copy passing tests** to production: `Tests/UI/{feature}-{test-type}.spec.ts`
+2. **Update orchestration script paths** to point to production test location
+3. **Copy orchestration script** to `Scripts/run-{feature}-test.ps1`
+4. **Archive test registry entry**:
+   ```markdown
+   ## Archived Tests (Promoted to Production)
+   
+   ### {feature}-{test-type}.spec.ts
+   - **Promoted**: {ISO-8601 timestamp}
+   - **Destination**: Tests/UI/{feature}-{test-type}.spec.ts
+   - **Commit**: {SHA}
+   - **Status**: Deleted from key directory (now in production)
+   ```
+5. **Delete test from key directory** (cleanup to prevent bloat)
+6. **Keep registry** for historical reference
+
+### Test Cleanup (Automatic)
+- **When**: Step 9 (Completion Workflow) OR when tests become obsolete
+- **What**: Delete test files from `.github/prompts.keys/{key}/tests/`
+- **Why**: Prevent folder bloat, maintain single source of truth (production)
+- **Preserve**: Test registry entries (archived section for history)
+
+---
+
 ## Success Criteria
 
-- ✅ Uses canonical Session 212 data from PlaywrightTestPaths.MD
-- ✅ Includes server readiness check (standalone mode aware)
-- ✅ Follows proven API-based participant loading pattern
-- ✅ Implements proper wait strategies (networkidle + explicit timeouts)
-- ✅ Tests multi-browser scenarios when applicable
-- ✅ Monitors console for critical errors
-- ✅ Validates API responses against expected data
-- ✅ Includes cleanup in finally blocks
-- ✅ File saved to Workspaces/TEMP/ (production promotion happens in task completion)
+- [PASS] Uses canonical Session 212 data from PlaywrightTestPaths.MD
+- [PASS] Includes server readiness check (standalone mode aware)
+- [PASS] Explicitly binds server to https://localhost:9091 (sets ASPNETCORE_URLS)
+- [PASS] Follows proven API-based participant loading pattern
+- [PASS] Implements proper wait strategies (networkidle + explicit timeouts)
+- [PASS] Tests multi-browser scenarios when applicable
+- [PASS] Monitors console for critical errors
+- [PASS] Validates API responses against expected data
+- [PASS] Includes cleanup in finally blocks
+- [PASS] Test file saved to `.github/prompts.keys/{key}/tests/` (within key data stream)
+- [PASS] Orchestration script saved to `.github/prompts.keys/{key}/scripts/`
+- [PASS] Test registry updated with new test entry
+- [PASS] No duplicate tests created (registry checked first)
+- [PASS] ASCII-only characters in PowerShell scripts
 
 ## Workflow Integration
 
-**Invoked by**: task.prompt.md when test generation is required
-**Returns to**: task.prompt.md with test file path for key-data-stream documentation
-**Artifacts**: TypeScript test file, execution instructions, server management guidance
+**Invoked by**: 
+- `task.prompt.md` when test generation is required for UI changes (Step 6.1)
+- `question.prompt.md` when user asks "how do I test X feature?"
+- Direct invocation with test parameters
+
+**Parameters Received**:
+- `key`: Key name for directory structure (MANDATORY)
+- `feature`: Name of feature being tested (e.g., "debug-panel-islamic-questions")
+- `scenario`: Specific test scenario (e.g., "random-question-broadcast")
+- `endpoints`: API endpoints involved (e.g., `/api/Question/Submit`)
+- `tokens`: Override defaults if needed (default: Session 212 tokens)
+- `multiUser`: Boolean indicating multi-browser test requirement
+- `testType`: "functional" | "visual" | "both" (determines test generation approach)
+
+**Returns to**: 
+- Calling prompt with test file paths and execution instructions
+- Key-data-stream documentation with test coverage details
+
+**Artifacts Generated**:
+1. TypeScript test file in `.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts`
+2. PowerShell orchestration script in `.github/prompts.keys/{key}/scripts/run-{feature}-test.ps1`
+3. Test registry entry in `.github/prompts.keys/{key}/tests/test-registry.md`
+4. Execution instructions (how to run the tests)
+5. Server management guidance (when to use orchestration vs webServer)
+
+**Key Data Stream Entry Template**:
+```markdown
+## Test Coverage
+
+### Active Tests (In Key Directory)
+- **Test File**: .github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts
+- **Orchestration Script**: .github/prompts.keys/{key}/scripts/run-{feature}-test.ps1
+- **Test Type**: {Functional E2E | Visual Regression | Both}
+- **Session Data**: Session 212 (Host: PQ9N5YWW, User: KJAHA99L)
+- **Execution**: `.\.github\prompts.keys\{key}\scripts\run-{feature}-test.ps1`
+- **Expected Result**: {description of expected test outcomes}
+- **Status**: Active (pending promotion to production)
+
+### Production Tests (Promoted)
+- **Production Path**: Tests/UI/{feature}-{test-type}.spec.ts
+- **Promoted**: {ISO-8601 timestamp}
+- **Commit**: {SHA}
+- **Status**: In production (key directory test deleted)
+```

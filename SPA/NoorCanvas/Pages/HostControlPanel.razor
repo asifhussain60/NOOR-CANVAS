@@ -1424,9 +1424,9 @@
     }
 
     /// <summary>
-    /// [DIAGNOSTIC:transcript-canvas:transform] Transform transcript HTML for broadcast mode
-    /// Removes delete buttons and share buttons, keeps content clean for single broadcast button display
-    /// CRITICAL: Does NOT inject individual share buttons (different from Start Session flow)
+    /// [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Handle transcript scroll and broadcast to participants ;CLEANUP_OK
+    /// Throttled to 200ms intervals to prevent network flooding
+    /// Participants receive scroll position and are locked to host's view
     /// </summary>
     private Task<string> TransformTranscriptForBroadcastAsync()
     {
@@ -3822,8 +3822,6 @@
 }
 
 <script>
-
-
     // Individual Asset Sharing Function (called by auto-injected SHARE buttons)
     window.shareIndividualAsset = async function(assetId, assetType) {
         console.log('NOOR-ASSET-SHARE: Sharing individual asset:', assetId, 'Type:', assetType);

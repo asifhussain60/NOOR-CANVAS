@@ -99,10 +99,10 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { Error = "Question text cannot be empty", RequestId = requestId });
                 }
 
-                // Find session by user token - accept both Active and Configured sessions
+                // Find session by user token - accept Created, Active, and Configured sessions
                 var session = await _context.Sessions
                     .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
-                                            (s.Status == "Active" || s.Status == "Configured"));
+                                            (s.Status == "Created" || s.Status == "Active" || s.Status == "Configured"));
 
                 if (session == null)
                 {

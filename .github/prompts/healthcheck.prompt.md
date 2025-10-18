@@ -1,5 +1,6 @@
 ---
 mode: agent
+description: Read-only system health auditor and prompt optimization analyzer (no code changes)
 ---
 
 ## Debug Logging Mandate (Code Insertion)

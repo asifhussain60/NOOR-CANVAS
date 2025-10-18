@@ -1,5 +1,6 @@
 ---
 mode: agent
+description: Synchronization and cleanup agent for prompts, instructions, configs, and hygiene tasks
 ---
 
 ## Role
@@ -108,7 +109,7 @@ You also enforce project hygiene by performing cleanup duties:
 
 **Key Requirements**:
 - ✅ Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
-- ✅ Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` before `dotnet run`
+- ✅ Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` and `$env:ASPNETCORE_URLS = 'https://localhost:9091'` before `dotnet run`
 - ✅ Health check with retry logic (10 attempts, 3-second delays)
 - ✅ Automated cleanup after tests complete
 - ❌ NEVER run `npx playwright test` directly from terminal

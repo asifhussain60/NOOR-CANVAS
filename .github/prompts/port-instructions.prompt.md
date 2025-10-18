@@ -2,6 +2,7 @@
 
 ---
 mode: agent
+description: Create generic, portable templates for prompts, instructions, and learning infrastructure
 ---
 
 ## Role

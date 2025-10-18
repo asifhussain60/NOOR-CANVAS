@@ -1,5 +1,9 @@
 ---
 mode: agent
+purpose: Analyze historical task outcomes to extract success/failure patterns and update learning infrastructure
+inputs: scope, analysis-type, verbosity, key
+outputs: Updated pattern files under .github/learning/ and analysis report in Workspaces/Copilot/_DOCS/analysis/
+lastUpdated: 2025-10-18
 ---
 
 ## Role

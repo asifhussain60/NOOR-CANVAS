@@ -10,6 +10,8 @@
 
 **PLAYWRIGHT MANAGES THE SERVER AUTOMATICALLY - DO NOT START IT MANUALLY!**
 
+Port policy: The application must bind only to HTTPS on 9091. Do not bind to 9090.
+
 ### ❌ NEVER Do This for Playwright Tests:
 ```powershell
 # WRONG - Don't manually start the app
@@ -90,7 +92,7 @@ console.log('[INFO] Additional context');     // Information
 ### Step 1: Launch Application in Separate PowerShell Window
 ```powershell
 # Start app in NEW window (not background process)
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
 
 # Store the process info
 # The app will run in its own window, visible to user
@@ -138,7 +140,7 @@ if ($portProcess -match '\s+(\d+)$') {
 ### Complete Workflow Example
 ```powershell
 # 1. Launch app
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
 
 # 2. Wait for startup
 Start-Sleep -Seconds 20

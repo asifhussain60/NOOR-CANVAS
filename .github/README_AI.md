@@ -20,6 +20,24 @@
 
 ## 📚 Prompt File Summaries
 
+### 0. plan.prompt.md
+File: `.github/prompts/plan.prompt.md`
+Agent Name: Planning Orchestrator Agent (plan)
+Primary Role: Interactive planning that refines user requests into a phased, testable plan; records the finalized plan in the key data stream and prepares a handoff to execution/test agents.
+
+What It Does:
+- Iteratively clarifies goals, scope, constraints, and open questions
+- Proposes enhancements, libraries, and best practices with explicit opt-in
+- Structures phases with simple debug logs and concrete outcomes
+- Creates functional and (if needed) visual regression test plans aligned with orchestration scripts
+- On user confirmation (e.g., “begin implementation”), logs the final plan to the key data stream and produces ready-to-run invocations for /task and /test-generation
+
+Invocation Examples:
+```
+@workspace /plan key=canvas user_request="Add share transcript to TranscriptCanvas"
+@workspace /plan key=hcp user_request="Refactor HostControlPanel navigation?" scope=UI include_suggestions=true
+```
+
 ### 1. task.prompt.md
 **File**: `.github/prompts/task.prompt.md`  
 **Agent Name**: Task Executor Agent  
@@ -320,6 +338,11 @@ The Self-Learning Analysis Agent transforms NOOR CANVAS from a static instructio
   ├─► Reads: task-patterns.json, key data streams
   └─► Writes: work-log.md, Playwright tests in TEMP/
 
+[plan] (Planning Orchestrator)
+   ├─► Writes: key data stream finalized plan
+   ├─► Triggers: task (implementation), test-generation (tests when visual changes)
+   └─► Reads: Links/*, prompts/shared/*
+
 [refactor] (Structural Integrity)
   ├─► Triggered By: task (post-implementation), sync (periodic)
   ├─► Triggers: healthcheck (post-refactor validation)
@@ -475,6 +498,7 @@ Workspaces/Copilot/learning/
 All agent prompt files that define AI agent behavior and workflows.
 
 #### Main Prompts (Alphabetical)
+- plan.prompt.md - Planning Orchestrator Agent - Iterative planning, suggestion opt-in, handoff to /task and /test-generation, key data stream logging
 - **analyze-learning.prompt.md** - Self-Learning Analysis Agent - Analyzes historical task patterns, extracts success/failure lessons, updates learning infrastructure
 - **cohesion-review.prompt.md** - Prompt Architecture Auditor - Reviews prompt system for redundancies, gaps, conflicts, consolidates similar files
 - **healthcheck.prompt.md** - System Health Auditor - Read-only validation of cross-layer contracts (UI ↔ API ↔ Database), detects drift
@@ -623,3 +647,38 @@ Workspaces/Copilot/learning/
 ---
 
 **Remember**: This file is the holy grail of prompts. Keep it current, keep it comprehensive, and keep it accessible to all AI models working in this codebase.
+
+---
+
+## 🔁 Prompt Cohesion Audit (Automated)
+
+To prevent drift, hallucination, and loss of context across agents, we run a periodic prompt cohesion audit.
+
+What it does:
+- Scans all agent prompts in `.github/prompts/` (excluding `shared/`)
+- Validates YAML frontmatter (mode, purpose, inputs, outputs)
+- Checks for `## Role` section and SelfAwareness guardrails reference
+- Verifies `key` parameter coverage (frontmatter or body)
+- Cross-checks links to `.github/instructions/Links/*.MD`
+- Produces a Markdown report and JSON index
+
+How to run locally:
+```
+pwsh -File .github/scripts/run-prompt-cohesion-audit.ps1
+```
+
+CI schedule:
+- GitHub Actions workflow `.github/workflows/prompt-cohesion-audit.yml` runs weekly and on relevant changes
+
+Outputs:
+- Reports are written to `.github/reports/`:
+   - `prompt-cohesion-audit-<timestamp>.md` (human-readable)
+   - `prompt-index.json` (machine-readable)
+
+Pass/Fail:
+- Use `-FailOnError` to fail the pipeline on critical issues (missing frontmatter/mode)
+
+Remediation tips:
+- Ensure each agent prompt frontmatter includes: `mode: agent`, `purpose`, `inputs` (include `key` when applicable), `outputs`
+- Include a `## Role` section and reference to `SelfAwareness.instructions.md`
+- Replace duplicated rules with references to `.github/prompts/shared/` files

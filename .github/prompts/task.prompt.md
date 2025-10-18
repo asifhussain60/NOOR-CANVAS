@@ -2,6 +2,7 @@
 
 ---
 mode: agent
+description: Execution engine that plans, executes, validates, and updates key data streams with audits
 ---
 
 ## Role
@@ -24,7 +25,7 @@ Controls debug logging inserted into source files OR documentation mode.
 **See:** `.github/prompts/shared/debug-logging-mandate.md` for marker patterns
 
 ### verbosity *(optional, default=`concise`)*
-Controls agent output detail level shown to user (does NOT affect functionality).  
+Controls agent output detail level shown to user (does NOT affect functionality).
 **Options:** `concise` (brief summaries, progress markers), `detailed` (full analysis, complete context dumps)
 
 ### tasks *(optional, multi-line)*
@@ -63,10 +64,14 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 **Note:** When message starts with "Adding to previous key data stream,", the agent automatically detects the most recently modified key from git history and continues work on that key.
 
 ### Expected Outcomes
+- ✅ User request recorded in key data stream (succinct summary before work begins)
+- ✅ High-priority constraints detected (ALL CAPS emphasis from user request)
 - ✅ Incremental documentation (key data stream updated after EVERY sub-task)
 - ✅ Git-linked traceability (full SHA commit hashes recorded)
 - ✅ Checkpoint tags (every task creates searchable git tag with 28-tag history per key)
 - ✅ Automatic test creation (Playwright tests generated for UI changes)
+- ✅ Mandatory lint validation (ALL modified files pass syntax checks before commit)
+- ✅ High-priority constraint verification (ALL CAPS constraints verified before completion)
 - ✅ Clean build (zero errors, zero warnings - mandatory)
 - ✅ Comprehensive completion (cross-layer documentation when "mark complete")
 - ✅ Concise user output (full details in work-log.md)
@@ -216,7 +221,9 @@ This ensures rollback capability if the task introduces instability.
 
 **Always Execute:**
 - **2.1:** Key Resolution (infer from history, use provided parameter, or auto-detected from Step 0.5)
+  - **2.1.5:** High-Priority Constraint Detection (scan for ALL CAPS emphasis in user request)
 - **2.2:** Key Data Stream Query (read existing work, prevent duplication)
+  - **2.2.1:** Record User Request (succinct summary before work begins)
 - **2.3:** Auto-Load File Mappings (load referenced files into context)
 
 **Conditional Execution (based on task type):**
@@ -246,14 +253,39 @@ This ensures rollback capability if the task introduces instability.
 - Use verified/inferred key from Step 2
 - Incorporate architecture analysis from Step 2.8
 - **MANDATORY for CRUD:** Verify complete data lifecycle documented in Step 2.8.7
+- **HIGH-PRIORITY Constraints:** Include dedicated section for ALL CAPS constraints from Step 2.1.5
 - Parse `debug-level`, `verbosity`, `tasks`
 - **Detect completion keywords:** If `tasks` contains "mark complete", prepare Step 9
 - **Detect documentation mode:** If `debug-level: doc`, prepare documentation instead of code execution
 - Incorporate context from Step 2
 
+**Plan Structure**:
+```markdown
+## Implementation Plan
+
+### Primary Objective
+{main task description}
+
+### HIGH-PRIORITY Constraints (from user ALL CAPS emphasis)
+1. [CONSTRAINT] {constraint description}
+   - **Category**: {Preservation|Exactness|Mandatory Inclusion|Behavioral}
+   - **Verification Method**: {how to verify}
+   - **Status**: PENDING → VERIFIED → FAILED
+
+### Subtasks
+1. {subtask 1}
+2. {subtask 2}
+
+### Verification Checklist
+- [ ] Build passes (zero errors, zero warnings)
+- [ ] Lint validation passes (all file types)
+- [ ] High-priority constraints verified
+- [ ] Tests pass (if applicable)
+```
+
 **Output (based on verbosity):**
-- **Concise:** 3-5 line summary, subtask list, approach
-- **Detailed:** Complete analysis, file-by-file breakdown, test strategy, risks
+- **Concise:** 3-5 line summary, subtask list, constraint count, approach
+- **Detailed:** Complete analysis, file-by-file breakdown, test strategy, constraint verification plan, risks
 
 ---
 
@@ -450,24 +482,141 @@ Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
 
 #### 6.1. Automatic Playwright Test Creation (UI Tasks)
 
-**For tasks involving UI changes, automatically generate Playwright tests.**
+**For tasks involving UI changes, delegate to test-generation.prompt.md.**
 
-**See:** `shared/playwright-test-generation.md` for:
+**Delegation Protocol:**
+1. Detect if task involves UI changes (components, pages, CSS, user interactions)
+2. If yes, invoke `test-generation.prompt.md` with parameters:
+   - `key`: Current task key (MANDATORY for directory structure)
+   - `feature`: Task key or feature name
+   - `scenario`: Specific test scenario from task description
+   - `endpoints`: API endpoints involved (if any)
+   - `tokens`: Session 212 defaults (unless task specifies otherwise)
+   - `multiUser`: true if host/participant interaction
+   - `testType`: "functional" | "visual" | "both" (based on change type)
+3. Receive generated test files and orchestration script
+4. Document in key-data-stream
+
+**See:** `test-generation.prompt.md` and `shared/playwright-test-generation.md` for:
 - Complete test type decision matrix
 - Orchestration script requirement (MANDATORY)
 - Test generation patterns
 - Automatic test type detection & execution
+- Test lifecycle management (creation, execution, promotion, cleanup)
 
 **Key Requirements:**
-- **Test Location:** `Workspaces/TEMP/`
-- **Naming:** `{feature}-{test-type}.spec.ts`
-- **Test Data:** Use Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
-- **Execution:** Via orchestration scripts ONLY (never direct `npx playwright test`)
+- **Test Location**: `.github/prompts.keys/{key}/tests/` (within key data stream)
+- **Test Registry**: `.github/prompts.keys/{key}/tests/test-registry.md` (prevents duplication)
+- **Orchestration Scripts**: `.github/prompts.keys/{key}/scripts/`
+- **Naming**: `{feature}-{test-type}.spec.ts`
+- **Test Data**: Use Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
+- **Execution**: Via orchestration scripts ONLY (never direct `npx playwright test`)
+- **Cleanup**: Tests deleted from key directory after production promotion (Step 9)
 
 **Skip test creation if:**
 - Task is backend-only (no UI impact)
 - Task is documentation/configuration only
 - User explicitly requests `--no-tests` flag
+
+---
+
+#### 6.2. Mandatory Lint Validation (ALL Modified Files)
+
+**CRITICAL: This step is MANDATORY before any commit. Lint failures BLOCK commit creation.**
+
+**See:** `.github/prompts/shared/mandatory-lint-validation.md` for complete linting protocols
+
+**Execution**:
+1. **Detect all modified files**:
+   ```powershell
+   $modifiedFiles = git diff --name-only HEAD
+   ```
+
+2. **Run linters by file type**:
+   - **C# Files** (*.cs, *.cshtml, *.razor): Roslynator + Roslyn Analyzers
+   - **JavaScript/TypeScript** (*.js, *.ts, *.tsx): ESLint
+   - **CSS/Razor Styles** (*.css, *.razor): Stylelint
+   - **PowerShell Scripts** (*.ps1): PSScriptAnalyzer
+   - **JSON Files** (*.json): JSON syntax validation + Prettier
+
+3. **Auto-Fix Attempt**:
+   - If lint failures detected, attempt auto-fix with `--fix` flags
+   - Re-run validation after auto-fix
+   - If still failing → Request manual intervention
+
+4. **Linter Installation** (if tools missing):
+   - ESLint: `npm install --save-dev eslint @typescript-eslint/parser`
+   - Stylelint: `npm install --save-dev stylelint stylelint-config-standard`
+   - PSScriptAnalyzer: `Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force`
+
+5. **Report Results**:
+   ```
+   [LINT VALIDATION]
+   - C# Files: [PASS] 3 files validated (0 warnings)
+   - JS/TS Files: [PASS] 2 files validated (0 errors)
+   - CSS Files: [PASS] 1 file validated (0 errors)
+   - PowerShell: [PASS] 1 file validated (0 warnings)
+   - JSON: [PASS] 2 files validated (valid syntax)
+   
+   All files passed lint validation.
+   ```
+
+6. **Halt on Failure**:
+   - If ANY linter returns non-zero exit code → HALT execution
+   - Document lint errors in key data stream
+   - **NEVER proceed to Step 8 (Commit) with lint failures**
+
+**Output to User** (controlled by verbosity):
+- **Concise:** Summary of files validated by type, pass/fail status
+- **Detailed:** Full lint output, specific errors, auto-fix attempts
+
+---
+
+#### 6.3. High-Priority Constraint Verification
+
+**CRITICAL: Verify ALL CAPS constraints from user request before marking work complete.**
+
+**See:** `.github/prompts/shared/high-priority-task-detection.md` for complete protocol
+
+**Execution**:
+1. **Retrieve constraints from Step 2.1.5**:
+   ```markdown
+   HIGH-PRIORITY Constraints:
+   1. do NOT remove existing save button (Preservation)
+   2. EXACTLY match mockup colors (Exactness)
+   ```
+
+2. **Run verification checks**:
+   - **Preservation**: DOM queries, visual inspection, regression tests
+   - **Exactness**: Percy visual tests, CSS value inspection, pixel measurement
+   - **Mandatory Inclusion**: Code inspection, E2E tests, feature presence
+   - **Behavioral**: Functional tests, user acceptance testing
+
+3. **Document verification results**:
+   ```markdown
+   ## High-Priority Constraint Verification
+   
+   - [PASS] Constraint 1: Save button preserved
+     - Verification: DOM query `.session-save-button` successful
+     - Test: `SaveButtonPresent` E2E test passed
+   
+   - [PASS] Constraint 2: Colors matched exactly
+     - Verification: Percy visual regression passed
+     - CSS values: #FF5733, #3357FF confirmed
+   ```
+
+4. **Constraint Violation Protocol**:
+   - If ANY constraint violated → HALT execution immediately
+   - Rollback to checkpoint commit
+   - Notify user with violation details
+   - Return to Step 3 (re-plan with constraint awareness)
+
+**Output to User**:
+```
+HIGH-PRIORITY Constraints Verified:
+- [PASS] Save button preserved (user requested: do NOT remove)
+- [PASS] Mockup colors matched (user requested: EXACTLY match)
+```
 
 ---
 
@@ -484,6 +633,8 @@ SUMMARY: {key-name}
 - Debug Logging: {inserted | removed | none}
 - Tests: {passed/failed count}
 - Build: {Clean | Warnings | Errors}
+- Lint Validation: {PASS | FAIL} ({file-type breakdown})
+- High-Priority Constraints: {N} verified
 - Approval Iterations: {N} (if re-evaluation occurred)
 - Checkpoint: checkpoint/{key}/{timestamp}
 ```
@@ -499,6 +650,15 @@ SUMMARY: {key-name}
 - Debug Logging: {details}
 - Tests: {X passed, Y failed with details}
 - Build: {Clean | Warnings | Errors with details}
+- Lint Validation: {PASS | FAIL}
+  - C# Files: {count} files, {warnings/errors}
+  - JS/TS Files: {count} files, {warnings/errors}
+  - CSS Files: {count} files, {warnings/errors}
+  - PowerShell: {count} files, {warnings/errors}
+  - JSON: {count} files, {syntax status}
+- High-Priority Constraints Verified:
+  - [PASS] {constraint 1 description}
+  - [PASS] {constraint 2 description}
 - Approval Iterations: {N} (if re-evaluation occurred)
   - Iteration 1: {additional requirement 1}
   - Iteration 2: {additional requirement 2}
@@ -524,21 +684,34 @@ SUMMARY: {key-name}
 #### 8.2. Key Data Stream Update Requirements
 1. Locate key file: `.github/prompts.keys/**/{key}.md`
 2. Retrieve git commit hash: `git rev-parse HEAD`
-3. Update or create entry (append to work log):
+3. **Record user request** (Step 2.2.1 - if not already recorded):
    ```markdown
-   ### {ISO-8601 timestamp}
+   ### User Request (2025-10-18T12:00:00Z)
+   {succinct 1-2 sentence summary of user's original request}
+   
+   **High-Priority Constraints** (ALL CAPS from user):
+   - do NOT remove existing save button
+   - EXACTLY match mockup colors
+   ```
+4. Update or create entry (append to work log):
+   ```markdown
+   ### Work Completed (2025-10-18T12:30:00Z)
    - **Status**: {In Progress | Complete}
    - **Changes**: {list}
    - **Files Affected**: {list}
    - **Tests**: {results}
+   - **Lint Validation**: {PASS | FAIL with details}
+   - **High-Priority Constraints Verified**:
+     - [PASS] Save button preserved (user ALL CAPS: do NOT remove)
+     - [PASS] Mockup colors matched (user ALL CAPS: EXACTLY match)
    - **Approval Iterations**: {N} (if re-evaluation occurred)
    - **Additional Requirements**: {list of requirements added during iterations}
    - **Commit**: {SHA}
    ```
-4. Output to user (brief acknowledgment only):
-   - Concise: `"✓ Key data stream updated (commit: {SHA})"`
+5. Output to user (brief acknowledgment only):
+   - Concise: `"[OK] Key data stream updated (commit: {SHA})"`
    - Detailed: Show complete entry added
-5. Maintain alphabetical sorting of keys
+6. Maintain alphabetical sorting of keys
 
 #### 8.3. Functionality Registry Validation (Regression Prevention)
 1. Load Functionality Registry (if exists)
@@ -661,13 +834,61 @@ Search all modified source files and remove debug logging markers:
 
 **Output:**
 ```
-🗑️ Debug Cleanup Complete
+[CLEANUP] Debug Cleanup Complete
 - Removed {X} debug markers from {Y} files
 - Verification: git grep found 0 remaining markers
 - Build status: Clean
 ```
 
-#### 9.2. State Management & Completion
+#### 9.2. Test Promotion & Cleanup (MANDATORY if tests exist)
+
+**Promote Passing Tests to Production:**
+
+1. **Check for active tests** in `.github/prompts.keys/{key}/tests/`:
+   ```powershell
+   $testFiles = Get-ChildItem ".github/prompts.keys/{key}/tests/*.spec.ts"
+   ```
+
+2. **For each passing test**:
+   - Copy test file to production: `Tests/UI/{feature}-{test-type}.spec.ts`
+   - Update orchestration script paths to point to production location
+   - Copy orchestration script to: `Scripts/run-{feature}-test.ps1`
+   - Document promotion in test registry (archive section)
+
+3. **Update test registry** (`.github/prompts.keys/{key}/tests/test-registry.md`):
+   ```markdown
+   ## Archived Tests (Promoted to Production)
+   
+   ### {feature}-{test-type}.spec.ts
+   - **Promoted**: {ISO-8601 timestamp}
+   - **Destination**: Tests/UI/{feature}-{test-type}.spec.ts
+   - **Orchestration**: Scripts/run-{feature}-test.ps1
+   - **Commit**: {SHA}
+   - **Status**: Promoted (deleted from key directory)
+   ```
+
+4. **Delete tests from key directory**:
+   ```powershell
+   Remove-Item ".github/prompts.keys/{key}/tests/*.spec.ts"
+   Remove-Item ".github/prompts.keys/{key}/scripts/run-*-test.ps1"
+   ```
+
+5. **Preserve test registry** for historical reference
+
+**Output:**
+```
+[TESTS] Test Promotion Complete
+- Promoted {X} test(s) to Tests/UI/
+- Copied {X} orchestration script(s) to Scripts/
+- Deleted {X} test(s) from key directory
+- Test registry archived
+```
+
+**Skip Conditions:**
+- No tests exist in `.github/prompts.keys/{key}/tests/`
+- All tests failed (do not promote failing tests)
+
+#### 9.3. State Management & Completion
 - Mark key as `complete` in metadata
 - Verify key data stream is up-to-date with final state
 - Archive work log (historical entries intact)
@@ -675,12 +896,13 @@ Search all modified source files and remove debug logging markers:
 
 **Output to User:**
 ```
-✅ Key marked as COMPLETE
-📝 All information recorded in key data stream
-🗑️ Debug markers removed ({X} markers from {Y} files)
+[COMPLETE] Key marked as COMPLETE
+[OK] All information recorded in key data stream
+[CLEANUP] Debug markers removed ({X} markers from {Y} files)
+[TESTS] Tests promoted to production ({X} tests)
 ```
 
-#### 9.3. Resumption Protocol
+#### 9.4. Resumption Protocol
 **If new tasks arrive for a `complete` key:**
 - Auto-revert status from `complete` to `in-progress`
 - Preserve all historical entries in key data stream
@@ -692,9 +914,13 @@ Search all modified source files and remove debug logging markers:
 ## Guardrails
 
 - **ALWAYS query key data stream before planning** (Step 2 is mandatory)
+- **ALWAYS record user request in key data stream** (Step 2.2.1 - succinct summary before work begins)
+- **ALWAYS detect high-priority constraints** (Step 2.1.5 - scan for ALL CAPS emphasis)
 - **ALWAYS execute Step 2.8.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations)
 - **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
-- **ALWAYS update key data stream after execution** (Step 8 is mandatory)
+- **ALWAYS run mandatory lint validation before commit** (Step 6.2 - all modified files MUST pass)
+- **ALWAYS verify high-priority constraints** (Step 6.3 - ALL CAPS constraints MUST be verified)
+- **ALWAYS update key data stream after execution** (Step 8 is mandatory - includes user request and work completed)
 - **ALWAYS create checkpoint commit and git tag after task completion** (Step 8.4 is mandatory)
 - **ALWAYS prune old checkpoint tags to maintain max 28 per key** (automatic cleanup)
 - **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
@@ -706,6 +932,8 @@ Search all modified source files and remove debug logging markers:
 - **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
 - **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes
 - **NEVER proceed past Step 4 if user response contains additional requirements** - loop back to Step 3 for re-planning
+- **NEVER commit with lint failures** - Step 6.2 lint validation MUST pass before Step 8
+- **NEVER violate high-priority constraints** - Step 6.3 constraint verification MUST pass or trigger rollback
 - Never modify functionality unless explicitly required
 - Always ensure architectural and structural integrity
 - Always pause and request clarification if uncertain

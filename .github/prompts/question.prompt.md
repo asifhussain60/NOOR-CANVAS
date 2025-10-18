@@ -1,5 +1,4 @@
----
-mode: ask
+mode: agent
 ---
 
 ## Role
