@@ -11,20 +11,46 @@
 
 window.TranscriptSectionParser = {
     /**
+     * Wait for container to exist in DOM (polling with timeout)
+     * @param {string} containerId - ID of the container to wait for
+     * @param {number} maxAttempts - Maximum polling attempts (default: 20)
+     * @param {number} intervalMs - Polling interval in ms (default: 250ms)
+     * @returns {Promise<HTMLElement|null>} Container element or null if timeout
+     */
+    waitForContainer: async function (containerId, maxAttempts = 20, intervalMs = 250) {
+        console.log('[TRACE:hcp-tcanvas:wait] Waiting for container:', containerId, ';CLEANUP_OK');
+        
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            const container = document.getElementById(containerId);
+            if (container && container.innerHTML.length > 0) {
+                console.log(`[TRACE:hcp-tcanvas:wait] ✅ Container found after ${attempt} attempts (${attempt * intervalMs}ms) ;CLEANUP_OK`);
+                return container;
+            }
+            
+            console.log(`[TRACE:hcp-tcanvas:wait] Attempt ${attempt}/${maxAttempts} - container ${container ? 'found but empty' : 'not found'} ;CLEANUP_OK`);
+            await new Promise(resolve => setTimeout(resolve, intervalMs));
+        }
+        
+        console.error(`[TRACE:hcp-tcanvas:wait] ❌ Container not found after ${maxAttempts * intervalMs}ms ;CLEANUP_OK`);
+        return null;
+    },
+
+    /**
      * Parse transcript HTML and inject share buttons for each h2 section
      * @param {string} containerId - ID of the container element holding transcript HTML
      * @param {object} dotNetRef - DotNet object reference for C# method callbacks
-     * @returns {object} Result with section count and success status
+     * @returns {Promise<object>} Result with section count and success status
      */
-    injectShareButtons: function (containerId, dotNetRef) {
+    injectShareButtons: async function (containerId, dotNetRef) {
         console.log('[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION START ════════ ;CLEANUP_OK');
         console.log('[TRACE:hcp-tcanvas:inject] ContainerId:', containerId, ';CLEANUP_OK');
 
-        const container = document.getElementById(containerId);
+        // Wait for container to exist with content
+        const container = await this.waitForContainer(containerId);
         if (!container) {
-            console.error('[TRACE:hcp-tcanvas:inject] ❌ Container NOT FOUND:', containerId, ';CLEANUP_OK');
+            console.error('[TRACE:hcp-tcanvas:inject] ❌ Container NOT FOUND after timeout:', containerId, ';CLEANUP_OK');
             console.error('[TRACE:hcp-tcanvas:inject] Available IDs in document:', Array.from(document.querySelectorAll('[id]')).map(el => el.id), ';CLEANUP_OK');
-            return { success: false, sections: 0, error: 'Container not found' };
+            return { success: false, sections: 0, error: 'Container not found after waiting 5 seconds' };
         }
 
         console.log('[TRACE:hcp-tcanvas:inject] ✅ Container found ;CLEANUP_OK');
@@ -84,12 +110,12 @@ window.TranscriptSectionParser = {
             // Collect h2 and following siblings until next h2
             while (currentElement) {
                 const nextElement = currentElement.nextElementSibling;
-                
+
                 // Stop if we hit another h2
                 if (nextElement && nextElement.tagName === 'H2') {
                     break;
                 }
-                
+
                 sectionContent.push(currentElement);
                 currentElement = nextElement;
             }
@@ -101,7 +127,7 @@ window.TranscriptSectionParser = {
             wrapper.id = sectionId;
             wrapper.setAttribute('data-section-index', index.toString());
             wrapper.style.cssText = 'position: relative;'; // Invisible container
-            
+
             console.log(`[TRACE:hcp-tcanvas:inject] Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
 
             // Create share button to inject ABOVE the section
@@ -155,12 +181,12 @@ window.TranscriptSectionParser = {
             // Wrap section content in the invisible div
             // Insert wrapper before the first element
             insertionPoint.parentNode.insertBefore(wrapper, insertionPoint);
-            
+
             // Move all section elements into wrapper
             sectionContent.forEach(element => {
                 wrapper.appendChild(element);
             });
-            
+
             console.log(`[TRACE:hcp-tcanvas:inject] Wrapped section ${index} content in div#${sectionId} ;CLEANUP_OK`);
 
             sectionsProcessed++;
