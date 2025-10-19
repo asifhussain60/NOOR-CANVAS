@@ -1,0 +1,654 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - img "NOOR Canvas" [ref=e7]
+        - heading " HOST CONTROL PANEL" [level=1] [ref=e8]:
+          - generic [ref=e9]: 
+          - generic [ref=e10]: HOST CONTROL PANEL
+        - paragraph [ref=e11]: Manage your session with professional-grade controls
+      - text:   
+      - generic [ref=e13]:
+        - generic [ref=e17]: 
+        - generic [ref=e18]:
+          - heading "Need For Messengers" [level=2] [ref=e19]
+          - paragraph [ref=e20]: We Look at the Purpose of Sending Messengers, and Their Role in Our Spiritual Awakening.
+        - generic [ref=e21]:
+          - heading "SESSION CONTROLS" [level=3] [ref=e22]:
+            - generic [ref=e23]: ⚙
+            - generic [ref=e24]: SESSION CONTROLS
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: 
+              - paragraph [ref=e28]: Session Time
+              - paragraph [ref=e29]: 6:00 AM
+            - generic [ref=e30]:
+              - generic [ref=e31]: 
+              - paragraph [ref=e32]: Duration
+              - paragraph [ref=e33]: 1 hour
+          - generic [ref=e34]:
+            - heading " User Registration Link" [level=4] [ref=e35]:
+              - generic [ref=e36]: 
+              - generic [ref=e37]: User Registration Link
+            - generic [ref=e39]:
+              - link "https://localhost:9091/user/landing/KJAHA99L" [ref=e40] [cursor=pointer]:
+                - /url: https://localhost:9091/user/landing/KJAHA99L
+              - button " Copy" [ref=e41] [cursor=pointer]:
+                - generic [ref=e42] [cursor=pointer]: 
+                - text: Copy
+            - paragraph [ref=e43]: Click the link to open in a new window, or use the copy button to share with participants
+          - generic [ref=e44]:
+            - button "Start Session" [disabled] [ref=e45]:
+              - generic [ref=e46]: ▶
+              - generic [ref=e47]: Start Session
+            - button "Share Transcript" [ref=e48] [cursor=pointer]:
+              - generic [ref=e49] [cursor=pointer]: 📜
+              - generic [ref=e50] [cursor=pointer]: Share Transcript
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - heading " Session Transcript" [level=3] [ref=e53]:
+            - generic [ref=e54]: 
+            - generic [ref=e55]: Session Transcript
+          - generic [ref=e59]:
+            - 'button " Share The Purpose of Messengers: A Call to Awaken from Heedlessness" [ref=e60] [cursor=pointer]':
+              - generic [ref=e61] [cursor=pointer]: 
+              - text: "Share The Purpose of Messengers: A Call to Awaken from Heedlessness"
+            - generic [ref=e62]:
+              - 'heading "The Purpose of Messengers: A Call to Awaken from Heedlessness" [level=2] [ref=e63]'
+              - paragraph [ref=e64]:
+                - text: Impurity arises from filth (
+                - generic [ref=e65]: نجاست
+                - text: ). The transition from a state of impurity to one of purity is called
+                - generic [ref=e66]: طهارة
+                - text: (purification). Since a human being is a composition of both the body and the soul (
+                - generic [ref=e67]: نفس
+                - text: ), purifying the soul is as essential as purifying the body. Physical purity is achieved through the performance of outward religious acts, whereas the purification of the soul is attained by acquiring the inner knowledge (
+                - generic [ref=e68]: معرفت
+                - text: ) of the spiritual realities (
+                - generic [ref=e69]: ممثولات
+                - text: ) behind these external rites.
+              - paragraph [ref=e70]:
+                - text: Bodily purification is performed with water, while the purification of the soul is accomplished through knowledge. The Noble Prophet (PBUH) states, “There is no
+                - generic [ref=e71]: صلاة
+                - text: (prayer) without
+                - generic [ref=e72]: طهارة
+                - text: (purity).”
+              - paragraph [ref=e73]:
+                - generic [ref=e74]: الوضوء
+                - text: (Ablution) is a method for the evacuation of gross matter (
+                - generic [ref=e75]: فضلات ھابطۃ
+                - text: ) from the body.
+              - paragraph [ref=e76]:
+                - generic [ref=e77]: الوضوء
+                - text: signifies the recognition of the Huduud (ranks/limits) of the Imam (
+                - generic [ref=e78]: امام علیہ السلام
+                - text: ), and the
+                - generic [ref=e79]: صلاة
+                - text: (prayer) is evidence of establishing oneself within the Da‘wah (spiritual mission) of the Imam (
+                - generic [ref=e80]: امام علیہ السلام
+                - text: ) through these Huduud. Since it is impossible to be established in the Imam’s Da‘wah without recognizing the Huduud and making them one's means,
+                - generic [ref=e81]: صلاة
+                - text: is not valid without
+                - generic [ref=e82]: وضوء
+                - text: .
+              - paragraph [ref=e83]:
+                - text: Indeed, purity is half of
+                - generic [ref=e84]: ایمان
+                - text: (Faith). The Messenger of Allah (PBUH) stated that whoever perfects their
+                - generic [ref=e85]: طهارة
+                - text: and then leaves their house for the mosque to pray is considered to be in the state of
+                - generic [ref=e86]: صلاة
+                - text: until their
+                - generic [ref=e87]: وضوء
+                - text: is broken. This means that with
+                - generic [ref=e88]: وضوء
+                - text: ", the descent of divine spiritual confirmations ("
+                - generic [ref=e89]: تائیدات
+                - text: ) and illuminations (
+                - generic [ref=e90]: اشراقات
+                - text: ) from the Imam (
+                - generic [ref=e91]: امام علیہ السلام
+                - text: ) begins upon the believer.
+              - paragraph [ref=e92]:
+                - text: The Messenger of Allah (PBUH) stated that the foundation of
+                - generic [ref=e93]: صلاة
+                - text: "is built upon four things. Whoever fails to complete them, their prayer is a deception! These four things are:"
+              - table [ref=e94]:
+                - rowgroup [ref=e95]:
+                  - row "1 2 3 4" [ref=e96]:
+                    - cell "1" [ref=e97]
+                    - cell "2" [ref=e98]
+                    - cell "3" [ref=e99]
+                    - cell "4" [ref=e100]
+                - rowgroup [ref=e101]:
+                  - row "Perfect وضوء رکوع (Bowing) سجود (Prostration) خشوع (Humility)" [ref=e102]:
+                    - cell "Perfect وضوء" [ref=e103]:
+                      - text: Perfect
+                      - generic [ref=e104]: وضوء
+                    - cell "رکوع (Bowing)" [ref=e105]:
+                      - generic [ref=e106]: رکوع
+                      - text: (Bowing)
+                    - cell "سجود (Prostration)" [ref=e107]:
+                      - generic [ref=e108]: سجود
+                      - text: (Prostration)
+                    - cell "خشوع (Humility)" [ref=e109]:
+                      - generic [ref=e110]: خشوع
+                      - text: (Humility)
+              - paragraph [ref=e111]:
+                - text: Among these four essentials, perfect
+                - generic [ref=e112]: وضوء
+                - text: is the very first. The perfection of
+                - generic [ref=e113]: وضوء
+                - text: is achieved by repeating each step three times. Water represents the good deeds (
+                - generic [ref=e114]: حسنات
+                - text: ) of the believers, which Allah has divided into three parts. Due to these three divisions, each part of
+                - generic [ref=e115]: وضوء
+                - text: is repeated three times. For the same reason, one is instructed to drink water in three gulps. Likewise, knowledge is also divided into the three parts of
+                - generic [ref=e116]: شریعت
+                - text: (Law),
+                - generic [ref=e117]: تأویل
+                - text: (Esoteric Interpretation), and
+                - generic [ref=e118]: حقائق
+                - text: "(Ultimate Realities). Washing or wiping each limb three times signifies the recognition of the three Huduud of the Da‘wah (Spiritual Mission):"
+                - generic [ref=e119]: الناطق
+                - text: (The Speaker-Prophet),
+                - generic [ref=e120]: الاساس
+                - text: (The Foundation), and
+                - generic [ref=e121]: الإمام
+                - text: (The Imam).
+            - button " Share (Purity)" [ref=e122] [cursor=pointer]:
+              - generic [ref=e123] [cursor=pointer]: 
+              - text: Share (Purity)
+            - generic [ref=e124]:
+              - heading "(Purity)" [level=2] [ref=e125]
+              - paragraph [ref=e126]:
+                - text: When a believer performs
+                - generic [ref=e127]: وضوء
+                - text: once, they come into the sight of the Dai al-Waqt (Summoner of the Age), meaning the Dai perceives their pure intention (
+                - generic [ref=e128]: حسن نیت
+                - text: ). When they repeat the action a second time, Allah grants them double the reward, and they enter the
+                - emphasis [ref=e129]: Wilaayah
+                - text: (Authority) of the Imam al-Zamaan (Imam of the Time), through which they attain spiritual purity (
+                - generic [ref=e130]: باطنی طہارت
+                - text: ). When they perform the act a third time, the Prophet (
+                - generic [ref=e131]: الپیغمبر علیہ السلام
+                - text: "- The Speaker) declares, “This is my"
+                - generic [ref=e132]: وضوء
+                - text: and the
+                - generic [ref=e133]: وضوء
+                - text: of the Prophets over whom I am the Master!” This means they have reached the rank of 'Perfection' (
+                - generic [ref=e134]: کمال
+                - text: ).
+              - paragraph [ref=e135]:
+                - text: Purifying each limb three times indicates that when the believer completes their obligatory duties three times—that is, when they achieve the perfect knowledge of the Dai al-Waqt, the Imam al-Zamaan, and the Naatiq ash-Shari‘ah (The Speaker of the Law)—their rank is elevated, and they become included among the Huduud ad-Din (Ranks of Religion). In essence,
+                - generic [ref=e136]: وضوء
+                - text: is a means of being included among the Huduud of the Imam (
+                - generic [ref=e137]: امام علیہ السلام
+                - text: ).
+              - table [ref=e138]:
+                - rowgroup [ref=e139]:
+                  - row "First Time Second Time Third Time" [ref=e140]:
+                    - cell "First Time" [ref=e141]
+                    - cell "Second Time" [ref=e142]
+                    - cell "Third Time" [ref=e143]
+                - rowgroup [ref=e144]:
+                  - row "Sight of the Dai Wilaayah of the Imam وضوء of the Naatiq" [ref=e145]:
+                    - cell "Sight of the Dai" [ref=e146]
+                    - cell "Wilaayah of the Imam" [ref=e147]:
+                      - emphasis [ref=e148]: Wilaayah
+                      - text: of the Imam
+                    - cell "وضوء of the Naatiq" [ref=e149]:
+                      - generic [ref=e150]: وضوء
+                      - text: of the Naatiq
+                  - row "Outer Purity Inner Purity Perfection" [ref=e151]:
+                    - cell "Outer Purity" [ref=e152]
+                    - cell "Inner Purity" [ref=e153]
+                    - cell "Perfection" [ref=e154]
+              - paragraph [ref=e155]:
+                - generic [ref=e156]: الطهارة
+                - text: relates to the purification of seven limbs, four of which are obligatory (
+                - generic [ref=e157]: فرض
+                - text: ) and three are recommendable (
+                - generic [ref=e158]: سنت
+                - text: ). Every act of purification signifies a specific rank in the spiritual and physical Da‘wah.
+              - table [ref=e159]:
+                - rowgroup [ref=e160]:
+                  - row "Obligatory ( فرض) Recommendable ( سنت)" [ref=e161]:
+                    - cell "Obligatory ( فرض)" [ref=e162]:
+                      - text: Obligatory (
+                      - generic [ref=e163]: فرض
+                      - text: )
+                    - cell "Recommendable ( سنت)" [ref=e164]:
+                      - text: Recommendable (
+                      - generic [ref=e165]: سنت
+                      - text: )
+                  - row "1 2 3 4 5 6 7" [ref=e166]:
+                    - cell "1" [ref=e167]
+                    - cell "2" [ref=e168]
+                    - cell "3" [ref=e169]
+                    - cell "4" [ref=e170]
+                    - cell "5" [ref=e171]
+                    - cell "6" [ref=e172]
+                    - cell "7" [ref=e173]
+                - rowgroup [ref=e174]:
+                  - row "Washing the Face Washing Both Hands (to the Elbows) Wiping the Head Wiping Both Feet (to the Ankles) Washing the Hands (to the Wrist) Rinsing the Mouth Rinsing the Nose" [ref=e175]:
+                    - cell "Washing the Face" [ref=e176]
+                    - cell "Washing Both Hands (to the Elbows)" [ref=e177]
+                    - cell "Wiping the Head" [ref=e178]
+                    - cell "Wiping Both Feet (to the Ankles)" [ref=e179]
+                    - cell "Washing the Hands (to the Wrist)" [ref=e180]
+                    - cell "Rinsing the Mouth" [ref=e181]
+                    - cell "Rinsing the Nose" [ref=e182]
+                  - row "ناطق (Speaker) اساس (Foundation) عقل کل (Universal Intellect) نفس کل (Universal Soul) داعی (Summoner) حجت (Proof) امام (Imam)" [ref=e183]:
+                    - cell "ناطق (Speaker)" [ref=e184]:
+                      - generic [ref=e185]: ناطق
+                      - text: (Speaker)
+                    - cell "اساس (Foundation)" [ref=e186]:
+                      - generic [ref=e187]: اساس
+                      - text: (Foundation)
+                    - cell "عقل کل (Universal Intellect)" [ref=e188]:
+                      - generic [ref=e189]: عقل کل
+                      - text: (Universal Intellect)
+                    - cell "نفس کل (Universal Soul)" [ref=e190]:
+                      - generic [ref=e191]: نفس کل
+                      - text: (Universal Soul)
+                    - cell "داعی (Summoner)" [ref=e192]:
+                      - generic [ref=e193]: داعی
+                      - text: (Summoner)
+                    - cell "حجت (Proof)" [ref=e194]:
+                      - generic [ref=e195]: حجت
+                      - text: (Proof)
+                    - cell "امام (Imam)" [ref=e196]:
+                      - generic [ref=e197]: امام
+                      - text: (Imam)
+            - button " Shared!" [disabled] [ref=e198] [cursor=pointer]:
+              - generic [ref=e199] [cursor=pointer]: 
+              - text: Shared!
+            - generic [ref=e200]:
+              - heading "(Ablution)" [level=2] [ref=e201]
+              - paragraph [ref=e202]:
+                - text: In addition to these seven steps of
+                - generic [ref=e203]: طهارة
+                - text: ", water touches the two hands, the face, the two arms, and the two feet, which are also a total of seven limbs. These seven Huduud (ranks) of"
+                - generic [ref=e204]: طهارة
+                - text: signify the seven Speakers (
+                - generic [ref=e205]: نطقا
+                - text: ), seven Imams (
+                - generic [ref=e206]: آئمہ
+                - text: ), and seven Foundations (
+                - generic [ref=e207]: اساس
+                - text: ") in different cycles. Furthermore, they refer to the seven spiritual ranks from the believer to the Imam:"
+              - table [ref=e208]:
+                - rowgroup [ref=e209]:
+                  - row "1 2 3 4 5 6 7" [ref=e210]:
+                    - cell "1" [ref=e211]
+                    - cell "2" [ref=e212]
+                    - cell "3" [ref=e213]
+                    - cell "4" [ref=e214]
+                    - cell "5" [ref=e215]
+                    - cell "6" [ref=e216]
+                    - cell "7" [ref=e217]
+                - rowgroup [ref=e218]:
+                  - row "Hujjat Baab Mukallib 1 2 3 4 5 6 7 8 9 10 11 12" [ref=e219]:
+                    - cell "Hujjat" [ref=e220]
+                    - cell "Baab" [ref=e221]
+                    - cell "Mukallib" [ref=e222]
+                    - cell "1" [ref=e223]
+                    - cell "2" [ref=e224]
+                    - cell "3" [ref=e225]
+                    - cell "4" [ref=e226]
+                    - cell "5" [ref=e227]
+                    - cell "6" [ref=e228]
+                    - cell "7" [ref=e229]
+                    - cell "8" [ref=e230]
+                    - cell "9" [ref=e231]
+                    - cell "10" [ref=e232]
+                    - cell "11" [ref=e233]
+                    - cell "12" [ref=e234]
+                - rowgroup [ref=e235]:
+                  - row "Evacuation Cleansing after Evacuation Washing Both Hands Rinsing Mouth and Using Miswaak Intention ( نیت) Rinsing the Nose Washing the Face Washing Both Hands to the Elbows Wiping the Head Wiping the Ears Wiping the Neck Wiping Both Feet" [ref=e236]:
+                    - cell "Evacuation" [ref=e237]
+                    - cell "Cleansing after Evacuation" [ref=e238]
+                    - cell "Washing Both Hands" [ref=e239]
+                    - cell "Rinsing Mouth and Using Miswaak" [ref=e240]
+                    - cell "Intention ( نیت)" [ref=e241]:
+                      - text: Intention (
+                      - generic [ref=e242]: نیت
+                      - text: )
+                    - cell "Rinsing the Nose" [ref=e243]
+                    - cell "Washing the Face" [ref=e244]
+                    - cell "Washing Both Hands to the Elbows" [ref=e245]
+                    - cell "Wiping the Head" [ref=e246]
+                    - cell "Wiping the Ears" [ref=e247]
+                    - cell "Wiping the Neck" [ref=e248]
+                    - cell "Wiping Both Feet" [ref=e249]
+              - heading "Obligatory Acts ( فرائض الوضو) of الوضوء:" [level=3] [ref=e250]:
+                - text: Obligatory Acts (
+                - generic [ref=e251]: فرائض الوضو
+                - text: ) of
+                - generic [ref=e252]: الوضوء
+                - text: ":"
+              - table [ref=e253]:
+                - rowgroup [ref=e254]:
+                  - row "1 2 3 4 5 6 7" [ref=e255]:
+                    - cell "1" [ref=e256]
+                    - cell "2" [ref=e257]
+                    - cell "3" [ref=e258]
+                    - cell "4" [ref=e259]
+                    - cell "5" [ref=e260]
+                    - cell "6" [ref=e261]
+                    - cell "7" [ref=e262]
+                - rowgroup [ref=e263]:
+                  - row "Pure Water Intention ( نیت) Washing the Face Washing Both Hands (to the Elbows) Wiping the Head Washing Both Feet (to the Ankles) Order/Sequence ( ترتیب)" [ref=e264]:
+                    - cell "Pure Water" [ref=e265]
+                    - cell "Intention ( نیت)" [ref=e266]:
+                      - text: Intention (
+                      - generic [ref=e267]: نیت
+                      - text: )
+                    - cell "Washing the Face" [ref=e268]
+                    - cell "Washing Both Hands (to the Elbows)" [ref=e269]
+                    - cell "Wiping the Head" [ref=e270]
+                    - cell "Washing Both Feet (to the Ankles)" [ref=e271]
+                    - cell "Order/Sequence ( ترتیب)" [ref=e272]:
+                      - text: Order/Sequence (
+                      - generic [ref=e273]: ترتیب
+                      - text: )
+              - heading "Recommended Acts ( سنت الوضو) of الوضوء:" [level=3] [ref=e274]:
+                - text: Recommended Acts (
+                - generic [ref=e275]: سنت الوضو
+                - text: ) of
+                - generic [ref=e276]: الوضوء
+                - text: ":"
+              - table [ref=e277]:
+                - rowgroup [ref=e278]:
+                  - row "1 2 3 4 5 6 7 8 9 10 11 12" [ref=e279]:
+                    - cell "1" [ref=e280]
+                    - cell "2" [ref=e281]
+                    - cell "3" [ref=e282]
+                    - cell "4" [ref=e283]
+                    - cell "5" [ref=e284]
+                    - cell "6" [ref=e285]
+                    - cell "7" [ref=e286]
+                    - cell "8" [ref=e287]
+                    - cell "9" [ref=e288]
+                    - cell "10" [ref=e289]
+                    - cell "11" [ref=e290]
+                    - cell "12" [ref=e291]
+                - rowgroup [ref=e292]:
+                  - row "Cleansing after Evacuation ( استنجا) Washing Hands before putting them in the vessel Beginning with بسم اللہ الرحمن الرحیم Rinsing the Mouth ( کلی کرنا) Rinsing the Nose Moving the Ring Combing the Beard with Fingers Wetting the Eyes Giving Preference to the Right Limbs Washing a Second and Third Time Wiping Both Ears Using the Miswaak (Tooth-stick)" [ref=e293]:
+                    - cell "Cleansing after Evacuation ( استنجا)" [ref=e294]:
+                      - text: Cleansing after Evacuation (
+                      - generic [ref=e295]: استنجا
+                      - text: )
+                    - cell "Washing Hands before putting them in the vessel" [ref=e296]
+                    - cell "Beginning with بسم اللہ الرحمن الرحیم" [ref=e297]:
+                      - text: Beginning with
+                      - generic [ref=e298]: بسم اللہ الرحمن الرحیم
+                    - cell "Rinsing the Mouth ( کلی کرنا)" [ref=e299]:
+                      - text: Rinsing the Mouth (
+                      - generic [ref=e300]: کلی کرنا
+                      - text: )
+                    - cell "Rinsing the Nose" [ref=e301]
+                    - cell "Moving the Ring" [ref=e302]
+                    - cell "Combing the Beard with Fingers" [ref=e303]
+                    - cell "Wetting the Eyes" [ref=e304]
+                    - cell "Giving Preference to the Right Limbs" [ref=e305]
+                    - cell "Washing a Second and Third Time" [ref=e306]
+                    - cell "Wiping Both Ears" [ref=e307]
+                    - cell "Using the Miswaak (Tooth-stick)" [ref=e308]
+            - button " Share Truth Concealment as Ingratitude" [ref=e309] [cursor=pointer]:
+              - generic [ref=e310] [cursor=pointer]: 
+              - text: Share Truth Concealment as Ingratitude
+            - generic [ref=e311]:
+              - heading "Truth Concealment as Ingratitude" [level=2] [ref=e312]
+              - paragraph [ref=e313]:
+                - text: There are many ways to conceal the truth, and sadly, many Muslims are in fact truth concealers. One can perform all the outward obligations of Islam and yet be concealing the truth from themselves. The very essence of truth concealment is ingratitude. A
+                - generic [ref=e314]: کافر
+                - text: "is also known as an ingrate. Allah says:"
+              - 'button " SHARE AYAT CARD #1" [ref=e316] [cursor=pointer]':
+                - generic [ref=e317] [cursor=pointer]: 
+                - text: "SHARE AYAT CARD #1"
+              - paragraph [ref=e318]:
+                - text: is ingratitude. A
+                - generic [ref=e319]: کافر
+                - text: "is also known as an ingrate. Allah says: EXAMPLE"
+              - paragraph [ref=e320]
+              - 'button "?? SHARE QUOTE TEXT #1" [ref=e322] [cursor=pointer]'
+              - paragraph [ref=e323]:
+                - text: is ingratitude. A
+                - generic [ref=e324]: کافر
+                - text: "is also known as an ingrate. Allah says:"
+              - paragraph [ref=e325]
+              - paragraph [ref=e326]
+              - paragraph [ref=e327]
+              - 'button "?? SHARE POETRY CONTENT #1" [ref=e329] [cursor=pointer]'
+              - generic [ref=e331]:
+                - heading "Rumi" [level=4] [ref=e333]
+                - generic [ref=e335]:
+                  - generic [ref=e336]:
+                    - paragraph [ref=e337]: "والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض"
+                    - paragraph [ref=e338]: Leave my slave alone. I know everything about him since the moment
+                  - generic [ref=e339]:
+                    - paragraph [ref=e340]: "والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض"
+                    - paragraph [ref=e341]: Leave my slave alone. I know everything about him since the moment
+              - 'button "?? SHARE AYAH CARD #1" [ref=e343] [cursor=pointer]'
+              - generic [ref=e344]:
+                - generic [ref=e346] [cursor=pointer]: Abraham (14:34)
+                - paragraph [ref=e347]:
+                  - text: ‏ ‏وَآتَىٰكُم مّن كُلّ مَا سَأَلْتُمُوهُ وَإن تَعُدُّوا۟ نعْمَتَ ٱللَّه لَا تُحْصُوهَا إنَّ ٱلْإنسَنَ لَظَلُومٌۭ كَفَّارٌۭ ‎
+                  - img "34" [ref=e348]
+                  - text: ‎
+                - generic [ref=e349]: Translation:.
+                - paragraph [ref=e350]: And he gave you from all you asked of him. And if you should count the favor of Allah, you could not enumerate them. Indeed, mankind is [generally] most unjust and ungrateful.
+              - paragraph [ref=e351]:
+                - text: Indeed man is extremely unjust and an ingrate. The word
+                - generic [ref=e352]: كَفَّار
+                - text: in this verse is not used in the meaning of "disbeliever," but as "ingrate." The sending of messengers is rooted in Allah's profound good intention toward His creation. If Allah had simply created humanity and withheld the manual for life, we would all be left to wander in a state of turmoil and darkness, clueless about our purpose.
+              - paragraph [ref=e353]
+              - 'button "?? SHARE INSERTED HADEES #1" [ref=e355] [cursor=pointer]'
+              - generic [ref=e356]:
+                - heading "Muhammad Ibn Abdullah (SWS)" [level=4] [ref=e358]
+                - generic [ref=e359]: حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا، وَزِنُوا أَعْمَالَكُمْ قَبْلَ أَنْ تُوزَنُوا
+                - generic [ref=e360]: Hold yourselves accountable before you are held accountable, and weigh your deeds before they are weighed
+              - paragraph
+              - 'button "?? SHARE RESPONSIVE IMAGE #1" [ref=e362] [cursor=pointer]'
+              - img "8529ad6b-0a82-4c8e-bb53-2950453930b8" [ref=e363]
+              - paragraph [ref=e364]
+              - paragraph [ref=e365]
+              - 'button "?? SHARE ESOTERIC BLOCK #1" [ref=e367] [cursor=pointer]'
+              - generic [ref=e368]:
+                - generic [ref=e370]: ESOTERICS
+                - paragraph [ref=e372]: This state of aimless wandering is reminiscent of the stories of Mulla Nasruddin. In one tale, Mulla Nasruddin is wandering the streets in the early morning hours. When a policeman asks him what he is doing, he replies, "If I knew the answer to that, I'd be at home in bed."
+              - generic [ref=e373]:
+                - 'button "?? SHARE ETYMOLOGY CARD #1" [ref=e375] [cursor=pointer]'
+                - generic [ref=e376]:
+                  - heading "REFLECTION" [level=3] [ref=e378]
+                  - generic [ref=e379]: This reflects the reality of many people who wander through life in a stupor, constantly seeking distractions and entertainment to avoid the pain of existence. The great scholar Rumi speaks of the many "wines" Allah has put on Earth to numb people's misery. He notes that Jesus (AS) was "drunk in the love of Allah, while his donkey was high on barley."
+              - paragraph [ref=e380]
+              - paragraph
+              - 'button "?? SHARE RESPONSIVE IMAGE #2" [ref=e382] [cursor=pointer]'
+              - img "db87d717-8f7f-482d-95ac-8ad5dc3b32e5" [ref=e383]
+              - paragraph [ref=e384]: This attitude of "whatever gets you through the night," as John Lennon said, is a form of ingratitude from the Islamic perspective. The messengers have already brought the news and guidance, yet people refuse to accept it.
+              - paragraph [ref=e385]
+              - paragraph [ref=e386]: It is like being thirsty and given directions to a river, but choosing instead to watch a show or play a video game to forget the thirst. This is ingratitude.
+              - paragraph [ref=e387]: "Another story of Mulla Nasruddin illustrates a similar point: he was searching for his keys under a streetlight, and when someone asked him where he lost them, he pointed to a dark area away from the light. When asked why he was looking where he was, he replied, \"The light is better over here, right?\" This highlights another type of truth concealment: going where it is easy instead of where it is hard. This is where we begin to dilute religion to make our lives comfortable. Messengers, as human beings, set an incredible precedent by following Allah's Book to the letter, proving that what is decreed is humanly possible to achieve."
+            - button " Share Heedlessness and the Allegory of Plato's Cave" [ref=e388] [cursor=pointer]:
+              - generic [ref=e389] [cursor=pointer]: 
+              - text: Share Heedlessness and the Allegory of Plato's Cave
+            - generic [ref=e390]:
+              - heading "Heedlessness and the Allegory of Plato's Cave" [level=2] [ref=e391]
+              - paragraph [ref=e392]:
+                - text: The human condition is defined by heedlessness or forgetfulness, a state the Quran refers to as
+                - generic [ref=e393]: غفلۃ
+                - text: . We are distracted by the fleeting "shine and glimmer" of this world, lost in what can be likened to a "vanity fair." A servant sent by the king to the marketplace gets sidetracked by a fair on the way. He gets lost in the fun, forgets his purpose, and by the time he realizes the sun has set, the marketplace is closed. This metaphor illustrates our immersion in heedlessness, where we become preoccupied with this world's powerful distractions.
+              - paragraph [ref=e394]:
+                - text: So, how do we remind ourselves daily that this world is temporal and a greater journey awaits? From the Muslim perspective, the answer is remembrance,
+                - generic [ref=e395]: الذکر
+                - text: . This is why the Quran is also called
+                - generic [ref=e396]: الذکر
+                - text: "—because it constantly reminds us of our true purpose. In contrast to our forgetful natures, messengers are awakened beings. All prophets share four common qualities:"
+              - list [ref=e397]:
+                - listitem [ref=e398]: "Truthfulness: they never lie."
+                - listitem [ref=e399]: "Trustworthiness: their word is their bond."
+                - listitem [ref=e400]: "Conveyance: they have the ability to articulate and convey the message."
+                - listitem [ref=e401]:
+                  - text: "Wakefulness:"
+                  - generic [ref=e402]: فَطانا
+                  - text: .
+              - paragraph [ref=e403]: Messengers are individuals who have woken up to the truth, much like the freed prisoner in Plato's allegory of the cave. In Plato's story, prisoners chained since birth see only the shadows cast on a wall, mistaking these illusions for reality. When one prisoner is freed and dragged into the sunlight, he is initially disoriented and finds the truth hard to believe. But gradually, his eyes adjust until he can finally look at the sun itself—the ultimate source of light. He returns to the cave to share his discovery, but the other prisoners, comfortable in their ignorance, see his newfound "blindness" in the darkness as a sign of madness and violently resist his attempts to free them.
+              - paragraph [ref=e404]:
+                - text: Plato presents this as an analogy for the challenges messengers face. The cave represents this
+                - generic [ref=e405]: دنیا
+                - text: ", and the world outside the cave is the"
+                - generic [ref=e406]: آخرۃ
+                - text: . Everything we see in this world is a mere reflection of the Hereafter. But people are often so comfortable in their ignorance that they become hostile to anyone who points out the truth. Worse, they aren't even interested in examining the proposition itself. This spiritual laziness is what is known as "acedia." While often translated as sloth, in Christian theology, acedia was spiritual sloth—an unwillingness to seek the truth due to sheer arrogance.
+              - paragraph [ref=e407]:
+                - text: Allah describes such individuals as
+                - generic [ref=e408]: مُّقْمَحُونَ
+                - text: . The term
+                - generic [ref=e409]: مُقمَح
+                - text: "comes from camels:"
+                - generic [ref=e410]: قَمَحَ الجَمَل فَھُوَ قَامِحُون
+                - text: . When a camel is brought to water, it may raise its head, refusing to drink. That is the essence of a
+                - generic [ref=e411]: مقمح
+                - text: . The messenger brings them to the river of knowledge to quench their thirst, but they are too arrogant to bow their heads and drink. They ask, "The Quran? Why should I read that book?" But one in every four people believes it is from Allah, which in itself is a good reason to be interested. It is because of this heedlessness that the Quran always juxtaposes
+                - generic [ref=e412]: غفلۃ
+                - text: (heedlessness) with
+                - generic [ref=e413]: ذکر
+                - text: "(remembrance). As Allah says:"
+              - 'button "?? SHARE AYAH CARD #2" [ref=e415] [cursor=pointer]'
+              - generic [ref=e416]:
+                - generic [ref=e418] [cursor=pointer]: The Romans (30:7).
+                - paragraph [ref=e419]:
+                  - text: ‏ ‏يَعْلَمُونَ ظَهرًۭا مّنَ ٱلْحَيَوٰة ٱلدُّنْيَا وَهُمْ عَن ٱلْآخرَة هُمْ غَفلُونَ ‎
+                  - img "7" [ref=e420]
+                  - text: ‎
+                - generic [ref=e421]: Translation:.
+                - paragraph [ref=e422]: They know what is apparent of the worldly life, but they, of the Hereafter, are unaware.
+              - paragraph [ref=e423]:
+                - text: The universal message of all prophets is
+                - generic [ref=e424]: لا الہ الا اللہ
+                - text: . The second part of the declaration of faith changes with each era, from
+                - generic [ref=e425]: موسی رسول اللہ
+                - text: to
+                - generic [ref=e426]: عیسی رسول اللہ
+                - text: ", and finally, for us,"
+                - generic [ref=e427]: محمد الرسول اللہ
+                - text: . All messengers were sent to remind humanity about Allah and pull them out of their state of heedlessness.
+            - 'button " Share The Debt of Submission: A Call from a Merciful Lord" [ref=e428] [cursor=pointer]':
+              - generic [ref=e429] [cursor=pointer]: 
+              - text: "Share The Debt of Submission: A Call from a Merciful Lord"
+            - generic [ref=e430]:
+              - 'heading "The Debt of Submission: A Call from a Merciful Lord" [level=2] [ref=e431]'
+              - paragraph [ref=e432]:
+                - text: Our religion is called
+                - generic [ref=e433]: دین الاسلام
+                - text: . The word
+                - generic [ref=e434]: اسلام
+                - text: comes from the root
+                - generic [ref=e435]: سلم
+                - text: ", meaning to submit, specifically, to willingly submit out of love for Allah. The word"
+                - generic [ref=e436]: دین
+                - text: comes from
+                - generic [ref=e437]: دَیْن
+                - text: ", which means debt. Therefore, our religion,"
+                - generic [ref=e438]: دینُ الاسلام
+                - text: ", literally translates to \"the debt of willing submission.\" The idea is that we have been endowed with innumerable blessings by our Lord, and for these blessings, we owe Him a debt of gratitude through our willing submission."
+              - 'button "?? SHARE AYAH CARD #3" [ref=e440] [cursor=pointer]'
+              - generic [ref=e441]:
+                - generic [ref=e443] [cursor=pointer]: The Family of Imran (3:83).
+                - paragraph [ref=e444]:
+                  - text: ‏ ‏أَفَغَيْرَ دين ٱللَّه يَبْغُونَ وَلَهُ أَسْلَمَ مَن فى ٱلسَّمَوَت وَٱلْأَرْض طَوْعًۭا وَكَرْهًۭا وَإلَيْه يُرْجَعُونَ ‎
+                  - img "83" [ref=e445]
+                  - text: ‎
+                - generic [ref=e446]: Translation:.
+                - paragraph [ref=e447]: So is it other than the religion of Allah they desire, while to him have submitted [all] those within the heavens and earth, willingly or by compulsion, and to him they will be returned?
+              - paragraph [ref=e448]: Allah questions whether we seek to avoid repaying this debt, when everything in existence is already doing so, willingly or unwillingly. The sun, a celestial body immense in size, rises and sets according to its decree, fulfilling its purpose. It is in a state of submission, yet the human being, insignificant in comparison, is not. The same applies to galaxies, mountains, rivers, and the animal kingdom; they all exist in a state of submission to their Creator. Even human beings must submit to their own nature—eating, drinking, sleeping—and to the limitations of their physical bodies. Everything in existence is paying back its debt of submission to its Creator, willingly or unwillingly—except the human being.
+              - paragraph [ref=e449]:
+                - text: The crucial difference is that humanity is asked for willing submission (
+                - generic [ref=e450]: طَوْعًۭا
+                - text: ), out of love, not by force (
+                - generic [ref=e451]: كَرْهًۭا
+                - text: ). We will be held accountable for this debt on the Day of Judgment,
+                - generic [ref=e452]: یوم الدین
+                - text: ", the day when this debt of willing submission falls due. It is also called"
+                - generic [ref=e453]: یوم الحساب
+                - text: ", the Day of Accountability. Rasul Allah (SWS) said in a Hadith:"
+              - 'button "?? SHARE INSERTED HADEES #2" [ref=e455] [cursor=pointer]'
+              - generic [ref=e456]:
+                - heading "Muhammad Ibn Abdullah (SWS)" [level=4] [ref=e458]
+                - generic [ref=e459]: حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا، وَزِنُوا أَعْمَالَكُمْ قَبْلَ أَنْ تُوزَنُوا
+                - generic [ref=e460]: Hold yourselves accountable before you are held accountable, and weigh your deeds before they are weighed
+              - paragraph [ref=e461]:
+                - text: Interestingly, while we owe a debt to Allah, Allah also has a "debt" to us. When a master gives a command to a slave, the fulfillment of that command incurs a debt on the slave. If the slave obeys, the master owes him a reward. If he disobeys, he owes him a punishment. This is the essence of
+                - generic [ref=e462]: یوم الدین
+                - text: ", the day when the debt falls due for both. This is why Allah says in the Quran:"
+              - paragraph [ref=e463]: "Allah is asking for a loan, so that He can multiply its rewards and pay it back to His slave many times over. The ultimate reward for this beautiful loan is described as:"
+              - 'button "?? SHARE AYAH CARD #4" [ref=e465] [cursor=pointer]'
+              - generic [ref=e466]:
+                - generic [ref=e468] [cursor=pointer]: Iron (57:11)
+                - paragraph [ref=e469]:
+                  - text: ‏ ‏مَّن ذَا ٱلَّذى يُقْرضُ ٱللَّهَ قَرْضًا حَسَنًۭا فَيُضَعفَهُ لَهُ وَلَهُ أَجْرٌۭ كَريمٌۭ ‎
+                  - img "11" [ref=e470]
+                  - text: ‎
+                - generic [ref=e471]: Translation:.
+                - paragraph [ref=e472]: Who is it that would loan Allah a goodly loan so he will multiply it for him and he will have a noble reward?
+              - paragraph [ref=e473]:
+                - text: "This wake-up call is the very purpose of the messengers: to rouse humanity from its state of"
+                - generic [ref=e474]: غفلۃ
+                - text: . The word
+                - generic [ref=e475]: غفلۃ
+                - text: is particularly interesting. In Arabic linguistics, words beginning with the letter
+                - generic [ref=e476]: غین
+                - text: often imply a covering, hiding, or veiling, such as
+                - generic [ref=e477]: غاب
+                - text: (to be absent) or
+                - generic [ref=e478]: غفر
+                - text: (to forgive). Our intellects, in a state of
+                - generic [ref=e479]: غفلۃ
+                - text: ", become veiled by the temptations of this"
+                - generic [ref=e480]: دنیا
+                - text: . A simpleton is called a
+                - generic [ref=e481]: مُغَفَّل
+                - text: because they are easily deceived. The term
+                - generic [ref=e482]: غفلۃ
+                - text: also means lactose intolerance, an inability to digest the most beneficial thing for mankind, which serves as powerful imagery for a person's refusal to accept divine benefit. Scholars have said that all sin and wrongdoing are rooted in
+                - generic [ref=e483]: غفلۃ
+                - text: ", for if Allah was truly present in your heart, it would be impossible to sin. Allah asks in the Quran:"
+              - 'button "?? SHARE AYAH CARD #5" [ref=e485] [cursor=pointer]'
+              - generic [ref=e486]:
+                - generic [ref=e488] [cursor=pointer]: The Cleaving (82:6).
+                - paragraph [ref=e489]:
+                  - text: ‏ ‏يَأَيُّهَا ٱلْإنسَنُ مَا غَرَّكَ برَبّكَ ٱلْكَريم ‎
+                  - img "6" [ref=e490]
+                  - text: ‎
+                - generic [ref=e491]: Translation:.
+                - paragraph [ref=e492]: O mankind, what has deceived you concerning your lord, the generous.
+              - paragraph [ref=e493]:
+                - text: As one scholar noted, Allah has put the answer to the question within the question itself. It is Allah's immense generosity,
+                - generic [ref=e494]: کرم
+                - text: ", that has made us delusional. We are heedless about our sins because He does not react with immediate punishment. The people who are most loving and generous with us are often the ones we take for granted the most. Allah's immense mercy makes us bold in our transgressions because we forget that He is our Master, and that is"
+                - generic [ref=e495]: غفلۃ
+                - text: .
+              - paragraph [ref=e496]: "An incredible Hadith describes a conversation between Allah and His angels, the oceans, and the earth. They say:"
+              - paragraph [ref=e497]: "Not a single day passes that the oceans do not ask their Lord for permission to drown the children of Adam; and the earth asks its Lord for permission to swallow them; and the angels ask His permission to hasten their destruction and annihilate them. The earth says, \"O Allah, grant me permission to swallow them all. They walk on Your earth, eat from it, and do not prostrate to You!\" The angels exclaim, \"O Allah, grant us permission! In an instant we will annihilate this lot for their arrogance.\" The earth, oceans, and angels are Allah's creation, and they are filled with anger at seeing their beloved Creator disobeyed. But our Creator, the One we constantly ignore, says:"
+              - paragraph [ref=e498]
+          - button " End Session" [ref=e500] [cursor=pointer]:
+            - generic [ref=e501] [cursor=pointer]: 
+            - generic [ref=e502] [cursor=pointer]: End Session
+        - generic [ref=e503]:
+          - heading " Questions & Answers" [level=3] [ref=e504]:
+            - generic [ref=e505]: 
+            - generic [ref=e506]: Questions & Answers
+          - generic [ref=e508]:
+            - generic [ref=e510]: 
+            - heading "No Questions Yet" [level=4] [ref=e511]
+            - paragraph [ref=e512]: Questions will appear here when participants submit them during the session.
+    - generic [ref=e513]: "'(Ablution)' shared successfully!"
+  - button "" [ref=e515] [cursor=pointer]:
+    - generic [ref=e516] [cursor=pointer]: 
+  - text:    
+```
