@@ -12,6 +12,30 @@ Tracks improvements and fixes for the Host Control Panel, which manages session 
 
 ## Work Log
 
+### User Request (2025-10-19T03:00:00Z)
+Fix control panel collapse mechanism, add border to header panel, modernize Session Transcript and Q&A headers with large icons.
+
+**High-Priority Constraints**: None
+
+### Work Completed (2025-10-19T03:15:00Z)
+- **Status**: Complete
+- **Changes**:
+  - Added expand/collapse toggle button for SESSION CONTROLS panel (appears when session Active/Ended)
+  - Button shows "Show/Hide Session Controls" with chevron icon indicating state
+  - Added state variable `isControlPanelExpanded` with smooth CSS transitions
+  - Updated HostControlPanelHeader border: 1px → 2px solid #C5A84C (matches transcript/Q&A panels)
+  - Redesigned Session Transcript header: Large icon (2rem), gradient background, modern styling, margin-bottom: 15px
+  - Redesigned Q&A header: Large icon (2rem), gradient background, modern styling, margin-bottom: 15px
+  - Headers use gradient background (linear-gradient(135deg,#F0FDF4,#DCFCE7)) with left border accent
+- **Files Affected**:
+  - SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor - Expand button, state management
+  - SPA/NoorCanvas/Components/Host/HostControlPanelHeader.razor - Border update
+  - SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor - Header redesign (both panels)
+- **Build**: Clean (0 errors, 0 warnings)
+- **Lint Validation**: PASS (3 Razor files)
+- **Debug Level**: simple
+- **Commit**: (pending)
+
 ### User Request (2025-10-19T02:30:00Z)
 Fix weird characters in SESSION CONTROLS icon, add border to logo panel matching right panel, and fix Start Session panel disappearing instead of collapsing.
 

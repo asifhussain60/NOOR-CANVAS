@@ -39,7 +39,22 @@ else
 
         <!-- Session Controls Panel -->
         @* [DEBUG-WORKITEM:hcp:simple] Added CSS transition for smooth collapse when session becomes Active/Ended *@
-        <div style="width:100%;background-color:#F8F5F1;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;max-height:@(Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" ? "0" : "1000px");overflow:hidden;opacity:@(Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" ? "0" : "1");transition:max-height 0.5s ease-in-out, opacity 0.3s ease-in-out, padding 0.5s ease-in-out;@(Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" ? "padding:0;" : "")">
+        @* [DEBUG-WORKITEM:hcp-expand:simple] Added expand button for collapsed panel ;CLEANUP_OK *@
+        @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended")
+        {
+            <div style="width:100%;display:flex;justify-content:center;margin-top:0.5rem;">
+                <button type="button" 
+                        @onclick="@(() => isControlPanelExpanded = !isControlPanelExpanded)"
+                        style="padding:0.75rem 1.5rem;border-radius:1rem;background-color:#006400;color:white;border:none;cursor:pointer;font-weight:600;font-size:0.875rem;box-shadow:0 4px 6px -1px rgba(0,100,0,0.4);transition:all 0.2s ease;display:flex;align-items:center;gap:0.5rem;"
+                        onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
+                        onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
+                    <i class="fa-solid @(isControlPanelExpanded ? "fa-chevron-up" : "fa-chevron-down")" style="font-size:0.875rem;"></i>
+                    <span>@(isControlPanelExpanded ? "Hide" : "Show") Session Controls</span>
+                </button>
+            </div>
+        }
+        
+        <div style="width:100%;background-color:#F8F5F1;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;max-height:@((Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended") && !isControlPanelExpanded ? "0" : "1000px");overflow:hidden;opacity:@((Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended") && !isControlPanelExpanded ? "0" : "1");transition:max-height 0.5s ease-in-out, opacity 0.3s ease-in-out, padding 0.5s ease-in-out;@((Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended") && !isControlPanelExpanded ? "padding:0;" : "")">
             <h3 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:center;">
                 @* [DEBUG-WORKITEM:hcp:simple] Removed Unicode fallback to fix garbled icon rendering *@
                 <i class="fa-solid fa-sliders" style="color:#006400;"></i>
@@ -101,4 +116,7 @@ else
     [Parameter] public Func<string?, string> OnFormatDurationFromString { get; set; } = (duration) => duration ?? "";
     
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    
+    @* [DEBUG-WORKITEM:hcp-expand:simple] State variable for control panel expansion ;CLEANUP_OK *@
+    private bool isControlPanelExpanded = false;
 }
