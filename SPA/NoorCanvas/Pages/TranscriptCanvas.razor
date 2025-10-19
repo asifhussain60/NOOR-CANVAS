@@ -3164,13 +3164,12 @@
                         
                         if (Model != null && !string.IsNullOrEmpty(sectionHtml))
                         {
-                            // Transform section with host pipeline to inject share controls (H2 + content and asset buttons)
-                            var status = Model?.SessionStatus ?? "Active";
-                            var hostTransformed = await HtmlTransform.TransformForHostAsync(sectionHtml, Model?.SessionId, status);
+                            // [DEBUG-MARKER:hcp-canvas:participant-transform] Transform section for participant view (removes share buttons) ;CLEANUP_OK
+                            var participantTransformed = HtmlTransform.TransformForParticipant(sectionHtml);
                             // Set section in SharedAssetContent for rendering
                             if (Model != null)
                             {
-                                Model.SharedAssetContent = hostTransformed;
+                                Model.SharedAssetContent = participantTransformed;
                             }
                             await InvokeAsync(StateHasChanged);
                             

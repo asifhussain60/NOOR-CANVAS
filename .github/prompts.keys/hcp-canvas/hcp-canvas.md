@@ -149,3 +149,34 @@ Fix Question & Answer panel flowing out of page width. Adjust widths of both can
 - **Lint Validation**: N/A (no code changes)
 - **Commit**: 5e0dd426fd35a93224d9358ed7bbf6cf9117b365 (analysis only)
 
+### 2025-10-19T03:25:00Z - Fixed Participant Receiving Share Buttons
+- **Status**: Complete
+- **User Request**: "html is now broadcasting but it contains the red share buttons. These should be removed before broadcast. Fix and run tests against the *.md log files" + clarification "this fix should be in ADDITION to the previous fix of removing onclicks and other such commands"
+- **Root Cause**: TranscriptCanvas.razor was incorrectly calling `TransformForHostAsync()` (which injects share buttons) instead of `TransformForParticipant()` (which provides clean HTML) when receiving broadcasted sections
+- **Analysis**:
+  - Log file revealed: "UnifiedHtmlTransformService: Transforming HTML for host view - SessionId: 212, Status: Active, Length: 7605"
+  - This proved participants were receiving host-transformed HTML with 9 injected share buttons
+  - HostControlPanel.ShareTranscriptSection already correctly used TransformForParticipant (line 1778)
+  - Issue was on receiving end: TranscriptCanvas.ReceiveTranscriptSection handler
+- **Solution**: Two-layer defense strategy
+  - Layer 1 (JavaScript): transcript-section-parser.js removes onclick/event handlers before sending to C# (lines 323-341)
+  - Layer 2 (C#): TranscriptCanvas uses TransformForParticipant to prevent share button injection (line 3173)
+  - Both layers work together - even if one fails, the other catches issues
+- **Changes**:
+  - TranscriptCanvas.razor Lines 3165-3180:
+    - Changed from: `var hostTransformed = await HtmlTransform.TransformForHostAsync(sectionHtml, Model?.SessionId, status);`
+    - Changed to: `var participantTransformed = HtmlTransform.TransformForParticipant(sectionHtml);`
+    - Added debug marker: `[DEBUG-MARKER:hcp-canvas:participant-transform] Transform section for participant view (removes share buttons)`
+- **Files Affected**:
+  - SPA/NoorCanvas/Pages/TranscriptCanvas.razor (Lines 3165-3180)
+- **Debug Logging**: Simple (debug marker added per debug-level: simple)
+- **Build**: Clean (2.3s, zero errors, zero warnings)
+- **Error Check**: PASS (no Razor syntax errors)
+- **Manual Testing Required**:
+  - Start host session (Session 212, token PQ9N5YWW)
+  - Join as participant (token KJAHA99L)
+  - Host broadcasts section using Share Truth Concealment button
+  - Verify participant view does NOT show red share buttons
+  - Verify HTML is clean (no onclick handlers, no share button HTML in inspector)
+- **Commit**: PENDING (lint validation in progress)
+
