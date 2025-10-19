@@ -12,6 +12,33 @@ Tracks improvements and fixes for the Host Control Panel, which manages session 
 
 ## Work Log
 
+### User Request (2025-10-19T15:30:00Z)
+Move the timer (just hours and minutes) to the right of the user questions text (align right). Change "User Questions" to "Questions". Replace icon with a large question mark in a circle. The timer should work and start counting. It should count up minutes and seconds until it reaches 60 minutes and then switch to hour:minute format.
+
+**High-Priority Constraints**: None
+
+### Work Completed (2025-10-19T15:45:00Z)
+- **Status**: Complete
+- **Changes**:
+  - Moved session timer from standalone panel to inline within Q&A header (right-aligned)
+  - Changed Q&A header layout from centered to flex with space-between for timer positioning
+  - Updated header text: "User Questions" → "Questions"
+  - Replaced icon: fa-clipboard-question → fa-circle-question (question mark in circle)
+  - Removed SessionTimer.razor component (no longer needed)
+  - Integrated timer logic directly into HostControlPanelContent.razor
+  - Updated timer format: M:SS (minutes:seconds) for first 60 minutes, then H:MM (hours:minutes) after 60 minutes
+  - Timer updates every second via System.Timers.Timer with InvokeAsync(StateHasChanged)
+  - Implemented IDisposable for proper timer cleanup on component disposal
+  - Timer only visible when session is Active and SessionStartTime is set
+  - Compact inline styling: 1.25rem clock icon, 1.5rem time display (vs previous 2.5rem standalone)
+- **Files Affected**:
+  - SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor - Timer integration, header layout, timer logic
+  - SPA/NoorCanvas/Components/Host/SessionTimer.razor - DELETED (replaced with inline implementation)
+- **Build**: Clean (0 errors, 0 warnings)
+- **Lint Validation**: PASS (modified file validated, pre-existing warnings in unrelated controllers)
+- **Debug Level**: simple
+- **Commit**: Pending
+
 ### User Request (2025-10-19T03:00:00Z)
 Fix control panel collapse mechanism, add border to header panel, modernize Session Transcript and Q&A headers with large icons.
 
