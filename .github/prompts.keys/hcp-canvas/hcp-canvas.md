@@ -61,5 +61,5 @@ Fix Question & Answer panel flowing out of page width. Adjust widths of both can
   - .github/prompts.keys/hcp-canvas/tests/qa-panel-overflow-visual.spec.ts (new)
 - **Build**: Clean (13.9s, zero errors, warnings)
 - **Lint Validation**: PASS
-- **Commit**: [Pending]
+- **Commit**: 645c804acab89fcb3429d57577e650d3c05a2c61
 - **Tag**: checkpoint/hcp-canvas/2025-10-19_0015
