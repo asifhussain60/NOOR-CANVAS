@@ -32,10 +32,10 @@ public partial class App : Application
             // Initialize services
             var services = new ServiceCollection();
             
-            // Detect environment
+            // [DEBUG-WORKITEM:host-provisioner-modern] Detect environment using shared config ;CLEANUP_OK
             var (environment, baseUrl) = HostProvisionerConfig.DetectEnvironment("HostProvisioner.Avalonia.dll.config");
             
-            // Configure services
+            // [DEBUG-WORKITEM:host-provisioner-modern] Configure services using shared logic ;CLEANUP_OK
             HostProvisionerConfig.ConfigureServices(services, environment);
             
             _serviceProvider = services.BuildServiceProvider();

@@ -226,3 +226,5 @@ D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\obj\Debug
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\obj\Debug\net8.0\HostProvisioner.Avalonia.pdb
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\obj\Debug\net8.0\HostProvisioner.Avalonia.genruntimeconfig.cache
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\obj\Debug\net8.0\ref\HostProvisioner.Avalonia.dll
+d:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Debug\net8.0\app.config
+d:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Debug\net8.0\HostProvisioner.Avalonia.dll.config

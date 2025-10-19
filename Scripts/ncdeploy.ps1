@@ -467,11 +467,11 @@ try {
     }
 
     # Step 7.5: Deploy HostProvisioner (Windows Forms)
-    # [DEBUG-WORKITEM:deploy:hostprovisioner] Deploy WinForms Host Provisioner to production
-    Write-Step "Deploying HostProvisioner (Windows Forms)..."
+    # [DEBUG-WORKITEM:host-provisioner-modern] Deploy Avalonia Host Provisioner to production ;CLEANUP_OK
+    Write-Step "Deploying HostProvisioner (Avalonia)..."
     
-    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner.WinForms"
-    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.WinForms.csproj"
+    $HostProvisionerProjectPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner.Avalonia"
+    $HostProvisionerProjectFile = "$HostProvisionerProjectPath\HostProvisioner.Avalonia.csproj"
     $HostProvisionerPublishPath = "$WorkspaceRoot\Workspaces\hostprovisioner-publish-temp"
     $HostProvisionerDeployPath = "$DeployPath\HostProvisioner"
     
@@ -530,36 +530,34 @@ try {
                 }
             }
             
-            # Also transform HostProvisioner.WinForms.dll.config if it exists
-            # [DEBUG-WORKITEM:deploy:hostprovisioner] Transform WinForms config to Production
-            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.WinForms.dll.config"
+            # [DEBUG-WORKITEM:host-provisioner-modern] Transform Avalonia config to Production ;CLEANUP_OK
+            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.Avalonia.dll.config"
             if (Test-Path $dllConfigPath) {
-                Write-Info "Transforming HostProvisioner.WinForms.dll.config to Production environment..."
+                Write-Info "Transforming HostProvisioner.Avalonia.dll.config to Production environment..."
                 try {
                     [xml]$dllConfig = Get-Content $dllConfigPath
                     $envSetting = $dllConfig.SelectSingleNode("//appSettings/add[@key='ASPNETCORE_ENVIRONMENT']")
                     if ($envSetting) {
                         $envSetting.SetAttribute("value", "Production")
                         $dllConfig.Save($dllConfigPath)
-                        Write-Success "HostProvisioner.WinForms.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
+                        Write-Success "HostProvisioner.Avalonia.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
                     }
                 } catch {
-                    Write-Warning "Failed to transform HostProvisioner.WinForms.dll.config: $_"
+                    Write-Warning "Failed to transform HostProvisioner.Avalonia.dll.config: $_"
                 }
             }
             
             # Verify HostProvisioner deployment
-            # [DEBUG-WORKITEM:deploy:hostprovisioner] Verify WinForms deployment
-            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.WinForms.dll"
+            # [DEBUG-WORKITEM:host-provisioner-modern] Verify Avalonia deployment ;CLEANUP_OK
+            $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.Avalonia.dll"
             if (Test-Path $hpDllPath) {
-                Write-Host "  ✓ HostProvisioner.WinForms.dll" -ForegroundColor Green
+                Write-Host "  ✓ HostProvisioner.Avalonia.dll" -ForegroundColor Green
                 
-                # Test database connection (Windows Forms app - skip connection test)
-                # [DEBUG-WORKITEM:deploy:hostprovisioner] WinForms app - no CLI test-connection command
-                Write-Info "HostProvisioner (Windows Forms) deployed successfully"
-                Write-Info "Launch manually: HostProvisioner.WinForms.exe"
+                # [DEBUG-WORKITEM:host-provisioner-modern] Avalonia app deployed ;CLEANUP_OK
+                Write-Info "HostProvisioner (Avalonia) deployed successfully"
+                Write-Info "Launch manually: HostProvisioner.Avalonia.exe"
             } else {
-                Write-Warning "HostProvisioner.WinForms.dll not found in deployment"
+                Write-Warning "HostProvisioner.Avalonia.dll not found in deployment"
             }
             
             # Clean up temporary publish folder
