@@ -24,6 +24,49 @@ Make the bottom panel hidden until the button is clicked. Add spinners, or some 
 
 ## Work Log
 
+## User Request (2025-10-19T01:00:00Z)
+
+Delete the bottom panel that has "Ask a Question" and cleanup. Update debug panel to simulate adding question on the view.
+
+**SCOPE CLARIFICATION:** This change should ONLY affect TranscriptCanvas.razor (do NOT modify SessionCanvas.razor)
+
+**High-Priority Constraints:** 
+- DO NOT modify SessionCanvas.razor (Preservation constraint)
+
+**Additional Context (2025-10-19T01:15:00Z):**
+- Debug panel functionality already exists in TranscriptCanvas.razor (lines 3557-3600)
+- Debug panel includes "Simulate Random Question" action with Islamic questions list
+- Debug panel implementation is identical to SessionCanvas.razor (already complete)
+
+---
+
+## Implementation Plan
+
+### Primary Objective
+Remove the "Ask a Question" panel from TranscriptCanvas.razor ONLY (preserve SessionCanvas.razor untouched).
+
+### HIGH-PRIORITY Constraints
+1. **DO NOT modify SessionCanvas.razor** (Preservation constraint)
+   - **Category**: Preservation
+   - **Verification Method**: Check git diff to ensure SessionCanvas.razor not in modified files
+   - **Status**: PENDING → VERIFIED
+
+### Subtasks
+1. Remove "Ask a Question" panel markup from TranscriptCanvas.razor (lines 1069-1092)
+2. Verify debug panel functionality remains intact (already exists - no changes needed)
+3. Add simple debug marker documenting panel removal
+4. Verify SessionCanvas.razor remains untouched
+5. Run lint validation on TranscriptCanvas.razor only
+
+### Verification Checklist
+- [ ] Build passes (zero errors, zero warnings)
+- [ ] Lint validation passes (TranscriptCanvas.razor only)
+- [ ] High-priority constraint verified (SessionCanvas.razor NOT modified)
+- [ ] Debug panel verified functional (no changes needed)
+- [ ] Debug marker added per `debug-level: simple`
+
+---
+
 ### Work Completed (2025-10-19T00:45:00Z)
 - **Status**: Complete
 - **Changes**:
