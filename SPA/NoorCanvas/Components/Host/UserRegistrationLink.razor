@@ -5,9 +5,9 @@
 
 @if (!string.IsNullOrEmpty(UserToken))
 {
-    <div style="width:100%;background-color:#EFF6FF;border-radius:0.75rem;border:2px solid #1E293B;padding:0.75rem;margin-bottom:1rem;">
-        <h4 style="display:flex;align-items:center;justify-content:center;gap:0.375rem;font-weight:600;font-size:0.8rem;color:#1E293B;margin:0 0 0.75rem 0;text-align:center;">
-            <i class="fa-solid fa-link" style="color:#1E293B;font-size:0.75rem;"></i>
+    <div style="width:100%;background-color:#F0F9FF;border-radius:0.75rem;border:1px solid #3B82F6;padding:0.75rem;margin-bottom:1rem;">
+        <h4 style="display:flex;align-items:center;justify-content:center;gap:0.375rem;font-weight:600;font-size:0.8rem;color:#3B82F6;margin:0 0 0.75rem 0;text-align:center;">
+            <i class="fa-solid fa-link" style="color:#3B82F6;font-size:0.75rem;"></i>
             <span>Participant Links</span>
         </h4>
         
@@ -105,10 +105,10 @@
         }
     }
 
-    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Button styling with visual feedback *@
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Button styling with dark border and light blue background *@
     private string GetButtonStyle(bool isCopied)
     {
-        var baseStyle = "width:100%;padding:0.75rem 1rem;border:none;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);";
+        var baseStyle = "width:100%;padding:0.75rem 1rem;border:2px solid #1E293B;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);";
         
         if (isCopied)
         {
@@ -116,7 +116,7 @@
         }
         else
         {
-            return baseStyle + "background:#3B82F6;color:white;";
+            return baseStyle + "background:#EFF6FF;color:#1E293B;";
         }
     }
 
