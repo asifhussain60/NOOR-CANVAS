@@ -128,7 +128,10 @@ try {
             # Ensure we're starting from development
             if ($OriginalBranch -ne "development") {
                 Write-Warning "Not on development branch. Switching to development..."
+                $prevErrorAction = $ErrorActionPreference
+                $ErrorActionPreference = "Continue"
                 git checkout development 2>&1 | Out-Null
+                $ErrorActionPreference = $prevErrorAction
                 if ($LASTEXITCODE -ne 0) {
                     throw "Failed to switch to development branch"
                 }
@@ -162,7 +165,10 @@ try {
             
             # Switch to master
             Write-Info "→ Switching to master branch"
+            $prevErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
             git checkout master 2>&1 | Out-Null
+            $ErrorActionPreference = $prevErrorAction
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch to master branch"
             }
@@ -712,7 +718,10 @@ try {
             }
             
             Write-Step "Git: Returning to development branch..."
+            $prevErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
             git checkout development 2>&1 | Out-Null
+            $ErrorActionPreference = $prevErrorAction
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch back to development branch"
             }
@@ -816,8 +825,10 @@ try {
         Write-Host "`n→ Returning to $OriginalBranch branch (leaving master clean)..." -ForegroundColor Yellow
         Push-Location $WorkspaceRoot
         try {
-            # [DEBUG-WORKITEM:deploy:git-checkout-fix] Redirect stderr to suppress error messages ;CLEANUP_OK
-            git checkout $OriginalBranch 2>$null
+            $prevErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            git checkout $OriginalBranch 2>&1 | Out-Null
+            $ErrorActionPreference = $prevErrorAction
             if ($LASTEXITCODE -eq 0) {
                 Write-Success "Returned to $OriginalBranch branch"
                 Write-Info "Master branch state: Clean (deployment changes not committed)"
