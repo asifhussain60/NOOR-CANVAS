@@ -86,6 +86,8 @@
         padding: 2rem;
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         border: 1px solid #E5E7EB;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     /* Error State Styles */
@@ -304,16 +306,20 @@
     /* Main Grid Layout */
     /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
     /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Default to full-width canvas, sidebar hidden (0 width) ;CLEANUP_OK */
+    /* [SIMPLE:hcp-canvas:transcript-grid] Added max-width and overflow constraints ;CLEANUP_OK */
     .canvas-main-grid {
         display: grid;
         grid-template-columns: 1fr 0;
         gap: 1.5rem;
         height: auto;
         align-items: stretch;
+        max-width: 100%;
+        overflow: hidden;
     }
 
     /* Canvas Area Styles */
     /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height to allow canvas to expand for tall assets ;CLEANUP_OK */
+    /* [SIMPLE:hcp-canvas:canvas-area] Added box-sizing for proper width calculation ;CLEANUP_OK */
     .canvas-area-container {
         background-color: white;
         border-radius: 1rem;
@@ -324,10 +330,13 @@
         flex-direction: column;
         min-height: 400px;
         /* [DIAGNOSTIC:canvas:height:TRACE] Removed max-height: 700px - was preventing expansion to fit assets ;CLEANUP_OK */
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
 /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple border accent to distinguish from SessionCanvas green ;CLEANUP_OK */
 /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll disabled - host controls position ;CLEANUP_OK */
+/* [SIMPLE:hcp-canvas:content-area] Added max-width and box-sizing ;CLEANUP_OK */
 .canvas-content-area {
     flex: 1;
     padding: 1rem;
@@ -340,6 +349,8 @@
     border: #663399 dotted 3px;
     background-color: #F8F4FF;
     min-height: 400px;
+    max-width: 100%;
+    box-sizing: border-box;
     /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
 }
     /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll DISABLED - host has exclusive control ;CLEANUP_OK */

@@ -85,6 +85,8 @@
         padding: 2rem;
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         border: 1px solid #E5E7EB;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     /* Error State Styles */
@@ -283,12 +285,15 @@
 
     /* Main Grid Layout */
     /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
+    /* [SIMPLE:hcp-canvas:grid-layout] Fixed width sidebar with responsive constraints ;CLEANUP_OK */
     .canvas-main-grid {
         display: grid;
         grid-template-columns: 1fr 300px;
         gap: 1.5rem;
         height: auto;
         align-items: stretch;
+        max-width: 100%;
+        overflow: hidden;
     }
 
     /* Canvas Area Styles */
@@ -382,6 +387,7 @@
 
     /* Sidebar Styles */
     /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
+    /* [SIMPLE:hcp-canvas:sidebar-overflow] Max-width 100% prevents horizontal overflow ;CLEANUP_OK */
     .canvas-sidebar {
         background-color: white;
         border-radius: 0.75rem;
@@ -396,6 +402,7 @@
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
         max-width: 100%;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .canvas-tabs {
@@ -445,6 +452,8 @@
         overflow-y: auto;
         overflow-x: hidden;
         min-height: 0;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .canvas-tab-content.hidden {
@@ -468,14 +477,20 @@
         flex-direction: column;
         gap: 0.5rem;
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Width constraint prevents question cards from expanding sidebar horizontally ;CLEANUP_OK */
+        /* [SIMPLE:hcp-canvas:overflow] Added overflow-x hidden and box-sizing ;CLEANUP_OK */
         max-width: 100%;
         width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
 
     .canvas-participants-container {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .canvas-empty-state {
@@ -617,6 +632,7 @@
 
     /* Question Items - Refactored from ContextCopilot.txt */
     /* [DEBUG-WORKITEM:canvas-questions-orangecard:css-trace] Base question card styling with overflow:visible for badge positioning ;CLEANUP_OK */
+    /* [SIMPLE:hcp-canvas:question-width] Constrained max-width to fit sidebar, word-wrap for long text ;CLEANUP_OK */
     .canvas-question-item {
         border-radius: 0.75rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15);
@@ -624,13 +640,15 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        max-width: 300px;
+        max-width: 100%;
         width: 100%;
         border-width: 2px;
         border-left-width: 6px;
         border-style: solid;
         overflow: visible; /* [DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] Changed from overflow-x:hidden - allows badge translate(50%, -50%) to render outside card bounds ;CLEANUP_OK */
         word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
         margin-bottom: 1rem;
         position: relative; /* [DEBUG-WORKITEM:canvas-questions-orangecard:positioning-trace] Required for absolute positioned badge child element ;CLEANUP_OK */
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Box-sizing ensures padding included in width calculation, preventing overflow ;CLEANUP_OK */
@@ -654,10 +672,13 @@
 
     .canvas-question-text {
         word-wrap: break-word; /* Ensure long words wrap */
+        word-break: break-word;
+        overflow-wrap: break-word;
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
         line-height: 1.375;
         font-weight: normal;
+        max-width: 100%;
     }
 
     .question-text-color-green {
