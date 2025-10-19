@@ -19,7 +19,8 @@ Apply the same right-panel overflow fix from CopilotChats to SessionCanvas.razor
 - Root cause: CSS Grid child default min-width:auto allows content to push beyond container. Setting min-width:0 on the left panel complements the right sidebar constraints.
 
 ## Commit Trace
-- Pending checkpoint commit/tag to be created after review.
+- Commit: 56cd1f6dd947d7c203c7f3185584376439d51db5
+- Tag: checkpoint/session-transcript-css/2025-10-19_0919
 # session-transcript-css
 
 **Status**: complete  

@@ -1,6 +1,6 @@
 ﻿MSBuild location is 'C:\Program Files\dotnet\sdk\9.0.305'
 Loading project 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\NoorCanvas.csproj'...
-  Resolve   00:00.26  NoorCanvas.csproj (net8.0)
+  Resolve   00:00.44  NoorCanvas.csproj (net8.0)
 Analyze 'NoorCanvas'
 Loaded analyzer assembly 'Microsoft.AspNetCore.Analyzers, Version=9.0.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60'
 Loaded analyzer assembly 'Microsoft.AspNetCore.Mvc.Analyzers, Version=9.0.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60'
@@ -9,6 +9,7 @@ Loaded analyzer assembly 'Microsoft.CodeAnalysis.CSharp.Analyzers, Version=3.3.5
 Loaded analyzer assembly 'Microsoft.CodeAnalysis.CSharp.NetAnalyzers, Version=8.0.9.2502, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
 Loaded analyzer assembly 'Microsoft.CodeAnalysis.NetAnalyzers, Version=8.0.9.2502, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
 Loaded analyzer assembly 'Microsoft.EntityFrameworkCore.Analyzers, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60'
+Loaded analyzer assembly 'MudBlazor.Analyzers, Version=8.13.0.0, Culture=neutral, PublicKeyToken=null'
 Loaded analyzer assembly 'Roslynator.CSharp.Analyzers.CodeFixes, Version=4.12.4.0, Culture=neutral, PublicKeyToken=926ea54d246a765e'
 Loaded analyzer assembly 'Roslynator.CSharp.Analyzers, Version=4.12.4.0, Culture=neutral, PublicKeyToken=926ea54d246a765e'
 Loaded analyzer assembly 'StyleCop.Analyzers.CodeFixes, Version=1.2.0.507, Culture=neutral, PublicKeyToken=cfeb5dbada5e1c25'
@@ -67,29 +68,29 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Data\SimplifiedCanvasDbContext.cs(13,12): warning CS8618: Non-nullable property 'Participants' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
   Data\SimplifiedCanvasDbContext.cs(13,12): warning CS8618: Non-nullable property 'SessionData' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
   Data\SimplifiedCanvasDbContext.cs(13,12): warning CS8618: Non-nullable property 'AssetLookup' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-  Controllers\HostController.cs(582,29): info ASP0015: The header 'User-Agent' can be accessed using the UserAgent property
+  Controllers\HostController.cs(589,29): info ASP0015: The header 'User-Agent' can be accessed using the UserAgent property
   Controllers\ParticipantController.cs(61,29): info ASP0015: The header 'User-Agent' can be accessed using the UserAgent property
   Controllers\TokenController.cs(29,25): info ASP0015: The header 'User-Agent' can be accessed using the UserAgent property
-  Program.cs(254,9): info ASP0015: The header 'Content-Type' can be accessed using the ContentType property
-  Program.cs(255,9): info ASP0015: The header 'Cache-Control' can be accessed using the CacheControl property
-  Program.cs(256,9): info ASP0015: The header 'Connection' can be accessed using the Connection property
-  Program.cs(216,22): info ASP0018: Unused route parameter 'catchall'
+  Program.cs(259,9): info ASP0015: The header 'Content-Type' can be accessed using the ContentType property
+  Program.cs(260,9): info ASP0015: The header 'Cache-Control' can be accessed using the CacheControl property
+  Program.cs(261,9): info ASP0015: The header 'Connection' can be accessed using the Connection property
+  Program.cs(220,22): info ASP0018: Unused route parameter 'catchall'
   Services\DebugService.cs(390,21): info CA1816: Change DebugTimer.Dispose() to call GC.SuppressFinalize(object). This will prevent derived types that introduce a finalizer from needing to re-implement 'IDisposable' to call it.
   Controllers\HealthController.cs(92,41): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
   Controllers\HostController.cs(51,21): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
   Controllers\HostController.cs(104,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
   Controllers\HostController.cs(127,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(289,52): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(467,117): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(505,148): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(542,155): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(753,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(832,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(901,21): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Controllers\HostController.cs(950,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(296,52): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(474,117): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(512,148): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(549,155): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(760,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(839,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(908,21): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Controllers\HostController.cs(957,32): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
   Controllers\HostProvisionerController.cs(55,28): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
-  Program.cs(390,17): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
   Program.cs(395,17): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
+  Program.cs(400,17): info CA1845: Use span-based 'string.Concat' and 'AsSpan' instead of 'Substring'
   Controllers\QuestionController.cs(299,25): info CA1854: Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup
   Controllers\QuestionController.cs(369,40): info CA1854: Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup
   Controllers\QuestionController.cs(609,45): info CA1854: Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup
@@ -101,8 +102,12 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\DebugService.cs(240,18): info CA1854: Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup
   Controllers\AdminController.cs(114,36): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
   Controllers\AdminController.cs(115,36): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
-  Program.cs(450,13): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
-  Program.cs(463,13): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+  Controllers\DiagnosticsController.cs(45,38): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+  Controllers\DiagnosticsController.cs(71,40): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+  Controllers\DiagnosticsController.cs(85,40): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+  Controllers\DiagnosticsController.cs(99,39): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+  Program.cs(455,13): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+  Program.cs(468,13): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
   Services\AnnotationService.cs(173,21): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
   Services\AssetProcessingService.cs(126,18): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
   Services\DebugService.cs(412,46): info CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
@@ -144,12 +149,12 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\HostAssetService.cs(49,105): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
   Services\HostAssetService.cs(66,123): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
   Services\HostAssetService.cs(133,105): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
-  Services\HostSessionService.cs(128,126): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
-  Services\HostSessionService.cs(170,117): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
-  Services\HostSessionService.cs(209,95): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
-  Services\HostSessionService.cs(257,123): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
-  Services\HostSessionService.cs(338,140): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
-  Services\HostSessionService.cs(383,104): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
+  Services\HostSessionService.cs(116,126): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
+  Services\HostSessionService.cs(156,117): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
+  Services\HostSessionService.cs(195,95): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
+  Services\HostSessionService.cs(243,123): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
+  Services\HostSessionService.cs(324,140): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
+  Services\HostSessionService.cs(369,104): info CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead.
   Services\DebugService.cs(74,36): info CA2254: The logging message template should not vary between calls to 'LoggerExtensions.LogInformation(ILogger, string?, params object?[])'
   Services\DebugService.cs(98,36): info CA2254: The logging message template should not vary between calls to 'LoggerExtensions.LogInformation(ILogger, string?, params object?[])'
   Data\Migrations\20250911091420_InitialCreate.cs(31,17): info RCS1021: Use expression-bodied lambda
@@ -159,12 +164,12 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Migrations\20250920222544_AddAssetLookupTable.cs(46,17): info RCS1021: Use expression-bodied lambda
   Migrations\20250923225435_RemoveUnusedTokenColumnsCleanup.cs(75,17): info RCS1021: Use expression-bodied lambda
   Services\DialogService.cs(58,17): info RCS1021: Use expression-bodied lambda
-  Controllers\HostController.cs(1046,89): info RCS1033: Remove redundant '== true'
+  Controllers\HostController.cs(1053,89): info RCS1033: Remove redundant '== true'
   Migrations\20250920121756_InitialMigrationWithEmail.cs(13,1): info RCS1036: Remove unnecessary blank line
   Migrations\20250920121756_InitialMigrationWithEmail.cs(19,1): info RCS1036: Remove unnecessary blank line
-  Services\HostSessionService.cs(177,1): info RCS1036: Remove unnecessary blank line
-  Services\HostSessionService.cs(264,1): info RCS1036: Remove unnecessary blank line
-  Services\HostSessionService.cs(277,1): info RCS1036: Remove unnecessary blank line
+  Services\HostSessionService.cs(163,1): info RCS1036: Remove unnecessary blank line
+  Services\HostSessionService.cs(250,1): info RCS1036: Remove unnecessary blank line
+  Services\HostSessionService.cs(263,1): info RCS1036: Remove unnecessary blank line
   Services\SecureTokenService.cs(205,1): info RCS1036: Remove unnecessary blank line
   Services\SimplifiedTokenService.cs(266,1): info RCS1036: Remove unnecessary blank line
   Controllers\AssetShareTestController.cs(17,44): info RCS1037: Remove trailing white-space
@@ -177,43 +182,66 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Controllers\AssetShareTestController.cs(123,1): info RCS1037: Remove trailing white-space
   Controllers\AssetShareTestController.cs(133,1): info RCS1037: Remove trailing white-space
   Controllers\AssetShareTestController.cs(150,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(38,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(43,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(57,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(65,106): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(69,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(83,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(97,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(101,123): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(103,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(111,123): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(116,128): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(124,136): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(131,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(133,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(157,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(162,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(167,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(172,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(177,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(182,1): info RCS1037: Remove trailing white-space
+  Controllers\DiagnosticsController.cs(187,1): info RCS1037: Remove trailing white-space
   Controllers\HostController.cs(145,164): info RCS1037: Remove trailing white-space
   Controllers\HostController.cs(147,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(161,183): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(182,175): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(184,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(191,170): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(193,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(211,183): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(463,152): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(464,82): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(466,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(476,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(489,173): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(501,154): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(502,29): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(504,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(513,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(527,175): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(538,158): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(539,32): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(541,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(550,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(571,179): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(659,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1524,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1527,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1530,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1533,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1536,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1548,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1551,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1554,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1557,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1560,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1563,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1566,1): info RCS1037: Remove trailing white-space
-  Controllers\HostController.cs(1569,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(150,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(161,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(168,183): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(189,175): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(191,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(198,170): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(200,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(218,183): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(470,152): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(471,82): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(473,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(483,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(496,173): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(508,154): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(509,29): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(511,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(520,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(534,175): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(545,158): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(546,32): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(548,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(557,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(578,179): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(666,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1531,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1534,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1537,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1540,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1543,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1555,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1558,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1561,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1564,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1567,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1570,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1573,1): info RCS1037: Remove trailing white-space
+  Controllers\HostController.cs(1576,1): info RCS1037: Remove trailing white-space
   Controllers\ParticipantController.cs(418,1): info RCS1037: Remove trailing white-space
   Controllers\ParticipantController.cs(423,86): info RCS1037: Remove trailing white-space
   Controllers\ParticipantController.cs(424,73): info RCS1037: Remove trailing white-space
@@ -221,6 +249,11 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Controllers\ParticipantController.cs(430,1): info RCS1037: Remove trailing white-space
   Controllers\ParticipantController.cs(436,1): info RCS1037: Remove trailing white-space
   Controllers\ParticipantController.cs(443,139): info RCS1037: Remove trailing white-space
+  Controllers\ParticipantController.cs(491,1): info RCS1037: Remove trailing white-space
+  Controllers\ParticipantController.cs(493,150): info RCS1037: Remove trailing white-space
+  Controllers\ParticipantController.cs(500,1): info RCS1037: Remove trailing white-space
+  Controllers\ParticipantController.cs(502,142): info RCS1037: Remove trailing white-space
+  Controllers\ParticipantController.cs(535,1): info RCS1037: Remove trailing white-space
   Controllers\QuestionController.cs(118,141): info RCS1037: Remove trailing white-space
   Controllers\QuestionController.cs(120,1): info RCS1037: Remove trailing white-space
   Controllers\QuestionController.cs(130,1): info RCS1037: Remove trailing white-space
@@ -276,58 +309,77 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Controllers\QuestionController.cs(825,1): info RCS1037: Remove trailing white-space
   Controllers\QuestionController.cs(828,1): info RCS1037: Remove trailing white-space
   Controllers\QuestionController.cs(829,166): info RCS1037: Remove trailing white-space
-  Controllers\QuestionController.cs(837,169): info RCS1037: Remove trailing white-space
-  Controllers\QuestionController.cs(839,1): info RCS1037: Remove trailing white-space
-  Controllers\QuestionController.cs(842,1): info RCS1037: Remove trailing white-space
-  Controllers\QuestionController.cs(850,169): info RCS1037: Remove trailing white-space
-  Controllers\QuestionController.cs(852,1): info RCS1037: Remove trailing white-space
-  Controllers\QuestionController.cs(855,1): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(837,163): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(839,169): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(841,1): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(843,54): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(844,22): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(845,49): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(846,55): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(850,1): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(858,169): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(860,1): info RCS1037: Remove trailing white-space
+  Controllers\QuestionController.cs(863,1): info RCS1037: Remove trailing white-space
   Controllers\SessionController.cs(226,130): info RCS1037: Remove trailing white-space
   Controllers\SessionController.cs(229,32): info RCS1037: Remove trailing white-space
   Controllers\SessionController.cs(230,43): info RCS1037: Remove trailing white-space
   Controllers\SessionController.cs(277,161): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(51,1): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(59,1): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(301,1): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(305,1): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(307,1): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(329,1): info RCS1037: Remove trailing white-space
+  Hubs\AnnotationHub.cs(332,1): info RCS1037: Remove trailing white-space
   Hubs\SessionHub.cs(191,151): info RCS1037: Remove trailing white-space
   Hubs\SessionHub.cs(198,1): info RCS1037: Remove trailing white-space
   Hubs\SessionHub.cs(199,138): info RCS1037: Remove trailing white-space
   Hubs\SessionHub.cs(204,131): info RCS1037: Remove trailing white-space
-  Program.cs(120,1): info RCS1037: Remove trailing white-space
-  Program.cs(132,1): info RCS1037: Remove trailing white-space
-  Program.cs(280,1): info RCS1037: Remove trailing white-space
-  Program.cs(282,1): info RCS1037: Remove trailing white-space
-  Program.cs(288,1): info RCS1037: Remove trailing white-space
-  Program.cs(290,1): info RCS1037: Remove trailing white-space
-  Program.cs(293,122): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(387,1): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(388,168): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(390,1): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(398,1): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(408,1): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(409,127): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(411,1): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(413,1): info RCS1037: Remove trailing white-space
+  Hubs\SessionHub.cs(605,175): info RCS1037: Remove trailing white-space
+  Program.cs(124,1): info RCS1037: Remove trailing white-space
+  Program.cs(136,1): info RCS1037: Remove trailing white-space
+  Program.cs(285,1): info RCS1037: Remove trailing white-space
+  Program.cs(287,1): info RCS1037: Remove trailing white-space
+  Program.cs(293,1): info RCS1037: Remove trailing white-space
   Program.cs(295,1): info RCS1037: Remove trailing white-space
-  Program.cs(309,159): info RCS1037: Remove trailing white-space
-  Program.cs(386,1): info RCS1037: Remove trailing white-space
-  Program.cs(389,114): info RCS1037: Remove trailing white-space
+  Program.cs(298,122): info RCS1037: Remove trailing white-space
+  Program.cs(300,1): info RCS1037: Remove trailing white-space
+  Program.cs(314,159): info RCS1037: Remove trailing white-space
   Program.cs(391,1): info RCS1037: Remove trailing white-space
-  Program.cs(394,117): info RCS1037: Remove trailing white-space
-  Program.cs(400,1): info RCS1037: Remove trailing white-space
-  Program.cs(435,1): info RCS1037: Remove trailing white-space
-  Program.cs(438,111): info RCS1037: Remove trailing white-space
+  Program.cs(394,114): info RCS1037: Remove trailing white-space
+  Program.cs(396,1): info RCS1037: Remove trailing white-space
+  Program.cs(399,117): info RCS1037: Remove trailing white-space
+  Program.cs(405,1): info RCS1037: Remove trailing white-space
   Program.cs(440,1): info RCS1037: Remove trailing white-space
-  Program.cs(443,107): info RCS1037: Remove trailing white-space
+  Program.cs(443,111): info RCS1037: Remove trailing white-space
+  Program.cs(445,1): info RCS1037: Remove trailing white-space
+  Program.cs(448,107): info RCS1037: Remove trailing white-space
   Services\AssetDetectionService.cs(85,1): info RCS1037: Remove trailing white-space
   Services\AssetProcessingService.cs(252,1): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(72,1): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(88,104): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(89,53): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(91,152): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(106,153): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(108,1): info RCS1037: Remove trailing white-space
+  Services\HostSessionService.cs(70,1): info RCS1037: Remove trailing white-space
+  Services\HostSessionService.cs(85,104): info RCS1037: Remove trailing white-space
+  Services\HostSessionService.cs(86,53): info RCS1037: Remove trailing white-space
+  Services\HostSessionService.cs(88,103): info RCS1037: Remove trailing white-space
+  Services\HostSessionService.cs(109,1): info RCS1037: Remove trailing white-space
   Services\HostSessionService.cs(115,1): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(119,146): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(125,137): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(127,1): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(132,1): info RCS1037: Remove trailing white-space
-  Services\HostSessionService.cs(137,142): info RCS1037: Remove trailing white-space
+  Services\HostSessionService.cs(123,84): info RCS1037: Remove trailing white-space
   Services\HtmlParsingService.cs(300,1): info RCS1037: Remove trailing white-space
+  Services\SafeHtmlRenderingService.cs(120,1): info RCS1037: Remove trailing white-space
+  Services\SafeHtmlRenderingService.cs(126,1): info RCS1037: Remove trailing white-space
+  Services\SafeHtmlRenderingService.cs(129,1): info RCS1037: Remove trailing white-space
   Controllers\AdminController.cs(93,49): info RCS1077: Optimize LINQ method call
   Controllers\AdminController.cs(99,47): info RCS1077: Optimize LINQ method call
   Controllers\AdminController.cs(101,54): info RCS1077: Optimize LINQ method call
-  Controllers\HostController.cs(1234,71): info RCS1077: Optimize LINQ method call
-  Controllers\ParticipantController.cs(511,53): info RCS1077: Optimize LINQ method call
+  Controllers\HostController.cs(1241,71): info RCS1077: Optimize LINQ method call
+  Controllers\ParticipantController.cs(525,53): info RCS1077: Optimize LINQ method call
   Controllers\QuestionController.cs(456,46): info RCS1077: Optimize LINQ method call
   Services\DebugService.cs(309,21): info RCS1085: Use auto-implemented property
   Services\SecureSessionTokenService.cs(1,1): info RCS1093: File contains no code
@@ -337,22 +389,22 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Controllers\QuestionController.cs(513,38): info RCS1104: Simplify conditional expression
   Controllers\QuestionController.cs(672,34): info RCS1104: Simplify conditional expression
   Hubs\QAHub.cs(78,13): info RCS1118: Mark local variable as const
-  Program.cs(354,17): info RCS1118: Mark local variable as const
-  Program.cs(365,17): info RCS1118: Mark local variable as const
-  Program.cs(407,17): info RCS1118: Mark local variable as const
-  Program.cs(418,17): info RCS1118: Mark local variable as const
+  Program.cs(359,17): info RCS1118: Mark local variable as const
+  Program.cs(370,17): info RCS1118: Mark local variable as const
+  Program.cs(412,17): info RCS1118: Mark local variable as const
+  Program.cs(423,17): info RCS1118: Mark local variable as const
   Services\AssetDetectionService.cs(141,9): info RCS1118: Mark local variable as const
   Services\AssetDetectorService.cs(139,9): info RCS1118: Mark local variable as const
   Services\AssetDetectorService.cs(167,9): info RCS1118: Mark local variable as const
   Services\AssetDetectorService.cs(194,9): info RCS1118: Mark local variable as const
   Services\AssetDetectorService.cs(223,9): info RCS1118: Mark local variable as const
   Services\ScreenshotAnalysisService.cs(124,13): info RCS1118: Mark local variable as const
-  Controllers\HostController.cs(1039,21): info RCS1146: Use conditional access
+  Controllers\HostController.cs(1046,21): info RCS1146: Use conditional access
   Controllers\QuestionController.cs(609,29): info RCS1146: Use conditional access
   Controllers\QuestionController.cs(779,29): info RCS1146: Use conditional access
   Services\AssetHtmlProcessingService.cs(555,25): info RCS1146: Use conditional access
-  Controllers\HostController.cs(1096,62): info RCS1163: Unused parameter 'type'
-  Controllers\HostController.cs(1096,95): info RCS1163: Unused parameter 'sharedOnly'
+  Controllers\HostController.cs(1103,62): info RCS1163: Unused parameter 'type'
+  Controllers\HostController.cs(1103,95): info RCS1163: Unused parameter 'sharedOnly'
   Services\AssetDetectionService.cs(425,49): info RCS1163: Unused parameter 'sessionId'
   Services\AssetHtmlProcessingService.cs(346,56): info RCS1163: Unused parameter 'htmlDoc'
   Services\HostAssetService.cs(151,76): info RCS1163: Unused parameter 'shareId'
@@ -497,16 +549,16 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\HtmlParsingService.cs(252,17): info RCS1212: Remove redundant assignment
   Services\HtmlParsingService.cs(345,13): info RCS1212: Remove redundant assignment
   Controllers\AdminController.cs(281,31): info RCS1213: Remove unused method declaration
-  Controllers\ParticipantController.cs(644,56): info RCS1213: Remove unused method declaration
+  Controllers\ParticipantController.cs(668,56): info RCS1213: Remove unused method declaration
   Services\SessionStateService.cs(15,30): info RCS1213: Remove unused const declaration
-  Controllers\HostController.cs(480,45): info RCS1214: Unnecessary interpolated string
-  Controllers\HostController.cs(518,48): info RCS1214: Unnecessary interpolated string
-  Program.cs(303,41): info RCS1214: Unnecessary interpolated string
+  Controllers\HostController.cs(487,45): info RCS1214: Unnecessary interpolated string
+  Controllers\HostController.cs(525,48): info RCS1214: Unnecessary interpolated string
+  Program.cs(308,41): info RCS1214: Unnecessary interpolated string
   Services\AssetProcessingService.cs(319,16): info RCS1214: Unnecessary interpolated string
   Controllers\AssetShareTestController.cs(160,17): info RCS1239: Use 'for' statement instead of 'while' statement
-  Program.cs(483,30): info RCS1251: Remove unnecessary braces
-  Services\HostSessionService.cs(175,17): info RCS1259: Remove empty 'else' clause
-  Services\HostSessionService.cs(214,17): info RCS1259: Remove empty 'else' clause
+  Program.cs(488,30): info RCS1251: Remove unnecessary braces
+  Services\HostSessionService.cs(161,17): info RCS1259: Remove empty 'else' clause
+  Services\HostSessionService.cs(200,17): info RCS1259: Remove empty 'else' clause
   Services\ScreenshotAnalysisService.cs(124,35): info RCS1266: Use raw string literal
   Services\UnifiedHtmlTransformService.cs(154,20): info RCS1266: Use raw string literal
   Models\Debug\DebugModels.cs(22,9): warning SA1514: Element documentation header should be preceded by blank line
@@ -617,124 +669,124 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Controllers\HostController.cs(46,30): warning SA1600: Elements should be documented
   Controllers\HostController.cs(98,30): warning SA1600: Elements should be documented
   Controllers\HostController.cs(140,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(273,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(380,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(420,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(459,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(497,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(534,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(578,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(639,30): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(748,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(802,30): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(827,30): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1118,42): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1579,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1580,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1581,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1582,33): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1583,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1586,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1588,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1589,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1590,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1591,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1594,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(280,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(387,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(427,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(466,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(504,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(541,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(585,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(646,30): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(755,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(809,30): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(834,30): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1125,42): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1586,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1587,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1588,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1589,33): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1590,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1593,18): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1595,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1596,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1599,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1600,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1596,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1597,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1598,20): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1601,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1604,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1606,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1602,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1603,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1606,23): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1607,23): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1608,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1609,25): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1610,25): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1613,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1615,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1616,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1617,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1618,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1624,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1626,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1627,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1628,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1629,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1630,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1631,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1632,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1635,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1637,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1638,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1611,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1613,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1614,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1615,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1616,25): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1617,25): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1620,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1622,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1623,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1624,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1625,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1631,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1633,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1634,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1635,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1636,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1637,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1638,21): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1639,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1640,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1641,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1642,26): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1645,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1642,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1644,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1645,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1646,21): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1647,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1648,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1649,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1650,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1651,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1652,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1655,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1657,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1658,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1659,26): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1663,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1648,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1649,26): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1652,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1654,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1655,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1656,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1657,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1658,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1659,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1662,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1664,23): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1665,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1666,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1667,33): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1666,26): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1670,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1672,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1673,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1674,43): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1678,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1680,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1681,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1682,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1672,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1673,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1674,33): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1677,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1679,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1680,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1681,43): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1685,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1687,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1687,20): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1688,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1689,41): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1690,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1691,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1694,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1696,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1697,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1689,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1692,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1694,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1695,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1696,41): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1697,20): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1698,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1699,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1700,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1701,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1702,43): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1705,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1701,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1703,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1704,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1705,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1706,23): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1707,20): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1708,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1709,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1710,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1713,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1715,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1709,43): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1712,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1714,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1715,23): warning SA1600: Elements should be documented
   Controllers\HostController.cs(1716,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1717,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1718,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1719,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1720,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1721,43): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1722,25): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1726,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1728,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1729,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1730,23): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1731,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1732,24): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1733,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1734,25): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1737,18): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1739,21): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1740,37): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1741,20): warning SA1600: Elements should be documented
-  Controllers\HostController.cs(1742,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1717,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1720,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1722,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1723,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1724,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1725,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1726,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1727,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1728,43): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1729,25): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1733,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1735,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1736,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1737,23): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1738,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1739,24): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1740,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1741,25): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1744,18): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1746,21): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1747,37): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1748,20): warning SA1600: Elements should be documented
+  Controllers\HostController.cs(1749,23): warning SA1600: Elements should be documented
   Controllers\HostProvisionerController.cs(11,18): warning SA1600: Elements should be documented
   Controllers\HostProvisionerController.cs(17,16): warning SA1600: Elements should be documented
   Controllers\HostProvisionerController.cs(24,42): warning SA1600: Elements should be documented
@@ -825,9 +877,9 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Hubs\SessionHub.cs(82,23): warning SA1600: Elements should be documented
   Hubs\SessionHub.cs(116,23): warning SA1600: Elements should be documented
   Hubs\SessionHub.cs(131,23): warning SA1600: Elements should be documented
-  Hubs\SessionHub.cs(210,23): warning SA1600: Elements should be documented
-  Hubs\SessionHub.cs(559,23): warning SA1600: Elements should be documented
-  Hubs\SessionHub.cs(576,23): warning SA1600: Elements should be documented
+  Hubs\SessionHub.cs(254,23): warning SA1600: Elements should be documented
+  Hubs\SessionHub.cs(667,23): warning SA1600: Elements should be documented
+  Hubs\SessionHub.cs(684,23): warning SA1600: Elements should be documented
   Hubs\TestHub.cs(5,14): warning SA1600: Elements should be documented
   Hubs\TestHub.cs(9,12): warning SA1600: Elements should be documented
   Hubs\TestHub.cs(14,23): warning SA1600: Elements should be documented
@@ -1354,14 +1406,14 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\HostAssetService.cs(245,28): warning SA1600: Elements should be documented
   Services\HostAssetService.cs(246,28): warning SA1600: Elements should be documented
   Services\HostSessionService.cs(19,16): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(423,21): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(424,20): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(432,20): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(433,20): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(434,20): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(435,23): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(436,23): warning SA1600: Elements should be documented
-  Services\HostSessionService.cs(437,23): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(409,21): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(410,20): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(418,20): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(419,20): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(420,20): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(421,23): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(422,23): warning SA1600: Elements should be documented
+  Services\HostSessionService.cs(423,23): warning SA1600: Elements should be documented
   Services\HostSessionStateService.cs(15,16): warning SA1600: Elements should be documented
   Services\HostSessionStateService.cs(130,20): warning SA1600: Elements should be documented
   Services\HostSessionStateService.cs(131,23): warning SA1600: Elements should be documented
@@ -1475,7 +1527,7 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   ViewModels\HostSessionOpenerViewModel.cs(52,23): warning SA1600: Elements should be documented
   ViewModels\HostSessionOpenerViewModel.cs(53,23): warning SA1600: Elements should be documented
   ViewModels\HostSessionOpenerViewModel.cs(56,21): warning SA1600: Elements should be documented
-  Program.cs(483,22): warning SA1601: Partial elements should be documented
+  Program.cs(488,22): warning SA1601: Partial elements should be documented
   Models\Debug\DebugModels.cs(43,9): warning SA1602: Enumeration items should be documented
   Models\Debug\DebugModels.cs(44,9): warning SA1602: Enumeration items should be documented
   Models\Debug\DebugModels.cs(45,9): warning SA1602: Enumeration items should be documented
@@ -1496,18 +1548,18 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Controllers\AnnotationsController.cs(175,87): warning SA1611: The documentation for parameter 'userId' is missing
   Controllers\AnnotationsController.cs(213,70): warning SA1611: The documentation for parameter 'sessionId' is missing
   Controllers\AnnotationsController.cs(213,100): warning SA1611: The documentation for parameter 'userId' is missing
-  Controllers\HostController.cs(896,77): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Controllers\HostController.cs(945,73): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Controllers\HostController.cs(945,104): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Controllers\HostController.cs(1028,89): warning SA1611: The documentation for parameter 'countryCodes' is missing
-  Controllers\HostController.cs(1096,51): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Controllers\HostController.cs(1096,82): warning SA1611: The documentation for parameter 'type' is missing
-  Controllers\HostController.cs(1096,112): warning SA1611: The documentation for parameter 'sharedOnly' is missing
-  Controllers\HostController.cs(1347,66): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Controllers\HostController.cs(1389,71): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Controllers\HostController.cs(1429,69): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Controllers\HostController.cs(1471,67): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Controllers\ParticipantController.cs(554,75): warning SA1611: The documentation for parameter 'userToken' is missing
+  Controllers\HostController.cs(903,77): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Controllers\HostController.cs(952,73): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Controllers\HostController.cs(952,104): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Controllers\HostController.cs(1035,89): warning SA1611: The documentation for parameter 'countryCodes' is missing
+  Controllers\HostController.cs(1103,51): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Controllers\HostController.cs(1103,82): warning SA1611: The documentation for parameter 'type' is missing
+  Controllers\HostController.cs(1103,112): warning SA1611: The documentation for parameter 'sharedOnly' is missing
+  Controllers\HostController.cs(1354,66): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Controllers\HostController.cs(1396,71): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Controllers\HostController.cs(1436,69): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Controllers\HostController.cs(1478,67): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Controllers\ParticipantController.cs(578,75): warning SA1611: The documentation for parameter 'userToken' is missing
   Controllers\SessionController.cs(28,63): warning SA1611: The documentation for parameter 'sessionId' is missing
   Controllers\SessionController.cs(108,61): warning SA1611: The documentation for parameter 'sessionId' is missing
   Controllers\SessionController.cs(169,71): warning SA1611: The documentation for parameter 'sessionGuid' is missing
@@ -1533,51 +1585,55 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Extensions\DebugExtensions.cs(43,67): warning SA1611: The documentation for parameter 'parameters' is missing
   Hubs\AnnotationHub.cs(43,43): warning SA1611: The documentation for parameter 'sessionId' is missing
   Hubs\AnnotationHub.cs(43,61): warning SA1611: The documentation for parameter 'userId' is missing
-  Hubs\AnnotationHub.cs(73,44): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\AnnotationHub.cs(73,62): warning SA1611: The documentation for parameter 'userId' is missing
-  Hubs\AnnotationHub.cs(98,51): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\AnnotationHub.cs(98,69): warning SA1611: The documentation for parameter 'userId' is missing
-  Hubs\AnnotationHub.cs(98,84): warning SA1611: The documentation for parameter 'annotationData' is missing
-  Hubs\AnnotationHub.cs(142,57): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\AnnotationHub.cs(142,73): warning SA1611: The documentation for parameter 'annotationId' is missing
-  Hubs\AnnotationHub.cs(142,94): warning SA1611: The documentation for parameter 'userId' is missing
-  Hubs\AnnotationHub.cs(142,109): warning SA1611: The documentation for parameter 'annotationData' is missing
-  Hubs\AnnotationHub.cs(191,59): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\AnnotationHub.cs(191,75): warning SA1611: The documentation for parameter 'annotationId' is missing
-  Hubs\AnnotationHub.cs(191,96): warning SA1611: The documentation for parameter 'userId' is missing
-  Hubs\AnnotationHub.cs(239,57): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\AnnotationHub.cs(239,75): warning SA1611: The documentation for parameter 'userId' is missing
+  Hubs\AnnotationHub.cs(78,44): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\AnnotationHub.cs(78,62): warning SA1611: The documentation for parameter 'userId' is missing
+  Hubs\AnnotationHub.cs(103,51): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\AnnotationHub.cs(103,69): warning SA1611: The documentation for parameter 'userId' is missing
+  Hubs\AnnotationHub.cs(103,84): warning SA1611: The documentation for parameter 'annotationData' is missing
+  Hubs\AnnotationHub.cs(155,57): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\AnnotationHub.cs(155,73): warning SA1611: The documentation for parameter 'annotationId' is missing
+  Hubs\AnnotationHub.cs(155,94): warning SA1611: The documentation for parameter 'userId' is missing
+  Hubs\AnnotationHub.cs(155,109): warning SA1611: The documentation for parameter 'annotationData' is missing
+  Hubs\AnnotationHub.cs(204,59): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\AnnotationHub.cs(204,75): warning SA1611: The documentation for parameter 'annotationId' is missing
+  Hubs\AnnotationHub.cs(204,96): warning SA1611: The documentation for parameter 'userId' is missing
+  Hubs\AnnotationHub.cs(252,57): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\AnnotationHub.cs(252,75): warning SA1611: The documentation for parameter 'userId' is missing
   Hubs\SessionHub.cs(35,63): warning SA1611: The documentation for parameter 'exception' is missing
   Hubs\SessionHub.cs(186,47): warning SA1611: The documentation for parameter 'sessionId' is missing
   Hubs\SessionHub.cs(186,65): warning SA1611: The documentation for parameter 'contentHtml' is missing
-  Hubs\SessionHub.cs(219,44): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(253,45): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(266,48): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(266,66): warning SA1611: The documentation for parameter 'questionData' is missing
-  Hubs\SessionHub.cs(305,50): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(305,68): warning SA1611: The documentation for parameter 'voteData' is missing
-  Hubs\SessionHub.cs(321,51): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(321,66): warning SA1611: The documentation for parameter 'questionId' is missing
-  Hubs\SessionHub.cs(337,40): warning SA1611: The documentation for parameter 'groupName' is missing
-  Hubs\SessionHub.cs(398,41): warning SA1611: The documentation for parameter 'groupName' is missing
-  Hubs\SessionHub.cs(409,47): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(421,49): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(421,67): warning SA1611: The documentation for parameter 'sessionData' is missing
-  Hubs\SessionHub.cs(443,44): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(443,62): warning SA1611: The documentation for parameter 'htmlContent' is missing
-  Hubs\SessionHub.cs(443,82): warning SA1611: The documentation for parameter 'contentType' is missing
-  Hubs\SessionHub.cs(494,49): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(494,67): warning SA1611: The documentation for parameter 'reason' is missing
-  Hubs\SessionHub.cs(515,54): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(515,72): warning SA1611: The documentation for parameter 'participantId' is missing
-  Hubs\SessionHub.cs(515,94): warning SA1611: The documentation for parameter 'displayName' is missing
-  Hubs\SessionHub.cs(515,115): warning SA1611: The documentation for parameter 'country' is missing
-  Hubs\SessionHub.cs(515,133): warning SA1611: The documentation for parameter 'joinedAt' is missing
-  Hubs\SessionHub.cs(539,52): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Hubs\SessionHub.cs(539,70): warning SA1611: The documentation for parameter 'participantId' is missing
-  Hubs\SessionHub.cs(539,92): warning SA1611: The documentation for parameter 'displayName' is missing
-  Hubs\SessionHub.cs(598,55): warning SA1611: The documentation for parameter 'userToken' is missing
-  Hubs\SessionHub.cs(598,73): warning SA1611: The documentation for parameter 'participantData' is missing
+  Hubs\SessionHub.cs(214,57): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(214,75): warning SA1611: The documentation for parameter 'sectionHtml' is missing
+  Hubs\SessionHub.cs(214,95): warning SA1611: The documentation for parameter 'h2Text' is missing
+  Hubs\SessionHub.cs(263,44): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(297,45): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(310,48): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(310,66): warning SA1611: The documentation for parameter 'questionData' is missing
+  Hubs\SessionHub.cs(349,50): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(349,68): warning SA1611: The documentation for parameter 'voteData' is missing
+  Hubs\SessionHub.cs(365,51): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(365,66): warning SA1611: The documentation for parameter 'questionId' is missing
+  Hubs\SessionHub.cs(405,39): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(421,40): warning SA1611: The documentation for parameter 'groupName' is missing
+  Hubs\SessionHub.cs(482,41): warning SA1611: The documentation for parameter 'groupName' is missing
+  Hubs\SessionHub.cs(493,47): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(505,49): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(505,67): warning SA1611: The documentation for parameter 'sessionData' is missing
+  Hubs\SessionHub.cs(527,44): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(527,62): warning SA1611: The documentation for parameter 'htmlContent' is missing
+  Hubs\SessionHub.cs(527,82): warning SA1611: The documentation for parameter 'contentType' is missing
+  Hubs\SessionHub.cs(578,49): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(578,67): warning SA1611: The documentation for parameter 'reason' is missing
+  Hubs\SessionHub.cs(623,54): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(623,72): warning SA1611: The documentation for parameter 'participantId' is missing
+  Hubs\SessionHub.cs(623,94): warning SA1611: The documentation for parameter 'displayName' is missing
+  Hubs\SessionHub.cs(623,115): warning SA1611: The documentation for parameter 'country' is missing
+  Hubs\SessionHub.cs(623,133): warning SA1611: The documentation for parameter 'joinedAt' is missing
+  Hubs\SessionHub.cs(647,52): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Hubs\SessionHub.cs(647,70): warning SA1611: The documentation for parameter 'participantId' is missing
+  Hubs\SessionHub.cs(647,92): warning SA1611: The documentation for parameter 'displayName' is missing
+  Hubs\SessionHub.cs(706,55): warning SA1611: The documentation for parameter 'userToken' is missing
+  Hubs\SessionHub.cs(706,73): warning SA1611: The documentation for parameter 'participantData' is missing
   Middleware\DebugMiddleware.cs(100,87): warning SA1611: The documentation for parameter 'builder' is missing
   Models\Simplified\SessionAsset.cs(196,59): warning SA1611: The documentation for parameter 'asset' is missing
   Services\AssetDetectionService.cs(28,58): warning SA1611: The documentation for parameter 'sessionId' is missing
@@ -1634,19 +1690,19 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\HostAssetService.cs(151,114): warning SA1611: The documentation for parameter 'instanceNumber' is missing
   Services\HostSessionService.cs(33,47): warning SA1611: The documentation for parameter 'time' is missing
   Services\HostSessionService.cs(46,46): warning SA1611: The documentation for parameter 'timeInput' is missing
-  Services\HostSessionService.cs(100,91): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Services\HostSessionService.cs(153,97): warning SA1611: The documentation for parameter 'albumId' is missing
-  Services\HostSessionService.cs(153,114): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Services\HostSessionService.cs(192,72): warning SA1611: The documentation for parameter 'categoryId' is missing
-  Services\HostSessionService.cs(192,92): warning SA1611: The documentation for parameter 'hostToken' is missing
-  Services\HostSessionService.cs(230,115): warning SA1611: The documentation for parameter 'model' is missing
-  Services\HostSessionService.cs(327,84): warning SA1611: The documentation for parameter 'token' is missing
-  Services\HostSessionService.cs(369,77): warning SA1611: The documentation for parameter 'sessionId' is missing
-  Services\HostSessionService.cs(369,95): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Services\HostSessionService.cs(97,91): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Services\HostSessionService.cs(139,97): warning SA1611: The documentation for parameter 'albumId' is missing
+  Services\HostSessionService.cs(139,114): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Services\HostSessionService.cs(178,72): warning SA1611: The documentation for parameter 'categoryId' is missing
+  Services\HostSessionService.cs(178,92): warning SA1611: The documentation for parameter 'hostToken' is missing
+  Services\HostSessionService.cs(216,115): warning SA1611: The documentation for parameter 'model' is missing
+  Services\HostSessionService.cs(313,84): warning SA1611: The documentation for parameter 'token' is missing
+  Services\HostSessionService.cs(355,77): warning SA1611: The documentation for parameter 'sessionId' is missing
+  Services\HostSessionService.cs(355,95): warning SA1611: The documentation for parameter 'hostToken' is missing
   Services\HostSessionStateService.cs(27,76): warning SA1611: The documentation for parameter 'sessionState' is missing
   Services\HostSessionStateService.cs(67,79): warning SA1611: The documentation for parameter 'requestId' is missing
-  Services\SafeHtmlRenderingService.cs(167,72): warning SA1611: The documentation for parameter 'htmlContent' is missing
-  Services\SafeHtmlRenderingService.cs(167,89): warning SA1611: The documentation for parameter 'chunkSize' is missing
+  Services\SafeHtmlRenderingService.cs(208,72): warning SA1611: The documentation for parameter 'htmlContent' is missing
+  Services\SafeHtmlRenderingService.cs(208,89): warning SA1611: The documentation for parameter 'chunkSize' is missing
   Services\SecureTokenService.cs(169,57): warning SA1611: The documentation for parameter 'userToken' is missing
   Services\SessionStateService.cs(46,68): warning SA1611: The documentation for parameter 'sessionState' is missing
   Services\SimplifiedTokenService.cs(32,13): warning SA1611: The documentation for parameter 'sessionId' is missing
@@ -1666,7 +1722,9 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\SimplifiedTokenService.cs(215,59): warning SA1611: The documentation for parameter 'sessionId' is missing
   Services\SimplifiedTokenService.cs(215,77): warning SA1611: The documentation for parameter 'dataType' is missing
   Hubs\SessionHub.cs(186,18): warning SA1615: Element return value should be documented
-  Controllers\HostController.cs(1094,13): warning SA1616: Element return value documentation should have text
+  Hubs\SessionHub.cs(214,18): warning SA1615: Element return value should be documented
+  Hubs\SessionHub.cs(405,18): warning SA1615: Element return value should be documented
+  Controllers\HostController.cs(1101,13): warning SA1616: Element return value documentation should have text
   Extensions\DebugExtensions.cs(14,13): warning SA1616: Element return value documentation should have text
   Middleware\DebugMiddleware.cs(99,13): warning SA1616: Element return value documentation should have text
   Models\Simplified\SessionAsset.cs(195,9): warning SA1616: Element return value documentation should have text
@@ -1687,444 +1745,469 @@ Loaded analyzer assembly 'Microsoft.AspNetCore.Components.Analyzers, Version=8.0
   Services\HostSessionService.cs(32,13): warning SA1616: Element return value documentation should have text
   Services\HostSessionService.cs(45,13): warning SA1616: Element return value documentation should have text
   Services\HostSessionService.cs(59,13): warning SA1616: Element return value documentation should have text
-  Services\SafeHtmlRenderingService.cs(166,13): warning SA1616: Element return value documentation should have text
+  Services\SafeHtmlRenderingService.cs(207,13): warning SA1616: Element return value documentation should have text
   Services\SimplifiedTokenService.cs(215,52): warning SA1618: The documentation for type parameter 'T' is missing
   Hubs\SessionHub.cs(184,82): warning SA1629: Documentation text should end with a period
+  Hubs\SessionHub.cs(212,75): warning SA1629: Documentation text should end with a period
+  Hubs\SessionHub.cs(403,108): warning SA1629: Documentation text should end with a period
+  Hubs\SessionHub.cs(596,116): warning SA1629: Documentation text should end with a period
   Services\UnifiedHtmlTransformService.cs(30,72): warning SA1629: Documentation text should end with a period
   Services\UnifiedHtmlTransformService.cs(31,66): warning SA1629: Documentation text should end with a period
   Services\UnifiedHtmlTransformService.cs(33,77): warning SA1629: Documentation text should end with a period
   Services\UnifiedHtmlTransformService.cs(104,75): warning SA1629: Documentation text should end with a period
   Services\UnifiedHtmlTransformService.cs(105,60): warning SA1629: Documentation text should end with a period
-Analyzed project 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\NoorCanvas.csproj' (in 15.3 s)
+Analyzed project 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\NoorCanvas.csproj' (in 21.1 s)
 
-00:08.672 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpDiagnosticAnalyzerApiUsageAnalyzer'
-00:01.316 'StyleCop.Analyzers.ReadabilityRules.SA1121UseBuiltInTypeAlias'
-00:00.597 'Microsoft.AspNetCore.Analyzers.Mvc.MvcAnalyzer'
-00:00.583 'StyleCop.Analyzers.SpacingRules.SA1027UseTabsCorrectly'
-00:00.518 'Microsoft.AspNetCore.Analyzers.RouteEmbeddedLanguage.RoutePatternAnalyzer'
-00:00.409 'Roslynator.CSharp.Analysis.UnusedMember.UnusedMemberAnalyzer'
-00:00.339 'StyleCop.Analyzers.SpacingRules.SA1009ClosingParenthesisMustBeSpacedCorrectly'
-00:00.338 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpDetectPreviewFeatureAnalyzer'
-00:00.335 'Microsoft.EntityFrameworkCore.InternalUsageDiagnosticAnalyzer'
-00:00.334 'StyleCop.Analyzers.DocumentationRules.SA1600ElementsMustBeDocumented'
-00:00.320 'StyleCop.Analyzers.ReadabilityRules.SA1120CommentsMustContainText'
-00:00.306 'Roslynator.CSharp.Analysis.SimplifyNullableOfTAnalyzer'
-00:00.302 'Roslynator.CSharp.Analysis.RemoveUnnecessaryElseAnalyzer'
-00:00.301 'Roslynator.CSharp.Analysis.InvocationExpressionAnalyzer'
-00:00.272 'StyleCop.Analyzers.SpacingRules.SA1008OpeningParenthesisMustBeSpacedCorrectly'
-00:00.271 'StyleCop.Analyzers.ReadabilityRules.SA1110OpeningParenthesisMustBeOnDeclarationLine'
-00:00.243 'StyleCop.Analyzers.DocumentationRules.SA1611ElementParametersMustBeDocumented'
-00:00.236 'StyleCop.Analyzers.LayoutRules.SA1509OpeningBracesMustNotBePrecededByBlankLine'
-00:00.232 'Microsoft.NetCore.Analyzers.Performance.UseConcreteTypeAnalyzer'
-00:00.232 'StyleCop.Analyzers.DocumentationRules.SA1606ElementDocumentationMustHaveSummaryText'
-00:00.213 'StyleCop.Analyzers.SpacingRules.SA1012OpeningBracesMustBeSpacedCorrectly'
-00:00.207 'StyleCop.Analyzers.SpacingRules.SA1002SemicolonsMustBeSpacedCorrectly'
-00:00.206 'StyleCop.Analyzers.SpacingRules.SA1000KeywordsMustBeSpacedCorrectly'
-00:00.204 'StyleCop.Analyzers.SpacingRules.SA1005SingleLineCommentsMustBeginWithSingleSpace'
-00:00.203 'Roslynator.CSharp.Analysis.UnusedParameter.UnusedParameterAnalyzer'
-00:00.200 'StyleCop.Analyzers.SpacingRules.SA1006PreprocessorKeywordsMustNotBePrecededBySpace'
-00:00.200 'StyleCop.Analyzers.DocumentationRules.SA1616ElementReturnValueDocumentationMustHaveText'
-00:00.198 'StyleCop.Analyzers.SpacingRules.SA1014OpeningGenericBracketsMustBeSpacedCorrectly'
-00:00.198 'StyleCop.Analyzers.SpacingRules.SA1021NegativeSignsMustBeSpacedCorrectly'
-00:00.196 'StyleCop.Analyzers.DocumentationRules.SA1604ElementDocumentationMustHaveSummary'
-00:00.188 'StyleCop.Analyzers.SpacingRules.SA1004DocumentationLinesMustBeginWithSingleSpace'
-00:00.185 'StyleCop.Analyzers.SpacingRules.SA1022PositiveSignsMustBeSpacedCorrectly'
-00:00.183 'StyleCop.Analyzers.LayoutRules.SA1507CodeMustNotContainMultipleBlankLinesInARow'
-00:00.180 'StyleCop.Analyzers.SpacingRules.SA1011ClosingSquareBracketsMustBeSpacedCorrectly'
-00:00.176 'StyleCop.Analyzers.SpacingRules.SA1019MemberAccessSymbolsMustBeSpacedCorrectly'
-00:00.176 'Microsoft.NetCore.Analyzers.InteropServices.PlatformCompatibilityAnalyzer'
-00:00.170 'StyleCop.Analyzers.SpacingRules.SA1017ClosingAttributeBracketsMustBeSpacedCorrectly'
-00:00.169 'StyleCop.Analyzers.NamingRules.SA1300ElementMustBeginWithUpperCaseLetter'
-00:00.168 'StyleCop.Analyzers.SpacingRules.SA1013ClosingBracesMustBeSpacedCorrectly'
-00:00.166 'StyleCop.Analyzers.SpacingRules.SA1020IncrementDecrementSymbolsMustBeSpacedCorrectly'
-00:00.161 'Microsoft.NetCore.Analyzers.Runtime.LoggerMessageDefineAnalyzer'
-00:00.156 'StyleCop.Analyzers.SpacingRules.SA1016OpeningAttributeBracketsMustBeSpacedCorrectly'
-00:00.149 'Microsoft.AspNetCore.Analyzers.RouteHandlers.RouteHandlerAnalyzer'
-00:00.149 'Roslynator.CSharp.Analysis.RemoveUnnecessaryBlankLineAnalyzer'
-00:00.147 'StyleCop.Analyzers.SpacingRules.SA1015ClosingGenericBracketsMustBeSpacedCorrectly'
-00:00.146 'StyleCop.Analyzers.SpacingRules.SA1007OperatorKeywordMustBeFollowedBySpace'
-00:00.146 'StyleCop.Analyzers.SpacingRules.SA1023DereferenceAndAccessOfSymbolsMustBeSpacedCorrectly'
-00:00.143 'StyleCop.Analyzers.DocumentationRules.SA1625ElementDocumentationMustNotBeCopiedAndPasted'
-00:00.143 'StyleCop.Analyzers.SpacingRules.SA1001CommasMustBeSpacedCorrectly'
-00:00.142 'StyleCop.Analyzers.LayoutRules.SA1514ElementDocumentationHeaderMustBePrecededByBlankLine'
-00:00.141 'StyleCop.Analyzers.ReadabilityRules.SA1141UseTupleSyntax'
-00:00.136 'StyleCop.Analyzers.SpacingRules.SA1024ColonsMustBeSpacedCorrectly'
-00:00.133 'StyleCop.Analyzers.DocumentationRules.SA1629DocumentationTextMustEndWithAPeriod'
-00:00.131 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpRegisterActionAnalyzer'
-00:00.129 'Roslynator.CSharp.Analysis.ConvertCommentToDocumentationCommentAnalyzer'
-00:00.129 'Roslynator.CSharp.Analysis.InlineLocalVariableAnalyzer'
-00:00.124 'StyleCop.Analyzers.SpacingRules.SA1010OpeningSquareBracketsMustBeSpacedCorrectly'
-00:00.124 'StyleCop.Analyzers.DocumentationRules.SA1613ElementParameterDocumentationMustDeclareParameterName'
-00:00.123 'StyleCop.Analyzers.DocumentationRules.SA1608ElementDocumentationMustNotHaveDefaultSummary'
-00:00.121 'Microsoft.NetCore.Analyzers.Runtime.SpecifyIFormatProviderAnalyzer'
+00:08.758 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpDiagnosticAnalyzerApiUsageAnalyzer'
+00:01.397 'StyleCop.Analyzers.ReadabilityRules.SA1121UseBuiltInTypeAlias'
+00:00.986 'Microsoft.AspNetCore.Analyzers.Mvc.MvcAnalyzer'
+00:00.945 'Microsoft.AspNetCore.Analyzers.RouteEmbeddedLanguage.RoutePatternAnalyzer'
+00:00.640 'StyleCop.Analyzers.SpacingRules.SA1027UseTabsCorrectly'
+00:00.512 'StyleCop.Analyzers.SpacingRules.SA1008OpeningParenthesisMustBeSpacedCorrectly'
+00:00.405 'Roslynator.CSharp.Analysis.SimplifyNullableOfTAnalyzer'
+00:00.392 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpDetectPreviewFeatureAnalyzer'
+00:00.342 'StyleCop.Analyzers.ReadabilityRules.SA1120CommentsMustContainText'
+00:00.341 'StyleCop.Analyzers.SpacingRules.SA1009ClosingParenthesisMustBeSpacedCorrectly'
+00:00.329 'StyleCop.Analyzers.DocumentationRules.SA1606ElementDocumentationMustHaveSummaryText'
+00:00.325 'Microsoft.EntityFrameworkCore.InternalUsageDiagnosticAnalyzer'
+00:00.324 'StyleCop.Analyzers.DocumentationRules.SA1600ElementsMustBeDocumented'
+00:00.323 'StyleCop.Analyzers.SpacingRules.SA1019MemberAccessSymbolsMustBeSpacedCorrectly'
+00:00.320 'StyleCop.Analyzers.NamingRules.SA1300ElementMustBeginWithUpperCaseLetter'
+00:00.319 'Roslynator.CSharp.Analysis.RemoveUnnecessaryElseAnalyzer'
+00:00.314 'StyleCop.Analyzers.SpacingRules.SA1016OpeningAttributeBracketsMustBeSpacedCorrectly'
+00:00.314 'StyleCop.Analyzers.SpacingRules.SA1006PreprocessorKeywordsMustNotBePrecededBySpace'
+00:00.307 'Roslynator.CSharp.Analysis.InvocationExpressionAnalyzer'
+00:00.306 'Microsoft.NetCore.Analyzers.InteropServices.PlatformCompatibilityAnalyzer'
+00:00.304 'Roslynator.CSharp.Analysis.UnusedMember.UnusedMemberAnalyzer'
+00:00.278 'StyleCop.Analyzers.SpacingRules.SA1013ClosingBracesMustBeSpacedCorrectly'
+00:00.275 'Roslynator.CSharp.Analysis.MakeMemberReadOnly.MakeMemberReadOnlyAnalyzer'
+00:00.274 'StyleCop.Analyzers.SpacingRules.SA1007OperatorKeywordMustBeFollowedBySpace'
+00:00.273 'StyleCop.Analyzers.SpacingRules.SA1012OpeningBracesMustBeSpacedCorrectly'
+00:00.267 'Roslynator.CSharp.Analysis.WhitespaceAnalyzer'
+00:00.265 'StyleCop.Analyzers.ReadabilityRules.SA1141UseTupleSyntax'
+00:00.263 'StyleCop.Analyzers.SpacingRules.SA1005SingleLineCommentsMustBeginWithSingleSpace'
+00:00.255 'StyleCop.Analyzers.SpacingRules.SA1002SemicolonsMustBeSpacedCorrectly'
+00:00.253 'Roslynator.CSharp.Analysis.ConvertCommentToDocumentationCommentAnalyzer'
+00:00.245 'StyleCop.Analyzers.SpacingRules.SA1023DereferenceAndAccessOfSymbolsMustBeSpacedCorrectly'
+00:00.240 'StyleCop.Analyzers.SpacingRules.SA1004DocumentationLinesMustBeginWithSingleSpace'
+00:00.226 'StyleCop.Analyzers.SpacingRules.SA1015ClosingGenericBracketsMustBeSpacedCorrectly'
+00:00.220 'Roslynator.CSharp.Analysis.UnusedParameter.UnusedParameterAnalyzer'
+00:00.217 'Microsoft.NetCore.Analyzers.Performance.UseConcreteTypeAnalyzer'
+00:00.215 'StyleCop.Analyzers.DocumentationRules.SA1612ElementParameterDocumentationMustMatchElementParameters'
+00:00.214 'StyleCop.Analyzers.SpacingRules.SA1000KeywordsMustBeSpacedCorrectly'
+00:00.214 'StyleCop.Analyzers.SpacingRules.SA1014OpeningGenericBracketsMustBeSpacedCorrectly'
+00:00.208 'StyleCop.Analyzers.SpacingRules.SA1020IncrementDecrementSymbolsMustBeSpacedCorrectly'
+00:00.206 'Roslynator.CSharp.Analysis.UseNameOfOperatorAnalyzer'
+00:00.200 'StyleCop.Analyzers.SpacingRules.SA1022PositiveSignsMustBeSpacedCorrectly'
+00:00.197 'StyleCop.Analyzers.SpacingRules.SA1011ClosingSquareBracketsMustBeSpacedCorrectly'
+00:00.197 'StyleCop.Analyzers.SpacingRules.SA1021NegativeSignsMustBeSpacedCorrectly'
+00:00.196 'StyleCop.Analyzers.LayoutRules.SA1507CodeMustNotContainMultipleBlankLinesInARow'
+00:00.195 'StyleCop.Analyzers.DocumentationRules.SA1611ElementParametersMustBeDocumented'
+00:00.192 'StyleCop.Analyzers.LayoutRules.SA1509OpeningBracesMustNotBePrecededByBlankLine'
+00:00.186 'StyleCop.Analyzers.DocumentationRules.SA1629DocumentationTextMustEndWithAPeriod'
+00:00.182 'StyleCop.Analyzers.MaintainabilityRules.SA1404CodeAnalysisSuppressionMustHaveJustification'
+00:00.179 'StyleCop.Analyzers.ReadabilityRules.SA1110OpeningParenthesisMustBeOnDeclarationLine'
+00:00.177 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpForwardCancellationTokenToInvocationsAnalyzer'
+00:00.169 'Microsoft.NetCore.Analyzers.Runtime.LoggerMessageDefineAnalyzer'
+00:00.168 'Microsoft.NetCore.Analyzers.Runtime.CallGCSuppressFinalizeCorrectlyAnalyzer'
+00:00.166 'StyleCop.Analyzers.SpacingRules.SA1024ColonsMustBeSpacedCorrectly'
+00:00.165 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldDifferByMoreThanCaseAnalyzer'
+00:00.165 'Roslynator.CSharp.Analysis.RemoveUnnecessaryBlankLineAnalyzer'
+00:00.159 'StyleCop.Analyzers.SpacingRules.SA1001CommasMustBeSpacedCorrectly'
+00:00.157 'StyleCop.Analyzers.SpacingRules.SA1010OpeningSquareBracketsMustBeSpacedCorrectly'
+00:00.156 'StyleCop.Analyzers.DocumentationRules.SA1604ElementDocumentationMustHaveSummary'
+00:00.152 'Microsoft.NetCore.Analyzers.Performance.PreferHashDataOverComputeHashAnalyzer'
+00:00.151 'StyleCop.Analyzers.DocumentationRules.SA1625ElementDocumentationMustNotBeCopiedAndPasted'
+00:00.151 'StyleCop.Analyzers.ReadabilityRules.SA1111ClosingParenthesisMustBeOnLineOfLastParameter'
+00:00.141 'Microsoft.AspNetCore.Analyzers.RouteHandlers.RouteHandlerAnalyzer'
+00:00.132 'StyleCop.Analyzers.SpacingRules.SA1017ClosingAttributeBracketsMustBeSpacedCorrectly'
+00:00.131 'Microsoft.NetFramework.Analyzers.DoNotUseInsecureXSLTScriptExecutionAnalyzer'
+00:00.128 'StyleCop.Analyzers.DocumentationRules.SA1614ElementParameterDocumentationMustHaveText'
+00:00.122 'Microsoft.NetCore.Analyzers.Runtime.AvoidConstArraysAnalyzer'
+00:00.121 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpRegisterActionAnalyzer'
 00:00.120 'StyleCop.Analyzers.DocumentationRules.PropertySummaryDocumentationAnalyzer'
-00:00.112 'StyleCop.Analyzers.DocumentationRules.SA1619GenericTypeParametersMustBeDocumentedPartialClass'
-00:00.109 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotHaveIncorrectSuffixAnalyzer'
-00:00.107 'Roslynator.CSharp.Analysis.IfStatementAnalyzer'
-00:00.105 'StyleCop.Analyzers.DocumentationRules.SA1614ElementParameterDocumentationMustHaveText'
-00:00.092 'StyleCop.Analyzers.DocumentationRules.SA1612ElementParameterDocumentationMustMatchElementParameters'
-00:00.092 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpForwardCancellationTokenToInvocationsAnalyzer'
-00:00.092 'Roslynator.CSharp.Analysis.SingleLineDocumentationCommentTriviaAnalyzer'
-00:00.088 'Roslynator.CSharp.Analysis.MarkLocalVariableAsConst.LocalDeclarationStatementAnalyzer'
-00:00.086 'Microsoft.Interop.Analyzers.RuntimeComApiUsageWithSourceGeneratedComAnalyzer'
-00:00.086 'Microsoft.NetCore.Analyzers.Runtime.CallGCSuppressFinalizeCorrectlyAnalyzer'
-00:00.082 'Roslynator.CSharp.CSharp.Analysis.RemoveRedundantCatchBlockAnalyzer'
-00:00.082 'Microsoft.NetCore.Analyzers.Performance.PreferHashDataOverComputeHashAnalyzer'
-00:00.082 'StyleCop.Analyzers.ReadabilityRules.SA1113CommaMustBeOnSameLineAsPreviousParameter'
-00:00.079 'Roslynator.CSharp.Analysis.MakeMemberReadOnly.MakeMemberReadOnlyAnalyzer'
-00:00.076 'StyleCop.Analyzers.SpacingRules.SA1003SymbolsMustBeSpacedCorrectly'
-00:00.076 'StyleCop.Analyzers.ReadabilityRules.SA1111ClosingParenthesisMustBeOnLineOfLastParameter'
-00:00.076 'Roslynator.CSharp.Analysis.WhitespaceAnalyzer'
-00:00.073 'Microsoft.NetCore.Analyzers.Runtime.AvoidConstArraysAnalyzer'
-00:00.073 'StyleCop.Analyzers.DocumentationRules.SA1610PropertyDocumentationMustHaveValueText'
-00:00.073 'StyleCop.Analyzers.ReadabilityRules.SA1112ClosingParenthesisMustBeOnLineOfOpeningParenthesis'
-00:00.071 'StyleCop.Analyzers.ReadabilityRules.SA1114ParameterListMustFollowDeclaration'
-00:00.069 'Microsoft.NetCore.Analyzers.Runtime.ProvideCorrectArgumentsToFormattingMethodsAnalyzer'
-00:00.067 'Roslynator.CSharp.Analysis.RefReadOnlyParameterAnalyzer'
-00:00.066 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotMatchKeywordsAnalyzer'
-00:00.065 'Roslynator.CSharp.Analysis.UseAutoPropertyAnalyzer'
-00:00.062 'StyleCop.Analyzers.DocumentationRules.SA1615ElementReturnValueMustBeDocumented'
-00:00.061 'Roslynator.CSharp.Analysis.OrderNamedArgumentsAnalyzer'
-00:00.060 'Microsoft.NetCore.Analyzers.Runtime.SpecifyCultureInfoAnalyzer'
-00:00.059 'Roslynator.CSharp.Analysis.ReturnTaskInsteadOfNull.ReturnCompletedTaskInsteadOfNullAnalyzer'
-00:00.058 'StyleCop.Analyzers.SpecialRules.SA0002InvalidSettingsFile'
-00:00.058 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldDifferByMoreThanCaseAnalyzer'
-00:00.057 'StyleCop.Analyzers.DocumentationRules.SA1605PartialElementDocumentationMustHaveSummary'
-00:00.056 'Microsoft.NetCore.Analyzers.Performance.UseCountProperlyAnalyzer'
-00:00.055 'Roslynator.CSharp.Analysis.BinaryOperatorAnalyzer'
-00:00.054 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.TypesThatOwnDisposableFieldsShouldBeDisposableAnalyzer'
-00:00.053 'Microsoft.AspNetCore.Mvc.Analyzers.AvoidHtmlPartialAnalyzer'
-00:00.053 'Roslynator.CSharp.Analysis.MakeMethodExtensionMethodAnalyzer'
-00:00.052 'StyleCop.Analyzers.DocumentationRules.SA1618GenericTypeParametersMustBeDocumented'
-00:00.052 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.CompareSymbolsCorrectlyAnalyzer'
-00:00.051 'Roslynator.CSharp.Analysis.UseRawStringLiteralAnalyzer'
-00:00.050 'Roslynator.CSharp.Analysis.RemoveRedundantAssignmentAnalyzer'
-00:00.050 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.MarkMembersAsStaticAnalyzer'
-00:00.050 'Roslynator.CSharp.Analysis.AsyncSuffixAnalyzer'
-00:00.049 'StyleCop.Analyzers.ReadabilityRules.SA1115ParameterMustFollowComma'
-00:00.049 'StyleCop.Analyzers.OrderingRules.SA1217UsingStaticDirectivesMustBeOrderedAlphabetically'
-00:00.049 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldHaveCorrectSuffixAnalyzer'
-00:00.049 'Microsoft.NetCore.Analyzers.Performance.RecommendCaseInsensitiveStringComparisonAnalyzer'
-00:00.048 'Microsoft.NetCore.CSharp.Analyzers.Performance.CSharpConstantExpectedAnalyzer'
-00:00.047 'StyleCop.Analyzers.DocumentationRules.SA1648InheritDocMustBeUsedWithInheritingClass'
-00:00.046 'Roslynator.CSharp.Analysis.EnumSymbolAnalyzer'
-00:00.046 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotContainUnderscoresAnalyzer'
-00:00.046 'Microsoft.CodeAnalysis.CSharp.Analyzers.CSharpImmutableObjectMethodAnalyzer'
-00:00.045 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.ClassIsNotDiagnosticAnalyzer'
-00:00.044 'Microsoft.AspNetCore.Mvc.Analyzers.TopLevelParameterNameAnalyzer'
-00:00.044 'StyleCop.Analyzers.NamingRules.SA1312VariableNamesMustBeginWithLowerCaseLetter'
-00:00.044 'Microsoft.AspNetCore.Analyzers.StartupAnalyzer'
-00:00.043 'Microsoft.NetFramework.Analyzers.DoNotUseInsecureXSLTScriptExecutionAnalyzer'
-00:00.043 'Roslynator.CSharp.Analysis.SimplifyLazyInitializationAnalyzer'
-00:00.042 'Microsoft.AspNetCore.Mvc.Analyzers.AttributesShouldNotBeAppliedToPageModelAnalyzer'
-00:00.042 'Microsoft.NetCore.Analyzers.Security.DoNotCallDangerousMethodsInDeserialization'
-00:00.041 'Microsoft.Interop.Analyzers.ConvertToLibraryImportAnalyzer'
-00:00.040 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.ParameterNamesShouldMatchBaseDeclarationAnalyzer'
-00:00.039 'StyleCop.Analyzers.ReadabilityRules.SA1142ReferToTupleElementsByName'
-00:00.039 'Roslynator.CSharp.Analysis.RemoveRedundantAutoPropertyInitializationAnalyzer'
-00:00.039 'StyleCop.Analyzers.DocumentationRules.SA1626SingleLineCommentsMustNotUseDocumentationStyleSlashes'
-00:00.039 'Microsoft.Interop.Analyzers.ConvertComImportToGeneratedComInterfaceAnalyzer'
-00:00.038 'Microsoft.NetCore.Analyzers.Security.DoNotUseDSA'
-00:00.038 'Roslynator.CSharp.Analysis.ConvertInterpolatedStringToConcatenationAnalyzer'
-00:00.036 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotContainTypeNames'
-00:00.036 'Microsoft.NetCore.Analyzers.Runtime.SpecifyStringComparisonAnalyzer'
-00:00.036 'Roslynator.CSharp.Analysis.UnnecessaryUnsafeContextAnalyzer'
-00:00.036 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.DoNotRaiseExceptionsInExceptionClausesAnalyzer'
-00:00.035 'StyleCop.Analyzers.DocumentationRules.SA1601PartialElementsMustBeDocumented'
-00:00.034 'Microsoft.CodeAnalysis.CSharp.NetAnalyzers.Microsoft.NetCore.Analyzers.Performance.CSharpUseStringMethodCharOverloadWithSingleCharacters'
-00:00.034 'Microsoft.CodeQuality.Analyzers.Maintainability.DoNotIgnoreMethodResultsAnalyzer'
-00:00.034 'Microsoft.NetCore.Analyzers.InteropServices.DisableRuntimeMarshallingAnalyzer'
-00:00.034 'Microsoft.Extensions.Internal.ComponentInternalUsageDiagnosticAnalyzer'
-00:00.034 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldHaveCorrectPrefixAnalyzer'
-00:00.034 'Roslynator.CSharp.Analysis.UseNameOfOperatorAnalyzer'
-00:00.032 'Microsoft.CodeQuality.CSharp.Analyzers.Maintainability.CSharpUseNameofInPlaceOfStringAnalyzer'
-00:00.032 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpSpecifyCultureForToLowerAndToUpperAnalyzer'
-00:00.032 'Roslynator.CSharp.Analysis.AddBracesWhenMultilineAnalyzer'
-00:00.030 'Roslynator.CSharp.Analysis.UseAsyncAwaitAnalyzer'
-00:00.030 'Roslynator.CSharp.Analysis.UnnecessaryExplicitUseOfEnumeratorAnalyzer'
-00:00.030 'Microsoft.NetCore.Analyzers.Performance.PreferDictionaryTryMethodsOverContainsKeyGuardAnalyzer'
-00:00.030 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureCryptographicAlgorithmsAnalyzer'
-00:00.029 'Microsoft.AspNetCore.Analyzers.WebApplicationBuilder.WebApplicationBuilderAnalyzer'
-00:00.029 'Microsoft.Interop.Analyzers.CustomMarshallerAttributeAnalyzer'
-00:00.028 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.CollectionsShouldImplementGenericInterfaceAnalyzer'
-00:00.028 'StyleCop.Analyzers.LayoutRules.SA1510ChainedStatementBlocksMustNotBePrecededByBlankLine'
-00:00.028 'StyleCop.Analyzers.ReadabilityRules.SA1134AttributesMustNotShareLine'
-00:00.028 'Microsoft.NetCore.Analyzers.InteropServices.UseValidPlatformString'
-00:00.027 'Roslynator.CSharp.Analysis.LambdaExpressionAnalyzer'
-00:00.027 'Roslynator.CSharp.Analysis.UnnecessaryUsageOfVerbatimStringLiteralAnalyzer'
-00:00.026 'Microsoft.NetCore.Analyzers.Runtime.PreferStringContainsOverIndexOfAnalyzer'
-00:00.026 'StyleCop.Analyzers.ReadabilityRules.SA1100DoNotPrefixCallsWithBaseUnlessLocalImplementationExists'
-00:00.026 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForDataSetReadXml'
-00:00.025 'Roslynator.CSharp.Analysis.RemoveRedundantOverridingMemberAnalyzer'
-00:00.025 'Roslynator.CSharp.Analysis.BooleanLiteralAnalyzer'
-00:00.024 'Microsoft.NetCore.Analyzers.Runtime.DoNotUseEnumerableMethodsOnIndexableCollectionsInsteadUseTheCollectionDirectlyAnalyzer'
-00:00.024 'Microsoft.NetCore.Analyzers.Security.UseRSAWithSufficientKeySize'
-00:00.023 'Roslynator.CSharp.Analysis.CallExtensionMethodAsInstanceMethodAnalyzer'
-00:00.022 'StyleCop.Analyzers.OrderingRules.SA1205PartialElementsMustDeclareAccess'
-00:00.022 'Roslynator.CSharp.Analysis.UseCoalesceExpressionAnalyzer'
-00:00.022 'Roslynator.CSharp.Analysis.OverridingMemberShouldNotChangeParamsModifierAnalyzer'
-00:00.022 'Roslynator.CSharp.Analysis.SimplifyCodeBranchingAnalyzer'
-00:00.022 'Roslynator.CSharp.Analysis.StaticMemberInGenericTypeShouldUseTypeParameterAnalyzer'
-00:00.022 'StyleCop.Analyzers.DocumentationRules.SA1642ConstructorSummaryDocumentationMustBeginWithStandardText'
-00:00.022 'Microsoft.NetCore.Analyzers.Performance.UseCompositeFormatAnalyzer'
-00:00.021 'Roslynator.CSharp.Analysis.UnnecessaryInterpolatedStringAnalyzer'
-00:00.021 'StyleCop.Analyzers.MaintainabilityRules.SA1405DebugAssertMustProvideMessageText'
-00:00.021 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.CancellationTokenParametersMustComeLastAnalyzer'
-00:00.021 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.ProvideObsoleteAttributeMessageAnalyzer'
-00:00.021 'Microsoft.NetCore.Analyzers.Performance.DoNotGuardSetAddOrRemoveByContains'
-00:00.021 'StyleCop.Analyzers.ReadabilityRules.SA1107CodeMustNotContainMultipleStatementsOnOneLine'
-00:00.021 'Roslynator.CSharp.Analysis.RemoveEmptySyntaxAnalyzer'
-00:00.021 'Roslynator.CSharp.Analysis.UseConditionalAccessAnalyzer'
-00:00.021 'Roslynator.CSharp.Analysis.NamedTypeSymbolAnalyzer'
-00:00.021 'StyleCop.Analyzers.DocumentationRules.SA1607PartialElementDocumentationMustHaveSummaryText'
-00:00.020 'StyleCop.Analyzers.SpacingRules.SA1018NullableTypeSymbolsMustNotBePrecededBySpace'
-00:00.020 'StyleCop.Analyzers.ReadabilityRules.SA1118ParameterMustNotSpanMultipleLines'
-00:00.020 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpAvoidZeroLengthArrayAllocationsAnalyzer'
-00:00.020 'Roslynator.CSharp.Analysis.RemovePartialModifierFromTypeWithSinglePartAnalyzer'
-00:00.020 'Microsoft.NetCore.Analyzers.Performance.UseStringContainsCharOverloadWithSingleCharactersAnalyzer'
-00:00.020 'Microsoft.NetCore.Analyzers.Security.DoNotUseDeprecatedSecurityProtocols'
-00:00.020 'StyleCop.Analyzers.DocumentationRules.GenericTypeParameterDocumentationAnalyzer'
-00:00.020 'Roslynator.CSharp.Analysis.ParameterNameDiffersFromBaseAnalyzer'
-00:00.019 'Roslynator.CSharp.Analysis.AddParagraphToDocumentationCommentAnalyzer'
-00:00.019 'Roslynator.CSharp.Analysis.MakeClassStaticAnalyzer'
-00:00.018 'Roslynator.CSharp.Analysis.RemoveEmptyFinallyClauseAnalyzer'
-00:00.018 'Microsoft.NetCore.Analyzers.Security.SslProtocolsAnalyzer'
-00:00.018 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpUseSpanBasedStringConcat'
-00:00.018 'StyleCop.Analyzers.MaintainabilityRules.SA1414TupleTypesInSignaturesShouldHaveElementNames'
-00:00.018 'StyleCop.Analyzers.OrderingRules.SA1214ReadonlyElementsMustAppearBeforeNonReadonlyElements'
-00:00.018 'Microsoft.NetCore.Analyzers.Performance.PreferLengthCountIsEmptyOverAnyAnalyzer'
-00:00.018 'Microsoft.AspNetCore.Mvc.Analyzers.TagHelpersInCodeBlocksAnalyzer'
-00:00.017 'StyleCop.Analyzers.MaintainabilityRules.SA1404CodeAnalysisSuppressionMustHaveJustification'
-00:00.016 'Roslynator.CSharp.Analysis.UseEnumFieldExplicitlyAnalyzer'
-00:00.016 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.DiagnosticDescriptorCreationAnalyzer'
-00:00.016 'Roslynator.CSharp.Analysis.InvalidArgumentNullCheckAnalyzer'
-00:00.016 'Microsoft.NetCore.CSharp.Analyzers.Usage.CSharpImplementGenericMathInterfacesCorrectly'
-00:00.016 'Roslynator.CSharp.Analysis.UseEventArgsEmptyAnalyzer'
-00:00.016 'StyleCop.Analyzers.DocumentationRules.SA1651DoNotUsePlaceholderElements'
-00:00.015 'Roslynator.CSharp.Analysis.UseStringIsNullOrEmptyMethodAnalyzer'
-00:00.015 'StyleCop.Analyzers.ReadabilityRules.SA1131UseReadableConditions'
-00:00.015 'Microsoft.NetCore.Analyzers.Runtime.DisposeMethodsShouldCallBaseClassDispose'
-00:00.015 'Roslynator.CSharp.Analysis.RemoveOriginalExceptionFromThrowStatementAnalyzer'
-00:00.015 'Microsoft.NetCore.Analyzers.Runtime.UseExceptionThrowHelpers'
-00:00.015 'Roslynator.CSharp.Analysis.NormalizeFormatOfEnumFlagValueAnalyzer'
-00:00.015 'Microsoft.NetCore.CSharp.Analyzers.Performance.CSharpUseSearchValuesAnalyzer'
-00:00.015 'System.Text.RegularExpressions.Generator.UpgradeToGeneratedRegexAnalyzer'
-00:00.015 'StyleCop.Analyzers.LayoutRules.SA1519BracesMustNotBeOmittedFromMultiLineChildStatement'
-00:00.014 'StyleCop.Analyzers.DocumentationRules.SA1617VoidReturnValueMustNotBeDocumented'
-00:00.014 'Roslynator.CSharp.Analysis.UnnecessaryRawStringLiteralAnalyzer'
-00:00.014 'Roslynator.CSharp.Analysis.MergeSwitchSectionsAnalyzer'
-00:00.014 'Roslynator.CSharp.Analysis.UseCompoundAssignmentAnalyzer'
-00:00.014 'Roslynator.CSharp.Analysis.UnconstrainedTypeParameterCheckedForNullAnalyzer'
-00:00.013 'Microsoft.AspNetCore.Analyzers.RenderTreeBuilder.RenderTreeBuilderAnalyzer'
-00:00.013 'Microsoft.NetCore.Analyzers.InteropServices.PInvokeDiagnosticAnalyzer'
-00:00.013 'Microsoft.NetCore.Analyzers.Runtime.DoNotCallEnumerableCastOrOfTypeWithIncompatibleTypesAnalyzer'
-00:00.013 'Roslynator.CSharp.Analysis.SimplifyCoalesceExpressionAnalyzer'
-00:00.013 'Microsoft.NetCore.Analyzers.Security.DoNotUseWeakKDFAlgorithm'
-00:00.013 'Roslynator.CSharp.Analysis.JoinStringExpressionsAnalyzer'
-00:00.013 'Roslynator.CSharp.Analysis.UnnecessaryNullCheckAnalyzer'
-00:00.013 'Microsoft.Interop.Analyzers.NativeMarshallingAttributeAnalyzer'
-00:00.013 'StyleCop.Analyzers.MaintainabilityRules.SA1408ConditionalExpressionsMustDeclarePrecedence'
-00:00.013 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpPreventNumericIntPtrUIntPtrBehavioralChanges'
-00:00.013 'Roslynator.CSharp.Analysis.AddBracesToIfElseWhenMultiLineAnalyzer'
-00:00.013 'Microsoft.CodeAnalysis.Analyzers.FixAnalyzers.FixerWithFixAllAnalyzer'
-00:00.012 'Roslynator.CSharp.Analysis.RemoveRedundantSealedModifierAnalyzer'
-00:00.012 'Roslynator.CSharp.Analysis.UseUnaryOperatorInsteadOfAssignmentAnalyzer'
-00:00.012 'Microsoft.NetCore.Analyzers.Runtime.PreferAsSpanOverSubstring'
-00:00.012 'Roslynator.CSharp.Analysis.UseForStatementInsteadOfWhileStatementAnalyzer'
-00:00.012 'Roslynator.CSharp.Analysis.UseStringLengthInsteadOfComparisonWithEmptyStringAnalyzer'
-00:00.012 'StyleCop.Analyzers.LayoutRules.SA1518UseLineEndingsCorrectlyAtEndOfFile'
+00:00.117 'Microsoft.NetCore.Analyzers.Runtime.SpecifyIFormatProviderAnalyzer'
+00:00.111 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.CompareSymbolsCorrectlyAnalyzer'
+00:00.111 'Microsoft.NetCore.Analyzers.InteropServices.UseValidPlatformString'
+00:00.109 'StyleCop.Analyzers.ReadabilityRules.SA1118ParameterMustNotSpanMultipleLines'
+00:00.104 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotHaveIncorrectSuffixAnalyzer'
+00:00.103 'StyleCop.Analyzers.DocumentationRules.SA1608ElementDocumentationMustNotHaveDefaultSummary'
+00:00.102 'StyleCop.Analyzers.NamingRules.SA1307AccessibleFieldsMustBeginWithUpperCaseLetter'
+00:00.101 'StyleCop.Analyzers.DocumentationRules.SA1616ElementReturnValueDocumentationMustHaveText'
+00:00.100 'StyleCop.Analyzers.SpacingRules.SA1003SymbolsMustBeSpacedCorrectly'
+00:00.100 'Roslynator.CSharp.Analysis.CallExtensionMethodAsInstanceMethodAnalyzer'
+00:00.100 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureCryptographicAlgorithmsAnalyzer'
+00:00.098 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotContainTypeNames'
+00:00.097 'Roslynator.CSharp.Analysis.SingleLineDocumentationCommentTriviaAnalyzer'
+00:00.094 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotMatchKeywordsAnalyzer'
+00:00.093 'MudBlazor.Analyzers.MudComponentUnknownParametersAnalyzer'
+00:00.092 'Roslynator.CSharp.Analysis.RemoveOriginalExceptionFromThrowStatementAnalyzer'
+00:00.091 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldHaveCorrectSuffixAnalyzer'
+00:00.091 'StyleCop.Analyzers.DocumentationRules.SA1613ElementParameterDocumentationMustDeclareParameterName'
+00:00.085 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.ClassIsNotDiagnosticAnalyzer'
+00:00.085 'Roslynator.CSharp.CSharp.Analysis.RemoveRedundantCatchBlockAnalyzer'
+00:00.080 'StyleCop.Analyzers.OrderingRules.SA1217UsingStaticDirectivesMustBeOrderedAlphabetically'
+00:00.080 'Roslynator.CSharp.Analysis.IfStatementAnalyzer'
+00:00.079 'Roslynator.CSharp.Analysis.UnnecessaryUnsafeContextAnalyzer'
+00:00.078 'Roslynator.CSharp.Analysis.EnumSymbolAnalyzer'
+00:00.076 'Microsoft.NetCore.Analyzers.Security.DoNotCallDangerousMethodsInDeserialization'
+00:00.074 'StyleCop.Analyzers.ReadabilityRules.SA1142ReferToTupleElementsByName'
+00:00.071 'Microsoft.NetCore.Analyzers.Runtime.SpecifyCultureInfoAnalyzer'
+00:00.070 'Roslynator.CSharp.Analysis.ReturnTaskInsteadOfNull.ReturnCompletedTaskInsteadOfNullAnalyzer'
+00:00.070 'Microsoft.CodeAnalysis.CSharp.Analyzers.CSharpImmutableObjectMethodAnalyzer'
+00:00.068 'Roslynator.CSharp.Analysis.OrderNamedArgumentsAnalyzer'
+00:00.068 'Roslynator.CSharp.Analysis.LambdaExpressionAnalyzer'
+00:00.068 'Roslynator.CSharp.Analysis.UseAutoPropertyAnalyzer'
+00:00.067 'StyleCop.Analyzers.ReadabilityRules.SA1114ParameterListMustFollowDeclaration'
+00:00.067 'StyleCop.Analyzers.ReadabilityRules.SA1107CodeMustNotContainMultipleStatementsOnOneLine'
+00:00.067 'Microsoft.NetCore.Analyzers.Security.DoNotUseDSA'
+00:00.067 'Microsoft.AspNetCore.Analyzers.StartupAnalyzer'
+00:00.066 'StyleCop.Analyzers.SpecialRules.SA0002InvalidSettingsFile'
+00:00.065 'Roslynator.CSharp.Analysis.SimplifyLazyInitializationAnalyzer'
+00:00.063 'StyleCop.Analyzers.ReadabilityRules.SA1112ClosingParenthesisMustBeOnLineOfOpeningParenthesis'
+00:00.062 'StyleCop.Analyzers.DocumentationRules.SA1648InheritDocMustBeUsedWithInheritingClass'
+00:00.060 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldHaveCorrectPrefixAnalyzer'
+00:00.059 'StyleCop.Analyzers.DocumentationRules.SA1615ElementReturnValueMustBeDocumented'
+00:00.059 'Roslynator.CSharp.Analysis.RemoveEmptySyntaxAnalyzer'
+00:00.057 'Roslynator.CSharp.Analysis.UseCompoundAssignmentAnalyzer'
+00:00.056 'StyleCop.Analyzers.DocumentationRules.SA1618GenericTypeParametersMustBeDocumented'
+00:00.056 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.ParameterNamesShouldMatchBaseDeclarationAnalyzer'
+00:00.056 'Roslynator.CSharp.Analysis.InlineLocalVariableAnalyzer'
+00:00.055 'StyleCop.Analyzers.ReadabilityRules.SA1115ParameterMustFollowComma'
+00:00.054 'Microsoft.AspNetCore.Mvc.Analyzers.AttributesShouldNotBeAppliedToPageModelAnalyzer'
+00:00.053 'Roslynator.CSharp.Analysis.UseForStatementInsteadOfWhileStatementAnalyzer'
+00:00.053 'Microsoft.AspNetCore.Mvc.Analyzers.TopLevelParameterNameAnalyzer'
+00:00.052 'Roslynator.CSharp.Analysis.MarkLocalVariableAsConst.LocalDeclarationStatementAnalyzer'
+00:00.052 'Microsoft.AspNetCore.Analyzers.Http.HeaderDictionaryIndexerAnalyzer'
+00:00.050 'StyleCop.Analyzers.ReadabilityRules.SA1106CodeMustNotContainEmptyStatements'
+00:00.050 'Roslynator.CSharp.Analysis.AddParagraphToDocumentationCommentAnalyzer'
+00:00.049 'Roslynator.CSharp.Analysis.RefReadOnlyParameterAnalyzer'
+00:00.049 'Microsoft.Interop.Analyzers.ConvertToLibraryImportAnalyzer'
+00:00.048 'Roslynator.CSharp.Analysis.UseAsyncAwaitAnalyzer'
+00:00.047 'Microsoft.Extensions.Internal.ComponentInternalUsageDiagnosticAnalyzer'
+00:00.047 'Roslynator.CSharp.Analysis.BinaryOperatorAnalyzer'
+00:00.046 'Microsoft.NetCore.Analyzers.Runtime.ProvideCorrectArgumentsToFormattingMethodsAnalyzer'
+00:00.044 'StyleCop.Analyzers.DocumentationRules.SA1601PartialElementsMustBeDocumented'
+00:00.044 'StyleCop.Analyzers.SpacingRules.SA1018NullableTypeSymbolsMustNotBePrecededBySpace'
+00:00.044 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpUseSpanBasedStringConcat'
+00:00.043 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpSpecifyCultureForToLowerAndToUpperAnalyzer'
+00:00.043 'Microsoft.NetCore.Analyzers.Performance.UseCountProperlyAnalyzer'
+00:00.043 'Microsoft.NetCore.Analyzers.InteropServices.DisableRuntimeMarshallingAnalyzer'
+00:00.043 'StyleCop.Analyzers.ReadabilityRules.SA1131UseReadableConditions'
+00:00.042 'StyleCop.Analyzers.ReadabilityRules.SA1113CommaMustBeOnSameLineAsPreviousParameter'
+00:00.042 'Roslynator.CSharp.Analysis.AsyncSuffixAnalyzer'
+00:00.041 'Microsoft.Interop.Analyzers.RuntimeComApiUsageWithSourceGeneratedComAnalyzer'
+00:00.041 'Roslynator.CSharp.Analysis.RemoveRedundantAssignmentAnalyzer'
+00:00.041 'Microsoft.NetCore.CSharp.Analyzers.Performance.CSharpConstantExpectedAnalyzer'
+00:00.041 'StyleCop.Analyzers.DocumentationRules.SA1619GenericTypeParametersMustBeDocumentedPartialClass'
+00:00.039 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.CancellationTokenParametersMustComeLastAnalyzer'
+00:00.038 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.DoNotRaiseExceptionsInExceptionClausesAnalyzer'
+00:00.037 'StyleCop.Analyzers.DocumentationRules.SA1607PartialElementDocumentationMustHaveSummaryText'
+00:00.037 'Microsoft.NetCore.Analyzers.Runtime.DoNotUseEnumerableMethodsOnIndexableCollectionsInsteadUseTheCollectionDirectlyAnalyzer'
+00:00.037 'Roslynator.CSharp.Analysis.UseRawStringLiteralAnalyzer'
+00:00.036 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.IdentifiersShouldNotContainUnderscoresAnalyzer'
+00:00.035 'Roslynator.CSharp.Analysis.MergeSwitchSectionsAnalyzer'
+00:00.035 'Microsoft.NetCore.Analyzers.Performance.DoNotGuardSetAddOrRemoveByContains'
+00:00.035 'StyleCop.Analyzers.MaintainabilityRules.SA1414TupleTypesInSignaturesShouldHaveElementNames'
+00:00.035 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.TypesThatOwnDisposableFieldsShouldBeDisposableAnalyzer'
+00:00.034 'StyleCop.Analyzers.DocumentationRules.SA1605PartialElementDocumentationMustHaveSummary'
+00:00.034 'StyleCop.Analyzers.LayoutRules.SA1514ElementDocumentationHeaderMustBePrecededByBlankLine'
+00:00.034 'Roslynator.CSharp.Analysis.UnnecessaryEnumFlagAnalyzer'
+00:00.034 'StyleCop.Analyzers.OrderingRules.SA1214ReadonlyElementsMustAppearBeforeNonReadonlyElements'
+00:00.033 'Roslynator.CSharp.Analysis.BooleanLiteralAnalyzer'
+00:00.033 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpAvoidZeroLengthArrayAllocationsAnalyzer'
+00:00.033 'Roslynator.CSharp.Analysis.UseConditionalAccessAnalyzer'
+00:00.032 'StyleCop.Analyzers.DocumentationRules.SA1610PropertyDocumentationMustHaveValueText'
+00:00.032 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.EquatableAnalyzer'
+00:00.031 'Roslynator.CSharp.Analysis.NamedTypeSymbolAnalyzer'
+00:00.031 'Microsoft.NetCore.Analyzers.Runtime.SpecifyStringComparisonAnalyzer'
+00:00.031 'StyleCop.Analyzers.OrderingRules.SA1212PropertyAccessorsMustFollowOrder'
+00:00.030 'Microsoft.NetCore.Analyzers.Performance.DoNotGuardDictionaryRemoveByContainsKey'
+00:00.030 'Microsoft.NetCore.CSharp.Analyzers.Performance.CSharpUseSearchValuesAnalyzer'
+00:00.030 'Roslynator.CSharp.Analysis.AddParenthesesWhenNecessaryAnalyzer'
+00:00.030 'Roslynator.CSharp.Analysis.OverridingMemberShouldNotChangeParamsModifierAnalyzer'
+00:00.030 'Microsoft.AspNetCore.Analyzers.WebApplicationBuilder.WebApplicationBuilderAnalyzer'
+00:00.030 'Microsoft.Interop.Analyzers.CustomMarshallerAttributeAnalyzer'
+00:00.030 'Microsoft.NetCore.Analyzers.Runtime.UseExceptionThrowHelpers'
+00:00.028 'Roslynator.CSharp.Analysis.RemoveRedundantDelegateCreationAnalyzer'
+00:00.028 'Microsoft.NetCore.CSharp.Analyzers.Usage.CSharpImplementGenericMathInterfacesCorrectly'
+00:00.028 'Roslynator.CSharp.Analysis.StaticMemberInGenericTypeShouldUseTypeParameterAnalyzer'
+00:00.028 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.MarkMembersAsStaticAnalyzer'
+00:00.028 'Roslynator.CSharp.Analysis.UseConstantInsteadOfFieldAnalyzer'
+00:00.027 'StyleCop.Analyzers.ReadabilityRules.SA1134AttributesMustNotShareLine'
+00:00.027 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.ProvideObsoleteAttributeMessageAnalyzer'
+00:00.027 'Microsoft.NetCore.Analyzers.InteropServices.PInvokeDiagnosticAnalyzer'
+00:00.026 'Microsoft.CodeAnalysis.Analyzers.FixAnalyzers.FixerWithFixAllAnalyzer'
+00:00.026 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.DiagnosticDescriptorCreationAnalyzer'
+00:00.026 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.CollectionsShouldImplementGenericInterfaceAnalyzer'
+00:00.025 'Microsoft.NetCore.Analyzers.Runtime.PreferStringContainsOverIndexOfAnalyzer'
+00:00.025 'Roslynator.CSharp.Analysis.InvalidArgumentNullCheckAnalyzer'
+00:00.025 'Microsoft.NetCore.Analyzers.Security.SslProtocolsAnalyzer'
+00:00.025 'Roslynator.CSharp.Analysis.MakeMethodExtensionMethodAnalyzer'
+00:00.023 'Microsoft.NetCore.Analyzers.Security.UseRSAWithSufficientKeySize'
+00:00.023 'Roslynator.CSharp.Analysis.RemoveRedundantCastAnalyzer'
+00:00.023 'Microsoft.NetCore.Analyzers.Performance.PreferDictionaryTryMethodsOverContainsKeyGuardAnalyzer'
+00:00.022 'Roslynator.CSharp.Analysis.AddBracesWhenMultilineAnalyzer'
+00:00.022 'StyleCop.Analyzers.MaintainabilityRules.SA1405DebugAssertMustProvideMessageText'
+00:00.021 'Roslynator.CSharp.Analysis.RemovePartialModifierFromTypeWithSinglePartAnalyzer'
+00:00.021 'StyleCop.Analyzers.MaintainabilityRules.SA1400AccessModifierMustBeDeclared'
+00:00.021 'Microsoft.CodeQuality.Analyzers.Maintainability.DoNotIgnoreMethodResultsAnalyzer'
+00:00.021 'Roslynator.CSharp.Analysis.AddExceptionToDocumentationCommentAnalyzer'
+00:00.020 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotHideBaseClassMethodsAnalyzer'
+00:00.020 'Microsoft.Interop.Analyzers.ConvertComImportToGeneratedComInterfaceAnalyzer'
+00:00.020 'Microsoft.NetCore.Analyzers.Performance.UseStartsWithInsteadOfIndexOfComparisonWithZero'
+00:00.020 'StyleCop.Analyzers.ReadabilityRules.SA1129DoNotUseDefaultValueTypeConstructor'
+00:00.020 'Roslynator.CSharp.Analysis.RemoveRedundantAutoPropertyInitializationAnalyzer'
+00:00.020 'Microsoft.NetCore.Analyzers.Tasks.DoNotCreateTaskCompletionSourceWithWrongArguments'
+00:00.020 'Roslynator.CSharp.Analysis.ConvertInterpolatedStringToConcatenationAnalyzer'
+00:00.019 'Microsoft.NetCore.Analyzers.Tasks.DoNotUseConfigureAwaitWithSuppressThrowing'
+00:00.019 'Microsoft.NetCore.Analyzers.Runtime.DisposeMethodsShouldCallBaseClassDispose'
+00:00.018 'StyleCop.Analyzers.LayoutRules.SA1518UseLineEndingsCorrectlyAtEndOfFile'
+00:00.018 'Roslynator.CSharp.Analysis.FileContainsNoCodeAnalyzer'
+00:00.018 'Roslynator.CSharp.Analysis.SimplifyCodeBranchingAnalyzer'
+00:00.017 'StyleCop.Analyzers.DocumentationRules.GenericTypeParameterDocumentationAnalyzer'
+00:00.017 'Microsoft.NetCore.Analyzers.Performance.RecommendCaseInsensitiveStringComparisonAnalyzer'
+00:00.017 'Roslynator.CSharp.Analysis.RemoveUnnecessaryCaseLabelAnalyzer'
+00:00.017 'StyleCop.Analyzers.LayoutRules.SA1517CodeMustNotContainBlankLinesAtStartOfFile'
+00:00.016 'Roslynator.CSharp.Analysis.RemoveRedundantOverridingMemberAnalyzer'
+00:00.016 'StyleCop.Analyzers.OrderingRules.SA1206DeclarationKeywordsMustFollowOrder'
+00:00.016 'Microsoft.Interop.Analyzers.AddGeneratedComClassAnalyzer'
+00:00.016 'Roslynator.CSharp.Analysis.RemoveRedundantConstructorAnalyzer'
+00:00.016 'Roslynator.CSharp.Analysis.SimplifyNullCheckAnalyzer'
+00:00.016 'StyleCop.Analyzers.MaintainabilityRules.SA1119StatementMustNotUseUnnecessaryParenthesis'
+00:00.016 'Microsoft.NetFramework.Analyzers.DoNotUseInsecureDtdProcessingAnalyzer'
+00:00.016 'Microsoft.AspNetCore.Mvc.Analyzers.TagHelpersInCodeBlocksAnalyzer'
+00:00.016 'Roslynator.CSharp.Analysis.UseStringIsNullOrEmptyMethodAnalyzer'
+00:00.015 'Roslynator.CSharp.Analysis.ParameterNameDiffersFromBaseAnalyzer'
+00:00.015 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.MarkAssembliesWithAttributesDiagnosticAnalyzer'
+00:00.015 'Microsoft.NetCore.Analyzers.Performance.UseCompositeFormatAnalyzer'
+00:00.015 'StyleCop.Analyzers.DocumentationRules.SA1617VoidReturnValueMustNotBeDocumented'
+00:00.015 'StyleCop.Analyzers.OrderingRules.SA1207ProtectedMustComeBeforeInternal'
+00:00.015 'StyleCop.Analyzers.DocumentationRules.SA1642ConstructorSummaryDocumentationMustBeginWithStandardText'
+00:00.015 'Roslynator.CSharp.Analysis.UseStringLengthInsteadOfComparisonWithEmptyStringAnalyzer'
+00:00.014 'Roslynator.CSharp.Analysis.UseUnaryOperatorInsteadOfAssignmentAnalyzer'
+00:00.014 'Roslynator.CSharp.Analysis.MakeClassStaticAnalyzer'
+00:00.014 'Roslynator.CSharp.Analysis.SimplifyConditionalExpressionAnalyzer'
+00:00.014 'Microsoft.NetCore.CSharp.Analyzers.Resources.CSharpMarkAssembliesWithNeutralResourcesLanguageAnalyzer'
+00:00.014 'StyleCop.Analyzers.LayoutRules.SA1519BracesMustNotBeOmittedFromMultiLineChildStatement'
+00:00.014 'Microsoft.NetCore.Analyzers.Runtime.PreferAsSpanOverSubstring'
+00:00.014 'Roslynator.CSharp.Analysis.AddBracesToIfElseWhenMultiLineAnalyzer'
+00:00.014 'Microsoft.AspNetCore.Mvc.Analyzers.AvoidHtmlPartialAnalyzer'
+00:00.013 'System.Text.RegularExpressions.Generator.UpgradeToGeneratedRegexAnalyzer'
+00:00.013 'Microsoft.AspNetCore.Analyzers.Authorization.AddAuthorizationBuilderAnalyzer'
+00:00.013 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpPreferDictionaryContainsMethods'
+00:00.013 'Microsoft.NetCore.Analyzers.Performance.PreferLengthCountIsEmptyOverAnyAnalyzer'
+00:00.013 'StyleCop.Analyzers.NamingRules.SA1312VariableNamesMustBeginWithLowerCaseLetter'
+00:00.013 'Microsoft.CodeQuality.CSharp.Analyzers.Maintainability.CSharpUseNameofInPlaceOfStringAnalyzer'
+00:00.013 'Microsoft.NetCore.Analyzers.Runtime.UseStringEqualsOverStringCompare'
+00:00.013 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.DoNotUseCompilationGetSemanticModelAnalyzer'
+00:00.012 'Microsoft.NetCore.Analyzers.Runtime.DoNotRaiseReservedExceptionTypesAnalyzer'
+00:00.012 'StyleCop.Analyzers.LayoutRules.SA1506ElementDocumentationHeadersMustNotBeFollowedByBlankLine'
+00:00.012 'Roslynator.CSharp.Analysis.JoinStringExpressionsAnalyzer'
+00:00.012 'Microsoft.AspNetCore.Analyzers.Http.HeaderDictionaryAddAnalyzer'
+00:00.012 'Microsoft.CodeQuality.CSharp.Analyzers.QualityGuidelines.CSharpDoNotInitializeUnnecessarilyAnalyzer'
+00:00.012 'Microsoft.NetCore.Analyzers.Runtime.DoNotCallEnumerableCastOrOfTypeWithIncompatibleTypesAnalyzer'
+00:00.012 'Roslynator.CSharp.Analysis.UnnecessaryAssignmentAnalyzer'
 00:00.012 'StyleCop.Analyzers.ReadabilityRules.SA110xQueryClauses'
-00:00.012 'Roslynator.CSharp.Analysis.RemoveRedundantStatementAnalyzer'
-00:00.012 'Roslynator.CSharp.Analysis.UnnecessarySemicolonAtEndOfDeclarationAnalyzer'
-00:00.012 'Roslynator.CSharp.Analysis.UnnecessaryNullForgivingOperatorAnalyzer'
-00:00.012 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotHideBaseClassMethodsAnalyzer'
-00:00.011 'Microsoft.AspNetCore.Analyzers.Http.HeaderDictionaryIndexerAnalyzer'
-00:00.011 'StyleCop.Analyzers.OrderingRules.SA1207ProtectedMustComeBeforeInternal'
-00:00.011 'StyleCop.Analyzers.MaintainabilityRules.SA1400AccessModifierMustBeDeclared'
-00:00.011 'StyleCop.Analyzers.OrderingRules.SA1211UsingAliasDirectivesMustBeOrderedAlphabeticallyByAliasName'
-00:00.011 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.MarkAssembliesWithAttributesDiagnosticAnalyzer'
-00:00.011 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpPreferDictionaryContainsMethods'
-00:00.011 'Roslynator.CSharp.Analysis.RemoveRedundantAsyncAwaitAnalyzer'
-00:00.011 'Roslynator.CSharp.Analysis.UnnecessaryAssignmentAnalyzer'
-00:00.011 'Microsoft.NetCore.Analyzers.Performance.UseStartsWithInsteadOfIndexOfComparisonWithZero'
-00:00.011 'StyleCop.Analyzers.ReadabilityRules.SA1129DoNotUseDefaultValueTypeConstructor'
-00:00.011 'Microsoft.AspNetCore.Analyzers.Authorization.AddAuthorizationBuilderAnalyzer'
+00:00.011 'Roslynator.CSharp.Analysis.RemoveRedundantStatementAnalyzer'
+00:00.011 'Roslynator.CSharp.Analysis.UnnecessarySemicolonAtEndOfDeclarationAnalyzer'
+00:00.011 'Microsoft.NetCore.Analyzers.Security.DoNotUseDeprecatedSecurityProtocols'
+00:00.011 'Roslynator.CSharp.Analysis.UnnecessaryUsageOfVerbatimStringLiteralAnalyzer'
+00:00.011 'Microsoft.NetCore.Analyzers.Runtime.UseThreadStaticCorrectly'
+00:00.011 'Roslynator.CSharp.Analysis.SimplifyCoalesceExpressionAnalyzer'
+00:00.011 'StyleCop.Analyzers.NamingRules.SA1306FieldNamesMustBeginWithLowerCaseLetter'
+00:00.011 'Roslynator.CSharp.Analysis.UnnecessaryInterpolatedStringAnalyzer'
+00:00.011 'Roslynator.CSharp.Analysis.UnnecessaryNullForgivingOperatorAnalyzer'
+00:00.011 'Roslynator.CSharp.Analysis.UseCoalesceExpressionAnalyzer'
+00:00.011 'StyleCop.Analyzers.NamingRules.SA1308VariableNamesMustNotBePrefixed'
 00:00.011 'Roslynator.CSharp.Analysis.RequiredConfigOptionNotSetAnalyzer'
-00:00.011 'Roslynator.CSharp.Analysis.UseConstantInsteadOfFieldAnalyzer'
-00:00.010 'Microsoft.NetCore.Analyzers.Runtime.UseStringEqualsOverStringCompare'
-00:00.010 'Microsoft.NetCore.Analyzers.Tasks.UseValueTasksCorrectlyAnalyzer'
-00:00.010 'StyleCop.Analyzers.NamingRules.SA1302InterfaceNamesMustBeginWithI'
-00:00.010 'Microsoft.NetCore.Analyzers.Runtime.UseThreadStaticCorrectly'
-00:00.010 'Roslynator.CSharp.Analysis.RemoveRedundantDelegateCreationAnalyzer'
-00:00.009 'StyleCop.Analyzers.MaintainabilityRules.SA1119StatementMustNotUseUnnecessaryParenthesis'
-00:00.009 'Roslynator.CSharp.Analysis.AddExceptionToDocumentationCommentAnalyzer'
-00:00.009 'Roslynator.CSharp.Analysis.OrderTypeParameterConstraintsAnalyzer'
-00:00.009 'StyleCop.Analyzers.NamingRules.SA1304NonPrivateReadonlyFieldsMustBeginWithUpperCaseLetter'
+00:00.011 'Roslynator.CSharp.Analysis.RemoveRedundantFieldInitializationAnalyzer'
+00:00.011 'Roslynator.CSharp.Analysis.RemoveRedundantDisposeOrCloseCallAnalyzer'
+00:00.010 'Roslynator.CSharp.Analysis.RemoveEmptyFinallyClauseAnalyzer'
+00:00.010 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.OverrideMethodsOnComparableTypesAnalyzer'
+00:00.010 'StyleCop.Analyzers.NamingRules.SA1311StaticReadonlyFieldsMustBeginWithUpperCaseLetter'
+00:00.010 'Microsoft.AspNetCore.Components.Analyzers.ComponentParameterUsageAnalyzer'
+00:00.010 'StyleCop.Analyzers.ReadabilityRules.SA1100DoNotPrefixCallsWithBaseUnlessLocalImplementationExists'
+00:00.010 'Roslynator.CSharp.Analysis.UnnecessaryExplicitUseOfEnumeratorAnalyzer'
+00:00.010 'Roslynator.CSharp.Analysis.SimplifyLogicalNegationAnalyzer'
+00:00.010 'Microsoft.Interop.Analyzers.NativeMarshallingAttributeAnalyzer'
+00:00.010 'StyleCop.Analyzers.NamingRules.SA1304NonPrivateReadonlyFieldsMustBeginWithUpperCaseLetter'
+00:00.010 'Roslynator.CSharp.Analysis.UseEnumFieldExplicitlyAnalyzer'
+00:00.010 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.PreferIsKindAnalyzer'
+00:00.010 'Roslynator.CSharp.Analysis.UseExceptionFilterAnalyzer'
+00:00.010 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForValidatingReader'
+00:00.010 'Microsoft.NetCore.Analyzers.Runtime.PreferStreamAsyncMemoryOverloads'
+00:00.010 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpPreventNumericIntPtrUIntPtrBehavioralChanges'
+00:00.010 'Roslynator.CSharp.Analysis.ValidateArgumentsCorrectlyAnalyzer'
+00:00.009 'Microsoft.NetCore.Analyzers.InteropServices.AvoidStringBuilderPInvokeParametersAnalyzer'
+00:00.009 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.AvoidDuplicateElementInitialization'
+00:00.009 'Microsoft.NetCore.Analyzers.InteropServices.DoNotUseOutAttributeStringPInvokeParametersAnalyzer'
+00:00.009 'StyleCop.Analyzers.OrderingRules.SA1211UsingAliasDirectivesMustBeOrderedAlphabeticallyByAliasName'
+00:00.009 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpUseOrdinalStringComparisonAnalyzer'
+00:00.009 'StyleCop.Analyzers.NamingRules.SA1313ParameterNamesMustBeginWithLowerCaseLetter'
+00:00.009 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpReportDiagnosticAnalyzer'
+00:00.009 'Microsoft.NetCore.Analyzers.ImmutableCollections.DoNotCallToImmutableCollectionOnAnImmutableCollectionValueAnalyzer'
+00:00.009 'Microsoft.NetCore.Analyzers.Runtime.SealInternalTypes'
 00:00.009 'StyleCop.Analyzers.LayoutRules.SA1504AllAccessorsMustBeSingleLineOrMultiLine'
-00:00.009 'Roslynator.CSharp.Analysis.RemoveRedundantConstructorAnalyzer'
-00:00.009 'Microsoft.EntityFrameworkCore.InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer'
-00:00.009 'Microsoft.Interop.Analyzers.AddGeneratedComClassAnalyzer'
-00:00.009 'Roslynator.CSharp.Analysis.UnnecessaryEnumFlagAnalyzer'
 00:00.009 'Roslynator.CSharp.Analysis.RemoveBracesAnalyzer'
-00:00.009 'Microsoft.CodeQuality.CSharp.Analyzers.QualityGuidelines.CSharpDoNotInitializeUnnecessarilyAnalyzer'
-00:00.009 'Roslynator.CSharp.Analysis.DuplicateWordInCommentAnalyzer'
-00:00.008 'StyleCop.Analyzers.LayoutRules.SA1506ElementDocumentationHeadersMustNotBeFollowedByBlankLine'
-00:00.008 'Roslynator.CSharp.Analysis.SimplifyNullCheckAnalyzer'
-00:00.008 'Microsoft.NetCore.Analyzers.Performance.UseAsSpanInsteadOfRangeIndexerAnalyzer'
+00:00.009 'Roslynator.CSharp.Analysis.UnnecessaryNullCheckAnalyzer'
+00:00.009 'Microsoft.NetCore.Analyzers.Performance.UseAsSpanInsteadOfRangeIndexerAnalyzer'
+00:00.009 'Roslynator.CSharp.Analysis.UnconstrainedTypeParameterCheckedForNullAnalyzer'
+00:00.009 'Microsoft.AspNetCore.Analyzers.RenderTreeBuilder.RenderTreeBuilderAnalyzer'
+00:00.009 'Microsoft.CodeAnalysis.CSharp.NetAnalyzers.Microsoft.NetCore.Analyzers.Performance.CSharpUseStringMethodCharOverloadWithSingleCharacters'
+00:00.008 'Roslynator.CSharp.Analysis.MergeIfWithNestedIfAnalyzer'
+00:00.008 'Roslynator.CSharp.Analysis.ImplementExceptionConstructorsAnalyzer'
 00:00.008 'Microsoft.NetCore.Analyzers.Security.DoNotUseObsoleteKDFAlgorithm'
-00:00.008 'Roslynator.CSharp.Analysis.FileContainsNoCodeAnalyzer'
-00:00.008 'StyleCop.Analyzers.DocumentationRules.SA1602EnumerationItemsMustBeDocumented'
-00:00.008 'Microsoft.NetCore.Analyzers.ImmutableCollections.DoNotCallToImmutableCollectionOnAnImmutableCollectionValueAnalyzer'
-00:00.008 'Microsoft.NetCore.Analyzers.Runtime.DoNotRaiseReservedExceptionTypesAnalyzer'
-00:00.008 'Roslynator.CSharp.Analysis.AbstractTypeShouldNotHavePublicConstructorsAnalyzer'
+00:00.008 'Roslynator.CSharp.Analysis.RemoveRedundantSealedModifierAnalyzer'
+00:00.008 'Roslynator.CSharp.Analysis.MakeClassSealedAnalyzer'
 00:00.008 'Microsoft.NetCore.Analyzers.Runtime.UseEnvironmentMembers'
-00:00.008 'Roslynator.CSharp.Analysis.AvoidEmptyCatchClauseThatCatchesSystemExceptionAnalyzer'
-00:00.008 'Microsoft.NetCore.Analyzers.Runtime.PreferStreamAsyncMemoryOverloads'
-00:00.008 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.DoNotUseCompilationGetSemanticModelAnalyzer'
-00:00.007 'Microsoft.NetCore.CSharp.Analyzers.Resources.CSharpMarkAssembliesWithNeutralResourcesLanguageAnalyzer'
-00:00.007 'Roslynator.CSharp.Analysis.DisposeResourceAsynchronouslyAnalyzer'
+00:00.008 'StyleCop.Analyzers.OrderingRules.SA1205PartialElementsMustDeclareAccess'
+00:00.008 'Microsoft.NetCore.Analyzers.Runtime.InstantiateArgumentExceptionsCorrectlyAnalyzer'
+00:00.008 'Microsoft.NetCore.Analyzers.Tasks.UseValueTasksCorrectlyAnalyzer'
+00:00.008 'Roslynator.CSharp.Analysis.RemoveUnnecessaryBracesAnalyzer'
+00:00.008 'StyleCop.Analyzers.ReadabilityRules.SA1139UseLiteralSuffixNotationInsteadOfCasting'
+00:00.008 'Roslynator.CSharp.Analysis.OrderTypeParameterConstraintsAnalyzer'
+00:00.008 'Microsoft.NetCore.Analyzers.Tasks.DoNotUseWhenAllOrWaitAllWithSingleArgument'
+00:00.008 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotPrefixEnumValuesWithTypeNameAnalyzer'
+00:00.007 'Roslynator.CSharp.Analysis.DuplicateWordInCommentAnalyzer'
+00:00.007 'Microsoft.AspNetCore.Analyzers.Http.RequestDelegateReturnTypeAnalyzer'
+00:00.007 'Roslynator.CSharp.Analysis.UnnecessaryRawStringLiteralAnalyzer'
+00:00.007 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForDataSetReadXml'
 00:00.007 'Microsoft.NetCore.Analyzers.Runtime.PreferTypedStringBuilderAppendOverloads'
-00:00.007 'Microsoft.NetFramework.Analyzers.DoNotUseInsecureDtdProcessingAnalyzer'
-00:00.007 'Microsoft.NetCore.CSharp.Analyzers.Runtime.CSharpUseOrdinalStringComparisonAnalyzer'
-00:00.007 'Microsoft.NetCore.Analyzers.Security.DoNotAddSchemaByURL'
-00:00.007 'Roslynator.CSharp.Analysis.UseIsOperatorInsteadOfAsOperatorAnalyzer'
-00:00.007 'Microsoft.NetCore.Analyzers.InteropServices.AvoidStringBuilderPInvokeParametersAnalyzer'
-00:00.007 'Roslynator.CSharp.Analysis.ValueTypeObjectIsNeverEqualToNullAnalyzer'
-00:00.007 'Microsoft.NetCore.Analyzers.Runtime.DoNotUseReferenceEqualsWithValueTypesAnalyzer'
-00:00.007 'StyleCop.Analyzers.NamingRules.SA1313ParameterNamesMustBeginWithLowerCaseLetter'
-00:00.006 'Microsoft.AspNetCore.Analyzers.Http.HeaderDictionaryAddAnalyzer'
-00:00.006 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.AvoidDuplicateElementInitialization'
+00:00.007 'Microsoft.NetCore.Analyzers.Usage.ProvideCorrectArgumentToEnumHasFlag'
+00:00.007 'Roslynator.CSharp.Analysis.RemoveUnnecessaryBracesInSwitchSectionAnalyzer'
+00:00.007 'Roslynator.CSharp.Analysis.NormalizeFormatOfEnumFlagValueAnalyzer'
+00:00.007 'StyleCop.Analyzers.DocumentationRules.SA1602EnumerationItemsMustBeDocumented'
+00:00.007 'Microsoft.NetCore.Analyzers.Performance.UseStringContainsCharOverloadWithSingleCharactersAnalyzer'
+00:00.007 'Roslynator.CSharp.Analysis.DisposeResourceAsynchronouslyAnalyzer'
+00:00.007 'StyleCop.Analyzers.LayoutRules.SA1520UseBracesConsistently'
+00:00.007 'Roslynator.CSharp.Analysis.UseAttributeUsageAttributeAnalyzer'
+00:00.007 'Roslynator.CSharp.Analysis.MergeElseWithNestedIfAnalyzer'
+00:00.007 'StyleCop.Analyzers.MaintainabilityRules.SA1408ConditionalExpressionsMustDeclarePrecedence'
+00:00.007 'Microsoft.NetCore.Analyzers.Performance.CSharpUseSpanClearInsteadOfFillAnalyzer'
+00:00.007 'Roslynator.CSharp.Analysis.RemoveRedundantDefaultSwitchSectionAnalyzer'
+00:00.006 'StyleCop.Analyzers.LayoutRules.SA1510ChainedStatementBlocksMustNotBePrecededByBlankLine'
+00:00.006 'Roslynator.CSharp.Analysis.UsePatternMatching.UsePatternMatchingInsteadOfIsAndCastAnalyzer'
+00:00.006 'Microsoft.NetCore.Analyzers.Security.DoNotUseXslTransform'
+00:00.006 'Microsoft.NetCore.Analyzers.Security.DoNotAddSchemaByURL'
+00:00.006 'Microsoft.AspNetCore.Components.Analyzers.ComponentParameterAnalyzer'
+00:00.006 'Microsoft.EntityFrameworkCore.InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer'
+00:00.006 'Microsoft.Interop.Analyzers.GeneratedComInterfaceAttributeAnalyzer'
 00:00.006 'StyleCop.Analyzers.DocumentationRules.SA1627DocumentationTextMustNotBeEmpty'
-00:00.006 'Microsoft.NetCore.Analyzers.Tasks.DoNotCreateTaskCompletionSourceWithWrongArguments'
-00:00.006 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotPrefixEnumValuesWithTypeNameAnalyzer'
-00:00.006 'Roslynator.CSharp.Analysis.ImplementExceptionConstructorsAnalyzer'
-00:00.006 'Roslynator.CSharp.Analysis.RemoveUnnecessaryBracesInSwitchSectionAnalyzer'
-00:00.006 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.ConfigureGeneratedCodeAnalysisAnalyzer'
+00:00.006 'Roslynator.CSharp.Analysis.ValueTypeObjectIsNeverEqualToNullAnalyzer'
+00:00.006 'Roslynator.CSharp.Analysis.AddStaticModifierToAllPartialClassDeclarationsAnalyzer'
+00:00.006 'Roslynator.CSharp.Analysis.RemoveRedundantBaseInterfaceAnalyzer'
 00:00.006 'Roslynator.CSharp.Analysis.SimplifyNestedUsingStatementAnalyzer'
-00:00.006 'StyleCop.Analyzers.OrderingRules.SA1206DeclarationKeywordsMustFollowOrder'
-00:00.006 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForValidatingReader'
-00:00.006 'Microsoft.AspNetCore.Components.Analyzers.ComponentParameterUsageAnalyzer'
 00:00.006 'Microsoft.NetCore.Analyzers.Runtime.BufferBlockCopyLengthAnalyzer'
 00:00.006 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForDeserialize'
-00:00.006 'Microsoft.NetCore.Analyzers.Performance.DoNotGuardDictionaryRemoveByContainsKey'
-00:00.006 'Microsoft.NetCore.Analyzers.Tasks.DoNotUseConfigureAwaitWithSuppressThrowing'
-00:00.006 'Microsoft.NetCore.Analyzers.Runtime.PreferConstCharOverConstUnitStringAnalyzer'
-00:00.006 'Roslynator.CSharp.Analysis.ValidateArgumentsCorrectlyAnalyzer'
-00:00.006 'Roslynator.CSharp.Analysis.MakeClassSealedAnalyzer'
-00:00.006 'Microsoft.NetCore.Analyzers.Runtime.SealInternalTypes'
-00:00.006 'Microsoft.NetCore.Analyzers.InteropServices.ProvidePublicParameterlessSafeHandleConstructorAnalyzer'
-00:00.006 'Roslynator.CSharp.Analysis.RemoveRedundantDefaultSwitchSectionAnalyzer'
-00:00.006 'Roslynator.CSharp.Analysis.RemoveRedundantDisposeOrCloseCallAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.RemoveRedundantFieldInitializationAnalyzer'
-00:00.005 'StyleCop.Analyzers.LayoutRules.SA1520UseBracesConsistently'
-00:00.005 'StyleCop.Analyzers.ReadabilityRules.SA1106CodeMustNotContainEmptyStatements'
-00:00.005 'Roslynator.CSharp.Analysis.RemoveUnnecessaryBracesAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.MergeElseWithNestedIfAnalyzer'
-00:00.005 'Microsoft.NetCore.Analyzers.InteropServices.DoNotUseOutAttributeStringPInvokeParametersAnalyzer'
-00:00.005 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.EquatableAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.SimplifyLogicalNegationAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.AvoidLockingOnPubliclyAccessibleInstanceAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.UseAttributeUsageAttributeAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.MergeIfWithNestedIfAnalyzer'
+00:00.006 'Microsoft.NetCore.Analyzers.InteropServices.DynamicInterfaceCastableImplementationAnalyzer'
+00:00.006 'Microsoft.NetCore.Analyzers.Security.DoNotUseWeakKDFAlgorithm'
+00:00.006 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForSchemaRead'
+00:00.005 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.ConfigureGeneratedCodeAnalysisAnalyzer'
+00:00.005 'Microsoft.NetCore.Analyzers.Runtime.PreferConstCharOverConstUnitStringAnalyzer'
+00:00.005 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForXPathDocument'
 00:00.005 'Roslynator.CSharp.Analysis.EnumShouldDeclareExplicitValuesAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.SimplifyConditionalExpressionAnalyzer'
 00:00.005 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.EnumShouldNotHaveDuplicatedValues'
-00:00.005 'Roslynator.CSharp.Analysis.UsePatternMatching.UsePatternMatchingInsteadOfIsAndCastAnalyzer'
-00:00.005 'Roslynator.CSharp.Analysis.UnnecessaryInterpolationAnalyzer'
-00:00.005 'Microsoft.NetCore.Analyzers.Tasks.DoNotUseWhenAllOrWaitAllWithSingleArgument'
-00:00.005 'StyleCop.Analyzers.NamingRules.SA1306FieldNamesMustBeginWithLowerCaseLetter'
+00:00.005 'Microsoft.NetCore.Analyzers.Runtime.DoNotUseReferenceEqualsWithValueTypesAnalyzer'
+00:00.005 'Microsoft.NetCore.Analyzers.Runtime.DoNotDefineFinalizersForTypesDerivedFromMemoryManager'
+00:00.005 'StyleCop.Analyzers.ReadabilityRules.SA1136EnumValuesShouldBeOnSeparateLines'
+00:00.005 'StyleCop.Analyzers.DocumentationRules.SA1651DoNotUsePlaceholderElements'
+00:00.005 'Roslynator.CSharp.Analysis.DeclareTypeInsideNamespaceAnalyzer'
+00:00.005 'StyleCop.Analyzers.ReadabilityRules.SA1135UsingDirectivesMustBeQualified'
+00:00.005 'Roslynator.CSharp.Analysis.AbstractTypeShouldNotHavePublicConstructorsAnalyzer'
+00:00.005 'Roslynator.CSharp.Analysis.RemoveRedundantAsyncAwaitAnalyzer'
 00:00.005 'Microsoft.NetCore.Analyzers.Performance.AvoidSingleUseOfLocalJsonSerializerOptions'
-00:00.005 'Roslynator.CSharp.Analysis.UseExceptionFilterAnalyzer'
-00:00.005 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForSchemaRead'
-00:00.005 'StyleCop.Analyzers.ReadabilityRules.SA1139UseLiteralSuffixNotationInsteadOfCasting'
-00:00.005 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.OverrideMethodsOnComparableTypesAnalyzer'
-00:00.005 'Microsoft.AspNetCore.Components.Analyzers.ComponentParameterAnalyzer'
+00:00.005 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.DiagnosticAnalyzerAttributeAnalyzer'
+00:00.005 'StyleCop.Analyzers.OrderingRules.SA1209UsingAliasDirectivesMustBePlacedAfterOtherUsingDirectives'
+00:00.005 'Microsoft.NetCore.Analyzers.Runtime.UseCancellationTokenThrowIfCancellationRequested'
+00:00.004 'Roslynator.CSharp.Analysis.UseIsOperatorInsteadOfAsOperatorAnalyzer'
+00:00.004 'StyleCop.Analyzers.DocumentationRules.SA1626SingleLineCommentsMustNotUseDocumentationStyleSlashes'
 00:00.004 'Roslynator.CSharp.Analysis.RemoveRedundantParenthesesAnalyzer'
-00:00.004 'Microsoft.NetCore.Analyzers.Security.UseXmlReaderForXPathDocument'
-00:00.004 'StyleCop.Analyzers.ReadabilityRules.SA1135UsingDirectivesMustBeQualified'
-00:00.004 'Roslynator.CSharp.Analysis.SortEnumMembersAnalyzer'
-00:00.004 'Microsoft.NetCore.Analyzers.Runtime.InstantiateArgumentExceptionsCorrectlyAnalyzer'
-00:00.004 'Microsoft.AspNetCore.Analyzers.Http.RequestDelegateReturnTypeAnalyzer'
+00:00.004 'Microsoft.CodeAnalysis.Analyzers.InternalImplementationOnlyAnalyzer'
 00:00.004 'Roslynator.CSharp.Analysis.AnalyzerOptionIsObsoleteAnalyzer'
-00:00.004 'Microsoft.NetCore.Analyzers.InteropServices.DynamicInterfaceCastableImplementationAnalyzer'
-00:00.004 'Microsoft.NetCore.Analyzers.Usage.ProvideCorrectArgumentToEnumHasFlag'
-00:00.004 'Microsoft.NetCore.Analyzers.Runtime.UseCancellationTokenThrowIfCancellationRequested'
-00:00.004 'StyleCop.Analyzers.NamingRules.SA1307AccessibleFieldsMustBeginWithUpperCaseLetter'
-00:00.004 'StyleCop.Analyzers.OrderingRules.SA1212PropertyAccessorsMustFollowOrder'
-00:00.004 'Roslynator.CSharp.Analysis.RemoveRedundantBaseInterfaceAnalyzer'
+00:00.004 'Roslynator.CSharp.Analysis.UseEventArgsEmptyAnalyzer'
+00:00.004 'Roslynator.CSharp.Analysis.AvoidEmptyCatchClauseThatCatchesSystemExceptionAnalyzer'
 00:00.004 'Microsoft.NetCore.Analyzers.Runtime.ProvideStreamMemoryBasedAsyncOverrides'
-00:00.004 'Microsoft.NetCore.Analyzers.Performance.CSharpUseSpanClearInsteadOfFillAnalyzer'
-00:00.004 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.DiagnosticAnalyzerAttributeAnalyzer'
-00:00.003 'StyleCop.Analyzers.OrderingRules.SA1216UsingStaticDirectivesMustBePlacedAtTheCorrectLocation'
-00:00.003 'Microsoft.NetCore.Analyzers.Runtime.DoNotDefineFinalizersForTypesDerivedFromMemoryManager'
-00:00.003 'StyleCop.Analyzers.NamingRules.SA1311StaticReadonlyFieldsMustBeginWithUpperCaseLetter'
-00:00.003 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpReportDiagnosticAnalyzer'
-00:00.003 'StyleCop.Analyzers.MaintainabilityRules.SA1407ArithmeticExpressionsMustDeclarePrecedence'
-00:00.003 'Roslynator.CSharp.Analysis.AddParenthesesWhenNecessaryAnalyzer'
-00:00.003 'Roslynator.CSharp.Analysis.AddStaticModifierToAllPartialClassDeclarationsAnalyzer'
-00:00.003 'StyleCop.Analyzers.OrderingRules.SA1209UsingAliasDirectivesMustBePlacedAfterOtherUsingDirectives'
-00:00.003 'StyleCop.Analyzers.LayoutRules.SA1517CodeMustNotContainBlankLinesAtStartOfFile'
+00:00.004 'Roslynator.CSharp.Analysis.RemoveRedundantBaseConstructorCallAnalyzer'
+00:00.004 'Microsoft.NetCore.Analyzers.Security.DoNotDisableCertificateValidation'
+00:00.004 'StyleCop.Analyzers.OrderingRules.SA1216UsingStaticDirectivesMustBePlacedAtTheCorrectLocation'
+00:00.004 'Roslynator.CSharp.Analysis.SortEnumMembersAnalyzer'
 00:00.003 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.EnableConcurrentExecutionAnalyzer'
 00:00.003 'Roslynator.CSharp.Analysis.BitwiseOperatorAnalyzer'
-00:00.003 'Roslynator.CSharp.Analysis.RemoveRedundantCastAnalyzer'
-00:00.003 'Microsoft.CodeAnalysis.Analyzers.MetaAnalyzers.PreferIsKindAnalyzer'
+00:00.003 'Microsoft.NetCore.Analyzers.InteropServices.ProvidePublicParameterlessSafeHandleConstructorAnalyzer'
+00:00.003 'Roslynator.CSharp.CSharp.Analysis.SimplifyNumericComparisonAnalyzer'
 00:00.003 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.AssigningSymbolAndItsMemberInSameStatement'
-00:00.003 'Microsoft.NetCore.Analyzers.Security.DoNotDisableCertificateValidation'
-00:00.003 'Roslynator.CSharp.Analysis.DeclareTypeInsideNamespaceAnalyzer'
-00:00.003 'Microsoft.CodeAnalysis.Analyzers.InternalImplementationOnlyAnalyzer'
-00:00.003 'Roslynator.CSharp.Analysis.RemoveUnnecessaryCaseLabelAnalyzer'
-00:00.003 'Roslynator.CSharp.Analysis.UseGenericEventHandlerAnalyzer'
+00:00.003 'StyleCop.Analyzers.MaintainabilityRules.SA1407ArithmeticExpressionsMustDeclarePrecedence'
+00:00.003 'Roslynator.CSharp.Analysis.UnnecessaryInterpolationAnalyzer'
+00:00.003 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.MarkAttributesWithAttributeUsageAnalyzer'
+00:00.003 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotDeclareVisibleInstanceFieldsAnalyzer'
+00:00.003 'Roslynator.CSharp.Analysis.RemoveEnumDefaultUnderlyingTypeAnalyzer'
 00:00.003 'Roslynator.CSharp.Analysis.UseExclusiveOrOperatorAnalyzer'
-00:00.003 'StyleCop.Analyzers.NamingRules.SA1308VariableNamesMustNotBePrefixed'
-00:00.003 'Roslynator.CSharp.Analysis.DefaultLabelShouldBeLastLabelInSwitchSectionAnalyzer'
-00:00.003 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotDeclareStaticMembersOnGenericTypesAnalyzer'
 00:00.003 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.AvoidInfiniteRecursion'
-00:00.003 'Roslynator.CSharp.Analysis.ConstantValuesShouldBePlacedOnRightSideOfComparisonsAnalyzer'
-00:00.002 'Roslynator.CSharp.CSharp.Analysis.SimplifyNumericComparisonAnalyzer'
-00:00.002 'StyleCop.Analyzers.ReadabilityRules.SA1136EnumValuesShouldBeOnSeparateLines'
-00:00.002 'Roslynator.CSharp.Analysis.ConditionalExpressionAnalyzer'
-00:00.002 'Roslynator.CSharp.Analysis.RemoveEnumDefaultUnderlyingTypeAnalyzer'
-00:00.002 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DeclareTypesInNamespacesAnalyzer'
-00:00.002 'StyleCop.Analyzers.ReadabilityRules.SA1125UseShorthandForNullableTypes'
-00:00.002 'StyleCop.Analyzers.NamingRules.SA1303ConstFieldNamesMustBeginWithUpperCaseLetter'
-00:00.002 'Microsoft.NetCore.Analyzers.Runtime.TestForNaNCorrectlyAnalyzer'
-00:00.002 'StyleCop.Analyzers.MaintainabilityRules.SA1411AttributeConstructorMustNotUseUnnecessaryParenthesis'
-00:00.002 'Roslynator.CSharp.Analysis.RemoveRedundantBaseConstructorCallAnalyzer'
+00:00.003 'StyleCop.Analyzers.ReadabilityRules.SA1132DoNotCombineFields'
+00:00.003 'Roslynator.CSharp.Analysis.UseGenericEventHandlerAnalyzer'
+00:00.003 'Roslynator.CSharp.Analysis.DefaultLabelShouldBeLastLabelInSwitchSectionAnalyzer'
+00:00.003 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpDiagnosticAnalyzerFieldsAnalyzer'
+00:00.003 'StyleCop.Analyzers.NamingRules.SA1303ConstFieldNamesMustBeginWithUpperCaseLetter'
+00:00.003 'Microsoft.NetCore.Analyzers.Runtime.TestForNaNCorrectlyAnalyzer'
+00:00.002 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotDeclareStaticMembersOnGenericTypesAnalyzer'
 00:00.002 'StyleCop.Analyzers.MaintainabilityRules.SA1403FileMayOnlyContainASingleNamespace'
 00:00.002 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.RemoveEmptyFinalizersAnalyzer'
-00:00.002 'Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpDiagnosticAnalyzerFieldsAnalyzer'
-00:00.002 'Roslynator.CSharp.Analysis.UseShortCircuitingOperatorAnalyzer'
-00:00.002 'Microsoft.CodeAnalysis.CSharp.Analyzers.CSharpUpgradeMSBuildWorkspaceAnalyzer'
 00:00.002 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.AvoidPropertySelfAssignment'
-00:00.002 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.MarkAttributesWithAttributeUsageAnalyzer'
-00:00.002 'StyleCop.Analyzers.MaintainabilityRules.SA1406DebugFailMustProvideMessageText'
-00:00.002 'Roslynator.CSharp.Analysis.RemoveBracesFromIfElseAnalyzer'
+00:00.002 'Roslynator.CSharp.Analysis.ConstantValuesShouldBePlacedOnRightSideOfComparisonsAnalyzer'
+00:00.002 'StyleCop.Analyzers.ReadabilityRules.SA1125UseShorthandForNullableTypes'
 00:00.002 'Roslynator.CSharp.Analysis.AvoidUsageOfDoStatementToCreateInfiniteLoopAnalyzer'
-00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotUseXslTransform'
-00:00.001 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DoNotDeclareVisibleInstanceFieldsAnalyzer'
+00:00.002 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureDeserializerBinaryFormatterWithoutBinder'
+00:00.002 'Roslynator.CSharp.Analysis.AvoidLockingOnPubliclyAccessibleInstanceAnalyzer'
+00:00.002 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.DeclareTypesInNamespacesAnalyzer'
+00:00.002 'Roslynator.CSharp.Analysis.UseShortCircuitingOperatorAnalyzer'
+00:00.002 'Roslynator.CSharp.Analysis.ConditionalExpressionAnalyzer'
+00:00.002 'Microsoft.CodeAnalysis.CSharp.Analyzers.CSharpUpgradeMSBuildWorkspaceAnalyzer'
+00:00.002 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureDeserializerNetDataContractSerializerWithoutBinder'
+00:00.002 'StyleCop.Analyzers.MaintainabilityRules.SA1406DebugFailMustProvideMessageText'
+00:00.002 'Microsoft.NetFramework.Analyzers.MarkVerbHandlersWithValidateAntiforgeryTokenAnalyzer'
 00:00.001 'Roslynator.CSharp.Analysis.AttributeArgumentListAnalyzer'
-00:00.001 'StyleCop.Analyzers.MaintainabilityRules.SA1401FieldsMustBePrivate'
-00:00.001 'StyleCop.Analyzers.ReadabilityRules.SA1132DoNotCombineFields'
-00:00.001 'Microsoft.NetFramework.Analyzers.MarkVerbHandlersWithValidateAntiforgeryTokenAnalyzer'
-00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureDeserializerNetDataContractSerializerWithoutBinder'
-00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureDeserializerBinaryFormatterWithoutBinder'
-00:00.001 'StyleCop.Analyzers.SpacingRules.SA1026CodeMustNotContainSpaceAfterNewKeywordInImplicitlyTypedArrayAllocation'
-00:00.001 'StyleCop.Analyzers.NamingRules.SA1314TypeParameterNamesMustBeginWithT'
-00:00.001 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.OverloadOperatorEqualsOnOverridingValueTypeEqualsAnalyzer'
-00:00.001 'StyleCop.Analyzers.LayoutRules.SA1511WhileDoFooterMustNotBePrecededByBlankLine'
-00:00.001 'Roslynator.CSharp.Analysis.DefaultExpressionAnalyzer'
-00:00.001 'Microsoft.Interop.Analyzers.GeneratedComInterfaceAttributeAnalyzer'
 00:00.001 'Microsoft.Interop.Analyzers.ComHostingDoesNotSupportGeneratedComInterfaceAnalyzer'
-00:00.001 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.DoNotDeclareEventFieldsAsVirtual'
-00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForRegexInjectionVulnerabilities'
+00:00.001 'Roslynator.CSharp.Analysis.RemoveBracesFromIfElseAnalyzer'
+00:00.001 'StyleCop.Analyzers.MaintainabilityRules.SA1401FieldsMustBePrivate'
+00:00.001 'StyleCop.Analyzers.SpacingRules.SA1026CodeMustNotContainSpaceAfterNewKeywordInImplicitlyTypedArrayAllocation'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.SetViewStateUserKey'
+00:00.001 'StyleCop.Analyzers.NamingRules.SA1314TypeParameterNamesMustBeginWithT'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForDllInjectionVulnerabilities'
+00:00.001 'Microsoft.NetFramework.Analyzers.DoNotUseInsecureDtdProcessingInApiDesignAnalyzer'
+00:00.001 'Roslynator.CSharp.Analysis.UsePatternMatching.UsePatternMatchingInsteadOfAsAndNullCheckAnalyzer'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotUseDataTableReadXml'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotAddArchiveItemPathToTheTargetFileSystemPath'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForXamlInjectionVulnerabilities'
+00:00.001 'StyleCop.Analyzers.LayoutRules.SA1511WhileDoFooterMustNotBePrecededByBlankLine'
+00:00.001 'StyleCop.Analyzers.NamingRules.SA1302InterfaceNamesMustBeginWithI'
+00:00.001 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.OverloadOperatorEqualsOnOverridingValueTypeEqualsAnalyzer'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForXmlInjectionVulnerabilities'
+00:00.001 'StyleCop.Analyzers.MaintainabilityRules.SA1411AttributeConstructorMustNotUseUnnecessaryParenthesis'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForXssVulnerabilities'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForXPathInjectionVulnerabilities'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotDisableHTTPHeaderChecking'
+00:00.001 'Roslynator.CSharp.Analysis.AnonymousMethodAnalyzer'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForCommandExecutionVulnerabilities'
 00:00.001 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.RethrowToPreserveStackDetailsAnalyzer'
+00:00.001 'Microsoft.CodeQuality.Analyzers.QualityGuidelines.DoNotDeclareEventFieldsAsVirtual'
+00:00.001 'Roslynator.CSharp.Analysis.DefaultExpressionAnalyzer'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotUseInsecureDeserializerObjectStateFormatter'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotDisableRequestValidation'
+00:00.001 'Roslynator.CSharp.Analysis.RemoveRedundantAsOperatorAnalyzer'
+00:00.001 'Microsoft.NetCore.Analyzers.Runtime.ModuleInitializerAttributeShouldNotBeUsedInLibraries'
+00:00.001 'Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.NonConstantFieldsShouldNotBeVisibleAnalyzer'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.DoNotHardCodeEncryptionKey'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForSqlInjectionVulnerabilities'
+00:00.001 'StyleCop.Analyzers.DocumentationRules.SA1643DestructorSummaryDocumentationMustBeginWithStandardText'
+00:00.001 'Microsoft.NetCore.Analyzers.Security.ReviewCodeForRegexInjectionVulnerabilities'
 
    6 ASP0015 Suggest using IHeaderDictionary properties
    1 ASP0018 Unused route parameter
    1 CA1816  Dispose methods should call SuppressFinalize
   15 CA1845  Use span-based 'string.Concat'
    9 CA1854  Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
-  10 CA1860  Avoid using 'Enumerable.Any()' extension method
+  14 CA1860  Avoid using 'Enumerable.Any()' extension method
   26 CA1861  Avoid constant arrays as arguments
    3 CA1866  Use char overload
   12 CA1869  Cache and reuse 'JsonSerializerOptions' instances
@@ -2138,7 +2221,7 @@ Analyzed project 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\NoorCanvas.csproj' (in 
    7 RCS1021 Convert lambda expression body to expression body
    1 RCS1033 Remove redundant boolean literal
    7 RCS1036 Remove unnecessary blank line
- 156 RCS1037 Remove trailing white-space
+ 203 RCS1037 Remove trailing white-space
    6 RCS1077 Optimize LINQ method call
    1 RCS1085 Use auto-implemented property
    1 RCS1093 File contains no code
@@ -2162,10 +2245,10 @@ Analyzed project 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\NoorCanvas.csproj' (in 
  961 SA1600  Elements should be documented
    1 SA1601  Partial elements should be documented
   11 SA1602  Enumeration items should be documented
- 178 SA1611  Element parameters should be documented
-   1 SA1615  Element return value should be documented
+ 182 SA1611  Element parameters should be documented
+   3 SA1615  Element return value should be documented
   22 SA1616  Element return value documentation should have text
    1 SA1618  Generic type parameters should be documented
-   6 SA1629  Documentation text should end with a period
+   9 SA1629  Documentation text should end with a period
 
-1676 diagnostics found
+1736 diagnostics found
