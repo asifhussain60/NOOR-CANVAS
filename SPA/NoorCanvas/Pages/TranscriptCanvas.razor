@@ -381,44 +381,7 @@
         margin: auto;
     }
 
-    /* Question Panel Styles */
-    .canvas-question-panel {
-        background-color: #FDFBEB;
-        border-radius: 0.75rem;
-        transition: all 0.3s;
-        overflow: hidden;
-        border: 1px solid #D4AF37;
-        margin-top: auto;
-        margin: 10px;
-    }
-
-    .canvas-question-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.5rem;
-    }
-
-    .canvas-question-icon {
-        color: #D4AF37;
-        font-size: 1rem;
-    }
-
-    .canvas-question-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        font-size: 0.875rem;
-        color: #4B3C2B;
-        margin: 0;
-    }
-
-    .canvas-question-form {
-        display: flex;
-        align-items: stretch;
-        gap: 0.75rem;
-        padding: 0 0.75rem 0.75rem 0.75rem;
-    }
+    /* [SIMPLE:hcp-unify:css-cleanup] Question Panel CSS removed - panel no longer present in view ;CLEANUP_OK */
 
     /* Toggle Button Styles (for question modal) */
     /* [TRACE-WORKITEM:transcript-canvas:modal-conversion] Toggle button repositioned inline with welcome message, opens question modal ;CLEANUP_OK */
@@ -1065,30 +1028,7 @@
                         }
                     </div>
 
-                    <!-- Ask a Question Panel -->
-                    <div class="canvas-question-panel">
-                        <div class="canvas-question-header">
-                            <i class="fa-solid fa-hand-raised canvas-question-icon"></i>
-                            <h4 class="canvas-question-title">Ask a question</h4>
-                        </div>
-                        <div class="canvas-question-form">
-                            @* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Changed input to textarea with 3 rows for text wrapping ;CLEANUP_OK *@
-                            <textarea rows="3"
-                                   @bind="QuestionInput" 
-                                   @onkeydown="HandleQuestionKeyDown"
-                                   class="canvas-form-textarea" 
-                                   placeholder="Ask a question..." 
-                                   disabled="@(Model?.SessionStatus != "Active")"></textarea>
-                            <button @onclick="SubmitQuestion" 
-                                    type="button"
-                                    class="canvas-form-submit-button shadow-golden"
-                                    style="@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
-                                    disabled="@(Model?.SessionStatus != "Active")">
-                                <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
-                                <span class="canvas-form-submit-text">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
-                            </button>
-                        </div>
-                    </div>
+                    @* [SIMPLE:hcp-unify:panel-removal] "Ask a Question" panel removed - use debug panel to simulate questions ;CLEANUP_OK *@
                 </div>
             </div>
 
