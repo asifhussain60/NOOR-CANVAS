@@ -128,7 +128,7 @@ try {
             # Ensure we're starting from development
             if ($OriginalBranch -ne "development") {
                 Write-Warning "Not on development branch. Switching to development..."
-                git checkout development
+                git checkout development 2>&1 | Out-Null
                 if ($LASTEXITCODE -ne 0) {
                     throw "Failed to switch to development branch"
                 }
@@ -162,7 +162,7 @@ try {
             
             # Switch to master
             Write-Info "→ Switching to master branch"
-            git checkout master
+            git checkout master 2>&1 | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch to master branch"
             }
@@ -712,7 +712,7 @@ try {
             }
             
             Write-Step "Git: Returning to development branch..."
-            git checkout development
+            git checkout development 2>&1 | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to switch back to development branch"
             }
