@@ -19,7 +19,8 @@
   - ✅ Lint: PASS (our changes validated)
   - ✅ All three views use identical CSS classes
   - ✅ All three views use data-theme="narrow"
-- **Commit**: (to be generated in Step 8.4)
+- **Commit**: 1c3432642aa16aedb00cf047d9784a066a6e84a3
+- **Checkpoint Tag**: checkpoint/css/2025-10-19_0000
 
 ## 2025-10-16T07:25:00Z
 - **Status**: In Progress
