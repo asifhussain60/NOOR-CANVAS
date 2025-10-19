@@ -63,3 +63,37 @@ Fix Question & Answer panel flowing out of page width. Adjust widths of both can
 - **Lint Validation**: PASS
 - **Commit**: 645c804acab89fcb3429d57577e650d3c05a2c61
 - **Tag**: checkpoint/hcp-canvas/2025-10-19_0015
+
+### 2025-10-19T14:50:00Z - HTML Cleaner Validation Test
+- **Status**: Complete
+- **User Request**: Create Playwright test to validate HTML cleaner function removes clickable elements before broadcast, check browser logs for errors
+- **Test Strategy**:
+  - Load raw HTML from CopilotContext.txt (contains share buttons, onclick handlers)
+  - Pass through JavaScript cleaner function (replicates transcript-section-parser.js logic)
+  - Verify zero clickable elements remain
+  - Verify content preserved and renderable
+  - Monitor browser console for JavaScript errors
+- **Changes**:
+  - Created html-cleaner-validation.spec.ts
+    - Loads raw HTML: 330244 bytes with 50 clickable elements
+    - Applies cleaner function: Removes data-noor-share-control, onclick, onmouseover, onmouseout
+    - Validates cleaned HTML: 315532 bytes with 0 clickable elements (4.5% size reduction)
+    - Verifies content preservation: 83 paragraphs, 20 headings, 6 tables, 118 Arabic spans
+    - Tests browser rendering with cleaned HTML
+    - Monitors console errors (filters benign CSS/WebSocket errors)
+  - Updated run-clickable-elements-test.ps1 orchestration script
+    - Changed test file from clickable-elements-sanitization.spec.ts to html-cleaner-validation.spec.ts
+- **Test Results**:
+  - ✅ Raw HTML: 50 clickable elements detected
+  - ✅ Cleaned HTML: 0 clickable elements (100% removal)
+  - ✅ Content preserved: 227 elements
+  - ✅ Browser rendering: 82 elements rendered successfully
+  - ✅ JavaScript errors: 0 (after filtering benign errors)
+- **Files Affected**:
+  - .github/prompts.keys/hcp-canvas/tests/html-cleaner-validation.spec.ts (new)
+  - .github/prompts.keys/hcp-canvas/scripts/run-clickable-elements-test.ps1 (updated)
+- **Debug Logging**: Simple (debug markers added per debug-level: simple)
+- **Build**: Clean (zero errors, warnings)
+- **Lint Validation**: PASS
+- **Test Execution**: PASS (all assertions passed)
+- **Commit**: ee84557af372fb9222a91659a89200d0d060a0e0
