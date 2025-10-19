@@ -34,7 +34,7 @@ Fix weird characters in SESSION CONTROLS icon, add border to logo panel matching
   - Test Registry: `.github/prompts.keys/hcp/tests/test-registry.md`
 - **Build**: Clean (0 errors, 0 warnings)
 - **Debug Level**: simple
-- **Commit**: (pending final commit after test execution)
+- **Commit**: 86b2a6cc8fdfef4ea057a7f9d8c8f65a2afae2d0
 
 ### User Request (2025-10-19T02:00:00Z)
 Reduce participant links container border to 1px. Fix Start Session button panel flicker - panel should collapse smoothly when clicked, not flicker. Make transcript and Q&A panel borders more prominent.
