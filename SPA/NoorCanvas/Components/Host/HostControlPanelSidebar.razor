@@ -18,7 +18,8 @@
 }
 else
 {
-<div style="display:flex;justify-content:center;width:100%;">
+@* [DEBUG-WORKITEM:hcp:simple] Added smooth collapse animation with max-height transition *@
+<div style="display:flex;justify-content:center;width:100%;transition:max-height 0.5s ease-in-out, opacity 0.3s ease-in-out, margin 0.3s ease-in-out;max-height:@(ShouldCollapse ? "0" : "1000px");opacity:@(ShouldCollapse ? "0" : "1");overflow:hidden;margin-bottom:@(ShouldCollapse ? "0" : "1.5rem");">
     <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:stretch;width:50%;background:linear-gradient(135deg,#FFFFFF,#F8F9FA);border-radius:2rem;padding:2rem;box-shadow:0 20px 40px -12px rgba(0,0,0,0.35),0 8px 16px -8px rgba(0,0,0,0.2);border:1px solid rgba(212,175,55,0.3);position:relative;overflow:hidden;">
         <!-- Decorative gradient overlay -->
         <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#D4AF37,#FFD700,#D4AF37);border-radius:2rem 2rem 0 0;"></div>
