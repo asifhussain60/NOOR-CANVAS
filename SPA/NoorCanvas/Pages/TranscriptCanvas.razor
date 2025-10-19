@@ -3164,8 +3164,14 @@
                         
                         if (Model != null && !string.IsNullOrEmpty(sectionHtml))
                         {
+                            // Transform section with host pipeline to inject share controls (H2 + content and asset buttons)
+                            var status = Model?.SessionStatus ?? "Active";
+                            var hostTransformed = await HtmlTransform.TransformForHostAsync(sectionHtml, Model?.SessionId, status);
                             // Set section in SharedAssetContent for rendering
-                            Model.SharedAssetContent = sectionHtml;
+                            if (Model != null)
+                            {
+                                Model.SharedAssetContent = hostTransformed;
+                            }
                             await InvokeAsync(StateHasChanged);
                             
                             Logger.LogInformation("[TRACE:hcp-tcanvas:receiver] [{TrackingId}] ✅ Section '{H2Text}' rendered in transcript canvas ;CLEANUP_OK", trackingId, h2Text);
@@ -3207,8 +3213,14 @@
                         
                         if (Model != null && !string.IsNullOrEmpty(transcriptHtml))
                         {
+                            // Transform transcript with host pipeline to inject share controls (H2 + content and asset buttons)
+                            var status = Model?.SessionStatus ?? "Active";
+                            var hostTransformed = await HtmlTransform.TransformForHostAsync(transcriptHtml, Model?.SessionId, status);
                             // Set transcript in SharedAssetContent for rendering
-                            Model.SharedAssetContent = transcriptHtml;
+                            if (Model != null)
+                            {
+                                Model.SharedAssetContent = hostTransformed;
+                            }
                             await InvokeAsync(StateHasChanged);
                             
                             Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] ✅ Transcript rendered in canvas view ;CLEANUP_OK");
