@@ -26,11 +26,9 @@ namespace HostProvisioner.WinForms
         private TextBox txtSessionId = null!;
         private Button btnGenerate = null!;
         private TextBox txtHostToken = null!;
-        private TextBox txtUserToken = null!;
+        // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] User controls removed ;CLEANUP_OK
         private Button btnCopyHost = null!;
-        private Button btnCopyUser = null!;
         private Button btnOpenHost = null!; // [DEBUG-WORKITEM:host-provisioner-form:browser] Open Host URL in browser ;CLEANUP_OK
-        private Button btnOpenUser = null!; // [DEBUG-WORKITEM:host-provisioner-form:browser] Open User URL in browser ;CLEANUP_OK
         private Label lblStatus = null!;
         private Label lblEnvironment = null!;
         private Label lblBaseUrl = null!; // Separate label for Base URL
@@ -325,74 +323,7 @@ namespace HostProvisioner.WinForms
             pnlHost.Controls.Add(btnCopyHost);
             pnlHost.Controls.Add(btnOpenHost); // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button to panel ;CLEANUP_OK
 
-            // User Token panel - Modern token display
-            var pnlUser = new Panel
-            {
-                Location = new Point(40, 590), // [TRACE:host-provisioner:logo-resize] Adjusted from 690 for smaller logo ;CLEANUP_OK
-                Size = new Size(pnlMain.Width - 80, 90),
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                Padding = new Padding(16),
-                Visible = false
-            };
-            pnlUser.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlUser, 12, Color.White, NoorGold);
-
-            var lblUser = new Label
-            {
-                Text = "User URL", // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Changed label to URL ;CLEANUP_OK
-                Location = new Point(16, 15),
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                ForeColor = NoorBrown
-            };
-
-            txtUserToken = new TextBox
-            {
-                Location = new Point(16, 45),
-                Size = new Size(pnlUser.Width - 210, 32), // Increased from 200 to 210 to reduce button overlap
-                ReadOnly = true,
-                Font = new Font("Consolas", 8.5F), // Reduced from 9F to 8.5F for better fit
-                BackColor = NoorBeige,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-
-            btnCopyUser = new Button
-            {
-                Text = "📋",
-                Location = new Point(pnlUser.Width - 185, 45), // Adjusted position for tighter spacing
-                Size = new Size(85, 32), // Increased from 75 to 85 for touch target
-                BackColor = NoorGreen,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnCopyUser.FlatAppearance.BorderSize = 0;
-            btnCopyUser.Click += (s, e) => CopyToClipboard(txtUserToken.Text, "User URL"); // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Updated label ;CLEANUP_OK
-            btnCopyUser.MouseEnter += (s, e) => btnCopyUser.BackColor = Color.FromArgb(0, 80, 0);
-            btnCopyUser.MouseLeave += (s, e) => btnCopyUser.BackColor = NoorGreen;
-
-            // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button for User URL ;CLEANUP_OK
-            btnOpenUser = new Button
-            {
-                Text = "🌐",
-                Location = new Point(pnlUser.Width - 90, 45),
-                Size = new Size(75, 32),
-                BackColor = NoorGreen,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold), // Larger icon
-                Cursor = Cursors.Hand
-            };
-            btnOpenUser.FlatAppearance.BorderSize = 0;
-            btnOpenUser.Click += (s, e) => OpenUrlInBrowser(txtUserToken.Text);
-            btnOpenUser.MouseEnter += (s, e) => btnOpenUser.BackColor = Color.FromArgb(0, 80, 0);
-            btnOpenUser.MouseLeave += (s, e) => btnOpenUser.BackColor = NoorGreen;
-
-            pnlUser.Controls.Add(lblUser);
-            pnlUser.Controls.Add(txtUserToken);
-            pnlUser.Controls.Add(btnCopyUser);
-            pnlUser.Controls.Add(btnOpenUser); // [DEBUG-WORKITEM:host-provisioner-form:browser] Add Open button to panel ;CLEANUP_OK
+            // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] User Token panel removed - only showing host landing page ;CLEANUP_OK
 
             // Status label
             lblStatus = new Label
@@ -410,14 +341,15 @@ namespace HostProvisioner.WinForms
             pnlMain.Controls.Add(pnlEnv);
             pnlMain.Controls.Add(pnlInput);
             pnlMain.Controls.Add(pnlHost);
-            pnlMain.Controls.Add(pnlUser);
+            // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] User panel removed ;CLEANUP_OK
             pnlMain.Controls.Add(lblStatus);
 
             // Add main panel to form
             this.Controls.Add(pnlMain);
 
             // Store references to panels for visibility toggling
-            this.Tag = new { HostPanel = pnlHost, UserPanel = pnlUser };
+            // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] Only host panel needed ;CLEANUP_OK
+            this.Tag = new { HostPanel = pnlHost };
         }
 
         // [DEBUG-WORKITEM:host-provisioner-form:styling] Custom rounded panel drawing with border
@@ -490,16 +422,15 @@ namespace HostProvisioner.WinForms
                 // [DEBUG-WORKITEM:host-provisioner-form:generate] Token generation logic
                 var (hostToken, userToken) = await GenerateTokensAsync(sessionId);
 
-                // [DEBUG-WORKITEM:host-provisioner-form:baseurl] Display full URLs with tokens ;CLEANUP_OK
-                txtHostToken.Text = $"{_baseUrl}/host?token={hostToken}";
-                txtUserToken.Text = $"{_baseUrl}/?token={userToken}";
+                // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] Only show host landing page URL ;CLEANUP_OK
+                txtHostToken.Text = $"{_baseUrl}/host/{hostToken}";
 
-                // Show result panels
+                // Show result panels - only host panel
                 var panels = (dynamic)this.Tag!;
                 ((Panel)panels.HostPanel).Visible = true;
-                ((Panel)panels.UserPanel).Visible = true;
+                // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] User panel removed ;CLEANUP_OK
 
-                lblStatus.Text = "✓ Tokens generated successfully!";
+                lblStatus.Text = "✓ Host token generated successfully!";
                 lblStatus.ForeColor = NoorGreen;
             }
             catch (Exception ex)
