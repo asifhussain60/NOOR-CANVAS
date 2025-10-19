@@ -308,7 +308,7 @@ window.TranscriptSectionParser = {
 
             // [DEBUG-WORKITEM:hcp-canvas:simple] Clone section and remove share buttons before extracting HTML ;CLEANUP_OK
             const sectionClone = sectionWrapper.cloneNode(true);
-            
+
             // Remove all share buttons (H2 share buttons and asset share buttons)
             const shareButtons = sectionClone.querySelectorAll('[data-share-button], .share-section-button, .share-asset-button, button[onclick*="share"]');
             console.log(`[DEBUG-WORKITEM:hcp-canvas:simple] Found ${shareButtons.length} share buttons to remove before broadcast ;CLEANUP_OK`);
