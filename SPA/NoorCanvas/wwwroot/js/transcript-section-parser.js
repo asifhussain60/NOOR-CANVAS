@@ -310,7 +310,7 @@ window.TranscriptSectionParser = {
             // [DEBUG-MARKER:hcp-canvas:clone-and-clean] Clone and remove share controls before extracting HTML ;CLEANUP_OK
             console.log(`[TRACE:hcp-tcanvas:share-section] Cloning section wrapper to remove share controls... ;CLEANUP_OK`);
             const sectionClone = sectionWrapper.cloneNode(true);
-            
+
             // Remove all elements with the unified share control marker
             const shareControls = sectionClone.querySelectorAll('[data-noor-share-control="true"]');
             console.log(`[TRACE:hcp-tcanvas:share-section] Found ${shareControls.length} share controls to remove ;CLEANUP_OK`);
