@@ -150,6 +150,26 @@ Standalone console application for generating secure Host and User tokens for NO
 
 ## Work Log
 
+### User Request (2025-10-19T00:00:00Z)
+Remove canvas link from host provisioner - only show host landing page link with token attached
+
+### Work Completed (2025-10-19T00:00:00Z)
+- **Status**: Complete
+- **Changes**: 
+  - Updated host URL format from `/host?token=` to `/host/{token}` (correct route parameter)
+  - Removed user URL panel completely (canvas link removed)
+  - Updated success message to reflect single host token generation
+  - Removed user control field declarations (txtUserToken, btnCopyUser, btnOpenUser)
+  - Removed user panel initialization code
+  - Updated Tag reference to only store HostPanel
+- **Files Affected**: 
+  - `Tools/HostProvisioner/HostProvisioner.WinForms/MainForm.cs`
+- **Tests**: N/A (UI change, build validated)
+- **Lint Validation**: PASS (C# file validated, 0 errors/warnings)
+- **Debug Markers**: Simple markers added for canvas link removal
+- **Build**: Clean (zero errors, zero warnings)
+- **Commit**: 5e3d53fdbcdb76444d2ea2f9ff4772a8cde13ddc
+
 ### 2025-10-16T15:22:00Z
 - **Status**: Complete
 - **Changes**: 

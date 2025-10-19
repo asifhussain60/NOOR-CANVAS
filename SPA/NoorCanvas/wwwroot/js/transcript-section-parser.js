@@ -156,42 +156,62 @@ window.TranscriptSectionParser = {
 
             console.log(`[TRACE:hcp-tcanvas:inject]   Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
 
-            // Create share button to inject ABOVE the section
+            // [DEBUG-WORKITEM:hcp-unify:share-buttons] Create centered golden Share Section button matching CopilotContext.txt styles ;CLEANUP_OK
+
+            // Create wrapper div for centering the button (golden theme from CopilotContext.txt)
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.className = 'share-wrapper';
+            buttonWrapper.setAttribute('data-noor-share-control', 'true'); // [DEBUG-MARKER:hcp-canvas:unified-marker] Unified marker for share controls ;CLEANUP_OK
+            buttonWrapper.style.cssText = `
+                background-color: #f7f3e0;
+                border: 1px solid #999;
+                padding: 20px;
+                margin-top: 30px;
+                margin-bottom: 30px;
+                width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+                box-sizing: border-box;
+                border-radius: 8px;
+                display: flex;
+                justify-content: center;
+            `;
+
+            // Create share button to inject ABOVE the section (golden theme)
             const shareButton = document.createElement('button');
-            shareButton.className = 'transcript-section-share-btn';
+            shareButton.className = 'transcript-section-share-btn share-button';
             shareButton.setAttribute('data-section-id', sectionId);
             shareButton.setAttribute('data-h2-index', index.toString());
             shareButton.setAttribute('data-h2-text', h2Text);
+            shareButton.setAttribute('data-noor-share-control', 'true'); // [DEBUG-MARKER:hcp-canvas:unified-marker] Unified marker for share controls ;CLEANUP_OK
             shareButton.style.cssText = `
-                background-color: #D4AF37;
-                color: white;
-                border: none;
-                border-radius: 0.5rem;
-                padding: 0.5rem 1rem;
-                margin: 0.75rem 0;
-                font-family: 'Inter', sans-serif;
-                font-weight: 600;
-                font-size: 0.875rem;
-                cursor: pointer;
-                display: inline-flex;
+                background-color: #FFD700;
+                border: 1px solid #e0c242;
+                color: #555;
+                padding: 8px 15px;
+                border-radius: 5px;
+                display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                transition: all 0.2s ease;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 0.9rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.1s;
+                margin: 0;
+                width: 200px;
             `;
-            shareButton.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share ${h2Text}`;
+            shareButton.innerHTML = `<i class="fas fa-share-alt" style="margin-right: 8px; color: #888;"></i>Share Section`;
 
-            // Hover effects
+            // Hover effects (golden theme)
             shareButton.onmouseenter = function () {
-                this.style.backgroundColor = '#C5B358';
-                this.style.transform = 'translateY(-1px)';
-                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.15)';
+                this.style.backgroundColor = '#e0c242';
             };
             shareButton.onmouseleave = function () {
-                this.style.backgroundColor = '#D4AF37';
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                this.style.backgroundColor = '#FFD700';
             };
+
+            // Append button to wrapper
+            buttonWrapper.appendChild(shareButton);
 
             console.log(`[TRACE:hcp-tcanvas:inject]   Created share button: "Share ${h2Text.substring(0, 40)}" ;CLEANUP_OK`);
 
@@ -200,8 +220,8 @@ window.TranscriptSectionParser = {
             console.log(`[TRACE:hcp-tcanvas:inject]   Applied left text-align to h2[${index}] ;CLEANUP_OK`);
 
             // [FIX] Correct insertion order: Button BEFORE h2 in final DOM
-            // Strategy: Insert button, insert wrapper, move h2+content into wrapper
-            // Result: container → [button] → [wrapper → h2+content]
+            // Strategy: Insert button wrapper, insert wrapper, move h2+content into wrapper
+            // Result: container → [button-wrapper] → [wrapper → h2+content]
 
             const insertionPoint = sectionContent[0]; // This is the h2
             const parentContainer = insertionPoint.parentNode;
@@ -211,9 +231,9 @@ window.TranscriptSectionParser = {
             parentContainer.insertBefore(wrapper, insertionPoint);
             console.log(`[TRACE:hcp-tcanvas:inject]   Step 1: Inserted wrapper div before h2 ;CLEANUP_OK`);
 
-            // Step 2: Insert button BEFORE wrapper (so button comes first in DOM)
-            parentContainer.insertBefore(shareButton, wrapper);
-            console.log(`[TRACE:hcp-tcanvas:inject]   Step 2: Inserted button BEFORE wrapper ;CLEANUP_OK`);
+            // Step 2: Insert button wrapper BEFORE wrapper (so button comes first in DOM)
+            parentContainer.insertBefore(buttonWrapper, wrapper);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Step 2: Inserted button wrapper BEFORE content wrapper ;CLEANUP_OK`);
 
             // Step 3: Move all section elements (h2 + content) into wrapper
             // This removes them from parent and adds them to wrapper
@@ -224,7 +244,7 @@ window.TranscriptSectionParser = {
                 }
             });
 
-            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Final DOM: Button → Wrapper(h2 + ${sectionContent.length - 1} elements) ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Final DOM: Button Wrapper → Wrapper(h2 + ${sectionContent.length - 1} elements) ;CLEANUP_OK`);
 
             sectionsProcessed++;
         });
@@ -306,8 +326,37 @@ window.TranscriptSectionParser = {
                 console.log(`[TRACE:hcp-tcanvas:share-section]   Child[${childIdx}]: ${child.tagName} - "${child.textContent?.substring(0, 50)}..." ;CLEANUP_OK`);
             });
 
-            const sectionHtml = sectionWrapper.innerHTML;
-            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
+            // [DEBUG-MARKER:hcp-canvas:clone-and-clean] Clone and remove share controls before extracting HTML ;CLEANUP_OK
+            console.log(`[TRACE:hcp-tcanvas:share-section] Cloning section wrapper to remove share controls... ;CLEANUP_OK`);
+            const sectionClone = sectionWrapper.cloneNode(true);
+
+            // Remove all elements with the unified share control marker
+            const shareControls = sectionClone.querySelectorAll('[data-noor-share-control="true"]');
+            console.log(`[TRACE:hcp-tcanvas:share-section] Found ${shareControls.length} share controls to remove ;CLEANUP_OK`);
+            shareControls.forEach((control, idx) => {
+                console.log(`[TRACE:hcp-tcanvas:share-section]   Removing control[${idx}]: ${control.tagName}.${control.className} ;CLEANUP_OK`);
+                control.remove();
+            });
+
+            // [DEBUG-MARKER:hcp-canvas:remove-event-handlers] Remove all event handler attributes to prevent XSS ;CLEANUP_OK
+            const allElements = sectionClone.querySelectorAll('*');
+            let removedHandlers = 0;
+            allElements.forEach(el => {
+                // Get all attributes
+                const attrs = Array.from(el.attributes);
+                attrs.forEach(attr => {
+                    // Remove any attribute starting with 'on' (onclick, onload, onmouseover, etc.)
+                    if (attr.name.toLowerCase().startsWith('on')) {
+                        console.log(`[DEBUG-MARKER:hcp-canvas:remove-event-handlers] Removing ${attr.name} from ${el.tagName} ;CLEANUP_OK`);
+                        el.removeAttribute(attr.name);
+                        removedHandlers++;
+                    }
+                });
+            });
+            console.log(`[DEBUG-MARKER:hcp-canvas:remove-event-handlers] Removed ${removedHandlers} event handler attributes ;CLEANUP_OK`);
+
+            const sectionHtml = sectionClone.innerHTML;
+            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted cleaned section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`)
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (first 300 chars): ${sectionHtml.substring(0, 300)}... ;CLEANUP_OK`);
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (last 200 chars): ...${sectionHtml.substring(sectionHtml.length - 200)} ;CLEANUP_OK`);
 
@@ -388,8 +437,8 @@ window.TranscriptSectionParser = {
         let currentElement = targetH2.nextElementSibling;
 
         while (currentElement && currentElement !== nextH2) {
-            // Skip share buttons (don't include in broadcast)
-            if (!currentElement.classList.contains('transcript-section-share-btn')) {
+            // [DEBUG-MARKER:hcp-canvas:skip-share-control] Skip elements with unified share control marker ;CLEANUP_OK
+            if (!currentElement.hasAttribute('data-noor-share-control')) {
                 sectionHtml += currentElement.outerHTML;
             }
             currentElement = currentElement.nextElementSibling;

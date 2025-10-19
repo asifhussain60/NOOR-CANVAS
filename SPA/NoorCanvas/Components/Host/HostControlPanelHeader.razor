@@ -2,7 +2,8 @@
 @using NoorCanvas.ViewModels
 
 @* Header component for HostControlPanel - Contains logo, title, and session info *@
-<header style="text-align:center;background:linear-gradient(135deg,#F8F5F1,#FFFFFF);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem;box-shadow:0 8px 25px -8px rgba(0,100,0,0.15);border:1px solid rgba(212,175,55,0.2);">
+@* [DEBUG-WORKITEM:hcp-header:simple] Added 2px solid #C5A84C border to match transcript/Q&A panels ;CLEANUP_OK *@
+<header style="text-align:center;background:linear-gradient(135deg,#F8F5F1,#FFFFFF);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem;box-shadow:0 8px 25px -8px rgba(0,100,0,0.15);border:2px solid #C5A84C;">
     <!-- Logo -->
     <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
         <img src="/images/NoorCanvas.png?v=20250924" 

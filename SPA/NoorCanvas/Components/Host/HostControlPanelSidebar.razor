@@ -2,8 +2,22 @@
 @using NoorCanvas.ViewModels
 @using NoorCanvas.Components.Shared
 @using NoorCanvas.Components.Host
+@using NoorCanvas.Components.Loading
+@using NoorCanvas.Services
 
 @* Sidebar component for HostControlPanel - Contains session management and controls *@
+@* [DEBUG-WORKITEM:hcp-unify:spinner] Added loading spinner support ;CLEANUP_OK *@
+@inject LoadingService LoadingService
+
+@if (IsLoading)
+{
+    @* [DEBUG-WORKITEM:hcp-unify:spinner] Show loading spinner while sidebar initializes ;CLEANUP_OK *@
+    <div style="display:flex;justify-content:center;align-items:center;width:100%;min-height:400px;">
+        <LoadingSpinner Size="40" BorderWidth="4" Color="#D4AF37" ShowText="true" Text="Loading Session Controls..." />
+    </div>
+}
+else
+{
 <div style="display:flex;justify-content:center;width:100%;">
     <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:stretch;width:50%;background:linear-gradient(135deg,#FFFFFF,#F8F9FA);border-radius:2rem;padding:2rem;box-shadow:0 20px 40px -12px rgba(0,0,0,0.35),0 8px 16px -8px rgba(0,0,0,0.2);border:1px solid rgba(212,175,55,0.3);position:relative;overflow:hidden;">
         <!-- Decorative gradient overlay -->
@@ -17,16 +31,18 @@
         </div>
         
         <!-- Session Details Panel -->
-        <div style="background-color:white;padding:1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:1px solid #D4AF37;text-align:center;">
+        @* [DEBUG-WORKITEM:hcp:simple] Added 2px solid #C5A84C border to match right panel styling *@
+        <div style="background-color:white;padding:1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #C5A84C;text-align:center;">
             <h2 style="font-weight:800;font-size:2.25rem;color:#D4AF37;margin-bottom:1rem;text-shadow:0 2px 4px rgba(212,175,55,0.2);letter-spacing:-0.025em;">@(Model?.SessionName ?? "Loading Session...")</h2>
             <p style="color:#6B7280;font-size:1rem;line-height:1.625;margin-bottom:1rem;font-weight:500;">@(OnFormatSessionDescriptionToProperCase(Model?.SessionDescription ?? "Session details are being loaded..."))</p>
         </div>
 
         <!-- Session Controls Panel -->
+        @* [SIMPLE:hcp:restore-controls] Removed collapse/expand functionality - panel always visible when session not started *@
         <div style="width:100%;background-color:#F8F5F1;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
             <h3 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:center;">
-                @* FontAwesome icon with Unicode fallback to prevent garbled text *@
-                <i class="fa-solid fa-sliders" style="color:#006400;" aria-hidden="true">⚙</i>
+                @* [DEBUG-WORKITEM:hcp:simple] Removed Unicode fallback to fix garbled icon rendering *@
+                <i class="fa-solid fa-sliders" style="color:#006400;"></i>
                 <span>SESSION CONTROLS</span>
             </h3>
 
@@ -53,38 +69,32 @@
                 <UserRegistrationLink UserToken="@UserToken" BaseUrl="@Navigation.BaseUri.TrimEnd('/')" />
             }
             
-            <!-- [DEBUG-WORKITEM:transcript-canvas:two-button] Two-button layout: Start Session (45%) + Share Transcript (55%) ;CLEANUP_OK -->
-            <div style="width:100%;display:grid;grid-template-columns:45% 55%;gap:1rem;">
-                <button @onclick="OnStartSession" 
+            @* [DEBUG-WORKITEM:hcp-unify:layout] Single centered Start Session button (65% width) ;CLEANUP_OK *@
+            @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
+            <div style="width:100%;display:flex;justify-content:center;">
+                <button type="button" 
+                        @onclick="OnStartSession" 
                         disabled="@(IsLoading || Model?.SessionStatus == "Active")"
-                        style="width:100%;padding:1rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1rem;background-color:#006400;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(IsLoading || Model?.SessionStatus == "Active" ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
+                        style="width:65%;padding:1rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1rem;background-color:#006400;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(IsLoading || Model?.SessionStatus == "Active" ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
                         onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
                         onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
-                    @* FontAwesome icon with Unicode fallback to prevent garbled text *@
-                    <i class="fa-solid fa-play" style="font-size:1rem;" aria-hidden="true">▶</i>
+                    @* [DEBUG-WORKITEM:hcp:simple] Removed Unicode fallback to fix garbled icon rendering *@
+                    <i class="fa-solid fa-play" style="font-size:1rem;"></i>
                     <span>Start Session</span>
-                </button>
-                
-                <button @onclick="OnShareTranscript" 
-                        disabled="@(IsLoading || string.IsNullOrEmpty(UserToken))"
-                        style="width:100%;padding:1rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(212,175,55,0.4);color:white;font-weight:700;font-size:1rem;background-color:#D4AF37;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(IsLoading || string.IsNullOrEmpty(UserToken) ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
-                        onmouseover="this.style.backgroundColor='#C5A028'; this.style.transform='scale(1.05)'"
-                        onmouseout="this.style.backgroundColor='#D4AF37'; this.style.transform='scale(1)'">
-                    @* FontAwesome icon with Unicode fallback to prevent garbled text *@
-                    <i class="fa-solid fa-scroll" style="font-size:1rem;" aria-hidden="true">📜</i>
-                    <span>Share Transcript</span>
                 </button>
             </div>
         </div>
     </div>
 </div>
+}
+@* [DEBUG-WORKITEM:hcp-unify:spinner] Closing brace for else block ;CLEANUP_OK *@
 
 @code {
     [Parameter] public HostControlPanelViewModel? Model { get; set; }
     [Parameter] public string? UserToken { get; set; }
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public EventCallback OnStartSession { get; set; }
-    [Parameter] public EventCallback OnShareTranscript { get; set; }
+    @* [DEBUG-WORKITEM:hcp-unify:cleanup] Removed OnShareTranscript parameter ;CLEANUP_OK *@
     [Parameter] public Func<string> OnGetSignalRStatusColor { get; set; } = () => "#EF4444";
     [Parameter] public Func<string> OnGetSignalRStatusIcon { get; set; } = () => "fa-solid fa-wifi";
     [Parameter] public Func<string?, string> OnFormatSessionDescriptionToProperCase { get; set; } = (desc) => desc ?? "";

@@ -287,7 +287,7 @@ function Process-Templates {
         
         # Replace all template variables
         foreach ($key in $Config.Keys) {
-            $content = $content -replace "\{\{$key\}\}", $Config[$key]
+            $content = $content -replace [regex]::Escape("{{$key}}"), $Config[$key]
         }
         
         # Determine output location (move from _Portable to .github)

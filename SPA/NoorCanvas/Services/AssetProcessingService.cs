@@ -65,17 +65,17 @@ public class AssetProcessingService
             string finalHtml;
             if (shouldInjectButtons)
             {
-                _logger.LogInformation("G£à Calling InjectAssetShareButtonsAsync - Session {SessionId} status '{SessionStatus}'",
+                _logger.LogInformation("Gï¿½ï¿½ Calling InjectAssetShareButtonsAsync - Session {SessionId} status '{SessionStatus}'",
                     sessionId, sessionStatus);
 
                 finalHtml = await InjectAssetShareButtonsAsync(sanitizedInput ?? string.Empty, transformRunId);
 
-                _logger.LogInformation("G£à InjectAssetShareButtonsAsync completed - Output length: {OutputLength}",
+                _logger.LogInformation("Gï¿½ï¿½ InjectAssetShareButtonsAsync completed - Output length: {OutputLength}",
                     finalHtml?.Length ?? 0);
             }
             else
             {
-                _logger.LogWarning("G¥î Skipping share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars)",
+                _logger.LogWarning("Gï¿½ï¿½ Skipping share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars)",
                     sessionId, sessionStatus, sanitizedInput?.Length ?? 0);
                 finalHtml = sanitizedInput ?? string.Empty;
             }
@@ -188,7 +188,7 @@ public class AssetProcessingService
 
             if (elements.Length > 0)
             {
-                _logger.LogInformation("[ASSETSHARE-DB:{RunId}] G£à FOUND {Count} instances of {AssetType} using selector '{Selector}'",
+                _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Gï¿½ï¿½ FOUND {Count} instances of {AssetType} using selector '{Selector}'",
                     runId, elements.Length, assetLookup.AssetIdentifier, assetLookup.CssSelector);
 
                 // Process elements in reverse order to preserve positions
@@ -201,7 +201,7 @@ public class AssetProcessingService
             }
             else
             {
-                _logger.LogWarning("[ASSETSHARE-DB:{RunId}] G¥î NO MATCHES found for {AssetType} with selector '{Selector}'",
+                _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Gï¿½ï¿½ NO MATCHES found for {AssetType} with selector '{Selector}'",
                     runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
                 return Task.FromResult(0);
             }
@@ -308,6 +308,7 @@ public class AssetProcessingService
 
     /// <summary>
     /// Create HTML for a share button based on AssetLookup data.
+    /// Uses blue theme matching CopilotContext.txt specifications.
     /// </summary>
     private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
@@ -316,8 +317,10 @@ public class AssetProcessingService
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
-        return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">?? SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+        // Blue theme wrapper (action-wrapper from CopilotContext.txt) - spans full width of container
+        return $@"<div class=""action-wrapper"" data-noor-share-control=""true"" style=""background-color: #e6f2ff; border: 1px solid #0056b3; padding: 20px; margin-top: 30px; margin-bottom: 30px; width: 100%; margin-left: 0; margin-right: 0; box-sizing: border-box; border-radius: 8px; display: flex; justify-content: center;"">" +
+               $@"<button class=""shared-action-button"" data-share-button=""asset"" data-noor-share-control=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #007bff; border: 1px solid #0056b3; color: white; padding: 8px 15px; border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; font-weight: 500; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); transition: background-color 0.1s; margin: 0; white-space: nowrap; width: 200px;"" onmouseover=""this.style.backgroundColor='#0056b3';"" onmouseout=""this.style.backgroundColor='#007bff';"">" +
+               $@"<i class=""fas fa-lightbulb"" style=""margin-right: 8px; color: white;""></i>Share Asset</button></div>";
     }
 
     /// <summary>

@@ -60,165 +60,95 @@
   },
   "suites": [
     {
-      "title": "Tests\\UI\\host-provisioner-visual-regression.spec.ts",
-      "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
+      "title": "Workspaces\\TEMP\\hcp-overflow-visual.temp.spec.ts",
+      "file": "Workspaces/TEMP/hcp-overflow-visual.temp.spec.ts",
       "column": 0,
       "line": 0,
-      "specs": [],
-      "suites": [
+      "specs": [
         {
-          "title": "Host Provisioner Visual Regression Tests",
-          "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
-          "line": 27,
-          "column": 6,
-          "specs": [
+          "title": "HCP Overflow - Desktop",
+          "ok": false,
+          "tags": [],
+          "tests": [
             {
-              "title": "Host Provisioner - Initial State",
-              "ok": true,
-              "tags": [],
-              "tests": [
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3347,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\hcp-overflow-visual.temp.spec.ts:18:13",
+                    "location": {
+                      "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\hcp-overflow-visual.temp.spec.ts",
+                      "column": 13,
+                      "line": 18
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 16 |\u001b[39m\n \u001b[90m 17 |\u001b[39m test(\u001b[32m'HCP Overflow - Desktop'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[33mHOST_URL\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m \t           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'.host-main-container'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'.host-transcript-panel'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'.host-qa-panel'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1078,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing Host Provisioner Initial State...\n"
-                        },
-                        {
-                          "text": "[\u001b[95mpercy\u001b[39m] Percy is not running, disabling snapshots\n"
-                        },
-                        {
-                          "text": "✅ Host Provisioner initial state documented\n"
-                        },
-                        {
-                          "text": "📄 HTML documentation: D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\PercyScreenshots\\HostProvisioner\\host-provisioner-initial-state.html\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-10-16T13:26:16.422Z",
-                      "annotations": [],
-                      "attachments": []
+                      "location": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\hcp-overflow-visual.temp.spec.ts",
+                        "column": 13,
+                        "line": 18
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 16 |\u001b[39m\n \u001b[90m 17 |\u001b[39m test(\u001b[32m'HCP Overflow - Desktop'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[33mHOST_URL\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m \t           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'.host-main-container'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 20 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'.host-transcript-panel'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m \t\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'.host-qa-panel'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\hcp-overflow-visual.temp.spec.ts:18:13\u001b[22m"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "1671ae572a03de0a5953-547028d8a516150747ad",
-              "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
-              "line": 36,
-              "column": 5
-            },
-            {
-              "title": "Host Provisioner - Token Generation State",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-10-19T13:10:56.731Z",
                   "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "attachments": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1071,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing Host Provisioner Token Generation State...\n"
-                        },
-                        {
-                          "text": "✅ Host Provisioner token generation state documented\n"
-                        },
-                        {
-                          "text": "📄 HTML documentation: D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\PercyScreenshots\\HostProvisioner\\host-provisioner-token-state.html\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-10-16T13:26:18.474Z",
-                      "annotations": [],
-                      "attachments": []
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-hcp-overfl-6e1f1-temp-HCP-Overflow---Desktop-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-hcp-overfl-6e1f1-temp-HCP-Overflow---Desktop-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-hcp-overfl-6e1f1-temp-HCP-Overflow---Desktop-chromium\\error-context.md"
                     }
                   ],
-                  "status": "expected"
+                  "errorLocation": {
+                    "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\hcp-overflow-visual.temp.spec.ts",
+                    "column": 13,
+                    "line": 18
+                  }
                 }
               ],
-              "id": "1671ae572a03de0a5953-8e2c5065b566f16c3c08",
-              "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
-              "line": 236,
-              "column": 5
-            },
-            {
-              "title": "Host Provisioner - Draggable Header Feature",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 923,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing Host Provisioner Draggable Header Feature...\n"
-                        },
-                        {
-                          "text": "✅ Host Provisioner draggable header feature documented\n"
-                        },
-                        {
-                          "text": "📄 HTML documentation: D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\PercyScreenshots\\HostProvisioner\\host-provisioner-draggable-header.html\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-10-16T13:26:19.579Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "1671ae572a03de0a5953-9cbc267fdedf39568406",
-              "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
-              "line": 429,
-              "column": 5
+              "status": "unexpected"
             }
-          ]
+          ],
+          "id": "7b02836a9357d686318b-1da8786f205930aff0c7",
+          "file": "Workspaces/TEMP/hcp-overflow-visual.temp.spec.ts",
+          "line": 17,
+          "column": 1
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-10-16T13:26:13.586Z",
-    "duration": 7072.886,
-    "expected": 3,
+    "startTime": "2025-10-19T13:10:55.026Z",
+    "duration": 5621.768,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

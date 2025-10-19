@@ -69,15 +69,18 @@
                       DetailsId="error-details" />
 
         <!-- Session Management Container - Refactored to use HostControlPanelSidebar component -->
-        <HostControlPanelSidebar Model="@Model" 
-                                 UserToken="@UserToken"
-                                 IsLoading="@isLoading"
-                                 OnStartSession="@StartSession"
-                                 OnShareTranscript="@ShareTranscript"
-                                 OnGetSignalRStatusColor="@GetSignalRStatusColor"
-                                 OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
-                                 OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
-                                 OnFormatDurationFromString="@FormatDurationFromString" />
+        @* [SIMPLE:hcp:restore-controls] Hide sidebar completely when session is Active or Ended *@
+        @if (Model?.SessionStatus != "Active" && Model?.SessionStatus != "Ended")
+        {
+            <HostControlPanelSidebar Model="@Model" 
+                                     UserToken="@UserToken"
+                                     IsLoading="@isLoading"
+                                     OnStartSession="@StartSession"
+                                     OnGetSignalRStatusColor="@GetSignalRStatusColor"
+                                     OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
+                                     OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
+                                     OnFormatDurationFromString="@FormatDurationFromString" />
+        }
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
         <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
@@ -87,6 +90,7 @@
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
                                      IsBroadcastMode="@isBroadcastMode"
+                                     SessionStartTime="@sessionStartTime"
                                      SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
                                      OnBroadcastTranscript="@BroadcastFullTranscript"
@@ -95,19 +99,6 @@
                                      OnQuestionClick="@ShareQuestionAsset"
                                      OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
                                      OnTranscriptRendered="@HandleTranscriptRendered" />
-        }
-        else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode)
-        {
-            <!-- Informational message when session hasn't started yet -->
-            <div style="background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:3rem;text-align:center;">
-                <i class="fa-solid fa-info-circle" style="font-size:3rem;color:#D4AF37;margin-bottom:1rem;"></i>
-                <h3 style="color:#006400;font-size:1.5rem;font-weight:700;margin-bottom:1rem;">Session Ready to Start</h3>
-                <p style="color:#6B7280;font-size:1rem;margin-bottom:1.5rem;">Click the "Start Session" button above to begin the session and access the transcript and Q&amp;A panels.</p>
-                <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;color:#9CA3AF;font-size:0.875rem;">
-                    <i class="fa-solid fa-clock" style="color:#D4AF37;"></i>
-                    <span>Session transcript and participant questions will appear here once started</span>
-                </div>
-            </div>
         }
     </div>
     
@@ -141,6 +132,9 @@
     private bool showMessage = false;
     private bool shareHandlersInitialized = false;
     private bool isBroadcastMode = false; // [DEBUG-WORKITEM:transcript-canvas:share] Track if transcript loaded for broadcast ;CLEANUP_OK
+    @* [SIMPLE:hcp:restore-controls] Track session start time for timer component *@
+    private DateTime? sessionStartTime = null;
+    @* [DEBUG-WORKITEM:hcp:simple] Removed unused hasClickedStartSession field - panel now hidden by conditional rendering *@
     private string messageText = "";
     private Guid questionToDeleteId;
     private Timer? messageTimer;
@@ -1248,6 +1242,8 @@
     {
         if (Model == null || SessionId == null) return;
         
+        @* [DEBUG-WORKITEM:hcp:simple] Removed hasClickedStartSession flag - no longer needed with conditional sidebar rendering *@
+        
         try
         {
             isLoading = true;
@@ -1264,6 +1260,8 @@
             if (response.IsSuccessStatusCode)
             {
                 Model.SessionStatus = "Active";
+                @* [SIMPLE:hcp:restore-controls] Capture session start time for timer *@
+                sessionStartTime = DateTime.UtcNow;
                 
                 // Re-transform transcript to inject share buttons now that session is active
                 if (!string.IsNullOrEmpty(Model.SessionTranscript))
@@ -1298,83 +1296,7 @@
         }
     }
 
-    // [DIAGNOSTIC:transcript-canvas:share] Load transcript with single broadcast button (host stays in HostControlPanel) ;CLEANUP_OK
-    private async Task ShareTranscript()
-    {
-        var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW START ════════ ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:ENTRY] [{RequestId}] Button injection will happen via OnAfterRenderAsync callback ;CLEANUP_OK", requestId);
-        
-        if (Model == null || SessionId == null)
-        {
-            Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] ShareTranscript called but Model or SessionId is null ;CLEANUP_OK", requestId);
-            return;
-        }
-        
-        try
-        {
-            isLoading = true;
-            await InvokeAsync(StateHasChanged);
-            
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-1] [{RequestId}] SessionId={SessionId}, fetching latest transcript from API ;CLEANUP_OK", 
-                requestId, SessionId);
-            
-            // HOOK INTO API CALL: Fetch latest transcript from API (same as Start Session button flow)
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-2] [{RequestId}] Calling GetSessionDetailsFromApiAsync to refresh transcript ;CLEANUP_OK", requestId);
-            var sessionDetails = await GetSessionDetailsFromApiAsync((long)SessionId.Value, requestId);
-            
-            if (sessionDetails == null || string.IsNullOrEmpty(sessionDetails.Transcript))
-            {
-                Logger.LogWarning("[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] API returned no transcript data ;CLEANUP_OK", requestId);
-                await ShowMessageAsync("No transcript available to share.");
-                return;
-            }
-            
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] ✅ API returned transcript: {Length} chars ;CLEANUP_OK", 
-                requestId, sessionDetails.Transcript.Length);
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-3] [{RequestId}] Transcript preview (first 300 chars): {Preview} ;CLEANUP_OK",
-                requestId, sessionDetails.Transcript.Substring(0, Math.Min(300, sessionDetails.Transcript.Length)));
-            
-            // Update Model with fresh transcript from API
-            Model.SessionTranscript = sessionDetails.Transcript;
-            
-            // CRITICAL: Set broadcast mode flag - this differentiates from Start Session flow
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-4] [{RequestId}] Setting isBroadcastMode=true (Host stays in HostControlPanel, no asset share buttons) ;CLEANUP_OK", requestId);
-            isBroadcastMode = true;
-            
-            // Transform transcript: remove delete buttons and share buttons
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-5] [{RequestId}] Calling TransformTranscriptForBroadcast() ;CLEANUP_OK", requestId);
-            var transformedHtml = await TransformTranscriptForBroadcastAsync();
-            Model.TransformedTranscript = transformedHtml;
-            
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-6] [{RequestId}] Transcript loaded into Model.TransformedTranscript, Length={Length} chars ;CLEANUP_OK", 
-                requestId, Model.TransformedTranscript.Length);
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:COMPLETE] [{RequestId}] Host will see transcript, auto-broadcasting to participants ;CLEANUP_OK", requestId);
-            
-            await InvokeAsync(StateHasChanged);
-
-            // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Button injection now handled by HandleTranscriptRendered() callback
-            // This is called from HostControlPanelContent.razor OnAfterRenderAsync after DOM rendering completes
-            
-            // [DIAGNOSTIC:transcript-canvas:share:AUTO-BROADCAST] Automatically broadcast to participants (like Start Session button)
-            // This navigates all participants from waiting room to TranscriptCanvas.razor
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-7] [{RequestId}] Auto-calling BroadcastFullTranscript() to navigate participants to TranscriptCanvas ;CLEANUP_OK", requestId);
-            await BroadcastFullTranscript();
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:STEP-8] [{RequestId}] BroadcastFullTranscript() completed, participants should now see TranscriptCanvas ;CLEANUP_OK", requestId);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DIAGNOSTIC:transcript-canvas:share:ERROR] [{RequestId}] Exception during ShareTranscript, Message={Message} ;CLEANUP_OK", requestId, ex.Message);
-            await ShowMessageAsync("Error loading transcript. Please try again.");
-            isBroadcastMode = false;
-        }
-        finally
-        {
-            isLoading = false;
-            await InvokeAsync(StateHasChanged);
-            Logger.LogInformation("[DIAGNOSTIC:transcript-canvas:share:EXIT] [{RequestId}] ════════ SHARE TRANSCRIPT FLOW END ════════ ;CLEANUP_OK", requestId);
-        }
-    }
+    @* [DEBUG-WORKITEM:hcp-unify:cleanup] Removed ShareTranscript method - functionality no longer needed ;CLEANUP_OK *@
 
     // [TRACE:hcp-tcanvas:inject] Handle transcript rendered callback - inject share buttons AFTER DOM is ready ;CLEANUP_OK
     private async Task HandleTranscriptRendered()
@@ -1764,12 +1686,24 @@
 
         try
         {
-            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Section HTML preview (first 200 chars): {Preview}... ;CLEANUP_OK", 
-                requestId, sectionHtml.Substring(0, Math.Min(200, sectionHtml.Length)));
+            // [DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] Log original HTML before transformation ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] [{RequestId}] ORIGINAL HTML ({Length} chars): {Html} ;CLEANUP_OK", 
+                requestId, sectionHtml.Length, sectionHtml);
 
             // Transform section HTML for broadcast (remove any host-only elements)
             Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transforming section HTML for participant view ;CLEANUP_OK", requestId);
             var transformedHtml = HtmlTransform.TransformForParticipant(sectionHtml);
+            
+            // [DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] Log transformed HTML and analysis ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] [{RequestId}] TRANSFORMED HTML ({Length} chars): {Html} ;CLEANUP_OK", 
+                requestId, transformedHtml.Length, transformedHtml);
+            Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] [{RequestId}] SIZE CHANGE: Original={OriginalSize} → Transformed={TransformedSize} | Difference={Difference} bytes ({Percent:F2}%) ;CLEANUP_OK", 
+                requestId, sectionHtml.Length, transformedHtml.Length, 
+                transformedHtml.Length - sectionHtml.Length,
+                (transformedHtml.Length - sectionHtml.Length) * 100.0 / sectionHtml.Length);
+            
+            // Show toast notification
+            await ShowMessageAsync($"HTML transform logged (see console): {h2Text}");
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transformed HTML length: {Length} chars ;CLEANUP_OK", requestId, transformedHtml.Length);
 
@@ -2047,6 +1981,21 @@
         else
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:UI] NavigateToSessionCanvas called but UserToken is null or empty");
+        }
+    }
+
+    @* [DEBUG-WORKITEM:hcp:transcript-links] Navigation method for TranscriptCanvas ;CLEANUP_OK *@
+    private void NavigateToTranscriptCanvas()
+    {
+        if (!string.IsNullOrEmpty(UserToken))
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp:transcript-links] [{RequestId}] Host navigating to TranscriptCanvas with UserToken: {UserToken} ;CLEANUP_OK", requestId, UserToken);
+            Navigation.NavigateTo($"/transcript/canvas/{UserToken}");
+        }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp:transcript-links] NavigateToTranscriptCanvas called but UserToken is null or empty ;CLEANUP_OK");
         }
     }
 
@@ -3108,7 +3057,7 @@
 
 
     /// <summary>
-    /// Create HTML for a red share button based on AssetLookup data
+    /// [DEBUG-WORKITEM:hcp-unify:share-buttons] Create subtle blue asset share button with centered wrapper and fixed width ;CLEANUP_OK
     /// </summary>
     private string CreateRedShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
@@ -3117,8 +3066,8 @@
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
         
-        return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">� SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+        return $@"<div class=""noor-share-button-wrapper"" style=""display:flex;justify-content:center;margin:1rem 0;"">" +
+               $@"<button class=""ks-share-button noor-share-blue"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color:rgba(59, 130, 246, 0.15);color:#4B5563;border:1px solid rgba(59, 130, 246, 0.3);padding:0.5rem 1.5rem;font-size:0.875rem;border-radius:0.5rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.08);transition:all 0.2s ease;width:200px;justify-content:center;"" onmouseover=""this.style.backgroundColor='rgba(59, 130, 246, 0.25)';this.style.borderColor='rgba(59, 130, 246, 0.5)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 2px 4px rgba(0,0,0,0.12)';"" onmouseout=""this.style.backgroundColor='rgba(59, 130, 246, 0.15)';this.style.borderColor='rgba(59, 130, 246, 0.3)';this.style.transform='translateY(0)';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.08)';""><i class=""fa-solid fa-share-nodes""></i> Share {encodedDisplayName} #{instanceNumber}</button></div>";
     }
 
     // CreateShareButtonHtml method moved to AssetProcessingService
