@@ -5,7 +5,8 @@
 
 @if (!string.IsNullOrEmpty(UserToken))
 {
-    <div style="width:100%;background-color:#F0F9FF;border-radius:0.75rem;border:1px solid #3B82F6;padding:0.75rem;margin-bottom:1rem;">
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Container border updated to 2px *@
+    <div style="width:100%;background-color:#F0F9FF;border-radius:0.75rem;border:2px solid #3B82F6;padding:0.75rem;margin-bottom:1rem;">
         <h4 style="display:flex;align-items:center;justify-content:center;gap:0.375rem;font-weight:600;font-size:0.8rem;color:#3B82F6;margin:0 0 0.75rem 0;text-align:center;">
             <i class="fa-solid fa-link" style="color:#3B82F6;font-size:0.75rem;"></i>
             <span>Participant Links</span>
@@ -13,8 +14,9 @@
         
         @* [DEBUG-WORKITEM:hcp-participant-links:simple] Single row layout with both buttons side by side *@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-            @* Asset Canvas Button *@
-            <button @onclick="CopyAssetCanvasLink" 
+            @* [DEBUG-WORKITEM:hcp-participant-links:simple] Asset Canvas Button with type="button" to prevent form submission *@
+            <button type="button" 
+                    @onclick="CopyAssetCanvasLink" 
                     style="@GetButtonStyle(isAssetCopied)"
                     title="Copy Asset Canvas link to clipboard">
                 <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
@@ -23,8 +25,9 @@
                 </div>
             </button>
 
-            @* Transcript Canvas Button *@
-            <button @onclick="CopyTranscriptCanvasLink" 
+            @* [DEBUG-WORKITEM:hcp-participant-links:simple] Transcript Canvas Button with type="button" to prevent form submission *@
+            <button type="button" 
+                    @onclick="CopyTranscriptCanvasLink" 
                     style="@GetButtonStyle(isTranscriptCopied)"
                     title="Copy Transcript Canvas link to clipboard">
                 <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
@@ -105,10 +108,10 @@
         }
     }
 
-    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Button styling with blue border (matching header) and light blue background *@
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Button styling with 1px border and royal blue text/icon *@
     private string GetButtonStyle(bool isCopied)
     {
-        var baseStyle = "width:100%;padding:0.75rem 1rem;border:2px solid #3B82F6;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);";
+        var baseStyle = "width:100%;padding:0.75rem 1rem;border:1px solid #4169E1;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);";
         
         if (isCopied)
         {
@@ -116,7 +119,7 @@
         }
         else
         {
-            return baseStyle + "background:#EFF6FF;color:#1E293B;";
+            return baseStyle + "background:#EFF6FF;color:#4169E1;";
         }
     }
 

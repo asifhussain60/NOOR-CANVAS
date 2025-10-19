@@ -38,7 +38,9 @@
             @if (!Question.IsAnswered)
             {
                 @* [DEBUG-WORKITEM:hcp-questions:styling] Approve button - emerald green theme ;CLEANUP_OK *@
-                <button @onclick="HandleApproveClick" 
+                @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
+                <button type="button" 
+                        @onclick="HandleApproveClick" 
                         @onclick:stopPropagation="true"
                         style="padding:0.5rem;background-color:#34D399;color:white;border:none;border-radius:0.5rem;cursor:pointer;transition:background-color 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.05);"
                         onmouseover="this.style.backgroundColor='#10B981'"
@@ -48,7 +50,9 @@
                 </button>
             }
             @* [DEBUG-WORKITEM:hcp-questions:styling] Delete button - red theme ;CLEANUP_OK *@
-            <button @onclick="HandleDeleteClick" 
+            @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
+            <button type="button" 
+                    @onclick="HandleDeleteClick" 
                     @onclick:stopPropagation="true"
                     style="padding:0.5rem;background-color:#F87171;color:white;border:none;border-radius:0.5rem;cursor:pointer;transition:background-color 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.05);"
                     onmouseover="this.style.backgroundColor='#EF4444'"
