@@ -462,7 +462,15 @@ class Program
             }
             else
             {
+                // [DEBUG-WORKITEM:host-provisioner] Regenerate tokens and reset status for existing session ;CLEANUP_OK
+                Log.Information("PROVISIONER: Session ID {SessionId} already exists - regenerating tokens and resetting status", sessionId);
                 canvasSession = existingSession;
+                canvasSession.Status = "Created";
+                canvasSession.HostToken = "";  // Will be regenerated
+                canvasSession.UserToken = "";  // Will be regenerated
+                canvasSession.CreatedAt = DateTime.UtcNow;
+                canvasSession.ExpiresAt = DateTime.UtcNow.AddHours(24);
+                Log.Information("PROVISIONER: Existing session reset to 'Created' status with new expiration");
             }
 
             // Simplified schema - tokens are embedded directly in Session, no separate HostSession table
