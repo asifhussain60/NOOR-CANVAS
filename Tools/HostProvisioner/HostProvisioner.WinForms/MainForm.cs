@@ -124,7 +124,7 @@ namespace HostProvisioner.WinForms
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
                 Padding = new Padding(0),
-                // [DEBUG-WORKITEM:host-provisioner:scrollbar] Removed AutoScroll to eliminate vertical scrollbar ;CLEANUP_OK
+                AutoScroll = true // [DEBUG-WORKITEM:host-provisioner:scroll-tokens] Re-enabled AutoScroll for token visibility ;CLEANUP_OK
             };
             pnlMain.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlMain, 24, Color.White, NoorGold);
 
@@ -232,6 +232,14 @@ namespace HostProvisioner.WinForms
                 Font = new Font("Segoe UI", 13F),
                 TextAlign = HorizontalAlignment.Center,
                 BorderStyle = BorderStyle.FixedSingle
+            };
+            // [DEBUG-WORKITEM:host-provisioner:enter-key] Add Enter key handler to trigger token generation ;CLEANUP_OK
+            txtSessionId.KeyDown += (s, e) => {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true; // Prevent beep sound
+                    btnGenerate.PerformClick();
+                }
             };
 
             btnGenerate = new Button
