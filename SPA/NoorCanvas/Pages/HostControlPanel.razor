@@ -3050,7 +3050,7 @@
 
 
     /// <summary>
-    /// Create HTML for a red share button based on AssetLookup data
+    /// [DEBUG-WORKITEM:hcp-unify:share-buttons] Create subtle blue asset share button with centered wrapper and fixed width ;CLEANUP_OK
     /// </summary>
     private string CreateRedShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
@@ -3059,8 +3059,8 @@
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
         
-        return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">� SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+        return $@"<div class=""noor-share-button-wrapper"" style=""display:flex;justify-content:center;margin:1rem 0;"">" +
+               $@"<button class=""ks-share-button noor-share-blue"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color:rgba(59, 130, 246, 0.15);color:#4B5563;border:1px solid rgba(59, 130, 246, 0.3);padding:0.5rem 1.5rem;font-size:0.875rem;border-radius:0.5rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.08);transition:all 0.2s ease;width:200px;justify-content:center;"" onmouseover=""this.style.backgroundColor='rgba(59, 130, 246, 0.25)';this.style.borderColor='rgba(59, 130, 246, 0.5)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 2px 4px rgba(0,0,0,0.12)';"" onmouseout=""this.style.backgroundColor='rgba(59, 130, 246, 0.15)';this.style.borderColor='rgba(59, 130, 246, 0.3)';this.style.transform='translateY(0)';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.08)';""><i class=""fa-solid fa-share-nodes""></i> Share {encodedDisplayName} #{instanceNumber}</button></div>";
     }
 
     // CreateShareButtonHtml method moved to AssetProcessingService

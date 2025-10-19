@@ -156,43 +156,60 @@ window.TranscriptSectionParser = {
 
             console.log(`[TRACE:hcp-tcanvas:inject]   Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
 
+            // [DEBUG-WORKITEM:hcp-unify:share-buttons] Create centered, subtle orange Share Section button with standard text ;CLEANUP_OK
+            
+            // Create wrapper div for centering the button
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.className = 'noor-share-button-wrapper';
+            buttonWrapper.style.cssText = `
+                display: flex;
+                justify-content: center;
+                margin: 1rem 0;
+            `;
+            
             // Create share button to inject ABOVE the section
             const shareButton = document.createElement('button');
-            shareButton.className = 'transcript-section-share-btn';
+            shareButton.className = 'transcript-section-share-btn noor-share-orange';
             shareButton.setAttribute('data-section-id', sectionId);
             shareButton.setAttribute('data-h2-index', index.toString());
             shareButton.setAttribute('data-h2-text', h2Text);
             shareButton.setAttribute('data-noor-share-control', 'true'); // [DEBUG-MARKER:hcp-canvas:unified-marker] Unified marker for share controls ;CLEANUP_OK
             shareButton.style.cssText = `
-                background-color: #D4AF37;
-                color: white;
-                border: none;
+                background-color: rgba(212, 175, 55, 0.15);
+                color: #8B7355;
+                border: 1px solid rgba(212, 175, 55, 0.3);
                 border-radius: 0.5rem;
-                padding: 0.5rem 1rem;
-                margin: 0.75rem 0;
+                padding: 0.5rem 1.5rem;
                 font-family: 'Inter', sans-serif;
-                font-weight: 600;
+                font-weight: 500;
                 font-size: 0.875rem;
                 cursor: pointer;
                 display: inline-flex;
                 align-items: center;
                 gap: 0.5rem;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
                 transition: all 0.2s ease;
+                width: 200px;
+                justify-content: center;
             `;
-            shareButton.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share ${h2Text}`;
+            shareButton.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share Section`;
 
             // Hover effects
             shareButton.onmouseenter = function () {
-                this.style.backgroundColor = '#C5B358';
+                this.style.backgroundColor = 'rgba(212, 175, 55, 0.25)';
+                this.style.borderColor = 'rgba(212, 175, 55, 0.5)';
                 this.style.transform = 'translateY(-1px)';
-                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.15)';
+                this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.12)';
             };
             shareButton.onmouseleave = function () {
-                this.style.backgroundColor = '#D4AF37';
+                this.style.backgroundColor = 'rgba(212, 175, 55, 0.15)';
+                this.style.borderColor = 'rgba(212, 175, 55, 0.3)';
                 this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
             };
+            
+            // Append button to wrapper
+            buttonWrapper.appendChild(shareButton);
 
             console.log(`[TRACE:hcp-tcanvas:inject]   Created share button: "Share ${h2Text.substring(0, 40)}" ;CLEANUP_OK`);
 
@@ -201,8 +218,8 @@ window.TranscriptSectionParser = {
             console.log(`[TRACE:hcp-tcanvas:inject]   Applied left text-align to h2[${index}] ;CLEANUP_OK`);
 
             // [FIX] Correct insertion order: Button BEFORE h2 in final DOM
-            // Strategy: Insert button, insert wrapper, move h2+content into wrapper
-            // Result: container → [button] → [wrapper → h2+content]
+            // Strategy: Insert button wrapper, insert wrapper, move h2+content into wrapper
+            // Result: container → [button-wrapper] → [wrapper → h2+content]
 
             const insertionPoint = sectionContent[0]; // This is the h2
             const parentContainer = insertionPoint.parentNode;
@@ -212,9 +229,9 @@ window.TranscriptSectionParser = {
             parentContainer.insertBefore(wrapper, insertionPoint);
             console.log(`[TRACE:hcp-tcanvas:inject]   Step 1: Inserted wrapper div before h2 ;CLEANUP_OK`);
 
-            // Step 2: Insert button BEFORE wrapper (so button comes first in DOM)
-            parentContainer.insertBefore(shareButton, wrapper);
-            console.log(`[TRACE:hcp-tcanvas:inject]   Step 2: Inserted button BEFORE wrapper ;CLEANUP_OK`);
+            // Step 2: Insert button wrapper BEFORE wrapper (so button comes first in DOM)
+            parentContainer.insertBefore(buttonWrapper, wrapper);
+            console.log(`[TRACE:hcp-tcanvas:inject]   Step 2: Inserted button wrapper BEFORE content wrapper ;CLEANUP_OK`);
 
             // Step 3: Move all section elements (h2 + content) into wrapper
             // This removes them from parent and adds them to wrapper
@@ -225,7 +242,7 @@ window.TranscriptSectionParser = {
                 }
             });
 
-            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Final DOM: Button → Wrapper(h2 + ${sectionContent.length - 1} elements) ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:inject]   ✅ Final DOM: Button Wrapper → Wrapper(h2 + ${sectionContent.length - 1} elements) ;CLEANUP_OK`);
 
             sectionsProcessed++;
         });
