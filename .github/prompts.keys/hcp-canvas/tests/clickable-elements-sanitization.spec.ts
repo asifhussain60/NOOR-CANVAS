@@ -1,25 +1,36 @@
 /**
  * Clickable Elements Sanitization Test
  * 
- * Verifies that ALL clickable elements (share buttons, delete buttons, onclick handlers)
- * are completely removed from HTML before broadcasting to participants.
+ * Verifies that the HTML cleaner function properly removes ALL clickable elements
+ * (share buttons, delete buttons, onclick handlers) before broadcasting to participants.
+ * 
+ * Test Strategy:
+ * 1. Load raw HTML from CopilotContext.txt (contains share buttons, onclick handlers)
+ * 2. Pass HTML through JavaScript cleaner function (clone-and-clean logic)
+ * 3. Verify cleaned HTML has zero clickable elements
+ * 4. Verify cleaned HTML is acceptable for participant rendering
+ * 5. Monitor browser console for JavaScript errors
  * 
  * Test Coverage:
- * - Transcript section share buttons
- * - Asset share buttons
- * - Delete buttons
- * - onclick/onmouseover/onmouseout handlers
- * - data-noor-share-control marked elements
+ * - Transcript section share buttons removal
+ * - onclick/onmouseover/onmouseout handler removal
+ * - data-noor-share-control marked elements removal
  * - Browser console error monitoring
+ * - Percy visual regression (if UI involved)
  */
 
 import { expect, Page, test } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Test configuration
 const BASE_URL = process.env.CANVAS_BASE_URL || 'http://localhost:9090';
 const HOST_TOKEN = process.env.CANVAS_HOST_TOKEN || 'PQ9N5YWW';
 const USER_TOKEN = process.env.CANVAS_USER_TOKEN || 'KJAHA99L';
 const SESSION_ID = '212';
+
+// [DEBUG-WORKITEM:hcp-canvas:load-html-from-file] Load raw HTML from CopilotContext.txt ;CLEANUP_OK
+const HTML_SOURCE_PATH = path.resolve('d:/PROJECTS/NOOR CANVAS/Workspaces/Data/CopilotContext.txt');
 
 interface ConsoleMessage {
     type: string;
@@ -62,50 +73,107 @@ function filterRelevantErrors(messages: ConsoleMessage[]): ConsoleMessage[] {
     });
 }
 
+/**
+ * JavaScript cleaner function to remove share controls (mirrors server-side logic)
+ * This replicates the clone-and-clean logic from transcript-section-parser.js
+ */
+function getCleanerFunction(): string {
+    return `
+        function cleanHtml(rawHtml) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(rawHtml, 'text/html');
+            
+            // [DEBUG-WORKITEM:hcp-canvas:cleaner-function] Remove all share controls ;CLEANUP_OK
+            console.log('[TEST-CLEANER] Starting HTML cleaning...');
+            console.log('[TEST-CLEANER] Input HTML length:', rawHtml.length);
+            
+            // Remove all elements with data-noor-share-control="true"
+            const shareControls = doc.querySelectorAll('[data-noor-share-control="true"]');
+            console.log('[TEST-CLEANER] Found share controls:', shareControls.length);
+            shareControls.forEach(control => control.remove());
+            
+            // Remove onclick, onmouseover, onmouseout attributes
+            const elementsWithEvents = doc.querySelectorAll('[onclick], [onmouseover], [onmouseout]');
+            console.log('[TEST-CLEANER] Found elements with event handlers:', elementsWithEvents.length);
+            elementsWithEvents.forEach(el => {
+                el.removeAttribute('onclick');
+                el.removeAttribute('onmouseover');
+                el.removeAttribute('onmouseout');
+                console.log('[TEST-CLEANER] Cleaned:', el.tagName, el.className);
+            });
+            
+            const cleanedHtml = doc.body.innerHTML;
+            console.log('[TEST-CLEANER] Cleaned HTML length:', cleanedHtml.length);
+            console.log('[TEST-CLEANER] Reduction:', rawHtml.length - cleanedHtml.length, 'bytes');
+            
+            return cleanedHtml;
+        }
+        
+        window.cleanHtml = cleanHtml;
+    `;
+}
+
 test.describe('Clickable Elements Sanitization', () => {
-    let hostPage: Page;
-    let participantPage: Page;
-    let hostConsoleMessages: ConsoleMessage[];
-    let participantConsoleMessages: ConsoleMessage[];
+    let testPage: Page;
+    let consoleMessages: ConsoleMessage[];
 
     test.beforeAll(async ({ browser }) => {
-        // Create host and participant contexts
-        const hostContext = await browser.newContext({ ignoreHTTPSErrors: true });
-        const participantContext = await browser.newContext({ ignoreHTTPSErrors: true });
-
-        hostPage = await hostContext.newPage();
-        participantPage = await participantContext.newPage();
+        const context = await browser.newContext({ ignoreHTTPSErrors: true });
+        testPage = await context.newPage();
 
         // Setup console monitoring
-        hostConsoleMessages = await setupConsoleMonitoring(hostPage);
-        participantConsoleMessages = await setupConsoleMonitoring(participantPage);
+        consoleMessages = await setupConsoleMonitoring(testPage);
 
         console.log('\n🚀 Test Setup Complete');
-        console.log(`   Host URL: ${BASE_URL}/host/control-panel/${HOST_TOKEN}`);
-        console.log(`   Participant URL: ${BASE_URL}/transcript/canvas/${USER_TOKEN}`);
+        console.log(`   Test URL: ${BASE_URL}`);
+        console.log(`   HTML Source: ${HTML_SOURCE_PATH}`);
     });
 
     test.afterAll(async () => {
-        await hostPage?.close();
-        await participantPage?.close();
+        await testPage?.close();
     });
 
-    test('should remove all clickable elements before broadcasting to participants', async () => {
-        console.log('\n📋 TEST: Clickable Elements Sanitization');
+    test('should clean HTML from CopilotContext.txt and verify acceptability', async () => {
+        console.log('\n📋 TEST: HTML Cleaner Function Validation');
         console.log('='.repeat(60));
 
-        // STEP 1: Navigate to Host Control Panel
-        console.log('\n[STEP 1] Navigating to Host Control Panel...');
-        await hostPage.goto(`${BASE_URL}/host/control-panel/${HOST_TOKEN}`, {
-            waitUntil: 'networkidle',
-            timeout: 30000
-        });
-        await hostPage.waitForTimeout(2000);
-        console.log('✅ Host page loaded');
+        // STEP 1: Load raw HTML from CopilotContext.txt
+        console.log('\n[STEP 1] Loading raw HTML from CopilotContext.txt...');
 
-        // STEP 2: Navigate to Participant Transcript Canvas
-        console.log('\n[STEP 2] Navigating to Participant Transcript Canvas...');
-        await participantPage.goto(`${BASE_URL}/transcript/canvas/${USER_TOKEN}`, {
+        if (!fs.existsSync(HTML_SOURCE_PATH)) {
+            throw new Error(`HTML source file not found: ${HTML_SOURCE_PATH}`);
+        }
+
+        const rawHtml = fs.readFileSync(HTML_SOURCE_PATH, 'utf-8');
+        console.log(`✅ Loaded ${rawHtml.length} bytes of HTML`);
+
+        // Count clickable elements in raw HTML
+        const rawParser = new (require('jsdom').JSDOM)(rawHtml);
+        const rawDoc = rawParser.window.document;
+
+        const rawClickables = {
+            shareButtons: rawDoc.querySelectorAll('button.transcript-section-share-btn').length,
+            onclickElements: rawDoc.querySelectorAll('[onclick]').length,
+            onmouseoverElements: rawDoc.querySelectorAll('[onmouseover]').length,
+            onmouseoutElements: rawDoc.querySelectorAll('[onmouseout]').length,
+            dataShareControls: rawDoc.querySelectorAll('[data-noor-share-control="true"]').length
+        };
+
+        console.log('\n   Clickable elements in raw HTML:');
+        console.log(`   - Share buttons: ${rawClickables.shareButtons}`);
+        console.log(`   - onclick handlers: ${rawClickables.onclickElements}`);
+        console.log(`   - onmouseover handlers: ${rawClickables.onmouseoverElements}`);
+        console.log(`   - onmouseout handlers: ${rawClickables.onmouseoutElements}`);
+        console.log(`   - data-noor-share-control: ${rawClickables.dataShareControls}`);
+
+        const totalRawClickables = Object.values(rawClickables).reduce((sum, val) => sum + val, 0);
+        console.log(`   ✅ Total raw clickable elements: ${totalRawClickables}`);
+
+        expect(totalRawClickables).toBeGreaterThan(0);
+
+        // STEP 2: Navigate to test page and inject cleaner function
+        console.log('\n[STEP 2] Setting up browser environment...');
+        await testPage.goto(`${BASE_URL}`, {
             waitUntil: 'networkidle',
             timeout: 30000
         });

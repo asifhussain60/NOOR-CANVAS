@@ -17,7 +17,7 @@ param(
 # Configuration
 $APP_DIR = "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
 $TEST_DIR = "D:\PROJECTS\NOOR CANVAS\.github\prompts.keys\hcp-canvas\tests"
-$TEST_FILE = "clickable-elements-sanitization.spec.ts"
+$TEST_FILE = "html-cleaner-validation.spec.ts"
 $APP_URL = "http://localhost:9090"
 $MAX_WAIT_SECONDS = 30
 
