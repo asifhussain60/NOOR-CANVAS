@@ -69,18 +69,15 @@
                       DetailsId="error-details" />
 
         <!-- Session Management Container - Refactored to use HostControlPanelSidebar component -->
-        @* [DEBUG-WORKITEM:hcp:simple] Hide sidebar when session is Active/Ended to prevent flicker and show only content panels *@
-        @if (Model?.SessionStatus != "Active" && Model?.SessionStatus != "Ended")
-        {
-            <HostControlPanelSidebar Model="@Model" 
-                                     UserToken="@UserToken"
-                                     IsLoading="@isLoading"
-                                     OnStartSession="@StartSession"
-                                     OnGetSignalRStatusColor="@GetSignalRStatusColor"
-                                     OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
-                                     OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
-                                     OnFormatDurationFromString="@FormatDurationFromString" />
-        }
+        @* [DEBUG-WORKITEM:hcp:simple] Sidebar now always visible - SESSION CONTROLS panel collapses via CSS transition instead of hiding entire component *@
+        <HostControlPanelSidebar Model="@Model" 
+                                 UserToken="@UserToken"
+                                 IsLoading="@isLoading"
+                                 OnStartSession="@StartSession"
+                                 OnGetSignalRStatusColor="@GetSignalRStatusColor"
+                                 OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
+                                 OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
+                                 OnFormatDurationFromString="@FormatDurationFromString" />
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
         <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->

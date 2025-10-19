@@ -12,6 +12,30 @@ Tracks improvements and fixes for the Host Control Panel, which manages session 
 
 ## Work Log
 
+### User Request (2025-10-19T02:30:00Z)
+Fix weird characters in SESSION CONTROLS icon, add border to logo panel matching right panel, and fix Start Session panel disappearing instead of collapsing.
+
+**High-Priority Constraints**: None
+
+### Work Completed (2025-10-19T02:45:00Z)
+- **Status**: In Progress
+- **Changes**:
+  - Removed Unicode fallback from FontAwesome icons (⚙ → pure `<i class="fa-solid fa-sliders">`)
+  - Removed Unicode fallback from play button icon (▶ → pure `<i class="fa-solid fa-play">`)
+  - Added 2px solid #C5A84C border to session details panel (matches transcript/Q&A panel styling)
+  - Fixed SESSION CONTROLS panel collapse: Added CSS transitions (max-height, opacity, padding)
+  - Removed conditional hiding of entire sidebar component - now always visible with smooth collapse
+- **Files Affected**:
+  - SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor - Icon fixes, border update, CSS transitions
+  - SPA/NoorCanvas/Pages/HostControlPanel.razor - Removed conditional rendering (@if block)
+- **Tests Created**:
+  - `.github/prompts.keys/hcp/tests/hcp-session-controls-visual.spec.ts` - Percy visual regression
+  - `.github/prompts.keys/hcp/scripts/run-hcp-session-controls-test.ps1` - Orchestration script
+  - Test Registry: `.github/prompts.keys/hcp/tests/test-registry.md`
+- **Build**: Clean (0 errors, 0 warnings)
+- **Debug Level**: simple
+- **Commit**: (pending final commit after test execution)
+
 ### User Request (2025-10-19T02:00:00Z)
 Reduce participant links container border to 1px. Fix Start Session button panel flicker - panel should collapse smoothly when clicked, not flicker. Make transcript and Q&A panel borders more prominent.
 
