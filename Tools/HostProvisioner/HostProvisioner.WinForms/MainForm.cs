@@ -60,7 +60,7 @@ namespace HostProvisioner.WinForms
         {
             // Form settings - Modern card-based design
             this.Text = "NOOR Canvas Host Provisioner";
-            this.Size = new Size(550, 850); // [TRACE:host-provisioner:drag-support] Increased height for header bar ;CLEANUP_OK
+            this.Size = new Size(550, 650); // [DEBUG-WORKITEM:host-provisioner:spacing] Reduced height to remove empty space ;CLEANUP_OK
             this.BackColor = NoorBeige;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.None; // [TRACE:host-provisioner:drag-support] Remove border for custom header ;CLEANUP_OK
@@ -120,11 +120,11 @@ namespace HostProvisioner.WinForms
             var pnlMain = new Panel
             {
                 Location = new Point(30, 80), // [TRACE:host-provisioner:drag-support] Adjusted for header ;CLEANUP_OK
-                Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 110), // [TRACE:host-provisioner:drag-support] Adjusted for header ;CLEANUP_OK
+                Size = new Size(this.ClientSize.Width - 60, this.ClientSize.Height - 110), // [DEBUG-WORKITEM:host-provisioner:spacing] Height adjusted for reduced form ;CLEANUP_OK
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
-                Padding = new Padding(32)
-                // [DEBUG-WORKITEM:host-provisioner:scrollbar] Removed AutoScroll to eliminate vertical scrollbar ;CLEANUP_OK
+                Padding = new Padding(0),
+                AutoScroll = true // [DEBUG-WORKITEM:host-provisioner:scroll-tokens] Re-enabled AutoScroll for token visibility ;CLEANUP_OK
             };
             pnlMain.Paint += (s, e) => DrawRoundedPanel(e.Graphics, pnlMain, 24, Color.White, NoorGold);
 
@@ -233,6 +233,14 @@ namespace HostProvisioner.WinForms
                 TextAlign = HorizontalAlignment.Center,
                 BorderStyle = BorderStyle.FixedSingle
             };
+            // [DEBUG-WORKITEM:host-provisioner:enter-key] Add Enter key handler to trigger token generation ;CLEANUP_OK
+            txtSessionId.KeyDown += (s, e) => {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true; // Prevent beep sound
+                    btnGenerate.PerformClick();
+                }
+            };
 
             btnGenerate = new Button
             {
@@ -326,6 +334,7 @@ namespace HostProvisioner.WinForms
             // [DEBUG-WORKITEM:host-provisioner:canvas-link-removal] User Token panel removed - only showing host landing page ;CLEANUP_OK
 
             // Status label
+            // [DEBUG-WORKITEM:host-provisioner:spacing] Position adjusted for reduced form height ;CLEANUP_OK
             lblStatus = new Label
             {
                 Location = new Point(40, pnlMain.Height - 40),
