@@ -97,3 +97,26 @@ Fix Question & Answer panel flowing out of page width. Adjust widths of both can
 - **Lint Validation**: PASS
 - **Test Execution**: PASS (all assertions passed)
 - **Commit**: ee84557af372fb9222a91659a89200d0d060a0e0
+
+### 2025-10-19T03:05:00Z - HTML Transform Diagnostic Logging
+- **Status**: Complete
+- **User Request**: Log transformed HTML to MD file after Share Truth Concealment button removes share buttons, show toast notification to confirm functionality
+- **Changes**:
+  - Modified ShareTranscriptSection method in HostControlPanel.razor
+    - Added diagnostic file logging after HtmlTransform.TransformForParticipant()
+    - Saves both original and transformed HTML to `Workspaces/Data/share-transform-log-{timestamp}.md`
+    - Includes comparison analysis: length, size change, percentage reduction
+    - Added toast notification with filename after save
+    - Added simple debug markers: `[DEBUG-MARKER:hcp-canvas:save-transform-log]`
+  - Log file format includes:
+    - Timestamp, section ID, section title, request ID
+    - Original HTML (before transformation) with character count
+    - Transformed HTML (after TransformForParticipant) with character count
+    - Analysis section with size comparison metrics
+- **Files Affected**:
+  - SPA/NoorCanvas/Pages/HostControlPanel.razor (Lines 1771-1820)
+- **Debug Logging**: Simple (debug markers added per debug-level: simple)
+- **Build**: Clean (21.7s, zero errors, warnings)
+- **Lint Validation**: PASS
+- **Commit**: 614a6aceb489ac1bb89439aa26d0b75205035334
+- **Tag**: checkpoint/hcp-canvas/2025-10-19_0305
