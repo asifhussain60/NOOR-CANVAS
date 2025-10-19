@@ -58,7 +58,8 @@
              <div id="transcript-content-container" 
                  style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;min-width:0;" 
                      @ref="transcriptContainer">
-                    <div class="html-viewer-content session-transcript-content" data-islamic-content>
+                    <!-- [SIMPLE:css:theme-consistency] Use data-theme="wide" to match session-transcript.css theme system (70% width for HCP) ;CLEANUP_OK -->
+                    <div class="html-viewer-content session-transcript-content" data-theme="wide">
                         @* Safe HTML rendering - Fixed appendChild error by proper MarkupString casting *@
                         @((MarkupString)OnRenderSafeHtml(Model?.TransformedTranscript ?? ""))
                     </div>
