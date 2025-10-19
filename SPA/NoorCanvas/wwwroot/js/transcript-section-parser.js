@@ -157,7 +157,7 @@ window.TranscriptSectionParser = {
             console.log(`[TRACE:hcp-tcanvas:inject]   Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
 
             // [DEBUG-WORKITEM:hcp-unify:share-buttons] Create centered, subtle orange Share Section button with standard text ;CLEANUP_OK
-            
+
             // Create wrapper div for centering the button
             const buttonWrapper = document.createElement('div');
             buttonWrapper.className = 'noor-share-button-wrapper';
@@ -166,7 +166,7 @@ window.TranscriptSectionParser = {
                 justify-content: center;
                 margin: 1rem 0;
             `;
-            
+
             // Create share button to inject ABOVE the section
             const shareButton = document.createElement('button');
             shareButton.className = 'transcript-section-share-btn noor-share-orange';
@@ -207,7 +207,7 @@ window.TranscriptSectionParser = {
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
             };
-            
+
             // Append button to wrapper
             buttonWrapper.appendChild(shareButton);
 
