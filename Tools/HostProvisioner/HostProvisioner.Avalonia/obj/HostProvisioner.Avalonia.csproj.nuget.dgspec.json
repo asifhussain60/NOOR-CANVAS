@@ -169,7 +169,9 @@
             "targetAlias": "net8.0",
             "projectReferences": {
               "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
-                "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
+                "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
+                "excludeAssets": "contentfiles",
+                "privateAssets": "all"
               }
             }
           }
@@ -199,6 +201,8 @@
               "version": "[11.3.6, )"
             },
             "Avalonia.Diagnostics": {
+              "include": "None",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[11.3.6, )"
             },
