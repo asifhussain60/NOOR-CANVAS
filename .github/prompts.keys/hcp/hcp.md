@@ -12,6 +12,30 @@ Tracks improvements and fixes for the Host Control Panel, which manages session 
 
 ## Work Log
 
+### User Request (2025-10-19T02:00:00Z)
+Reduce participant links container border to 1px. Fix Start Session button panel flicker - panel should collapse smoothly when clicked, not flicker. Make transcript and Q&A panel borders more prominent.
+
+**High-Priority Constraints**: None
+
+### Work Completed (2025-10-19T02:00:00Z)
+- **Status**: Complete
+- **Changes**:
+  - Reduced participant links container border from 2px to 1px
+  - Fixed Start Session panel flicker by conditionally hiding HostControlPanelSidebar when session is Active/Ended
+  - Removed "Session Ready to Start" intermediate panel (no longer needed)
+  - Made transcript panel border more prominent: 1px → 2px solid with darker gold (#C5A84C)
+  - Made Q&A panel border more prominent: 1px → 2px solid with darker gold (#C5A84C)
+  - Removed unused hasClickedStartSession field and related code
+  - Restored HostControlPanelSidebar from clean commit (removed corrupted ShouldCollapse references)
+- **Files Affected**:
+  - SPA/NoorCanvas/Components/Host/UserRegistrationLink.razor
+  - SPA/NoorCanvas/Pages/HostControlPanel.razor
+  - SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor
+  - SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor (restored from 847efbd9)
+- **Build**: Clean (0 errors, 0 warnings)
+- **Lint Validation**: PASS (all Razor files validated)
+- **Commit**: cf5a0757bbc42c4d8f5961c25b11c8c6d988aaa7
+
 ### 2025-10-19T01:00:00Z
 - **Status**: Complete
 - **User Request**: Combine both canvas links in one div and make the panel compact
