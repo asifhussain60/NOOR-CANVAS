@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Last Updated:** 2025-10-19T00:00:00Z  
-**Git Commit:** 43366e8d
+**Git Commit:** 76985fb8
 
 ## Overview
 TranscriptCanvas.razor sidebar completely removed - uses modal-only question submission. SessionCanvas.razor sidebar preserved. Question submission now supports "Created" status sessions. Transcript View badge removed from header.
@@ -10,7 +10,7 @@ TranscriptCanvas.razor sidebar completely removed - uses modal-only question sub
 ## Work Log
 
 ### 2025-10-19T00:00:00Z - Removed Transcript View Badge
-**Commit:** 43366e8d (pending)  
+**Commit:** 76985fb8  
 **Agent:** task (task.prompt.md)  
 **Debug Level:** simple
 
@@ -30,7 +30,7 @@ Remove the Transcript view tag
 - Build: Clean (0 errors, 0 warnings, 10.6s)
 - Lint Validation: PASS (Razor syntax valid)
 
-**Checkpoint:** `checkpoint/transcript-canvas/2025-10-19_0000` (pending)
+**Checkpoint:** `checkpoint/transcript-canvas/2025-10-19_0000`
 
 ---
 
