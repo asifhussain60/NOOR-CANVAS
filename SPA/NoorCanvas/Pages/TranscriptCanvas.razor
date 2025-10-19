@@ -1122,6 +1122,35 @@
         // [DEBUG-WORKITEM:transcript-canvas:init] TranscriptCanvas using user token validation ;CLEANUP_OK
         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] TranscriptCanvas OnInitialized - UserToken: '{SessionToken}' (Length: {Length})", 
             requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
+
+        // [DEBUG-WORKITEM:userlanding:guard:transcript] Registration verification - prevent unregistered users from accessing transcript view ;CLEANUP_OK
+        if (!string.IsNullOrEmpty(SessionToken))
+        {
+            // Check for sessionStorage bypass flag (set after successful registration)
+            var bypassFlag = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", "noor_registration_complete");
+            
+            if (bypassFlag == "true")
+            {
+                // Clear bypass flag after verification
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:transcript] Bypass flag detected - clearing and proceeding ;CLEANUP_OK");
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "noor_registration_complete");
+            }
+            else
+            {
+                // Verify participant registration
+                var isRegistered = await CheckParticipantRegistrationAsync(SessionToken, requestId);
+                
+                if (!isRegistered)
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:transcript] SECURITY: Unregistered user attempted to access transcript - redirecting to UserLanding ;CLEANUP_OK");
+                    Navigation.NavigateTo($"/user/landing/{SessionToken}", forceLoad: true);
+                    return;
+                }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:transcript] Registration verified - proceeding to load transcript ;CLEANUP_OK");
+            }
+        }
+
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] TranscriptCanvas component initializing with proper NOOR Canvas branding", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] [{RequestId}] CSS overflow property changed from 'overflow-x:hidden' to 'overflow:visible' to prevent badge cutoff ;CLEANUP_OK", requestId);
         Logger.LogDebug("[DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] [{RequestId}] Badge positioning: absolute, top:0, right:0, transform:translate(50%, -50%) requires parent overflow:visible ;CLEANUP_OK", requestId);
@@ -1797,6 +1826,53 @@
         }
     }
 
+    // [DEBUG-WORKITEM:userlanding:guard:transcript] Registration guard to prevent unregistered users from accessing transcript view ;CLEANUP_OK
+    private async Task<bool> CheckParticipantRegistrationAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:transcript] Checking participant registration status for token: {0} ;CLEANUP_OK", 
+                token);
+
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var participantsUrl = $"/api/participant/session/{token}/participants";
+            var response = await httpClient.GetAsync(participantsUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:transcript] Participant check API failed: {0} ;CLEANUP_OK", 
+                    response.StatusCode);
+                return false;
+            }
+
+            var participantsContent = await response.Content.ReadAsStringAsync();
+            var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            // Check if any participant matches current browser session (via stored UserGuid)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
+            {
+                var isRegistered = participantsData.Participants.Any(p => 
+                    string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:transcript] Registration check result: {0} (UserGuid: {1}) ;CLEANUP_OK", 
+                    isRegistered, storedUserGuid);
+                
+                return isRegistered;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:transcript] No stored UserGuid found - user not registered ;CLEANUP_OK");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:transcript] Exception during participant registration check ;CLEANUP_OK");
+            return false;
+        }
+    }
+
     // ViewModel and Data Classes
     public class SessionCanvasViewModel
     {
@@ -1912,6 +1988,24 @@
         public bool IsActive { get; set; }
         public int AccessCount { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    // [DEBUG-WORKITEM:userlanding:guard:transcript] Response classes for registration verification ;CLEANUP_OK
+    public class ParticipantsCheckResponse
+    {
+        public int SessionId { get; set; }
+        public string? Token { get; set; }
+        public int ParticipantCount { get; set; }
+        public List<ParticipantCheckData>? Participants { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class ParticipantCheckData
+    {
+        public string UserId { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Country { get; set; } = "";
+        public string Flag { get; set; } = "";
     }
 
     // Q&A Methods

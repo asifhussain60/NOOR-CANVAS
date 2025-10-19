@@ -1106,11 +1106,21 @@
                     if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
                     {
                         Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active and user registered, routing to SessionCanvas");
+                        
+                        // Set bypass flag to prevent registration guard redirect loop
+                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:bypass-flag] Bypass flag set before navigating to SessionCanvas ;CLEANUP_OK");
+                        
                         Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
                     }
                     else
                     {
                         Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started but user registered, routing to SessionWaiting");
+                        
+                        // Set bypass flag to prevent registration guard redirect loop
+                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:bypass-flag] Bypass flag set before navigating to SessionWaiting ;CLEANUP_OK");
+                        
                         Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
                     }
                 }
@@ -1118,6 +1128,11 @@
                 {
                     // Fallback to waiting room if status check fails
                     Logger.LogWarning("[DEBUG-WORKITEM:user:API] Session status recheck failed, defaulting to waiting room");
+                    
+                    // Set bypass flag to prevent registration guard redirect loop
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:bypass-flag] Bypass flag set before fallback navigation to SessionWaiting ;CLEANUP_OK");
+                    
                     Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
                 }
             }

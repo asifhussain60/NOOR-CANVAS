@@ -1378,6 +1378,34 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:sidebar:trace] [{RequestId}] Sidebar width constraints added (max-width:100%, width:100%) to prevent horizontal expansion from question cards ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:mobile:trace] [{RequestId}] Mobile responsive CSS enhanced - canvas full-width, sidebar below with vertical stacking ;CLEANUP_OK", requestId);
 
+        // [DEBUG-WORKITEM:userlanding:guard:canvas] AUTHENTICATION GATE: Check registration before session access ;CLEANUP_OK
+        if (!string.IsNullOrEmpty(SessionToken))
+        {
+            // Check for post-registration bypass flag
+            var bypassFlag = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", "noor_registration_complete");
+            
+            if (!string.IsNullOrEmpty(bypassFlag))
+            {
+                // Clear bypass flag after use (one-time bypass)
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "noor_registration_complete");
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Post-registration bypass flag detected and cleared - allowing access ;CLEANUP_OK", requestId);
+            }
+            else
+            {
+                // Verify user is registered as participant
+                var isRegistered = await CheckParticipantRegistrationAsync(SessionToken, requestId);
+                
+                if (!isRegistered)
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] SECURITY: Unregistered access attempt blocked - redirecting to UserLanding ;CLEANUP_OK", requestId);
+                    Navigation.NavigateTo($"/user/landing/{SessionToken}", forceLoad: true);
+                    return;
+                }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Registration verification passed - allowing session access ;CLEANUP_OK", requestId);
+            }
+        }
+
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
 
@@ -3634,5 +3662,73 @@
             // Prevent default newline behavior
             await SubmitQuestion();
         }
+    }
+    // [DEBUG-WORKITEM:userlanding:guard:canvas] AUTHENTICATION GATE: Verify participant registration before allowing session access ;CLEANUP_OK
+    /// <summary>
+    /// AUTHENTICATION GATE: Verify if user is registered as participant before allowing session access
+    /// Fixes bug where unregistered users could bypass registration requirement
+    /// </summary>
+    private async Task<bool> CheckParticipantRegistrationAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] Checking participant registration status for token: {0} ;CLEANUP_OK", 
+                token);
+
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var participantsUrl = $"/api/participant/session/{token}/participants"; 
+            var response = await httpClient.GetAsync(participantsUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] Participant check API failed: {0} ;CLEANUP_OK", 
+                    response.StatusCode);
+                return false;
+            }
+
+            var participantsContent = await response.Content.ReadAsStringAsync();
+            var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            // Check if any participant matches current browser session (via stored UserGuid)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
+            {
+                var isRegistered = participantsData.Participants.Any(p => 
+                    string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] Registration check result: {0} (UserGuid: {1}) ;CLEANUP_OK", 
+                    isRegistered, storedUserGuid);
+                
+                return isRegistered;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] No stored UserGuid found - user not registered ;CLEANUP_OK");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:canvas] Exception during participant registration check ;CLEANUP_OK");
+            return false;
+        }
+    }
+
+    // [DEBUG-WORKITEM:userlanding:guard:canvas] Registration guard support classes ;CLEANUP_OK
+    public class ParticipantsCheckResponse
+    {
+        public int SessionId { get; set; }
+        public string? Token { get; set; }
+        public int ParticipantCount { get; set; }
+        public List<ParticipantCheckData>? Participants { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class ParticipantCheckData
+    {
+        public string UserId { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Country { get; set; } = "";
+        public string Flag { get; set; } = "";
     }
 }
