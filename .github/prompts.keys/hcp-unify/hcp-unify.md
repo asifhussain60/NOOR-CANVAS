@@ -29,4 +29,5 @@ Remove "Share Transcript" button and functionality from HostControlPanelSidebar,
   - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (method removal)
 - **Tests**: N/A (UI layout change only, no functional tests needed)
 - **Lint Validation**: PASS (C#/Razor syntax validated)
-- **Commit**: dfc20663
+- **Commit**: 3dca800592d181b66b0fddb5563d4fb642e71075
+- **Checkpoint Tag**: checkpoint/hcp-unify/2025-10-19_0015
