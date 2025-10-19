@@ -320,7 +320,7 @@ window.TranscriptSectionParser = {
             });
 
             const sectionHtml = sectionClone.innerHTML;
-            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted cleaned section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
+            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted cleaned section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`)
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (first 300 chars): ${sectionHtml.substring(0, 300)}... ;CLEANUP_OK`);
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (last 200 chars): ...${sectionHtml.substring(sectionHtml.length - 200)} ;CLEANUP_OK`);
 
