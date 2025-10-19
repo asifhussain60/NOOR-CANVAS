@@ -1764,61 +1764,26 @@
 
         try
         {
-            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Section HTML preview (first 200 chars): {Preview}... ;CLEANUP_OK", 
-                requestId, sectionHtml.Substring(0, Math.Min(200, sectionHtml.Length)));
+            // [DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] Log original HTML before transformation ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] [{RequestId}] ORIGINAL HTML ({Length} chars): {Html} ;CLEANUP_OK", 
+                requestId, sectionHtml.Length, sectionHtml);
 
             // Transform section HTML for broadcast (remove any host-only elements)
             Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transforming section HTML for participant view ;CLEANUP_OK", requestId);
             var transformedHtml = HtmlTransform.TransformForParticipant(sectionHtml);
             
-            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transformed HTML length: {Length} chars ;CLEANUP_OK", requestId, transformedHtml.Length);
-
-            // [DEBUG-MARKER:hcp-canvas:save-transform-log] Save HTML transformation to MD file for review ;CLEANUP_OK
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HHmmss");
-            var logFileName = $"share-transform-log-{timestamp}.md";
-            var logFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Workspaces", "Data", logFileName);
+            // [DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] Log transformed HTML and analysis ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] [{RequestId}] TRANSFORMED HTML ({Length} chars): {Html} ;CLEANUP_OK", 
+                requestId, transformedHtml.Length, transformedHtml);
+            Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:html-transform-diagnostic] [{RequestId}] SIZE CHANGE: Original={OriginalSize} → Transformed={TransformedSize} | Difference={Difference} bytes ({Percent:F2}%) ;CLEANUP_OK", 
+                requestId, sectionHtml.Length, transformedHtml.Length, 
+                transformedHtml.Length - sectionHtml.Length,
+                (transformedHtml.Length - sectionHtml.Length) * 100.0 / sectionHtml.Length);
             
-            var logContent = $@"# HTML Transformation Log
-**Timestamp:** {DateTime.Now:yyyy-MM-dd HH:mm:ss}
-**Section ID:** {sectionId}
-**Section Title:** {h2Text}
-**Request ID:** {requestId}
-
-## Original HTML (Before Transformation)
-**Length:** {sectionHtml.Length} characters
-
-```html
-{sectionHtml}
-```
-
-## Transformed HTML (After TransformForParticipant)
-**Length:** {transformedHtml.Length} characters
-**Size Change:** {transformedHtml.Length - sectionHtml.Length} bytes ({(transformedHtml.Length - sectionHtml.Length) * 100.0 / sectionHtml.Length:F2}%)
-
-```html
-{transformedHtml}
-```
-
-## Analysis
-- Original HTML size: {sectionHtml.Length} bytes
-- Transformed HTML size: {transformedHtml.Length} bytes
-- Bytes removed: {sectionHtml.Length - transformedHtml.Length}
-- Percentage reduction: {((sectionHtml.Length - transformedHtml.Length) * 100.0 / sectionHtml.Length):F2}%
-";
-
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
-                await File.WriteAllTextAsync(logFilePath, logContent);
-                Logger.LogInformation("[DEBUG-MARKER:hcp-canvas:save-transform-log] Saved transformation log to {FilePath} ;CLEANUP_OK", logFilePath);
-                
-                // Show toast notification with file location
-                await ShowMessageAsync($"HTML transform log saved: {logFileName}");
-            }
-            catch (Exception logEx)
-            {
-                Logger.LogError(logEx, "[DEBUG-MARKER:hcp-canvas:save-transform-log] Failed to save transformation log ;CLEANUP_OK");
-            }
+            // Show toast notification
+            await ShowMessageAsync($"HTML transform logged (see console): {h2Text}");
+            
+            Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Transformed HTML length: {Length} chars ;CLEANUP_OK", requestId, transformedHtml.Length);
 
             // Broadcast via SignalR to session group
             Logger.LogInformation("[TRACE:hcp-tcanvas:share-section] [{RequestId}] Broadcasting section via SignalR: targetGroup=session_{SessionId}, contentType=transcript-section ;CLEANUP_OK", 
