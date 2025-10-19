@@ -306,7 +306,18 @@ window.TranscriptSectionParser = {
                 console.log(`[TRACE:hcp-tcanvas:share-section]   Child[${childIdx}]: ${child.tagName} - "${child.textContent?.substring(0, 50)}..." ;CLEANUP_OK`);
             });
 
-            const sectionHtml = sectionWrapper.innerHTML;
+            // [DEBUG-WORKITEM:hcp-canvas:simple] Clone section and remove share buttons before extracting HTML ;CLEANUP_OK
+            const sectionClone = sectionWrapper.cloneNode(true);
+            
+            // Remove all share buttons (H2 share buttons and asset share buttons)
+            const shareButtons = sectionClone.querySelectorAll('[data-share-button], .share-section-button, .share-asset-button, button[onclick*="share"]');
+            console.log(`[DEBUG-WORKITEM:hcp-canvas:simple] Found ${shareButtons.length} share buttons to remove before broadcast ;CLEANUP_OK`);
+            shareButtons.forEach((btn, idx) => {
+                console.log(`[DEBUG-WORKITEM:hcp-canvas:simple]   Removing button[${idx}]: ${btn.className} - "${btn.textContent?.trim()}" ;CLEANUP_OK`);
+                btn.remove();
+            });
+
+            const sectionHtml = sectionClone.innerHTML;
             console.log(`[TRACE:hcp-tcanvas:share-section] Extracted section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (first 300 chars): ${sectionHtml.substring(0, 300)}... ;CLEANUP_OK`);
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (last 200 chars): ...${sectionHtml.substring(sectionHtml.length - 200)} ;CLEANUP_OK`);
