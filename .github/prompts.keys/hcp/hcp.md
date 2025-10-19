@@ -12,6 +12,22 @@ Tracks improvements and fixes for the Host Control Panel, which manages session 
 
 ## Work Log
 
+### 2025-10-19T00:00:00Z
+- **Status**: Complete
+- **User Request**: Update User Registration Link to show TranscriptCanvas link alongside SessionCanvas link with copy buttons. Make it compact. Add TranscriptCanvas links everywhere SessionCanvas links appear.
+- **Changes**: 
+  - Refactored UserRegistrationLink component to show both SessionCanvas and TranscriptCanvas URLs
+  - Added compact dual-link layout with separate copy buttons for each canvas type
+  - Added NavigateToTranscriptCanvas method to HostControlPanel
+  - Separate copy state tracking for each link (2-second feedback)
+  - Reduced padding/font sizes for compact display
+- **Files Affected**:
+  - `SPA/NoorCanvas/Components/Host/UserRegistrationLink.razor` - Dual-link layout with Q&A Canvas and Transcript View sections
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` - Added NavigateToTranscriptCanvas method
+- **Build**: Clean (0 errors, 0 warnings)
+- **Debug Level**: simple
+- **Commit**: 52d65146
+
 ### 2025-10-15T20:30:00Z
 - **Status**: In Progress
 - **Changes**: 
