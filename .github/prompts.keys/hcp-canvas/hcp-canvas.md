@@ -32,4 +32,5 @@ Fix Question & Answer panel flowing out of page width. Adjust widths of both can
   - SPA/NoorCanvas/Pages/TranscriptCanvas.razor
 - **Build**: Clean (zero errors, warnings)
 - **Lint Validation**: PASS (both files)
-- **Commit**: 192b58bb1adc7fb5beb84335ae98d58701d7965d
+- **Commit**: 0c639f8d36912a8513590b7ce1b04611a20178f9
+- **Tag**: checkpoint/hcp-canvas/2025-10-19_0005
