@@ -1,0 +1,83 @@
+@using Microsoft.AspNetCore.Components
+@using System.Timers
+@implements IDisposable
+
+@* Session Timer Component - Displays elapsed time in H:M format with golden border styling *@
+@* [SIMPLE:hcp:restore-controls] Timer panel styled similar to session title panel ;CLEANUP_OK *@
+
+<div style="width:100%;background-color:white;border-radius:1.5rem;padding:1.5rem;border:2px solid #D4AF37;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);margin-bottom:1.5rem;text-align:center;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:1rem;">
+        <i class="fa-solid fa-clock" style="font-size:2rem;color:#D4AF37;"></i>
+        <div>
+            <p style="font-size:0.875rem;text-transform:uppercase;font-weight:600;color:#6B7280;margin:0 0 0.25rem 0;letter-spacing:0.05em;">Session Timer</p>
+            <p style="font-size:2.5rem;font-weight:800;color:#D4AF37;margin:0;font-family:'Poppins',sans-serif;letter-spacing:-0.02em;">@ElapsedTime</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsActive { get; set; }
+    [Parameter] public DateTime? SessionStartTime { get; set; }
+    
+    private Timer? timer;
+    private string ElapsedTime => CalculateElapsedTime();
+    
+    protected override void OnInitialized()
+    {
+        // Initialize timer to update every second
+        timer = new Timer(1000);
+        timer.Elapsed += OnTimerElapsed;
+        timer.AutoReset = true;
+        
+        if (IsActive && SessionStartTime.HasValue)
+        {
+            timer.Start();
+        }
+    }
+    
+    protected override void OnParametersSet()
+    {
+        // Start/stop timer based on IsActive parameter
+        if (timer != null)
+        {
+            if (IsActive && SessionStartTime.HasValue)
+            {
+                timer.Start();
+            }
+            else
+            {
+                timer.Stop();
+            }
+        }
+    }
+    
+    private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        // Force UI update on timer tick
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private string CalculateElapsedTime()
+    {
+        if (!SessionStartTime.HasValue)
+        {
+            return "0:00";
+        }
+        
+        var elapsed = DateTime.UtcNow - SessionStartTime.Value;
+        var hours = (int)elapsed.TotalHours;
+        var minutes = elapsed.Minutes;
+        
+        return $"{hours}:{minutes:D2}";
+    }
+    
+    public void Dispose()
+    {
+        if (timer != null)
+        {
+            timer.Stop();
+            timer.Elapsed -= OnTimerElapsed;
+            timer.Dispose();
+        }
+    }
+}

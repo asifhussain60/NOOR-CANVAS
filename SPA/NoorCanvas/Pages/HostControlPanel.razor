@@ -69,15 +69,18 @@
                       DetailsId="error-details" />
 
         <!-- Session Management Container - Refactored to use HostControlPanelSidebar component -->
-        @* [DEBUG-WORKITEM:hcp:simple] Sidebar now always visible - SESSION CONTROLS panel collapses via CSS transition instead of hiding entire component *@
-        <HostControlPanelSidebar Model="@Model" 
-                                 UserToken="@UserToken"
-                                 IsLoading="@isLoading"
-                                 OnStartSession="@StartSession"
-                                 OnGetSignalRStatusColor="@GetSignalRStatusColor"
-                                 OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
-                                 OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
-                                 OnFormatDurationFromString="@FormatDurationFromString" />
+        @* [SIMPLE:hcp:restore-controls] Hide sidebar completely when session is Active or Ended *@
+        @if (Model?.SessionStatus != "Active" && Model?.SessionStatus != "Ended")
+        {
+            <HostControlPanelSidebar Model="@Model" 
+                                     UserToken="@UserToken"
+                                     IsLoading="@isLoading"
+                                     OnStartSession="@StartSession"
+                                     OnGetSignalRStatusColor="@GetSignalRStatusColor"
+                                     OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
+                                     OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
+                                     OnFormatDurationFromString="@FormatDurationFromString" />
+        }
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
         <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
@@ -87,6 +90,7 @@
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
                                      IsBroadcastMode="@isBroadcastMode"
+                                     SessionStartTime="@sessionStartTime"
                                      SelectedQuestionId="@selectedQuestionId"
                                      OnEndSession="@EndSession"
                                      OnBroadcastTranscript="@BroadcastFullTranscript"
@@ -128,6 +132,8 @@
     private bool showMessage = false;
     private bool shareHandlersInitialized = false;
     private bool isBroadcastMode = false; // [DEBUG-WORKITEM:transcript-canvas:share] Track if transcript loaded for broadcast ;CLEANUP_OK
+    @* [SIMPLE:hcp:restore-controls] Track session start time for timer component *@
+    private DateTime? sessionStartTime = null;
     @* [DEBUG-WORKITEM:hcp:simple] Removed unused hasClickedStartSession field - panel now hidden by conditional rendering *@
     private string messageText = "";
     private Guid questionToDeleteId;
@@ -1254,6 +1260,8 @@
             if (response.IsSuccessStatusCode)
             {
                 Model.SessionStatus = "Active";
+                @* [SIMPLE:hcp:restore-controls] Capture session start time for timer *@
+                sessionStartTime = DateTime.UtcNow;
                 
                 // Re-transform transcript to inject share buttons now that session is active
                 if (!string.IsNullOrEmpty(Model.SessionTranscript))
