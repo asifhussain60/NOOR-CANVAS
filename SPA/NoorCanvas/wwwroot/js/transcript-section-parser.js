@@ -156,56 +156,58 @@ window.TranscriptSectionParser = {
 
             console.log(`[TRACE:hcp-tcanvas:inject]   Created wrapper div with id=${sectionId} ;CLEANUP_OK`);
 
-            // [DEBUG-WORKITEM:hcp-unify:share-buttons] Create centered, subtle orange Share Section button with standard text ;CLEANUP_OK
+            // [DEBUG-WORKITEM:hcp-unify:share-buttons] Create centered golden Share Section button matching CopilotContext.txt styles ;CLEANUP_OK
 
-            // Create wrapper div for centering the button
+            // Create wrapper div for centering the button (golden theme from CopilotContext.txt)
             const buttonWrapper = document.createElement('div');
-            buttonWrapper.className = 'noor-share-button-wrapper';
+            buttonWrapper.className = 'share-wrapper';
+            buttonWrapper.setAttribute('data-noor-share-control', 'true'); // [DEBUG-MARKER:hcp-canvas:unified-marker] Unified marker for share controls ;CLEANUP_OK
             buttonWrapper.style.cssText = `
+                background-color: #f7f3e0;
+                border: 1px solid #999;
+                padding: 20px;
+                margin-top: 30px;
+                margin-bottom: 30px;
+                width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+                box-sizing: border-box;
+                border-radius: 8px;
                 display: flex;
                 justify-content: center;
-                margin: 1rem 0;
             `;
 
-            // Create share button to inject ABOVE the section
+            // Create share button to inject ABOVE the section (golden theme)
             const shareButton = document.createElement('button');
-            shareButton.className = 'transcript-section-share-btn noor-share-orange';
+            shareButton.className = 'transcript-section-share-btn share-button';
             shareButton.setAttribute('data-section-id', sectionId);
             shareButton.setAttribute('data-h2-index', index.toString());
             shareButton.setAttribute('data-h2-text', h2Text);
             shareButton.setAttribute('data-noor-share-control', 'true'); // [DEBUG-MARKER:hcp-canvas:unified-marker] Unified marker for share controls ;CLEANUP_OK
             shareButton.style.cssText = `
-                background-color: rgba(212, 175, 55, 0.15);
-                color: #8B7355;
-                border: 1px solid rgba(212, 175, 55, 0.3);
-                border-radius: 0.5rem;
-                padding: 0.5rem 1.5rem;
-                font-family: 'Inter', sans-serif;
-                font-weight: 500;
-                font-size: 0.875rem;
-                cursor: pointer;
-                display: inline-flex;
+                background-color: #FFD700;
+                border: 1px solid #e0c242;
+                color: #555;
+                padding: 8px 15px;
+                border-radius: 5px;
+                display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-                transition: all 0.2s ease;
-                width: 200px;
                 justify-content: center;
+                cursor: pointer;
+                font-size: 0.9rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.1s;
+                margin: 0;
+                width: 200px;
             `;
-            shareButton.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share Section`;
+            shareButton.innerHTML = `<i class="fas fa-share-alt" style="margin-right: 8px; color: #888;"></i>Share Section`;
 
-            // Hover effects
+            // Hover effects (golden theme)
             shareButton.onmouseenter = function () {
-                this.style.backgroundColor = 'rgba(212, 175, 55, 0.25)';
-                this.style.borderColor = 'rgba(212, 175, 55, 0.5)';
-                this.style.transform = 'translateY(-1px)';
-                this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.12)';
+                this.style.backgroundColor = '#e0c242';
             };
             shareButton.onmouseleave = function () {
-                this.style.backgroundColor = 'rgba(212, 175, 55, 0.15)';
-                this.style.borderColor = 'rgba(212, 175, 55, 0.3)';
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+                this.style.backgroundColor = '#FFD700';
             };
 
             // Append button to wrapper
