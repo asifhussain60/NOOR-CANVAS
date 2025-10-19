@@ -96,7 +96,8 @@
                                      OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
                                      OnTranscriptRendered="@HandleTranscriptRendered" />
         }
-        else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode)
+        @* [DEBUG-WORKITEM:hcp-unify:hide-panel] Only show "Session Ready to Start" panel after Start Session clicked ;CLEANUP_OK *@
+        else if (Model?.SessionStatus == "Waiting" && !isLoading && !isBroadcastMode && hasClickedStartSession)
         {
             <!-- Informational message when session hasn't started yet -->
             <div style="background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:3rem;text-align:center;">
@@ -141,6 +142,8 @@
     private bool showMessage = false;
     private bool shareHandlersInitialized = false;
     private bool isBroadcastMode = false; // [DEBUG-WORKITEM:transcript-canvas:share] Track if transcript loaded for broadcast ;CLEANUP_OK
+    @* [DEBUG-WORKITEM:hcp-unify:hide-panel] Track if Start Session button has been clicked ;CLEANUP_OK *@
+    private bool hasClickedStartSession = false;
     private string messageText = "";
     private Guid questionToDeleteId;
     private Timer? messageTimer;
@@ -1247,6 +1250,9 @@
     private async Task StartSession()
     {
         if (Model == null || SessionId == null) return;
+        
+        @* [DEBUG-WORKITEM:hcp-unify:hide-panel] Set flag to show panel after button clicked ;CLEANUP_OK *@
+        hasClickedStartSession = true;
         
         try
         {

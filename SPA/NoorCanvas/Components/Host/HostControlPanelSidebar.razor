@@ -2,8 +2,22 @@
 @using NoorCanvas.ViewModels
 @using NoorCanvas.Components.Shared
 @using NoorCanvas.Components.Host
+@using NoorCanvas.Components.Loading
+@using NoorCanvas.Services
 
 @* Sidebar component for HostControlPanel - Contains session management and controls *@
+@* [DEBUG-WORKITEM:hcp-unify:spinner] Added loading spinner support ;CLEANUP_OK *@
+@inject LoadingService LoadingService
+
+@if (IsLoading)
+{
+    @* [DEBUG-WORKITEM:hcp-unify:spinner] Show loading spinner while sidebar initializes ;CLEANUP_OK *@
+    <div style="display:flex;justify-content:center;align-items:center;width:100%;min-height:400px;">
+        <LoadingSpinner Size="40" BorderWidth="4" Color="#D4AF37" ShowText="true" Text="Loading Session Controls..." />
+    </div>
+}
+else
+{
 <div style="display:flex;justify-content:center;width:100%;">
     <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:stretch;width:50%;background:linear-gradient(135deg,#FFFFFF,#F8F9FA);border-radius:2rem;padding:2rem;box-shadow:0 20px 40px -12px rgba(0,0,0,0.35),0 8px 16px -8px rgba(0,0,0,0.2);border:1px solid rgba(212,175,55,0.3);position:relative;overflow:hidden;">
         <!-- Decorative gradient overlay -->
@@ -68,6 +82,8 @@
         </div>
     </div>
 </div>
+}
+@* [DEBUG-WORKITEM:hcp-unify:spinner] Closing brace for else block ;CLEANUP_OK *@
 
 @code {
     [Parameter] public HostControlPanelViewModel? Model { get; set; }
