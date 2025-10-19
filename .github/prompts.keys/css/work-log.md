@@ -1,5 +1,41 @@
 # Work Log - css
 
+## 2025-10-19T04:00:00Z
+- **Status**: Complete
+- **User Request**: Visual regression testing for CSS theme consistency validation
+- **Changes**:
+  - [DEBUG-WORKITEM:css:theme-consistency:visual-tests] Created Percy visual regression test suite
+  - Implemented 6 test cases validating rendering consistency across HostControlPanel, SessionCanvas, TranscriptCanvas
+  - Created PowerShell orchestration script with automatic app lifecycle management
+  - Test validates 90% width rendering for Islamic content (ayah cards, poetry, hadees)
+  - CSS custom property validation: `--islamic-asset-width: 90%`, `--islamic-asset-max-width: none`
+  - Responsive testing across Desktop Large (1920px), Desktop Standard (1280px), Tablet Landscape (1024px)
+- **Test Coverage**:
+  - HostControlPanel transcript rendering (narrow theme)
+  - SessionCanvas shared content rendering (narrow theme)
+  - TranscriptCanvas transcript rendering (narrow theme)
+  - Side-by-side Islamic content comparison
+  - CSS custom properties validation via computed styles
+  - Responsive behavior at multiple viewports
+- **Files Created**:
+  - `Tests/UI/css-theme-consistency-percy.spec.ts` (6 Playwright test cases)
+  - `Scripts/run-css-theme-percy-tests.ps1` (automated test runner with app management)
+  - `Tests/UI/CSS-THEME-PERCY-TESTS-README.md` (comprehensive test documentation)
+- **Test Data**: Session 212 (Host: PQ9N5YWW, User: KJAHA99L, ID: 212)
+- **Prerequisites**:
+  - Percy CLI installed: `@percy/cli ^1.31.4`, `@percy/playwright ^1.0.9`
+  - PERCY_TOKEN environment variable (optional - tests run locally without it)
+  - Session 212 with Islamic content in database
+- **Verification Method**:
+  - **Automated**: Run `.\Scripts\run-css-theme-percy-tests.ps1` (requires PERCY_TOKEN for visual diff)
+  - **Manual**: Open three tabs and compare transcript content width visually
+  - **CI/CD Ready**: Can integrate into GitHub Actions with Percy token
+- **Next Steps**:
+  - User can run tests when app is available
+  - Percy snapshots will create baseline for visual regression tracking
+  - Tests can be integrated into CI/CD pipeline
+- **Commit**: (pending - test artifacts ready for commit)
+
 ## 2025-10-19T02:00:00Z
 - **Status**: Complete
 - **User Request**: Fix all CSS lint issues (Option A: surgical fix approach)
