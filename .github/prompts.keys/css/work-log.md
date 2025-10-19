@@ -1,5 +1,26 @@
 # Work Log - css
 
+## 2025-10-19T00:00:00Z
+- **Status**: Complete
+- **User Request**: CSS rendering consistency across SessionCanvas, TranscriptCanvas, and HostControlPanel - ensure session transcript divs render identically with unified CSS classes and theme attributes
+- **Changes**:
+  - [DEBUG-WORKITEM:css:theme-consistency] Unified CSS theme system across all three transcript views
+  - Changed HostControlPanel from data-theme="wide" (70% width) to data-theme="narrow" (90% width)
+  - Updated CSS classes: `html-viewer-content session-transcript-content islamic-content`
+  - Islamic content assets (poetry, hadees, ayah cards, etymology) now render at consistent 90% width
+  - Updated documentation in session-transcript.css to reflect unified system
+- **Root Cause**: HostControlPanel used different CSS classes and theme than SessionCanvas/TranscriptCanvas
+- **Solution**: Standardized on "narrow" theme with 90% width for all views
+- **Files Affected**:
+  - `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor` (line 62 - CSS classes and theme unified)
+  - `SPA/NoorCanvas/wwwroot/css/session-transcript.css` (lines 75-89 - documentation updated)
+- **Verification**:
+  - ✅ Build: Clean (zero errors, zero warnings)
+  - ✅ Lint: PASS (our changes validated)
+  - ✅ All three views use identical CSS classes
+  - ✅ All three views use data-theme="narrow"
+- **Commit**: (to be generated in Step 8.4)
+
 ## 2025-10-16T07:25:00Z
 - **Status**: In Progress
 - **Changes**:

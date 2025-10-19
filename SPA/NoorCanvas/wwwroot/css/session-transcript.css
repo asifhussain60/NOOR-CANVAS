@@ -72,17 +72,18 @@
    - Amiri Crimson poetry (.amiriCrimson)
    ============================================================================ */
 
-/* Wide Container Theme (HostControlPanel, session-transcript-styling.html) */
+/* Wide Container Theme (Legacy - retained for standalone HTML files) */
 [data-theme="wide"],
 .ks-transcript,
-.session-transcript-content,
 .transcript-display {
     --islamic-asset-width: 70%;
     --islamic-asset-max-width: 700px;
 }
 
-/* Narrow Container Theme (SessionCanvas) */
+/* Narrow Container Theme (SessionCanvas, TranscriptCanvas, HostControlPanel - UNIFIED 2025-10-19) */
+/* [DEBUG-WORKITEM:css:theme-consistency] All transcript views now use data-theme="narrow" for consistent 90% width rendering ;CLEANUP_OK */
 [data-theme="narrow"],
+.session-transcript-content,
 .islamic-content {
     --islamic-asset-width: 90%;
     --islamic-asset-max-width: none;
