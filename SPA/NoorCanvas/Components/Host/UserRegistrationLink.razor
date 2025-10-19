@@ -1,54 +1,38 @@
 @* User Registration Link Component - Extracted from HostControlPanel *@
-@* [DEBUG-WORKITEM:hcp:transcript-links] Added TranscriptCanvas links alongside SessionCanvas ;CLEANUP_OK *@
+@* [DEBUG-WORKITEM:hcp-participant-links:simple] Redesigned with 2 simple buttons for Asset Canvas and Transcript Canvas *@
 @using Microsoft.AspNetCore.Components
 @inject IJSRuntime JSRuntime
 
 @if (!string.IsNullOrEmpty(UserToken))
 {
-    <div style="width:100%;background-color:#F0F9FF;border-radius:0.75rem;border:1px solid #3B82F6;padding:0.75rem;margin-bottom:1rem;">
-        <h4 style="display:flex;align-items:center;justify-content:center;gap:0.375rem;font-weight:600;font-size:0.8rem;color:#3B82F6;margin:0 0 0.5rem 0;text-align:center;">
-            <i class="fa-solid fa-link" style="color:#3B82F6;font-size:0.75rem;"></i>
+    <div style="width:100%;background-color:#EFF6FF;border-radius:0.75rem;border:2px solid #1E293B;padding:0.75rem;margin-bottom:1rem;">
+        <h4 style="display:flex;align-items:center;justify-content:center;gap:0.375rem;font-weight:600;font-size:0.8rem;color:#1E293B;margin:0 0 0.75rem 0;text-align:center;">
+            <i class="fa-solid fa-link" style="color:#1E293B;font-size:0.75rem;"></i>
             <span>Participant Links</span>
         </h4>
         
-        @* [DEBUG-WORKITEM:hcp:compact-links] Combined both canvas links in single compact container ;CLEANUP_OK *@
-        <div style="background-color:white;border-radius:0.5rem;padding:0.5rem;border:1px solid #E2E8F0;display:grid;grid-template-columns:auto 1fr auto;gap:0.375rem;align-items:center;">
-            @* Q&A Canvas Link *@
-            <div style="font-size:0.65rem;color:#64748B;font-weight:600;text-transform:uppercase;padding-right:0.25rem;white-space:nowrap;">Q&A</div>
-            <a href="@SessionCanvasUrl" 
-               target="_blank" 
-               @onclick="HandleSessionLinkClick"
-               style="background:transparent;border:none;color:#3B82F6;font-size:0.7rem;font-family:monospace;text-decoration:none;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;"
-               title="Click to open Q&A Canvas and copy to clipboard">
-                @SessionCanvasUrl
-            </a>
-            <button @onclick="CopySessionLink" 
-                    style="@GetCopyButtonStyle(isSessionCopied)"
-                    title="Copy Q&A Canvas link">
-                <i class="@GetCopyIcon(isSessionCopied)" style="font-size:0.65rem;"></i>
+        @* [DEBUG-WORKITEM:hcp-participant-links:simple] Single row layout with both buttons side by side *@
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+            @* Asset Canvas Button *@
+            <button @onclick="CopyAssetCanvasLink" 
+                    style="@GetButtonStyle(isAssetCopied)"
+                    title="Copy Asset Canvas link to clipboard">
+                <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                    <i class="fa-solid fa-comments" style="font-size:1rem;"></i>
+                    <span style="font-weight:600;font-size:0.875rem;">Asset Canvas</span>
+                </div>
+            </button>
+
+            @* Transcript Canvas Button *@
+            <button @onclick="CopyTranscriptCanvasLink" 
+                    style="@GetButtonStyle(isTranscriptCopied)"
+                    title="Copy Transcript Canvas link to clipboard">
+                <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                    <i class="fa-solid fa-scroll" style="font-size:1rem;"></i>
+                    <span style="font-weight:600;font-size:0.875rem;">Transcript Canvas</span>
+                </div>
             </button>
         </div>
-
-        <div style="background-color:white;border-radius:0.5rem;padding:0.5rem;border:1px solid #E2E8F0;margin-top:0.375rem;display:grid;grid-template-columns:auto 1fr auto;gap:0.375rem;align-items:center;">
-            @* Transcript Canvas Link *@
-            <div style="font-size:0.65rem;color:#64748B;font-weight:600;text-transform:uppercase;padding-right:0.25rem;white-space:nowrap;">Transcript</div>
-            <a href="@TranscriptCanvasUrl" 
-               target="_blank" 
-               @onclick="HandleTranscriptLinkClick"
-               style="background:transparent;border:none;color:#3B82F6;font-size:0.7rem;font-family:monospace;text-decoration:none;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;"
-               title="Click to open Transcript Canvas and copy to clipboard">
-                @TranscriptCanvasUrl
-            </a>
-            <button @onclick="CopyTranscriptLink" 
-                    style="@GetCopyButtonStyle(isTranscriptCopied)"
-                    title="Copy Transcript Canvas link">
-                <i class="@GetCopyIcon(isTranscriptCopied)" style="font-size:0.65rem;"></i>
-            </button>
-        </div>
-
-        <p style="font-family:'Inter',sans-serif;font-size:0.6rem;color:#706357;margin:0.375rem 0 0 0;text-align:center;">
-            Share these links with participants
-        </p>
     </div>
 }
 
@@ -57,47 +41,44 @@
     [Parameter] public string BaseUrl { get; set; } = "https://localhost:9091";
     [Parameter] public EventCallback<string> OnLinkCopied { get; set; }
 
-    @* [DEBUG-WORKITEM:hcp:transcript-links] Separate copy state for each link ;CLEANUP_OK *@
-    private bool isSessionCopied = false;
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Copy state for each canvas button *@
+    private bool isAssetCopied = false;
     private bool isTranscriptCopied = false;
     
-    @* [DEBUG-WORKITEM:hcp:transcript-links] URL properties for both canvas types ;CLEANUP_OK *@
-    private string SessionCanvasUrl => $"{BaseUrl}/session/canvas/{UserToken}";
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] URL properties for both canvas types *@
+    private string AssetCanvasUrl => $"{BaseUrl}/session/canvas/{UserToken}";
     private string TranscriptCanvasUrl => $"{BaseUrl}/transcript/canvas/{UserToken}";
-    
-    // Legacy property for backward compatibility
-    private string UserRegistrationUrl => $"{BaseUrl}/user/landing/{UserToken}";
 
-    @* [DEBUG-WORKITEM:hcp:transcript-links] Copy handler for SessionCanvas link ;CLEANUP_OK *@
-    private async Task CopySessionLink()
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Copy handler for Asset Canvas (SessionCanvas) *@
+    private async Task CopyAssetCanvasLink()
     {
         try
         {
             if (!string.IsNullOrEmpty(UserToken))
             {
-                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", SessionCanvasUrl);
-                isSessionCopied = true;
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", AssetCanvasUrl);
+                isAssetCopied = true;
                 StateHasChanged();
                 
                 if (OnLinkCopied.HasDelegate)
                 {
-                    await OnLinkCopied.InvokeAsync(SessionCanvasUrl);
+                    await OnLinkCopied.InvokeAsync(AssetCanvasUrl);
                 }
                 
                 // Reset copy state after 2 seconds
                 await Task.Delay(2000);
-                isSessionCopied = false;
+                isAssetCopied = false;
                 StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error copying SessionCanvas URL to clipboard: {ex.Message}");
+            Console.WriteLine($"Error copying Asset Canvas URL to clipboard: {ex.Message}");
         }
     }
 
-    @* [DEBUG-WORKITEM:hcp:transcript-links] Copy handler for TranscriptCanvas link ;CLEANUP_OK *@
-    private async Task CopyTranscriptLink()
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Copy handler for Transcript Canvas *@
+    private async Task CopyTranscriptCanvasLink()
     {
         try
         {
@@ -120,25 +101,14 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error copying TranscriptCanvas URL to clipboard: {ex.Message}");
+            Console.WriteLine($"Error copying Transcript Canvas URL to clipboard: {ex.Message}");
         }
     }
 
-    @* [DEBUG-WORKITEM:hcp:transcript-links] Click handlers for direct link navigation ;CLEANUP_OK *@
-    private async Task HandleSessionLinkClick()
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Button styling with visual feedback *@
+    private string GetButtonStyle(bool isCopied)
     {
-        await CopySessionLink();
-    }
-
-    private async Task HandleTranscriptLinkClick()
-    {
-        await CopyTranscriptLink();
-    }
-
-    @* [DEBUG-WORKITEM:hcp:compact-links] Compact button styling ;CLEANUP_OK *@
-    private string GetCopyButtonStyle(bool isCopied)
-    {
-        var baseStyle = "padding:0.25rem 0.5rem;border:none;border-radius:0.375rem;font-size:0.65rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;min-width:2rem;";
+        var baseStyle = "width:100%;padding:0.75rem 1rem;border:none;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);";
         
         if (isCopied)
         {
@@ -150,7 +120,7 @@
         }
     }
 
-    @* [DEBUG-WORKITEM:hcp:transcript-links] Updated icon method to accept copy state parameter ;CLEANUP_OK *@
+    @* [DEBUG-WORKITEM:hcp-participant-links:simple] Copy icon indicator *@
     private string GetCopyIcon(bool isCopied)
     {
         return isCopied ? "fa-solid fa-check" : "fa-solid fa-copy";
