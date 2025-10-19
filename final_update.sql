@@ -1,4 +1,4 @@
-<h2>The Purpose of Messengers: A Call to Awaken from Heedlessness</h2>
+﻿UPDATE dbo.SessionTranscripts SET Transcript = N'<h2>The Purpose of Messengers: A Call to Awaken from Heedlessness</h2>
 <p class="mainText">Impurity arises from filth ( <span class="inlineArabic">نجاست</span>). The transition from a state of impurity to one of purity is called <span class="inlineArabic">طهارة</span> (purification). Since a human being is a composition of both the body and the soul ( <span class="inlineArabic">نفس</span>), purifying the soul is as essential as purifying the body. Physical purity is achieved through the performance of outward religious acts, whereas the purification of the soul is attained by acquiring the inner knowledge ( <span class="inlineArabic">معرفت</span>) of the spiritual realities ( <span class="inlineArabic">ممثولات</span>) behind these external rites. </p>
 <p class="mainText">Bodily purification is performed with water, while the purification of the soul is accomplished through knowledge. The Noble Prophet (PBUH) states, &ldquo;There is no <span class="inlineArabic">صلاة</span> (prayer) without <span class="inlineArabic">طهارة</span> (purity).&rdquo; </p>
 <p class="mainText">
@@ -386,4 +386,4 @@
 <p>Not a single day passes that the oceans do not ask their Lord for permission to drown the children of Adam; and the earth asks its Lord for permission to swallow them; and the angels ask His permission to hasten their destruction and annihilate them. The earth says, &quot;O Allah, grant me permission to swallow them all. They walk on Your earth, eat from it, and do not prostrate to You!&quot; The angels exclaim, &quot;O Allah, grant us permission! In an instant we will annihilate this lot for their arrogance.&quot; The earth, oceans, and angels are Allah&#39;s creation, and they are filled with anger at seeing their beloved Creator disobeyed. But our Creator, the One we constantly ignore, says:</p>
 <p>
   <br>
-</p>
+</p>' WHERE SessionID = 212
