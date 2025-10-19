@@ -49,6 +49,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj" />
+    <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj">
+      <ExcludeAssets>contentFiles</ExcludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
   </ItemGroup>
 </Project>
