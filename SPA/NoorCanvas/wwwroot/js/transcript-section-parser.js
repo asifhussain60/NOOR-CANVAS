@@ -319,6 +319,23 @@ window.TranscriptSectionParser = {
                 control.remove();
             });
 
+            // [DEBUG-MARKER:hcp-canvas:remove-event-handlers] Remove all event handler attributes to prevent XSS ;CLEANUP_OK
+            const allElements = sectionClone.querySelectorAll('*');
+            let removedHandlers = 0;
+            allElements.forEach(el => {
+                // Get all attributes
+                const attrs = Array.from(el.attributes);
+                attrs.forEach(attr => {
+                    // Remove any attribute starting with 'on' (onclick, onload, onmouseover, etc.)
+                    if (attr.name.toLowerCase().startsWith('on')) {
+                        console.log(`[DEBUG-MARKER:hcp-canvas:remove-event-handlers] Removing ${attr.name} from ${el.tagName} ;CLEANUP_OK`);
+                        el.removeAttribute(attr.name);
+                        removedHandlers++;
+                    }
+                });
+            });
+            console.log(`[DEBUG-MARKER:hcp-canvas:remove-event-handlers] Removed ${removedHandlers} event handler attributes ;CLEANUP_OK`);
+
             const sectionHtml = sectionClone.innerHTML;
             console.log(`[TRACE:hcp-tcanvas:share-section] Extracted cleaned section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`)
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (first 300 chars): ${sectionHtml.substring(0, 300)}... ;CLEANUP_OK`);

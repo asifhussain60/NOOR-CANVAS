@@ -120,3 +120,32 @@ Fix Question & Answer panel flowing out of page width. Adjust widths of both can
 - **Lint Validation**: PASS
 - **Commit**: 614a6aceb489ac1bb89439aa26d0b75205035334
 - **Tag**: checkpoint/hcp-canvas/2025-10-19_0305
+
+### 2025-10-19T03:15:00Z - Start Session Route Analysis
+- **Status**: Complete
+- **User Request**: Review Start Session button route to ensure HTML transformation fixes are applied (same as Share Truth Concealment fixes)
+- **Analysis Results**:
+  - **HtmlParsingService.cs** (Line 93): Fixed regex `\s+on\w+\s*=` already implemented
+    - Requires leading whitespace to avoid false positives on words containing "on" (e.g., "content", "session", "insertion")
+    - Prevents blocking legitimate data attributes like `data-content-type`, `data-session-id`
+  - **StartSession flow** (HostControlPanel.razor Line 1247):
+    - Calls `TransformTranscriptHtmlAsync()` → `UnifiedHtmlTransformService.TransformForHostAsync()` → `HtmlParsingService.ParseHtml()`
+    - Uses **same validation logic** as ShareTranscriptSection (fixed regex applied)
+  - **JavaScript defensive cleanup** (transcript-section-parser.js Lines 323-341):
+    - Only needed for **ShareTranscriptSection** (broadcasts HTML to participants)
+    - **NOT needed** for StartSession (only broadcasts "SessionBegan" event, no HTML content)
+- **Findings**:
+  - ✅ StartSession route already protected by fixed regex validation
+  - ✅ No additional JavaScript sanitization required (StartSession doesn't broadcast HTML)
+  - ✅ Both routes use same HtmlParsingService.ParseHtml() with corrected security validation
+- **Conclusion**: No code changes required - fixes already applied to Start Session route via shared HtmlParsingService
+- **Files Reviewed**:
+  - SPA/NoorCanvas/Pages/HostControlPanel.razor (Lines 1247-1300, 2779-2805)
+  - SPA/NoorCanvas/Services/UnifiedHtmlTransformService.cs (Lines 34-96)
+  - SPA/NoorCanvas/Services/HtmlParsingService.cs (Lines 80-120)
+  - SPA/NoorCanvas/Controllers/HostController.cs (Lines 387-423)
+  - SPA/NoorCanvas/wwwroot/js/transcript-section-parser.js (Lines 300-350)
+- **Build**: N/A (no code changes)
+- **Lint Validation**: N/A (no code changes)
+- **Commit**: 5e0dd426fd35a93224d9358ed7bbf6cf9117b365 (analysis only)
+

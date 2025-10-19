@@ -85,12 +85,13 @@ namespace NoorCanvas.Services
         /// </summary>
         private static ValidationResult ValidateSecurity(string html)
         {
+            // [DEBUG-MARKER:hcp-canvas:security-validation] Fixed regex to match event handlers specifically ;CLEANUP_OK
             var dangerousPatterns = new[]
             {
                 @"<script[^>]*>.*?</script>",
                 @"javascript:",
                 @"vbscript:",
-                @"on\w+\s*=",
+                @"\s+on\w+\s*=",  // Fixed: Must have leading whitespace to match event attributes like ' onclick='
                 @"<iframe[^>]*>",
                 @"<object[^>]*>",
                 @"<embed[^>]*>"
