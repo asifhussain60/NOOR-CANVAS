@@ -213,20 +213,7 @@
         margin: 0;
     }
 
-    /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Prominent badge to identify transcript view ;CLEANUP_OK */
-    .canvas-transcript-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #663399, #8A4FBA);
-        color: white;
-        padding: 0.4rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        margin-left: 1rem;
-        box-shadow: 0 2px 8px rgba(102, 51, 153, 0.3);
-        text-transform: uppercase;
-    }
+    /* [DEBUG-WORKITEM:transcript-canvas] Removed .canvas-transcript-badge CSS ;CLEANUP_OK */
 
     .canvas-session-description {
         font-family: 'Inter', sans-serif;
@@ -952,11 +939,10 @@
                     </div>
                     
                     <!-- Session Info -->
-                    <!-- [TRACE-WORKITEM:transcript-canvas:visual-distinction] Added TRANSCRIPT VIEW badge ;CLEANUP_OK -->
+                    <!-- [DEBUG-WORKITEM:transcript-canvas] Removed TRANSCRIPT VIEW badge HTML ;CLEANUP_OK -->
                     <div class="canvas-header-session-info">
                         <h1 class="canvas-session-title">
                             @(Model?.SessionName ?? "Session Canvas")
-                            <span class="canvas-transcript-badge">📜 Transcript View</span>
                         </h1>
                         @if (!string.IsNullOrEmpty(Model?.SessionDescription))
                         {
