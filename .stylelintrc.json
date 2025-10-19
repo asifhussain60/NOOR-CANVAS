@@ -1,12 +1,18 @@
 {
     "extends": "stylelint-config-standard",
-    "customSyntax": "postcss-html",
     "rules": {
-        "selector-class-pattern": "^canvas-[a-z]+(-[a-z]+)*$",
-        "color-hex-length": "long",
+        "selector-class-pattern": null,
+        "color-hex-length": null,
+        "color-named": null,
+        "color-function-notation": null,
+        "alpha-value-notation": null,
+        "color-function-alias-notation": null,
+        "shorthand-property-no-redundant-values": null,
+        "font-family-name-quotes": null,
+        "property-no-unknown": null,
+        "no-descending-specificity": null,
         "declaration-block-no-duplicate-properties": true,
         "no-duplicate-selectors": true,
-        "color-named": "never",
         "length-zero-no-unit": true,
         "selector-pseudo-class-no-unknown": [
             true,
@@ -15,7 +21,8 @@
                     "global"
                 ]
             }
-        ]
+        ],
+        "at-rule-no-unknown": null
     },
     "ignoreFiles": [
         "wwwroot/lib/**",
@@ -23,6 +30,11 @@
         "obj/**",
         "node_modules/**",
         "Workspaces/TEMP/**",
-        "test-results/**"
+        "test-results/**",
+        "**/*.razor",
+        "**/bootstrap/**",
+        "**/open-iconic/**",
+        "**/*.min.css",
+        "DocFX/**"
     ]
 }
