@@ -26,7 +26,7 @@ Tracks improvements and fixes for the Host Control Panel, which manages session 
   - `SPA/NoorCanvas/Pages/HostControlPanel.razor` - Added NavigateToTranscriptCanvas method
 - **Build**: Clean (0 errors, 0 warnings)
 - **Debug Level**: simple
-- **Commit**: 52d65146
+- **Commit**: 84682a51
 
 ### 2025-10-15T20:30:00Z
 - **Status**: In Progress
