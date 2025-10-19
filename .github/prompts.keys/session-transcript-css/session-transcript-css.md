@@ -1,3 +1,25 @@
+# Key: session-transcript-css
+
+## User Request (2025-10-19)
+Apply the same right-panel overflow fix from CopilotChats to SessionCanvas.razor.
+
+## Work Completed (2025-10-19)
+- Added `min-width: 0` to `.canvas-area-container` to ensure grid child can shrink and prevent right panel overflow.
+- Verified existing sidebar protections: `.canvas-sidebar` already has `min-width: 0`, `max-width: 100%`, and `overflow` constraints.
+- Mobile styles already include `min-width: 0` for sidebar and containers.
+
+## Files Modified
+- SPA/NoorCanvas/Pages/SessionCanvas.razor
+
+## Validation
+- Build: PASS (dotnet build via VS Code task)
+- Roslynator Analysis: PASS (task run-roslynator-analysis)
+
+## Notes
+- Root cause: CSS Grid child default min-width:auto allows content to push beyond container. Setting min-width:0 on the left panel complements the right sidebar constraints.
+
+## Commit Trace
+- Pending checkpoint commit/tag to be created after review.
 # session-transcript-css
 
 **Status**: complete  
