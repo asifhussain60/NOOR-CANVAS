@@ -65,17 +65,17 @@ public class AssetProcessingService
             string finalHtml;
             if (shouldInjectButtons)
             {
-                _logger.LogInformation("G£à Calling InjectAssetShareButtonsAsync - Session {SessionId} status '{SessionStatus}'",
+                _logger.LogInformation("Gï¿½ï¿½ Calling InjectAssetShareButtonsAsync - Session {SessionId} status '{SessionStatus}'",
                     sessionId, sessionStatus);
 
                 finalHtml = await InjectAssetShareButtonsAsync(sanitizedInput ?? string.Empty, transformRunId);
 
-                _logger.LogInformation("G£à InjectAssetShareButtonsAsync completed - Output length: {OutputLength}",
+                _logger.LogInformation("Gï¿½ï¿½ InjectAssetShareButtonsAsync completed - Output length: {OutputLength}",
                     finalHtml?.Length ?? 0);
             }
             else
             {
-                _logger.LogWarning("G¥î Skipping share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars)",
+                _logger.LogWarning("Gï¿½ï¿½ Skipping share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars)",
                     sessionId, sessionStatus, sanitizedInput?.Length ?? 0);
                 finalHtml = sanitizedInput ?? string.Empty;
             }
@@ -188,7 +188,7 @@ public class AssetProcessingService
 
             if (elements.Length > 0)
             {
-                _logger.LogInformation("[ASSETSHARE-DB:{RunId}] G£à FOUND {Count} instances of {AssetType} using selector '{Selector}'",
+                _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Gï¿½ï¿½ FOUND {Count} instances of {AssetType} using selector '{Selector}'",
                     runId, elements.Length, assetLookup.AssetIdentifier, assetLookup.CssSelector);
 
                 // Process elements in reverse order to preserve positions
@@ -201,7 +201,7 @@ public class AssetProcessingService
             }
             else
             {
-                _logger.LogWarning("[ASSETSHARE-DB:{RunId}] G¥î NO MATCHES found for {AssetType} with selector '{Selector}'",
+                _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Gï¿½ï¿½ NO MATCHES found for {AssetType} with selector '{Selector}'",
                     runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
                 return Task.FromResult(0);
             }
@@ -316,8 +316,8 @@ public class AssetProcessingService
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
-        return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">?? SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+        return $@"<div class=""ks-share-wrapper"" data-noor-share-control=""true"">" +
+               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-noor-share-control=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">?? SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
     }
 
     /// <summary>

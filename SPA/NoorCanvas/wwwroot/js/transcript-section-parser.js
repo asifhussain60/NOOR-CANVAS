@@ -162,6 +162,7 @@ window.TranscriptSectionParser = {
             shareButton.setAttribute('data-section-id', sectionId);
             shareButton.setAttribute('data-h2-index', index.toString());
             shareButton.setAttribute('data-h2-text', h2Text);
+            shareButton.setAttribute('data-noor-share-control', 'true'); // [DEBUG-MARKER:hcp-canvas:unified-marker] Unified marker for share controls ;CLEANUP_OK
             shareButton.style.cssText = `
                 background-color: #D4AF37;
                 color: white;
@@ -306,8 +307,20 @@ window.TranscriptSectionParser = {
                 console.log(`[TRACE:hcp-tcanvas:share-section]   Child[${childIdx}]: ${child.tagName} - "${child.textContent?.substring(0, 50)}..." ;CLEANUP_OK`);
             });
 
-            const sectionHtml = sectionWrapper.innerHTML;
-            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
+            // [DEBUG-MARKER:hcp-canvas:clone-and-clean] Clone and remove share controls before extracting HTML ;CLEANUP_OK
+            console.log(`[TRACE:hcp-tcanvas:share-section] Cloning section wrapper to remove share controls... ;CLEANUP_OK`);
+            const sectionClone = sectionWrapper.cloneNode(true);
+            
+            // Remove all elements with the unified share control marker
+            const shareControls = sectionClone.querySelectorAll('[data-noor-share-control="true"]');
+            console.log(`[TRACE:hcp-tcanvas:share-section] Found ${shareControls.length} share controls to remove ;CLEANUP_OK`);
+            shareControls.forEach((control, idx) => {
+                console.log(`[TRACE:hcp-tcanvas:share-section]   Removing control[${idx}]: ${control.tagName}.${control.className} ;CLEANUP_OK`);
+                control.remove();
+            });
+
+            const sectionHtml = sectionClone.innerHTML;
+            console.log(`[TRACE:hcp-tcanvas:share-section] Extracted cleaned section HTML: ${sectionHtml.length} chars ;CLEANUP_OK`);
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (first 300 chars): ${sectionHtml.substring(0, 300)}... ;CLEANUP_OK`);
             console.log(`[TRACE:hcp-tcanvas:share-section] HTML preview (last 200 chars): ...${sectionHtml.substring(sectionHtml.length - 200)} ;CLEANUP_OK`);
 
@@ -388,8 +401,8 @@ window.TranscriptSectionParser = {
         let currentElement = targetH2.nextElementSibling;
 
         while (currentElement && currentElement !== nextH2) {
-            // Skip share buttons (don't include in broadcast)
-            if (!currentElement.classList.contains('transcript-section-share-btn')) {
+            // [DEBUG-MARKER:hcp-canvas:skip-share-control] Skip elements with unified share control marker ;CLEANUP_OK
+            if (!currentElement.hasAttribute('data-noor-share-control')) {
                 sectionHtml += currentElement.outerHTML;
             }
             currentElement = currentElement.nextElementSibling;
