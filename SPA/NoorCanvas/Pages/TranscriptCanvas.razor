@@ -3496,6 +3496,17 @@
             IsEnabled = !string.IsNullOrWhiteSpace(SessionToken)
         });
         
+        // [DEBUG-WORKITEM:canvas-landings:simple] Clear local storage button for participant info ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Clear Local Storage",
+            "Clear participant info from browser local storage",
+            async () => await ClearLocalStorage(),
+            "fa-solid fa-trash"
+        )
+        {
+            IsEnabled = true
+        });
+        
         return actions;
     }
 
@@ -3570,6 +3581,25 @@
         
         // Submit through existing logic
         await SubmitQuestion();
+    }
+    
+    // [DEBUG-WORKITEM:canvas-landings:simple] Clear local storage method for debug panel ;CLEANUP_OK
+    private async Task ClearLocalStorage()
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-landings:simple] Clearing local storage for participant info ;CLEANUP_OK");
+            
+            // Clear all participant-related localStorage keys
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "noor-userId");
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", $"noor-session-{SessionToken}");
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-landings:simple] Local storage cleared successfully ;CLEANUP_OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-landings:simple] Error clearing local storage ;CLEANUP_OK");
+        }
     }
     
     // Helper class for dimension logging with computed styles
