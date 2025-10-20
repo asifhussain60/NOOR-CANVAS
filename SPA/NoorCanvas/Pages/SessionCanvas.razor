@@ -3761,17 +3761,37 @@
     {
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] Checking participant registration status for token: {0} ;CLEANUP_OK", 
-                token);
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Checking participant registration status for token: {Token} ;CLEANUP_OK", 
+                requestId, token);
 
+            // [SECURITY] Get stored UserGuid from browser storage (per-participant isolation)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (string.IsNullOrEmpty(storedUserGuid))
+            {
+                // Fallback to localStorage for cross-tab persistence
+                storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            }
+
+            if (string.IsNullOrEmpty(storedUserGuid))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] No UserGuid found in storage - user must register ;CLEANUP_OK", 
+                    requestId);
+                return false;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Found stored UserGuid: {UserGuid}, verifying against database ;CLEANUP_OK", 
+                requestId, storedUserGuid);
+
+            // [SECURITY] Verify this UserGuid exists in canvas.Participants for this session
             using var httpClient = HttpClientFactory.CreateClient("default");
             var participantsUrl = $"/api/participant/session/{token}/participants"; 
             var response = await httpClient.GetAsync(participantsUrl);
 
             if (!response.IsSuccessStatusCode)
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] Participant check API failed: {0} ;CLEANUP_OK", 
-                    response.StatusCode);
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Participant check API failed: {StatusCode} ;CLEANUP_OK", 
+                    requestId, response.StatusCode);
                 return false;
             }
 
@@ -3779,26 +3799,38 @@
             var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            // Check if any participant matches current browser session (via stored UserGuid)
-            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
-            
-            if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
+            if (participantsData?.Participants == null)
             {
-                var isRegistered = participantsData.Participants.Any(p => 
-                    string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] Registration check result: {0} (UserGuid: {1}) ;CLEANUP_OK", 
-                    isRegistered, storedUserGuid);
-                
-                return isRegistered;
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] No participants data returned from API ;CLEANUP_OK", 
+                    requestId);
+                return false;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] No stored UserGuid found - user not registered ;CLEANUP_OK");
-            return false;
+            // [SECURITY] Check if stored UserGuid matches ANY participant in database
+            var isRegistered = participantsData.Participants.Any(p => 
+                string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+            
+            if (isRegistered)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] ✓ Registration verified: UserGuid {UserGuid} found in database ;CLEANUP_OK", 
+                    requestId, storedUserGuid);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] ✗ SECURITY VIOLATION: UserGuid {UserGuid} in storage but NOT in database - possible tampering ;CLEANUP_OK", 
+                    requestId, storedUserGuid);
+                
+                // Clear invalid UserGuid from storage
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", $"noor_user_guid_{token}");
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", $"noor_user_guid_{token}");
+            }
+            
+            return isRegistered;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:canvas] Exception during participant registration check ;CLEANUP_OK");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Exception during registration check ;CLEANUP_OK", 
+                requestId);
             return false;
         }
     }

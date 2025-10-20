@@ -1512,6 +1512,10 @@ background-color: #effff9;
                     
                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-sticky-buttons:simple] SessionBegan received with canvasType: {CanvasType} ;CLEANUP_OK", canvasType);
                     
+                    // [DEBUG-WORKITEM:userlanding:bypass-flag] Set bypass flag BEFORE auto-navigation to prevent registration guard redirect ;CLEANUP_OK
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:bypass-flag] Bypass flag set for SessionBegan auto-navigation ;CLEANUP_OK");
+
                     // Navigate all waiting users to the selected canvas type
                     await InvokeAsync(() =>
                     {
@@ -1533,6 +1537,8 @@ background-color: #effff9;
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-sticky-buttons:simple] Error parsing SessionBegan event, defaulting to asset canvas ;CLEANUP_OK");
+                    // [DEBUG-WORKITEM:userlanding:bypass-flag] Set bypass flag even for fallback navigation ;CLEANUP_OK
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
                     // Fallback to asset canvas on error
                     await InvokeAsync(() =>
                     {
@@ -1563,6 +1569,10 @@ background-color: #effff9;
                     
                     Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] Transcript shared for session {SessionId}, navigating to transcript canvas ;CLEANUP_OK", sessionId);
                     
+                    // [DEBUG-WORKITEM:userlanding:bypass-flag] Set bypass flag BEFORE TranscriptShared navigation ;CLEANUP_OK
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:bypass-flag] Bypass flag set for TranscriptShared navigation ;CLEANUP_OK");
+
                     // Navigate all participants to transcript canvas view
                     await InvokeAsync(() =>
                     {
@@ -1983,22 +1993,43 @@ background-color: #effff9;
     /// <summary>
     /// AUTHENTICATION GATE: Verify if user is registered as participant before allowing session access
     /// Fixes bug where unregistered users could bypass registration requirement
+    /// Per-participant isolation using UserGuid from canvas.Participants
     /// </summary>
     private async Task<bool> CheckParticipantRegistrationAsync(string token, string requestId)
     {
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:waiting] Checking participant registration status for token: {0} ;CLEANUP_OK", 
-                token);
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] Checking participant registration status for token: {Token} ;CLEANUP_OK", 
+                requestId, token);
 
+            // [SECURITY] Get stored UserGuid from browser storage (per-participant isolation)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (string.IsNullOrEmpty(storedUserGuid))
+            {
+                // Fallback to localStorage for cross-tab persistence
+                storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            }
+
+            if (string.IsNullOrEmpty(storedUserGuid))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] No UserGuid found in storage - user must register ;CLEANUP_OK", 
+                    requestId);
+                return false;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] Found stored UserGuid: {UserGuid}, verifying against database ;CLEANUP_OK", 
+                requestId, storedUserGuid);
+
+            // [SECURITY] Verify this UserGuid exists in canvas.Participants for this session
             using var httpClient = HttpClientFactory.CreateClient("default");
             var participantsUrl = $"/api/participant/session/{token}/participants";
             var response = await httpClient.GetAsync(participantsUrl);
 
             if (!response.IsSuccessStatusCode)
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:waiting] Participant check API failed: {0} ;CLEANUP_OK", 
-                    response.StatusCode);
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] Participant check API failed: {StatusCode} ;CLEANUP_OK", 
+                    requestId, response.StatusCode);
                 return false;
             }
 
@@ -2006,26 +2037,38 @@ background-color: #effff9;
             var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            // Check if any participant matches current browser session (via stored UserGuid)
-            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
-            
-            if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
+            if (participantsData?.Participants == null)
             {
-                var isRegistered = participantsData.Participants.Any(p => 
-                    string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:waiting] Registration check result: {0} (UserGuid: {1}) ;CLEANUP_OK", 
-                    isRegistered, storedUserGuid);
-                
-                return isRegistered;
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] No participants data returned from API ;CLEANUP_OK", 
+                    requestId);
+                return false;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:waiting] No stored UserGuid found - user not registered ;CLEANUP_OK");
-            return false;
+            // [SECURITY] Check if stored UserGuid matches ANY participant in database
+            var isRegistered = participantsData.Participants.Any(p => 
+                string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+            
+            if (isRegistered)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] ✓ Registration verified: UserGuid {UserGuid} found in database ;CLEANUP_OK", 
+                    requestId, storedUserGuid);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] ✗ SECURITY VIOLATION: UserGuid {UserGuid} in storage but NOT in database - possible tampering ;CLEANUP_OK", 
+                    requestId, storedUserGuid);
+                
+                // Clear invalid UserGuid from storage
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", $"noor_user_guid_{token}");
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", $"noor_user_guid_{token}");
+            }
+            
+            return isRegistered;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:waiting] Exception during participant registration check ;CLEANUP_OK");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:waiting] [{RequestId}] Exception during participant registration check ;CLEANUP_OK", 
+                requestId);
             return false;
         }
     }
