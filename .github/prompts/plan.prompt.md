@@ -654,6 +654,442 @@ Low Priority:
 
 ---
 
+### Test Generation Integration & Orchestration
+
+**Objective**: Automatic test generation per phase with intelligent test type selection, orchestration scripts, and enhancements (automated selectors, Percy baselines, flakiness detection)
+
+**When**: During {key}.plan.md generation (Step 2) - each phase specifies its test requirements
+
+---
+
+#### Test Type Decision Matrix
+
+**Purpose**: Automatically determine which test types to generate based on change characteristics
+
+**Decision Flow**:
+
+```
+IF (UI component changes OR CSS/styling OR layout modification)
+  → Generate: Percy Visual Regression + Functional E2E
+  → Mode: headed (visual changes require human verification during development)
+  → Rationale: Visual changes need baseline comparison
+
+ELSE IF (API endpoint OR navigation OR form submission OR SignalR)
+  → Generate: Functional E2E only
+  → Mode: headless (behavior-only validation, suitable for CI/CD)
+  → Rationale: No visual changes, focus on functional correctness
+
+ELSE IF (Database schema OR migration OR services only)
+  → Generate: None (unit tests preferred)
+  → Rationale: Infrastructure changes, E2E tests not optimal
+
+ELSE (documentation, logging, internal refactoring)
+  → Generate: None
+  → Rationale: No user-facing changes
+```
+
+**Implementation in {key}.plan.md**:
+
+Each phase includes a **Playwright Test Specification** section with:
+- **Test Type**: Functional E2E | Percy Visual | None
+- **Mode**: headed | headless (with rationale)
+- **Percy**: Yes | No (with rationale)
+- **Test Scenarios**: List of specific behaviors to verify
+- **Selector Strategy**: Framework-aware (Blazor vs HTML)
+- **Browser Log Validation**: Expected logs vs errors to ignore
+
+---
+
+#### Orchestration Script Generation
+
+**Purpose**: Generate phase-specific PowerShell orchestration scripts using shared function library
+
+**Script Naming Convention**: `run-{key}-phase{N}-test.ps1`
+
+**Script Location**:
+- **Development**: `.github/prompts.keys/{key}/scripts/` (during phase work)
+- **Production**: `Scripts/` (copied when phase finalized and merged)
+
+**Shared Orchestration Library**:
+
+**File**: `.github/prompts.keys/{key}/scripts/Invoke-TestOrchestration.ps1`
+
+**Functions**:
+```powershell
+function Start-AppProcess {
+    param([string]$AppPath, [int]$Port, [string]$Environment = "Development")
+    # Returns: Process object with PID for cleanup
+}
+
+function Wait-AppReady {
+    param([string]$HealthCheckUrl, [int]$MaxAttempts = 30, [int]$IntervalSeconds = 1)
+    # Returns: $true if app ready, $false if timeout
+}
+
+function Stop-AppProcess {
+    param([System.Diagnostics.Process]$Process, [string]$ProcessName)
+    # Ensures clean shutdown with fallback to force kill
+}
+
+function Invoke-PlaywrightTest {
+    param([string]$TestFile, [string]$TestPath = "Tests/UI", [bool]$Headed = $true, [bool]$Percy = $false)
+    # Returns: Exit code from Playwright test run
+}
+```
+
+**Per-Phase Orchestration Script Template**:
+
+```powershell
+# run-{key}-phase{N}-test.ps1
+# Purpose: Phase {N} - {Title} test orchestration
+
+$ErrorActionPreference = "Stop"
+
+# Import shared orchestration functions
+. "$PSScriptRoot\Invoke-TestOrchestration.ps1"
+
+Write-Host "=== Phase {N}: {Title} Test ===" -ForegroundColor Cyan
+
+# Step 1: Start application
+$app = Start-AppProcess -AppPath "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" -Port 9091
+
+# Step 2: Wait for health check
+$appReady = Wait-AppReady -HealthCheckUrl "https://localhost:9091"
+
+if (-not $appReady) {
+    Write-Host "App failed to start" -ForegroundColor Red
+    Stop-AppProcess -Process $app
+    exit 1
+}
+
+# Step 3: Run Playwright tests
+try {
+    $exitCode = Invoke-PlaywrightTest `
+        -TestFile "{key}-phase{N}-{feature}.spec.ts" `
+        -Headed $true `
+        -Percy ${percy_enabled}
+    
+    exit $exitCode
+}
+finally {
+    # Step 4: Cleanup (always runs)
+    Stop-AppProcess -Process $app -ProcessName "dotnet"
+}
+```
+
+**Benefits**:
+- ✅ Zero script duplication across phases
+- ✅ Consistent app lifecycle management
+- ✅ Automatic cleanup even on test failures
+- ✅ Portable health check logic
+- ✅ Easy mode and Percy toggling per phase
+
+---
+
+#### Enhancement D: Automated Test Selector Strategy
+
+**Purpose**: Generate framework-aware selectors automatically based on component analysis
+
+**Implementation**:
+
+1. **Analyze Component Framework** (from .razor files):
+   - **Blazor Components**: `<InputText>`, `<EditForm>`, `<ValidationMessage>`
+   - **HTML Elements**: `<input>`, `<button>`, `<form>`
+
+2. **Generate Correct Selectors**:
+   
+   **Blazor Components**:
+   ```typescript
+   // ✅ Use ID selectors (Blazor generates stable IDs)
+   await page.locator('#firstName').fill('John');
+   await page.locator('#submitButton').click();
+   
+   // ✅ Use CSS class selectors (for styled components)
+   await page.locator('.blazor-validation-message').textContent();
+   ```
+   
+   **HTML Elements**:
+   ```typescript
+   // ✅ Use attribute selectors (more stable than text)
+   await page.locator('input[name="email"]').fill('user@example.com');
+   await page.locator('button[type="submit"]').click();
+   
+   // ✅ Use data-testid for complex scenarios
+   await page.locator('[data-testid="registration-form"]').isVisible();
+   ```
+
+3. **Include Wait Strategies**:
+   ```typescript
+   // ✅ Wait for element visibility (not just existence)
+   await page.waitForSelector('#userId', { state: 'visible', timeout: 15000 });
+   
+   // ✅ Wait for navigation completion
+   await page.waitForURL('**/SessionCanvas**', { waitUntil: 'networkidle' });
+   
+   // ❌ NEVER use arbitrary delays
+   // await page.waitForTimeout(5000); // FORBIDDEN
+   ```
+
+4. **Document Selector Strategy in Test Specification**:
+   
+   Each phase's "Playwright Test Specification" includes:
+   ```markdown
+   **Selector Strategy**:
+   - Framework: Blazor (uses InputText, EditForm)
+   - Primary Selectors: #id (stable IDs from @id attribute)
+   - Fallback Selectors: .css-class (for styled components)
+   - Wait Strategy: waitForSelector with state: 'visible', timeout: 15000ms
+   ```
+
+**Expected Outcome**: Zero trial-and-error selector debugging, framework-aware test generation
+
+---
+
+#### Enhancement E: Percy Baseline Management
+
+**Purpose**: Create phase-specific visual baselines for incremental regression detection
+
+**Implementation**:
+
+1. **Baseline Creation After Phase Completion**:
+   ```powershell
+   # In orchestration script after tests pass
+   npx percy snapshot "{key}-phase{N}-baseline" `
+       --widths "375,768,1280" `
+       --min-height 1024
+   
+   Write-Host "Percy baseline created: {key}-phase{N}-baseline" -ForegroundColor Green
+   ```
+
+2. **Subsequent Phase Comparison**:
+   ```typescript
+   // In Phase N+1 test
+   import { percySnapshot } from '@percy/playwright';
+   
+   test('Visual regression check against Phase {N} baseline', async ({ page }) => {
+       await page.goto(`${BASE_URL}/SessionCanvas?token=${TOKEN}`);
+       
+       // Compare against previous phase baseline
+       await percySnapshot(page, '{key}-phase{N+1}', {
+           widths: [375, 768, 1280],
+           minHeight: 1024,
+           percyCSS: '.dynamic-timestamp { visibility: hidden; }' // Hide dynamic content
+       });
+   });
+   ```
+
+3. **Regression Detection**:
+   - If visual diff detected → Percy dashboard shows:
+     * Which phase introduced the change
+     * Exact component with visual difference
+     * Side-by-side comparison with previous baseline
+   
+4. **Baseline Metadata in Progress Checklist**:
+   ```markdown
+   - [ ] **Phase 3**: Session Registration Guard
+     - [ ] Percy baseline created: `{key}-phase3-baseline` (2025-10-20T14:30:00Z)
+     - [ ] Visual regression: None (compared to phase2-baseline)
+   ```
+
+**Expected Outcome**: Clear visual regression source identification, incremental validation
+
+---
+
+#### Enhancement B: Test Flakiness Detection
+
+**Purpose**: Run each phase test 3 times to identify unreliable tests early
+
+**Implementation**:
+
+1. **Automatic 3x Test Execution** (in orchestration script):
+   ```powershell
+   $testRuns = @()
+   
+   for ($i = 1; $i -le 3; $i++) {
+       Write-Host "Test run $i/3..." -ForegroundColor Yellow
+       
+       $exitCode = Invoke-PlaywrightTest -TestFile "{test}.spec.ts" -Headed $false
+       $testRuns += @{ Run = $i; Passed = ($exitCode -eq 0) }
+       
+       Start-Sleep -Seconds 2  # Brief delay between runs
+   }
+   
+   # Analyze results
+   $passCount = ($testRuns | Where-Object { $_.Passed }).Count
+   
+   if ($passCount -eq 3) {
+       Write-Host "Test STABLE (3/3 passes)" -ForegroundColor Green
+       $flakiness = "stable"
+   }
+   elseif ($passCount -ge 1) {
+       Write-Host "Test FLAKY ($passCount/3 passes)" -ForegroundColor Yellow
+       $flakiness = "flaky"
+   }
+   else {
+       Write-Host "Test FAILING (0/3 passes)" -ForegroundColor Red
+       $flakiness = "failing"
+   }
+   ```
+
+2. **Flakiness Reporting in Progress Checklist**:
+   ```markdown
+   - [ ] **Phase 3**: Session Registration Guard
+     - [ ] Test passing: 5/6 scenarios
+     - [ ] Test stability: 5 stable, 1 flaky (registration-redirect: 2/3)
+     - [ ] Flaky test analysis: Race condition in navigation timing
+   ```
+
+3. **Flaky Test Handling**:
+   - **Stable (3/3)**: ✅ Pass - proceed to next phase
+   - **Flaky (1-2/3)**: ⚠️ Warning - flag test, investigate root cause, proceed with caution
+   - **Failing (0/3)**: ❌ Fail - halt phase, fix test or implementation
+
+**Expected Outcome**: Unreliable tests identified before accumulation, early root cause analysis
+
+---
+
+#### Browser Log Validation Strategy
+
+**Purpose**: Distinguish server-side logs (won't appear in browser) from client-side logs (will appear)
+
+**Critical Understanding**:
+
+1. **Server-Side Logs (NOT in Browser Console)**:
+   - `Logger.LogInformation("Registration guard activated")`
+   - `Logger.LogWarning("Missing session token")`
+   - `Logger.LogError("Database connection failed")`
+   - **Location**: Application logs, terminal output, log files
+   - **Verification**: Check terminal output during orchestration, not browser console
+
+2. **Client-Side Logs (IN Browser Console)**:
+   - `console.log("User ID saved to localStorage")`
+   - `console.error("Failed to load session data")`
+   - JavaScript runtime errors, React/Blazor component errors
+   - **Location**: Browser DevTools Console
+   - **Verification**: Playwright `page.on('console')` listener
+
+3. **Test Verification Strategy**:
+   
+   **Verify Functionality Through Behavior** (not log presence):
+   ```typescript
+   // ✅ CORRECT: Verify redirect happened
+   await expect(page).toHaveURL(/.*\/UserGuidRegistration.*/);
+   
+   // ✅ CORRECT: Verify data saved
+   const userId = await page.evaluate(() => localStorage.getItem('userGuid'));
+   expect(userId).toBeTruthy();
+   
+   // ❌ WRONG: Looking for server log in browser console
+   // Server logs won't appear in browser - this will fail
+   ```
+   
+   **Capture Browser Console Errors**:
+   ```typescript
+   const consoleErrors: string[] = [];
+   
+   page.on('console', msg => {
+       if (msg.type() === 'error') {
+           consoleErrors.push(msg.text());
+       }
+   });
+   
+   // After test
+   expect(consoleErrors).toHaveLength(0); // Assert no JS errors
+   ```
+
+4. **Document in Test Specification**:
+   ```markdown
+   **Browser Log Validation**:
+   - **Server-side logs** (won't appear in browser):
+     * Logger.LogInformation: "Registration guard activated"
+     * Logger.LogWarning: "Missing participant data"
+   - **Client-side logs** to verify:
+     * console.log: "User ID saved: {guid}"
+   - **JavaScript errors to ignore**:
+     * "[HMR] Waiting for update signal" (dev mode hot reload)
+   ```
+
+**Expected Outcome**: Tests validate behavior, not log presence; clear distinction between server/client logs
+
+---
+
+#### Integration with {key}.plan.md Template
+
+Each phase in the generated plan includes:
+
+1. **Playwright Test Specification** section:
+   - Test type (Functional E2E | Percy Visual | None) - from decision matrix
+   - Test scenarios (specific behaviors to verify)
+   - **Selector Strategy** - automated based on component analysis (Enhancement D)
+   - Mode (headed | headless) with rationale
+   - **Percy baseline metadata** (Enhancement E)
+   - **Flakiness detection results** (Enhancement B)
+   - Browser log validation strategy
+
+2. **Test Generation Handoff** section:
+   - Copy-paste invocation for test-generation agent
+   - Includes key, feature, scenario, endpoints, tokens
+   - Specifies Percy and mode requirements
+
+3. **Orchestration Script Specification** section:
+   - Script name and location
+   - Uses shared orchestration library
+   - Includes flakiness detection logic (Enhancement B)
+   - Includes Percy baseline creation (Enhancement E)
+
+**Example Phase Structure**:
+
+```markdown
+## Phase 3: Session Registration Guard UI
+
+### Playwright Test Specification
+
+**Test Type**: Percy Visual + Functional E2E
+**Mode**: headed (UI changes require visual verification)
+**Percy**: Yes (new registration form layout)
+
+**Test Scenarios**:
+1. Unregistered user redirected to UserGuidRegistration
+2. Registration form visible with correct styling
+3. Form submission creates user GUID in database
+4. Successful registration redirects to SessionCanvas
+5. localStorage stores user GUID persistently
+
+**Selector Strategy** (Enhancement D):
+- Framework: Blazor (uses InputText, EditForm components)
+- Primary Selectors: #firstName, #lastName, #submitButton (stable IDs)
+- Fallback Selectors: .registration-form-input (CSS classes)
+- Wait Strategy: waitForSelector with state: 'visible', timeout: 15000ms
+
+**Browser Log Validation**:
+- Server-side logs (won't appear): "Registration guard activated", "User created"
+- Client-side logs: "User ID saved to localStorage: {guid}"
+- Errors to ignore: "[HMR] Waiting for update signal"
+
+**Percy Baseline** (Enhancement E):
+- Baseline name: `sessionguard-phase3-baseline`
+- Comparison: Against phase2-baseline
+- Widths: 375px, 768px, 1280px
+
+**Flakiness Detection** (Enhancement B):
+- Run count: 3x per test
+- Stability threshold: 3/3 = stable, 2/3 = flaky (warning), 0-1/3 = failing (halt)
+
+### Test Generation Handoff
+
+@workspace /test-generation feature=session-registration scenario="unregistered-user-redirect" endpoints="/api/participants/create" tokens="Host=PQ9N5YWW,User=KJAHA99L" key=sessionguard
+
+### Orchestration Script Specification
+
+**Script File**: `run-sessionguard-phase3-test.ps1`
+**Location**: `.github/prompts.keys/sessionguard/scripts/`
+
+Uses shared library: `Invoke-TestOrchestration.ps1`
+Includes: Flakiness detection (3x run), Percy baseline creation, browser log capture
+```
+
+---
+
 ### JSON Tracking Structure
 
 **Objective**: Maintain machine-readable progress tracking alongside markdown documentation
