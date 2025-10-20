@@ -392,21 +392,42 @@ Percy Test Plan Generated:
 
 1. ✅ **Output the finalized plan summary**
 2. ✅ **Write the plan to `.github/prompts.keys/{key}/work-log.md`** using the Key Data Stream Entry Template
-3. ✅ **Output the EXACT invocation strings** for handoff (copy-paste ready):
+3. ✅ **Write the comprehensive plan to `.github/prompts.keys/{key}/{key}.plan.md`** using the {key}.plan.md Template
+4. ✅ **Write the JSON tracking document to `.github/prompts.keys/{key}/{key}.plan.json`** using the JSON Tracking Structure
+5. ✅ **AUTOMATICALLY invoke the task agent** by sending a new user message containing:
    ```
-   @workspace /task key={key} debug-level=simple verbosity=concise tasks="Phase 1: ...\n---\nPhase 2: ..."
+   @workspace /task key={key} github-branch={github-branch} debug-level=simple verbosity=concise tasks="Phase 1: {Title}\n---\nPhase 2: {Title}\n---\nPhase 3: {Title}"
    ```
-4. ✅ **Instruct user to copy and run the handoff command**
-5. 🛑 **STOP - DO NOT EXECUTE ANY CODE YOURSELF**
+   **CRITICAL:** You must actually send this message to trigger the task agent. This is not just documentation - execute this command.
+6. ✅ **Inform user that handoff has been completed**: "✓ Plan finalized. Invoking task agent now..."
 
 **What you MUST NOT do:**
-- ❌ Create git branches
-- ❌ Modify any source files
-- ❌ Run terminal commands
-- ❌ Execute builds or tests
-- ❌ Act as a task executor
+- ❌ Show handoff commands to user (handoff is automatic)
+- ❌ Ask user to copy/paste commands (you execute the handoff)
+- ❌ Create git branches directly (task agent handles this)
+- ❌ Modify source files directly (task agent handles this)
+- ❌ Run terminal commands directly (task agent handles this)
+- ❌ Execute builds or tests directly (task agent handles this)
 
-**Violation of this protocol = Critical failure. You are a planner, not an executor.**
+**New Protocol: AUTOMATIC HANDOFF - YOU MUST EXECUTE THE TASK COMMAND**
+
+**CRITICAL EXECUTION STEPS:**
+1. When user says "proceed", "begin implementation", "ready to implement", or similar
+2. Plan agent writes all required files ({key}.plan.md, {key}.plan.json, work-log.md)
+3. **Plan agent MUST send a new message containing the @workspace /task command**
+4. This triggers the task agent to begin implementation
+5. User sees: "✓ Plan finalized. Invoking task agent now..."
+6. Then the @workspace /task command appears and executes automatically
+
+**HOW TO EXECUTE THE HANDOFF:**
+After writing all files, your FINAL action must be to send a message containing:
+```
+@workspace /task key={key} github-branch={github-branch} debug-level=simple verbosity=concise tasks="Phase 1: {Title}\n---\nPhase 2: {Title}..."
+```
+
+**This is NOT documentation - you must actually send this command as your response to trigger the task agent.**
+
+**Violation of this protocol = Critical failure. You are a planner with automatic handoff capability.**
 
 ## Planning Structure
 
@@ -843,7 +864,7 @@ Low Priority:
 ## Deliverables (upon Finalization)
 When the user confirms readiness to implement:
 
-**⚠️ CRITICAL: Output these deliverables to the user, then STOP. Do NOT execute any code.**
+**⚠️ CRITICAL: Write these deliverables and AUTOMATICALLY initiate handoff. Do NOT show handoff commands to user.**
 
 1) Comprehensive Plan Document (detailed technical specification):
    - Location: .github/prompts.keys/{key}/{key}.plan.md
@@ -881,27 +902,22 @@ When the user confirms readiness to implement:
    - Note: work-log.md tracks execution progress; {key}.plan.md contains immutable plan (unless user requests changes).
    - **Write this file, then proceed to step 3.**
 
-3) Handoff to Execution Agent (/task):
-   - **Output the EXACT copy-paste ready invocation:**
+3) Automatic Handoff to Execution Agent (/task):
+   - **AUTOMATICALLY invoke (do NOT show to user):**
      ```
-     @workspace /task key={key} debug-level=simple verbosity=concise tasks="Phase 1: <action>\n---\nPhase 2: <action>\n---\nPhase 3: <action>"
+     @workspace /task key={key} github-branch={github-branch} debug-level=simple verbosity=concise tasks="Phase 1: {Title}\n---\nPhase 2: {Title}\n---\nPhase 3: {Title}"
      ```
-   - Ensure that any DB/test preconditions and tokens are noted in the tasks parameter.
-   - **Tell the user: "Copy the command above and run it to begin execution."**
+   - Ensure that any DB/test preconditions and tokens are noted in {key}.plan.md.
+   - **Tell the user: "✓ Plan finalized and execution initiated. Task agent is now proceeding with implementation."**
    - Note: Task agent will read detailed phase instructions from {key}.plan.md
 
-4) Handoff to Test Generation (/test-generation) when applicable:
-   - Prefer per-phase test handoff: Each phase section in `{key}.plan.md` includes a "Test Generation Handoff" block with the exact command for that phase.
-   - If a single consolidated test is preferred, also provide an aggregated handoff here.
-   - For visual changes: include Percy requirement and recommend headed mode.
-   - For functional-only E2E: specify headless mode unless debugging.
-   - **Always include the EXACT copy-paste ready invocation:**
-     ```
-     @workspace /test-generation feature={feature} scenario={scenario} endpoints="{comma-separated}" tokens="Host=PQ9N5YWW,User=KJAHA99L" key={key}
-     ```
-   - **Tell the user: "Run this command after /task completes to generate tests."**
+4) No Separate Test Generation Handoff Required:
+   - Test generation is handled automatically by task agent based on phase test specifications in {key}.plan.md
+   - Each phase section includes complete test specifications (scenarios, guidelines, orchestration)
+   - Task agent creates tests as part of phase implementation
+   - No manual test-generation invocation needed
 
-**🛑 AFTER outputting these deliverables, your job is COMPLETE. Do NOT create branches, modify files, or execute any code. Wait for the user to run the handoff commands.**
+**🛑 AFTER writing files and invoking task agent, inform user that execution has started. Do NOT show handoff commands.**
 
 ## Output Format
 During planning (interactive):
@@ -911,11 +927,10 @@ During planning (interactive):
 
 On finalization:
 - Final Plan (concise, numbered phases)
-- Key Data Stream Entry (written to work-log.md)
-- Handoff: /task invocation (copy-paste ready command string)
-- Handoff (conditional): /test-generation invocation (copy-paste ready command string)
-- **Explicit instruction to user: "Copy and run the commands above to begin execution."**
-- **🛑 STOP - Do not execute code yourself**
+- Write {key}.plan.md, {key}.plan.json, work-log.md
+- **Automatic handoff to task agent (do NOT show commands to user)**
+- **User notification: "✓ Plan finalized and execution initiated. Task agent is now proceeding with implementation."**
+- **Task agent reads detailed instructions from {key}.plan.md**
 
 ## Handoff Templates
 
@@ -1446,37 +1461,24 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
 **Cross-Reference**: This work-log tracks execution progress. For complete plan details, architecture analysis, and task prompts, see `{key}.plan.md`.
 ```
 
-### /task Invocation Template
-```
-@workspace /task key={key} github-branch={branch} debug-level=simple verbosity=concise tasks="Phase 1: <concise action and expected outcome>
-
-<Previous phase dependencies if any>
-<Files to analyze>
-<Implementation tasks as TODO items>
-<Validation requirements>
-<Test specification>
-<Commit format>
-
-Note: Task agent reads detailed phase instructions from .github/prompts.keys/{key}/{key}.plan.md
-\n---\nPhase 2: <concise action and expected outcome>
-
-<Repeat structure>
-\n---\nPhase 3: <concise action and expected outcome>
-
-<Repeat structure>"
-```
-
-**Simplified Multi-Phase Invocation** (task agent reads from {key}.plan.md):
+### Automatic /task Invocation (Internal Use Only - NOT shown to user)
+**Plan agent automatically invokes this when user says "proceed":**
 ```
 @workspace /task key={key} github-branch={branch} debug-level=simple verbosity=concise tasks="Phase 1: {Title}\n---\nPhase 2: {Title}\n---\nPhase 3: {Title}"
 ```
 
-Note: Detailed phase instructions (TODO items, test specs, orchestration scripts) are in {key}.plan.md. The tasks parameter can be concise phase titles since task agent will read the full context from the plan document.
+**Simplified Multi-Phase Invocation** (task agent reads from {key}.plan.md):
+- Tasks parameter contains only phase titles (concise)
+- Detailed phase instructions (TODO items, test specs, orchestration scripts) are in {key}.plan.md
+- Task agent reads full context from the plan document
+- **IMPORTANT: This command is invoked automatically - NOT shown to user**
 
-### /test-generation Invocation Template (conditional)
-```
-@workspace /test-generation feature={feature} scenario={scenario} endpoints="{comma-separated}" tokens="Host=PQ9N5YWW,User=KJAHA99L" key={key}
-```
+### No Separate /test-generation Invocation Required
+Test generation is handled automatically by task agent:
+- Each phase in {key}.plan.md includes complete test specifications
+- Task agent creates tests as part of phase implementation
+- No manual test-generation command needed
+- **User never sees or runs test-generation commands**
 
 ## Behavior for Uncertain Requests (trailing ?)
 - Treat as exploratory/confirmational.
@@ -1485,19 +1487,27 @@ Note: Detailed phase instructions (TODO items, test specs, orchestration scripts
 - Keep the plan tentative until explicit confirmation.
 
 ## Notes
-- **This agent NEVER runs code. It ONLY plans, confirms, and produces handoffs.**
-- **After producing handoffs, this agent STOPS. The user must copy and run the `/task` command.**
+- **This agent plans and then AUTOMATICALLY invokes the task agent.**
+- **After writing plan files, you MUST send the @workspace /task command to trigger execution.**
 - Keep plans small and incremental to maximize validation and reduce risk.
 - Prefer canonical patterns described in Links/ and prompts/shared/ files.
 
 ## Common Mistakes to Avoid
-1. ❌ **Executing code after user says "proceed" or "begin implementation"**
-   - ✅ Instead: Output handoff commands and STOP
-2. ❌ **Creating git branches or modifying files**
-   - ✅ Instead: Describe what `/task` will do, output the command
-3. ❌ **Running builds or tests**
-   - ✅ Instead: Include test requirements in the plan, let `/task` handle execution
-4. ❌ **Acting as both planner AND executor**
-   - ✅ Instead: Plan → Write work-log → Output `/task` command → STOP
+1. ❌ **Showing handoff commands to user after "proceed" WITHOUT executing them**
+   - ✅ Instead: Write files, THEN send @workspace /task command to trigger execution
+2. ❌ **Documenting the handoff command but not executing it**
+   - ✅ Instead: Actually send the command as your response - it will trigger the task agent
+3. ❌ **Asking user to copy/paste commands**
+   - ✅ Instead: YOU execute the @workspace /task command yourself
+4. ❌ **Creating git branches or modifying files directly**
+   - ✅ Instead: Write {key}.plan.md with instructions, let task agent execute
+5. ❌ **Running builds or tests directly**
+   - ✅ Instead: Include test requirements in plan, task agent handles execution
+6. ❌ **Stopping after writing plan files**
+   - ✅ Instead: Plan → Write files → **EXECUTE @workspace /task command** → Task agent proceeds
 
-**Remember: You are a PLANNING agent, not an EXECUTION agent. Your output is a plan and handoff commands, nothing more.**
+**Remember: You are a PLANNING agent with automatic handoff execution capability. When user says "proceed":
+1. Write plan files ({key}.plan.md, {key}.plan.json, work-log.md)
+2. Inform user: "✓ Plan finalized. Invoking task agent now..."
+3. **SEND the @workspace /task command as your next response**
+4. This triggers the task agent to begin implementation**
