@@ -174,5 +174,16 @@ Debug: [DEBUG-WORKITEM:userlanding:guard:{waiting|canvas|transcript}];CLEANUP_OK
 
 ---
 
+## Current Work Session (2025-10-20)
+
+### User Request (2025-10-20T00:00:00Z)
+Remove automatic navigation to waiting room after participant registration via localStorage. User should manually click the "Join Waiting Room" button to navigate after registration completes.
+
+**Scope**: Modify post-registration flow in `UserLanding.razor` to prevent automatic navigation after successful registration.
+
+**Testing**: Create Playwright test (Percy visual regression) with browser console log monitoring for JavaScript errors.
+
+---
+
 **Plan Finalized:** 2025-10-19  
 **Ready for Execution:** ✅

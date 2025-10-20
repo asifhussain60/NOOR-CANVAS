@@ -397,7 +397,20 @@
                         <span>@Model.ErrorMessage</span>
                     </div>
                 }
-                @if (Model?.ShowTokenPanel == true)
+                @* [DEBUG-WORKITEM:userlanding:trace:manual-nav] Show registration complete panel with join button ;CLEANUP_OK *@
+                @if (Model?.ShowRegistrationComplete == true)
+                {
+                    <div class="user-landing-panel-animate">
+                        <div class="user-landing-panel-header-registration">
+                            <h3 class="user-landing-panel-title">REGISTRATION COMPLETE</h3>
+                            <p class="user-landing-panel-subtitle">Your registration was successful! Click the button below to join the session.</p>
+                        </div>
+                        <div style="text-align: center; margin-top: 1.5rem;">
+                            <i class="fa-solid fa-circle-check" style="color: #006400; font-size: 4rem;"></i>
+                        </div>
+                    </div>
+                }
+                else if (Model?.ShowTokenPanel == true)
                 {
                     <div class="user-landing-panel-animate">
                         <div class="user-landing-panel-header">
@@ -814,15 +827,21 @@
         if (Model == null) return;
 
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] HandleButtonClick called - ShowTokenPanel: {ShowTokenPanel}, TokenInput: {TokenInput}", 
-            requestId, Model.ShowTokenPanel, Model.TokenInput ?? "null");
+        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] HandleButtonClick called - ShowTokenPanel: {ShowTokenPanel}, ShowRegistrationComplete: {ShowRegistrationComplete}, TokenInput: {TokenInput}", 
+            requestId, Model.ShowTokenPanel, Model.ShowRegistrationComplete, Model.TokenInput ?? "null");
 
         Model.IsLoading = true;
         StateHasChanged();
 
         try
         {
-            if (Model.ShowTokenPanel)
+            // [DEBUG-WORKITEM:userlanding:trace:manual-nav] Handle join button click after registration ;CLEANUP_OK
+            if (Model.ShowRegistrationComplete)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] Join button clicked, navigating to session ;CLEANUP_OK");
+                await HandleJoinSession();
+            }
+            else if (Model.ShowTokenPanel)
             {
                 Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Calling HandleTokenValidation", requestId);
                 await HandleTokenValidation();
@@ -993,6 +1012,51 @@
         }
     }
 
+    // [DEBUG-WORKITEM:userlanding:trace:manual-nav] Handle manual join session navigation after registration ;CLEANUP_OK
+    private async Task HandleJoinSession()
+    {
+        if (Model == null) return;
+
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] [{RequestId}] HandleJoinSession called for token: {Token} ;CLEANUP_OK", 
+            requestId, Model.TokenInput);
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
+            
+            if (sessionValidationResponse.IsSuccessStatusCode)
+            {
+                var sessionContent = await sessionValidationResponse.Content.ReadAsStringAsync();
+                var sessionValidation = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(sessionContent, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
+                if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] [{RequestId}] Navigating to SessionCanvas for active session ;CLEANUP_OK", requestId);
+                    Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                }
+                else
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] [{RequestId}] Navigating to SessionWaiting for inactive session ;CLEANUP_OK", requestId);
+                    Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                }
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:trace:manual-nav] [{RequestId}] Session validation failed, defaulting to SessionWaiting ;CLEANUP_OK", requestId);
+                Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:trace:manual-nav] [{RequestId}] Error during join session navigation ;CLEANUP_OK", requestId);
+            Model.ErrorMessage = "Unable to join session. Please try again.";
+        }
+    }
+
     private async Task HandleUserRegistration()
     {
         if (Model == null) return;
@@ -1093,7 +1157,7 @@
                     return;
                 }
                 
-                // Then check session status for proper routing
+                // [DEBUG-WORKITEM:userlanding:trace:manual-nav] Check session status to determine button text, but don't auto-navigate ;CLEANUP_OK
                 var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
                 
                 if (sessionValidationResponse.IsSuccessStatusCode)
@@ -1105,20 +1169,29 @@
                     var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
                     if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
                     {
-                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active and user registered, routing to SessionCanvas");
-                        Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] Session is active, user registered - showing Join Live Canvas button ;CLEANUP_OK");
+                        Model.ButtonText = "Join Live Canvas";
+                        Model.ButtonIconClass = "fa-solid fa-play";
                     }
                     else
                     {
-                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started but user registered, routing to SessionWaiting");
-                        Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] Session not started, user registered - showing Join Waiting Room button ;CLEANUP_OK");
+                        Model.ButtonText = "Join Waiting Room";
+                        Model.ButtonIconClass = "fa-solid fa-hourglass-start";
                     }
+                    
+                    // [DEBUG-WORKITEM:userlanding:trace:manual-nav] Set flag to show join button instead of auto-navigating ;CLEANUP_OK
+                    Model.ShowRegistrationComplete = true;
+                    Model.ErrorMessage = string.Empty;
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:trace:manual-nav] Registration complete - showing manual join button ;CLEANUP_OK");
                 }
                 else
                 {
-                    // Fallback to waiting room if status check fails
-                    Logger.LogWarning("[DEBUG-WORKITEM:user:API] Session status recheck failed, defaulting to waiting room");
-                    Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                    // Fallback to waiting room button if status check fails
+                    Logger.LogWarning("[DEBUG-WORKITEM:userlanding:trace:manual-nav] Session status recheck failed, defaulting to Join Waiting Room button ;CLEANUP_OK");
+                    Model.ButtonText = "Join Waiting Room";
+                    Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                    Model.ShowRegistrationComplete = true;
                 }
             }
             finally
@@ -1389,6 +1462,8 @@
         public string? SessionName { get; set; }
         public string? SessionDescription { get; set; }
         public bool ShowTokenPanel { get; set; } = true;
+        // [DEBUG-WORKITEM:userlanding:trace:manual-nav] Show join button after registration instead of auto-navigating ;CLEANUP_OK
+        public bool ShowRegistrationComplete { get; set; } = false;
         
         // [DEBUG-WORKITEM:user-auth:impl] TokenInput property with automatic uppercase conversion ;CLEANUP_OK
         private string _tokenInput = string.Empty;
