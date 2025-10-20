@@ -322,7 +322,7 @@ try {
                         # Basic validation checks
                         $validationErrors = @()
                         
-                        if ($migrationContent -notmatch "DB_NAME\(\)\s*!=\s*['\"]KSESSIONS['\"]") {
+                        if ($migrationContent -notmatch "DB_NAME\(\)\s*!=\s*['`"]KSESSIONS['`"]") {
                             $validationErrors += "Missing database safety check (DB_NAME() != 'KSESSIONS')"
                         }
                         
@@ -1015,8 +1015,8 @@ try {
         Write-Host "  VALIDATION FAILED!" -ForegroundColor Red
         Write-Host "========================================" -ForegroundColor Red
         Write-Host "`nConfiguration Issues Found:" -ForegroundColor Yellow
-        foreach ($error in $validationErrors) {
-            Write-Host "  ✗ $error" -ForegroundColor Red
+        foreach ($validationError in $validationErrors) {
+            Write-Host "  ✗ $validationError" -ForegroundColor Red
         }
         
         Write-Host "`nREMEDIATION STEPS:" -ForegroundColor Cyan
