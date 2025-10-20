@@ -2,6 +2,57 @@
 
 ---
 
+## [2025-10-20T15:20:00Z] - Phase 2 Complete: Test Reuse in Planning
+
+**Status**: ✅ Completed  
+**Phase**: 2 of 9  
+**Commit**: cb494bc1  
+**Checkpoint**: checkpoint/prompts/2025-10-20_phase2  
+**Duration**: 20 minutes
+
+**Implementation**:
+- Added Step 0.5.7 to `plan.prompt.md`: "Reusable Test Discovery"
+  - Queries `.github/tests/test-index.json` during planning phase
+  - Extracts feature keywords from user request
+  - Calculates Jaccard similarity for each indexed test
+  - Recommends tests with similarity ≥ 0.75 threshold
+- Implemented similarity scoring algorithm
+  - Token-based matching on feature/scenario descriptions
+  - Jaccard similarity: |A ∩ B| / |A ∪ B|
+  - Ranks results by similarity score (descending)
+- Updated plan template with "Reusable Tests" section
+  - Lists matching tests with metadata (key, file, scenarios, tags)
+  - Provides adaptation guidance per test
+  - Reuse recommendation levels: HIGH/MEDIUM/LOW
+
+**Validation**:
+- ✅ Build passes (documentation-only changes)
+- ✅ Step 0.5.7 integrated into planning workflow
+- ✅ Similarity algorithm documented
+- ✅ Plan template includes reusable tests section
+
+**Files Changed**:
+- `.github/prompts/plan.prompt.md` (+108 lines)
+  - Step 0.5.7: Query test index logic
+  - Reusable Tests template section
+- `.github/prompts.keys/prompts/prompts.plan.json` (phase 2 status updated)
+
+**Metrics**:
+- Lines added: 108
+- Lines removed: 8
+- Similarity threshold: 0.75
+- Reuse recommendation levels: 3 (HIGH/MEDIUM/LOW)
+
+**Benefits**:
+- ✅ Discover existing tests before creating duplicates
+- ✅ Leverage proven test patterns from other keys
+- ✅ Reduce test maintenance burden
+- ✅ Consistent testing approach across features
+
+**Next**: Awaiting user "proceed" for Phase 3: Learning Integration
+
+---
+
 ## [2025-10-20T14:30:00Z] - Phase 1 Complete: Centralized Test Index
 
 **Status**: ✅ Completed  
