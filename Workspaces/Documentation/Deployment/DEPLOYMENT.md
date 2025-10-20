@@ -171,6 +171,164 @@ These files are automatically filtered during deployment and removed from produc
 
 ## Database Management
 
+### Production Migrations (Database Schema Changes)
+
+**⭐ NEW**: Automated migration system for safe production database schema changes.
+
+#### Overview
+
+The migration system automates database schema changes during deployment:
+
+- ✅ **Auto-Execution**: ncdeploy.ps1 runs migrations before code deployment
+- ✅ **Safe Rollback**: Auto-rollback on failure + abort deployment
+- ✅ **Audit Trail**: MigrationHistory table tracks all changes
+- ✅ **Dry-Run Mode**: Validate before executing
+- ✅ **Agent Integration**: Task agent auto-generates migrations for DB changes
+
+#### Quick Start
+
+**Validate migrations (recommended before deployment):**
+```powershell
+.\Scripts\ncdeploy.ps1 -DryRun
+```
+
+**Deploy with migrations:**
+```powershell
+.\Scripts\ncdeploy.ps1
+```
+
+#### Migration Workflow
+
+1. **Agent Creates Migration**: When you use `@workspace /task` with database changes, the task agent automatically generates:
+   - Forward migration: `Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql`
+   - Rollback script: `Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql`
+
+2. **Dry-Run Validation** (optional but recommended):
+   ```powershell
+   .\Scripts\ncdeploy.ps1 -DryRun
+   ```
+   Validates:
+   - SQL syntax
+   - Safety checks (DB_NAME validation, transactions)
+   - Idempotent patterns (IF EXISTS / IF NOT EXISTS)
+   - MigrationHistory tracking
+
+3. **Deployment Execution**:
+   ```powershell
+   .\Scripts\ncdeploy.ps1
+   ```
+   - **Step 0.5** (before build): Executes all pending migrations in alphabetical order
+   - On success: Archives to `Scripts/Migrations/Prod/archived/{YYYY-MM-DD}/`
+   - On failure: Auto-executes rollback script + aborts deployment
+
+#### Migration Directory Structure
+
+```
+Scripts/Migrations/Prod/
+├── pending/              # Migrations awaiting deployment
+│   └── migration-{timestamp}-{key}-{description}.sql
+├── archived/             # Successfully deployed migrations
+│   └── {YYYY-MM-DD}/     # Organized by deployment date
+└── rollback/             # Rollback scripts paired with migrations
+    └── rollback-{timestamp}-{key}-{description}.sql
+```
+
+#### Example Deployment Output
+
+```powershell
+PS> .\Scripts\ncdeploy.ps1
+
+========================================
+  NoorCanvas Production Deployment
+  Database: KSESSIONS (Production)
+========================================
+
+[STEP] Database Migrations: Checking for pending migrations...
+→ Found 1 pending migration(s)
+  - migration-20251020-134236-deployment-migration-test-column.sql
+✅ Connected to KSESSIONS database
+✅ MigrationHistory table verified
+
+  ┌─ Executing: migration-20251020-134236-deployment-migration-test-column.sql
+  │  Running migration against KSESSIONS...
+  └─ Migration completed successfully
+     Archived to: archived/2025-10-20/migration-20251020-134236...
+
+✅ All migrations completed successfully
+
+[STEP] Building application in Release mode...
+```
+
+#### Rollback on Failure Example
+
+```powershell
+  ┌─ Executing: migration-20251020-143000-bad-migration.sql
+  │  Running migration against KSESSIONS...
+  └─ Migration FAILED: Syntax error near 'COLUM'
+
+  ⚠️  Rollback script found: rollback-20251020-143000-bad-migration.sql
+  Executing rollback to restore database state...
+  ✅ Rollback completed successfully
+  Database restored to previous state
+
+❌ Migration failed: migration-20251020-143000-bad-migration.sql
+   Deployment aborted.
+```
+
+#### Manual Migration Rollback
+
+If you need to rollback a migration **after** deployment:
+
+```powershell
+# Find the archived migration
+ls .\Scripts\Migrations\Prod\archived\2025-10-20\
+
+# Execute corresponding rollback script
+sqlcmd -S localhost -d KSESSIONS -i .\Scripts\Migrations\Prod\rollback\rollback-{timestamp}-{key}-{description}.sql
+
+# Verify in MigrationHistory
+sqlcmd -S localhost -d KSESSIONS -Q "SELECT * FROM canvas.MigrationHistory WHERE MigrationId = '{timestamp}'"
+```
+
+#### View Migration History
+
+```sql
+-- View all migrations
+SELECT * FROM canvas.MigrationHistory 
+ORDER BY AppliedAt DESC;
+
+-- View rolled back migrations
+SELECT * FROM canvas.MigrationHistory 
+WHERE RolledBackAt IS NOT NULL;
+```
+
+#### Best Practices
+
+1. ✅ **Always run dry-run first**: `.\Scripts\ncdeploy.ps1 -DryRun`
+2. ✅ **Let agents create migrations**: Use `@workspace /task` for DB changes
+3. ✅ **One change per migration**: Easier to rollback, easier to debug
+4. ✅ **Test against KSESSIONS_DEV first** (optional but recommended)
+5. ✅ **Never edit archived migrations**: Create new migration instead
+
+#### Troubleshooting
+
+**"sqlcmd not found"**
+- Install SQL Server Command Line Utilities: https://aka.ms/ssmsfullsetup
+
+**"Cannot connect to KSESSIONS"**
+- Verify SQL Server is running: `Get-Service MSSQLSERVER`
+- Test connection: `sqlcmd -S localhost -d KSESSIONS -Q "SELECT DB_NAME()"`
+
+**"Migration already applied - skipping"**
+- Normal behavior (idempotency)
+- Migration found in MigrationHistory, skipping duplicate execution
+
+**For complete documentation**, see:
+- **Workflow Guide**: `Docs/MIGRATION_WORKFLOW.md` (comprehensive guide)
+- **Migration README**: `Scripts/Migrations/Prod/README.md` (templates & examples)
+
+---
+
 ### Fresh Start with Canvas Sessions
 
 To clear all canvas session data in production without affecting legacy content:
