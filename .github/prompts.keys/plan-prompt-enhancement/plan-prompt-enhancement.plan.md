@@ -327,7 +327,8 @@ N/A (documentation-only phase)
 
 - [ ] **Task 3.1**: Integrate test-generation.prompt.md invocation
   - Each phase specifies test type (functional E2E, Percy visual, or none)
-  - Generate test-generation invocation string for task agent
+  - Generate a per-phase "Test Generation Handoff" block with the exact `/test-generation` invocation (copy-paste ready)
+  - Place new tests under `.github/prompts.keys/{key}/tests/` as mandated; ensure orchestration scripts live under `.github/prompts.keys/{key}/scripts/`
   - Expected outcome: Automatic test creation per phase
   
 - [ ] **Task 3.2**: Implement test type decision matrix
@@ -352,12 +353,14 @@ N/A (documentation-only phase)
   - Distinguish server-side logs (Logger.LogInformation/LogWarning) vs client-side (console.log)
   - Document: Server-side debug markers WON'T appear in browser console
   - Verify functionality through behavior (redirects, data, state), not log messages
+  - Capture and assert that browser console has no `error` entries during tests
   - Expected outcome: Tests validate behavior, not log presence
   
 - [ ] **Task 3.6**: Implement headed vs headless mode decision logic
   - Headed: Visual changes require human verification during development
   - Headless: Behavior-only tests, CI/CD environments
   - Default: Headed for Percy tests, headless for functional E2E
+  - Document the mode choice within each phase's Test Generation Handoff block
   - Expected outcome: Appropriate mode selected per test type
   
 - [ ] **Task 3.7**: **[D] Implement automated test selector strategy**

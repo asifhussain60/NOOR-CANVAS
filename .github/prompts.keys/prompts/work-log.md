@@ -2,6 +2,61 @@
 
 ---
 
+## [2025-10-20] - Holistic Review of Core Orchestration Prompts
+
+**Status**: Analysis Complete, Ready for Implementation
+**Analyst**: GitHub Copilot
+**Request**: Review plan.prompt.md, task.prompt.md, test-generation.prompt.md holistically. Identify risks, assumptions, inefficiencies, and recommend enhancements.
+
+### Analysis Summary
+
+**Documents Created**:
+1. `prompts-holistic-analysis.md` - Complete analysis (5 critical risks, 8 assumptions, 3 inefficiencies)
+2. `prompts-implementation-plan.md` - 5-phase implementation plan (14-19 hours effort)
+3. `prompts-review-summary.md` - Executive summary for user
+
+**User Requirements Addressed**:
+- ✅ Guard rails: Both task and test-generation stop if {key} folder does not exist
+- ✅ Guard rails: Check if on correct github-branch specified in {key}, stop if mismatch
+- ✅ Test organization: Tests created within {key}/tests/ folder (already correct)
+- ✅ Orchestration: Designed to run individually and collectively (enhanced with comprehensive suite)
+- ✅ Responsibility realignment: Image annotations and requirement gathering moved from task to plan
+
+**Critical Risks Identified**:
+1. 🔴 No key existence validation in task/test-generation agents → Users get cryptic file system errors
+2. 🔴 No branch verification in test-generation agent → Tests could pollute master branch
+3. 🟡 Image analysis misplaced in task prompt → Requirements gathered during execution instead of planning
+4. 🟡 Test lifecycle complexity scattered → No collective execution mechanism
+5. 🟡 Missing comprehensive test suite → Can't verify no incremental breakage across phases
+
+**Key Recommendations**:
+1. **Phase 1** (P0): Add key folder existence validation to task.prompt.md Step 0.25 and test-generation.prompt.md Step 0
+2. **Phase 2** (P0): Add branch verification to test-generation.prompt.md Step 0.1 and plan.prompt.md Step 0.1
+3. **Phase 3** (P1): Move image analysis from task.prompt.md Step 2.10 to plan.prompt.md Step 0.6
+4. **Phase 4** (P1): Add comprehensive test suite generation in plan final phase
+5. **Phase 5** (P2): Final validation and documentation
+
+**Assumptions Validated**:
+- Plan assumes task reads {key}.plan.md → NOW ENFORCED via key folder validation
+- Task assumes key folder exists → NOW VALIDATED at Step 0.25
+- Test-generation assumes on correct branch → NOW VERIFIED at Step 0.1
+- Images analyzed during execution → NOW MOVED to planning phase
+
+**Inefficiencies Analyzed**:
+- Technology stack discovery duplication → ALREADY OPTIMIZED (Step 2.12 loads from plan)
+- Test registry deduplication logic → ALREADY CANONICAL (shared reference exists)
+- Orchestration patterns scattered → ALREADY CANONICAL (.github/prompts/shared/test-orchestration-patterns.md)
+
+**Enhancement Opportunities**:
+- Cross-key dependency tracking in plan.json
+- Automated test flakiness detection
+- Plan versioning for scope change tracking
+
+**Next Steps**:
+User should review summary and approve implementation approach. Implementation can proceed sequentially (one phase at a time) or in batch (all 5 phases together).
+
+---
+
 ## [2025-10-15T00:30:00Z] - Enhanced Healthcheck Notes Parameter
 
 **Status**: complete

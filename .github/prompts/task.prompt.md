@@ -116,6 +116,34 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 
 ---
 
+## Plan Integration Protocol
+
+**WHEN invoked with `key` parameter:**
+
+1. **ALWAYS check for comprehensive plan first**: `.github/prompts.keys/{key}/{key}.plan.md`
+2. **If plan exists:**
+   - Load complete phase details from plan document
+   - Load JSON tracking data from `.github/prompts.keys/{key}/{key}.plan.json`
+   - Use plan's technology stack analysis (skip redundant discovery)
+   - Reference plan's architecture layers
+   - Follow plan's test specifications
+   - Update plan's JSON tracking after each phase
+   - Apply plan's System Context Pack (APIs, DB, SignalR, test data)
+3. **If plan missing:**
+   - Use lightweight planning (current Step 3 behavior)
+   - Warn user: "⚠️ No comprehensive plan found. Consider running @workspace /plan first for complex multi-phase work."
+   - Generate simple work plan and proceed
+   - Update markdown work-log only (no JSON tracking)
+
+**Benefits:**
+- ✅ Eliminates redundant analysis (technology stack already discovered by plan agent)
+- ✅ Ensures implementation follows approved architecture
+- ✅ Maintains consistency across phases
+- ✅ JSON tracking enables programmatic progress queries
+- ✅ Reuses pre-gathered context (APIs, DB schemas, test data)
+
+---
+
 ## Execution Steps
 
 **See:** `shared/execution-flow.md` for complete visual flow diagram
@@ -194,6 +222,68 @@ Agent Actions:
 
 ---
 
+### Step 0.25: Key Folder Existence Validation (MANDATORY)
+
+**Trigger:** ALWAYS when `key` parameter is provided or auto-detected
+
+**Purpose:** Verify key data stream infrastructure exists before proceeding
+
+**Validation:**
+
+1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
+   - If NOT exists → HALT immediately
+   - Error message to user:
+     ```
+     ❌ ERROR: Key folder does not exist
+     
+     Key: {key}
+     Expected path: .github/prompts.keys/{key}/
+     
+     This key has not been initialized through the planning process.
+     
+     REQUIRED ACTION:
+     Run the planning agent first to create the key infrastructure:
+     
+     @workspace /plan key={key} user_request="{your requirements}"
+     
+     The planning agent will:
+     - Create the key folder structure
+     - Generate comprehensive plan document
+     - Set up test directory and registry
+     - Prepare handoff for task execution
+     
+     After planning completes, you can run this task command.
+     ```
+   - **EXIT with status code 1** (prevents downstream failures)
+
+2. **Check if plan exists**: `.github/prompts.keys/{key}/{key}.plan.md`
+   - If exists → Use comprehensive plan (existing Step 3 Plan Integration Protocol)
+   - If NOT exists → Warn user but continue with lightweight planning:
+     ```
+     ⚠️ WARNING: No comprehensive plan found
+     
+     Key folder exists but no {key}.plan.md detected.
+     Using lightweight planning mode for simple tasks.
+     
+     For complex multi-phase work, consider running:
+     @workspace /plan key={key} user_request="{requirements}"
+     ```
+
+**Output:**
+- **Concise:** `"✓ Key folder validated: {key}"`
+- **Detailed:** 
+  ```
+  ✓ Key Folder Validation
+  
+  Key: {key}
+  Path: .github/prompts.keys/{key}/
+  Status: EXISTS
+  Plan: {FOUND | NOT FOUND}
+  Mode: {Comprehensive | Lightweight}
+  ```
+
+---
+
 ### Step 1: Checkpoint Commit (MANDATORY)
 
 Create checkpoint commit for rollback capability:
@@ -236,6 +326,7 @@ This ensures rollback capability if the task introduces instability.
 - **2.9:** QuickRef Localization (cache InfrastructureQuickRef, PlaywrightQuickRef - first use only)
 - **2.10:** View Documentation (AI screenshot analysis if `annotate` parameter provided)
 - **2.11:** Refactoring Opportunity Detection (conditional - runs when modifying existing code)
+- **2.12:** Load System Context Pack (if {key}.plan.md exists - load pre-gathered context)
 
 **Routing Logic:**
 - Error reported → 2.4 triages → Routes to 2.5, 2.6, 2.7, or 2.8
@@ -249,18 +340,80 @@ This ensures rollback capability if the task introduces instability.
 
 ---
 
+#### Step 2.12: Load System Context Pack (from plan)
+
+**Trigger:** When `.github/prompts.keys/{key}/{key}.plan.md` exists
+
+**Purpose:** Load pre-gathered execution context to skip redundant analysis
+
+**Actions:**
+1. **Read plan document** at `.github/prompts.keys/{key}/{key}.plan.md`
+2. **Extract System Context Pack section** (if present)
+3. **Cache the following for immediate use:**
+   - **API Endpoints**: Paths, methods, request/response contracts, authentication
+   - **Database Schemas**: Tables, columns, relations, migration details
+   - **SignalR Hubs**: Hub names, event names, payload structures
+   - **Test Data**: Session 212 defaults, tokens (Host/User), canonical URLs
+   - **Configuration**: Environment variables, ports, feature flags
+   - **Canonical References**: Links to InfrastructureQuickRef, PlaywrightQuickRef
+
+**Benefits:**
+- ✅ Skip API endpoint discovery (already documented in plan)
+- ✅ Skip database schema exploration (already validated in plan)
+- ✅ Use pre-validated test data (consistency across phases)
+- ✅ Faster execution (no redundant context gathering)
+- ✅ Technology-aware implementation (framework/version compatibility validated by plan)
+
+**Output:**
+```
+📦 Loaded System Context Pack from plan
+
+- APIs: 3 endpoints cached
+- Database: 2 tables (canvas.Sessions, canvas.Participants)
+- SignalR: SessionHub (3 events)
+- Test Data: Session 212 (Host: PQ9N5YWW, User: KJAHA99L)
+- Technology: ASP.NET Core 8.0 (Blazor Server)
+
+✅ Ready to execute with pre-validated context
+```
+
+---
+
 ### Step 3: Plan
 
-- Use verified/inferred key from Step 2
-- Incorporate architecture analysis from Step 2.8
-- **MANDATORY for CRUD:** Verify complete data lifecycle documented in Step 2.8.7
-- **HIGH-PRIORITY Constraints:** Include dedicated section for ALL CAPS constraints from Step 2.1.5
-- Parse `debug-level`, `verbosity`, `tasks`
-- **Detect completion keywords:** If `tasks` contains "mark complete", prepare Step 9
-- **Detect documentation mode:** If `debug-level: doc`, prepare documentation instead of code execution
-- Incorporate context from Step 2
+**Execution Context Detection:**
 
-**Plan Structure**:
+**A. Phase-Driven Planning** (when `.github/prompts.keys/{key}/{key}.plan.md` exists):
+1. Load comprehensive plan document
+2. Load JSON tracking from `.github/prompts.keys/{key}/{key}.plan.json`
+3. Parse `tasks` parameter for phase identifiers:
+   - Pattern: `Phase 1: {title}\n---\nPhase 2: {title}\n---\nPhase 3: {title}`
+   - Extract phase numbers and titles
+4. For each phase, load from plan document:
+   - **Objectives**: Phase goals (numbered list)
+   - **Context**: Files to analyze, previous phase dependencies
+   - **Implementation Tasks**: TODO items with expected outcomes
+   - **Validation Checklist**: Build, lint, tests
+   - **Playwright Test Specification**: Test scenarios, mode, Percy requirements
+   - **Orchestration Script Specification**: PowerShell template
+   - **Debug Markers**: Specific markers for this phase
+   - **Commit Format**: Template with debug markers
+   - **Approval Gate**: User must approve before next phase
+5. Skip lightweight planning (plan already exists)
+6. Proceed directly to Step 4 (Approval) with loaded phase details
+
+**B. Lightweight Planning** (no plan exists):
+1. Use verified/inferred key from Step 2
+2. Incorporate architecture analysis from Step 2.8
+3. **MANDATORY for CRUD:** Verify complete data lifecycle documented in Step 2.8.7
+4. **HIGH-PRIORITY Constraints:** Include dedicated section for ALL CAPS constraints from Step 2.1.5
+5. Parse `debug-level`, `verbosity`, `tasks`
+6. **Detect completion keywords:** If `tasks` contains "mark complete", prepare Step 9
+7. **Detect documentation mode:** If `debug-level: doc`, prepare documentation instead of code execution
+8. Incorporate context from Step 2
+9. Generate simple work plan
+
+**Plan Structure (Lightweight Mode)**:
 ```markdown
 ## Implementation Plan
 
@@ -443,7 +596,7 @@ Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
 
 ### Step 5: Execute
 
-**Determine execution mode based on `debug-level` parameter.**
+**Determine execution mode based on `debug-level` parameter and plan existence.**
 
 #### 5a. Documentation Mode (`debug-level: doc`)
 **Actions:**
@@ -453,7 +606,20 @@ Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
 4. Output location: `.github/prompts.keys/{key}/implementation-plan.md`
 5. Skip to Step 8 (bypass Steps 6-7)
 
-#### 5b. Implementation Mode (default)
+#### 5b. Phase-Driven Execution (when {key}.plan.md exists)
+**Actions:**
+1. **For each phase in tasks parameter:**
+   - Load full phase details from `.github/prompts.keys/{key}/{key}.plan.md`
+   - Execute TODO items from "Implementation Tasks" section
+   - Follow "Validation Checklist" from plan (build, lint, tests)
+   - Use "Debug Markers" from plan
+   - Apply "Commit Format" template from plan
+   - Update JSON tracking after phase completion (see Step 8.1)
+   - Wait for user approval before next phase (per "Approval Gate")
+2. **Phase completion:** Present summary and request approval for next phase
+3. **Phase failure:** Halt execution, rollback available via checkpoint tag
+
+#### 5c. Lightweight Execution (no plan exists)
 **Actions:**
 1. Execute subtasks in sequence
 2. Halt immediately on failure (unless override)
@@ -676,13 +842,77 @@ SUMMARY: {key-name}
 
 **GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/prompts.keys/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
 
-#### 8.1. Key Data Stream Bloat Detection (Pre-Update Cleanup)
+#### 8.1. Update JSON Tracking (if plan exists)
+
+**Trigger:** When `.github/prompts.keys/{key}/{key}.plan.json` exists
+
+**Purpose:** Maintain machine-readable progress tracking synchronized with markdown work-log
+
+**After each phase completion:**
+
+1. **Load existing JSON** from `.github/prompts.keys/{key}/{key}.plan.json`
+2. **Update phase status**: Find phase by ID, change status from `"in-progress"` to `"complete"`
+3. **Update validation results**:
+   ```json
+   "validation": {
+     "buildPassed": true,
+     "lintPassed": true,
+     "testCreated": true,
+     "testFile": "phase2-session-canvas-guard.spec.ts",
+     "testsPassing": 3,
+     "testsTotal": 3,
+     "flakyTests": 0
+   }
+   ```
+4. **Record commit info**:
+   ```json
+   "commit": {
+     "sha": "{full-40-char-sha}",
+     "message": "{commit-message}",
+     "timestamp": "{ISO-8601-timestamp}"
+   }
+   ```
+5. **Record checkpoint tag**:
+   ```json
+   "checkpoint": {
+     "tag": "checkpoint/{key}/{timestamp}",
+     "timestamp": "{ISO-8601-timestamp}"
+   }
+   ```
+6. **Update metrics** (aggregate across all phases):
+   ```json
+   "metrics": {
+     "completedPhases": 2,      // increment
+     "totalTests": 6,            // aggregate from all phases
+     "passingTests": 6,          // aggregate
+     "flakyTests": 0,            // aggregate
+     "filesModified": 5,         // count unique files
+     "linesAdded": 150,          // sum from git diff
+     "linesRemoved": 20          // sum from git diff
+   }
+   ```
+7. **Update global status** (when all phases complete):
+   ```json
+   "status": "complete",
+   "updated": "{ISO-8601-timestamp}"
+   ```
+8. **Save JSON file** (pretty-printed for readability)
+
+**Synchronization Rule:** Both markdown work-log AND JSON tracking must be updated in same commit
+
+**Output to User:**
+- **Concise:** `"✓ JSON tracking updated (Phase 2 complete)"`
+- **Detailed:** Show updated phase status, metrics, and checkpoint reference
+
+---
+
+#### 8.2. Key Data Stream Bloat Detection (Pre-Update Cleanup)
 1. Read current state: Check file size, entry count
 2. Deduplication: Remove duplicate work log entries
 3. Obsolescence cleanup: Remove superseded implementations, failed experiments
 4. Size limits: If >100 entries or >50KB, trigger consolidation
 
-#### 8.2. Key Data Stream Update Requirements
+#### 8.3. Key Data Stream Update Requirements
 1. Locate key file: `.github/prompts.keys/**/{key}.md`
 2. Retrieve git commit hash: `git rev-parse HEAD`
 3. **Record user request** (Step 2.2.1 - if not already recorded):
@@ -714,7 +944,7 @@ SUMMARY: {key-name}
    - Detailed: Show complete entry added
 6. Maintain alphabetical sorting of keys
 
-#### 8.3. Functionality Registry Validation (Regression Prevention)
+#### 8.4. Functionality Registry Validation (Regression Prevention)
 1. Load Functionality Registry (if exists)
 2. Detect breaking change risk
 3. Execute validation
@@ -725,7 +955,7 @@ SUMMARY: {key-name}
 
 ---
 
-### Step 8.4: Checkpoint Commit & Tag (MANDATORY)
+### Step 8.5: Checkpoint Commit & Tag (MANDATORY)
 
 **After all work is complete and key data stream is updated, create a final checkpoint commit with git tag.**
 
@@ -914,6 +1144,9 @@ Search all modified source files and remove debug logging markers:
 
 ## Guardrails
 
+- **ALWAYS check for comprehensive plan first** (if key provided, look for {key}.plan.md)
+- **ALWAYS load System Context Pack** (if {key}.plan.md exists - Step 2.12)
+- **ALWAYS update JSON tracking** (if {key}.plan.json exists - Step 8.1 after each phase)
 - **ALWAYS query key data stream before planning** (Step 2 is mandatory)
 - **ALWAYS record user request in key data stream** (Step 2.2.1 - succinct summary before work begins)
 - **ALWAYS detect high-priority constraints** (Step 2.1.5 - scan for ALL CAPS emphasis)
@@ -921,8 +1154,9 @@ Search all modified source files and remove debug logging markers:
 - **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
 - **ALWAYS run mandatory lint validation before commit** (Step 6.2 - all modified files MUST pass)
 - **ALWAYS verify high-priority constraints** (Step 6.3 - ALL CAPS constraints MUST be verified)
-- **ALWAYS update key data stream after execution** (Step 8 is mandatory - includes user request and work completed)
-- **ALWAYS create checkpoint commit and git tag after task completion** (Step 8.4 is mandatory)
+- **ALWAYS update key data stream after execution** (Step 8.3 is mandatory - includes user request and work completed)
+- **ALWAYS update JSON tracking if plan exists** (Step 8.1 - synchronize with markdown work-log)
+- **ALWAYS create checkpoint commit and git tag after task completion** (Step 8.5 is mandatory)
 - **ALWAYS prune old checkpoint tags to maintain max 28 per key** (automatic cleanup)
 - **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
 - **ALWAYS preserve all historical entries when resuming completed keys**
