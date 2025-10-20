@@ -801,6 +801,310 @@ Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
 3. Insert debug logging based on `debug-level` parameter
 4. Apply architecture analysis findings (reuse patterns, avoid duplication)
 
+---
+
+#### 5d. Production Migration Generation (Database Changes Detected)
+
+**Trigger:** When phase involves database schema changes (detected in Step 2.8 or from {key}.plan.md "Production Migration Specification")
+
+**Purpose:** Auto-generate forward migration + rollback scripts for safe production deployment
+
+**Detection Signals:**
+- ✅ ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE INDEX, DROP INDEX
+- ✅ ADD CONSTRAINT, DROP CONSTRAINT (foreign keys, defaults, checks)
+- ✅ Schema modifications to canvas.* tables
+- ✅ Data migrations (UPDATE, INSERT for schema initialization)
+- ✅ Phase plan contains "Production Migration Specification" section
+
+**MANDATORY: Skip if Development-Only Changes**
+- ❌ Changes to KSESSIONS_DEV specific data (test sessions, participants)
+- ❌ Temporary test data (will be cleared)
+- ❌ Code-only changes with no database impact
+
+---
+
+**Generation Protocol:**
+
+**Step 1: Extract Migration Details from Plan**
+
+If {key}.plan.md contains "Production Migration Specification" for current phase:
+```markdown
+### Production Migration Specification
+
+**Migration Required**: YES
+**Database Changes**:
+- ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset'
+- CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType])
+
+**Migration Script**: Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-add-canvastype-column.sql
+**Rollback**: Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-add-canvastype-column.sql
+```
+
+Extract:
+- Database changes (SQL statements)
+- Migration description (from filename guidance)
+- Safety checks (if specified)
+- Rollback strategy (reverse operations)
+
+**Step 2: Generate Migration ID**
+
+Format: `{YYYYMMDD-HHMMSS}` (e.g., `20251020-143000`)
+
+```powershell
+# PowerShell command to generate timestamp:
+Get-Date -Format "yyyyMMdd-HHmmss"
+```
+
+**Step 3: Create Forward Migration Script**
+
+Location: `Scripts/Migrations/Prod/pending/migration-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
+
+Template:
+```sql
+-- ============================================================================
+-- Production Migration Script
+-- ============================================================================
+-- Migration ID: {YYYYMMDD-HHMMSS}
+-- Key: {key}
+-- Description: {description}
+-- Created: {ISO-8601-timestamp}
+-- Author: GitHub Copilot (Agent: task)
+-- Database: KSESSIONS (Production)
+-- Schema: canvas
+-- ============================================================================
+
+-- SAFETY CHECKS
+IF DB_NAME() != 'KSESSIONS'
+BEGIN
+    RAISERROR('ERROR: This migration must run against KSESSIONS database only!', 16, 1)
+    RETURN
+END
+GO
+
+-- Check if already applied
+IF EXISTS (SELECT 1 FROM canvas.MigrationHistory WHERE MigrationId = '{YYYYMMDD-HHMMSS}')
+BEGIN
+    PRINT 'Migration {YYYYMMDD-HHMMSS} already applied - skipping'
+    RETURN
+END
+GO
+
+-- MIGRATION LOGIC
+BEGIN TRANSACTION MigrationTrans;
+
+BEGIN TRY
+    PRINT 'Starting migration: {description}'
+    
+    -- {Database changes here - use IF NOT EXISTS checks for idempotency}
+    -- Example:
+    IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType')
+    BEGIN
+        ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset';
+        PRINT '  ✅ Added CanvasType column'
+    END
+    
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Sessions_CanvasType')
+    BEGIN
+        CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType]);
+        PRINT '  ✅ Created index IX_Sessions_CanvasType'
+    END
+    
+    -- Record in history
+    INSERT INTO canvas.MigrationHistory (MigrationId, Description, AppliedAt, AppliedBy)
+    VALUES ('{YYYYMMDD-HHMMSS}', '{description}', GETUTCDATE(), SYSTEM_USER);
+    
+    COMMIT TRANSACTION MigrationTrans;
+    PRINT '✅ Migration {YYYYMMDD-HHMMSS} completed successfully'
+    
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION MigrationTrans;
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    PRINT '❌ Migration failed: ' + @ErrorMessage
+    RAISERROR(@ErrorMessage, 16, 1);
+END CATCH
+GO
+```
+
+**Step 4: Create Rollback Script**
+
+Location: `Scripts/Migrations/Prod/rollback/rollback-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
+
+Template:
+```sql
+-- ============================================================================
+-- Production Migration Rollback Script
+-- ============================================================================
+-- Migration ID: {YYYYMMDD-HHMMSS}
+-- Key: {key}
+-- Description: Rollback {description}
+-- Created: {ISO-8601-timestamp}
+-- Author: GitHub Copilot (Agent: task)
+-- Database: KSESSIONS (Production)
+-- Schema: canvas
+-- ============================================================================
+
+-- SAFETY CHECKS
+IF DB_NAME() != 'KSESSIONS'
+BEGIN
+    RAISERROR('ERROR: This rollback must run against KSESSIONS database only!', 16, 1)
+    RETURN
+END
+GO
+
+-- ROLLBACK LOGIC
+BEGIN TRANSACTION RollbackTrans;
+
+BEGIN TRY
+    PRINT 'Starting rollback: {description}'
+    
+    -- {Reverse database changes - use IF EXISTS checks for idempotency}
+    -- Example (reverse order of forward migration):
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Sessions_CanvasType')
+    BEGIN
+        DROP INDEX IX_Sessions_CanvasType ON [canvas].[Sessions];
+        PRINT '  ✅ Dropped index IX_Sessions_CanvasType'
+    END
+    
+    IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType')
+    BEGIN
+        ALTER TABLE [canvas].[Sessions] DROP COLUMN [CanvasType];
+        PRINT '  ✅ Dropped CanvasType column'
+    END
+    
+    -- Update history
+    UPDATE canvas.MigrationHistory
+    SET RolledBackAt = GETUTCDATE(), RolledBackBy = SYSTEM_USER
+    WHERE MigrationId = '{YYYYMMDD-HHMMSS}';
+    
+    COMMIT TRANSACTION RollbackTrans;
+    PRINT '✅ Rollback {YYYYMMDD-HHMMSS} completed successfully'
+    
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION RollbackTrans;
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    PRINT '❌ Rollback failed: ' + @ErrorMessage
+    RAISERROR(@ErrorMessage, 16, 1);
+END CATCH
+GO
+```
+
+**Step 5: Document Migration in Work Log**
+
+Add to `.github/prompts.keys/{key}/work-log.md`:
+
+```markdown
+### Migration Generated
+
+**Migration ID**: {YYYYMMDD-HHMMSS}
+**Files Created**:
+- `Scripts/Migrations/Prod/pending/migration-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
+- `Scripts/Migrations/Prod/rollback/rollback-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
+
+**Database Changes**:
+- {list of SQL statements}
+
+**Deployment**: Will be executed automatically by ncdeploy.ps1 Step 3
+**Rollback**: Available at Scripts/Migrations/Prod/rollback/rollback-{timestamp}...sql
+
+**Validation**: 
+- ✅ Syntax validated (idempotent checks present)
+- ✅ Safety checks included (DB_NAME validation)
+- ✅ Transaction wrapped (auto-rollback on error)
+- ✅ MigrationHistory tracking included
+```
+
+**Step 6: Commit Migration Scripts**
+
+```bash
+git add Scripts/Migrations/Prod/pending/migration-*.sql
+git add Scripts/Migrations/Prod/rollback/rollback-*.sql
+git commit -m "migration({key}): {description}
+
+Migration ID: {YYYYMMDD-HHMMSS}
+Database: KSESSIONS (Production)
+Schema: canvas
+
+Forward: Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql
+Rollback: Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql
+
+Changes:
+- {list of database changes}
+
+Deployment: Automatic via ncdeploy.ps1 Step 3
+See: Scripts/Migrations/Prod/README.md for workflow"
+```
+
+---
+
+**Output to User:**
+
+**Concise Mode:**
+```
+✅ Generated production migration
+   Migration ID: 20251020-143000
+   Files: Scripts/Migrations/Prod/pending/migration-20251020-143000-user-landing-add-canvastype-column.sql
+          Scripts/Migrations/Prod/rollback/rollback-20251020-143000-user-landing-add-canvastype-column.sql
+```
+
+**Detailed Mode:**
+```
+### Production Migration Generated
+
+**Migration ID**: 20251020-143000
+
+**Database Changes**:
+- ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset'
+- CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType])
+
+**Files Created**:
+1. Forward Migration:
+   `Scripts/Migrations/Prod/pending/migration-20251020-143000-user-landing-add-canvastype-column.sql`
+   
+   - ✅ Safety checks: DB_NAME() = KSESSIONS validation
+   - ✅ Idempotent: IF NOT EXISTS checks for column/index
+   - ✅ Transaction wrapped: Auto-rollback on error
+   - ✅ MigrationHistory tracking
+
+2. Rollback Script:
+   `Scripts/Migrations/Prod/rollback/rollback-20251020-143000-user-landing-add-canvastype-column.sql`
+   
+   - ✅ Reverse operations: DROP INDEX → DROP COLUMN
+   - ✅ Idempotent: IF EXISTS checks
+   - ✅ MigrationHistory update (RolledBackAt timestamp)
+
+**Deployment**:
+- Executed automatically by ncdeploy.ps1 Step 3 (before code deployment)
+- Validated in dry-run mode: `.\Scripts\ncdeploy.ps1 -DryRun`
+- Archived to `archived/{YYYY-MM-DD}/` after successful deployment
+
+**Rollback**:
+- Auto-executed if migration fails during ncdeploy.ps1
+- Manual execution: `sqlcmd -S localhost -d KSESSIONS -i rollback-{timestamp}...sql`
+
+**See**: Scripts/Migrations/Prod/README.md for complete workflow
+```
+
+---
+
+**Critical Rules:**
+
+1. **ALWAYS generate both forward + rollback scripts** (no exceptions)
+2. **ALWAYS use idempotent checks** (IF NOT EXISTS / IF EXISTS)
+3. **ALWAYS validate database name** (DB_NAME() = 'KSESSIONS')
+4. **ALWAYS wrap in transactions** (BEGIN TRANSACTION ... COMMIT/ROLLBACK)
+5. **ALWAYS track in MigrationHistory** (INSERT on forward, UPDATE on rollback)
+6. **NEVER skip rollback script** (even for simple changes like adding column)
+7. **NEVER use hardcoded values** (use DEFAULT constraints for nullable columns)
+
+**See Also:**
+- `Scripts/Migrations/Prod/README.md` - Complete migration workflow
+- `Scripts/Migrations/Prod/init-migration-history.sql` - MigrationHistory table schema
+- `.github/prompts/plan.prompt.md` - Database Migration Protocol (detection rules)
+
+---
+
 **Validation Gate (MANDATORY after every code change):**
 1. **Build Validation:** Run `dotnet build`, verify zero errors/warnings
 2. **Evidence Re-Collection:** For UI bugs, re-run diagnostics to verify fix

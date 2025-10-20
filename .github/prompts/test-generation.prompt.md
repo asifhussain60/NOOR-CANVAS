@@ -385,6 +385,339 @@ Receive from task.prompt.md or plan.prompt.md:
 - Component library development
 - Pre-commit validation (class naming, property conflicts)
 
+**When to generate Migration Validation Tests (SQL + Playwright):**
+- Database schema changes (ALTER TABLE, CREATE INDEX, etc.)
+- Production migration scripts created in Scripts/Migrations/Prod/pending/
+- Migration rollback verification
+- MigrationHistory table integrity checks
+- Migration idempotency validation (multiple execution safety)
+- Post-migration data validation (constraints, defaults, indexes)
+
+---
+
+### Migration Validation Test Generation
+
+**Trigger**: When task agent generates production migration scripts (Step 5d)
+
+**Purpose**: Validate migration syntax, execution safety, rollback functionality, and data integrity
+
+**Test Types:**
+
+#### 1. SQL Syntax Validation Test
+- Parse migration SQL files for syntax errors
+- Validate idempotent checks (IF NOT EXISTS / IF EXISTS)
+- Verify transaction wrappers (BEGIN TRANSACTION / COMMIT / CATCH)
+- Check MigrationHistory tracking statements
+- Validate database name safety checks (DB_NAME() = 'KSESSIONS')
+
+#### 2. Migration Execution Simulation Test
+- Execute migration against KSESSIONS_DEV (not production)
+- Verify schema changes applied correctly
+- Validate MigrationHistory record created
+- Check data integrity (constraints, defaults, indexes)
+- Verify rollback script reverses changes
+- Validate MigrationHistory updated on rollback
+
+#### 3. Idempotency Test
+- Execute migration twice in sequence
+- First run: Should apply changes
+- Second run: Should skip (already applied check)
+- Verify no errors on re-execution
+- Validate MigrationHistory has single entry
+
+**File Naming Convention:**
+```
+migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
+```
+
+**Location**: `.github/prompts.keys/{key}/tests/`
+
+**Example File**: `migration-20251020-143000-user-landing-add-canvastype-validation.spec.ts`
+
+**Test Template:**
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { execSync } from 'child_process';
+import * as fs from 'fs';
+
+test.describe('Migration Validation: {migration-description}', () => {
+  const migrationId = '{YYYYMMDD-HHMMSS}';
+  const migrationFile = 'Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql';
+  const rollbackFile = 'Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql';
+
+  test('SQL syntax validation', () => {
+    // Verify migration file exists
+    expect(fs.existsSync(migrationFile)).toBe(true);
+    
+    // Read migration content
+    const migrationSql = fs.readFileSync(migrationFile, 'utf-8');
+    
+    // Validate required safety checks
+    expect(migrationSql).toContain("DB_NAME() != 'KSESSIONS'");
+    expect(migrationSql).toContain('BEGIN TRANSACTION');
+    expect(migrationSql).toContain('COMMIT TRANSACTION');
+    expect(migrationSql).toContain('BEGIN TRY');
+    expect(migrationSql).toContain('BEGIN CATCH');
+    
+    // Validate idempotent checks (IF NOT EXISTS for forward migration)
+    expect(migrationSql).toContain('IF NOT EXISTS');
+    
+    // Validate MigrationHistory tracking
+    expect(migrationSql).toContain('INSERT INTO canvas.MigrationHistory');
+    expect(migrationSql).toContain(`MigrationId = '${migrationId}'`);
+  });
+
+  test('Rollback script validation', () => {
+    // Verify rollback file exists
+    expect(fs.existsSync(rollbackFile)).toBe(true);
+    
+    // Read rollback content
+    const rollbackSql = fs.readFileSync(rollbackFile, 'utf-8');
+    
+    // Validate required safety checks
+    expect(rollbackSql).toContain("DB_NAME() != 'KSESSIONS'");
+    expect(rollbackSql).toContain('BEGIN TRANSACTION');
+    expect(rollbackSql).toContain('COMMIT TRANSACTION');
+    
+    // Validate idempotent checks (IF EXISTS for rollback)
+    expect(rollbackSql).toContain('IF EXISTS');
+    
+    // Validate MigrationHistory update
+    expect(rollbackSql).toContain('UPDATE canvas.MigrationHistory');
+    expect(rollbackSql).toContain('RolledBackAt');
+    expect(rollbackSql).toContain(`MigrationId = '${migrationId}'`);
+  });
+
+  test('Migration execution simulation (KSESSIONS_DEV)', () => {
+    try {
+      // Execute migration against KSESSIONS_DEV (not production)
+      const migrationOutput = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      
+      // Verify success message
+      expect(migrationOutput).toContain('Migration');
+      expect(migrationOutput).toContain('completed successfully');
+      
+      // Verify MigrationHistory record created
+      const historyCheck = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(historyCheck)).toBe(1);
+      
+      // Verify schema changes applied (example: check column exists)
+      // Customize this query based on your specific migration
+      const schemaCheck = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(schemaCheck)).toBe(1);
+      
+    } catch (error: any) {
+      console.error('Migration execution failed:', error.message);
+      throw error;
+    }
+  });
+
+  test('Rollback execution validation (KSESSIONS_DEV)', () => {
+    try {
+      // Execute rollback against KSESSIONS_DEV
+      const rollbackOutput = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${rollbackFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      
+      // Verify success message
+      expect(rollbackOutput).toContain('Rollback');
+      expect(rollbackOutput).toContain('completed successfully');
+      
+      // Verify MigrationHistory updated with rollback timestamp
+      const historyCheck = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}' AND RolledBackAt IS NOT NULL" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(historyCheck)).toBe(1);
+      
+      // Verify schema changes reversed (example: check column removed)
+      const schemaCheck = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(schemaCheck)).toBe(0);
+      
+    } catch (error: any) {
+      console.error('Rollback execution failed:', error.message);
+      throw error;
+    }
+  });
+
+  test('Idempotency validation', () => {
+    try {
+      // First execution (should apply changes)
+      const firstRun = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      expect(firstRun).toContain('completed successfully');
+      
+      // Second execution (should skip - already applied)
+      const secondRun = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      expect(secondRun).toContain('already applied - skipping');
+      
+      // Verify only one MigrationHistory entry exists
+      const historyCount = execSync(
+        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(historyCount)).toBe(1);
+      
+    } catch (error: any) {
+      console.error('Idempotency test failed:', error.message);
+      throw error;
+    }
+  });
+});
+```
+
+**Orchestration Script for Migration Tests:**
+
+Location: `.github/prompts.keys/{key}/scripts/run-migration-{timestamp}-validation-test.ps1`
+
+```powershell
+# ============================================================================
+# Migration Validation Test Orchestration Script
+# ============================================================================
+# Migration: {YYYYMMDD-HHMMSS} - {description}
+# Key: {key}
+# Created: {ISO-8601-timestamp}
+# ============================================================================
+
+param(
+    [switch]$KeepAppRunning = $false,
+    [switch]$Headed = $false
+)
+
+$ErrorActionPreference = "Stop"
+
+Write-Host "=== Migration Validation Test ===" -ForegroundColor Cyan
+Write-Host "Migration ID: {YYYYMMDD-HHMMSS}" -ForegroundColor Yellow
+Write-Host "Description: {description}" -ForegroundColor Yellow
+Write-Host ""
+
+# Step 1: Verify migration files exist
+Write-Host "[1/4] Verifying migration files..." -ForegroundColor Cyan
+$migrationFile = "Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql"
+$rollbackFile = "Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql"
+
+if (-not (Test-Path $migrationFile)) {
+    Write-Host "❌ Migration file not found: $migrationFile" -ForegroundColor Red
+    exit 1
+}
+
+if (-not (Test-Path $rollbackFile)) {
+    Write-Host "❌ Rollback file not found: $rollbackFile" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "  ✅ Migration files verified" -ForegroundColor Green
+
+# Step 2: Backup KSESSIONS_DEV (optional but recommended)
+Write-Host "[2/4] Creating database backup (optional)..." -ForegroundColor Cyan
+# Add backup logic here if desired
+Write-Host "  ⚠️ Backup skipped (optional step)" -ForegroundColor Yellow
+
+# Step 3: Run migration validation tests
+Write-Host "[3/4] Running migration validation tests..." -ForegroundColor Cyan
+$testFile = ".github/prompts.keys/{key}/tests/migration-{timestamp}-{key}-{description}-validation.spec.ts"
+
+$playwrightArgs = @(
+    "test",
+    $testFile
+)
+
+if ($Headed) {
+    $playwrightArgs += "--headed"
+}
+
+try {
+    npx playwright @playwrightArgs
+    Write-Host "  ✅ Migration validation tests passed" -ForegroundColor Green
+} catch {
+    Write-Host "  ❌ Migration validation tests failed" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    exit 1
+}
+
+# Step 4: Cleanup (rollback KSESSIONS_DEV to clean state)
+Write-Host "[4/4] Cleaning up KSESSIONS_DEV..." -ForegroundColor Cyan
+try {
+    sqlcmd -S localhost -d KSESSIONS_DEV -i $rollbackFile -b
+    Write-Host "  ✅ Database cleaned (rollback executed)" -ForegroundColor Green
+} catch {
+    Write-Host "  ⚠️ Cleanup failed (manual rollback may be needed)" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "=== Migration Validation Complete ===" -ForegroundColor Green
+Write-Host "Migration ID: {YYYYMMDD-HHMMSS} is ready for deployment" -ForegroundColor Green
+```
+
+**Test Registry Entry:**
+
+```markdown
+### migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
+- **Created**: {ISO-8601-timestamp}
+- **Type**: Migration Validation (SQL + Playwright)
+- **Scenario**: Validate migration {migration-id} syntax, execution, rollback, and idempotency
+- **Phase**: Phase {N} (from plan)
+- **Status**: Active
+- **Last Run**: N/A (not yet executed)
+- **Orchestration**: scripts/run-migration-{timestamp}-validation-test.ps1
+- **Migration Files**:
+  - Forward: Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql
+  - Rollback: Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql
+```
+
+**When to Generate Migration Tests:**
+
+✅ **ALWAYS generate when**:
+- Task agent creates production migration scripts (Step 5d)
+- Phase plan contains "Production Migration Specification"
+- User explicitly requests migration validation tests
+
+❌ **DO NOT generate when**:
+- Development-only database changes (KSESSIONS_DEV test data)
+- No production migration scripts created
+- Code-only changes (no database impact)
+
+**Critical Rules:**
+
+1. **ALWAYS test against KSESSIONS_DEV** (never production)
+2. **ALWAYS validate both forward + rollback scripts**
+3. **ALWAYS check idempotency** (double execution safety)
+4. **ALWAYS verify MigrationHistory tracking**
+5. **ALWAYS cleanup after test** (execute rollback to restore clean state)
+6. **NEVER skip syntax validation** (even if migration looks simple)
+7. **NEVER commit failing migration tests** (fix migration first)
+
+**See Also:**
+- `Scripts/Migrations/Prod/README.md` - Migration workflow documentation
+- `task.prompt.md` Step 5d - Migration generation protocol
+- `plan.prompt.md` Database Migration Protocol - Detection rules
+
+---
+
 ### File Naming Convention
 ```
 {feature}-{test-type}.spec.ts
