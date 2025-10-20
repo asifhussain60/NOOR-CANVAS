@@ -1491,19 +1491,57 @@ background-color: #effff9;
             });
 
             // Listen for session start events to automatically navigate to canvas
+            // [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Updated to read canvasType and route accordingly ;CLEANUP_OK
             _hubConnection.On<object>("SessionBegan", async (sessionData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
-                // SessionBegan event received - navigating to canvas
+                // SessionBegan event received - navigating to canvas based on host selection
                 
-                // Navigate all waiting users to session canvas
-                await InvokeAsync(() =>
+                try
                 {
-                    if (!string.IsNullOrEmpty(SessionToken))
+                    // [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Parse canvasType from sessionData ;CLEANUP_OK
+                    var json = System.Text.Json.JsonSerializer.Serialize(sessionData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    string canvasType = "asset"; // Default to asset canvas
+                    if (root.TryGetProperty("canvasType", out var canvasTypeElement))
                     {
-                        Navigation.NavigateTo($"/session/canvas/{SessionToken}");
+                        canvasType = canvasTypeElement.GetString() ?? "asset";
                     }
-                });
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-sticky-buttons:simple] SessionBegan received with canvasType: {CanvasType} ;CLEANUP_OK", canvasType);
+                    
+                    // Navigate all waiting users to the selected canvas type
+                    await InvokeAsync(() =>
+                    {
+                        if (!string.IsNullOrEmpty(SessionToken))
+                        {
+                            if (canvasType == "transcript")
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-sticky-buttons:simple] Routing to transcript canvas: /transcript/canvas/{SessionToken} ;CLEANUP_OK", SessionToken);
+                                Navigation.NavigateTo($"/transcript/canvas/{SessionToken}");
+                            }
+                            else
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-sticky-buttons:simple] Routing to asset canvas: /session/canvas/{SessionToken} ;CLEANUP_OK", SessionToken);
+                                Navigation.NavigateTo($"/session/canvas/{SessionToken}");
+                            }
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-sticky-buttons:simple] Error parsing SessionBegan event, defaulting to asset canvas ;CLEANUP_OK");
+                    // Fallback to asset canvas on error
+                    await InvokeAsync(() =>
+                    {
+                        if (!string.IsNullOrEmpty(SessionToken))
+                        {
+                            Navigation.NavigateTo($"/session/canvas/{SessionToken}");
+                        }
+                    });
+                }
             });
 
             // [DEBUG-WORKITEM:transcript-canvas:broadcast] Listen for transcript shared events to navigate to transcript canvas ;CLEANUP_OK
