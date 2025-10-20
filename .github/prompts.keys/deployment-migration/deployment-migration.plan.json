@@ -4,19 +4,19 @@
     "branch": "development",
     "created": "2025-10-20T00:00:00Z",
     "status": "in-progress",
-    "currentPhase": 0,
+    "currentPhase": 2,
     "phases": [
         {
             "phaseNumber": 1,
             "title": "Migration Script Protocol Definition",
-            "status": "not-started",
-            "startedAt": null,
-            "completedAt": null,
-            "commit": null,
-            "tag": null,
+            "status": "completed",
+            "startedAt": "2025-01-20T18:30:00Z",
+            "completedAt": "2025-01-20T18:35:00Z",
+            "commit": "dc3513b1",
+            "tag": "checkpoint/deployment-migration/phase1/20250120-183500",
             "tasks": {
                 "total": 4,
-                "completed": 0
+                "completed": 4
             },
             "tests": {
                 "file": null,
@@ -28,14 +28,14 @@
         {
             "phaseNumber": 2,
             "title": "Update Agent Prompts",
-            "status": "not-started",
-            "startedAt": null,
-            "completedAt": null,
-            "commit": null,
-            "tag": null,
+            "status": "completed",
+            "startedAt": "2025-01-20T18:40:00Z",
+            "completedAt": "2025-01-20T19:10:00Z",
+            "commit": "00166cfa",
+            "tag": "checkpoint/deployment-migration/phase2/20250120-191000",
             "tasks": {
                 "total": 4,
-                "completed": 0
+                "completed": 4
             },
             "tests": {
                 "file": null,
@@ -108,14 +108,14 @@
             "name": "Migration rollback scripts",
             "selected": true,
             "effort": "medium",
-            "status": "planned"
+            "status": "implemented"
         },
         {
             "id": "B",
             "name": "Migration validation",
             "selected": true,
             "effort": "low",
-            "status": "planned"
+            "status": "implemented"
         },
         {
             "id": "C",
@@ -127,9 +127,9 @@
     ],
     "metrics": {
         "totalPhases": 5,
-        "completedPhases": 0,
+        "completedPhases": 2,
         "totalTasks": 23,
-        "completedTasks": 0,
+        "completedTasks": 8,
         "totalTests": 0,
         "passingTests": 0,
         "flakyTests": 0
