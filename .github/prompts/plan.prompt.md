@@ -204,8 +204,415 @@ Recommendations:
 **Violation of this protocol = Critical failure. You are a planner, not an executor.**
 
 ## Planning Structure
+
+### Phase Breakdown Algorithm
+
+**Objective**: Transform user request into 3-7 independently verifiable phases
+
+**Steps**:
+
+1. **Concept Extraction** (from user_request and context):
+   - Parse user request for key concepts (e.g., "registration guard", "localStorage", "debug panel")
+   - Identify explicit phases (delimited by `---` in user_request)
+   - Extract implicit requirements (e.g., "prevent unauthorized access" → guard logic + tests)
+
+2. **Layer Mapping** (from Step 0.5 Architecture Layers):
+   - Map each concept to affected layers (UI, API, Services, Database, SignalR, Infrastructure)
+   - Example: "registration guard" → UI Layer (components) + Infrastructure (authentication)
+   - Example: "localStorage" → UI Layer (browser storage) + Services (data validation)
+
+3. **Dependency Analysis**:
+   - Identify phase dependencies (Phase B requires Phase A output)
+   - Example: "Add button to UI" (Phase 1) → "Wire button to API" (Phase 2) → "Test end-to-end flow" (Phase 3)
+   - Detect circular dependencies and break them (split into smaller phases)
+
+4. **Phase Generation**:
+   - **Foundation Phases** (no dependencies): Infrastructure setup, database schema, base services
+   - **Implementation Phases** (sequential dependencies): UI components → API endpoints → Service logic → Integration
+   - **Validation Phases** (depends on all): Testing, documentation, final validation
+   - Target: 3-7 phases (split large phases, combine tiny phases)
+
+5. **Phase Naming**:
+   - Format: `{Action} {Target}` (e.g., "Add Registration Guard to SessionWaiting")
+   - Include outcome in name when helpful (e.g., "Add localStorage with 2-Day Expiration")
+   - Keep concise (3-7 words)
+
+6. **Phase Deliverables**:
+   - Each phase specifies:
+     * Objectives (1-5 numbered goals)
+     * Context (files to analyze, previous phase dependencies)
+     * Implementation tasks (TODO items with expected outcomes)
+     * Validation checklist (build, lint, tests)
+     * Playwright test specification (scenarios, guidelines, orchestration)
+     * Commit format (with debug markers)
+     * Approval gate (user must approve before next phase)
+
+**Example Phase Breakdown**:
+
+User Request: "Add registration guard to session pages and persist user data with localStorage"
+
+Concepts Extracted:
+- Registration guard (authentication/authorization)
+- Session pages (multiple UI components)
+- localStorage (browser storage + data validation)
+- Data persistence (serialization, expiration)
+
+Layers Affected:
+- UI Layer: SessionWaiting.razor, SessionCanvas.razor, TranscriptCanvas.razor
+- Services Layer: Data validation, expiration logic
+- Infrastructure: Authentication checks
+
+Phase Breakdown:
+1. Add Registration Guard to SessionWaiting (Foundation - UI + Infrastructure)
+2. Add Registration Guard to SessionCanvas (Depends on Phase 1 pattern)
+3. Add Registration Guard to TranscriptCanvas (Depends on Phase 1 pattern)
+4. Implement localStorage Infrastructure (Foundation - UI + Services)
+5. Add Data Validation and Expiration Logic (Depends on Phase 4)
+6. Integrate Save/Load with Registration Flow (Depends on Phases 1-5)
+7. Final E2E Testing and Validation (Depends on all phases)
+
+---
+
+### Intelligent Enhancement Recommendation System
+
+**Objective**: ALWAYS recommend enhancements based on analysis, in addition to user-requested work
+
+**When**: After Step 0.5 (Technology Stack Discovery) and before Step 2 (Iterative Refinement)
+
+**Analysis Criteria**:
+
+1. **Architecture Complexity** (from affected layers):
+   - **Multi-layer changes** (3+ layers) → Recommend:
+     * Phase Rollback Strategy (easy recovery)
+     * Cross-Layer Integration Tests (validation)
+   - **Database changes** → Recommend:
+     * Migration Rollback Scripts (safety)
+     * Data Validation Tests (integrity)
+   - **UI + SignalR** → Recommend:
+     * Multi-Browser Testing (compatibility)
+     * Real-Time Event Testing (synchronization)
+
+2. **Cross-Key Patterns** (from Step 0.5 cross-key analysis):
+   - **Similar patterns found** → Recommend:
+     * Pattern Reuse (avoid reinventing)
+     * Shared Test Library (consistency)
+   - **Conflicting file changes** → Recommend:
+     * Conflict Detection (early warning)
+     * Merge Strategy Documentation (coordination)
+
+3. **Technology Stack Capabilities** (from Step 0.5 stack detection):
+   - **Playwright available** → Recommend:
+     * Visual Regression Testing (Percy)
+     * Test Flakiness Detection (reliability)
+   - **SignalR present** → Recommend:
+     * Real-Time Flow Testing (broadcast validation)
+   - **Entity Framework + Database** → Recommend:
+     * Migration Testing (schema validation)
+     * Data Seeding for Tests (repeatability)
+
+4. **Testing Complexity** (from phase count and scope):
+   - **5+ phases** → Recommend:
+     * Comprehensive Regression Suite (incremental breakage detection)
+     * Phase Completion Tracking (progress visibility)
+   - **UI changes** → Recommend:
+     * Automated Selector Generation (framework-aware)
+     * Interactive Preview Mode (see changes before execution)
+
+5. **Maintenance Burden** (from file modification count):
+   - **10+ files modified** → Recommend:
+     * Detailed Change Documentation (traceability)
+     * Cross-File Impact Analysis (dependency tracking)
+   - **Shared components modified** → Recommend:
+     * Impact Analysis Report (who else uses this?)
+     * Backward Compatibility Testing (no breaking changes)
+
+**Recommendation Format**:
+
+After analysis, present recommendations in categories:
+
+```
+## 🎯 Recommended Enhancements (Based on Analysis)
+
+### High Priority (Strongly Recommended)
+- **{Enhancement Name}** *(Effort: Low/Medium/High)*  
+  Rationale: {Why this is critical based on analysis}  
+  Benefit: {Specific value add}
+
+### Medium Priority (Recommended)
+- **{Enhancement Name}** *(Effort: Low/Medium/High)*  
+  Rationale: {Why this helps based on analysis}  
+  Benefit: {Specific value add}
+
+### Low Priority (Optional)
+- **{Enhancement Name}** *(Effort: Low/Medium/High)*  
+  Rationale: {Why this is nice-to-have}  
+  Benefit: {Specific value add}
+
+**Selection**: Respond with comma-delimited list (e.g., "1,2,4" or "none")
+```
+
+**Example Analysis-Driven Recommendations**:
+
+Detected: Multi-layer changes (UI + Services + Database), 6 phases, Playwright available, Similar pattern found in 'userlanding' key
+
+High Priority:
+- **Phase Rollback Strategy** (Low effort) - 6 phases increase failure risk; rollback capability critical
+- **Pattern Reuse from 'userlanding'** (Low effort) - Similar registration guard already implemented and tested
+
+Medium Priority:
+- **Visual Regression Testing (Percy)** (Medium effort) - UI changes require visual validation
+- **Test Flakiness Detection** (Low effort) - 6 phases = many tests; identify unreliable tests early
+
+Low Priority:
+- **Cross-Key Conflict Detection** (High effort) - 'userlanding' modifies same files; coordinate changes
+
+---
+
+### JSON Tracking Structure
+
+**Objective**: Maintain machine-readable progress tracking alongside markdown documentation
+
+**File**: `.github/prompts.keys/{key}/{key}.plan.json`
+
+**Purpose**:
+- Enable programmatic progress queries (e.g., "What's the status of Phase 3?")
+- Support automated reporting (e.g., "3/6 phases complete, 2 tests flaky")
+- Facilitate task agent checklist updates without markdown parsing
+- Allow external tools to monitor implementation progress
+
+**JSON Schema**:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "key": { "type": "string" },
+    "branch": { "type": "string", "default": "development" },
+    "status": { "enum": ["planning", "in-progress", "complete", "on-hold"] },
+    "created": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" },
+    "technology": {
+      "type": "object",
+      "properties": {
+        "framework": { "type": "string" },
+        "version": { "type": "string" },
+        "libraries": { "type": "array", "items": { "type": "string" } },
+        "testFramework": { "type": "string" }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "properties": {
+        "layers": { "type": "array", "items": { "enum": ["UI", "API", "Services", "Database", "SignalR", "Infrastructure"] } },
+        "filesModified": { "type": "array", "items": { "type": "string" } },
+        "filesReferenced": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "status": { "enum": ["not-started", "in-progress", "complete", "blocked"] },
+          "dependencies": { "type": "array", "items": { "type": "integer" } },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "description": { "type": "string" },
+                "completed": { "type": "boolean" }
+              }
+            }
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "buildPassed": { "type": "boolean" },
+              "lintPassed": { "type": "boolean" },
+              "testCreated": { "type": "boolean" },
+              "testFile": { "type": "string" },
+              "testsPassing": { "type": "integer" },
+              "testsTotal": { "type": "integer" },
+              "flakyTests": { "type": "integer" }
+            }
+          },
+          "commit": {
+            "type": "object",
+            "properties": {
+              "sha": { "type": "string" },
+              "message": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          },
+          "checkpoint": {
+            "type": "object",
+            "properties": {
+              "tag": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          },
+          "userApproved": { "type": "boolean" }
+        }
+      }
+    },
+    "enhancements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "selected": { "type": "boolean" },
+          "implemented": { "type": "boolean" }
+        }
+      }
+    },
+    "testing": {
+      "type": "object",
+      "properties": {
+        "functionalTests": { "type": "array", "items": { "type": "string" } },
+        "visualTests": { "type": "array", "items": { "type": "string" } },
+        "orchestrationScripts": { "type": "array", "items": { "type": "string" } },
+        "comprehensiveTestSuite": { "type": "string" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "totalPhases": { "type": "integer" },
+        "completedPhases": { "type": "integer" },
+        "totalTests": { "type": "integer" },
+        "passingTests": { "type": "integer" },
+        "flakyTests": { "type": "integer" },
+        "filesModified": { "type": "integer" },
+        "linesAdded": { "type": "integer" },
+        "linesRemoved": { "type": "integer" }
+      }
+    }
+  },
+  "required": ["key", "branch", "status", "created", "phases"]
+}
+```
+
+**Example JSON Instance**:
+
+```json
+{
+  "key": "userlanding",
+  "branch": "development",
+  "status": "in-progress",
+  "created": "2025-10-19T10:00:00Z",
+  "updated": "2025-10-19T20:52:00Z",
+  "technology": {
+    "framework": "ASP.NET Core 8.0 (Blazor Server)",
+    "version": "8.0.0",
+    "libraries": ["SignalR 8.0.0", "Entity Framework Core 8.0.0", "Playwright 1.40.0"],
+    "testFramework": "Playwright"
+  },
+  "architecture": {
+    "layers": ["UI", "Services", "Infrastructure"],
+    "filesModified": ["SPA/NoorCanvas/Components/Pages/UserLanding.razor", "SPA/NoorCanvas/Components/Pages/SessionWaiting.razor"],
+    "filesReferenced": [".github/prompts.keys/hcp/work-log.md"]
+  },
+  "phases": [
+    {
+      "id": 1,
+      "title": "Add Registration Guard to SessionWaiting",
+      "status": "complete",
+      "dependencies": [],
+      "tasks": [
+        { "id": "1.1", "description": "Copy CheckParticipantRegistration method", "completed": true },
+        { "id": "1.2", "description": "Add registration verification in OnInitializedAsync", "completed": true },
+        { "id": "1.3", "description": "Check sessionStorage bypass flag", "completed": true }
+      ],
+      "validation": {
+        "buildPassed": true,
+        "lintPassed": true,
+        "testCreated": true,
+        "testFile": "Tests/UI/phase1-session-waiting-guard.spec.ts",
+        "testsPassing": 3,
+        "testsTotal": 3,
+        "flakyTests": 0
+      },
+      "commit": {
+        "sha": "ef449b10",
+        "message": "[userlanding] Add registration guard to SessionWaiting",
+        "timestamp": "2025-10-19T11:30:00Z"
+      },
+      "checkpoint": {
+        "tag": "checkpoint/userlanding/20251019-113000",
+        "timestamp": "2025-10-19T11:30:00Z"
+      },
+      "userApproved": true
+    },
+    {
+      "id": 2,
+      "title": "Add Registration Guard to SessionCanvas",
+      "status": "in-progress",
+      "dependencies": [1],
+      "tasks": [
+        { "id": "2.1", "description": "Add CheckParticipantRegistration method", "completed": true },
+        { "id": "2.2", "description": "Add registration verification", "completed": false }
+      ],
+      "validation": {
+        "buildPassed": false,
+        "lintPassed": false,
+        "testCreated": false
+      },
+      "userApproved": false
+    }
+  ],
+  "enhancements": [
+    { "id": "A", "name": "Phase Rollback Strategy", "selected": true, "implemented": true },
+    { "id": "B", "name": "Test Flakiness Detection", "selected": true, "implemented": false },
+    { "id": "C", "name": "Interactive Phase Approval", "selected": false, "implemented": false }
+  ],
+  "testing": {
+    "functionalTests": ["phase1-session-waiting-guard.spec.ts", "phase2-session-canvas-guard.spec.ts"],
+    "visualTests": [],
+    "orchestrationScripts": ["run-phase1-test.ps1", "run-phase2-test.ps1"],
+    "comprehensiveTestSuite": "userlanding-comprehensive-suite.spec.ts"
+  },
+  "metrics": {
+    "totalPhases": 11,
+    "completedPhases": 8,
+    "totalTests": 24,
+    "passingTests": 22,
+    "flakyTests": 1,
+    "filesModified": 5,
+    "linesAdded": 450,
+    "linesRemoved": 50
+  }
+}
+```
+
+**Update Protocol**:
+- Plan agent creates initial JSON when generating {key}.plan.md
+- Task agent updates JSON after each phase completion:
+  * Phase status → complete
+  * Validation results → buildPassed, testsPassing, etc.
+  * Commit info → sha, message, timestamp
+  * Checkpoint tag → tag, timestamp
+- Task agent updates metrics after each phase
+- Both markdown and JSON must stay synchronized
+
+**Benefits**:
+- ✅ Programmatic progress queries (no markdown parsing)
+- ✅ Automated reporting and dashboards
+- ✅ Machine-readable for CI/CD integration
+- ✅ Historical tracking (commit/checkpoint timestamps)
+- ✅ Test metrics aggregation (passing/flaky/total)
+
+---
+
+### Phase Design Guidelines
 - Phase design: Break work into small, independently verifiable phases. Keep 3–7 phases when possible.
-- Phase naming: Use short, action-oriented titles (e.g., “Add API endpoint”, “Wire UI to endpoint”).
+- Phase naming: Use short, action-oriented titles (e.g., "Add API endpoint", "Wire UI to endpoint").
 - Phase outputs: Each phase must specify observable outcomes and a simple debug log marker.
 - Debug logs: Use simple debug-level markers per phase; avoid verbose traces. Prefer debug-level="simple" for the execution agent.
 - Test coverage: Provide a concrete Playwright test plan. If visual changes are expected, also provide a visual regression test plan and Percy usage.
@@ -246,7 +653,21 @@ When the user confirms readiness to implement:
      * Final Validation (comprehensive test suite execution plan)
      * Selected Enhancements (implementation details for opted-in enhancements)
      * Git Summary Line
-   - **Write this file first, then proceed to step 2.**
+   - **Write this file first, then proceed to step 1b.**
+
+1b) JSON Tracking Document (machine-readable progress tracking):
+   - Location: .github/prompts.keys/{key}/{key}.plan.json
+   - Content: Structured progress data with:
+     * Key metadata (key, branch, status, timestamps)
+     * Technology stack (framework, version, libraries)
+     * Architecture (layers, files modified/referenced)
+     * Phases array (id, title, status, dependencies, tasks, validation, commit, checkpoint, user approval)
+     * Enhancements (selected/implemented status)
+     * Testing (test files, orchestration scripts)
+     * Metrics (phases complete, tests passing/flaky, LOC changes)
+   - Purpose: Enable programmatic progress queries, automated reporting, CI/CD integration
+   - Note: Task agent updates JSON after each phase; must stay synchronized with markdown
+   - **Write this file, then proceed to step 2.**
 
 2) Key Data Stream Update (append-only, execution tracking):
    - Location: .github/prompts.keys/{key}/work-log.md
