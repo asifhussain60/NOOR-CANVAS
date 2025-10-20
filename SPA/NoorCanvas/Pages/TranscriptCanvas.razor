@@ -450,6 +450,16 @@
         transition: all 0.2s;
     }
 
+    /* Question Modal Specific Width */
+    .canvas-modal-question {
+        max-width: 500px;
+    }
+
+    /* Modal Button Flex Layout */
+    .canvas-modal-button-flex {
+        flex: 1;
+    }
+
     .canvas-modal-title {
         font-family: 'Poppins', sans-serif;
         font-size: 1.25rem;
@@ -817,6 +827,12 @@
         /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Single column layout with canvas panel full-width, sidebar below ;CLEANUP_OK */
         /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Mobile: sidebar hidden by default, toggle always visible ;CLEANUP_OK */
         /* [SIMPLE:hcp-canvas:mobile-overflow] Added min-width:0 and overflow-x:hidden for mobile share button overflow prevention ;CLEANUP_OK */
+        
+        /* [MOBILE-CSS:phase2] Root Container - Reduced Padding */
+        .session-canvas-root {
+            padding: 0.75rem;
+        }
+        
         .canvas-main-grid {
             grid-template-columns: 1fr;
             height: auto;
@@ -838,17 +854,61 @@
 
         /* [TRACE-WORKITEM:transcript-canvas:sidebar-removal] Sidebar CSS removed - mobile uses full-width canvas ;CLEANUP_OK */
 
+        /* [MOBILE-CSS:phase2] Enhanced Welcome Panel for Mobile */
+        .canvas-welcome-panel {
+            background-color: #F8F4FF;
+            border: 2px solid #D4AF37;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 0.5rem auto;
+            padding: 0;
+            max-width: none;
+            width: 100%;
+        }
+        
+        /* [MOBILE-CSS:phase2] Welcome Content Padding */
+        .canvas-welcome-content {
+            padding: 0.375rem 0.5rem;
+        }
+
+        /* [MOBILE-CSS:phase4] Header Content - Reduced Padding */
         .canvas-header-content {
-            padding: 1rem 0.5rem;
+            padding: 0.75rem 0.5rem;
         }
 
+        /* [MOBILE-CSS:phase3] Header Logo - Reduced Size */
         .canvas-header-logo-img {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
         }
 
+        /* [MOBILE-CSS:phase3] Session Title - Smaller Font */
         .canvas-session-title {
-            font-size: 1.75rem;
+            font-size: 1.25rem;
+        }
+        
+        /* [MOBILE-CSS:phase3] Session Description - Smaller Font */
+        .canvas-session-description {
+            font-size: 0.875rem;
+        }
+        
+        /* [MOBILE-CSS:phase3] Welcome Text - Smaller Font */
+        .canvas-welcome-text {
+            font-size: 0.9rem;
+        }
+        
+        /* [MOBILE-CSS:phase3] Empty Message - Smaller Font */
+        .canvas-empty-message {
+            font-size: 0.875rem;
+        }
+        
+        /* [MOBILE-CSS:phase3] Modal Title - Smaller Font */
+        .canvas-modal-title {
+            font-size: 1rem;
+        }
+        
+        /* [MOBILE-CSS:phase3] Modal Message - Smaller Font */
+        .canvas-modal-message {
+            font-size: 0.75rem;
         }
 
         .canvas-signalr-status {
@@ -863,9 +923,10 @@
 
         /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Container takes full mobile width ;CLEANUP_OK */
         /* [SIMPLE:hcp-canvas:mobile-overflow] Added overflow-x:hidden to prevent horizontal scroll ;CLEANUP_OK */
+        /* [MOBILE-CSS:phase4] Container Padding - Reduced */
         .session-canvas-container {
             width: 100%;
-            padding: 1rem;
+            padding: 0.5rem;
             overflow-x: hidden;
             min-width: 0;
         }
@@ -1031,7 +1092,7 @@
 @if (IsQuestionModalVisible)
 {
     <div class="canvas-modal-overlay" @onclick="CloseQuestionModal">
-        <div class="canvas-modal-content" @onclick:stopPropagation="true" style="max-width:500px;">
+        <div class="canvas-modal-content canvas-modal-question" @onclick:stopPropagation="true">
             <h4 class="canvas-modal-title">Ask a Question</h4>
             
             <div style="margin-bottom:1rem;">
@@ -1046,15 +1107,13 @@
             <div class="canvas-modal-buttons">
                 <button @onclick="SubmitQuestionFromModal" 
                         type="button"
-                        class="canvas-form-submit-button"
-                        style="flex:1;">
+                        class="canvas-form-submit-button canvas-modal-button-flex">
                     <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
                     <span class="canvas-form-submit-text">Submit</span>
                 </button>
                 <button @onclick="CloseQuestionModal" 
                         type="button"
-                        class="canvas-modal-button canvas-modal-button-cancel"
-                        style="flex:1;">
+                        class="canvas-modal-button canvas-modal-button-cancel canvas-modal-button-flex">
                     Cancel
                 </button>
             </div>
