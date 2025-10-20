@@ -119,4 +119,75 @@
 
 ---
 
+## [2025-10-20T00:45:00Z] - task agent (self-executing)
+
+**Status**: Phase 3 Complete  
+**Phase**: Test Generation Integration & Orchestration Library
+
+**Work Done**:
+- ✅ **Integrated Test Type Decision Matrix** (lines 660-692)
+  * Automatic test type selection based on change characteristics
+  * IF (UI/CSS/layout) → Percy Visual + Functional E2E, headed mode
+  * ELSE IF (API/navigation/form/SignalR) → Functional E2E, headless mode
+  * ELSE IF (Database/services) → None (unit tests preferred)
+  * ELSE (documentation/logging) → None
+  * Each phase includes test type with rationale
+  
+- ✅ **Implemented Orchestration Script Generation** (lines 694-775)
+  * Shared orchestration function library: `Invoke-TestOrchestration.ps1`
+  * Functions: Start-AppProcess, Wait-AppReady, Stop-AppProcess, Invoke-PlaywrightTest
+  * Per-phase script templates: `run-{key}-phase{N}-test.ps1`
+  * Script location: `.github/prompts.keys/{key}/scripts/` (development) → `Scripts/` (production)
+  * Zero duplication, consistent app lifecycle, automatic cleanup
+  
+- ✅ **Enhancement D: Automated Test Selector Strategy** (lines 777-856)
+  * Framework-aware selector generation (analyzes .razor files)
+  * Blazor components: Use #id and .css-class selectors (stable IDs)
+  * HTML elements: Use input[name] and data-testid attribute selectors
+  * Wait strategies: waitForSelector with state: 'visible', timeout: 15000ms
+  * Documented in each phase's "Playwright Test Specification" → "Selector Strategy" section
+  
+- ✅ **Enhancement E: Percy Baseline Management** (lines 858-905)
+  * Phase-specific baseline creation after completion: `{key}-phase{N}-baseline`
+  * Subsequent phases compare against previous baseline
+  * Visual regression detection: Percy dashboard shows which phase introduced change
+  * Baseline metadata tracked in Progress Checklist
+  
+- ✅ **Enhancement B: Test Flakiness Detection** (lines 907-970)
+  * Automatic 3x test execution per phase
+  * Stability classification: 3/3=stable (pass), 1-2/3=flaky (warning), 0/3=failing (halt)
+  * Flakiness reporting in Progress Checklist: "Test stability: 5 stable, 1 flaky"
+  * Early root cause analysis for unreliable tests
+  
+- ✅ **Browser Log Validation Strategy** (lines 972-1030)
+  * Critical distinction: Server-side logs (Logger.LogInformation) won't appear in browser console
+  * Client-side logs (console.log) will appear in browser console
+  * Test verification through behavior (redirects, data, state), not log presence
+  * Browser console error capture: page.on('console') listener
+  * Documented in each phase's Test Specification → "Browser Log Validation"
+  
+- ✅ **Integration with {key}.plan.md Template** (lines 1032-1109)
+  * Enhanced Playwright Test Specification section with all enhancements
+  * Test Generation Handoff section (copy-paste invocation)
+  * Orchestration Script Specification (uses shared library)
+  * Example phase structure: Phase 3 Session Registration Guard with full specification
+
+**Files Modified**:
+- `.github/prompts/plan.prompt.md` (added ~460 lines between Enhancement Recommendations and JSON Tracking)
+
+**Commit**: `c15cd04a`  
+**Tag**: `checkpoint/plan-prompt-enhancement/20251020-004500`
+
+**Validation**: PASS
+- Manual review: Test type decision matrix covers all scenarios (UI/API/Database/Documentation)
+- Manual review: Orchestration library pattern follows canonical test-orchestration-patterns.md
+- Manual review: Automated selector strategy differentiates Blazor vs HTML correctly
+- Manual review: Percy baseline management enables incremental visual validation
+- Manual review: Flakiness detection provides clear stability metrics (3/3, 2/3, 1/3, 0/3)
+- Manual review: Browser log validation prevents server/client log confusion
+
+**Next Phase**: Phase 4 - Progress Tracking & Dependency Validation
+
+---
+
 **Cross-Reference**: This work-log tracks execution progress. For complete plan details, architecture analysis, and task prompts, see `plan-prompt-enhancement.plan.md`.
