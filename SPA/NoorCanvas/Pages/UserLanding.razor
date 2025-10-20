@@ -1122,11 +1122,13 @@
                     if (!string.IsNullOrEmpty(userGuidValue))
                     {
                         var storageKey = $"noor_user_guid_{Model.TokenInput}";
-                        // Store in localStorage as primary source for registered users
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, userGuidValue);
+                        // [DEBUG-WORKITEM:user-landing:storage-toggle] Use sessionStorage in dev (tab-isolated), localStorage in prod (cross-tab) ;CLEANUP_OK
+                        var storageType = GetStorageType();
+                        await JSRuntime.InvokeVoidAsync($"{storageType}.setItem", storageKey, userGuidValue);
                         // Also store in sessionStorage for tab consistency with SessionCanvas
                         await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, userGuidValue);
-                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:USERGUID] UserGuid stored in both localStorage and sessionStorage for authentication consistency: {UserGuid}", userGuidValue);
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:USERGUID] UserGuid stored in {StorageType} and sessionStorage for authentication consistency: {UserGuid} ;CLEANUP_OK", 
+                            storageType, userGuidValue);
                     }
                 }
                 else
@@ -1249,22 +1251,23 @@
             var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            // Check if any participant matches current browser session (via stored UserGuid)
-            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            // [DEBUG-WORKITEM:user-landing:storage-toggle] Check registration from environment-appropriate storage ;CLEANUP_OK
+            var storageType = GetStorageType();
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("eval", $"{storageType}.getItem('noor_user_guid_{token}')");
             
             if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
             {
                 var isRegistered = participantsData.Participants.Any(p => 
                     string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Registration check result: {1} (UserGuid: {2}) ;CLEANUP_OK", 
-                    requestId, isRegistered, storedUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Registration check result: {1} (UserGuid: {2}, Storage: {3}) ;CLEANUP_OK", 
+                    requestId, isRegistered, storedUserGuid, storageType);
                 
                 return isRegistered;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] No stored UserGuid found - user not registered ;CLEANUP_OK", 
-                requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] No stored UserGuid found in {1} - user not registered ;CLEANUP_OK", 
+                requestId, storageType);
             return false;
         }
         catch (Exception ex)
@@ -1498,6 +1501,14 @@
                 requestId);
             return (false, null);
         }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:user-landing:storage-toggle] Returns storage type based on environment (sessionStorage in dev, localStorage in prod) ;CLEANUP_OK
+    /// </summary>
+    private string GetStorageType()
+    {
+        return WebHostEnvironment.IsDevelopment() ? "sessionStorage" : "localStorage";
     }
 
     public class UserLandingViewModel
