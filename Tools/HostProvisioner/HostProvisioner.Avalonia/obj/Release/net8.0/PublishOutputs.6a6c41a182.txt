@@ -5,7 +5,6 @@ D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\web.config
 D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\web.Debug.config
 D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\web.Release.config
 D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\appsettings.json
-D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\appsettings.local.json
 D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\appsettings.Production.json
 D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\app.config
 D:\PROJECTS\NOOR CANVAS\Workspaces\hostprovisioner-publish-temp\HostProvisioner.Avalonia.dll
