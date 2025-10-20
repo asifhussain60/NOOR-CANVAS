@@ -2,6 +2,87 @@
 
 ---
 
+## [2025-10-20T16:30:00Z] - Handoff Protocol Execution Update
+
+**Status**: Updated  
+**Action**: Enhanced plan.prompt.md with explicit handoff execution instructions  
+**Commit**: checkpoint/prompts/20251020-handoff-execution
+
+**Changes**:
+- Clarified Step 6 (MANDATORY Handoff Protocol) to require actual command execution
+- Added "CRITICAL EXECUTION STEPS" section with step-by-step process
+- Added "HOW TO EXECUTE THE HANDOFF" section emphasizing command must be sent
+- Updated "Common Mistakes" with execution-specific errors
+- Updated "Notes" section to reflect automatic invocation capability
+
+**Key Updates**:
+- Plan agent must SEND @workspace /task command (not just document it)
+- Explicit instruction: "This is NOT documentation - execute this command"
+- Updated protocol: Plan → Write files → **EXECUTE command** → Task agent proceeds
+- Removed ambiguity: "You must actually send this message to trigger the task agent"
+
+**Files Modified**:
+- `.github/prompts/plan.prompt.md` (Step 6, Protocol, Mistakes, Notes sections)
+- `.github/prompts.keys/prompts/handoff-protocol-update.md` (documentation)
+
+**Rationale**:
+- Original intent was always automatic handoff
+- Previous wording could be interpreted as "just document it"
+- Eliminates manual copy/paste friction
+- Maintains all safety guardrails
+
+**Next**: Apply this protocol when user says "proceed" for implementation plan
+
+---
+
+## [2025-10-20] - Plan: Comprehensive Prompt Orchestration Enhancements
+
+**Status**: Ready for Implementation  
+**Planner**: GitHub Copilot  
+**User Request**: Enhance prompt orchestration with test tracking/reuse, learning integration, recovery protocols, key management strategies, and knowledge extraction mechanisms
+
+**Plan Summary**:
+- 9 implementation phases (Centralized test index → Final validation)
+- Selected enhancements: Test Similarity Scoring (A), Auto-Archive on Commit (C)
+- Documentation-only changes (no code modifications)
+- Manual validation (no automated tests)
+
+**Comprehensive Plan**: See `.github/prompts.keys/prompts/prompts.plan.md` for complete technical details
+
+**Phases Overview**:
+1. Centralized Test Index — Global test-index.json for cross-key discovery
+2. Test Reuse in Planning — Query index during planning, 0.75 similarity threshold
+3. Learning Integration — Automatic learning extraction (Step 10 in plan.prompt.md)
+4. Universal Recovery Protocol — Simple "continue" command, interruptedAt tracking
+5. Key Management Strategy — Domain-based reuse rules, archival criteria
+6. Knowledge Extraction — key-squash, key-audit, key-cleanup mechanisms
+7. Enhanced Test Orchestration — Best practices, failure patterns, retry strategies
+8. Commit Integration — test-index and recovery state validation
+9. Final Validation — End-to-end workflow test, migration guide
+
+**Test Plan**:
+- Functional E2E: Manual validation tests (7 test scenarios)
+- Visual Regression: N/A (documentation only)
+- Orchestration: N/A (no Playwright tests needed)
+
+**Decisions**:
+- Enhancement A (Test Similarity): Included - Maximizes test reuse (0.75 threshold)
+- Enhancement B (Interactive Recovery): Excluded - Simple "continue" sufficient
+- Enhancement C (Auto-Archive): Included - Prevents key bloat
+- Enhancement D (Learning Dashboard): Excluded - Nice-to-have, not critical
+- Enhancement E (Test Search API): Excluded - grep sufficient
+- Test Index Location: `.github/tests/` (global, not per-key)
+- Learning Extraction: Automatic with skip option (skip-learning=true)
+- Recovery Command: Simple "continue" (plan.json tracks context)
+- Key Management: Enforce reuse rules (override with force-new-key=true)
+- Test Reuse Threshold: 0.75 similarity (balance precision/recall)
+
+**Next Steps**: Execute phases sequentially using handoff commands
+
+**Cross-Reference**: This work-log tracks execution progress. For complete plan details, architecture analysis, and task prompts, see `prompts.plan.md`.
+
+---
+
 ## [2025-10-20] - Phases 3-5: Complete Enhancement Implementation
 
 **Status**: Implementation Complete
