@@ -1,0 +1,79 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e5]:
+    - img "NOOR Canvas" [ref=e8]
+    - generic [ref=e9]:
+      - heading "Need For Messengers" [level=1] [ref=e10]
+      - paragraph [ref=e11]: we look at the purpose of sending messengers, and their role in our spiritual awakening.
+    - generic [ref=e14]: Test User Phase 4, Welcome To The Waiting Room
+    - generic [ref=e15]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e20]: 
+          - generic [ref=e21]:
+            - paragraph [ref=e22]: Date
+            - paragraph [ref=e23]: Today
+        - generic [ref=e24]:
+          - generic [ref=e26]: 
+          - generic [ref=e27]:
+            - paragraph [ref=e28]: Start Time
+            - paragraph [ref=e29]: 6:00 AM
+        - generic [ref=e30]:
+          - generic [ref=e32]: 
+          - generic [ref=e33]:
+            - paragraph [ref=e34]: Duration
+            - paragraph [ref=e35]: 1 hour
+        - generic [ref=e36]:
+          - generic [ref=e38]: 
+          - generic [ref=e39]:
+            - paragraph [ref=e40]: Instructor
+            - paragraph [ref=e41]: Asif Hussain
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: "Session begins in:"
+        - generic [ref=e44]: 04:49
+        - paragraph [ref=e47]: Starting soon...
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Participants (11)" [level=2] [ref=e51]
+        - generic [ref=e52]:
+          - button "Sort by Name" [ref=e53] [cursor=pointer]
+          - button "Sort by Country" [ref=e54] [cursor=pointer]
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - img "US Flag" [ref=e57]
+          - generic [ref=e58]: Test User Phase 4
+        - generic [ref=e59]:
+          - img "US Flag" [ref=e60]
+          - generic [ref=e61]: Test User Phase 6
+        - generic [ref=e62]:
+          - img "US Flag" [ref=e63]
+          - generic [ref=e64]: Test User Phase 7
+        - generic [ref=e65]:
+          - img "US Flag" [ref=e66]
+          - generic [ref=e67]: Valid User
+        - generic [ref=e68]:
+          - img "US Flag" [ref=e69]
+          - generic [ref=e70]: Phase 9 Test User
+        - generic [ref=e71]:
+          - img "US Flag" [ref=e72]
+          - generic [ref=e73]: Auto Nav Test
+        - generic [ref=e74]:
+          - img "GB Flag" [ref=e75]
+          - generic [ref=e76]: Persistence Test User
+        - generic [ref=e77]:
+          - img "US Flag" [ref=e78]
+          - generic [ref=e79]: Bypass Flag Test
+        - generic [ref=e80]:
+          - img "US Flag" [ref=e81]
+          - generic [ref=e82]: Pre-Populate Test
+        - generic [ref=e83]:
+          - img "US Flag" [ref=e84]
+          - generic [ref=e85]: Debug Panel Test User
+        - generic [ref=e86]:
+          - img "GB Flag" [ref=e87]
+          - generic [ref=e88]: Persist Test
+  - button "" [ref=e90] [cursor=pointer]:
+    - generic [ref=e91] [cursor=pointer]: 
+```

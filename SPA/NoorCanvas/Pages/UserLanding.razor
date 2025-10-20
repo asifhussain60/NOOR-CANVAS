@@ -1418,6 +1418,45 @@
     }
 
     /// <summary>
+    /// Clear localStorage and reset form fields - Used by debug panel
+    /// </summary>
+    private async Task ClearLocalStorageAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Model?.TokenInput))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:debug:clear-storage] Cannot clear localStorage - token is empty ;CLEANUP_OK");
+                return;
+            }
+
+            var storageKey = $"noor_user_registration_{Model.TokenInput}";
+            
+            // Remove localStorage item
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+            
+            // Clear form fields
+            Model.NameInput = string.Empty;
+            Model.EmailInput = string.Empty;
+            Model.CountrySelect = string.Empty;
+            
+            // Clear pending country selection
+            _pendingCountrySelection = null;
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:debug:clear-storage] Local storage cleared - Key: {Key} ;CLEANUP_OK", storageKey);
+            
+            // Client-side log for debug panel
+            await JSRuntime.InvokeVoidAsync("console.log", "NOOR-DEBUG-PANEL: Local storage cleared");
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:debug:clear-storage] Failed to clear localStorage ;CLEANUP_OK");
+        }
+    }
+
+    /// <summary>
     /// Validate registration data (email format, name non-empty, country code)
     /// </summary>
     private bool ValidateRegistrationDataAsync(RegistrationStorageData data)
@@ -1556,6 +1595,20 @@
             )
             {
                 IsEnabled = !Model.IsLoading && !Model.IsLoadingCountries
+            });
+        }
+        
+        // Show "Clear Local Storage" action when on registration panel and has valid token
+        if (Model != null && !Model.ShowTokenPanel && !string.IsNullOrWhiteSpace(Model.TokenInput))
+        {
+            actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+                "Clear Local Storage",
+                "Remove saved registration data from localStorage and reset form fields",
+                async () => await ClearLocalStorageAsync(),
+                "fa-solid fa-trash-can"
+            )
+            {
+                IsEnabled = !Model.IsLoading
             });
         }
         
