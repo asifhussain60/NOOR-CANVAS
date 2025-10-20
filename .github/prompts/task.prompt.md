@@ -32,8 +32,35 @@ Controls agent output detail level shown to user (does NOT affect functionality)
 Subtasks to execute sequentially, halting on failure.  
 **Special:** `"mark complete"` or `"completed"` triggers Step 9 (cross-layer documentation, debug cleanup, completion)
 
-### annotate *(optional)*
-Triggers AI-powered screenshot analysis. Comma-delimited image filenames (extensions optional).  
+### annotate *(optional)* - **DEPRECATED - Use in plan.prompt.md instead**
+**DEPRECATED:** Image analysis has been moved to plan.prompt.md Step 0.6
+
+**Why deprecated:**
+- Image analysis is a requirement gathering activity (planning concern, not execution)
+- Requirements should be extracted BEFORE implementation begins
+- User should approve interpreted requirements during plan approval phase
+
+**If user provides images during task execution:**
+Suggest running plan prompt first:
+```
+⚠️ Images detected in request
+
+Image analysis should be done during planning phase for proper requirement extraction.
+
+Recommended approach:
+@workspace /plan key={key} user_request="{requirements}" annotate="{image-files}"
+
+This will:
+- Extract requirements from images using vision analysis
+- Incorporate into comprehensive plan
+- Generate proper test specifications
+- Allow you to approve interpreted requirements
+
+Proceed with task without image analysis? (not recommended for complex visual changes)
+```
+
+**Previous behavior (now deprecated):**
+Triggered AI-powered screenshot analysis. Comma-delimited image filenames (extensions optional).  
 **Modes:** Plain screenshots → HTML documentation, Annotated mockups → Requirement extraction
 
 ---
@@ -324,9 +351,12 @@ This ensures rollback capability if the task introduces instability.
 - **2.8:** Architecture Analysis (prevent duplication, ensure compliance)
   - **2.8.7:** Data Lifecycle Validation (CRUD: verify UI → API → DB → Broadcast → UI)
 - **2.9:** QuickRef Localization (cache InfrastructureQuickRef, PlaywrightQuickRef - first use only)
-- **2.10:** View Documentation (AI screenshot analysis if `annotate` parameter provided)
+- **2.10:** View Documentation - **DEPRECATED** (image analysis moved to plan.prompt.md Step 0.6)
 - **2.11:** Refactoring Opportunity Detection (conditional - runs when modifying existing code)
 - **2.12:** Load System Context Pack (if {key}.plan.md exists - load pre-gathered context)
+
+**Note on Step 2.10 Deprecation:**
+Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement gathering during planning phase. If user provides `annotate` parameter or images during task execution, warn that image analysis should be done in planning phase and suggest running `@workspace /plan` first.
 
 **Routing Logic:**
 - Error reported → 2.4 triages → Routes to 2.5, 2.6, 2.7, or 2.8

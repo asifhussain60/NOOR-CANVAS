@@ -2,6 +2,137 @@
 
 ---
 
+## [2025-10-20] - Phases 3-5: Complete Enhancement Implementation
+
+**Status**: Implementation Complete
+**Phases**: Image Analysis Realignment, Comprehensive Test Suite, Final Validation
+**Analyst**: GitHub Copilot
+
+### Phase 3: Move Image Analysis to Plan Prompt
+
+**Objective:** Realign image annotation and requirement gathering from task (execution) to plan (planning)
+
+**Changes Implemented:**
+
+1. **plan.prompt.md - Added Step 0.6: Image Analysis & Requirement Extraction**
+   - Triggers when user provides images or `annotate` parameter
+   - Classifies image types: Plain screenshots, annotated mockups, design comps, error screenshots
+   - Uses vision analysis to extract requirements from annotated mockups
+   - Converts visual annotations to structured requirements (visual + functional)
+   - Confirms understanding with user during plan approval
+   - Auto-generates Percy test specifications for visual changes
+
+2. **task.prompt.md - Deprecated annotate parameter**
+   - Parameter marked as DEPRECATED with clear explanation
+   - If user provides images during execution, suggests running plan first
+   - Explains why image analysis belongs in planning phase
+   - Provides exact `@workspace /plan` command to run
+
+3. **task.prompt.md - Deprecated Step 2.10**
+   - Step 2.10 (View Documentation) marked as deprecated
+   - Added note explaining move to plan.prompt.md Step 0.6
+   - Updated conditional execution list with deprecation notice
+
+**Benefits:**
+- ✅ Requirements gathered BEFORE implementation begins
+- ✅ User approves interpreted requirements during plan approval
+- ✅ Vision analysis informs architecture decisions
+- ✅ Clear separation of planning vs execution concerns
+
+### Phase 4: Add Comprehensive Test Suite Generation
+
+**Objective:** Enable collective execution of all phase tests at end of implementation
+
+**Changes Implemented:**
+
+1. **plan.prompt.md - Comprehensive Test Suite section added to Test Plan**
+   - TypeScript test template for comprehensive suite
+   - Imports all phase tests
+   - Verifies all phases complete before running
+   - Tests end-to-end user workflows
+   - Detects incremental breakage across phases
+   - Validates multi-phase data flow
+
+2. **plan.prompt.md - Orchestration script template for full regression**
+   - PowerShell script: `run-{key}-full-regression.ps1`
+   - Verifies all phases complete in plan.json
+   - Runs all phase tests individually first
+   - Runs comprehensive suite only if all phase tests pass
+   - Aggregates results and reports status
+   - Clean app lifecycle management (health check, cleanup)
+
+3. **plan.prompt.md - Final Validation Phase template**
+   - Added as last phase in every plan
+   - Executes all phase tests individually
+   - Runs comprehensive regression suite
+   - Verifies no incremental breakage
+   - Confirms readiness for production promotion (Step 9)
+
+4. **plan.prompt.md - JSON schema already includes comprehensiveTestSuite field**
+   - Validated existing schema supports comprehensive suite tracking
+   - Field: `testing.comprehensiveTestSuite` (string)
+
+**Benefits:**
+- ✅ Individual test execution preserved (per-phase scripts)
+- ✅ Collective execution enabled (full regression script)
+- ✅ Incremental breakage detection
+- ✅ End-to-end workflow validation
+- ✅ Clear quality gate before production promotion
+
+### Phase 5: Final Validation & Documentation
+
+**Status**: Complete
+
+**Validation Results:**
+- ✅ Key folder validation working (task.prompt.md Step 0.25, test-generation.prompt.md Step 0)
+- ✅ Branch verification working (test-generation.prompt.md Step 0.1, plan.prompt.md Step 0.1)
+- ✅ Image analysis moved to plan (plan.prompt.md Step 0.6, task deprecated)
+- ✅ Comprehensive test suite templates added to plan
+- ✅ All user requirements addressed
+
+**Documentation Updated:**
+- work-log.md (this entry)
+- prompts-holistic-analysis.md (implementation status pending update)
+- prompts-implementation-plan.md (progress tracker pending update)
+
+**Files Modified:** 3
+- .github/prompts/plan.prompt.md (+205 lines: Step 0.6, comprehensive test suite)
+- .github/prompts/task.prompt.md (+18 lines: deprecation notices)
+- .github/prompts.keys/prompts/work-log.md (this entry)
+
+**Summary of All Enhancements (Phases 1-5):**
+
+1. **Guard Rails Added:**
+   - Task and test-generation validate key folder exists
+   - Test-generation verifies on development branch
+   - Plan validates github-branch parameter
+   - Clear error messages with actionable guidance
+
+2. **Responsibility Realignment:**
+   - Image analysis moved from task to plan
+   - Requirements extracted BEFORE implementation
+   - User approves interpretations during planning
+
+3. **Test Organization Enhanced:**
+   - Tests already correctly in {key}/tests/
+   - Individual execution preserved
+   - Collective execution enabled via comprehensive suite
+   - Final validation phase ensures no incremental breakage
+
+4. **Error Prevention:**
+   - No more cryptic file system errors (key validation)
+   - No more accidental master branch commits (branch verification)
+   - No more late requirement changes (image analysis in planning)
+
+**All User Requirements Met:**
+✅ Guard rails for {key} folder existence  
+✅ Guard rails for github-branch verification  
+✅ Tests in {key}/tests/ folder (already correct)  
+✅ Orchestration for individual and collective execution  
+✅ Image analysis moved to plan prompt
+
+---
+
 ## [2025-10-20] - Holistic Review of Core Orchestration Prompts
 
 **Status**: Analysis Complete, Ready for Implementation

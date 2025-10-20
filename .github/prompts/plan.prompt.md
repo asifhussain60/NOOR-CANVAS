@@ -212,6 +212,156 @@ Recommendations:
 
 ---
 
+### Step 0.6: Image Analysis & Requirement Extraction (CONDITIONAL)
+
+**Trigger:** When user provides images in request OR `annotate` parameter specified
+
+**Purpose:** Extract requirements, design specifications, and technical constraints from visual assets BEFORE planning begins
+
+**Detection:**
+
+1. **Scan user request for image references:**
+   - Inline images in chat
+   - File paths to screenshots (e.g., `mockup.png`, `design.jpg`)
+   - `annotate` parameter with comma-delimited filenames
+   
+2. **Classify image types:**
+   - **Plain Screenshots** → Document current state (for reference)
+   - **Annotated Mockups** → Extract requirements (callouts, arrows, notes)
+   - **Design Comps** → Extract visual specifications (colors, spacing, layout)
+   - **Error Screenshots** → Extract diagnostic information (stack traces, console errors)
+
+**Analysis Process:**
+
+**For Annotated Mockups (highest priority):**
+
+1. **Use vision analysis to extract:**
+   - Text annotations and callout content
+   - Arrows and flow indicators
+   - Highlighted areas and change markers
+   - Color specifications and visual requirements
+   
+2. **Convert to structured requirements:**
+   ```markdown
+   ## Requirements Extracted from Images
+   
+   ### Image 1: {filename}
+   **Type:** Annotated Mockup
+   
+   **Visual Requirements:**
+   - Element X: Change color to #FF5733 (from annotation)
+   - Element Y: Add "Submit" button (from callout)
+   - Layout: Center-align question cards (from arrow indicator)
+   
+   **Functional Requirements:**
+   - Clicking "Submit" should validate form (from annotation)
+   - Display confirmation dialog before submit (from note)
+   
+   **Technical Constraints:**
+   - Must work on mobile (from viewport annotation)
+   - Animation duration: 300ms (from timing note)
+   ```
+
+3. **Incorporate into plan:**
+   - Add extracted requirements to "Goals and success criteria"
+   - Include visual specifications in phase deliverables
+   - Reference images in "Dependencies and references"
+   - Generate Percy visual regression tests for visual changes
+
+4. **Confirm understanding with user:**
+   ```
+   📸 Image Analysis Complete
+   
+   Analyzed {N} image(s):
+   - mockup-annotated.png: Extracted 5 visual requirements, 3 functional requirements
+   - error-screenshot.png: Identified console error in SessionCanvas.razor line 142
+   
+   Extracted Requirements Summary:
+   1. Change submit button color to #FF5733
+   2. Add confirmation dialog before form submission
+   3. Center-align question cards in mobile view
+   4. Fix console error: "Cannot read property 'userId'"
+   5. Add 300ms fade-in animation
+   
+   These requirements will be incorporated into the implementation plan.
+   
+   Are these interpretations correct? (yes to proceed, or provide corrections)
+   ```
+
+**For Plain Screenshots (reference only):**
+1. Document current state for comparison
+2. Include in plan's "Context" section
+3. Reference in test specifications (e.g., "before" state for Percy tests)
+
+**For Design Comps (visual specifications):**
+1. Extract exact color values using vision analysis
+2. Extract spacing, typography, layout specifications
+3. Include in phase deliverables as acceptance criteria
+4. Generate Percy test specifications automatically
+
+**For Error Screenshots (diagnostics):**
+1. Extract stack traces and error messages
+2. Identify error location (file, line number)
+3. Extract console errors and warnings
+4. Include in "Context" section for debugging
+
+**Vision Tool Instructions:**
+
+When analyzing images, use the following approach:
+
+1. **For images provided in chat:**
+   - Use built-in vision capabilities
+   - Analyze images directly using vision model
+   - Extract text, annotations, colors, layout specifications
+
+2. **For image file paths:**
+   - Read image files from disk
+   - Use vision analysis to extract requirements
+   - Document findings in structured format
+
+3. **For annotated mockups, pay special attention to:**
+   - Text callouts and arrows
+   - Highlighted areas (boxes, circles, underlining)
+   - Color swatches and specifications
+   - Dimension annotations (spacing, sizing)
+   - Flow indicators (numbered steps, arrows)
+   
+4. **Extraction format:**
+   - Convert visual annotations to plain text requirements
+   - Preserve exact color codes, dimensions, text content
+   - Maintain logical grouping (visual vs functional requirements)
+   - Separate "must have" from "nice to have" based on annotation emphasis
+
+**Output:**
+```
+📸 Image Analysis Results
+
+Images Processed: 2
+- mockup-annotated.png → 8 requirements extracted
+- current-state.png → Documented for reference
+
+Requirements Added to Plan:
+- Visual: 5 items (colors, layout, animations)
+- Functional: 3 items (validation, dialogs, error handling)
+
+Percy Test Plan Generated:
+- 3 visual regression scenarios identified
+- Baseline snapshots required for: mobile, tablet, desktop
+
+✅ Ready to incorporate into comprehensive plan
+```
+
+**Benefits:**
+- ✅ Requirements gathered BEFORE planning (proper sequence)
+- ✅ User approves interpreted requirements during plan approval
+- ✅ Vision analysis informs architecture decisions (UI vs backend changes)
+- ✅ Percy test specifications auto-generated from visual requirements
+- ✅ Clear separation of planning vs execution concerns
+
+---
+
+## Interaction Protocol
+
 ### Step 1: Confirmation Semantics
 1) Confirmation semantics: If the user message ends with a question mark (?), treat it as a confirmation request. Reframe their request, confirm intent, and propose safe alternatives when appropriate. Do not proceed to finalize until the user confirms.
 
@@ -966,6 +1116,247 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:{marker}];CLEANUP_OK
 ### Orchestration Scripts
 
 {List of PowerShell scripts}
+
+### Comprehensive Test Suite (Final Phase)
+
+**Purpose:** Execute ALL phase tests collectively after all phases complete to verify no incremental breakage
+
+**Test Suite File:** `.github/prompts.keys/{key}/tests/{key}-comprehensive-suite.spec.ts`
+
+**Generation:** Plan agent creates comprehensive test suite specification in final phase
+
+**TypeScript Test Template:**
+```typescript
+/**
+ * Comprehensive Test Suite: {key}
+ * 
+ * Purpose: Execute all phase tests collectively to verify:
+ * - No incremental breakage (later phases didn't break earlier functionality)
+ * - Complete feature integration (all phases work together)
+ * - End-to-end user workflows (complete user journeys)
+ * 
+ * Execution: Run after ALL phases are complete and individually passing
+ * 
+ * Prerequisites:
+ * - All phase tests passing individually
+ * - All phases marked complete in {key}.plan.json
+ * - Build clean (zero errors, zero warnings)
+ */
+
+import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
+
+test.describe('Comprehensive Regression Suite: {key}', () => {
+  
+  test.beforeAll(async () => {
+    // Verify all phases complete
+    const planJson = JSON.parse(fs.readFileSync('.github/prompts.keys/{key}/{key}.plan.json', 'utf8'));
+    const incompletePhases = planJson.phases.filter(p => p.status !== 'complete');
+    
+    if (incompletePhases.length > 0) {
+      throw new Error(\`Cannot run comprehensive suite - \${incompletePhases.length} phases incomplete\`);
+    }
+  });
+  
+  test('End-to-end user workflow: {complete user journey}', async ({ browser }) => {
+    // Test complete user journey across all phases
+    // Example: Registration → Login → Submit Question → Vote → View Results → Logout
+  });
+  
+  test('Incremental breakage detection: Verify Phase 1-N integration', async ({ page }) => {
+    // Verify earlier phase functionality still works after later phases
+  });
+  
+  test('Multi-phase data flow: Data persists across all phases', async ({ page }) => {
+    // Create data in Phase 1, verify visible in Phase 3, confirm persists after Phase 5
+  });
+});
+```
+
+**Orchestration Script:** `.github/prompts.keys/{key}/scripts/run-{key}-full-regression.ps1`
+
+**PowerShell Script Template:**
+```powershell
+# Comprehensive regression test suite for {key}
+# Runs ALL phase tests + comprehensive suite
+# Usage: .\scripts\run-{key}-full-regression.ps1 [-Headed]
+
+param(
+    [switch]$Headed = $false  # Run in headed mode for debugging
+)
+
+Write-Host "===== {key} Comprehensive Regression Suite =====" -ForegroundColor Cyan
+
+# Step 1: Verify all phases complete
+$planJson = Get-Content ".github/prompts.keys/{key}/{key}.plan.json" | ConvertFrom-Json
+$incompletePhases = $planJson.phases | Where-Object { $_.status -ne 'complete' }
+
+if ($incompletePhases.Count -gt 0) {
+    Write-Host "[ERROR] Cannot run comprehensive suite - $($incompletePhases.Count) phases incomplete:" -ForegroundColor Red
+    $incompletePhases | ForEach-Object { Write-Host "  - Phase $($_.id): $($_.title)" -ForegroundColor Yellow }
+    exit 1
+}
+
+# Step 2: Cleanup existing processes
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Step 3: Launch app
+$app = Start-Process "dotnet" -ArgumentList "run --no-build" `
+    -WorkingDirectory "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+    -PassThru -WindowStyle Minimized
+
+try {
+    # Step 4: Health check
+    $timeout = 60
+    $startTime = Get-Date
+    do {
+        Start-Sleep -Milliseconds 500
+        try {
+            $response = Invoke-WebRequest -Uri "https://localhost:9091" -TimeoutSec 2 -UseBasicParsing
+            if ($response.StatusCode -eq 200) {
+                Write-Host "[OK] App ready" -ForegroundColor Green
+                break
+            }
+        } catch { }
+        
+        $elapsed = ((Get-Date) - $startTime).TotalSeconds
+        if ($elapsed -gt $timeout) {
+            Write-Host "[ERROR] Timeout waiting for app" -ForegroundColor Red
+            exit 1
+        }
+    } while ($true)
+    
+    # Step 5: Run individual phase tests
+    Write-Host "`n[PHASE TESTS] Running individual phase tests..." -ForegroundColor Cyan
+    
+    $phaseTestResults = @()
+    foreach ($phase in $planJson.phases) {
+        if ($phase.validation.testFile) {
+            Write-Host "  Running Phase $($phase.id): $($phase.validation.testFile)" -ForegroundColor White
+            
+            $testArgs = @(
+                "test",
+                ".github/prompts.keys/{key}/tests/$($phase.validation.testFile)",
+                "--reporter=list"
+            )
+            if ($Headed) { $testArgs += "--headed" }
+            
+            & npx playwright @testArgs
+            $phaseTestResults += @{
+                Phase = $phase.id
+                Title = $phase.title
+                TestFile = $phase.validation.testFile
+                Passed = $LASTEXITCODE -eq 0
+            }
+        }
+    }
+    
+    # Step 6: Report phase test results
+    Write-Host "`n[PHASE TESTS] Results:" -ForegroundColor Cyan
+    $failedPhases = $phaseTestResults | Where-Object { -not $_.Passed }
+    
+    if ($failedPhases.Count -gt 0) {
+        Write-Host "  FAILED: $($failedPhases.Count) phase test(s) failed" -ForegroundColor Red
+        $failedPhases | ForEach-Object {
+            Write-Host "    - Phase $($_.Phase): $($_.Title)" -ForegroundColor Yellow
+        }
+        Write-Host "`n  Cannot proceed to comprehensive suite with failing phase tests" -ForegroundColor Red
+        exit 1
+    } else {
+        Write-Host "  PASSED: All $($phaseTestResults.Count) phase tests" -ForegroundColor Green
+    }
+    
+    # Step 7: Run comprehensive suite
+    Write-Host "`n[COMPREHENSIVE SUITE] Running end-to-end regression..." -ForegroundColor Cyan
+    
+    $suiteArgs = @(
+        "test",
+        ".github/prompts.keys/{key}/tests/{key}-comprehensive-suite.spec.ts",
+        "--reporter=list"
+    )
+    if ($Headed) { $suiteArgs += "--headed" }
+    
+    & npx playwright @suiteArgs
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "`n[SUCCESS] Comprehensive regression suite PASSED" -ForegroundColor Green
+        Write-Host "  - All phase tests: PASSED" -ForegroundColor Green
+        Write-Host "  - Comprehensive suite: PASSED" -ForegroundColor Green
+        Write-Host "  - Ready for production promotion (Step 9)" -ForegroundColor Cyan
+    } else {
+        Write-Host "`n[FAILURE] Comprehensive regression suite FAILED" -ForegroundColor Red
+        Write-Host "  - Review test output above for failure details" -ForegroundColor Yellow
+        exit 1
+    }
+    
+} finally {
+    # Step 8: Cleanup
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    Write-Host "`n[CLEANUP] App stopped" -ForegroundColor Gray
+}
+```
+
+**Final Validation Phase Template:**
+
+Add as the last phase in every plan:
+
+```markdown
+## Phase {N}: Final Validation & Comprehensive Testing
+
+### Objectives
+
+1. Execute all phase tests individually
+2. Run comprehensive regression suite
+3. Verify no incremental breakage
+4. Validate complete user workflows
+5. Confirm readiness for production promotion
+
+### Implementation Tasks (TODO Items)
+
+- [ ] **Task {N}.1**: Execute all phase tests individually
+  - Expected: All phase tests passing
+  - Command: `.\github\prompts.keys\{key}\scripts\run-{key}-full-regression.ps1`
+
+- [ ] **Task {N}.2**: Run comprehensive regression suite
+  - Expected: End-to-end workflows passing
+  - Validates: Complete user journeys across all phases
+
+- [ ] **Task {N}.3**: Review test metrics
+  - Check {key}.plan.json for flaky tests
+  - Verify test coverage completeness
+  - Document any remaining edge cases
+
+### Validation Checklist
+
+- [ ] All phase tests passing individually ({X}/{X} phases)
+- [ ] Comprehensive suite passing (all scenarios)
+- [ ] No flaky tests detected
+- [ ] Test metrics updated in {key}.plan.json
+- [ ] Ready for Step 9 (Completion Workflow)
+
+### Orchestration Script Specification
+
+**Script:** `.github/prompts.keys/{key}/scripts/run-{key}-full-regression.ps1`
+(See Comprehensive Test Suite section above for complete template)
+
+### Commit Format
+
+\`\`\`
+[{key}] Phase {N}: Final Validation & Comprehensive Testing
+
+- Executed all {X} phase tests individually: PASS
+- Executed comprehensive regression suite: PASS
+- Verified no incremental breakage
+- Validated complete user workflows
+- Ready for production promotion
+
+Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
+\`\`\`
+
+### Approval Gate
+
+**User must confirm**: "All tests passing, ready for completion workflow (Step 9)"
+```
 
 ---
 
