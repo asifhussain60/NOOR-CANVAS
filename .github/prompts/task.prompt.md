@@ -26,7 +26,21 @@ Controls debug logging inserted into source files OR documentation mode.
 
 ### verbosity *(optional, default=`concise`)*
 Controls agent output detail level shown to user (does NOT affect functionality).
-**Options:** `concise` (brief summaries, progress markers), `detailed` (full analysis, complete context dumps)
+**Options:** 
+- `concise` (default): Brief summaries (< 10 lines per phase), progress markers, links to details
+- `detailed`: Full analysis, complete context dumps, verbose explanations
+
+**Concise Output Rules** (default behavior):
+- ✅ Status line (what was done)
+- ✅ Files changed with line counts
+- ✅ Link to {key}.plan.md or work-log.md for details
+- ✅ Next step indication
+- ❌ NO code samples or examples
+- ❌ NO verbose JSON/schema dumps
+- ❌ NO algorithm explanations
+- ❌ NO template/boilerplate blocks
+
+**Philosophy**: User approved the plan - they know what you're doing. Confirm it's done and move on.
 
 ### tasks *(optional, multi-line)*
 Subtasks to execute sequentially, halting on failure.  

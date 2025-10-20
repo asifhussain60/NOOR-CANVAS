@@ -1035,10 +1035,47 @@ When the user confirms readiness to implement:
 4. **Sequential Execution**: User says "proceed" → Phase 1 begins → Phase completes → User says "proceed" → Phase 2 begins → ... → Final summary
 
 ### During Execution (Phase-by-Phase)
-- **Phase Introduction**: "Starting Phase {N}: {Title}"
-- **Phase Implementation**: Execute tasks from {key}.plan.md
-- **Phase Completion**: Summary + "Say 'proceed' to continue to Phase {N+1}"
-- **Final Phase**: Complete implementation summary (see Final Phase Summary Template)
+
+**Phase Completion Output Format (CONCISE):**
+
+```markdown
+## ✅ Phase {N} Complete: {Title}
+
+**Status**: ✅ Completed  
+**Commit**: `{short-sha}`  
+**Duration**: {X} minutes
+
+### What Was Done
+- {Brief bullet point 1}
+- {Brief bullet point 2}
+- {Brief bullet point 3}
+
+### Files Changed
+- {file1} ({+X/-Y lines})
+- {file2} ({+X/-Y lines})
+
+**📋 Details**: See `.github/prompts.keys/{key}/{key}.plan.md` (Phase {N})
+
+---
+
+### Next: Phase {N+1} - {Title}
+
+{One sentence describing next phase objective}
+
+**To continue, say:** `proceed`
+```
+
+**CRITICAL OUTPUT RULES:**
+- ❌ **NO code samples** in phase completion output
+- ❌ **NO verbose JSON/schema examples**
+- ❌ **NO detailed algorithm explanations**
+- ❌ **NO template/boilerplate code blocks**
+- ✅ **YES**: Brief bullets (what was done)
+- ✅ **YES**: File names and line counts
+- ✅ **YES**: Link to plan.md for details
+- ✅ **YES**: Simple next phase preview
+
+**User Experience Goal**: User should see completion status in < 10 lines, with link to details if needed.
 
 ### No Manual Commands
 - User only needs to say "proceed" at each approval gate
@@ -1915,11 +1952,21 @@ Test generation is handled automatically by task agent:
    - ✅ Instead: Wait for "proceed" after each phase
 6. ❌ **Not providing final summary after last phase**
    - ✅ Instead: Use Final Phase Summary Template with complete record
+7. ❌ **Verbose phase completion output with code samples**
+   - ✅ Instead: Concise summary (< 10 lines) with link to {key}.plan.md
+8. ❌ **Including JSON schemas, algorithms, templates in output**
+   - ✅ Instead: "What was done" bullets + link to details
+9. ❌ **Repeating information already in {key}.plan.md**
+   - ✅ Instead: Brief summary + reference link for deep dive
+10. ❌ **Long example outputs, workflow diagrams, code blocks**
+    - ✅ Instead: Status, files changed, link to plan, next phase
 
 **Remember: You are a PLANNING agent that guides sequential execution. Flow:
 1. Create plan files ({key}.plan.md, {key}.plan.json, work-log.md)
 2. Tell user: "Say 'proceed' to begin Phase 1"
 3. User: "proceed" → Execute Phase 1 from {key}.plan.md
-4. Summarize Phase 1 → "Say 'proceed' for Phase 2"
+4. **Concise summary** (< 10 lines) → Link to plan.md → "Say 'proceed' for Phase 2"
 5. Repeat for all phases
 6. After final phase: Provide complete implementation summary**
+
+**Output Philosophy: The user approved the plan - they know what you're doing. Just confirm it's done and move on.**

@@ -853,6 +853,32 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 
 ## Output Format
 
+**CONCISE OUTPUT** (default):
+```markdown
+✅ Test Created: {test-file}.spec.ts
+
+**Test Type**: {Functional E2E | Visual Regression (Percy)}
+**Location**: .github/prompts.keys/{key}/tests/
+**Orchestration**: Scripts/{script-name}.ps1
+**Scenarios**: {X} test scenarios
+
+**Details**: See test-registry.md for full specification
+
+**Next**: Run test with: `.\Scripts\{script-name}.ps1`
+```
+
+**RULES:**
+- ❌ NO full test code in output (it's in the file)
+- ❌ NO verbose scenario descriptions (in test-registry.md)
+- ❌ NO template examples or code blocks
+- ✅ YES: File name, location, scenario count
+- ✅ YES: Link to registry for details
+- ✅ YES: How to run the test
+
+---
+
+## Test Generation Details
+
 Generate complete TypeScript test file, PowerShell orchestration script, AND update test registry:
 
 ### 1. TypeScript Test File (.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts)
