@@ -1357,6 +1357,17 @@
             });
         }
         
+        // [DEBUG-WORKITEM:userlanding:simple] Clear Local Storage button for debug panel ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Clear Local Storage",
+            "Clear participant registration data from localStorage",
+            async () => await HandleClearLocalStorage(),
+            "fa-solid fa-trash"
+        )
+        {
+            IsEnabled = Model != null && !Model.IsLoading
+        });
+        
         return actions;
     }
 
@@ -1414,6 +1425,39 @@
             if (Model != null)
             {
                 Model.ErrorMessage = "Failed to populate test data.";
+                StateHasChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:userlanding:simple] Clears participant registration data from localStorage ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleClearLocalStorage()
+    {
+        try
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:simple] [{RequestId}] Clearing localStorage for participant registration data ;CLEANUP_OK", requestId);
+
+            // Clear all localStorage entries (includes noor_user_guid_* entries)
+            await JSRuntime.InvokeVoidAsync("localStorage.clear");
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:simple] [{RequestId}] localStorage cleared successfully ;CLEANUP_OK", requestId);
+
+            // Show success message if Model exists
+            if (Model != null)
+            {
+                Model.ErrorMessage = string.Empty;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:simple] Error clearing localStorage ;CLEANUP_OK");
+            if (Model != null)
+            {
+                Model.ErrorMessage = "Failed to clear localStorage.";
                 StateHasChanged();
             }
         }

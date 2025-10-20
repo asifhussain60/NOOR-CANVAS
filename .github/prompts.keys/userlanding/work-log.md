@@ -183,6 +183,25 @@ Remove automatic navigation to waiting room after participant registration via l
 
 **Testing**: Create Playwright test (Percy visual regression) with browser console log monitoring for JavaScript errors.
 
+### User Request (2025-10-20T01:00:00Z)
+Add "Clear Local Storage" button to debug panel on UserLanding.razor to clear participant registration data from localStorage.
+
+**Scope**: Add button to existing debug panel that clears localStorage entries (noor_user_guid_*).
+
+**Debug Level**: simple
+
+### Work Completed (2025-10-20T01:30:00Z)
+- **Status**: Complete
+- **Changes**: 
+  - Added "Clear Local Storage" debug action to GetUserLandingDebugActions()
+  - Implemented HandleClearLocalStorage() method with JSRuntime localStorage.clear
+  - Added simple-level debug logging for localStorage operations
+- **Files Affected**: 
+  - SPA/NoorCanvas/Pages/UserLanding.razor
+- **Build**: Clean (zero errors, zero warnings)
+- **Lint Validation**: PASS
+- **Commit**: 6cf97d365cc97db587fd078a4f51ad9451c81320
+
 ---
 
 **Plan Finalized:** 2025-10-19  
