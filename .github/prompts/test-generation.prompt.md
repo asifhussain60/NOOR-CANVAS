@@ -858,22 +858,25 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 ✅ Test Created: {test-file}.spec.ts
 
 **Test Type**: {Functional E2E | Visual Regression (Percy)}
-**Location**: .github/prompts.keys/{key}/tests/
-**Orchestration**: Scripts/{script-name}.ps1
-**Scenarios**: {X} test scenarios
+**Scenarios**: {X} test scenarios covering {brief-description}
 
-**Details**: See test-registry.md for full specification
+### What Was Created
+- {Brief bullet about test scenario 1}
+- {Brief bullet about test scenario 2}
+- {Brief bullet about test scenario 3}
 
-**Next**: Run test with: `.\Scripts\{script-name}.ps1`
+### Next Steps
+- Run test: `.\Scripts\{script-name}.ps1`
+- View details: `.github/prompts.keys/{key}/tests/test-registry.md`
 ```
 
 **RULES:**
-- ❌ NO full test code in output (it's in the file)
-- ❌ NO verbose scenario descriptions (in test-registry.md)
-- ❌ NO template examples or code blocks
-- ✅ YES: File name, location, scenario count
-- ✅ YES: Link to registry for details
+- ✅ YES: Bulleted summary of what test scenarios cover
 - ✅ YES: How to run the test
+- ✅ YES: Link to registry for full specification
+- ❌ NO: Full test code (it's in the file)
+- ❌ NO: File locations (user doesn't care)
+- ❌ NO: Template examples or code blocks
 
 ---
 

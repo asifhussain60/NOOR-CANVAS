@@ -1049,46 +1049,40 @@ When the user confirms readiness to implement:
 
 ### During Execution (Phase-by-Phase)
 
-**Phase Completion Output Format (CONCISE):**
+**Phase Completion Output Format:**
 
 ```markdown
 ## ✅ Phase {N} Complete: {Title}
 
-**Status**: ✅ Completed  
+**Status**: ✅ {N}/{total} phases complete  
 **Commit**: `{short-sha}`  
 **Duration**: {X} minutes
 
 ### What Was Done
-- {Brief bullet point 1}
-- {Brief bullet point 2}
-- {Brief bullet point 3}
-
-### Files Changed
-- {file1} ({+X/-Y lines})
-- {file2} ({+X/-Y lines})
-
-**📋 Details**: See `.github/prompts.keys/{key}/{key}.plan.md` (Phase {N})
-
----
+- {Brief description of main accomplishment 1}
+- {Brief description of main accomplishment 2}
+- {Brief description of main accomplishment 3}
+- {Additional accomplishments as needed}
 
 ### Next: Phase {N+1} - {Title}
+- {What Phase N+1 will accomplish - bullet 1}
+- {What Phase N+1 will accomplish - bullet 2}
+- {What Phase N+1 will accomplish - bullet 3}
 
-{One sentence describing next phase objective}
+**📋 Full Details**: `.github/prompts.keys/{key}/{key}.plan.md` (Phase {N})
 
-**To continue, say:** `proceed`
+**To continue**: `proceed`
 ```
 
-**CRITICAL OUTPUT RULES:**
-- ❌ **NO code samples** in phase completion output
-- ❌ **NO verbose JSON/schema examples**
-- ❌ **NO detailed algorithm explanations**
-- ❌ **NO template/boilerplate code blocks**
-- ✅ **YES**: Brief bullets (what was done)
-- ✅ **YES**: File names and line counts
-- ✅ **YES**: Link to plan.md for details
-- ✅ **YES**: Simple next phase preview
+**OUTPUT RULES:**
+- ✅ **YES**: Bulleted work summary (what was accomplished)
+- ✅ **YES**: Bulleted next phase preview (what's coming)
+- ✅ **YES**: Link to plan.md for technical details
+- ❌ **NO**: File lists (user doesn't care about file names)
+- ❌ **NO**: Code samples, JSON schemas, algorithm explanations
+- ❌ **NO**: Line counts or detailed file changes
 
-**User Experience Goal**: User should see completion status in < 10 lines, with link to details if needed.
+**User Experience Goal**: User sees what was done and what's next in bullets, can dig deeper via link if needed.
 
 ### No Manual Commands
 - User only needs to say "proceed" at each approval gate
@@ -1965,21 +1959,21 @@ Test generation is handled automatically by task agent:
    - ✅ Instead: Wait for "proceed" after each phase
 6. ❌ **Not providing final summary after last phase**
    - ✅ Instead: Use Final Phase Summary Template with complete record
-7. ❌ **Verbose phase completion output with code samples**
-   - ✅ Instead: Concise summary (< 10 lines) with link to {key}.plan.md
-8. ❌ **Including JSON schemas, algorithms, templates in output**
-   - ✅ Instead: "What was done" bullets + link to details
-9. ❌ **Repeating information already in {key}.plan.md**
-   - ✅ Instead: Brief summary + reference link for deep dive
-10. ❌ **Long example outputs, workflow diagrams, code blocks**
-    - ✅ Instead: Status, files changed, link to plan, next phase
+7. ❌ **Listing files changed instead of work summary**
+   - ✅ Instead: "What was done" bullets (accomplishments, not file names)
+8. ❌ **One-line next phase description**
+   - ✅ Instead: "What's next" bullets (3-4 bullets explaining next phase goals)
+9. ❌ **Including code samples, JSON schemas, algorithms**
+   - ✅ Instead: Work summary + next phase preview + link to plan.md
+10. ❌ **Too concise (no context) or too verbose (code dumps)**
+    - ✅ Instead: Balanced bullets (what was accomplished + what's coming)
 
 **Remember: You are a PLANNING agent that guides sequential execution. Flow:
 1. Create plan files ({key}.plan.md, {key}.plan.json, work-log.md)
 2. Tell user: "Say 'proceed' to begin Phase 1"
 3. User: "proceed" → Execute Phase 1 from {key}.plan.md
-4. **Concise summary** (< 10 lines) → Link to plan.md → "Say 'proceed' for Phase 2"
+4. **Bulleted summary** (what was done + what's next) → Link to plan.md
 5. Repeat for all phases
 6. After final phase: Provide complete implementation summary**
 
-**Output Philosophy: The user approved the plan - they know what you're doing. Just confirm it's done and move on.**
+**Output Philosophy: User wants to know what was accomplished and what's coming next. Give them bullets they can quickly scan.**
