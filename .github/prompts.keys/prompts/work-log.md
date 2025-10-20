@@ -2,6 +2,71 @@
 
 ---
 
+## [2025-10-20T15:50:00Z] - Phase 3 Complete: Learning Integration
+
+**Status**: ✅ Completed  
+**Phase**: 3 of 9  
+**Commit**: 8b230866  
+**Checkpoint**: checkpoint/prompts/2025-10-20_phase3  
+**Duration**: 20 minutes
+
+**Implementation**:
+- Added Step 10 to `plan.prompt.md`: "Learning Extraction"
+  - Final step after all phases complete
+  - Invokes `@workspace /analyze-learning` command
+  - Optional skip with `skip-learning=true` parameter
+  - Displays copy-paste ready command to user
+- Updated `plan.json` schema with `learningExtracted` field
+  - Boolean field (default: false)
+  - Set to true after analyze-learning agent completes
+  - Tracks whether learning has been extracted
+- Added `skip-learning` parameter to plan.prompt.md
+  - Default: false (automatic extraction)
+  - Set to true to disable Step 10
+- Created handoff template for analyze-learning
+  - Format: `@workspace /analyze-learning key={key} scope=key={key} analysis-type=comprehensive`
+  - Extracts patterns to `.github/learning/patterns/`
+  - Documents anti-patterns to avoid
+  - Records architectural decisions
+
+**Validation**:
+- ✅ Build passes (documentation-only changes)
+- ✅ Step 10 integrated into completion workflow
+- ✅ plan.json schema updated
+- ✅ skip-learning parameter documented
+
+**Files Changed**:
+- `.github/prompts/plan.prompt.md` (+88 lines, -9 lines)
+  - Step 10: Learning Extraction implementation
+  - skip-learning parameter added
+  - plan.json schema updated with learningExtracted
+- `.github/prompts.keys/prompts/prompts.plan.json` (phase 3 status updated)
+
+**Metrics**:
+- Lines added: 88
+- Lines removed: 9
+- New parameter: skip-learning (default: false)
+- New schema field: learningExtracted (boolean)
+
+**Benefits**:
+- ✅ Ensures learning never forgotten
+- ✅ Builds organizational knowledge base automatically
+- ✅ Improves future planning with proven patterns
+- ✅ Documents what worked and what didn't
+- ✅ Facilitates onboarding (new team members learn from past work)
+
+**Learning Extraction Workflow**:
+1. All phases complete successfully
+2. Final Phase Summary displayed to user
+3. Step 10 outputs analyze-learning command
+4. User copies and executes command
+5. Patterns extracted to `.github/learning/`
+6. `plan.json` marked `learningExtracted=true`
+
+**Next**: Awaiting user "proceed" for Phase 4: Universal Recovery Protocol
+
+---
+
 ## [2025-10-20T15:20:00Z] - Phase 2 Complete: Test Reuse in Planning
 
 **Status**: ✅ Completed  
