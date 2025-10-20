@@ -4,7 +4,7 @@
     "branch": "development",
     "status": "in-progress",
     "created": "2025-10-20T00:00:00Z",
-    "updated": "2025-10-20T14:30:00Z",
+    "updated": "2025-10-20T15:00:00Z",
     "technology": {
         "framework": "Markdown Prompts + JSON Tracking",
         "version": "1.0",
@@ -71,7 +71,8 @@
         {
             "id": 2,
             "title": "Test Reuse in Planning",
-            "status": "not-started",
+            "status": "completed",
+            "startedAt": "2025-10-20T15:00:00Z",
             "dependencies": [
                 1
             ],
@@ -79,25 +80,27 @@
                 {
                     "id": "2.1",
                     "description": "Add Step 0.5.7 to plan.prompt.md",
-                    "completed": false
+                    "completed": true
                 },
                 {
                     "id": "2.2",
                     "description": "Implement similarity scoring (0.75)",
-                    "completed": false
+                    "completed": true
                 },
                 {
                     "id": "2.3",
                     "description": "Update plan template with reusable tests",
-                    "completed": false
+                    "completed": true
                 }
             ],
             "validation": {
-                "buildPassed": false,
-                "lintPassed": false,
+                "buildPassed": true,
+                "lintPassed": true,
                 "testCreated": false
             },
-            "userApproved": false
+            "userApproved": true,
+            "completedAt": "2025-10-20T15:20:00Z",
+            "durationMinutes": 20
         },
         {
             "id": 3,

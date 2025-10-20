@@ -210,6 +210,65 @@ Recommendations:
 - ✅ Detect file modification conflicts early
 - ✅ Reuse proven test and orchestration patterns
 
+7. **Reusable Test Discovery** (query global test index for similar tests):
+   - Read `.github/tests/test-index.json` (created in Phase 1)
+   - Extract feature keywords from user request (e.g., "registration", "authentication", "debug panel")
+   - Calculate similarity score for each test in index using token-based matching
+   - Recommend tests with similarity ≥ 0.75 threshold
+
+**Similarity Algorithm:**
+```
+1. Extract tokens from user request features
+   Example: "user registration with email validation"
+   Tokens: {user, registration, email, validation}
+
+2. For each test in index:
+   - Extract tokens from test.feature and test.scenarios
+   - Calculate Jaccard similarity: |A ∩ B| / |A ∪ B|
+   
+3. Filter tests with similarity ≥ 0.75
+
+4. Rank by similarity score (descending)
+```
+
+**Output:**
+```
+🔍 Reusable Test Discovery
+
+Tests matching your requirements (similarity ≥ 0.75):
+
+1. **userlanding-registration-guard** (similarity: 0.85)
+   - Key: userlanding
+   - Feature: Registration Guard
+   - File: Tests/UI/phase1-session-waiting-guard.spec.ts
+   - Scenarios:
+     * Redirects unregistered users to landing page
+     * Allows registered users to access session
+     * Checks sessionStorage bypass flag
+   - Tags: authentication, authorization, registration, guard
+   - Adaptation: Modify redirect URLs, update sessionStorage keys
+
+2. **hcp-auth-flow** (similarity: 0.78)
+   - Key: hcp
+   - Feature: Authentication Flow
+   - File: Tests/UI/hcp-auth-validation.spec.ts
+   - Scenarios:
+     * Validates user credentials
+     * Handles authentication errors
+   - Tags: authentication, validation
+   - Adaptation: Adjust credential validation logic
+
+✅ 2 reusable tests found - include in plan to reduce duplication
+```
+
+**Benefits:**
+- ✅ Discover existing tests before creating duplicates
+- ✅ Leverage proven test patterns from other keys
+- ✅ Reduce test maintenance burden
+- ✅ Consistent testing approach across features
+
+**See:** `.github/tests/README.md` for test index schema and usage
+
 ---
 
 ### Step 0.6: Image Analysis & Requirement Extraction (CONDITIONAL)
@@ -1055,6 +1114,44 @@ Provide all essential, execution-ready context here, while avoiding redundancy. 
 ### References
 
 {List of required reading: QuickRef docs, prompt files, shared patterns}
+
+---
+
+## Reusable Tests (from Test Index)
+
+**Source:** Global test index at `.github/tests/test-index.json`
+
+**Discovery:** Step 0.5.7 queried test index and found {N} tests with similarity ≥ 0.75
+
+{If no reusable tests found, output: "No existing tests match this feature (similarity < 0.75). New tests will be created."}
+
+{If reusable tests found:}
+
+### Test 1: {test-id}
+
+- **Original Key:** {key}
+- **Feature:** {feature name}
+- **File:** {file path}
+- **Similarity Score:** {0.XX}
+- **Scenarios:**
+  1. {scenario 1}
+  2. {scenario 2}
+  3. {scenario 3}
+- **Tags:** {tag1, tag2, tag3}
+- **Created:** {ISO-8601-timestamp}
+
+**Adaptation Guidance:**
+- {Specific adaptations needed for this key}
+- {Example: Update URLs from /userlanding/ to /{key}/}
+- {Example: Modify sessionStorage keys to match new feature}
+- {Example: Adjust selector patterns for different component structure}
+
+**Reuse Recommendation:** {HIGH | MEDIUM | LOW}
+- HIGH: Test structure directly applicable, minimal changes needed
+- MEDIUM: Core logic reusable, requires moderate adaptation
+- LOW: Reference only, significant changes required
+
+{Repeat for each reusable test}
 
 ---
 
