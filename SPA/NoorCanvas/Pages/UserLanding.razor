@@ -735,7 +735,32 @@
                         await LoadCountriesAsync();
                         
                         // Load saved registration data from localStorage (if available)
-                        await LoadRegistrationDataAsync();
+                        var hasStoredData = await LoadRegistrationDataAsync();
+                        
+                        // [DEBUG-WORKITEM:userlanding:localStorage:auto-load-nav] Auto-navigate if registration data loaded successfully ;CLEANUP_OK
+                        if (hasStoredData && validationResult != null)
+                        {
+                            var autoNavStatus = validationResult.Session?.Status?.ToLowerInvariant();
+                            
+                            // Set bypass flag for auto-navigation (prevents registration guard redirect loop)
+                            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:auto-load-nav] Bypass flag set for auto-navigation ;CLEANUP_OK");
+                            
+                            if (autoNavStatus == "created")
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:auto-load-nav] Auto-navigating to SessionWaiting (status: created) ;CLEANUP_OK");
+                                Navigation.NavigateTo($"/session/waiting/{token}", forceLoad: true);
+                                return;
+                            }
+                            else if (autoNavStatus == "active" || autoNavStatus == "started" || autoNavStatus == "in progress")
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:auto-load-nav] Auto-navigating to SessionCanvas (status: {Status}) ;CLEANUP_OK", 
+                                    autoNavStatus);
+                                Navigation.NavigateTo($"/session/canvas/{token}", forceLoad: true);
+                                return;
+                            }
+                            // Note: Ended sessions already handled earlier in LoadSessionInfoAsync (line 671-675)
+                        }
                         
                         // Set focus to name input after successful token validation
                         await SetFocusAfterPanelSwitch("name-input", requestId);

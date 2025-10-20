@@ -125,13 +125,17 @@ Before moving to next phase, verify:
   - [x] Test: Playwright E2E test with browser log validation ✅
 - [x] **Phase 5:** Session Ended Handling ✅
   - [x] Test: Playwright E2E test with browser log validation ✅
-- [ ] **Phase 6:** localStorage Infrastructure
-  - [ ] Test: Playwright E2E test with browser log validation
-- [ ] **Phase 7:** Expiration Extension Logic
-  - [ ] Test: Playwright E2E test with browser log validation
-- [ ] **Phase 8:** Data Validation
-  - [ ] Test: Playwright E2E test with browser log validation
-- [ ] **Phase 9:** Save/Load Integration & Auto-Navigation
+- [x] **Phase 6:** localStorage Infrastructure ✅ (Commit: 28475168)
+  - [x] Test: Playwright E2E test with browser log validation ✅
+  - [x] Tag: checkpoint/userlanding/20251019-201552 ✅
+- [x] **Phase 7:** Expiration Extension Logic ✅ (Commit: 90f5ea7d)
+  - [x] Test: Playwright E2E test with browser log validation ✅
+  - [x] Tag: checkpoint/userlanding/20251019-202103 ✅
+- [x] **Phase 8:** Data Validation ✅ (Commit: b76135b3)
+  - [x] Test: Playwright E2E test with browser log validation ✅ (4/5 passing)
+  - [x] Tag: checkpoint/userlanding/[timestamp] ✅
+  - [x] Country timing fix: ISO2 storage with pending selection pattern ✅
+- [ ] **Phase 9:** Save/Load Integration & Auto-Navigation (IN PROGRESS)
   - [ ] Test: Playwright E2E test with Percy visual regression
 - [ ] **Phase 10:** Debug Panel Clear Button
   - [ ] Test: Playwright E2E test with Percy visual regression
