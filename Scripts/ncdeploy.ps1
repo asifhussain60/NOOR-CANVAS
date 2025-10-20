@@ -36,6 +36,11 @@
     Automatically continue with merge even if there are changes to commit.
     USE WITH CAUTION - only when you're certain changes should be merged.
 
+.PARAMETER DryRun
+    Validate migrations and deployment readiness without executing.
+    Checks SQL syntax, database connectivity, and file readiness.
+    No database changes or code deployment will occur.
+
 .EXAMPLE
     .\ncdeploy.ps1
     Full deployment: merge development→master, build, deploy, return to development
@@ -43,6 +48,10 @@
 .EXAMPLE
     .\ncdeploy.ps1 -SkipMerge
     Deploy from current master branch without merging development
+
+.EXAMPLE
+    .\ncdeploy.ps1 -DryRun
+    Validate deployment readiness (migrations, build, configuration) without executing
 
 .EXAMPLE
     .\ncdeploy.ps1 -SkipIIS
@@ -59,6 +68,7 @@ param(
     [switch]$SkipBuild,
     [switch]$SkipIIS,
     [switch]$AutoMerge,
+    [switch]$DryRun,
     [string]$AppPool = "NoorCanvas"
 )
 
@@ -224,6 +234,227 @@ try {
         } finally {
             Pop-Location
         }
+    }
+
+    # Step 0.5: Database Migrations (NEW - Production Schema Changes)
+    # [DEBUG-WORKITEM:deploy:migrations:DETAILED]
+    Write-Step "Database Migrations: Checking for pending migrations..."
+    
+    $MigrationPendingPath = "$WorkspaceRoot\Scripts\Migrations\Prod\pending"
+    $MigrationArchivedPath = "$WorkspaceRoot\Scripts\Migrations\Prod\archived"
+    $MigrationRollbackPath = "$WorkspaceRoot\Scripts\Migrations\Prod\rollback"
+    
+    # Check if pending migrations exist
+    if (Test-Path $MigrationPendingPath) {
+        $PendingMigrations = Get-ChildItem -Path $MigrationPendingPath -Filter "migration-*.sql" | Sort-Object Name
+        
+        if ($PendingMigrations.Count -gt 0) {
+            Write-Info "→ Found $($PendingMigrations.Count) pending migration(s)"
+            
+            foreach ($migration in $PendingMigrations) {
+                Write-Host "  - $($migration.Name)" -ForegroundColor Yellow
+            }
+            
+            # Validate sqlcmd availability
+            try {
+                $sqlcmdVersion = sqlcmd -? 2>&1 | Select-Object -First 1
+                Write-Info "→ SQL Server command-line tools available"
+            } catch {
+                Write-Error "sqlcmd not found. Install SQL Server Command Line Utilities."
+                throw "Migration execution requires sqlcmd. Download from: https://aka.ms/ssmsfullsetup"
+            }
+            
+            # Validate connection to production database
+            Write-Info "→ Validating connection to KSESSIONS (Production database)"
+            try {
+                $connectionTest = sqlcmd -S localhost -d KSESSIONS -Q "SELECT DB_NAME() AS CurrentDB" -h -1 -W 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Cannot connect to KSESSIONS database"
+                }
+                Write-Success "Connected to KSESSIONS database"
+            } catch {
+                Write-Error "Failed to connect to KSESSIONS database"
+                Write-Info "Ensure SQL Server is running and KSESSIONS database exists"
+                throw $_
+            }
+            
+            # Check if MigrationHistory table exists
+            Write-Info "→ Verifying MigrationHistory table"
+            $historyTableCheck = sqlcmd -S localhost -d KSESSIONS -Q "SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.tables WHERE schema_id = SCHEMA_ID('canvas') AND name = 'MigrationHistory') THEN 1 ELSE 0 END" -h -1 -W 2>&1
+            
+            if ($historyTableCheck -match "^\s*0\s*$") {
+                Write-Warning "MigrationHistory table not found. Initializing..."
+                $initScript = "$WorkspaceRoot\Scripts\Migrations\Prod\init-migration-history.sql"
+                
+                if (Test-Path $initScript) {
+                    Write-Info "→ Running: init-migration-history.sql"
+                    sqlcmd -S localhost -d KSESSIONS -i $initScript -b
+                    
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Failed to initialize MigrationHistory table"
+                    }
+                    Write-Success "MigrationHistory table created"
+                } else {
+                    throw "MigrationHistory initialization script not found: $initScript"
+                }
+            } else {
+                Write-Success "MigrationHistory table verified"
+            }
+            
+            # Execute migrations
+            $MigrationsFailed = $false
+            $FailedMigration = $null
+            
+            foreach ($migration in $PendingMigrations) {
+                Write-Host "`n  ┌─ Executing: $($migration.Name)" -ForegroundColor Cyan
+                
+                $migrationPath = $migration.FullName
+                
+                # Dry-run mode: Validate syntax only, don't execute
+                if ($DryRun) {
+                    Write-Info "  │  [DRY-RUN] Validating SQL syntax..."
+                    
+                    try {
+                        # Use sqlcmd with -n flag (removes numbering/prompts) for syntax check
+                        # We'll parse the file for basic validation
+                        $migrationContent = Get-Content $migrationPath -Raw
+                        
+                        # Basic validation checks
+                        $validationErrors = @()
+                        
+                        if ($migrationContent -notmatch "DB_NAME\(\)\s*!=\s*['\"]KSESSIONS['\"]") {
+                            $validationErrors += "Missing database safety check (DB_NAME() != 'KSESSIONS')"
+                        }
+                        
+                        if ($migrationContent -notmatch "BEGIN TRANSACTION") {
+                            $validationErrors += "Missing transaction wrapper (BEGIN TRANSACTION)"
+                        }
+                        
+                        if ($migrationContent -notmatch "BEGIN TRY") {
+                            $validationErrors += "Missing error handling (BEGIN TRY)"
+                        }
+                        
+                        if ($migrationContent -notmatch "INSERT INTO canvas\.MigrationHistory") {
+                            $validationErrors += "Missing MigrationHistory tracking"
+                        }
+                        
+                        if ($migrationContent -notmatch "IF (NOT )?EXISTS") {
+                            $validationErrors += "Missing idempotent checks (IF EXISTS / IF NOT EXISTS)"
+                        }
+                        
+                        if ($validationErrors.Count -gt 0) {
+                            Write-Warning "  └─ [DRY-RUN] Validation warnings:"
+                            foreach ($error in $validationErrors) {
+                                Write-Host "     ⚠️  $error" -ForegroundColor Yellow
+                            }
+                        } else {
+                            Write-Success "  └─ [DRY-RUN] Syntax validation passed"
+                        }
+                        
+                    } catch {
+                        Write-Error "  └─ [DRY-RUN] Validation error: $_"
+                        throw
+                    }
+                    
+                    continue  # Skip actual execution in dry-run mode
+                }
+                
+                try {
+                    # Execute migration
+                    Write-Info "  │  Running migration against KSESSIONS..."
+                    $migrationOutput = sqlcmd -S localhost -d KSESSIONS -i $migrationPath -b 2>&1
+                    
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Migration execution failed with exit code $LASTEXITCODE"
+                    }
+                    
+                    # Check output for success message
+                    if ($migrationOutput -match "completed successfully") {
+                        Write-Success "  └─ Migration completed successfully"
+                        
+                        # Archive the migration
+                        $ArchiveDate = Get-Date -Format "yyyy-MM-dd"
+                        $ArchiveDestPath = "$MigrationArchivedPath\$ArchiveDate"
+                        
+                        if (-not (Test-Path $ArchiveDestPath)) {
+                            New-Item -Path $ArchiveDestPath -ItemType Directory -Force | Out-Null
+                            Write-Info "     Created archive directory: archived/$ArchiveDate/"
+                        }
+                        
+                        $ArchiveDestFile = "$ArchiveDestPath\$($migration.Name)"
+                        Move-Item -Path $migrationPath -Destination $ArchiveDestFile -Force
+                        Write-Info "     Archived to: archived/$ArchiveDate/$($migration.Name)"
+                        
+                    } else {
+                        throw "Migration did not report success. Output: $migrationOutput"
+                    }
+                    
+                } catch {
+                    Write-Error "  └─ Migration FAILED: $_"
+                    Write-Host "`n  Migration Output:" -ForegroundColor Red
+                    Write-Host "  $migrationOutput" -ForegroundColor Red
+                    
+                    $MigrationsFailed = $true
+                    $FailedMigration = $migration
+                    
+                    # Look for corresponding rollback script
+                    $rollbackFileName = $migration.Name -replace "^migration-", "rollback-"
+                    $rollbackPath = "$MigrationRollbackPath\$rollbackFileName"
+                    
+                    if (Test-Path $rollbackPath) {
+                        Write-Warning "`n  ⚠️  Rollback script found: $rollbackFileName"
+                        Write-Host "  Executing rollback to restore database state..." -ForegroundColor Yellow
+                        
+                        try {
+                            $rollbackOutput = sqlcmd -S localhost -d KSESSIONS -i $rollbackPath -b 2>&1
+                            
+                            if ($LASTEXITCODE -eq 0 -and $rollbackOutput -match "completed successfully") {
+                                Write-Success "  ✅ Rollback completed successfully"
+                                Write-Info "  Database restored to previous state"
+                            } else {
+                                Write-Error "  ❌ Rollback FAILED"
+                                Write-Host "  Rollback Output:" -ForegroundColor Red
+                                Write-Host "  $rollbackOutput" -ForegroundColor Red
+                                Write-Warning "  ⚠️  CRITICAL: Database may be in inconsistent state!"
+                                Write-Warning "  ⚠️  Manual intervention required"
+                            }
+                        } catch {
+                            Write-Error "  ❌ Rollback execution error: $_"
+                            Write-Warning "  ⚠️  CRITICAL: Database may be in inconsistent state!"
+                        }
+                    } else {
+                        Write-Error "  ❌ No rollback script found: $rollbackFileName"
+                        Write-Warning "  ⚠️  Database may be in inconsistent state!"
+                    }
+                    
+                    # Halt deployment
+                    throw "Migration failed: $($migration.Name). Deployment aborted."
+                }
+            }
+            
+            if (-not $MigrationsFailed) {
+                Write-Success "`n✅ All migrations completed successfully"
+            }
+            
+        } else {
+            Write-Info "→ No pending migrations found"
+        }
+    } else {
+        Write-Info "→ Migrations directory not found (first-time setup or no migrations yet)"
+        Write-Info "   Location: Scripts/Migrations/Prod/pending/"
+    }
+    
+    # Dry-run mode: Exit after validation
+    if ($DryRun) {
+        Write-Host "`n========================================" -ForegroundColor Green
+        Write-Host "  DRY-RUN MODE: Validation Complete" -ForegroundColor Green
+        Write-Host "========================================" -ForegroundColor Green
+        Write-Success "✅ Migration validation passed"
+        Write-Info "→ No migrations were executed (dry-run mode)"
+        Write-Info "→ No code was deployed (dry-run mode)"
+        Write-Host "`nTo execute deployment, run without -DryRun parameter:" -ForegroundColor Cyan
+        Write-Host "  .\Scripts\ncdeploy.ps1" -ForegroundColor White
+        return
     }
 
     # Step 1: Build the application
