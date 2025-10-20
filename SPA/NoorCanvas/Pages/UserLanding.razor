@@ -1309,6 +1309,9 @@
             Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Registration data loaded from localStorage - Key: {Key}, ExpiresAt: {ExpiresAt} ;CLEANUP_OK", 
                 storageKey, data.ExpiresAt);
             
+            // Extend expiration by 24 hours on each access
+            await ExtendExpirationAsync(data, storageKey);
+            
             // Force UI update to reflect loaded data
             StateHasChanged();
             
@@ -1330,6 +1333,35 @@
             }
             
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Extend expiration by 24 hours on each access (rolling expiration)
+    /// </summary>
+    private async Task ExtendExpirationAsync(RegistrationStorageData data, string storageKey)
+    {
+        try
+        {
+            var oldExpiresAt = data.ExpiresAt;
+            
+            // Add 24 hours to current expiration
+            data.ExpiresAt = data.ExpiresAt.AddHours(24);
+            
+            // Update last accessed timestamp
+            data.LastAccessedAt = DateTime.UtcNow;
+            
+            // Save updated data back to localStorage
+            var jsonData = System.Text.Json.JsonSerializer.Serialize(data);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, jsonData);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:extension] Expiration extended by 24h - OldExpiresAt: {OldExpiresAt}, NewExpiresAt: {NewExpiresAt} ;CLEANUP_OK", 
+                oldExpiresAt, data.ExpiresAt);
+        }
+        catch (Exception ex)
+        {
+            // Non-blocking - don't prevent data load if extension fails
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:localStorage:extension] Failed to extend expiration ;CLEANUP_OK");
         }
     }
 
