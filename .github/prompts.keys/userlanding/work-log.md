@@ -123,17 +123,37 @@
 
 ---
 
-### Phase 6: Create E2E Test for Registration Enforcement
-**Outcome:** Automated test validates registration guard  
-**Files:** `Tests/UI/registration-guard-enforcement.spec.ts`, `Scripts/run-registration-guard-test.ps1`
+### Phase 6: localStorage Infrastructure ✅ IN PROGRESS
+**Outcome:** localStorage save/load with 2-day expiration and auto-clear  
+**Debug:** `[DEBUG-WORKITEM:userlanding:localStorage:infrastructure];CLEANUP_OK`  
+**Files:** `SPA/NoorCanvas/Pages/UserLanding.razor`
 
-**Test Scenarios:**
-1. Direct navigation to `/session/waiting/{token}` without registration → redirects to `/user/landing/{token}`
-2. Direct navigation to `/session/canvas/{token}` without registration → redirects to `/user/landing/{token}`
-3. Registered user can access `/session/canvas/{token}` → no redirect
-4. Ended session access → redirects to `/session/ended/{sessionId}`
+**User Request (Phase 6):**
+Add localStorage infrastructure to UserLanding.razor - Add RegistrationStorageData class with properties Name, Email, Country, ExpiresAt, LastAccessedAt - Implement SaveRegistrationDataAsync() with 2-day expiration (DateTime.UtcNow.AddDays(2)), JSON serialization using System.Text.Json, error handling with try-catch - Implement LoadRegistrationDataAsync() with expiration check (if DateTime.UtcNow > ExpiresAt), JSON deserialization, auto-clear if expired - Storage key pattern: noor_user_registration_{token} - Add logging: COPILOT-DEBUG [localStorage] Data saved/loaded
 
-**Orchestration:** PowerShell script launches app, runs Playwright test, stops app
+**Changes:**
+- Add `RegistrationStorageData` class (Name, Email, Country, ExpiresAt, LastAccessedAt properties)
+- Add `SaveRegistrationDataAsync(string name, string email, string country)` method
+  - 2-day expiration: `DateTime.UtcNow.AddDays(2)`
+  - JSON serialization with System.Text.Json
+  - Storage key: `noor_user_registration_{token}`
+  - Error handling with try-catch (non-blocking)
+- Add `LoadRegistrationDataAsync()` method
+  - Expiration check: `if (DateTime.UtcNow > data.ExpiresAt)`
+  - JSON deserialization
+  - Auto-clear if expired
+  - Returns bool success indicator
+- Add logging: `[DEBUG-WORKITEM:userlanding:localStorage:infrastructure];CLEANUP_OK`
+
+**Testing:**
+- Created `Tests/UI/phase6-localstorage-infrastructure.spec.ts` - localStorage save/load verification
+- Created `Scripts/run-phase6-test.ps1` - Test orchestration
+- Build: Pending
+- Lint: Pending
+- Test: Pending
+
+**Date Started:** 2025-10-19  
+**Status:** In Progress
 
 ---
 

@@ -733,6 +733,9 @@
                         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Loading countries dropdown after URL token validation...", requestId);
                         await LoadCountriesAsync();
                         
+                        // Load saved registration data from localStorage (if available)
+                        await LoadRegistrationDataAsync();
+                        
                         // Set focus to name input after successful token validation
                         await SetFocusAfterPanelSwitch("name-input", requestId);
                     }
@@ -1093,6 +1096,9 @@
                     return;
                 }
                 
+                // Save registration data to localStorage (non-blocking)
+                await SaveRegistrationDataAsync(Model.NameInput, Model.EmailInput, Model.CountrySelect);
+                
                 // Then check session status for proper routing
                 var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
                 
@@ -1213,6 +1219,116 @@
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:impl:{0}] Exception during participant registration check ;CLEANUP_OK", 
                 requestId);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Save registration data to localStorage with 2-day expiration
+    /// </summary>
+    private async Task SaveRegistrationDataAsync(string name, string email, string country)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Model?.TokenInput))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Cannot save registration data - token is empty ;CLEANUP_OK");
+                return;
+            }
+
+            var storageKey = $"noor_user_registration_{Model.TokenInput}";
+            var data = new RegistrationStorageData
+            {
+                Name = name,
+                Email = email,
+                Country = country,
+                ExpiresAt = DateTime.UtcNow.AddDays(2),
+                LastAccessedAt = DateTime.UtcNow
+            };
+
+            var jsonData = System.Text.Json.JsonSerializer.Serialize(data);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, jsonData);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Registration data saved to localStorage - Key: {Key}, ExpiresAt: {ExpiresAt} ;CLEANUP_OK", 
+                storageKey, data.ExpiresAt);
+        }
+        catch (Exception ex)
+        {
+            // Non-blocking - don't prevent registration if localStorage fails
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Failed to save registration data to localStorage ;CLEANUP_OK");
+        }
+    }
+
+    /// <summary>
+    /// Load registration data from localStorage with expiration check and auto-clear
+    /// </summary>
+    private async Task<bool> LoadRegistrationDataAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Model?.TokenInput))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Cannot load registration data - token is empty ;CLEANUP_OK");
+                return false;
+            }
+
+            var storageKey = $"noor_user_registration_{Model.TokenInput}";
+            var jsonData = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", storageKey);
+
+            if (string.IsNullOrWhiteSpace(jsonData))
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] No registration data found in localStorage - Key: {Key} ;CLEANUP_OK", 
+                    storageKey);
+                return false;
+            }
+
+            var data = System.Text.Json.JsonSerializer.Deserialize<RegistrationStorageData>(jsonData, 
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (data == null)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Failed to deserialize registration data ;CLEANUP_OK");
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+                return false;
+            }
+
+            // Check expiration
+            if (DateTime.UtcNow > data.ExpiresAt)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Registration data expired - Clearing localStorage - Key: {Key}, ExpiresAt: {ExpiresAt} ;CLEANUP_OK", 
+                    storageKey, data.ExpiresAt);
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+                return false;
+            }
+
+            // Data is valid - populate model
+            Model.NameInput = data.Name;
+            Model.EmailInput = data.Email;
+            Model.CountrySelect = data.Country;
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Registration data loaded from localStorage - Key: {Key}, ExpiresAt: {ExpiresAt} ;CLEANUP_OK", 
+                storageKey, data.ExpiresAt);
+            
+            // Force UI update to reflect loaded data
+            StateHasChanged();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Exception loading registration data from localStorage ;CLEANUP_OK");
+            
+            // Clear potentially corrupted data
+            try
+            {
+                var storageKey = $"noor_user_registration_{Model?.TokenInput}";
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+            }
+            catch
+            {
+                // Ignore cleanup errors
+            }
+            
             return false;
         }
     }
@@ -1485,6 +1601,18 @@
         public string Name { get; set; } = "";
         public string Country { get; set; } = "";
         public string Flag { get; set; } = "";
+    }
+
+    /// <summary>
+    /// Model for localStorage registration data with expiration tracking
+    /// </summary>
+    public class RegistrationStorageData
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public DateTime LastAccessedAt { get; set; }
     }
 
 
