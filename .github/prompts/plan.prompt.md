@@ -27,6 +27,7 @@ You are the Planning Orchestrator Agent. You turn an initial user request into a
 - scope (optional): Boundary and intended depth (e.g., UI only, UI+API, full-stack).
 - constraints (optional): Non-negotiables like deadlines, performance, compatibility.
 - include_suggestions (optional, default=true): Whether to propose enhancements, libraries, and best practices.
+- skip-learning (optional, default=false): Skip Step 10 (Learning Extraction) after plan completion. Set to true to disable automatic learning extraction.
 
 ## Interaction Protocol
 
@@ -781,6 +782,11 @@ Low Priority:
         "linesAdded": { "type": "integer" },
         "linesRemoved": { "type": "integer" }
       }
+    },
+    "learningExtracted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Set to true after analyze-learning agent extracts patterns (Step 10)"
     }
   },
   "required": ["key", "branch", "status", "created", "phases"]
@@ -1540,6 +1546,76 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
 
 **User must confirm**: "All tests passing, ready for completion workflow (Step 9)"
 ```
+
+---
+
+### Step 10: Learning Extraction (FINAL STEP)
+
+**Trigger**: After Final Phase Summary is provided to user
+
+**Purpose**: Extract reusable patterns, anti-patterns, and architectural decisions to build organizational knowledge base
+
+**When to Execute**:
+- After all phases complete successfully
+- After Final Phase Summary is displayed
+- Before closing the key workstream
+
+**Skip Option**:
+- User can disable with `skip-learning=true` parameter when invoking plan agent
+- Default: Automatic extraction enabled
+
+**Execution**:
+
+1. **Check skip-learning parameter**:
+   - If `skip-learning=true` → Skip this step, output: "✓ Learning extraction skipped (skip-learning=true)"
+   - If false or not provided → Continue to step 2
+
+2. **Output learning extraction invitation**:
+   ```
+   ## 📚 Learning Extraction
+   
+   Extract reusable patterns from this implementation:
+   
+   @workspace /analyze-learning key={key} scope=key={key} analysis-type=comprehensive
+   
+   This will:
+   - Extract proven patterns to .github/learning/patterns/
+   - Document anti-patterns to avoid
+   - Record architectural decisions
+   - Update global knowledge base for future planning
+   
+   Optional: Skip by re-invoking plan with skip-learning=true
+   ```
+
+3. **Update plan.json**:
+   - Set `learningExtracted: true` after analyze-learning completes
+   - User or analyze-learning agent updates this field
+
+**Benefits**:
+- ✅ Ensures learning never forgotten
+- ✅ Builds organizational knowledge base automatically
+- ✅ Improves future planning with proven patterns
+- ✅ Documents what worked and what didn't
+- ✅ Facilitates onboarding (new team members learn from past work)
+
+**Output Example**:
+```
+## 📚 Learning Extraction
+
+Extract reusable patterns from this implementation:
+
+@workspace /analyze-learning key=prompts scope=key=prompts analysis-type=comprehensive
+
+This will:
+- Extract proven patterns to .github/learning/patterns/
+- Document anti-patterns to avoid
+- Record architectural decisions
+- Update global knowledge base for future planning
+
+✓ Copy the command above to extract learning after reviewing the implementation
+```
+
+**See**: `.github/prompts/analyze-learning.prompt.md` for learning extraction documentation
 
 ---
 
