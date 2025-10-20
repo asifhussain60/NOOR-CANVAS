@@ -913,9 +913,13 @@
                         var isRegistered = await CheckParticipantRegistrationAsync(Model.TokenInput, requestId);
                         if (isRegistered)
                         {
-                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
-                                Guid.NewGuid().ToString("N")[..8]);
-                            Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                            // [user-landing] Determine correct canvas route based on CanvasType
+                            string canvasRoute = await DetermineCanvasRoute(Model.TokenInput, sessionStatus);
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to canvas. Route: {Route} ;CLEANUP_OK", 
+                                Guid.NewGuid().ToString("N")[..8], canvasRoute);
+                            
+                            Navigation.NavigateTo(canvasRoute);
                             return;
                         }
                         else
@@ -1058,11 +1062,13 @@
                     if (!string.IsNullOrEmpty(userGuidValue))
                     {
                         var storageKey = $"noor_user_guid_{Model.TokenInput}";
-                        // Store in localStorage as primary source for registered users
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, userGuidValue);
+                        // [DEBUG-WORKITEM:user-landing:storage-toggle] Use sessionStorage in dev (tab-isolated), localStorage in prod (cross-tab) ;CLEANUP_OK
+                        var storageType = GetStorageType();
+                        await JSRuntime.InvokeVoidAsync($"{storageType}.setItem", storageKey, userGuidValue);
                         // Also store in sessionStorage for tab consistency with SessionCanvas
                         await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, userGuidValue);
-                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:USERGUID] UserGuid stored in both localStorage and sessionStorage for authentication consistency: {UserGuid}", userGuidValue);
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:USERGUID] UserGuid stored in {StorageType} and sessionStorage for authentication consistency: {UserGuid} ;CLEANUP_OK", 
+                            storageType, userGuidValue);
                     }
                 }
                 else
@@ -1093,7 +1099,7 @@
                     return;
                 }
                 
-                // Then check session status for proper routing
+                // Check session status and navigate directly to appropriate page
                 var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
                 
                 if (sessionValidationResponse.IsSuccessStatusCode)
@@ -1102,23 +1108,25 @@
                     var sessionValidation = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(sessionContent, 
                         new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     
-                    var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
-                    if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active and user registered, routing to SessionCanvas");
-                        Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
-                    }
-                    else
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started but user registered, routing to SessionWaiting");
-                        Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
-                    }
+                    var sessionStatus = sessionValidation?.Session?.Status ?? "Unknown";
+                    
+                    // Set bypass flag BEFORE navigation
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                    
+                    // [user-landing] Determine correct canvas route based on CanvasType
+                    string canvasRoute = await DetermineCanvasRoute(Model.TokenInput, sessionStatus);
+                    
+                    Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Post-registration routing - Status: {Status}, Route: {Route}", 
+                        requestId, sessionStatus, canvasRoute);
+                    
+                    Navigation.NavigateTo(canvasRoute, forceLoad: true);
                 }
                 else
                 {
                     // Fallback to waiting room if status check fails
-                    Logger.LogWarning("[DEBUG-WORKITEM:user:API] Session status recheck failed, defaulting to waiting room");
-                    Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                    Logger.LogWarning("NOOR-USER-LANDING: [{RequestId}] Session status check failed after registration, navigating to waiting room", requestId);
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "noor_registration_complete", "true");
+                    Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}", forceLoad: true);
                 }
             }
             finally
@@ -1176,22 +1184,23 @@
             var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            // Check if any participant matches current browser session (via stored UserGuid)
-            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            // [DEBUG-WORKITEM:user-landing:storage-toggle] Check registration from environment-appropriate storage ;CLEANUP_OK
+            var storageType = GetStorageType();
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("eval", $"{storageType}.getItem('noor_user_guid_{token}')");
             
             if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
             {
                 var isRegistered = participantsData.Participants.Any(p => 
                     string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Registration check result: {1} (UserGuid: {2}) ;CLEANUP_OK", 
-                    requestId, isRegistered, storedUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Registration check result: {1} (UserGuid: {2}, Storage: {3}) ;CLEANUP_OK", 
+                    requestId, isRegistered, storedUserGuid, storageType);
                 
                 return isRegistered;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] No stored UserGuid found - user not registered ;CLEANUP_OK", 
-                requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] No stored UserGuid found in {1} - user not registered ;CLEANUP_OK", 
+                requestId, storageType);
             return false;
         }
         catch (Exception ex)
@@ -1284,6 +1293,17 @@
             });
         }
         
+        // [DEBUG-WORKITEM:userlanding:simple] Clear Local Storage button for debug panel ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Clear Local Storage",
+            "Clear participant registration data from localStorage",
+            async () => await HandleClearLocalStorage(),
+            "fa-solid fa-trash"
+        )
+        {
+            IsEnabled = Model != null && !Model.IsLoading
+        });
+        
         return actions;
     }
 
@@ -1347,6 +1367,56 @@
     }
 
     /// <summary>
+    /// [DEBUG-WORKITEM:userlanding:simple] Clears participant registration data from tab-specific storage ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleClearLocalStorage()
+    {
+        try
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:simple] [{RequestId}] Clearing participant registration data for current tab ;CLEANUP_OK", requestId);
+
+            var storageType = GetStorageType();
+            
+            // Clear only participant-specific keys (tab-isolated in dev, token-specific in prod)
+            if (!string.IsNullOrEmpty(Model?.TokenInput))
+            {
+                var storageKey = $"noor_user_guid_{Model.TokenInput}";
+                await JSRuntime.InvokeVoidAsync($"{storageType}.removeItem", storageKey);
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:simple] [{RequestId}] Removed {StorageType} key: {Key} ;CLEANUP_OK", 
+                    requestId, storageType, storageKey);
+            }
+            
+            // Also clear from sessionStorage (dual storage consistency)
+            if (!string.IsNullOrEmpty(Model?.TokenInput))
+            {
+                var storageKey = $"noor_user_guid_{Model.TokenInput}";
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", storageKey);
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:simple] [{RequestId}] Removed sessionStorage key: {Key} ;CLEANUP_OK", 
+                    requestId, storageKey);
+            }
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:simple] [{RequestId}] Participant storage cleared successfully (tab-specific) ;CLEANUP_OK", requestId);
+
+            // Show success message if Model exists
+            if (Model != null)
+            {
+                Model.ErrorMessage = string.Empty;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:simple] Error clearing participant storage ;CLEANUP_OK");
+            if (Model != null)
+            {
+                Model.ErrorMessage = "Failed to clear participant storage.";
+                StateHasChanged();
+            }
+        }
+    }
+
+    /// <summary>
     /// Revalidate session status atomically to prevent race conditions
     /// </summary>
     private async Task<(bool isActive, string? status)> RevalidateSessionStatusAsync(string token, string requestId)
@@ -1381,6 +1451,14 @@
                 requestId);
             return (false, null);
         }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:user-landing:storage-toggle] Returns storage type based on environment (sessionStorage in dev, localStorage in prod) ;CLEANUP_OK
+    /// </summary>
+    private string GetStorageType()
+    {
+        return WebHostEnvironment.IsDevelopment() ? "sessionStorage" : "localStorage";
     }
 
     public class UserLandingViewModel
@@ -1420,6 +1498,85 @@
     /// <summary>
     /// Response model for session validation API - matches actual API response format
     /// </summary>
+    /// <summary>
+    /// DTO for session info API response - used for canvas routing decisions
+    /// </summary>
+    public class SessionInfoDto
+    {
+        public int SessionId { get; set; }
+        public string? CanvasType { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public DateTime? StartedAt { get; set; }
+        public Guid AlbumId { get; set; }
+    }
+
+    /// <summary>
+    /// Determines canvas route based on session's CanvasType from database
+    /// </summary>
+    private async Task<string> DetermineCanvasRoute(string token, string sessionStatus)
+    {
+        try
+        {
+            // Query session info from API
+            var httpClient = HttpClientFactory.CreateClient("default");
+            var baseUrl = GetBaseUrl();
+            httpClient.BaseAddress = new Uri(baseUrl);
+            
+            var response = await httpClient.GetAsync($"api/participant/session-info/{token}");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var sessionInfo = await response.Content.ReadFromJsonAsync<SessionInfoDto>();
+                
+                if (sessionInfo != null)
+                {
+                    Logger.LogInformation("[user-landing] Session {SessionId} - CanvasType: {CanvasType}", 
+                        sessionInfo.SessionId, sessionInfo.CanvasType ?? "NULL");
+                    
+                    // Route based on CanvasType
+                    string baseRoute = GetCanvasRouteByType(sessionInfo.CanvasType, token);
+                    
+                    // If session is not active, route to waiting page regardless of canvas type
+                    if (sessionStatus?.ToLowerInvariant() != "active" && 
+                        sessionStatus?.ToLowerInvariant() != "started" &&
+                        sessionStatus?.ToLowerInvariant() != "in progress")
+                    {
+                        Logger.LogInformation("[user-landing] Session not active - routing to waiting page");
+                        return $"/session/waiting/{token}";
+                    }
+                    
+                    Logger.LogInformation("[user-landing] Routing to: {Route}", baseRoute);
+                    return baseRoute;
+                }
+            }
+            else
+            {
+                Logger.LogWarning("[user-landing] Could not fetch session info (status: {StatusCode}) - defaulting to SessionCanvas", 
+                    (int)response.StatusCode);
+            }
+            
+            return $"/session/canvas/{token}"; // Default fallback
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[user-landing] Error determining canvas route - defaulting to SessionCanvas");
+            return $"/session/canvas/{token}"; // Default fallback
+        }
+    }
+
+    /// <summary>
+    /// Maps CanvasType to route path
+    /// </summary>
+    private string GetCanvasRouteByType(string? canvasType, string token)
+    {
+        return canvasType?.ToLowerInvariant() switch
+        {
+            "transcript" => $"/transcript/canvas/{token}",
+            "asset" => $"/session/canvas/{token}",
+            _ => $"/session/canvas/{token}" // Default to SessionCanvas for NULL/unknown
+        };
+    }
+
     public class SessionValidationResponse
     {
         public long SessionId { get; set; }

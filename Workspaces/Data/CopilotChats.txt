@@ -1,413 +1,418 @@
-asifhussain60: Follow instructions in [task.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/task.prompt.md).
-key: hcp-canvas debug-level: simple verbosity: concise annotate: none tasks:  
-When user clicks on the Share Truth Concealment button, after the HTML is stripped off the share buttons, log the resulting html in an MD file so we can review why it's failing.
-
-GitHub Copilot: I'll help you debug the Share Truth Concealment button issue by logging the transformed HTML to an MD file.
-
-Let me start by gathering context about the current implementation. 
-
-Ran terminal command: git branch --show-current
-
-Ran terminal command: git add -A; git commit -m "checkpoint: pre-task hcp-canvas"
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts.keys/hcp-canvas/hcp-canvas.md)
-
-Now let me search for the Share Truth Concealment button implementation: 
-
-Searched text for `Share Truth Concealment`, 1 result
-
-Searched text for `data-noor-share-control|shareSection|HandleSectionShare` (`**/*.razor`), no results
-
-Searched text for `data-noor-share-control|shareSection` (`**/*.js`), 3 results
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/wwwroot/js/transcript-section-parser.js#300-300), lines 300 to 340
-
-Perfect! I can see the issue. The code is logging to the browser console, but the user wants an MD file saved to review the transformed HTML. Let me check where the file should be saved: 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/Workspaces)
-
-Now let me look at how to save files from JavaScript. I need to create a mechanism to write the transformed HTML to a file. Let me check if there's already a C# method for file writing: 
-
-Searched text for `ShareTranscriptSection` (`**/*.razor`), 1 result
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor#1735-1735), lines 1735 to 1850
-
-Perfect! I can see the `HtmlTransform.TransformForParticipant` is the method that strips the HTML. Now I need to:
-1. Add logging to save the transformed HTML to an MD file for review
-2. Add debug markers as per `debug-level: simple`
-
-Let me check the HtmlTransform class: 
-
-Searched text for `class HtmlTransform`, 2 results
-
-Searched for files matching `**/HtmlTransform.cs`, no matches
-
-Searched text for `TransformForParticipant`, 18 results
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Services/UnifiedHtmlTransformService.cs#100-100), lines 100 to 150
-
-Now let me understand the plan. I need to:
-1. Modify the `ShareTranscriptSection` method in HostControlPanel.razor to save the transformed HTML to an MD file
-2. Add simple debug markers
-
-Let me create the implementation plan:
-
-## Implementation Plan
-
-### Primary Objective
-Add diagnostic logging to save the HTML transformation result to an MD file when the "Share Truth Concealment" button is clicked, so the user can review why the content rendering is failing.
-
-### Subtasks
-1. Modify `ShareTranscriptSection` in HostControlPanel.razor to save transformed HTML to MD file in Data directory
-2. Add simple debug markers to indicate new diagnostic logging
-3. Include both before/after HTML (original sectionHtml and transformedHtml) in the log file
-4. Test the logging functionality
-
-### Verification Checklist
-- [ ] Build passes (zero errors, zero warnings)
-- [ ] Lint validation passes
-- [ ] MD file is created when share button is clicked
-- [ ] File contains both original and transformed HTML for comparison
-
-**Proceed with this plan?**
-
-asifhussain60: Yes. Show a toast notification after the html is cleaned up so we know th enew functionality is working
-
-GitHub Copilot: Perfect! I'll add a toast notification after the HTML is saved to confirm the diagnostic logging is working. 
-
-Created 4 todos
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor#1735-1735), lines 1735 to 1800
-
-Now I'll modify the `ShareTranscriptSection` method to save the HTML to a file and show a toast notification: 
-
-Using "Replace String in File"
-
-
-```
-
-```
-
-
-Starting (4/4) *Validate build and lint*
-
-Ran terminal command: dotnet build "SPA/NoorCanvas/NoorCanvas.csproj"
-
-Checked [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor), no problems found
-
-Perfect! Now let me update the key data stream and create the checkpoint: 
-
-Completed (4/4) *Validate build and lint*
-
-Ran terminal command: git add -A; git commit -m "checkpoint: hcp-canvas - added HTML transform diagnostic logging with toast notification"
-
-Ran terminal command: git tag "checkpoint/hcp-canvas/2025-10-19_0305"
-
-Ran terminal command: git rev-parse HEAD
-
-Using "Replace String in File"
-
-
-```
-
-```
-
-
-Ran terminal command: git add -A; git commit -m "docs: update hcp-canvas key data stream with HTML transform logging"
-
-Perfect! Let me provide a summary:
-
-## SUMMARY: hcp-canvas
-
-**Status**: Complete
-
-**Work Done**: Added HTML transformation diagnostic logging to ShareTranscriptSection method. When Share Truth Concealment button is clicked, the system now saves both original and transformed HTML to an MD file for review and displays a toast notification.
-
-**Files Modified**: 1 file
-- HostControlPanel.razor: Added diagnostic logging after HtmlTransform.TransformForParticipant() call
-
-**Changes**:
-- Saves transform log to `Workspaces/Data/share-transform-log-{timestamp}.md`
-- Includes before/after HTML comparison with size analysis
-- Toast notification shows filename after successful save
-- Debug markers added per `debug-level: simple` specification
-
-**Debug Logging**: Simple debug markers inserted (`[DEBUG-MARKER:hcp-canvas:save-transform-log]`)
-
-**Build**: Clean (21.7s, zero errors, warnings)
-
-**Lint Validation**: PASS
-
-**Checkpoint**: checkpoint/hcp-canvas/2025-10-19_0305
-- SHA: 614a6aceb489ac1bb89439aa26d0b75205035334
-
-**Next Steps**: Click the "Share Truth Concealment" button in your session to trigger the diagnostic logging. You'll see a toast notification and can review the generated MD file in Data to analyze why the content rendering is failing.
-
-Made changes.
-
-asifhussain60: Follow instructions in [task.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/task.prompt.md).
-key: hcp-canvas debug-level: simple verbosity: concise annotate: none tasks:  
-I don't see the logging. check logs. Instead of md you create the logs you can track easily
-
-GitHub Copilot: I'll check the logs to see what's happening and switch from MD file logging to standard logging that's easier to track. 
-
-Ran terminal command: Select-String -Path "SPA\NoorCanvas\bin\Debug\net8.0\logs\*.log" -Pattern "save-transform-log|TRACE:hcp-tcanvas:share-section" | Select-Object -Last 20
-
-Perfect! I found the issue in the logs. The transformation is working and files ARE being saved:
-
-```
-[11:05:27 INF] [DEBUG-MARKER:hcp-canvas:save-transform-log] Saved transformation log to D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Workspaces\Data\share-transform-log-2025-10-19_110527.md
-```
-
-But the key issue is the HTML parsing is failing:
-```
-[11:05:27 ERR] UnifiedHtmlTransformService: HTML parsing failed for participant - Potentially unsafe content detected: on\w+\s*=
-```
-
-The HTML contains `onclick` attributes which are being flagged as unsafe. Let me update the implementation to use standard Logger instead of MD files, and add more comprehensive logging: 
-
-Using "Replace String in File"
-
-
-```
-
-```
-
-
-Ran terminal command: dotnet build "SPA/NoorCanvas/NoorCanvas.csproj"
-
-Ran terminal command: git add -A; git commit -m "checkpoint: hcp-canvas - replaced MD file logging with comprehensive console logging"
-
-Ran terminal command: git tag "checkpoint/hcp-canvas/2025-10-19_0307"
-
-Ran terminal command: git rev-parse HEAD
-
-Made changes.
-
-asifhussain60: Follow instructions in [task.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/task.prompt.md).
-Adding to current key data stream since you have the MD logs, review them to identify why they're still failing the broadcast?
-
-GitHub Copilot: I'll review the MD logs to identify why the HTML transformation is failing. Let me check the generated log files. 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Workspaces/Data/share-transform-log-2025-10-19_110527.md#1-1), lines 1 to 50
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Workspaces/Data/share-transform-log-2025-10-19_110527.md#50-50), lines 50 to 96
-
-Perfect! Now I can see the issue clearly. The problem is that the HTML contains `onclick` and other event handlers that are being flagged as "Potentially unsafe content detected: on\w+\s*=". 
-
-Looking at the original HTML, I can see it doesn't actually contain onclick handlers in the section itself, but the `HtmlParsingService` is detecting the pattern `on\w+\s*=` somewhere. Let me search for where these onclick handlers are being added: 
-
-Searched text for `onclick=|onmouseover=|onmouseout=` (`**/transcript-section-parser.js`), no results
-
-asifhussain60: Follow instructions in [task.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/task.prompt.md).
-Adding to current key data stream 
-Perfect! Now I can see the issue clearly. The problem is that the HTML contains onclick and other event handlers that are being flagged as "Potentially unsafe content detected: on\w+\s*=".
-
-Looking at the original HTML, I can see it doesn't actually contain onclick handlers in the section itself, but the HtmlParsingService is detecting the pattern on\w+\s*= somewhere. Let me search for where these onclick handlers are being added:
-
-Use these MD files to fix the function. Create playwright test and follow orchestration script to fix the html removing onclick and other unsafe script. escape them and render them useless if you cannot remove them
-
-GitHub Copilot: Summarized conversation historyI'll analyze the MD logs to identify why the HTML transformation is failing and fix the issue. 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Workspaces/Data/share-transform-log-2025-10-19_110527.md)
-
-Perfect! Now I can see the root cause. The HTML parsing service is detecting a regex pattern `on\w+\s*=` in the HTML and blocking it. Looking at the original HTML, I don't see any `onclick` or event handlers. The issue must be that the regex is matching something else. Let me check the HtmlParsingService to understand the validation logic: 
-
-Searched text for `on\\w\+\\s\*=|Potentially unsafe` (`**/HtmlParsingService.cs`), 2 results
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Services/HtmlParsingService.cs#80-80), lines 80 to 120
-
-Now I see the issue! The regex `on\w+\s*=` is matching patterns like:
-- `data-content-type="poetry"` - contains "on" in "content"
-- `data-insertion-id` - contains "on" in "insertion"  
-- `data-session-id` - contains "on" in "session"
-
-The regex is too broad. It should specifically look for event handlers at the beginning of attributes, not anywhere in the HTML. Let me fix this by making the regex more specific and then remove/escape the actual event handlers in the JavaScript before sending to C#: 
-
-Using "Replace String in File"
-
-
-```
-
-```
-Now let me also add defensive cleanup in the JavaScript to strip event handlers before sending to C#: 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/wwwroot/js/transcript-section-parser.js#310-310), lines 310 to 330
-
-Using "Replace String in File"
-
-
-```
-
-```
-Summarized conversation history
-
-Made changes.asifhussain60: Follow instructions in [task.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/task.prompt.md).
-key: css debug-level: simple verbosity: concise annotate: none tasks:  
-Why is the esoteric div not following the same width rule on #file:TranscriptCanvas.razor ?
-
-GitHub Copilot: I'll investigate why the esoteric div width differs between the two views shown in your screenshot. 
-
-Created 6 todos
-
-Ran terminal command: git branch --show-current
-
-Starting (1/6) *Create checkpoint commit*
-
-Ran terminal command: git add -A; git commit -m "checkpoint: pre-task css"
-
-Starting (2/6) *Query css key data stream*
-
-Searched for files matching `**/.github/prompts.keys/**/css.md`, 2 matches
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts.keys/css/css.md#1-1), lines 1 to 50
-
-Starting (3/6) *Analyze esoteric div width styling*
-
-Searched text for `ESOTERICS` (`**/SPA/NoorCanvas/Pages/SessionCanvas.razor`), no results
-
-Searched text for `section-card` (`**/SPA/NoorCanvas/Pages/SessionCanvas.razor`), no results
-
-Searched text for `.section-card` (`**/SPA/NoorCanvas/wwwroot/css/session-canvas.css`), no results
-
-Searched for files matching `**/SPA/NoorCanvas/wwwroot/css/session-canvas.css`, no matches
-
-Searched text for `ESOTERICS|section-card` (`**/*.razor`), no results
-
-Searched text for `ESOTERICS` (`**/SPA/NoorCanvas/Pages/TranscriptCanvas.razor`), no results
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/wwwroot/css/session-transcript.css#1-1), lines 1 to 100
-
-Searched text for `.esotericBlock` (`**/SPA/NoorCanvas/wwwroot/css/session-transcript.css`), 20 results
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/wwwroot/css/session-transcript.css#1220-1220), lines 1220 to 1250
-
-Now let me check the TranscriptCanvas markup to see what container class is applied: 
-
-Searched text for `canvas-asset-content` (`**/SPA/NoorCanvas/Pages/TranscriptCanvas.razor`), 8 results
-
-Perfect! I found the issue. Let me check SessionCanvas to compare: 
-
-Searched text for `canvas-asset-content islamic-content` (`**/SPA/NoorCanvas/Pages/SessionCanvas.razor`), 1 result
-
-Completed (3/6) *Analyze esoteric div width styling*
-
-**ROOT CAUSE IDENTIFIED:**
-
-Both SessionCanvas and TranscriptCanvas use:
-- `.canvas-asset-content` div
-- `.islamic-content` class
-- `data-theme="narrow"` attribute
-
-The CSS rule at line 1229 correctly applies `width: var(--islamic-asset-width)` to `.islamic-content .esotericBlock`, and line 82-85 sets `--islamic-asset-width: 90%` for narrow theme.
-
-However, **TranscriptCanvas is NOT applying the theme selector**. Let me verify the CSS rule structure: 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/wwwroot/css/session-transcript.css#75-75), lines 75 to 95
-
-The CSS is correct - `[data-theme="narrow"]` should apply 90% width. Let me check if TranscriptCanvas has any overriding CSS in its `<style>` block: 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/TranscriptCanvas.razor#340-340), lines 340 to 380
-
-**FOUND IT!** Line 363 in TranscriptCanvas.razor has:
-
-```css
-.canvas-asset-content {
-    width: 100%;
-```
-
-This overrides the CSS variable system! Let me compare with SessionCanvas: 
-
-Searched text for `.canvas-asset-content {` (`**/SPA/NoorCanvas/Pages/SessionCanvas.razor`), 1 result
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/SessionCanvas.razor#329-329), lines 329 to 345
-
-Interesting - **both files have the same issue** (`.canvas-asset-content { width: 100%; }`). The esoteric block width is controlled by the `.esotericBlock` CSS rules in session-transcript.css, not by the container width.
-
-Let me verify if there are any other overrides in TranscriptCanvas: 
-
-Searched text for `esoteric|islamic-asset-width` (`**/SPA/NoorCanvas/Pages/TranscriptCanvas.razor`), no results
-
-Now let me check if SessionCanvas has any overrides: 
-
-Searched text for `esoteric|islamic-asset-width` (`**/SPA/NoorCanvas/Pages/SessionCanvas.razor`), no results
-
-Both views rely entirely on session-transcript.css for esoteric block styling. Let me examine the actual rendered HTML from your screenshot. The issue is that **TranscriptCanvas 
-
-asifhussain60: Follow instructions in [task.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/task.prompt.md).
-Adding to current key data stream both #file:HostControlPanel.razor session transcript div AND #file:SessionCanvas.razor and #file:TranscriptCanvas.razor should use the same #file:session-transcript.css
-
-GitHub Copilot: I'll analyze the CSS theme application across all three views and ensure consistent width behavior for the esoteric block. 
-
-Starting (5/7) *Analyze HostControlPanel container classes*
-
-Searched text for `ks-transcript` (`**/SPA/NoorCanvas/Pages/HostControlPanel.razor`), no results
-
-Searched text for `session-transcript-content` (`**/SPA/NoorCanvas/Pages/HostControlPanel.razor`), no results
-
-Searched text for `data-theme` (`**/SPA/NoorCanvas/Pages/HostControlPanel.razor`), no results
-
-Let me search for the transcript display div in HostControlPanel: 
-
-Searched text for `@Model.TranscriptHtml` (`**/SPA/NoorCanvas/Pages/HostControlPanel.razor`), no results
-
-Searched text for `TranscriptHtml` (`**/SPA/NoorCanvas/Pages/HostControlPanel.razor`), 8 results
-
-Searched text for `TransformedTranscript` (`**/SPA/NoorCanvas/Pages/HostControlPanel.razor`), 20 results
-
-Let me find where the transcript is displayed in the UI: 
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor#60-60), lines 60 to 115
-
-Let me check the HostControlPanelContent component: 
-
-Searched for files matching `**/SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`, 2 matches
-
-Searched text for `data-theme` (`**/SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`), no results
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor#1-1), lines 1 to 80
-
-Perfect! I found it. Line 64 has:
-```html
-<div class="html-viewer-content session-transcript-content" data-islamic-content>
-```
-
-This should use `data-theme="wide"` instead of `data-islamic-content`. Now let me check the current CSS rules to understand the complete picture: 
-
-Starting (6/7) *Apply consistent CSS theme*
-
-## ROOT CAUSE ANALYSIS
-
-**Found the issue:** All three views use different CSS selectors/attributes:
-
-1. **HostControlPanel** (line 64): `class="html-viewer-content session-transcript-content" data-islamic-content`
-2. **SessionCanvas** (line 1112): `class="canvas-asset-content islamic-content" data-theme="narrow"`
-3. **TranscriptCanvas** (line 1058): `class="canvas-asset-content islamic-content" data-theme="narrow"`
-
-**CSS Theme Rules** (session-transcript.css lines 75-95):
-- `data-theme="wide"` → 70% width (for HostControlPanel)
-- `data-theme="narrow"` → 90% width (for SessionCanvas/TranscriptCanvas)
-- `data-islamic-content` → 75% width (fallback - used by HCP but NOT the intended selector)
-
-**Problem:** HostControlPanel uses `data-islamic-content` instead of `data-theme="wide"`, causing inconsistent width.
-
-**Solution:** Update HostControlPanelContent.razor to use `data-theme="wide"`. 
-
-Using "Replace String in File"
-
-
-```
-
-```
-
-
-Starting (7/7) *Validate and commit changes*
-
-Ran terminal command: dotnet build SPA/NoorCanvas/NoorCanvas.csproj
-
-Made changes.
-
 asifhussain60: Follow instructions in [plan.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/plan.prompt.md).
-key:css context:  Adding to current key data stream - this is a CRITICAL finding. The html should render on #file:SessionCanvas.razor and #file:TranscriptCanvas.razor and #file:HostControlPanel.razor session transcript div should render exactly the same
+key: user-landing github-branch: development user_request:  Need a way to track which option host selected on #file:HostControlPanel.razor "Asset share" or "Section Share". Why? So that if session status is active, and a user registers on #file:UserLanding.razor , the app knows where to route the user.
 
-GitHub Copilot: 
+GitHub Copilot: I'll help you create a plan for tracking the host's selection between "Asset share" and "Section Share" to properly route users during session registration. Let me first read the necessary files to understand the current implementation. 
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/plan.prompt.md#1-1), lines 1 to 100
+
+Searched for files matching `**/HostControlPanel.razor`, 2 matches
+
+Searched for files matching `**/UserLanding.razor`, 2 matches
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor#1-1), lines 1 to 150
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/UserLanding.razor#1-1), lines 1 to 150
+
+Searched text for `Asset share|Section Share|ShareMode|SharingMode` (`**/*.razor`), 20 results
+
+Searched codebase for "session status active CanvasSessions table database schema", 24 results
+
+Searched text for `class.*Session|CanvasSession` (`**/*.cs`), 20 results
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor#150-150), lines 150 to 250
+
+Now let me search for the Session model and understand the current database schema better: 
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Models/Session.cs)
+
+Searched text for `HandleCanvasSelected|OnCanvasSelected|selectedCanvasType` (`**/*.razor`), 17 results
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/UserLanding.razor#150-150), lines 150 to 400
+
+Searched text for `NavigateTo|Navigation.NavigateTo|SessionCanvas|TranscriptCanvas` (`**/UserLanding.razor`), 10 results
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Pages/UserLanding.razor#1400-1400), lines 1400 to 1553
+
+Searched for files matching `**/HostController.cs`, 2 matches
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/SPA/NoorCanvas/Controllers/HostController.cs#1-1), lines 1 to 200
+
+Searched text for `/start|canvasType|StartSession` (`**/HostController.cs`), 14 results
+
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/instructions/SelfAwareness.instructions.md#1-1), lines 1 to 50
+
+Now let me create the plan based on the plan.prompt.md template. I'll analyze the requirements and create a comprehensive implementation plan: 
+
+Created 1 todo
+
+Based on my analysis of the codebase, I'll create a comprehensive implementation plan following the plan.prompt.md template:
+
+---
+
+# Implementation Plan: Track Host Canvas Selection for User Routing
+
+## Step 0: Initial Analysis
+
+### Step 0.1: Branch Parameter Validation ✅
+- **Target Branch**: `development` (per user request)
+- **Validation**: ✅ PASSED - Using development branch as per SelfAwareness.instructions.md
+- **Status**: Approved for standard development work
+
+### Step 0.2: Technology Stack Analysis
+
+**Current Architecture Identified**:
+
+1. **Database Layer**:
+   - `canvas.Sessions` table (MSSQL)
+   - Current fields: `SessionId`, `Status`, `StartedAt`, `EndedAt`, etc.
+   - **Missing**: Canvas type tracking field
+
+2. **Backend (C#/.NET)**:
+   - HostController.cs - Already receives `canvasType` parameter in `StartSession()` endpoint
+   - Session.cs model - Needs new property
+   - `SimplifiedCanvasDbContext` - EF Core context
+
+3. **Frontend (Blazor)**:
+   - HostControlPanel.razor - Already tracks `selectedCanvasType` locally
+   - UserLanding.razor - Needs to read canvas type for routing decisions
+   - Current routing: Hardcoded to `/session/canvas/{token}` (SessionCanvas)
+
+4. **Existing Flow**:
+   - ✅ Host selects "Asset Share" or "Section Share" → triggers `HandleCanvasSelected()`
+   - ✅ Selection stored in local variable `selectedCanvasType` 
+   - ✅ Sent to API via `POST /api/host/session/{sessionId}/start?canvasType={selectedCanvasType}`
+   - ❌ **NOT PERSISTED** to database
+   - ❌ User registration cannot query which canvas type was selected
+
+---
+
+## Problem Statement
+
+**Current Behavior**:
+When a host starts a session on HostControlPanel.razor, they choose between:
+- **"Asset Share"** → Should route users to `/session/canvas/{token}` (SessionCanvas.razor)
+- **"Section Share"** → Should route users to `/transcript/canvas/{token}` (TranscriptCanvas.razor)
+
+However, this selection is:
+1. ✅ Tracked locally in `HostControlPanel.selectedCanvasType`
+2. ✅ Sent to API endpoint `POST /api/host/session/{sessionId}/start?canvasType={canvasType}`
+3. ❌ **NOT persisted to database**
+4. ❌ **NOT available when user registers on UserLanding.razor**
+
+**Required Behavior**:
+When a user registers on UserLanding.razor during an active session, the app needs to know which canvas type the host selected to route correctly:
+- If host selected "Asset Share" → Route to `/session/canvas/{token}` (SessionCanvas)
+- If host selected "Section Share" → Route to `/transcript/canvas/{token}` (TranscriptCanvas)
+
+---
+
+## Solution Design
+
+### Phase 1: Database Schema Enhancement
+**Add `CanvasType` column to `canvas.Sessions` table**
+
+**Migration SQL**:
+```sql
+-- Add CanvasType column to canvas.Sessions table
+ALTER TABLE [canvas].[Sessions]
+ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset';
+
+-- Add index for query performance
+CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType]);
+
+-- Update existing sessions to default value
+UPDATE [canvas].[Sessions]
+SET [CanvasType] = 'asset'
+WHERE [CanvasType] IS NULL;
+```
+
+**Column Specifications**:
+- **Name**: `CanvasType`
+- **Type**: `NVARCHAR(20)`
+- **Nullable**: `NULL` initially (for backward compatibility)
+- **Default**: `'asset'` (SessionCanvas is default behavior)
+- **Allowed Values**: `'asset'` | `'transcript'`
+- **Index**: Yes (for query performance on UserLanding)
+
+---
+
+### Phase 2: Backend Implementation
+
+#### 2.1: Update Session Model
+**File**: Session.cs
+
+Add property:
+```csharp
+[StringLength(20)]
+public string? CanvasType { get; set; } = "asset";
+```
+
+#### 2.2: Update HostController.StartSession()
+**File**: HostController.cs
+
+**Current code** (Line ~388):
+```csharp
+public async Task<IActionResult> StartSession(int sessionId, [FromQuery] string canvasType = "asset")
+{
+    var session = await _context.Sessions.FindAsync(sessionId);
+    session.Status = "Active";
+    session.StartedAt = DateTime.UtcNow;
+    // Missing: session.CanvasType = canvasType;
+    await _context.SaveChangesAsync();
+}
+```
+
+**Enhanced code**:
+```csharp
+public async Task<IActionResult> StartSession(int sessionId, [FromQuery] string canvasType = "asset")
+{
+    var session = await _context.Sessions.FindAsync(sessionId);
+    session.Status = "Active";
+    session.StartedAt = DateTime.UtcNow;
+    session.CanvasType = canvasType; // ✅ PERSIST SELECTION
+    session.ModifiedAt = DateTime.UtcNow;
+    await _context.SaveChangesAsync();
+    
+    _logger.LogInformation("Session {SessionId} started with CanvasType: {CanvasType}", sessionId, canvasType);
+}
+```
+
+#### 2.3: Update Session Validation API
+**File**: ParticipantController.cs (or relevant controller)
+
+Ensure `SessionValidationResponse` includes `CanvasType`:
+```csharp
+public class SessionValidationResponse
+{
+    public string? CanvasType { get; set; }  // Add this field
+    // ... existing fields
+}
+```
+
+---
+
+### Phase 3: Frontend Implementation
+
+#### 3.1: Update UserLanding.razor Routing Logic
+
+**Current code** (Lines 689-691):
+```csharp
+Logger.LogInformation("User already registered - routing to SessionCanvas");
+Navigation.NavigateTo($"/session/canvas/{token}");
+```
+
+**Enhanced code**:
+```csharp
+// Determine canvas route based on host's selection
+var canvasRoute = validationResult.Session?.CanvasType == "transcript" 
+    ? $"/transcript/canvas/{token}"   // TranscriptCanvas
+    : $"/session/canvas/{token}";      // SessionCanvas (default)
+
+Logger.LogInformation("User already registered - routing to {CanvasType} canvas", 
+    validationResult.Session?.CanvasType ?? "asset");
+Navigation.NavigateTo(canvasRoute);
+```
+
+**Apply to all routing locations**:
+- Line 691: Already registered flow
+- Line 918: Token validation flow
+- Line 1115: Active session flow
+- Line 1120: Waiting room flow (may need conditional logic)
+
+---
+
+### Phase 4: Testing Strategy
+
+#### 4.1: Unit Tests (Optional)
+- Test `CanvasType` persistence in database
+- Test default value behavior
+- Test null handling
+
+#### 4.2: Integration Tests (Manual)
+
+**Test Case 1: Asset Share Flow**
+1. Host selects "Asset Share" → Starts session
+2. Verify database: `SELECT CanvasType FROM canvas.Sessions WHERE SessionId = X`
+   - Expected: `'asset'`
+3. User registers → Should route to `/session/canvas/{token}`
+4. Verify user sees SessionCanvas.razor
+
+**Test Case 2: Section Share Flow**
+1. Host selects "Section Share" → Starts session
+2. Verify database: `SELECT CanvasType FROM canvas.Sessions WHERE SessionId = X`
+   - Expected: `'transcript'`
+3. User registers → Should route to `/transcript/canvas/{token}`
+4. Verify user sees TranscriptCanvas.razor
+
+**Test Case 3: Backward Compatibility**
+1. Start session without explicit canvas type
+2. Should default to `'asset'`
+3. Existing sessions should work unchanged
+
+---
+
+## Implementation Phases Summary
+
+### ✅ **Phase 1: Database Migration** (5-10 minutes)
+- Create and run SQL migration script
+- Add `CanvasType` column
+- Create index
+- Set default values
+
+### ✅ **Phase 2: Backend Updates** (15-20 minutes)
+- Update Session.cs model
+- Modify `HostController.StartSession()` to persist `CanvasType`
+- Update session validation response DTOs
+- Add logging for diagnostics
+
+### ✅ **Phase 3: Frontend Routing** (20-30 minutes)
+- Update UserLanding.razor routing logic
+- Add conditional routing based on `CanvasType`
+- Update all navigation points (4 locations)
+- Add logging for debugging
+
+### ✅ **Phase 4: Testing & Validation** (30-40 minutes)
+- Test Asset Share flow end-to-end
+- Test Section Share flow end-to-end
+- Test backward compatibility
+- Verify database persistence
+- Test edge cases (null, missing field)
+
+**Total Estimated Time**: 70-100 minutes
+
+---
+
+## Risk Assessment
+
+### Low Risk
+- ✅ Non-breaking change (nullable column with default)
+- ✅ Existing sessions continue working (default to 'asset')
+- ✅ API already receives `canvasType` parameter (just not persisting it)
+
+### Potential Issues
+1. **Database Migration**: Requires SQL execution access
+   - **Mitigation**: Test on `KSESSIONS_DEV` first, then production
+   
+2. **Null Handling**: Older sessions may have NULL `CanvasType`
+   - **Mitigation**: Default to `'asset'` in code and database
+   
+3. **Route Not Found**: If TranscriptCanvas.razor route doesn't exist
+   - **Mitigation**: Verify `/transcript/canvas/{token}` route exists in codebase
+
+---
+
+## Dependencies & Prerequisites
+
+### Required Files
+- ✅ HostControlPanel.razor - Already tracks selection locally
+- ✅ HostController.cs - Already receives `canvasType` parameter
+- ✅ UserLanding.razor - Needs routing logic update
+- ✅ Session.cs - Needs new property
+- ❓ TranscriptCanvas.razor route - **Verify existence**
+
+### Database Access
+- SQL Server access to `KSESSIONS_DEV` (development)
+- SQL Server access to `KSESSIONS` (production)
+- Permission to ALTER TABLE and CREATE INDEX
+
+### Testing Tools
+- Browser developer tools for network inspection
+- SQL Server Management Studio for database verification
+- Logging console for diagnostic output
+
+---
+
+## Success Criteria
+
+### ✅ Definition of Done
+1. **Database**: `CanvasType` column exists in `canvas.Sessions` with default value
+2. **Backend**: Host's canvas selection persisted when session starts
+3. **Frontend**: Users routed to correct canvas based on host's selection
+4. **Logging**: Diagnostic logs confirm canvas type at each step
+5. **Testing**: Both "Asset Share" and "Section Share" flows work end-to-end
+6. **Backward Compatibility**: Existing sessions continue working
+
+### ✅ Acceptance Tests
+- [ ] Host selects "Asset Share" → User routed to SessionCanvas
+- [ ] Host selects "Section Share" → User routed to TranscriptCanvas
+- [ ] Database query shows correct `CanvasType` value
+- [ ] Logs show canvas type at session start and user routing
+- [ ] Null/missing canvas type defaults to 'asset'
+
+---
+
+## Open Questions
+
+### ❓ Questions for User
+1. **TranscriptCanvas Route**: Does the route `/transcript/canvas/{token}` exist?
+   - If not, what's the correct route for Section Share users?
+   
+2. **Waiting Room**: Should waiting room route also be conditional?
+   - Currently routes to `/session/waiting/{token}`
+   - Should there be `/transcript/waiting/{token}`?
+
+3. **Session Ended**: What happens if session ends before user registers?
+   - Currently routes to `/session/ended/{sessionId}`
+   - Should this also be conditional?
+
+4. **Default Behavior**: Is "asset" (SessionCanvas) the correct default?
+   - Or should we require explicit selection?
+
+---
+
+## Handoff Preparation
+
+### Ready for Implementation
+Once you confirm the plan by saying **"begin implementation"**, **"ready to implement"**, or **"approved"**, I will:
+
+1. **Generate handoff to task agent**:
+   ```
+   @workspace /task key=user-landing github-branch=development 
+   user_request="Implement canvas type tracking for user routing"
+   ```
+
+2. **Provide detailed task breakdown**:
+   - Task 1: Database migration script
+   - Task 2: Backend model and controller updates
+   - Task 3: Frontend routing logic
+   - Task 4: Testing and validation
+
+3. **Include test generation** (if applicable):
+   ```
+   @workspace /test key=user-landing test_type=integration
+   ```
+
+---
+
+## Review Checklist
+
+### Before Approval
+- [ ] Branch strategy validated (development branch)
+- [ ] Technology stack analyzed (Blazor, C#, MSSQL)
+- [ ] Current implementation understood
+- [ ] Solution design complete
+- [ ] Phases clearly defined
+- [ ] Testing strategy documented
+- [ ] Risks identified and mitigated
+- [ ] Success criteria defined
+- [ ] Open questions listed
+
+---
+
+## Next Steps
+
+**Awaiting your confirmation to proceed. Please review the plan and:**
+
+1. **Answer open questions** (especially TranscriptCanvas route verification)
+2. **Approve the plan** by saying "begin implementation" or similar
+3. **Request changes** if needed
+
+Once approved, I'll hand off to the task agent with complete implementation details.
+
+---
+
+**Plan Version**: 1.0  
+**Key**: `user-landing`  
+**Branch**: `development`  
+**Created**: 2025-10-20  
+**Status**: ✅ Ready for Review

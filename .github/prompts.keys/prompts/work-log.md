@@ -2,6 +2,453 @@
 
 ---
 
+## [2025-10-20T16:15:00Z] - Phase 4 Complete: Universal Recovery Protocol
+
+**Status**: ✅ Completed  
+**Phase**: 4 of 9  
+**Commit**: [pending]  
+**Duration**: 15 minutes
+
+**Implementation**:
+- Updated `plan.json` schema with `interruptedAt` field (phase, step, timestamp, reason, errorMessage, lastSuccessfulPhase)
+- Added Step 0.5.5 to `task.prompt.md`: Recovery Detection
+- Documented "continue" command patterns (continue/resume/resume {key})
+- Recovery workflow: Load checkpoint → Resume from phase → Clear on success
+
+**Files Changed**:
+- `.github/prompts/plan.prompt.md` (interruptedAt schema)
+- `.github/prompts/task.prompt.md` (Step 0.5.5)
+
+**Details**: See `prompts.plan.md` Phase 4 for complete specification
+
+**Next**: Phase 5 - Key Management Strategy
+
+---
+
+## [2025-10-20T15:50:00Z] - Phase 3 Complete: Learning Integration
+
+**Status**: ✅ Completed  
+**Phase**: 3 of 9  
+**Commit**: 8b230866  
+**Checkpoint**: checkpoint/prompts/2025-10-20_phase3  
+**Duration**: 20 minutes
+
+**Implementation**:
+- Added Step 10 to `plan.prompt.md`: "Learning Extraction"
+  - Final step after all phases complete
+  - Invokes `@workspace /analyze-learning` command
+  - Optional skip with `skip-learning=true` parameter
+  - Displays copy-paste ready command to user
+- Updated `plan.json` schema with `learningExtracted` field
+  - Boolean field (default: false)
+  - Set to true after analyze-learning agent completes
+  - Tracks whether learning has been extracted
+- Added `skip-learning` parameter to plan.prompt.md
+  - Default: false (automatic extraction)
+  - Set to true to disable Step 10
+- Created handoff template for analyze-learning
+  - Format: `@workspace /analyze-learning key={key} scope=key={key} analysis-type=comprehensive`
+  - Extracts patterns to `.github/learning/patterns/`
+  - Documents anti-patterns to avoid
+  - Records architectural decisions
+
+**Validation**:
+- ✅ Build passes (documentation-only changes)
+- ✅ Step 10 integrated into completion workflow
+- ✅ plan.json schema updated
+- ✅ skip-learning parameter documented
+
+**Files Changed**:
+- `.github/prompts/plan.prompt.md` (+88 lines, -9 lines)
+  - Step 10: Learning Extraction implementation
+  - skip-learning parameter added
+  - plan.json schema updated with learningExtracted
+- `.github/prompts.keys/prompts/prompts.plan.json` (phase 3 status updated)
+
+**Metrics**:
+- Lines added: 88
+- Lines removed: 9
+- New parameter: skip-learning (default: false)
+- New schema field: learningExtracted (boolean)
+
+**Benefits**:
+- ✅ Ensures learning never forgotten
+- ✅ Builds organizational knowledge base automatically
+- ✅ Improves future planning with proven patterns
+- ✅ Documents what worked and what didn't
+- ✅ Facilitates onboarding (new team members learn from past work)
+
+**Learning Extraction Workflow**:
+1. All phases complete successfully
+2. Final Phase Summary displayed to user
+3. Step 10 outputs analyze-learning command
+4. User copies and executes command
+5. Patterns extracted to `.github/learning/`
+6. `plan.json` marked `learningExtracted=true`
+
+**Next**: Awaiting user "proceed" for Phase 4: Universal Recovery Protocol
+
+---
+
+## [2025-10-20T15:20:00Z] - Phase 2 Complete: Test Reuse in Planning
+
+**Status**: ✅ Completed  
+**Phase**: 2 of 9  
+**Commit**: cb494bc1  
+**Checkpoint**: checkpoint/prompts/2025-10-20_phase2  
+**Duration**: 20 minutes
+
+**Implementation**:
+- Added Step 0.5.7 to `plan.prompt.md`: "Reusable Test Discovery"
+  - Queries `.github/tests/test-index.json` during planning phase
+  - Extracts feature keywords from user request
+  - Calculates Jaccard similarity for each indexed test
+  - Recommends tests with similarity ≥ 0.75 threshold
+- Implemented similarity scoring algorithm
+  - Token-based matching on feature/scenario descriptions
+  - Jaccard similarity: |A ∩ B| / |A ∪ B|
+  - Ranks results by similarity score (descending)
+- Updated plan template with "Reusable Tests" section
+  - Lists matching tests with metadata (key, file, scenarios, tags)
+  - Provides adaptation guidance per test
+  - Reuse recommendation levels: HIGH/MEDIUM/LOW
+
+**Validation**:
+- ✅ Build passes (documentation-only changes)
+- ✅ Step 0.5.7 integrated into planning workflow
+- ✅ Similarity algorithm documented
+- ✅ Plan template includes reusable tests section
+
+**Files Changed**:
+- `.github/prompts/plan.prompt.md` (+108 lines)
+  - Step 0.5.7: Query test index logic
+  - Reusable Tests template section
+- `.github/prompts.keys/prompts/prompts.plan.json` (phase 2 status updated)
+
+**Metrics**:
+- Lines added: 108
+- Lines removed: 8
+- Similarity threshold: 0.75
+- Reuse recommendation levels: 3 (HIGH/MEDIUM/LOW)
+
+**Benefits**:
+- ✅ Discover existing tests before creating duplicates
+- ✅ Leverage proven test patterns from other keys
+- ✅ Reduce test maintenance burden
+- ✅ Consistent testing approach across features
+
+**Next**: Awaiting user "proceed" for Phase 3: Learning Integration
+
+---
+
+## [2025-10-20T14:30:00Z] - Phase 1 Complete: Centralized Test Index
+
+**Status**: ✅ Completed  
+**Phase**: 1 of 9  
+**Commit**: 6c03f659  
+**Checkpoint**: checkpoint/prompts/2025-10-20_phase1
+
+**Implementation**:
+- Created `.github/tests/test-index.json` (global test registry)
+  - Schema with version, tests array, metadata tracking
+  - Sample tests from userlanding and hcp keys
+  - Similarity threshold: 0.75 (70% feature + 30% tags)
+- Created `.github/tests/README.md` (comprehensive documentation)
+  - JSON schema definition
+  - Similarity calculation algorithm
+  - Usage examples for plan and test-generation agents
+  - Integration points and validation procedures
+- Updated `.github/prompts/test-generation.prompt.md`
+  - Added Step 5: Update global test index after creation
+  - Automated metadata generation and index population
+  - Updated benefits list (cross-key discovery and reuse)
+
+**Validation**:
+- ✅ JSON schema validates
+- ✅ Documentation complete
+- ✅ Integration point added to test-generation agent
+
+**Files Changed**:
+- `.github/tests/test-index.json` (created, 72 lines)
+- `.github/tests/README.md` (created, 400+ lines)
+- `.github/prompts/test-generation.prompt.md` (modified, +22 lines)
+
+**Metrics**:
+- Lines added: 494
+- Sample tests: 2
+- Reusable tests: 2
+
+**Next**: Awaiting user "proceed" for Phase 2: Test Reuse in Planning
+
+---
+
+## [2025-10-20T16:30:00Z] - Handoff Protocol Execution Update
+
+**Status**: Updated  
+**Action**: Enhanced plan.prompt.md with explicit handoff execution instructions  
+**Commit**: checkpoint/prompts/20251020-handoff-execution
+
+**Changes**:
+- Clarified Step 6 (MANDATORY Handoff Protocol) to require actual command execution
+- Added "CRITICAL EXECUTION STEPS" section with step-by-step process
+- Added "HOW TO EXECUTE THE HANDOFF" section emphasizing command must be sent
+- Updated "Common Mistakes" with execution-specific errors
+- Updated "Notes" section to reflect automatic invocation capability
+
+**Key Updates**:
+- Plan agent must SEND @workspace /task command (not just document it)
+- Explicit instruction: "This is NOT documentation - execute this command"
+- Updated protocol: Plan → Write files → **EXECUTE command** → Task agent proceeds
+- Removed ambiguity: "You must actually send this message to trigger the task agent"
+
+**Files Modified**:
+- `.github/prompts/plan.prompt.md` (Step 6, Protocol, Mistakes, Notes sections)
+- `.github/prompts.keys/prompts/handoff-protocol-update.md` (documentation)
+
+**Rationale**:
+- Original intent was always automatic handoff
+- Previous wording could be interpreted as "just document it"
+- Eliminates manual copy/paste friction
+- Maintains all safety guardrails
+
+**Next**: Apply this protocol when user says "proceed" for implementation plan
+
+---
+
+## [2025-10-20] - Plan: Comprehensive Prompt Orchestration Enhancements
+
+**Status**: Ready for Implementation  
+**Planner**: GitHub Copilot  
+**User Request**: Enhance prompt orchestration with test tracking/reuse, learning integration, recovery protocols, key management strategies, and knowledge extraction mechanisms
+
+**Plan Summary**:
+- 9 implementation phases (Centralized test index → Final validation)
+- Selected enhancements: Test Similarity Scoring (A), Auto-Archive on Commit (C)
+- Documentation-only changes (no code modifications)
+- Manual validation (no automated tests)
+
+**Comprehensive Plan**: See `.github/prompts.keys/prompts/prompts.plan.md` for complete technical details
+
+**Phases Overview**:
+1. Centralized Test Index — Global test-index.json for cross-key discovery
+2. Test Reuse in Planning — Query index during planning, 0.75 similarity threshold
+3. Learning Integration — Automatic learning extraction (Step 10 in plan.prompt.md)
+4. Universal Recovery Protocol — Simple "continue" command, interruptedAt tracking
+5. Key Management Strategy — Domain-based reuse rules, archival criteria
+6. Knowledge Extraction — key-squash, key-audit, key-cleanup mechanisms
+7. Enhanced Test Orchestration — Best practices, failure patterns, retry strategies
+8. Commit Integration — test-index and recovery state validation
+9. Final Validation — End-to-end workflow test, migration guide
+
+**Test Plan**:
+- Functional E2E: Manual validation tests (7 test scenarios)
+- Visual Regression: N/A (documentation only)
+- Orchestration: N/A (no Playwright tests needed)
+
+**Decisions**:
+- Enhancement A (Test Similarity): Included - Maximizes test reuse (0.75 threshold)
+- Enhancement B (Interactive Recovery): Excluded - Simple "continue" sufficient
+- Enhancement C (Auto-Archive): Included - Prevents key bloat
+- Enhancement D (Learning Dashboard): Excluded - Nice-to-have, not critical
+- Enhancement E (Test Search API): Excluded - grep sufficient
+- Test Index Location: `.github/tests/` (global, not per-key)
+- Learning Extraction: Automatic with skip option (skip-learning=true)
+- Recovery Command: Simple "continue" (plan.json tracks context)
+- Key Management: Enforce reuse rules (override with force-new-key=true)
+- Test Reuse Threshold: 0.75 similarity (balance precision/recall)
+
+**Next Steps**: Execute phases sequentially using handoff commands
+
+**Cross-Reference**: This work-log tracks execution progress. For complete plan details, architecture analysis, and task prompts, see `prompts.plan.md`.
+
+---
+
+## [2025-10-20] - Phases 3-5: Complete Enhancement Implementation
+
+**Status**: Implementation Complete
+**Phases**: Image Analysis Realignment, Comprehensive Test Suite, Final Validation
+**Analyst**: GitHub Copilot
+
+### Phase 3: Move Image Analysis to Plan Prompt
+
+**Objective:** Realign image annotation and requirement gathering from task (execution) to plan (planning)
+
+**Changes Implemented:**
+
+1. **plan.prompt.md - Added Step 0.6: Image Analysis & Requirement Extraction**
+   - Triggers when user provides images or `annotate` parameter
+   - Classifies image types: Plain screenshots, annotated mockups, design comps, error screenshots
+   - Uses vision analysis to extract requirements from annotated mockups
+   - Converts visual annotations to structured requirements (visual + functional)
+   - Confirms understanding with user during plan approval
+   - Auto-generates Percy test specifications for visual changes
+
+2. **task.prompt.md - Deprecated annotate parameter**
+   - Parameter marked as DEPRECATED with clear explanation
+   - If user provides images during execution, suggests running plan first
+   - Explains why image analysis belongs in planning phase
+   - Provides exact `@workspace /plan` command to run
+
+3. **task.prompt.md - Deprecated Step 2.10**
+   - Step 2.10 (View Documentation) marked as deprecated
+   - Added note explaining move to plan.prompt.md Step 0.6
+   - Updated conditional execution list with deprecation notice
+
+**Benefits:**
+- ✅ Requirements gathered BEFORE implementation begins
+- ✅ User approves interpreted requirements during plan approval
+- ✅ Vision analysis informs architecture decisions
+- ✅ Clear separation of planning vs execution concerns
+
+### Phase 4: Add Comprehensive Test Suite Generation
+
+**Objective:** Enable collective execution of all phase tests at end of implementation
+
+**Changes Implemented:**
+
+1. **plan.prompt.md - Comprehensive Test Suite section added to Test Plan**
+   - TypeScript test template for comprehensive suite
+   - Imports all phase tests
+   - Verifies all phases complete before running
+   - Tests end-to-end user workflows
+   - Detects incremental breakage across phases
+   - Validates multi-phase data flow
+
+2. **plan.prompt.md - Orchestration script template for full regression**
+   - PowerShell script: `run-{key}-full-regression.ps1`
+   - Verifies all phases complete in plan.json
+   - Runs all phase tests individually first
+   - Runs comprehensive suite only if all phase tests pass
+   - Aggregates results and reports status
+   - Clean app lifecycle management (health check, cleanup)
+
+3. **plan.prompt.md - Final Validation Phase template**
+   - Added as last phase in every plan
+   - Executes all phase tests individually
+   - Runs comprehensive regression suite
+   - Verifies no incremental breakage
+   - Confirms readiness for production promotion (Step 9)
+
+4. **plan.prompt.md - JSON schema already includes comprehensiveTestSuite field**
+   - Validated existing schema supports comprehensive suite tracking
+   - Field: `testing.comprehensiveTestSuite` (string)
+
+**Benefits:**
+- ✅ Individual test execution preserved (per-phase scripts)
+- ✅ Collective execution enabled (full regression script)
+- ✅ Incremental breakage detection
+- ✅ End-to-end workflow validation
+- ✅ Clear quality gate before production promotion
+
+### Phase 5: Final Validation & Documentation
+
+**Status**: Complete
+
+**Validation Results:**
+- ✅ Key folder validation working (task.prompt.md Step 0.25, test-generation.prompt.md Step 0)
+- ✅ Branch verification working (test-generation.prompt.md Step 0.1, plan.prompt.md Step 0.1)
+- ✅ Image analysis moved to plan (plan.prompt.md Step 0.6, task deprecated)
+- ✅ Comprehensive test suite templates added to plan
+- ✅ All user requirements addressed
+
+**Documentation Updated:**
+- work-log.md (this entry)
+- prompts-holistic-analysis.md (implementation status pending update)
+- prompts-implementation-plan.md (progress tracker pending update)
+
+**Files Modified:** 3
+- .github/prompts/plan.prompt.md (+205 lines: Step 0.6, comprehensive test suite)
+- .github/prompts/task.prompt.md (+18 lines: deprecation notices)
+- .github/prompts.keys/prompts/work-log.md (this entry)
+
+**Summary of All Enhancements (Phases 1-5):**
+
+1. **Guard Rails Added:**
+   - Task and test-generation validate key folder exists
+   - Test-generation verifies on development branch
+   - Plan validates github-branch parameter
+   - Clear error messages with actionable guidance
+
+2. **Responsibility Realignment:**
+   - Image analysis moved from task to plan
+   - Requirements extracted BEFORE implementation
+   - User approves interpretations during planning
+
+3. **Test Organization Enhanced:**
+   - Tests already correctly in {key}/tests/
+   - Individual execution preserved
+   - Collective execution enabled via comprehensive suite
+   - Final validation phase ensures no incremental breakage
+
+4. **Error Prevention:**
+   - No more cryptic file system errors (key validation)
+   - No more accidental master branch commits (branch verification)
+   - No more late requirement changes (image analysis in planning)
+
+**All User Requirements Met:**
+✅ Guard rails for {key} folder existence  
+✅ Guard rails for github-branch verification  
+✅ Tests in {key}/tests/ folder (already correct)  
+✅ Orchestration for individual and collective execution  
+✅ Image analysis moved to plan prompt
+
+---
+
+## [2025-10-20] - Holistic Review of Core Orchestration Prompts
+
+**Status**: Analysis Complete, Ready for Implementation
+**Analyst**: GitHub Copilot
+**Request**: Review plan.prompt.md, task.prompt.md, test-generation.prompt.md holistically. Identify risks, assumptions, inefficiencies, and recommend enhancements.
+
+### Analysis Summary
+
+**Documents Created**:
+1. `prompts-holistic-analysis.md` - Complete analysis (5 critical risks, 8 assumptions, 3 inefficiencies)
+2. `prompts-implementation-plan.md` - 5-phase implementation plan (14-19 hours effort)
+3. `prompts-review-summary.md` - Executive summary for user
+
+**User Requirements Addressed**:
+- ✅ Guard rails: Both task and test-generation stop if {key} folder does not exist
+- ✅ Guard rails: Check if on correct github-branch specified in {key}, stop if mismatch
+- ✅ Test organization: Tests created within {key}/tests/ folder (already correct)
+- ✅ Orchestration: Designed to run individually and collectively (enhanced with comprehensive suite)
+- ✅ Responsibility realignment: Image annotations and requirement gathering moved from task to plan
+
+**Critical Risks Identified**:
+1. 🔴 No key existence validation in task/test-generation agents → Users get cryptic file system errors
+2. 🔴 No branch verification in test-generation agent → Tests could pollute master branch
+3. 🟡 Image analysis misplaced in task prompt → Requirements gathered during execution instead of planning
+4. 🟡 Test lifecycle complexity scattered → No collective execution mechanism
+5. 🟡 Missing comprehensive test suite → Can't verify no incremental breakage across phases
+
+**Key Recommendations**:
+1. **Phase 1** (P0): Add key folder existence validation to task.prompt.md Step 0.25 and test-generation.prompt.md Step 0
+2. **Phase 2** (P0): Add branch verification to test-generation.prompt.md Step 0.1 and plan.prompt.md Step 0.1
+3. **Phase 3** (P1): Move image analysis from task.prompt.md Step 2.10 to plan.prompt.md Step 0.6
+4. **Phase 4** (P1): Add comprehensive test suite generation in plan final phase
+5. **Phase 5** (P2): Final validation and documentation
+
+**Assumptions Validated**:
+- Plan assumes task reads {key}.plan.md → NOW ENFORCED via key folder validation
+- Task assumes key folder exists → NOW VALIDATED at Step 0.25
+- Test-generation assumes on correct branch → NOW VERIFIED at Step 0.1
+- Images analyzed during execution → NOW MOVED to planning phase
+
+**Inefficiencies Analyzed**:
+- Technology stack discovery duplication → ALREADY OPTIMIZED (Step 2.12 loads from plan)
+- Test registry deduplication logic → ALREADY CANONICAL (shared reference exists)
+- Orchestration patterns scattered → ALREADY CANONICAL (.github/prompts/shared/test-orchestration-patterns.md)
+
+**Enhancement Opportunities**:
+- Cross-key dependency tracking in plan.json
+- Automated test flakiness detection
+- Plan versioning for scope change tracking
+
+**Next Steps**:
+User should review summary and approve implementation approach. Implementation can proceed sequentially (one phase at a time) or in batch (all 5 phases together).
+
+---
+
 ## [2025-10-15T00:30:00Z] - Enhanced Healthcheck Notes Parameter
 
 **Status**: complete

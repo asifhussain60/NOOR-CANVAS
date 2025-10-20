@@ -72,10 +72,12 @@
         @* [SIMPLE:hcp:restore-controls] Hide sidebar completely when session is Active or Ended *@
         @if (Model?.SessionStatus != "Active" && Model?.SessionStatus != "Ended")
         {
+            @* [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Added OnCanvasSelected callback to track canvas selection ;CLEANUP_OK *@
             <HostControlPanelSidebar Model="@Model" 
                                      UserToken="@UserToken"
                                      IsLoading="@isLoading"
                                      OnStartSession="@StartSession"
+                                     OnCanvasSelected="@HandleCanvasSelected"
                                      OnGetSignalRStatusColor="@GetSignalRStatusColor"
                                      OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
                                      OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
@@ -135,6 +137,8 @@
     @* [SIMPLE:hcp:restore-controls] Track session start time for timer component *@
     private DateTime? sessionStartTime = null;
     @* [DEBUG-WORKITEM:hcp:simple] Removed unused hasClickedStartSession field - panel now hidden by conditional rendering *@
+    @* [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Track selected canvas type for participant routing ;CLEANUP_OK *@
+    private string selectedCanvasType = "asset"; // Default to "asset" (SessionCanvas)
     private string messageText = "";
     private Guid questionToDeleteId;
     private Timer? messageTimer;
@@ -1238,6 +1242,14 @@
         }
     }
 
+    @* [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Handle canvas selection from UserRegistrationLink component ;CLEANUP_OK *@
+    private Task HandleCanvasSelected(string canvasType)
+    {
+        selectedCanvasType = canvasType;
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-sticky-buttons:simple] Canvas selected: {CanvasType} ;CLEANUP_OK", canvasType);
+        return Task.CompletedTask;
+    }
+
     private async Task StartSession()
     {
         if (Model == null || SessionId == null) return;
@@ -1251,10 +1263,11 @@
             await InvokeAsync(StateHasChanged);
 
             using var httpClient = HttpClientFactory.CreateClient("default");
-            Logger.LogInformation("COPILOT-SESSION-START: Starting session {SessionId} - calling enhanced API", SessionId);
+            @* [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Pass selected canvas type to StartSession API ;CLEANUP_OK *@
+            Logger.LogInformation("COPILOT-SESSION-START: Starting session {SessionId} with canvas type {CanvasType} - calling enhanced API", SessionId, selectedCanvasType);
             
-            // Call the enhanced StartSession API that broadcasts SignalR events
-            var response = await httpClient.PostAsync($"/api/host/session/{SessionId}/start", null);
+            // Call the enhanced StartSession API that broadcasts SignalR events with canvas type
+            var response = await httpClient.PostAsync($"/api/host/session/{SessionId}/start?canvasType={selectedCanvasType}", null);
             Logger.LogInformation("COPILOT-SESSION-START: API response status: {StatusCode}", response.StatusCode);
             
             if (response.IsSuccessStatusCode)

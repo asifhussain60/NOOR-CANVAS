@@ -2,11 +2,45 @@
 
 **Status**: In Progress  
 **Created**: 2025-10-11  
-**Last Updated**: 2025-10-16  
+**Last Updated**: 2025-10-19  
+**Git Commit**: c085c1e7
 **Agent**: task  
 
 ## Overview
-Review and verification of the Host Provisioner console application to ensure it remains functional and can generate tokens for session IDs.
+Review and verification of the Host Provisioner console application to ensure it remains functional and can generate tokens for session IDs. Now supports token regeneration and status reset for existing sessions.
+
+## Work Log
+
+### 2025-10-19T00:00:00Z - Token Regeneration for Existing Sessions
+**Commit:** c085c1e7  
+**Agent:** task (task.prompt.md)  
+**Debug Level:** simple
+
+**User Request:**
+For Host Provisioner app, if the session ID already exists, it should regenerate tokens and reset status of the session to 'Created'
+
+**Changes:**
+- Modified console app (`Program.cs`) to regenerate tokens and reset status for existing sessions
+- Modified Avalonia app (`MainWindowViewModel.cs`) with same behavior
+- Modified WinForms app (`MainForm.cs`) with same behavior
+- When existing session found: Status → "Created", Tokens → regenerated, CreatedAt/ExpiresAt → updated
+
+**Behavior:**
+- **Before:** Existing sessions reused with old tokens and status
+- **After:** Existing sessions reset to 'Created' status with freshly generated tokens
+
+**Files Modified:**
+- `Tools/HostProvisioner/HostProvisioner/Program.cs`
+- `Tools/HostProvisioner/HostProvisioner.Avalonia/ViewModels/MainWindowViewModel.cs`
+- `Tools/HostProvisioner/HostProvisioner.WinForms/MainForm.cs`
+
+**Validation:**
+- Build: Clean (0 errors, 2 pre-existing warnings in Avalonia)
+- Lint Validation: PASS (C# syntax valid)
+
+**Checkpoint:** `checkpoint/host-provisioner/2025-10-19_0001`
+
+---
 
 ## Application Details
 

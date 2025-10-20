@@ -1378,6 +1378,43 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:sidebar:trace] [{RequestId}] Sidebar width constraints added (max-width:100%, width:100%) to prevent horizontal expansion from question cards ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:mobile:trace] [{RequestId}] Mobile responsive CSS enhanced - canvas full-width, sidebar below with vertical stacking ;CLEANUP_OK", requestId);
 
+        // [DEBUG-WORKITEM:userlanding:guard:canvas] AUTHENTICATION GATE: Check registration before session access ;CLEANUP_OK
+        if (!string.IsNullOrEmpty(SessionToken))
+        {
+            // [DEBUG-WORKITEM:userlanding:session-ended] Check session status BEFORE registration verification ;CLEANUP_OK
+            var sessionStatus = await CheckSessionStatusAsync(SessionToken, requestId);
+            if (sessionStatus.IsEnded)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:session-ended] Session {SessionId} has ended - redirecting to SessionEnded page ;CLEANUP_OK", sessionStatus.SessionId);
+                Navigation.NavigateTo($"/session/ended/{sessionStatus.SessionId}", forceLoad: true);
+                return;
+            }
+
+            // Check for post-registration bypass flag
+            var bypassFlag = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", "noor_registration_complete");
+            
+            if (!string.IsNullOrEmpty(bypassFlag))
+            {
+                // Clear bypass flag after use (one-time bypass)
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "noor_registration_complete");
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Post-registration bypass flag detected and cleared - allowing access ;CLEANUP_OK", requestId);
+            }
+            else
+            {
+                // Verify user is registered as participant
+                var isRegistered = await CheckParticipantRegistrationAsync(SessionToken, requestId);
+                
+                if (!isRegistered)
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] SECURITY: Unregistered access attempt blocked - redirecting to UserLanding ;CLEANUP_OK", requestId);
+                    Navigation.NavigateTo($"/user/landing/{SessionToken}", forceLoad: true);
+                    return;
+                }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Registration verification passed - allowing session access ;CLEANUP_OK", requestId);
+            }
+        }
+
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
 
@@ -3517,6 +3554,17 @@
             IsEnabled = !string.IsNullOrWhiteSpace(SessionToken)
         });
         
+        // [DEBUG-WORKITEM:canvas-landings:simple] Clear local storage button for participant info ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Clear Local Storage",
+            "Clear participant info from browser local storage",
+            async () => await ClearLocalStorage(),
+            "fa-solid fa-trash"
+        )
+        {
+            IsEnabled = true
+        });
+        
         return actions;
     }
 
@@ -3593,6 +3641,25 @@
         await SubmitQuestion();
     }
     
+    // [DEBUG-WORKITEM:canvas-landings:simple] Clear local storage method for debug panel ;CLEANUP_OK
+    private async Task ClearLocalStorage()
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-landings:simple] Clearing local storage for participant info ;CLEANUP_OK");
+            
+            // Clear all participant-related localStorage keys
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "noor-userId");
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", $"noor-session-{SessionToken}");
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-landings:simple] Local storage cleared successfully ;CLEANUP_OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-landings:simple] Error clearing local storage ;CLEANUP_OK");
+        }
+    }
+    
     // Helper class for dimension logging with computed styles
     private class ContainerInfo
     {
@@ -3634,5 +3701,155 @@
             // Prevent default newline behavior
             await SubmitQuestion();
         }
+    }
+
+    // [DEBUG-WORKITEM:userlanding:session-ended] Check session status before allowing access ;CLEANUP_OK
+    /// <summary>
+    /// Check if session has ended before allowing access
+    /// Prevents users from accessing ended sessions
+    /// </summary>
+    private async Task<(bool IsEnded, long SessionId)> CheckSessionStatusAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:session-ended] Checking session status for token: {0} ;CLEANUP_OK", token);
+
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var validationUrl = $"/api/participant/session/{token}/validate";
+            var response = await httpClient.GetAsync(validationUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:session-ended] Session validation API failed: {0} ;CLEANUP_OK", 
+                    response.StatusCode);
+                return (false, 0);
+            }
+
+            var validationContent = await response.Content.ReadAsStringAsync();
+            var validationData = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(validationContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (validationData.TryGetProperty("Session", out var sessionElement))
+            {
+                var sessionId = sessionElement.GetProperty("SessionId").GetInt64();
+                var status = sessionElement.GetProperty("Status").GetString() ?? "";
+                
+                var isEnded = string.Equals(status, "Ended", StringComparison.OrdinalIgnoreCase);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:session-ended] Session {SessionId} status: {Status}, IsEnded: {IsEnded} ;CLEANUP_OK", 
+                    sessionId, status, isEnded);
+                
+                return (isEnded, sessionId);
+            }
+
+            Logger.LogWarning("[DEBUG-WORKITEM:userlanding:session-ended] No session data in validation response ;CLEANUP_OK");
+            return (false, 0);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:session-ended] Exception during session status check ;CLEANUP_OK");
+            return (false, 0);
+        }
+    }
+
+    // [DEBUG-WORKITEM:userlanding:guard:canvas] AUTHENTICATION GATE: Verify participant registration before allowing session access ;CLEANUP_OK
+    /// <summary>
+    /// AUTHENTICATION GATE: Verify if user is registered as participant before allowing session access
+    /// Fixes bug where unregistered users could bypass registration requirement
+    /// </summary>
+    private async Task<bool> CheckParticipantRegistrationAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Checking participant registration status for token: {Token} ;CLEANUP_OK", 
+                requestId, token);
+
+            // [SECURITY] Get stored UserGuid from browser storage (per-participant isolation)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (string.IsNullOrEmpty(storedUserGuid))
+            {
+                // Fallback to localStorage for cross-tab persistence
+                storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            }
+
+            if (string.IsNullOrEmpty(storedUserGuid))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] No UserGuid found in storage - user must register ;CLEANUP_OK", 
+                    requestId);
+                return false;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Found stored UserGuid: {UserGuid}, verifying against database ;CLEANUP_OK", 
+                requestId, storedUserGuid);
+
+            // [SECURITY] Verify this UserGuid exists in canvas.Participants for this session
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var participantsUrl = $"/api/participant/session/{token}/participants"; 
+            var response = await httpClient.GetAsync(participantsUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Participant check API failed: {StatusCode} ;CLEANUP_OK", 
+                    requestId, response.StatusCode);
+                return false;
+            }
+
+            var participantsContent = await response.Content.ReadAsStringAsync();
+            var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (participantsData?.Participants == null)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] No participants data returned from API ;CLEANUP_OK", 
+                    requestId);
+                return false;
+            }
+
+            // [SECURITY] Check if stored UserGuid matches ANY participant in database
+            var isRegistered = participantsData.Participants.Any(p => 
+                string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+            
+            if (isRegistered)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] ✓ Registration verified: UserGuid {UserGuid} found in database ;CLEANUP_OK", 
+                    requestId, storedUserGuid);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] ✗ SECURITY VIOLATION: UserGuid {UserGuid} in storage but NOT in database - possible tampering ;CLEANUP_OK", 
+                    requestId, storedUserGuid);
+                
+                // Clear invalid UserGuid from storage
+                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", $"noor_user_guid_{token}");
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", $"noor_user_guid_{token}");
+            }
+            
+            return isRegistered;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:guard:canvas] [{RequestId}] Exception during registration check ;CLEANUP_OK", 
+                requestId);
+            return false;
+        }
+    }
+
+    // [DEBUG-WORKITEM:userlanding:guard:canvas] Registration guard support classes ;CLEANUP_OK
+    public class ParticipantsCheckResponse
+    {
+        public int SessionId { get; set; }
+        public string? Token { get; set; }
+        public int ParticipantCount { get; set; }
+        public List<ParticipantCheckData>? Participants { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class ParticipantCheckData
+    {
+        public string UserId { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Country { get; set; } = "";
+        public string Flag { get; set; } = "";
     }
 }

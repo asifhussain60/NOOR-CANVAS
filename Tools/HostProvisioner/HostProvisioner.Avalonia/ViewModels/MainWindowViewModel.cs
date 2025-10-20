@@ -131,7 +131,14 @@ public partial class MainWindowViewModel : ViewModelBase
             }
             else
             {
+                // [DEBUG-WORKITEM:host-provisioner] Regenerate tokens and reset status for existing session ;CLEANUP_OK
                 canvasSession = existingSession;
+                canvasSession.Status = "Created";
+                canvasSession.HostToken = "";  // Will be regenerated
+                canvasSession.UserToken = "";  // Will be regenerated
+                canvasSession.CreatedAt = DateTime.UtcNow;
+                canvasSession.ExpiresAt = DateTime.UtcNow.AddHours(24);
+                canvasSession.CreatedBy = "Avalonia Host Provisioner";
             }
 
             // Generate friendly tokens using SimplifiedTokenService

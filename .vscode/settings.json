@@ -106,5 +106,6 @@
   "workbench.panel.defaultLocation": "right",
   "chat.editor.fontSize": 14,
   "chat.editor.wordWrap": "on",
-  "testing.automaticallyOpenTestResults": "neverOpen"
+  "testing.automaticallyOpenTestResults": "neverOpen",
+  "workbench.editor.enablePreview": false
 }

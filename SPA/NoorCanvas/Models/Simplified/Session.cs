@@ -61,6 +61,14 @@ public class Session
     [MaxLength(10)]
     public string? ScheduledDuration { get; set; } // Duration: 60 (minutes, stored as string from form)
 
+    /// <summary>
+    /// Gets or sets canvas type selected by host: 'asset' (SessionCanvas) or 'transcript' (TranscriptCanvas).
+    /// Used by UserLanding.razor to route users to correct canvas view.
+    /// </summary>
+    [StringLength(20)]
+    [Column("CanvasType")]
+    public string? CanvasType { get; set; } = "asset";
+
     // REMOVED: Token-related columns that were unused in business logic
     // - TokenExpiresAt (separate from ExpiresAt, all null in data)
     // - TokenAccessCount (not referenced in API logic)  

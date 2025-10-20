@@ -384,11 +384,22 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("session/{sessionId}/start")]
-        public async Task<IActionResult> StartSession(int sessionId)
+        // [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Added canvasType parameter for participant routing ;CLEANUP_OK
+        public async Task<IActionResult> StartSession(int sessionId, [FromQuery] string canvasType = "asset")
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Starting session: {SessionId}", sessionId);
+                // [user-landing] Validate canvasType parameter
+                var validCanvasTypes = new[] { "asset", "transcript" };
+                if (!validCanvasTypes.Contains(canvasType.ToLowerInvariant()))
+                {
+                    _logger.LogWarning("[user-landing] Invalid canvasType '{CanvasType}' for session {SessionId} - defaulting to 'asset'", 
+                        canvasType, sessionId);
+                    canvasType = "asset";
+                }
+
+                // [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Log canvas type selection ;CLEANUP_OK
+                _logger.LogInformation("NOOR-INFO: Starting session: {SessionId} with canvas type: {CanvasType}", sessionId, canvasType);
 
                 var session = await _context.Sessions.FindAsync(sessionId);
                 if (session == null)
@@ -398,23 +409,30 @@ namespace NoorCanvas.Controllers
 
                 session.StartedAt = DateTime.UtcNow;
                 session.Status = "Active";
+                session.CanvasType = canvasType.ToLowerInvariant(); // [user-landing] Persist canvas type to database
+                
+                _logger.LogInformation("[user-landing] Session {SessionId} - CanvasType set to '{CanvasType}'", 
+                    sessionId, session.CanvasType);
+                
                 await _context.SaveChangesAsync();
 
-                // Broadcast SessionBegan event via SignalR
+                // Broadcast SessionBegan event via SignalR with canvas type for routing
+                // [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Include canvasType in SessionBegan event ;CLEANUP_OK
                 var sessionData = new
                 {
                     sessionId = session.SessionId,
                     groupId = session.AlbumId, // Renamed from GroupId to AlbumId
                     startedAt = session.StartedAt,
                     expiresAt = session.ExpiresAt,
-                    maxParticipants = session.MaxParticipants
+                    maxParticipants = session.MaxParticipants,
+                    canvasType = canvasType // "asset" or "transcript"
                 };
 
                 var groupName = $"session_{sessionId}";
                 await _sessionHub.Clients.Group(groupName).SendAsync("SessionBegan", sessionData);
 
-                _logger.LogInformation("NOOR-SUCCESS: Session started and SessionBegan event broadcasted: {SessionId}", sessionId);
-                return Ok(new { success = true, status = "Active" });
+                _logger.LogInformation("NOOR-SUCCESS: Session started and SessionBegan event broadcasted: {SessionId} with canvasType: {CanvasType}", sessionId, canvasType);
+                return Ok(new { success = true, status = "Active", canvasType = canvasType });
             }
             catch (Exception ex)
             {

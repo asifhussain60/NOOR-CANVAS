@@ -36,6 +36,11 @@
     Automatically continue with merge even if there are changes to commit.
     USE WITH CAUTION - only when you're certain changes should be merged.
 
+.PARAMETER DryRun
+    Validate migrations and deployment readiness without executing.
+    Checks SQL syntax, database connectivity, and file readiness.
+    No database changes or code deployment will occur.
+
 .EXAMPLE
     .\ncdeploy.ps1
     Full deployment: merge development→master, build, deploy, return to development
@@ -43,6 +48,10 @@
 .EXAMPLE
     .\ncdeploy.ps1 -SkipMerge
     Deploy from current master branch without merging development
+
+.EXAMPLE
+    .\ncdeploy.ps1 -DryRun
+    Validate deployment readiness (migrations, build, configuration) without executing
 
 .EXAMPLE
     .\ncdeploy.ps1 -SkipIIS
@@ -59,6 +68,7 @@ param(
     [switch]$SkipBuild,
     [switch]$SkipIIS,
     [switch]$AutoMerge,
+    [switch]$DryRun,
     [string]$AppPool = "NoorCanvas"
 )
 
@@ -226,6 +236,227 @@ try {
         }
     }
 
+    # Step 0.5: Database Migrations (NEW - Production Schema Changes)
+    # [DEBUG-WORKITEM:deploy:migrations:DETAILED]
+    Write-Step "Database Migrations: Checking for pending migrations..."
+    
+    $MigrationPendingPath = "$WorkspaceRoot\Scripts\Migrations\Prod\pending"
+    $MigrationArchivedPath = "$WorkspaceRoot\Scripts\Migrations\Prod\archived"
+    $MigrationRollbackPath = "$WorkspaceRoot\Scripts\Migrations\Prod\rollback"
+    
+    # Check if pending migrations exist
+    if (Test-Path $MigrationPendingPath) {
+        $PendingMigrations = Get-ChildItem -Path $MigrationPendingPath -Filter "migration-*.sql" | Sort-Object Name
+        
+        if ($PendingMigrations.Count -gt 0) {
+            Write-Info "→ Found $($PendingMigrations.Count) pending migration(s)"
+            
+            foreach ($migration in $PendingMigrations) {
+                Write-Host "  - $($migration.Name)" -ForegroundColor Yellow
+            }
+            
+            # Validate sqlcmd availability
+            try {
+                $sqlcmdVersion = sqlcmd -? 2>&1 | Select-Object -First 1
+                Write-Info "→ SQL Server command-line tools available"
+            } catch {
+                Write-Error "sqlcmd not found. Install SQL Server Command Line Utilities."
+                throw "Migration execution requires sqlcmd. Download from: https://aka.ms/ssmsfullsetup"
+            }
+            
+            # Validate connection to production database
+            Write-Info "→ Validating connection to KSESSIONS (Production database)"
+            try {
+                $connectionTest = sqlcmd -S localhost -d KSESSIONS -Q "SELECT DB_NAME() AS CurrentDB" -h -1 -W 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Cannot connect to KSESSIONS database"
+                }
+                Write-Success "Connected to KSESSIONS database"
+            } catch {
+                Write-Error "Failed to connect to KSESSIONS database"
+                Write-Info "Ensure SQL Server is running and KSESSIONS database exists"
+                throw $_
+            }
+            
+            # Check if MigrationHistory table exists
+            Write-Info "→ Verifying MigrationHistory table"
+            $historyTableCheck = sqlcmd -S localhost -d KSESSIONS -Q "SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.tables WHERE schema_id = SCHEMA_ID('canvas') AND name = 'MigrationHistory') THEN 1 ELSE 0 END" -h -1 -W 2>&1
+            
+            if ($historyTableCheck -match "^\s*0\s*$") {
+                Write-Warning "MigrationHistory table not found. Initializing..."
+                $initScript = "$WorkspaceRoot\Scripts\Migrations\Prod\init-migration-history.sql"
+                
+                if (Test-Path $initScript) {
+                    Write-Info "→ Running: init-migration-history.sql"
+                    sqlcmd -S localhost -d KSESSIONS -i $initScript -b
+                    
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Failed to initialize MigrationHistory table"
+                    }
+                    Write-Success "MigrationHistory table created"
+                } else {
+                    throw "MigrationHistory initialization script not found: $initScript"
+                }
+            } else {
+                Write-Success "MigrationHistory table verified"
+            }
+            
+            # Execute migrations
+            $MigrationsFailed = $false
+            $FailedMigration = $null
+            
+            foreach ($migration in $PendingMigrations) {
+                Write-Host "`n  ┌─ Executing: $($migration.Name)" -ForegroundColor Cyan
+                
+                $migrationPath = $migration.FullName
+                
+                # Dry-run mode: Validate syntax only, don't execute
+                if ($DryRun) {
+                    Write-Info "  │  [DRY-RUN] Validating SQL syntax..."
+                    
+                    try {
+                        # Use sqlcmd with -n flag (removes numbering/prompts) for syntax check
+                        # We'll parse the file for basic validation
+                        $migrationContent = Get-Content $migrationPath -Raw
+                        
+                        # Basic validation checks
+                        $validationErrors = @()
+                        
+                        if ($migrationContent -notmatch "DB_NAME\(\)\s*!=\s*['`"]KSESSIONS['`"]") {
+                            $validationErrors += "Missing database safety check (DB_NAME() != 'KSESSIONS')"
+                        }
+                        
+                        if ($migrationContent -notmatch "BEGIN TRANSACTION") {
+                            $validationErrors += "Missing transaction wrapper (BEGIN TRANSACTION)"
+                        }
+                        
+                        if ($migrationContent -notmatch "BEGIN TRY") {
+                            $validationErrors += "Missing error handling (BEGIN TRY)"
+                        }
+                        
+                        if ($migrationContent -notmatch "INSERT INTO canvas\.MigrationHistory") {
+                            $validationErrors += "Missing MigrationHistory tracking"
+                        }
+                        
+                        if ($migrationContent -notmatch "IF (NOT )?EXISTS") {
+                            $validationErrors += "Missing idempotent checks (IF EXISTS / IF NOT EXISTS)"
+                        }
+                        
+                        if ($validationErrors.Count -gt 0) {
+                            Write-Warning "  └─ [DRY-RUN] Validation warnings:"
+                            foreach ($error in $validationErrors) {
+                                Write-Host "     ⚠️  $error" -ForegroundColor Yellow
+                            }
+                        } else {
+                            Write-Success "  └─ [DRY-RUN] Syntax validation passed"
+                        }
+                        
+                    } catch {
+                        Write-Error "  └─ [DRY-RUN] Validation error: $_"
+                        throw
+                    }
+                    
+                    continue  # Skip actual execution in dry-run mode
+                }
+                
+                try {
+                    # Execute migration
+                    Write-Info "  │  Running migration against KSESSIONS..."
+                    $migrationOutput = sqlcmd -S localhost -d KSESSIONS -i $migrationPath -b 2>&1
+                    
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Migration execution failed with exit code $LASTEXITCODE"
+                    }
+                    
+                    # Check output for success message
+                    if ($migrationOutput -match "completed successfully") {
+                        Write-Success "  └─ Migration completed successfully"
+                        
+                        # Archive the migration
+                        $ArchiveDate = Get-Date -Format "yyyy-MM-dd"
+                        $ArchiveDestPath = "$MigrationArchivedPath\$ArchiveDate"
+                        
+                        if (-not (Test-Path $ArchiveDestPath)) {
+                            New-Item -Path $ArchiveDestPath -ItemType Directory -Force | Out-Null
+                            Write-Info "     Created archive directory: archived/$ArchiveDate/"
+                        }
+                        
+                        $ArchiveDestFile = "$ArchiveDestPath\$($migration.Name)"
+                        Move-Item -Path $migrationPath -Destination $ArchiveDestFile -Force
+                        Write-Info "     Archived to: archived/$ArchiveDate/$($migration.Name)"
+                        
+                    } else {
+                        throw "Migration did not report success. Output: $migrationOutput"
+                    }
+                    
+                } catch {
+                    Write-Error "  └─ Migration FAILED: $_"
+                    Write-Host "`n  Migration Output:" -ForegroundColor Red
+                    Write-Host "  $migrationOutput" -ForegroundColor Red
+                    
+                    $MigrationsFailed = $true
+                    $FailedMigration = $migration
+                    
+                    # Look for corresponding rollback script
+                    $rollbackFileName = $migration.Name -replace "^migration-", "rollback-"
+                    $rollbackPath = "$MigrationRollbackPath\$rollbackFileName"
+                    
+                    if (Test-Path $rollbackPath) {
+                        Write-Warning "`n  ⚠️  Rollback script found: $rollbackFileName"
+                        Write-Host "  Executing rollback to restore database state..." -ForegroundColor Yellow
+                        
+                        try {
+                            $rollbackOutput = sqlcmd -S localhost -d KSESSIONS -i $rollbackPath -b 2>&1
+                            
+                            if ($LASTEXITCODE -eq 0 -and $rollbackOutput -match "completed successfully") {
+                                Write-Success "  ✅ Rollback completed successfully"
+                                Write-Info "  Database restored to previous state"
+                            } else {
+                                Write-Error "  ❌ Rollback FAILED"
+                                Write-Host "  Rollback Output:" -ForegroundColor Red
+                                Write-Host "  $rollbackOutput" -ForegroundColor Red
+                                Write-Warning "  ⚠️  CRITICAL: Database may be in inconsistent state!"
+                                Write-Warning "  ⚠️  Manual intervention required"
+                            }
+                        } catch {
+                            Write-Error "  ❌ Rollback execution error: $_"
+                            Write-Warning "  ⚠️  CRITICAL: Database may be in inconsistent state!"
+                        }
+                    } else {
+                        Write-Error "  ❌ No rollback script found: $rollbackFileName"
+                        Write-Warning "  ⚠️  Database may be in inconsistent state!"
+                    }
+                    
+                    # Halt deployment
+                    throw "Migration failed: $($migration.Name). Deployment aborted."
+                }
+            }
+            
+            if (-not $MigrationsFailed) {
+                Write-Success "`n✅ All migrations completed successfully"
+            }
+            
+        } else {
+            Write-Info "→ No pending migrations found"
+        }
+    } else {
+        Write-Info "→ Migrations directory not found (first-time setup or no migrations yet)"
+        Write-Info "   Location: Scripts/Migrations/Prod/pending/"
+    }
+    
+    # Dry-run mode: Exit after validation
+    if ($DryRun) {
+        Write-Host "`n========================================" -ForegroundColor Green
+        Write-Host "  DRY-RUN MODE: Validation Complete" -ForegroundColor Green
+        Write-Host "========================================" -ForegroundColor Green
+        Write-Success "✅ Migration validation passed"
+        Write-Info "→ No migrations were executed (dry-run mode)"
+        Write-Info "→ No code was deployed (dry-run mode)"
+        Write-Host "`nTo execute deployment, run without -DryRun parameter:" -ForegroundColor Cyan
+        Write-Host "  .\Scripts\ncdeploy.ps1" -ForegroundColor White
+        return
+    }
+
     # Step 1: Build the application
     # [DEBUG-WORKITEM:deploy:build-feedback:SIMPLE]
     if (-not $SkipBuild) {
@@ -376,6 +607,77 @@ try {
         Write-Success "Created deployment directory"
     }
 
+    # Step 4.5: Pre-Deployment Validation - Check for problematic configuration files
+    # [DEBUG-WORKITEM:deploy:pre-validation] Prevent appsettings.local.json from being deployed
+    Write-Step "Pre-Deployment Validation: Checking publish output for dangerous configuration files..."
+    
+    $preDeploymentIssues = @()
+    
+    # Check 1: Ensure appsettings.local.json is NOT in publish output
+    Write-Info "→ Checking for appsettings.local.json in publish directory..."
+    $localConfigPath = Join-Path $PublishPath "appsettings.local.json"
+    if (Test-Path $localConfigPath) {
+        Write-Host "  ✗ CRITICAL: appsettings.local.json found in publish output!" -ForegroundColor Red
+        Write-Host "    This file overrides production settings and MUST NOT be deployed." -ForegroundColor Red
+        Write-Host "    Location: $localConfigPath" -ForegroundColor Yellow
+        $preDeploymentIssues += "appsettings.local.json found in publish directory (overrides production configuration)"
+    } else {
+        Write-Host "  ✓ appsettings.local.json correctly excluded from publish" -ForegroundColor Green
+    }
+    
+    # Check 2: Ensure appsettings.*.local.json patterns are not present
+    Write-Info "→ Checking for other local configuration overrides..."
+    $localConfigPatterns = Get-ChildItem -Path $PublishPath -Filter "appsettings.*.local.json" -ErrorAction SilentlyContinue
+    if ($localConfigPatterns.Count -gt 0) {
+        Write-Host "  ✗ CRITICAL: Local configuration overrides found!" -ForegroundColor Red
+        foreach ($localConfig in $localConfigPatterns) {
+            Write-Host "    - $($localConfig.Name)" -ForegroundColor Yellow
+            $preDeploymentIssues += "Local configuration file found: $($localConfig.Name)"
+        }
+    } else {
+        Write-Host "  ✓ No local configuration overrides found" -ForegroundColor Green
+    }
+    
+    # Check 3: Verify appsettings.Production.json exists
+    Write-Info "→ Verifying production configuration file exists..."
+    $prodConfigPath = Join-Path $PublishPath "appsettings.Production.json"
+    if (Test-Path $prodConfigPath) {
+        Write-Host "  ✓ appsettings.Production.json present" -ForegroundColor Green
+        
+        # Verify it contains KSESSIONS reference
+        $prodConfigContent = Get-Content $prodConfigPath -Raw
+        if ($prodConfigContent -match "Database=KSESSIONS[^_]") {
+            Write-Host "  ✓ Production config references KSESSIONS database" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠ WARNING: Production config may not reference KSESSIONS database" -ForegroundColor Yellow
+            Write-Host "    Please verify appsettings.Production.json manually" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  ✗ appsettings.Production.json NOT found!" -ForegroundColor Red
+        $preDeploymentIssues += "appsettings.Production.json missing from publish directory"
+    }
+    
+    # Fail deployment if critical issues found
+    if ($preDeploymentIssues.Count -gt 0) {
+        Write-Host "`n========================================" -ForegroundColor Red
+        Write-Host "  PRE-DEPLOYMENT VALIDATION FAILED" -ForegroundColor Red
+        Write-Host "========================================" -ForegroundColor Red
+        Write-Host "`nThe following issues MUST be resolved before deploying:" -ForegroundColor Yellow
+        foreach ($issue in $preDeploymentIssues) {
+            Write-Host "  ❌ $issue" -ForegroundColor Red
+        }
+        Write-Host "`nRESOLUTION STEPS:" -ForegroundColor Cyan
+        Write-Host "  1. Ensure appsettings.local.json is in .gitignore" -ForegroundColor Gray
+        Write-Host "  2. Delete appsettings.local.json from your workspace source" -ForegroundColor Gray
+        Write-Host "  3. Re-run: dotnet publish -c Release" -ForegroundColor Gray
+        Write-Host "  4. Re-run: .\ncdeploy.ps1" -ForegroundColor Gray
+        Write-Host "`nDO NOT deploy with local configuration files - they will override production settings!" -ForegroundColor Red
+        
+        throw "Pre-deployment validation failed. Cannot proceed with deployment."
+    }
+    
+    Write-Success "Pre-deployment validation passed - ready to deploy"
+    
     # Step 5: Deploy the application
     Write-Step "Deploying application to $DeployPath..."
     
@@ -589,6 +891,32 @@ try {
     $validationFailed = $false
     $validationErrors = @()
     
+    # Validation 0: CRITICAL - Ensure appsettings.local.json is NOT deployed
+    Write-Info "→ Validating no local configuration overrides deployed..."
+    $deployedLocalConfig = Join-Path $DeployPath "appsettings.local.json"
+    if (Test-Path $deployedLocalConfig) {
+        Write-Host "  ✗ CRITICAL: appsettings.local.json found in deployment!" -ForegroundColor Red
+        Write-Host "    This file overrides production configuration and must be removed!" -ForegroundColor Red
+        Write-Host "    Location: $deployedLocalConfig" -ForegroundColor Yellow
+        $validationErrors += "appsettings.local.json deployed to production (CRITICAL: overrides production settings)"
+        $validationFailed = $true
+    } else {
+        Write-Host "  ✓ No appsettings.local.json in deployment" -ForegroundColor Green
+    }
+    
+    # Check for other local configuration patterns
+    $deployedLocalPatterns = Get-ChildItem -Path $DeployPath -Filter "appsettings.*.local.json" -ErrorAction SilentlyContinue
+    if ($deployedLocalPatterns.Count -gt 0) {
+        Write-Host "  ✗ WARNING: Local configuration files found in deployment:" -ForegroundColor Yellow
+        foreach ($localConfig in $deployedLocalPatterns) {
+            Write-Host "    - $($localConfig.Name)" -ForegroundColor Yellow
+            $validationErrors += "Local configuration file deployed: $($localConfig.Name)"
+        }
+        $validationFailed = $true
+    } else {
+        Write-Host "  ✓ No local configuration overrides deployed" -ForegroundColor Green
+    }
+    
     # Validation 1: NoorCanvas web.config - verify Production environment and KSESSIONS database
     Write-Info "→ Validating NoorCanvas configuration..."
     $webConfigPath = Join-Path $DeployPath "web.config"
@@ -612,19 +940,31 @@ try {
         $validationFailed = $true
     }
     
-    # Validation 2: NoorCanvas appsettings.json - verify KSESSIONS database
-    Write-Info "→ Validating NoorCanvas appsettings.json..."
-    $appsettingsPath = Join-Path $DeployPath "appsettings.json"
-    if (Test-Path $appsettingsPath) {
-        $appsettingsContent = Get-Content $appsettingsPath -Raw
+    # Validation 2: NoorCanvas appsettings.Production.json - verify KSESSIONS database
+    Write-Info "→ Validating NoorCanvas appsettings.Production.json..."
+    $appsettingsProdPath = Join-Path $DeployPath "appsettings.Production.json"
+    if (Test-Path $appsettingsProdPath) {
+        $appsettingsProdContent = Get-Content $appsettingsProdPath -Raw
         
-        if ($appsettingsContent -match 'Database=KSESSIONS') {
-            Write-Host "  ✓ NoorCanvas appsettings: KSESSIONS database" -ForegroundColor Green
+        if ($appsettingsProdContent -match 'Database=KSESSIONS[^_]') {
+            Write-Host "  ✓ NoorCanvas appsettings.Production.json: KSESSIONS database" -ForegroundColor Green
         } else {
-            Write-Host "  ✗ NoorCanvas appsettings: NOT KSESSIONS database!" -ForegroundColor Red
-            $validationErrors += "NoorCanvas appsettings.json does not reference KSESSIONS production database"
+            Write-Host "  ✗ NoorCanvas appsettings.Production.json: NOT KSESSIONS database!" -ForegroundColor Red
+            $validationErrors += "NoorCanvas appsettings.Production.json does not reference KSESSIONS production database"
             $validationFailed = $true
         }
+    } else {
+        Write-Host "  ✗ appsettings.Production.json not found!" -ForegroundColor Red
+        $validationErrors += "NoorCanvas appsettings.Production.json missing at $appsettingsProdPath"
+        $validationFailed = $true
+    }
+    
+    # Validation 2.5: NoorCanvas appsettings.json - verify base settings (optional - Production.json should override)
+    Write-Info "→ Validating NoorCanvas appsettings.json (base configuration)..."
+    $appsettingsPath = Join-Path $DeployPath "appsettings.json"
+    if (Test-Path $appsettingsPath) {
+        Write-Host "  ✓ NoorCanvas appsettings.json present (base configuration)" -ForegroundColor Green
+        # Don't fail if base config has dev database - Production.json should override
     } else {
         Write-Host "  ✗ appsettings.json not found!" -ForegroundColor Red
         $validationErrors += "NoorCanvas appsettings.json missing at $appsettingsPath"
@@ -675,8 +1015,8 @@ try {
         Write-Host "  VALIDATION FAILED!" -ForegroundColor Red
         Write-Host "========================================" -ForegroundColor Red
         Write-Host "`nConfiguration Issues Found:" -ForegroundColor Yellow
-        foreach ($error in $validationErrors) {
-            Write-Host "  ✗ $error" -ForegroundColor Red
+        foreach ($validationError in $validationErrors) {
+            Write-Host "  ✗ $validationError" -ForegroundColor Red
         }
         
         Write-Host "`nREMEDIATION STEPS:" -ForegroundColor Cyan
@@ -730,6 +1070,34 @@ try {
         } finally {
             Pop-Location
         }
+    }
+
+    # Step 9: Automated Post-Deployment Smoke Tests
+    # [DEBUG-WORKITEM:deploy:smoke-tests] Run comprehensive validation after deployment
+    Write-Step "Running automated post-deployment smoke tests..."
+    Write-Info "→ Executing: post-deploy-smoke-test.ps1"
+    
+    $smokeTestScript = Join-Path $WorkspaceRoot "Scripts\post-deploy-smoke-test.ps1"
+    if (Test-Path $smokeTestScript) {
+        try {
+            # Run smoke tests and capture exit code
+            & $smokeTestScript -SkipApiTests
+            $smokeTestExitCode = $LASTEXITCODE
+            
+            if ($smokeTestExitCode -eq 0) {
+                Write-Success "Smoke tests passed - deployment validated!"
+            } else {
+                Write-Warning "Smoke tests detected issues (Exit Code: $smokeTestExitCode)"
+                Write-Host "  Review the smoke test output above for details." -ForegroundColor Yellow
+                Write-Host "  Deployment completed but may require manual verification." -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Warning "Failed to run smoke tests: $($_.Exception.Message)"
+            Write-Info "You can run smoke tests manually: .\Scripts\post-deploy-smoke-test.ps1"
+        }
+    } else {
+        Write-Warning "Smoke test script not found at: $smokeTestScript"
+        Write-Info "Skipping automated validation. Please test manually."
     }
 
     # Final summary

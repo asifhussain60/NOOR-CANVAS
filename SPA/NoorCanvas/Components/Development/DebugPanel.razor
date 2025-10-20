@@ -51,9 +51,14 @@
                     {
                         @foreach (var action in DebugActions)
                         {
+                            @* [DEBUG-WORKITEM:canvas-landings:simple] Red styling for "Clear Local Storage" button ;CLEANUP_OK *@
+                            var buttonClass = action.Name == "Clear Local Storage" 
+                                ? "w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm"
+                                : "w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm";
+                            
                             <button @onclick="@(() => HandleDebugAction(action))" 
                                     disabled="@(_isProcessing || !action.IsEnabled)"
-                                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm"
+                                    class="@buttonClass"
                                     title="@action.Description">
                                 @if (_isProcessing && _currentAction == action)
                                 {

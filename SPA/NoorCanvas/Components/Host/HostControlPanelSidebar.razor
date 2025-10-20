@@ -66,7 +66,10 @@ else
             <!-- User Registration Link Display -->
             @if (!string.IsNullOrEmpty(UserToken))
             {
-                <UserRegistrationLink UserToken="@UserToken" BaseUrl="@Navigation.BaseUri.TrimEnd('/')" />
+                @* [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Pass OnCanvasSelected event to parent ;CLEANUP_OK *@
+                <UserRegistrationLink UserToken="@UserToken" 
+                                     BaseUrl="@Navigation.BaseUri.TrimEnd('/')" 
+                                     OnCanvasSelected="@OnCanvasSelected" />
             }
             
             @* [DEBUG-WORKITEM:hcp-unify:layout] Single centered Start Session button (65% width) ;CLEANUP_OK *@
@@ -94,6 +97,8 @@ else
     [Parameter] public string? UserToken { get; set; }
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public EventCallback OnStartSession { get; set; }
+    @* [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Canvas selection callback to parent ;CLEANUP_OK *@
+    [Parameter] public EventCallback<string> OnCanvasSelected { get; set; }
     @* [DEBUG-WORKITEM:hcp-unify:cleanup] Removed OnShareTranscript parameter ;CLEANUP_OK *@
     [Parameter] public Func<string> OnGetSignalRStatusColor { get; set; } = () => "#EF4444";
     [Parameter] public Func<string> OnGetSignalRStatusIcon { get; set; } = () => "fa-solid fa-wifi";

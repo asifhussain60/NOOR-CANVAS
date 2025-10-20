@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "version": "1.0",
+    "lastUpdated": "2025-10-20T00:00:00Z",
+    "tests": [
+        {
+            "id": "userlanding-registration-guard",
+            "key": "userlanding",
+            "file": "Tests/UI/phase1-session-waiting-guard.spec.ts",
+            "feature": "Registration Guard",
+            "description": "Validates participant registration before allowing session access",
+            "scenarios": [
+                "Redirects unregistered users to landing page",
+                "Allows registered users to access session",
+                "Checks sessionStorage bypass flag"
+            ],
+            "reusable": true,
+            "tags": [
+                "authentication",
+                "authorization",
+                "registration",
+                "guard"
+            ],
+            "similarityHash": "registration-guard-sessionStorage-redirect",
+            "created": "2025-10-19T11:30:00Z",
+            "lastUsed": "2025-10-19T11:30:00Z",
+            "usageCount": 1,
+            "complexity": "medium",
+            "dependencies": [
+                "sessionStorage",
+                "navigation"
+            ]
+        },
+        {
+            "id": "hcp-debug-panel-toggle",
+            "key": "hcp",
+            "file": "Tests/UI/hcp-debug-panel-basic.spec.ts",
+            "feature": "Debug Panel Toggle",
+            "description": "Tests debug panel visibility toggle functionality",
+            "scenarios": [
+                "Opens debug panel on button click",
+                "Closes debug panel",
+                "Persists panel state"
+            ],
+            "reusable": true,
+            "tags": [
+                "debug",
+                "ui",
+                "toggle",
+                "panel"
+            ],
+            "similarityHash": "debug-panel-toggle-visibility-state",
+            "created": "2025-10-18T10:00:00Z",
+            "lastUsed": "2025-10-18T10:00:00Z",
+            "usageCount": 1,
+            "complexity": "low",
+            "dependencies": [
+                "localStorage"
+            ]
+        }
+    ],
+    "metadata": {
+        "totalTests": 2,
+        "reusableTests": 2,
+        "averageSimilarityThreshold": 0.75,
+        "lastValidation": "2025-10-20T00:00:00Z"
+    }
+}

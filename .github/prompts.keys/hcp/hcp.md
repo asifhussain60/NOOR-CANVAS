@@ -5,12 +5,47 @@
 - **Component**: Host Control Panel
 - **Status**: In Progress
 - **Created**: 2025-10-15
-- **Last Updated**: 2025-10-19
+- **Last Updated**: 2025-10-20
 
 ## Overview
 Tracks improvements and fixes for the Host Control Panel, which manages session control, participant questions, and canvas sharing for session hosts.
 
 ## Work Log
+
+### User Request (2025-10-20T00:00:00Z)
+Implement sticky button behavior for Participant Links panel - clicked button shows pressed state, tracks canvas selection flag, copies link to clipboard. Only one button pressed at a time. StartSession routes participants to selected canvas (SessionCanvas or TranscriptCanvas) based on flag.
+
+**High-Priority Constraints**: None
+
+### Work Completed (2025-10-20T00:15:00Z)
+- **Status**: Complete
+- **Changes**:
+  - Added sticky button state to UserRegistrationLink.razor with pressed/unpressed styling (blue pressed state with inset shadow, light blue unpressed)
+  - Added canvas selection flag (selectedCanvas: "asset" or "transcript") with mutual exclusivity - only one button pressed at a time
+  - Button styling updates on click: pressed button shows darker blue background (#3B82F6), white text, 2px border, inset shadow
+  - Unpressed button shows light blue background (#EFF6FF), royal blue text (#4169E1), 1px border
+  - Success state (green) shows for 2 seconds after copying link to clipboard
+  - Added OnCanvasSelected EventCallback to notify parent component of canvas selection
+  - Updated HostControlPanelSidebar to pass OnCanvasSelected event through to parent
+  - Added selectedCanvasType tracking in HostControlPanel.razor (defaults to "asset")
+  - Added HandleCanvasSelected method to capture canvas selection from child components
+  - Updated StartSession API call to pass canvasType query parameter (?canvasType=asset or ?canvasType=transcript)
+  - Modified HostController.cs StartSession endpoint to accept canvasType parameter (default: "asset")
+  - Enhanced SessionBegan SignalR broadcast to include canvasType field for participant routing
+  - Updated SessionWaiting.razor to parse canvasType from SessionBegan event and route participants accordingly:
+    - canvasType="asset" → /session/canvas/{token} (SessionCanvas)
+    - canvasType="transcript" → /transcript/canvas/{token} (TranscriptCanvas)
+  - Added error handling with fallback to asset canvas if canvasType parsing fails
+- **Files Affected**:
+  - SPA/NoorCanvas/Components/Host/UserRegistrationLink.razor - Sticky button state, canvas selection tracking
+  - SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor - OnCanvasSelected event pass-through
+  - SPA/NoorCanvas/Pages/HostControlPanel.razor - Canvas selection tracking, API parameter
+  - SPA/NoorCanvas/Controllers/HostController.cs - canvasType parameter, SessionBegan enhancement
+  - SPA/NoorCanvas/Pages/SessionWaiting.razor - Conditional routing based on canvasType
+- **Build**: Clean (0 errors, 0 warnings)
+- **Lint Validation**: PASS (no new errors in modified files, pre-existing warnings unrelated)
+- **Debug Level**: simple
+- **Commit**: 9e7e4836ef93189954bf77887d8d3174ec6f0968
 
 ### User Request (2025-10-19T15:30:00Z)
 Move the timer (just hours and minutes) to the right of the user questions text (align right). Change "User Questions" to "Questions". Replace icon with a large question mark in a circle. The timer should work and start counting. It should count up minutes and seconds until it reaches 60 minutes and then switch to hour:minute format.

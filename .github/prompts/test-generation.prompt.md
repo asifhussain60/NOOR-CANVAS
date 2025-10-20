@@ -1,11 +1,159 @@
 ---
 mode: agent
-purpose: Generate Playwright end-to-end tests for user-facing functionality
-inputs: feature, scenario, endpoints, tokens, key
-outputs: TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)
+description: Generate Playwright end-to-end tests (functional and visual) with orchestration, browser-log guards, and key-scoped placement.
 ---
 
 # Test Generation Agent
+
+## Initial Validation (MANDATORY)
+
+### Step 0: Key Folder Existence Validation
+
+**Trigger:** ALWAYS when invoked
+
+**Purpose:** Verify key data stream infrastructure exists before generating tests
+
+**Validation:**
+
+1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
+   - If NOT exists → HALT immediately
+   - Error message to user:
+     ```
+     ❌ ERROR: Key folder does not exist
+     
+     Key: {key}
+     Expected path: .github/prompts.keys/{key}/
+     
+     Test generation requires an initialized key data stream.
+     
+     REQUIRED ACTION:
+     1. Run planning agent first:
+        @workspace /plan key={key} user_request="{your requirements}"
+     
+     2. After planning, run task agent:
+        @workspace /task key={key} tasks="..."
+     
+     3. Task agent will invoke test-generation automatically when needed
+     
+     Tests cannot be generated without a valid key infrastructure.
+     The planning agent creates the folder structure and comprehensive plan.
+     The task agent delegates to test-generation during Step 6.1 (UI changes).
+     ```
+   - **EXIT with status code 1**
+
+2. **Check if test directory exists**: `.github/prompts.keys/{key}/tests/`
+   - If NOT exists → Create it automatically
+   - Log: `"Created test directory: .github/prompts.keys/{key}/tests/"`
+
+3. **Check if scripts directory exists**: `.github/prompts.keys/{key}/scripts/`
+   - If NOT exists → Create it automatically
+   - Log: `"Created scripts directory: .github/prompts.keys/{key}/scripts/"`
+
+4. **Check if test registry exists**: `.github/prompts.keys/{key}/tests/test-registry.md`
+   - If NOT exists → Create it using template (see Test Registry Protocol below)
+   - If exists → Load for deduplication check
+
+**Output:**
+- **Concise:** `"✓ Key infrastructure validated"`
+- **Detailed:**
+  ```
+  ✓ Key Infrastructure Validation
+  
+  Key: {key}
+  Key Folder: EXISTS
+  Test Directory: {CREATED | EXISTS}
+  Scripts Directory: {CREATED | EXISTS}
+  Test Registry: {CREATED | EXISTS}
+  
+  Ready for test generation.
+  ```
+
+---
+
+### Step 0.1: Branch Verification (MANDATORY)
+
+⚠️ **ALWAYS verify you're in the correct branch before generating any tests.**
+
+**Branch Strategy:**
+- **`master`** - Production only (PROTECTED - deploy target)
+- **`development`** - ALL development work (DEFAULT)
+
+**Verification:**
+```bash
+git branch --show-current
+# Expected: development
+```
+
+**If on wrong branch:**
+```bash
+git checkout development
+```
+
+**Enforcement:**
+- ⚠️ **ABORT** test generation if on `master` branch
+- ✅ **PROCEED** only if on `development` branch
+- Error message if on master:
+  ```
+  ❌ ERROR: Cannot generate tests on master branch
+  
+  Current branch: master
+  Required branch: development
+  
+  The master branch is PROTECTED and only receives tested merges from development.
+  All test generation must occur in the development branch.
+  
+  REQUIRED ACTION:
+  git checkout development
+  
+  Then re-run test generation command.
+  
+  See: SelfAwareness.instructions.md - Branch Strategy section
+  ```
+
+**See:** `SelfAwareness.instructions.md` - Branch Strategy section
+
+**Output:**
+- **Concise:** `"✓ Branch verified: development"`
+- **Detailed:**
+  ```
+  ✓ Branch Verification
+  
+  Current Branch: development
+  Target Branch: development (from plan or default)
+  Status: MATCH
+  
+  Proceeding with test generation.
+  ```
+
+---
+
+## Plan Integration Protocol
+
+**WHEN invoked with `key` parameter:**
+
+1. **Check for test specification in plan**: `.github/prompts.keys/{key}/{key}.plan.md`
+2. **If plan exists:**
+   - Locate current phase's "Playwright Test Specification" section
+   - Use specified test scenarios (already defined by plan)
+   - Use specified logging behavior, selector strategy
+   - Use specified mode (headed/headless), Percy requirements
+   - Use specified orchestration script template (if provided)
+   - Generate test matching plan's exact specifications
+   - Update test registry at `.github/prompts.keys/{key}/tests/test-registry.md`
+   - Check for duplicate tests before generation
+3. **If plan missing:**
+   - Use current test-generation.prompt.md behavior (infer from parameters)
+   - Warn: "⚠️ No test specification found in plan. Generating based on parameters."
+   - Generate test using decision matrix and canonical patterns
+
+**Benefits:**
+- ✅ Tests match approved plan specifications
+- ✅ Consistent test coverage across phases
+- ✅ No duplication (test registry prevents re-creation)
+- ✅ Technology-aware test generation (plan provides framework context)
+- ✅ Pre-validated test data (Session 212 from plan's System Context Pack)
+
+---
 
 ## Role
 You are the **Test Generation Agent** responsible for creating Playwright end-to-end tests following canonical patterns and proven test data.
@@ -146,12 +294,58 @@ finally {
 - **Tokens**: Host=`PQ9N5YWW`, User=`KJAHA99L` (Peter Parker)
 
 ### 3. Input Parameters
-Receive from task.prompt.md:
+Receive from task.prompt.md or plan.prompt.md:
+- `key`: Key name for directory structure (MANDATORY)
 - `feature`: Name of feature being tested (e.g., "debug-panel-islamic-questions")
 - `scenario`: Specific test scenario (e.g., "random-question-broadcast")
 - `endpoints`: API endpoints involved (e.g., `/api/Question/Submit`)
 - `tokens`: Override defaults if needed (default: Session 212 tokens)
 - `multiUser`: Boolean indicating multi-browser test requirement
+- `testType`: "functional" | "visual" | "both" (determines test generation approach)
+- `phase`: Phase number (if from plan) - used for test registry tracking
+
+## Orchestration Script Generation
+
+**WHEN plan exists:**
+
+1. **Load orchestration script specification** from `.github/prompts.keys/{key}/{key}.plan.md`
+   - Locate current phase's "Orchestration Script Specification" section
+   - Use plan's customized PowerShell template (already tailored for phase requirements)
+
+2. **Generate script** at `.github/prompts.keys/{key}/scripts/run-{feature}-phase{N}-test.ps1`
+   - Use plan's template as base
+   - Customize test file path to match generated test
+   - Customize health check URL if specified
+   - Apply plan's environment variable requirements
+
+3. **Update test registry** with script location
+
+**WHEN plan missing:**
+
+1. **Use canonical template** from `.github/prompts/shared/test-orchestration-patterns.md`
+2. **Generate generic orchestration script** with standard health check
+3. **Save to** `.github/prompts.keys/{key}/scripts/run-{key}-{feature}-test.ps1`
+4. **Document in test registry**
+
+**Script Naming Convention:**
+- **With plan**: `run-{key}-phase{N}-{feature}-test.ps1`
+- **Without plan**: `run-{key}-{feature}-test.ps1`
+
+**Example** (with plan):
+```powershell
+# .github/prompts/keys/userlanding/scripts/run-userlanding-phase1-guard-test.ps1
+# Generated from plan orchestration template for Phase 1
+# ... (plan's customized template) ...
+```
+
+**Example** (without plan):
+```powershell
+# .github/prompts/keys/canvas/scripts/run-canvas-share-button-test.ps1
+# Generated using canonical orchestration template
+# ... (standard template) ...
+```
+
+---
 
 ## Test Generation Rules
 
@@ -191,6 +385,348 @@ Receive from task.prompt.md:
 - Component library development
 - Pre-commit validation (class naming, property conflicts)
 
+**When to generate Migration Validation Tests (SQL + Playwright):**
+- Database schema changes (ALTER TABLE, CREATE INDEX, etc.)
+- Production migration scripts created in Scripts/Migrations/Prod/pending/
+- Migration rollback verification
+- MigrationHistory table integrity checks
+- Migration idempotency validation (multiple execution safety)
+- Post-migration data validation (constraints, defaults, indexes)
+
+---
+
+### Migration Validation Test Generation
+
+**Trigger**: When task agent generates production migration scripts (Step 5d)
+
+**Purpose**: Validate migration syntax, execution safety, rollback functionality, and data integrity
+
+**Database Configuration:**
+- **SQL Server Instance**: `AHHOME`
+- **Production Database**: `KSESSIONS`
+- **Development Database**: `KSESSIONS_DEV`
+- **Connection String Format**: `sqlcmd -S AHHOME -d {DATABASE_NAME} -E`
+- **Authentication**: Windows Authentication (Trusted Connection)
+
+**CRITICAL**: All migration validation tests execute against `KSESSIONS_DEV` only (NEVER production).
+
+**Test Types:**
+
+#### 1. SQL Syntax Validation Test
+- Parse migration SQL files for syntax errors
+- Validate idempotent checks (IF NOT EXISTS / IF EXISTS)
+- Verify transaction wrappers (BEGIN TRANSACTION / COMMIT / CATCH)
+- Check MigrationHistory tracking statements
+- Validate database name safety checks (DB_NAME() = 'KSESSIONS')
+
+#### 2. Migration Execution Simulation Test
+- Execute migration against KSESSIONS_DEV (not production)
+- Verify schema changes applied correctly
+- Validate MigrationHistory record created
+- Check data integrity (constraints, defaults, indexes)
+- Verify rollback script reverses changes
+- Validate MigrationHistory updated on rollback
+
+#### 3. Idempotency Test
+- Execute migration twice in sequence
+- First run: Should apply changes
+- Second run: Should skip (already applied check)
+- Verify no errors on re-execution
+- Validate MigrationHistory has single entry
+
+**File Naming Convention:**
+```
+migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
+```
+
+**Location**: `.github/prompts.keys/{key}/tests/`
+
+**Example File**: `migration-20251020-143000-user-landing-add-canvastype-validation.spec.ts`
+
+**Test Template:**
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { execSync } from 'child_process';
+import * as fs from 'fs';
+
+test.describe('Migration Validation: {migration-description}', () => {
+  const migrationId = '{YYYYMMDD-HHMMSS}';
+  const migrationFile = 'Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql';
+  const rollbackFile = 'Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql';
+
+  test('SQL syntax validation', () => {
+    // Verify migration file exists
+    expect(fs.existsSync(migrationFile)).toBe(true);
+    
+    // Read migration content
+    const migrationSql = fs.readFileSync(migrationFile, 'utf-8');
+    
+    // Validate required safety checks
+    expect(migrationSql).toContain("DB_NAME() != 'KSESSIONS'");
+    expect(migrationSql).toContain('BEGIN TRANSACTION');
+    expect(migrationSql).toContain('COMMIT TRANSACTION');
+    expect(migrationSql).toContain('BEGIN TRY');
+    expect(migrationSql).toContain('BEGIN CATCH');
+    
+    // Validate idempotent checks (IF NOT EXISTS for forward migration)
+    expect(migrationSql).toContain('IF NOT EXISTS');
+    
+    // Validate MigrationHistory tracking
+    expect(migrationSql).toContain('INSERT INTO canvas.MigrationHistory');
+    expect(migrationSql).toContain(`MigrationId = '${migrationId}'`);
+  });
+
+  test('Rollback script validation', () => {
+    // Verify rollback file exists
+    expect(fs.existsSync(rollbackFile)).toBe(true);
+    
+    // Read rollback content
+    const rollbackSql = fs.readFileSync(rollbackFile, 'utf-8');
+    
+    // Validate required safety checks
+    expect(rollbackSql).toContain("DB_NAME() != 'KSESSIONS'");
+    expect(rollbackSql).toContain('BEGIN TRANSACTION');
+    expect(rollbackSql).toContain('COMMIT TRANSACTION');
+    
+    // Validate idempotent checks (IF EXISTS for rollback)
+    expect(rollbackSql).toContain('IF EXISTS');
+    
+    // Validate MigrationHistory update
+    expect(rollbackSql).toContain('UPDATE canvas.MigrationHistory');
+    expect(rollbackSql).toContain('RolledBackAt');
+    expect(rollbackSql).toContain(`MigrationId = '${migrationId}'`);
+  });
+
+  test('Migration execution simulation (KSESSIONS_DEV)', () => {
+    try {
+      // Execute migration against KSESSIONS_DEV (not production)
+      const migrationOutput = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      
+      // Verify success message
+      expect(migrationOutput).toContain('Migration');
+      expect(migrationOutput).toContain('completed successfully');
+      
+      // Verify MigrationHistory record created
+      const historyCheck = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(historyCheck)).toBe(1);
+      
+      // Verify schema changes applied (example: check column exists)
+      // Customize this query based on your specific migration
+      const schemaCheck = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(schemaCheck)).toBe(1);
+      
+    } catch (error: any) {
+      console.error('Migration execution failed:', error.message);
+      throw error;
+    }
+  });
+
+  test('Rollback execution validation (KSESSIONS_DEV)', () => {
+    try {
+      // Execute rollback against KSESSIONS_DEV
+      const rollbackOutput = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${rollbackFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      
+      // Verify success message
+      expect(rollbackOutput).toContain('Rollback');
+      expect(rollbackOutput).toContain('completed successfully');
+      
+      // Verify MigrationHistory updated with rollback timestamp
+      const historyCheck = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}' AND RolledBackAt IS NOT NULL" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(historyCheck)).toBe(1);
+      
+      // Verify schema changes reversed (example: check column removed)
+      const schemaCheck = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(schemaCheck)).toBe(0);
+      
+    } catch (error: any) {
+      console.error('Rollback execution failed:', error.message);
+      throw error;
+    }
+  });
+
+  test('Idempotency validation', () => {
+    try {
+      // First execution (should apply changes)
+      const firstRun = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      expect(firstRun).toContain('completed successfully');
+      
+      // Second execution (should skip - already applied)
+      const secondRun = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        { encoding: 'utf-8' }
+      );
+      expect(secondRun).toContain('already applied - skipping');
+      
+      // Verify only one MigrationHistory entry exists
+      const historyCount = execSync(
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        { encoding: 'utf-8' }
+      ).trim();
+      
+      expect(parseInt(historyCount)).toBe(1);
+      
+    } catch (error: any) {
+      console.error('Idempotency test failed:', error.message);
+      throw error;
+    }
+  });
+});
+```
+
+**Orchestration Script for Migration Tests:**
+
+Location: `.github/prompts.keys/{key}/scripts/run-migration-{timestamp}-validation-test.ps1`
+
+```powershell
+# ============================================================================
+# Migration Validation Test Orchestration Script
+# ============================================================================
+# Migration: {YYYYMMDD-HHMMSS} - {description}
+# Key: {key}
+# Created: {ISO-8601-timestamp}
+# ============================================================================
+
+param(
+    [switch]$KeepAppRunning = $false,
+    [switch]$Headed = $false
+)
+
+$ErrorActionPreference = "Stop"
+
+Write-Host "=== Migration Validation Test ===" -ForegroundColor Cyan
+Write-Host "Migration ID: {YYYYMMDD-HHMMSS}" -ForegroundColor Yellow
+Write-Host "Description: {description}" -ForegroundColor Yellow
+Write-Host ""
+
+# Step 1: Verify migration files exist
+Write-Host "[1/4] Verifying migration files..." -ForegroundColor Cyan
+$migrationFile = "Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql"
+$rollbackFile = "Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql"
+
+if (-not (Test-Path $migrationFile)) {
+    Write-Host "❌ Migration file not found: $migrationFile" -ForegroundColor Red
+    exit 1
+}
+
+if (-not (Test-Path $rollbackFile)) {
+    Write-Host "❌ Rollback file not found: $rollbackFile" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "  ✅ Migration files verified" -ForegroundColor Green
+
+# Step 2: Backup KSESSIONS_DEV (optional but recommended)
+Write-Host "[2/4] Creating database backup (optional)..." -ForegroundColor Cyan
+# Add backup logic here if desired
+Write-Host "  ⚠️ Backup skipped (optional step)" -ForegroundColor Yellow
+
+# Step 3: Run migration validation tests
+Write-Host "[3/4] Running migration validation tests..." -ForegroundColor Cyan
+$testFile = ".github/prompts.keys/{key}/tests/migration-{timestamp}-{key}-{description}-validation.spec.ts"
+
+$playwrightArgs = @(
+    "test",
+    $testFile
+)
+
+if ($Headed) {
+    $playwrightArgs += "--headed"
+}
+
+try {
+    npx playwright @playwrightArgs
+    Write-Host "  ✅ Migration validation tests passed" -ForegroundColor Green
+} catch {
+    Write-Host "  ❌ Migration validation tests failed" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    exit 1
+}
+
+# Step 4: Cleanup (rollback KSESSIONS_DEV to clean state)
+Write-Host "[4/4] Cleaning up KSESSIONS_DEV..." -ForegroundColor Cyan
+try {
+    sqlcmd -S AHHOME -d KSESSIONS_DEV -i $rollbackFile -b
+    Write-Host "  ✅ Database cleaned (rollback executed)" -ForegroundColor Green
+} catch {
+    Write-Host "  ⚠️ Cleanup failed (manual rollback may be needed)" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "=== Migration Validation Complete ===" -ForegroundColor Green
+Write-Host "Migration ID: {YYYYMMDD-HHMMSS} is ready for deployment" -ForegroundColor Green
+```
+
+**Test Registry Entry:**
+
+```markdown
+### migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
+- **Created**: {ISO-8601-timestamp}
+- **Type**: Migration Validation (SQL + Playwright)
+- **Scenario**: Validate migration {migration-id} syntax, execution, rollback, and idempotency
+- **Phase**: Phase {N} (from plan)
+- **Status**: Active
+- **Last Run**: N/A (not yet executed)
+- **Orchestration**: scripts/run-migration-{timestamp}-validation-test.ps1
+- **Migration Files**:
+  - Forward: Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql
+  - Rollback: Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql
+```
+
+**When to Generate Migration Tests:**
+
+✅ **ALWAYS generate when**:
+- Task agent creates production migration scripts (Step 5d)
+- Phase plan contains "Production Migration Specification"
+- User explicitly requests migration validation tests
+
+❌ **DO NOT generate when**:
+- Development-only database changes (KSESSIONS_DEV test data)
+- No production migration scripts created
+- Code-only changes (no database impact)
+
+**Critical Rules:**
+
+1. **ALWAYS test against KSESSIONS_DEV** (never production)
+2. **ALWAYS validate both forward + rollback scripts**
+3. **ALWAYS check idempotency** (double execution safety)
+4. **ALWAYS verify MigrationHistory tracking**
+5. **ALWAYS cleanup after test** (execute rollback to restore clean state)
+6. **NEVER skip syntax validation** (even if migration looks simple)
+7. **NEVER commit failing migration tests** (fix migration first)
+
+**See Also:**
+- `Scripts/Migrations/Prod/README.md` - Migration workflow documentation
+- `task.prompt.md` Step 5d - Migration generation protocol
+- `plan.prompt.md` Database Migration Protocol - Detection rules
+
+---
+
 ### File Naming Convention
 ```
 {feature}-{test-type}.spec.ts
@@ -216,6 +752,74 @@ Examples:
   - Test registry prevents duplication
   - Auto-cleanup prevents folder bloat
   - Clear quality gate before production promotion
+
+### Test Registry Deduplication (MANDATORY)
+
+**Before generating any test:**
+
+1. **Check if test registry exists**: `.github/prompts.keys/{key}/tests/test-registry.md`
+   - If missing → Create new registry using template below
+   - If exists → Load and parse for duplicate detection
+
+2. **Search for duplicate scenarios**:
+   - Match by feature + scenario combination
+   - Match by test file name pattern
+   - If exact match found → **Skip generation**, inform user:
+     ```
+     ⚠️ Test already exists for this scenario
+     
+     Existing test: {test-file-name}.spec.ts
+     Created: {timestamp}
+     Last Run: {timestamp} ({PASS|FAIL})
+     
+     Skipping duplicate test generation.
+     ```
+   - If similar match found → Warn user, offer to generate variant
+
+3. **Generate test** (if no duplicates found)
+
+4. **Update test registry** immediately after generation:
+   ```markdown
+   ### {test-file-name}.spec.ts
+   - **Created**: {ISO-8601-timestamp}
+   - **Type**: Functional E2E | Visual Regression (Percy)
+   - **Scenario**: {scenario-description}
+   - **Phase**: Phase {N} (if from plan, otherwise "Ad-hoc")
+   - **Status**: Active
+   - **Last Run**: N/A (not yet executed)
+   - **Orchestration**: scripts/{orchestration-script-name}.ps1
+   ```
+
+5. **Update global test index** (`.github/tests/test-index.json`) for cross-key reuse:
+   - Read existing test-index.json
+   - Generate test metadata:
+     ```json
+     {
+       "id": "{key}-{test-identifier}",
+       "key": "{key}",
+       "file": "Tests/UI/{test-file-name}.spec.ts",
+       "feature": "{primary-feature-name}",
+       "scenarios": ["{scenario-1}", "{scenario-2}"],
+       "tags": ["{tag1}", "{tag2}", "{tag3}"],
+       "similarityHash": "{feature-name}-{primary-tags-concatenated}",
+       "reusable": true|false,
+       "created": "{ISO-8601-timestamp}",
+       "orchestration": "Scripts/{orchestration-script}.ps1"
+     }
+     ```
+   - Append to `tests` array
+   - Update `metadata.totalTests` and `metadata.reusableTests` counters
+   - Write updated test-index.json
+   - **See**: `.github/tests/README.md` for similarity calculation algorithm
+
+**Benefits:**
+- ✅ Prevents duplicate test creation (per-key and global)
+- ✅ Clear test inventory per key (test-registry.md)
+- ✅ Cross-key test discovery and reuse (test-index.json)
+- ✅ Facilitates test cleanup during Step 9 completion
+- ✅ Enables test reuse across phases and keys
+- ✅ Facilitates test cleanup during Step 9 completion
+- ✅ Enables test reuse across phases
 
 **Directory Structure Example:**
 ```
@@ -296,7 +900,11 @@ test.describe('{Feature Name}', () => {
         // const hostContext = await browser.newContext();
         // const hostPage = await hostContext.newPage();
 
-        try {
+    // Collect browser console messages and assert no errors
+    const consoleMessages: { type: string; text: string }[] = [];
+    userPage.on('console', (msg) => consoleMessages.push({ type: msg.type(), text: msg.text() }));
+
+    try {
             // Step 2: Navigate using canonical URLs from PlaywrightTestPaths.MD
             await userPage.goto('https://localhost:9091/session/canvas/KJAHA99L');
             await userPage.waitForLoadState('networkidle');
@@ -317,6 +925,9 @@ test.describe('{Feature Name}', () => {
             // Step 7: Verify API responses match PlaywrightTestPaths.MD patterns
             // ... API validation ...
             
+            // Step 8: Assert no browser console errors occurred during the test
+            const consoleErrors = consoleMessages.filter(m => m.type === 'error');
+            expect(consoleErrors, `Browser console errors detected: ${consoleErrors.map(e => e.text).join('\n')}`).toHaveLength(0);
         } finally {
             // Cleanup
             await userContext.close();
@@ -451,6 +1062,25 @@ expect(criticalErrors).toHaveLength(0);
 
 **Use this template when generating visual regression tests (see Test Type Selection above).**
 
+**Plan Integration:**
+
+**If plan specifies Percy requirement:**
+1. Check plan's "Playwright Test Specification" → Percy: Yes/No
+2. If Percy: Yes:
+   - Use plan's visual change rationale
+   - Capture specified screens/flows from plan
+   - Follow viewport specifications from plan (or default to 375/768/1280)
+   - Use plan's percyCSS hiding rules (if specified)
+3. If Percy: No:
+   - Skip Percy snapshots (functional test only)
+   - Generate functional E2E test instead
+
+**If no plan:**
+1. Use decision matrix (existing logic below)
+2. Infer from change type (CSS/styling → Percy, behavior → functional)
+
+---
+
 ```typescript
 import { test, expect } from '@playwright/test';
 import percySnapshot from '@percy/playwright';
@@ -565,9 +1195,56 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 
 ## Output Format
 
+**CONCISE OUTPUT** (default):
+```markdown
+✅ Test Created: {test-file}.spec.ts
+
+**Test Type**: {Functional E2E | Visual Regression (Percy)}
+**Scenarios**: {X} test scenarios covering {brief-description}
+
+### What Was Created
+- {Brief bullet about test scenario 1}
+- {Brief bullet about test scenario 2}
+- {Brief bullet about test scenario 3}
+
+### Next Steps
+- Run test: `.\Scripts\{script-name}.ps1`
+- View details: `.github/prompts.keys/{key}/tests/test-registry.md`
+```
+
+**RULES:**
+- ✅ YES: Bulleted summary of what test scenarios cover
+- ✅ YES: How to run the test
+- ✅ YES: Link to registry for full specification
+- ❌ NO: Full test code (it's in the file)
+- ❌ NO: File locations (user doesn't care)
+- ❌ NO: Template examples or code blocks
+
+---
+
+## Test Generation Details
+
 Generate complete TypeScript test file, PowerShell orchestration script, AND update test registry:
 
 ### 1. TypeScript Test File (.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts)
+
+**Generation Strategy:**
+
+**A. Plan-Driven Generation** (when {key}.plan.md exists):
+1. Load test specification from plan's current phase
+2. Use plan's test scenarios verbatim
+3. Apply plan's selector strategy, logging behavior
+4. Use plan's test mode (headed/headless)
+5. Apply plan's Percy requirements (if visual test)
+6. Use plan's System Context Pack for test data
+
+**B. Parameter-Driven Generation** (no plan):
+1. Infer test type from `testType` parameter or change analysis
+2. Use decision matrix for test type selection
+3. Apply canonical patterns from templates
+4. Use default Session 212 test data
+
+**File Structure** (both modes):
 1. **File header**: Feature description, prerequisites, references
 2. **Imports**: Playwright test framework
 3. **Test suite**: Descriptive test.describe block
@@ -627,19 +1304,34 @@ finally {
 ```
 
 ### 3. Test Registry Update (.github/prompts.keys/{key}/tests/test-registry.md)
-1. **Create registry** if it doesn't exist (use template above)
-2. **Check for duplicates**: Search registry for existing test with same feature/scenario
-3. **Add new entry** to Active Tests section:
+
+**Deduplication Check (MANDATORY):**
+1. **Load registry** (create if missing using template)
+2. **Search for duplicates**: Match feature + scenario + test type
+3. **If duplicate found**: 
+   - **Skip generation**, inform user
+   - Return existing test details
+4. **If no duplicate**: Proceed with generation
+
+**Add new entry** to Active Tests section:
    ```markdown
    ### {feature}-{test-type}.spec.ts
    - **Created**: {ISO-8601 timestamp}
    - **Type**: {Functional E2E | Visual Regression}
    - **Scenario**: {scenario description}
+   - **Phase**: {Phase N | Ad-hoc} (from plan or standalone)
    - **Status**: Active
    - **Last Run**: N/A (not yet executed)
-   - **Orchestration**: scripts/run-{feature}-test.ps1
+   - **Orchestration**: scripts/run-{orchestration-script-name}.ps1
+   - **Plan Reference**: {key}.plan.md Phase {N} (if from plan)
    ```
-4. **Prevent duplication**: If similar test exists, update existing entry instead of creating new test
+
+**Update registry** after test execution (by task agent):
+   ```markdown
+   - **Last Run**: {ISO-8601 timestamp} ({PASS|FAIL})
+   - **Test Results**: {X}/{Y} scenarios passing
+   - **Flaky**: {Yes|No} (if failure inconsistent)
+   ```
 
 **CRITICAL REMINDER: All PowerShell scripts MUST use ASCII characters only (see PowerShell Script Character Encoding Rules above)**
 
@@ -702,6 +1394,7 @@ finally {
 
 **Invoked by**: 
 - `task.prompt.md` when test generation is required for UI changes (Step 6.1)
+- `plan.prompt.md` during test specification (handoff to test generation)
 - `question.prompt.md` when user asks "how do I test X feature?"
 - Direct invocation with test parameters
 
@@ -713,10 +1406,16 @@ finally {
 - `tokens`: Override defaults if needed (default: Session 212 tokens)
 - `multiUser`: Boolean indicating multi-browser test requirement
 - `testType`: "functional" | "visual" | "both" (determines test generation approach)
+- `phase`: Phase number (if from plan) - used for registry tracking and naming
+
+**Context Sources**:
+- **Primary**: `.github/prompts.keys/{key}/{key}.plan.md` (if exists - test specification, System Context Pack)
+- **Fallback**: Parameters + canonical patterns + decision matrix
 
 **Returns to**: 
 - Calling prompt with test file paths and execution instructions
 - Key-data-stream documentation with test coverage details
+- Test registry with duplicate detection results
 
 **Artifacts Generated**:
 1. TypeScript test file in `.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts`
@@ -731,12 +1430,20 @@ finally {
 
 ### Active Tests (In Key Directory)
 - **Test File**: .github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts
-- **Orchestration Script**: .github/prompts.keys/{key}/scripts/run-{feature}-test.ps1
+- **Orchestration Script**: .github/prompts.keys/{key}/scripts/run-{script-name}.ps1
 - **Test Type**: {Functional E2E | Visual Regression | Both}
 - **Session Data**: Session 212 (Host: PQ9N5YWW, User: KJAHA99L)
-- **Execution**: `.\.github\prompts.keys\{key}\scripts\run-{feature}-test.ps1`
+- **Execution**: `.\.github\prompts.keys\{key}\scripts\run-{script-name}.ps1`
 - **Expected Result**: {description of expected test outcomes}
 - **Status**: Active (pending promotion to production)
+- **Plan Reference**: {key}.plan.md Phase {N} (if from plan, otherwise "Ad-hoc generation")
+- **Test Registry**: .github/prompts.keys/{key}/tests/test-registry.md (entry created)
+
+### Test Generation Context
+- **Source**: {Plan-driven | Parameter-driven}
+- **Plan Specification Used**: {Yes (Phase N) | No (inferred from parameters)}
+- **Duplicate Check**: {Passed (no duplicates) | Skipped (duplicate found: {existing-test-name})}
+- **Orchestration Template**: {Plan-provided | Canonical template}
 
 ### Production Tests (Promoted)
 - **Production Path**: Tests/UI/{feature}-{test-type}.spec.ts
