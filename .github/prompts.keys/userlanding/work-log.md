@@ -1,10 +1,51 @@
 # UserLanding Registration Guard - Work Log
 
 **Key:** userlanding  
-**Status:** finalized  
+**Status:** in-progress  
 **Date:** 2025-10-19T00:00:00Z  
 **Scope:** full-stack  
 **Context:** Enforce mandatory participant registration before session access
+
+---
+
+## Recent Work (2025-10-20T00:00:00Z)
+
+### User Request
+Add environment-based storage toggle to isolate participant registrations across Chrome tabs in development mode while maintaining cross-tab persistence in production.
+
+**Issue:** localStorage is domain-scoped, causing all tabs from same origin to share registration data. When testing multiple participant registrations with same session token, tabs overwrite each other's data.
+
+**Solution:** Environment-based storage toggle (Solution 3 from analysis)
+- Development: Use `sessionStorage` (tab-isolated)
+- Production: Use `localStorage` (cross-tab persistence)
+
+### Implementation Complete
+- ✅ Added `GetStorageType()` helper method
+- ✅ Updated registration storage logic in `HandleUserRegistration()` (line 1126)
+- ✅ Updated registration check logic in `CheckParticipantRegistrationAsync()` (line 1255)
+- ✅ Build passes (zero errors, zero warnings)
+- ✅ Debug markers added with `;CLEANUP_OK`
+
+### Files Modified
+- **UserLanding.razor** (lines 1126, 1255, 1509-1513)
+  - Added environment detection: `WebHostEnvironment.IsDevelopment()`
+  - Dynamic storage type: `sessionStorage` in dev, `localStorage` in prod
+  - Debug logging includes storage type for traceability
+
+### Commit
+- **SHA:** ae2effe41674e7dab7316a048ae4c76dfdbb68a4
+- **Tag:** checkpoint/user-landing/2025-10-20_{time}
+
+### Testing Notes
+**Development Mode:**
+- Each Chrome tab maintains isolated participant registration
+- Testing multiple participants with same token now possible
+- Registration cleared when tab closed
+
+**Production Mode:**
+- No behavioral changes
+- localStorage maintains cross-tab persistence
+- Registration survives tab close/reopen
 
 ---
 
