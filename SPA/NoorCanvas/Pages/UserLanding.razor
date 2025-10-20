@@ -511,6 +511,7 @@
     
     private UserLandingViewModel? Model { get; set; }
     private List<CountryData> Countries { get; set; } = new();
+    private string? _pendingCountrySelection = null; // [DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Track country from localStorage until countries load ;CLEANUP_OK
     
     // Helper method to get base URL from configuration
     private string GetBaseUrl()
@@ -1301,10 +1302,36 @@
                 return false;
             }
 
+            // Validate data integrity
+            if (!ValidateRegistrationDataAsync(data))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:validation] Invalid data detected - Clearing localStorage - Key: {Key} ;CLEANUP_OK", 
+                    storageKey);
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+                return false;
+            }
+
             // Data is valid - populate model
             Model.NameInput = data.Name;
             Model.EmailInput = data.Email;
-            Model.CountrySelect = data.Country;
+            
+            // Store country for later application (after countries load)
+            // [DEBUG-WORKITEM:userlanding:localStorage:infrastructure] ISO2 code stored, will be applied after dropdown populates ;CLEANUP_OK
+            _pendingCountrySelection = data.Country;
+            
+            // If countries are already loaded, apply immediately
+            if (Countries.Any())
+            {
+                Model.CountrySelect = data.Country;
+                _pendingCountrySelection = null; // Clear pending since we applied it
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Country selection applied immediately (countries already loaded): {Country} ;CLEANUP_OK", 
+                    data.Country);
+            }
+            else
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Country selection pending until countries load: {Country} ;CLEANUP_OK", 
+                    data.Country);
+            }
             
             Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Registration data loaded from localStorage - Key: {Key}, ExpiresAt: {ExpiresAt} ;CLEANUP_OK", 
                 storageKey, data.ExpiresAt);
@@ -1365,6 +1392,46 @@
         }
     }
 
+    /// <summary>
+    /// Validate registration data (email format, name non-empty, country code)
+    /// </summary>
+    private bool ValidateRegistrationDataAsync(RegistrationStorageData data)
+    {
+        try
+        {
+            // Validate name is not empty
+            if (string.IsNullOrWhiteSpace(data.Name))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:validation] Invalid data - Name is empty ;CLEANUP_OK");
+                return false;
+            }
+
+            // Validate email format using regex
+            var emailRegex = new System.Text.RegularExpressions.Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            if (string.IsNullOrWhiteSpace(data.Email) || !emailRegex.IsMatch(data.Email))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:validation] Invalid data - Email format invalid: {Email} ;CLEANUP_OK", 
+                    data.Email);
+                return false;
+            }
+
+            // Validate country code is not empty
+            if (string.IsNullOrWhiteSpace(data.Country))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:validation] Invalid data - Country is empty ;CLEANUP_OK");
+                return false;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:validation] Data validation passed ;CLEANUP_OK");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:localStorage:validation] Exception during data validation ;CLEANUP_OK");
+            return false;
+        }
+    }
+
     private async Task LoadCountriesAsync()
     {
         try
@@ -1393,6 +1460,26 @@
                 // [DEBUG-WORKITEM:use-landing:trace] Country loading completed successfully ;CLEANUP_OK
                 Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] COUNTRY LOADING SUCCESS - {Count} countries loaded ;CLEANUP_OK", 
                     requestId, Countries.Count);
+                
+                // Apply pending country selection from localStorage (if any)
+                // [DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Apply country after dropdown populated ;CLEANUP_OK
+                if (!string.IsNullOrWhiteSpace(_pendingCountrySelection) && Model != null)
+                {
+                    // Verify the country code exists in the loaded countries
+                    var countryExists = Countries.Any(c => c.ISO2 == _pendingCountrySelection);
+                    if (countryExists)
+                    {
+                        Model.CountrySelect = _pendingCountrySelection;
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Applied pending country selection: {Country} ;CLEANUP_OK", 
+                            _pendingCountrySelection);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:userlanding:localStorage:infrastructure] Pending country selection not found in loaded countries: {Country} ;CLEANUP_OK", 
+                            _pendingCountrySelection);
+                    }
+                    _pendingCountrySelection = null; // Clear pending selection
+                }
             }
             else
             {
