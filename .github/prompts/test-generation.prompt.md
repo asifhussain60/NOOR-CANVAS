@@ -448,9 +448,34 @@ Examples:
    - **Orchestration**: scripts/{orchestration-script-name}.ps1
    ```
 
+5. **Update global test index** (`.github/tests/test-index.json`) for cross-key reuse:
+   - Read existing test-index.json
+   - Generate test metadata:
+     ```json
+     {
+       "id": "{key}-{test-identifier}",
+       "key": "{key}",
+       "file": "Tests/UI/{test-file-name}.spec.ts",
+       "feature": "{primary-feature-name}",
+       "scenarios": ["{scenario-1}", "{scenario-2}"],
+       "tags": ["{tag1}", "{tag2}", "{tag3}"],
+       "similarityHash": "{feature-name}-{primary-tags-concatenated}",
+       "reusable": true|false,
+       "created": "{ISO-8601-timestamp}",
+       "orchestration": "Scripts/{orchestration-script}.ps1"
+     }
+     ```
+   - Append to `tests` array
+   - Update `metadata.totalTests` and `metadata.reusableTests` counters
+   - Write updated test-index.json
+   - **See**: `.github/tests/README.md` for similarity calculation algorithm
+
 **Benefits:**
-- ✅ Prevents duplicate test creation
-- ✅ Clear test inventory per key
+- ✅ Prevents duplicate test creation (per-key and global)
+- ✅ Clear test inventory per key (test-registry.md)
+- ✅ Cross-key test discovery and reuse (test-index.json)
+- ✅ Facilitates test cleanup during Step 9 completion
+- ✅ Enables test reuse across phases and keys
 - ✅ Facilitates test cleanup during Step 9 completion
 - ✅ Enables test reuse across phases
 
