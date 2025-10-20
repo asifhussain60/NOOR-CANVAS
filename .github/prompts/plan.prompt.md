@@ -2227,6 +2227,409 @@ try {
 }
 ```
 
+---
+
+## Final Validation Phase: Incremental Breakage Detection & Regression Tracking
+
+**Purpose**: Comprehensive validation after all phases complete to ensure no incremental breakage and track visual regressions
+
+**When**: Last phase of every multi-phase implementation
+
+**Components**:
+
+### 1. Incremental Breakage Detection
+
+**Objective**: Identify which phase broke earlier functionality
+
+**Implementation**:
+
+```powershell
+# Step 5.5: Incremental Breakage Detection
+Write-Host "`n[BREAKAGE DETECTION] Checking for incremental breakage..." -ForegroundColor Cyan
+
+$breakageDetected = $false
+$breakageReport = @()
+
+# Run each phase test in isolation
+foreach ($phase in $planJson.phases) {
+    if ($phase.validation.testFile) {
+        Write-Host "  Isolating Phase $($phase.id) test..." -ForegroundColor White
+        
+        # Run test 3 times to account for flakiness
+        $passCount = 0
+        for ($i = 1; $i -le 3; $i++) {
+            & npx playwright test ".github/prompts.keys/{key}/tests/$($phase.validation.testFile)" --reporter=list
+            if ($LASTEXITCODE -eq 0) { $passCount++ }
+        }
+        
+        $stability = "$passCount/3"
+        
+        if ($passCount -eq 0) {
+            # Test failing - check if it passed in earlier run
+            $phaseComplete = $phase.status -eq 'completed'
+            $phasePassedBefore = $phase.validation.testPassing -match '\d+/\d+'
+            
+            if ($phaseComplete -and $phasePassedBefore) {
+                # Phase was complete and tests passed before - breakage detected
+                $breakageDetected = $true
+                $breakageReport += @{
+                    BrokenPhase = $phase.id
+                    Title = $phase.title
+                    TestFile = $phase.validation.testFile
+                    Stability = $stability
+                    PreviousStatus = $phase.validation.testPassing
+                    SuspectPhases = ($planJson.phases | Where-Object { $_.id -gt $phase.id -and $_.status -eq 'completed' } | Select-Object -ExpandProperty id)
+                }
+                
+                Write-Host "    ❌ BREAKAGE: Phase $($phase.id) test was passing, now failing ($stability)" -ForegroundColor Red
+                Write-Host "       Suspect phases: $(($breakageReport[-1].SuspectPhases -join ', '))" -ForegroundColor Yellow
+            }
+        }
+        elseif ($passCount -lt 3) {
+            Write-Host "    ⚠️  FLAKY: Phase $($phase.id) test unstable ($stability)" -ForegroundColor Yellow
+        }
+        else {
+            Write-Host "    ✅ STABLE: Phase $($phase.id) test passing ($stability)" -ForegroundColor Green
+        }
+    }
+}
+
+if ($breakageDetected) {
+    Write-Host "`n[BREAKAGE REPORT]" -ForegroundColor Red
+    foreach ($breakage in $breakageReport) {
+        Write-Host "  Phase $($breakage.BrokenPhase): $($breakage.Title)" -ForegroundColor Red
+        Write-Host "    Test: $($breakage.TestFile)" -ForegroundColor White
+        Write-Host "    Previous: $($breakage.PreviousStatus) passing" -ForegroundColor Gray
+        Write-Host "    Current: $($breakage.Stability) passing (FAILING)" -ForegroundColor Red
+        Write-Host "    Suspect phases: $($breakage.SuspectPhases -join ', ')" -ForegroundColor Yellow
+        Write-Host "    Resolution: Review changes in suspect phases, check for breaking changes" -ForegroundColor Cyan
+    }
+    
+    Write-Host "`n  Cannot proceed - incremental breakage detected" -ForegroundColor Red
+    exit 1
+}
+else {
+    Write-Host "  ✅ No incremental breakage detected" -ForegroundColor Green
+}
+```
+
+**Benefits**:
+- ✅ Identifies culprit phase immediately
+- ✅ Prevents cascading breakage
+- ✅ Clear resolution path
+
+---
+
+### 2. Percy Visual Regression Tracking (Enhancement E)
+
+**Objective**: Track visual changes across phases and identify regression sources
+
+**Implementation**:
+
+```powershell
+# Step 5.6: Percy Visual Regression Tracking
+if ($planJson.testing.percyEnabled) {
+    Write-Host "`n[PERCY] Running visual regression analysis..." -ForegroundColor Cyan
+    
+    # Run Percy tests with baseline comparison
+    $percyTests = $planJson.phases | Where-Object { $_.validation.percyBaseline }
+    
+    foreach ($phase in $percyTests) {
+        Write-Host "  Phase $($phase.id): Comparing against $($phase.validation.percyBaseline)" -ForegroundColor White
+        
+        $env:PERCY_BRANCH = "development"
+        $env:PERCY_BASELINE = $phase.validation.percyBaseline
+        
+        & npx percy exec -- npx playwright test ".github/prompts.keys/{key}/tests/$($phase.validation.testFile)" --grep "@visual"
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "    ⚠️  Visual regression detected in Phase $($phase.id)" -ForegroundColor Yellow
+            Write-Host "       Review Percy dashboard for comparison: https://percy.io" -ForegroundColor Cyan
+        }
+        else {
+            Write-Host "    ✅ No visual regression" -ForegroundColor Green
+        }
+    }
+    
+    # Generate Percy regression report
+    Write-Host "`n[PERCY REPORT]" -ForegroundColor Cyan
+    Write-Host "  Visual regression analysis complete" -ForegroundColor White
+    Write-Host "  Percy dashboard: https://percy.io/noor-canvas/{key}" -ForegroundColor Cyan
+    Write-Host "  Baseline comparisons: Per-phase baselines tracked" -ForegroundColor Gray
+}
+```
+
+**Percy Regression Report Format**:
+
+```markdown
+## Percy Visual Regression Report - {key}
+
+**Date**: {ISO-8601-timestamp}
+**Total Phases with Visual Changes**: {N}
+
+### Phase-by-Phase Visual Analysis
+
+#### Phase 1: {Title}
+- **Baseline**: {key}-phase1-baseline
+- **Status**: ✅ No visual regression
+- **Changes**: None
+
+#### Phase 3: {Title}
+- **Baseline**: {key}-phase3-baseline (compared to phase2-baseline)
+- **Status**: ⚠️ Visual regression detected
+- **Changes**:
+  * Button padding increased (expected - new design system)
+  * Form layout shifted 10px (unexpected - investigate)
+- **Percy Link**: https://percy.io/noor-canvas/{key}/builds/{build-id}
+- **Resolution**: Review form layout shift
+
+#### Phase 5: {Title}
+- **Baseline**: {key}-phase5-baseline (compared to phase4-baseline)
+- **Status**: ✅ No visual regression
+- **Changes**: None
+
+### Summary
+- **Stable Phases**: 4/5 (80%)
+- **Visual Regressions**: 1/5 (20%)
+- **Action Required**: Review Phase 3 form layout shift
+```
+
+---
+
+### 3. Flakiness Summary Report (Enhancement B)
+
+**Objective**: Aggregate flakiness data across all phases for reliability analysis
+
+**Implementation**:
+
+```powershell
+# Step 5.7: Generate Flakiness Summary Report
+Write-Host "`n[FLAKINESS] Generating summary report..." -ForegroundColor Cyan
+
+$flakinessData = @()
+$totalTests = 0
+$stableTests = 0
+$flakyTests = 0
+$failingTests = 0
+
+foreach ($phase in $planJson.phases) {
+    if ($phase.validation.testFile) {
+        $stability = $phase.validation.testStability
+        
+        if ($stability -match '(\d+) stable, (\d+) flaky') {
+            $stable = [int]$matches[1]
+            $flaky = [int]$matches[2]
+            $total = $stable + $flaky
+            
+            $totalTests += $total
+            $stableTests += $stable
+            $flakyTests += $flaky
+            
+            if ($flaky -gt 0) {
+                $flakinessData += @{
+                    Phase = $phase.id
+                    Title = $phase.title
+                    TestFile = $phase.validation.testFile
+                    Total = $total
+                    Stable = $stable
+                    Flaky = $flaky
+                    FlakyScenarios = $phase.validation.flakyScenarios  # Array of flaky test names
+                }
+            }
+        }
+    }
+}
+
+# Generate report
+$reportPath = ".github/prompts.keys/{key}/reports/flakiness-summary.md"
+New-Item -ItemType Directory -Force -Path (Split-Path $reportPath) | Out-Null
+
+@"
+# Flakiness Summary Report - {key}
+
+**Date**: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
+**Total Tests**: $totalTests
+**Stable Tests**: $stableTests ($([math]::Round(($stableTests / $totalTests) * 100, 1))%)
+**Flaky Tests**: $flakyTests ($([math]::Round(($flakyTests / $totalTests) * 100, 1))%)
+**Failing Tests**: $failingTests
+
+---
+
+## Phase-by-Phase Breakdown
+
+$(foreach ($phase in $planJson.phases) {
+    if ($phase.validation.testFile) {
+        "### Phase $($phase.id): $($phase.title)`n"
+        "- **Test File**: $($phase.validation.testFile)`n"
+        "- **Status**: $($phase.validation.testStability)`n"
+        
+        $flakyPhase = $flakinessData | Where-Object { $_.Phase -eq $phase.id }
+        if ($flakyPhase) {
+            "- **Flaky Scenarios**:`n"
+            foreach ($scenario in $flakyPhase.FlakyScenarios) {
+                "  * $scenario`n"
+            }
+        }
+        "`n"
+    }
+})
+
+## Flaky Test Details
+
+$(if ($flakinessData.Count -gt 0) {
+    foreach ($flaky in $flakinessData) {
+        "### Phase $($flaky.Phase): $($flaky.Title)`n"
+        "- **Flaky Scenarios**: $($flaky.Flaky)/$($flaky.Total)`n"
+        foreach ($scenario in $flaky.FlakyScenarios) {
+            "  * ``$scenario```n"
+            "    - **Probable Cause**: [Investigation needed]`n"
+            "    - **Resolution**: [Fix timing issues, add explicit waits, or accept as environment-dependent]`n"
+        }
+        "`n"
+    }
+} else {
+    "✅ No flaky tests detected - all tests stable!`n"
+})
+
+## Recommendations
+
+$(if ($flakyTests -gt 0) {
+    "- **High Priority**: Fix flaky tests before production deployment`n"
+    "- **Investigation**: Review timing issues, race conditions, and environment dependencies`n"
+    "- **Best Practices**: Add explicit waits, use stable selectors, avoid waitForTimeout`n"
+} else {
+    "✅ Test suite is stable - ready for production deployment`n"
+})
+"@ | Out-File -FilePath $reportPath -Encoding UTF8
+
+Write-Host "  Flakiness report generated: $reportPath" -ForegroundColor Green
+Write-Host "  Total: $totalTests tests ($stableTests stable, $flakyTests flaky)" -ForegroundColor White
+
+if ($flakyTests -gt 0) {
+    Write-Host "  ⚠️  WARNING: $flakyTests flaky tests detected - review report" -ForegroundColor Yellow
+}
+```
+
+**Flakiness Summary Output**:
+
+```
+[FLAKINESS] Generating summary report...
+  Flakiness report generated: .github/prompts.keys/sessionguard/reports/flakiness-summary.md
+  Total: 15 tests (13 stable, 2 flaky)
+  ⚠️  WARNING: 2 flaky tests detected - review report
+  
+Flaky Test Details:
+  - Phase 2: "Form submission with rapid clicks" (2/3 passing)
+    * Probable cause: Race condition in event handler
+    * Resolution: Add debounce or explicit wait for form validation
+  - Phase 4: "localStorage persistence across navigation" (2/3 passing)
+    * Probable cause: Browser localStorage timing
+    * Resolution: Add explicit localStorage.getItem wait check
+```
+
+---
+
+### 4. Final Validation Phase Template
+
+**Add as the last phase in every multi-phase plan:**
+
+```markdown
+## Phase {N}: Final Validation & Comprehensive Testing
+
+### Objectives
+
+1. Execute all phase tests individually with 3x flakiness check
+2. Run incremental breakage detection
+3. Generate Percy visual regression report (if applicable)
+4. Generate flakiness summary report
+5. Run comprehensive regression suite
+6. Verify no incremental breakage
+7. Validate complete user workflows
+8. Confirm readiness for production promotion
+
+### Previous Phase Dependencies
+
+- All phases (1 through {N-1}) complete
+- All phase tests passing individually
+- All commits and checkpoint tags created
+- Build clean (zero errors, zero warnings)
+
+### Implementation Tasks (TODO Items)
+
+- [ ] **Task {N}.1**: Execute all phase tests individually with flakiness detection
+  - Run each phase test 3x
+  - Classify: 3/3=stable, 2/3=flaky, 0-1/3=failing
+  - Expected outcome: All tests stable or flaky (no failing)
+
+- [ ] **Task {N}.2**: Run incremental breakage detection
+  - Compare current test results to phase completion results
+  - Identify culprit phases for any breakage
+  - Expected outcome: No breakage detected
+
+- [ ] **Task {N}.3**: Generate Percy visual regression report (if applicable)
+  - Compare against phase-specific Percy baselines
+  - Identify visual changes per phase
+  - Expected outcome: Report generated with comparison links
+
+- [ ] **Task {N}.4**: Generate flakiness summary report
+  - Aggregate flakiness data from all phases
+  - Document flaky scenarios with probable causes
+  - Expected outcome: Report saved to `.github/prompts.keys/{key}/reports/flakiness-summary.md`
+
+- [ ] **Task {N}.5**: Run comprehensive regression suite
+  - Execute end-to-end user workflows
+  - Verify data flow across all phases
+  - Expected outcome: Comprehensive suite passes
+
+- [ ] **Task {N}.6**: Verify production readiness
+  - All tests passing (or flaky with < 20% flake rate)
+  - No incremental breakage
+  - Visual regressions documented and approved
+  - Expected outcome: Ready for production promotion (Step 9)
+
+### Validation Checklist
+
+- [ ] All phase tests passing individually (3/3 or 2/3)
+- [ ] Incremental breakage detection: No breakage
+- [ ] Percy report generated (if applicable)
+- [ ] Flakiness summary report generated
+- [ ] Comprehensive regression suite: PASSED
+- [ ] Production readiness: CONFIRMED
+
+### Orchestration Script Specification
+
+**Script File**: `Scripts/run-{key}-full-regression.ps1`
+
+Uses enhanced validation with:
+- Individual phase test execution (3x per test)
+- Incremental breakage detection
+- Percy visual regression tracking
+- Flakiness summary generation
+- Comprehensive suite execution
+
+### Commit Format
+
+```
+[{key}] Phase {N}: Final Validation & Comprehensive Testing
+
+Comprehensive validation complete:
+- All phase tests: {X} stable, {Y} flaky, {Z} failing
+- Incremental breakage: {None | Detected in Phase X}
+- Percy visual regressions: {N} detected
+- Flakiness summary: {X}/{Total} tests stable
+- Comprehensive suite: {PASSED | FAILED}
+- Production readiness: {CONFIRMED | BLOCKED}
+
+{List of flaky tests if any}
+{List of visual regressions if any}
+{Resolution plan if breakage/failures}
+
+Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
+```
+```
+
+---
+
 **Final Validation Phase Template:**
 
 Add as the last phase in every plan:
