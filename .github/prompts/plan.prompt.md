@@ -682,7 +682,10 @@ Low Priority:
               "timestamp": { "type": "string", "format": "date-time" }
             }
           },
-          "userApproved": { "type": "boolean" }
+          "userApproved": { "type": "boolean" },
+          "startedAt": { "type": "string", "format": "date-time", "description": "ISO-8601 timestamp when phase execution began" },
+          "completedAt": { "type": "string", "format": "date-time", "description": "ISO-8601 timestamp when phase execution finished" },
+          "durationMinutes": { "type": "number", "description": "Calculated duration in minutes (completedAt - startedAt)" }
         }
       }
     },
@@ -1140,13 +1143,20 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:{marker}];CLEANUP_OK
 When user says **"proceed"** after reviewing phase results:
 
 1. ✅ Summarize phase completion (what was done, files changed, validation status)
-2. ✅ Update {key}.plan.json with phase completion status
+2. ✅ Update {key}.plan.json:
+   - Set phase `status: "completed"`
+   - Set `completedAt` to current ISO-8601 timestamp
+   - Calculate `durationMinutes` = (completedAt - startedAt) / 60000
+   - Add commit SHA, checkpoint tag
 3. ✅ **Automatically begin next phase** with introduction: "Starting Phase {N+1}: {Title}"
-4. ✅ Execute next phase tasks following the {key}.plan.md specification
+4. ✅ Update {key}.plan.json for new phase:
+   - Set phase `status: "in-progress"`
+   - Set `startedAt` to current ISO-8601 timestamp
+5. ✅ Execute next phase tasks following the {key}.plan.md specification
 
 **Sequential Flow Protocol:**
 ```
-Phase N Complete → User: "proceed" → Phase N+1 Begins Automatically
+Phase N Complete → Update JSON (completedAt) → User: "proceed" → Update JSON (startedAt) → Phase N+1 Begins Automatically
 ```
 
 **No Manual Commands Required:** User simply says "proceed" and the next phase executes.
@@ -1447,7 +1457,9 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
 
 **Key**: `{key}`  
 **Branch**: `{github-branch}`  
-**Completed**: {ISO_TIMESTAMP}  
+**Started**: {ISO_TIMESTAMP when first phase started}  
+**Completed**: {ISO_TIMESTAMP when last phase completed}  
+**Total Duration**: {X hours Y minutes}  
 **Total Phases**: {N}  
 **Status**: ✅ All phases complete
 
@@ -1460,11 +1472,17 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
 1. **Phase 1: {Title}** ✅
    - {Brief description of what was done}
    - Files modified: {count}
+   - Duration: {X minutes}
+   - Started: {ISO_TIMESTAMP}
+   - Completed: {ISO_TIMESTAMP}
    - Commit: {SHA}
 
 2. **Phase 2: {Title}** ✅
    - {Brief description}
    - Files modified: {count}
+   - Duration: {X minutes}
+   - Started: {ISO_TIMESTAMP}
+   - Completed: {ISO_TIMESTAMP}
    - Commit: {SHA}
 
 {... repeat for all phases ...}
@@ -1498,12 +1516,15 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:final-validation];CLEANUP_OK
 
 ## Metrics
 
+- **Total Duration**: {X hours Y minutes} (across all phases)
+- **Average Phase Duration**: {X minutes}
+- **Longest Phase**: Phase {N} ({X minutes})
+- **Shortest Phase**: Phase {N} ({X minutes})
 - **Lines Added**: {count}
 - **Lines Removed**: {count}
 - **Tests Created**: {count}
 - **Test Pass Rate**: {percentage}%
 - **Flaky Tests**: {count}
-- **Total Time**: {estimated or actual}
 
 ---
 

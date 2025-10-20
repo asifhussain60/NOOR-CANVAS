@@ -882,7 +882,12 @@ SUMMARY: {key-name}
 
 1. **Load existing JSON** from `.github/prompts.keys/{key}/{key}.plan.json`
 2. **Update phase status**: Find phase by ID, change status from `"in-progress"` to `"complete"`
-3. **Update validation results**:
+3. **Record phase timing**:
+   ```json
+   "completedAt": "{ISO-8601-timestamp}",  // Set to current time
+   "durationMinutes": {calculated}         // (completedAt - startedAt) / 60000 milliseconds
+   ```
+4. **Update validation results**:
    ```json
    "validation": {
      "buildPassed": true,
@@ -894,7 +899,7 @@ SUMMARY: {key-name}
      "flakyTests": 0
    }
    ```
-4. **Record commit info**:
+5. **Record commit info**:
    ```json
    "commit": {
      "sha": "{full-40-char-sha}",
@@ -902,37 +907,47 @@ SUMMARY: {key-name}
      "timestamp": "{ISO-8601-timestamp}"
    }
    ```
-5. **Record checkpoint tag**:
+6. **Record checkpoint tag**:
    ```json
    "checkpoint": {
      "tag": "checkpoint/{key}/{timestamp}",
      "timestamp": "{ISO-8601-timestamp}"
    }
    ```
-6. **Update metrics** (aggregate across all phases):
+7. **Update metrics** (aggregate across all phases):
    ```json
    "metrics": {
-     "completedPhases": 2,      // increment
-     "totalTests": 6,            // aggregate from all phases
-     "passingTests": 6,          // aggregate
-     "flakyTests": 0,            // aggregate
-     "filesModified": 5,         // count unique files
-     "linesAdded": 150,          // sum from git diff
-     "linesRemoved": 20          // sum from git diff
+     "completedPhases": 2,           // increment
+     "totalTests": 6,                // aggregate from all phases
+     "passingTests": 6,              // aggregate
+     "flakyTests": 0,                // aggregate
+     "filesModified": 5,             // count unique files
+     "linesAdded": 150,              // sum from git diff
+     "linesRemoved": 20,             // sum from git diff
+     "totalDurationMinutes": 45,     // sum of all phase durations
+     "averagePhaseDuration": 22.5    // totalDurationMinutes / completedPhases
    }
    ```
-7. **Update global status** (when all phases complete):
+8. **Update global status** (when all phases complete):
    ```json
    "status": "complete",
    "updated": "{ISO-8601-timestamp}"
    ```
-8. **Save JSON file** (pretty-printed for readability)
+9. **Save JSON file** (pretty-printed for readability)
+
+**Before Starting Next Phase (when triggered by plan agent):**
+
+1. **Update next phase status**: Find next phase by ID, change status to `"in-progress"`
+2. **Record phase start timing**:
+   ```json
+   "startedAt": "{ISO-8601-timestamp}"  // Set to current time when phase begins
+   ```
 
 **Synchronization Rule:** Both markdown work-log AND JSON tracking must be updated in same commit
 
 **Output to User:**
-- **Concise:** `"✓ JSON tracking updated (Phase 2 complete)"`
-- **Detailed:** Show updated phase status, metrics, and checkpoint reference
+- **Concise:** `"✓ JSON tracking updated (Phase 2 complete, duration: 23 minutes)"`
+- **Detailed:** Show updated phase status, metrics, timing breakdown, and checkpoint reference
 
 ---
 
