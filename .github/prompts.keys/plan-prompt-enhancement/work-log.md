@@ -260,7 +260,84 @@
 - Manual review: Sequential flow integrates verification and validation seamlessly
 - Manual review: User messages remain concise (no checklist dumps, just bullet summaries)
 
-**Next Phase**: Phase 5 - Git Commit Integration & Phase Checkpoints
+**Next Phase**: Phase 5 - Final Validation & Comprehensive Testing
+
+---
+
+## [2025-10-20T01:15:00Z] - task agent (self-executing)
+
+**Status**: Phase 5 Complete  
+**Phase**: Final Validation Phase with Regression Detection
+
+**Work Done**:
+- ✅ **Implemented Incremental Breakage Detection** (lines ~2220-2310)
+  * Runs each phase test 3x in isolation to account for flakiness
+  * Compares current results to phase completion results (from {key}.plan.json)
+  * Identifies culprit phases when earlier functionality breaks
+  * Report format: BrokenPhase, Title, TestFile, Stability (X/3), PreviousStatus, SuspectPhases
+  * Resolution guidance: Review suspect phase changes, check for breaking changes
+  * Benefits: Immediate culprit identification, prevents cascading breakage, clear resolution path
+  
+- ✅ **Integrated Percy Visual Regression Tracking** (Enhancement E - lines ~2312-2390)
+  * Per-phase Percy baseline comparison (phase1 → phase2 → phase3)
+  * Runs Percy tests with $env:PERCY_BASELINE set to phase-specific baseline
+  * Detects visual regressions and links to Percy dashboard
+  * Generated Percy regression report format:
+    - Phase-by-phase visual analysis with baseline comparisons
+    - Status: ✅ No regression or ⚠️ Regression detected
+    - Changes: Expected vs unexpected visual changes
+    - Percy dashboard links for side-by-side comparison
+    - Summary: Stable phases percentage, action items
+  * Benefits: Clear visual regression source identification, incremental validation
+  
+- ✅ **Implemented Flakiness Summary Report** (Enhancement B - lines ~2392-2530)
+  * Aggregates flakiness data from all phases in {key}.plan.json
+  * Classifies tests: stable (3/3), flaky (2/3), failing (0-1/3)
+  * Calculates totals: Total tests, Stable tests (%), Flaky tests (%), Failing tests
+  * Generates markdown report: `.github/prompts.keys/{key}/reports/flakiness-summary.md`
+  * Report includes:
+    - Overall statistics with percentages
+    - Phase-by-phase breakdown with test file and stability
+    - Flaky test details with probable causes and resolution guidance
+    - Recommendations: Fix high-priority, investigation tips, best practices
+  * PowerShell script generates and saves report automatically
+  * Benefits: Complete flakiness visibility, prioritized action items, reliability analysis
+  
+- ✅ **Created Final Validation Phase Template** (lines ~2532-2620)
+  * Add as last phase in every multi-phase plan
+  * 6 implementation tasks:
+    1. Execute all phase tests individually with 3x flakiness detection
+    2. Run incremental breakage detection (identify culprit phases)
+    3. Generate Percy visual regression report (if applicable)
+    4. Generate flakiness summary report (aggregate data)
+    5. Run comprehensive regression suite (end-to-end workflows)
+    6. Verify production readiness (no breakage, regressions documented)
+  * Validation checklist: All tests passing, No breakage, Reports generated, Production confirmed
+  * Enhanced orchestration script specification with all validation components
+  * Commit format includes validation results and resolution plan
+  
+- ✅ **Enhanced Master Orchestration Script Template**
+  * Integrated Step 5.5: Incremental breakage detection
+  * Integrated Step 5.6: Percy visual regression tracking
+  * Integrated Step 5.7: Flakiness summary report generation
+  * Halt on breakage detection with resolution guidance
+  * Production readiness confirmation after all validation passes
+  * Clear success/failure messaging with actionable next steps
+
+**Files Modified**:
+- `.github/prompts/plan.prompt.md` (added ~450 lines: Breakage detection, Percy tracking, Flakiness summary, Final validation template)
+
+**Commit**: `ada82013`  
+**Tag**: `checkpoint/plan-prompt-enhancement/20251020-011500`
+
+**Validation**: PASS
+- Manual review: Incremental breakage detection correctly identifies culprit phases with 3x run
+- Manual review: Percy regression tracking compares against phase-specific baselines
+- Manual review: Flakiness summary aggregates data with percentages and recommendations
+- Manual review: Final validation phase template includes all 6 tasks and enhanced orchestration
+- Manual review: Enhanced orchestration script integrates all validation steps seamlessly
+
+**Next Phase**: Phase 6 - Documentation & User-Facing Summary
 
 ---
 
