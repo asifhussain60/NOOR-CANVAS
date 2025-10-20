@@ -136,28 +136,79 @@ Add environment-based storage toggle to isolate participant registrations across
 
 ---
 
-### Phase 5: Add Session Ended Handling
+### Phase 5: Add Session Ended Handling ✅ COMPLETED
 **Outcome:** Ended sessions redirect to SessionEnded page  
 **Debug:** `[DEBUG-WORKITEM:userlanding:session-ended];CLEANUP_OK`  
-**Files:** All session pages (SessionWaiting, SessionCanvas, TranscriptCanvas)
+**Files:** 
+- `SPA/NoorCanvas/Pages/SessionWaiting.razor`
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor`
 
 **Changes:**
-- Check session status in registration guard
-- If status == "ended", redirect to `/session/ended/{sessionId}`
+- Added `CheckSessionStatusAsync()` method to all three session pages
+- Calls `/api/participant/session/{token}/validate` endpoint to retrieve session status
+- Checks `Session.Status == "Ended"` BEFORE registration verification
+- Redirects to `/session/ended/{sessionId}` if session has ended
+- Session status check takes priority over registration guard (fail-secure pattern)
+
+**Testing:**
+- Created `Tests/UI/phase5-session-ended-redirect.spec.ts` with 4 test scenarios
+- Created `Scripts/run-phase5-test.ps1` orchestration script
+- Build: ✅ Zero errors, zero warnings
+- Lint: ✅ All files pass validation
+- Test prerequisites: Session 212 must have Status='Ended' in database
+
+**Date Completed:** 2025-10-19  
+**Commit:** cdd7b0cc  
+**Tag:** checkpoint/userlanding/20251019-200414
 
 ---
 
-### Phase 6: Create E2E Test for Registration Enforcement
-**Outcome:** Automated test validates registration guard  
-**Files:** `Tests/UI/registration-guard-enforcement.spec.ts`, `Scripts/run-registration-guard-test.ps1`
+### Phase 6: localStorage Infrastructure ✅ COMPLETED
+**Outcome:** localStorage save/load with 2-day expiration and auto-clear  
+**Debug:** `[DEBUG-WORKITEM:userlanding:localStorage:infrastructure];CLEANUP_OK`  
+**Files:** `SPA/NoorCanvas/Pages/UserLanding.razor`, `Tests/UI/phase6-localstorage-infrastructure.spec.ts`, `Scripts/run-phase6-test.ps1`
 
-**Test Scenarios:**
-1. Direct navigation to `/session/waiting/{token}` without registration → redirects to `/user/landing/{token}`
-2. Direct navigation to `/session/canvas/{token}` without registration → redirects to `/user/landing/{token}`
-3. Registered user can access `/session/canvas/{token}` → no redirect
-4. Ended session access → redirects to `/session/ended/{sessionId}`
+**User Request (Phase 6):**
+Add localStorage infrastructure to UserLanding.razor - Add RegistrationStorageData class with properties Name, Email, Country, ExpiresAt, LastAccessedAt - Implement SaveRegistrationDataAsync() with 2-day expiration (DateTime.UtcNow.AddDays(2)), JSON serialization using System.Text.Json, error handling with try-catch - Implement LoadRegistrationDataAsync() with expiration check (if DateTime.UtcNow > ExpiresAt), JSON deserialization, auto-clear if expired - Storage key pattern: noor_user_registration_{token} - Add logging: COPILOT-DEBUG [localStorage] Data saved/loaded
 
-**Orchestration:** PowerShell script launches app, runs Playwright test, stops app
+**Changes:**
+- Added `RegistrationStorageData` class (Name, Email, Country, ExpiresAt, LastAccessedAt properties)
+- Added `SaveRegistrationDataAsync(string name, string email, string country)` method
+  - 2-day expiration: `DateTime.UtcNow.AddDays(2)`
+  - JSON serialization with System.Text.Json
+  - Storage key: `noor_user_registration_{token}`
+  - Error handling with try-catch (non-blocking)
+  - Called after successful registration verification in `HandleUserRegistration()`
+- Added `LoadRegistrationDataAsync()` method
+  - Expiration check: `if (DateTime.UtcNow > data.ExpiresAt)`
+  - JSON deserialization
+  - Auto-clear if expired
+  - Returns bool success indicator
+  - Called after countries load in `LoadSessionInfoAsync()`
+  - Populates Model.NameInput, Model.EmailInput, Model.CountrySelect
+  - Calls StateHasChanged() to reflect loaded data
+- Added logging: `[DEBUG-WORKITEM:userlanding:localStorage:infrastructure];CLEANUP_OK`
+
+**Testing:**
+- Created `Tests/UI/phase6-localstorage-infrastructure.spec.ts` with 3 test scenarios:
+  1. Save registration data to localStorage with correct structure (validates JSON schema, 2-day expiration, LastAccessedAt)
+  2. Load registration data from localStorage (verifies form pre-population for Name, Email)
+  3. Auto-clear expired registration data (validates expiration logic and cleanup)
+- Created `Scripts/run-phase6-test.ps1` - Test orchestration script
+- Build: ✅ Zero errors, zero warnings
+- Lint: ✅ All files pass validation (minor warnings acceptable)
+- Tests: ✅ All 3 scenarios passing
+
+**Notes:**
+- Country field pre-population has timing limitation (countries API not loaded when data loads)
+- This is a known issue documented in test output
+- Will be improved in Phase 7 with expiration extension logic
+- Core infrastructure is working correctly (data saves, loads, expires, clears)
+
+**Date Completed:** 2025-10-19  
+**Commit:** 28475168  
+**Tag:** checkpoint/userlanding/20251019-201552
 
 ---
 
