@@ -1378,6 +1378,191 @@ Includes: Flakiness detection (3x run), Percy baseline creation, browser log cap
 - .github/prompts/shared/execution-flow.md
 - .github/prompts/shared/step-1-checkpoint.md
 
+---
+
+## Phase Completion Verification Protocol
+
+**Purpose**: Ensure every phase meets quality gates before marking complete
+
+**When**: After task agent completes phase work, before updating Progress Tracker
+
+**Verification Checklist**:
+
+1. ✅ **All TODO Items Complete**
+   - Every `- [ ] **Task N.M**` item in phase marked as done
+   - If any item incomplete → HALT, request user action
+
+2. ✅ **Build Passes**
+   - Zero compilation errors
+   - Zero warnings (strict mode)
+   - Command: `dotnet build --no-incremental`
+   - If build fails → HALT, show errors, request fix
+
+3. ✅ **Lint Validation Passes**
+   - All modified files pass linting
+   - Command: `npm run lint` or equivalent
+   - If lint fails → HALT, show errors, request fix
+
+4. ✅ **Playwright Tests Created and Passing**
+   - Test file exists: `.github/prompts.keys/{key}/tests/{test-file}.spec.ts`
+   - Test passes: All scenarios pass (or flaky with justification)
+   - Flakiness check: 3x run completed, stability classified
+   - If no UI changes → Mark "N/A" and skip
+   - If tests fail → HALT, show failures, request fix
+
+5. ✅ **Percy Baseline Created** (if applicable)
+   - Baseline exists: `{key}-phase{N}-baseline`
+   - Visual regression check: Compared to previous phase (or N/A for first visual phase)
+   - If visual changes but no baseline → WARN, request user confirmation
+
+6. ✅ **Commit Created**
+   - Commit format correct: `[{key}] Phase {N}: {Title}`
+   - Includes multi-line description
+   - Includes debug marker: `Debug: [DEBUG-WORKITEM:{key}:phase{N}:{marker}];CLEANUP_OK`
+   - If commit missing → HALT, create commit first
+
+7. ✅ **Checkpoint Tag Created**
+   - Tag format: `checkpoint/{key}/{timestamp}`
+   - Tag points to phase commit
+   - If tag missing → HALT, create tag first
+
+**Verification Output**:
+
+```
+✅ Phase N Verification Complete
+
+Implementation: ✅ All 6 TODO items complete
+Build: ✅ 0 errors, 0 warnings
+Lint: ✅ All files pass
+Tests: ✅ 5/5 scenarios pass (3 stable, 2 flaky [justified])
+Percy: ✅ Baseline created: sessionguard-phase3-baseline
+Commit: ✅ a1b2c3d - "[sessionguard] Phase 3: Registration Guard UI"
+Tag: ✅ checkpoint/sessionguard/20251020-143000
+
+Phase ready for completion.
+```
+
+**Failure Handling**:
+
+```
+❌ Phase N Verification Failed
+
+Implementation: ✅ All 6 TODO items complete
+Build: ❌ 2 errors, 3 warnings
+  - Error CS0103: The name 'userGuid' does not exist in current context
+  - Error CS1061: 'ParticipantService' does not contain definition for 'CreateGuid'
+Lint: ⏭️ Skipped (build must pass first)
+Tests: ⏭️ Skipped (build must pass first)
+
+REQUIRED ACTION:
+1. Fix compilation errors in ParticipantService.cs
+2. Re-run build verification
+3. Resume phase completion after fixes
+
+Phase completion halted.
+```
+
+---
+
+## Phase Dependency Validation Protocol
+
+**Purpose**: Prevent out-of-order phase execution and ensure prerequisites are met
+
+**When**: Before task agent begins phase work (after user says "proceed")
+
+**Validation Steps**:
+
+1. ✅ **Check Previous Phase Dependencies** (from phase's "Previous Phase Dependencies" section)
+   
+   Example from Phase 5:
+   ```markdown
+   **Previous Phase Dependencies**:
+   - Phase 3: Registration guard UI component (file: Pages/UserGuidRegistration.razor)
+   - Phase 4: ParticipantService.CreateUserGuid method (file: Services/ParticipantService.cs)
+   - Phase 3: Registration form test passing (test: sessionguard-phase3-registration.spec.ts)
+   ```
+
+2. ✅ **Verify Required Files Exist**
+   ```powershell
+   # Check each file from dependencies
+   if (-not (Test-Path "SPA/NoorCanvas/Pages/UserGuidRegistration.razor")) {
+       Write-Error "Dependency not met: UserGuidRegistration.razor missing"
+       exit 1
+   }
+   ```
+
+3. ✅ **Verify Required Commits Exist**
+   ```powershell
+   # Check checkpoint tags from previous phases
+   $tag = git tag -l "checkpoint/sessionguard/20251020-1430*"
+   if (-not $tag) {
+       Write-Error "Dependency not met: Phase 3 checkpoint tag missing"
+       exit 1
+   }
+   ```
+
+4. ✅ **Verify Required Tests Pass**
+   ```powershell
+   # Run prerequisite tests
+   npx playwright test sessionguard-phase3-registration.spec.ts
+   if ($LASTEXITCODE -ne 0) {
+       Write-Error "Dependency not met: Phase 3 test failing"
+       exit 1
+   }
+   ```
+
+**Dependency Validation Output**:
+
+```
+✅ Phase 5 Dependency Validation Complete
+
+Checking Phase 3 dependencies:
+  ✅ File exists: Pages/UserGuidRegistration.razor
+  ✅ Test passing: sessionguard-phase3-registration.spec.ts (5/5 scenarios)
+  ✅ Commit exists: checkpoint/sessionguard/20251020-143000
+
+Checking Phase 4 dependencies:
+  ✅ File exists: Services/ParticipantService.cs
+  ✅ Method exists: CreateUserGuid (verified via grep)
+  ✅ Commit exists: checkpoint/sessionguard/20251020-151500
+
+All dependencies satisfied. Phase 5 ready to begin.
+```
+
+**Dependency Failure Handling**:
+
+```
+❌ Phase 5 Dependency Validation Failed
+
+Checking Phase 3 dependencies:
+  ✅ File exists: Pages/UserGuidRegistration.razor
+  ❌ Test failing: sessionguard-phase3-registration.spec.ts (2/5 scenarios fail)
+    - Scenario 3: "Form submission creates GUID" - FAILED
+    - Scenario 5: "localStorage stores GUID" - FAILED
+
+REQUIRED ACTION:
+1. Fix Phase 3 test failures before proceeding to Phase 5
+2. Possible causes:
+   - Phase 3 implementation incomplete or reverted
+   - Breaking changes in Phase 4 affected Phase 3 functionality
+3. Resolution:
+   - Return to Phase 3: Review implementation
+   - Re-run Phase 3 tests in isolation
+   - Fix broken functionality
+   - Re-verify Phase 3 completion
+4. After fixes, re-run dependency validation for Phase 5
+
+Phase 5 execution halted.
+```
+
+**Benefits**:
+- ✅ Prevents skipping phases accidentally
+- ✅ Catches regressions early (previous phase tests still pass)
+- ✅ Ensures clean phase transitions
+- ✅ Provides clear resolution steps when dependencies fail
+
+---
+
 ## Deliverables (upon Finalization)
 When the user confirms readiness to implement:
 
@@ -1725,24 +1910,62 @@ Debug: [DEBUG-WORKITEM:{key}:phase{N}:{marker}];CLEANUP_OK
 
 When user says **"proceed"** after reviewing phase results:
 
-1. ✅ Summarize phase completion (what was done, files changed, validation status)
-2. ✅ Update {key}.plan.json:
+1. ✅ **Run Phase Completion Verification** (see Phase Completion Verification Protocol above)
+   - Verify all TODO items complete
+   - Verify build passes (0 errors, 0 warnings)
+   - Verify lint validation passes
+   - Verify tests created and passing (with flakiness classification)
+   - Verify Percy baseline created (if applicable)
+   - Verify commit created with correct format
+   - Verify checkpoint tag created
+   - If any verification fails → HALT, show error, request fix, do NOT proceed
+
+2. ✅ **Update Progress Tracker** (see Progress Tracker section below)
+   - Read {key}.plan.md
+   - Mark phase checklist items complete (✅)
+   - Fill in values: SHA, test results (N/M scenarios, X stable Y flaky), Percy baseline, commit message, tag
+   - Write updated {key}.plan.md back to disk
+   - User sees concise message only: "✅ Phase N Complete: {Title}"
+
+3. ✅ **Update {key}.plan.json**:
    - Set phase `status: "completed"`
    - Set `completedAt` to current ISO-8601 timestamp
    - Calculate `durationMinutes` = (completedAt - startedAt) / 60000
    - Add commit SHA, checkpoint tag
-3. ✅ **Automatically begin next phase** with introduction: "Starting Phase {N+1}: {Title}"
-4. ✅ Update {key}.plan.json for new phase:
+   - Update test metrics (passing/flaky counts)
+
+4. ✅ **Run Phase Dependency Validation** for next phase (see Phase Dependency Validation Protocol above)
+   - Check "Previous Phase Dependencies" section of Phase N+1
+   - Verify required files exist
+   - Verify required commits exist (checkpoint tags)
+   - Verify required tests pass (from previous phases)
+   - If any dependency fails → HALT, show error with resolution steps, do NOT proceed
+
+5. ✅ **Automatically begin next phase** with introduction: "Starting Phase {N+1}: {Title}"
+
+6. ✅ **Update {key}.plan.json for new phase**:
    - Set phase `status: "in-progress"`
    - Set `startedAt` to current ISO-8601 timestamp
-5. ✅ Execute next phase tasks following the {key}.plan.md specification
+
+7. ✅ Execute next phase tasks following the {key}.plan.md specification
 
 **Sequential Flow Protocol:**
 ```
-Phase N Complete → Update JSON (completedAt) → User: "proceed" → Update JSON (startedAt) → Phase N+1 Begins Automatically
+Phase N Complete 
+→ Verify Phase N (Step 1) 
+→ Update Progress Tracker (Step 2)
+→ Update JSON completedAt (Step 3) 
+→ User: "proceed" 
+→ Validate Phase N+1 Dependencies (Step 4)
+→ Update JSON startedAt (Step 6) 
+→ Phase N+1 Begins Automatically (Step 7)
 ```
 
-**No Manual Commands Required:** User simply says "proceed" and the next phase executes.
+**No Manual Commands Required:** User simply says "proceed" and the next phase executes (after verification and validation).
+
+**Halt Points:**
+- **Phase Completion Verification fails** → Show errors, request fixes, wait for user resolution
+- **Phase Dependency Validation fails** → Show missing dependencies, request previous phase fixes, wait for resolution
 
 **Final Phase Exception:** After the last phase, provide implementation summary and handoff instructions (see Final Phase Template below).
 
@@ -1752,14 +1975,20 @@ Phase N Complete → Update JSON (completedAt) → User: "proceed" → Update JS
 
 ## Progress Tracker
 
+**Purpose**: Dynamic checklist updated silently by task agent after each phase. User sees concise completion messages only.
+
+**Update Protocol**: Task agent reads this file, marks items complete (✅), fills in values (SHA, test results), writes back to disk.
+
 - [ ] **Phase 1**: {Title}
   - [ ] Implementation complete
-  - [ ] Build passes
-  - [ ] Lint validation passes
-  - [ ] Playwright test created: {file}
-  - [ ] Test passing: {N}/{M} scenarios
-  - [ ] Commit: {SHA}
-  - [ ] Tag: checkpoint/{key}/{timestamp}
+  - [ ] Build passes (0 errors, 0 warnings)
+  - [ ] Lint validation passes (all modified files)
+  - [ ] Playwright test created: `{test-file}.spec.ts` (or "N/A - no UI changes")
+  - [ ] Test passing: {N}/{M} scenarios (or "N/A")
+  - [ ] Test stability: {X} stable, {Y} flaky (from 3x run - or "N/A")
+  - [ ] Percy baseline: `{baseline-id}` (or "N/A - no visual changes")
+  - [ ] Commit: `{short-sha}` - {commit message first line}
+  - [ ] Tag: `checkpoint/{key}/{timestamp}`
   - [ ] User approved next phase
 
 {Repeat for all phases}
@@ -1769,6 +1998,39 @@ Phase N Complete → Update JSON (completedAt) → User: "proceed" → Update JS
   - [ ] Full regression suite passing
   - [ ] No incremental breakage detected
   - [ ] Ready for merge
+
+**Checklist Update Example** (after Phase 2 completion):
+
+- [x] **Phase 2**: Database Schema Migration
+  - [x] Implementation complete
+  - [x] Build passes (0 errors, 0 warnings)
+  - [x] Lint validation passes (all modified files)
+  - [x] Playwright test created: N/A - database only
+  - [x] Test passing: N/A
+  - [x] Test stability: N/A
+  - [x] Percy baseline: N/A - no visual changes
+  - [x] Commit: `a1b2c3d` - Add Participants.UserGuid column with migration
+  - [x] Tag: `checkpoint/sessionguard/20251020-143000`
+  - [x] User approved next phase
+
+**User Message Format** (concise, no checklist details):
+
+```
+✅ Phase 2 Complete: Database Schema Migration
+
+Status: ✅ 2/7 phases complete
+Commit: a1b2c3d
+Duration: 12 minutes
+
+What Was Done:
+- Added UserGuid column to canvas.Participants table
+- Created EF migration with rollback support
+- Updated ParticipantService to handle GUIDs
+
+Next: Phase 3 - Registration Guard Logic
+
+To continue: proceed
+```
 
 ---
 
