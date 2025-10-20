@@ -1,0 +1,220 @@
+@* Session Controls Panel - Canvas selection and session start controls *@
+@* [DEBUG-WORKITEM:session-opener:simple] Sticky button panel for canvas selection and participant routing ;CLEANUP_OK *@
+@using NoorCanvas.ViewModels
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JSRuntime
+
+@if (Model?.HasGeneratedToken ?? false)
+{
+    <div style="margin-top:1.5rem;width:100%;background-color:#f9fafb;border-radius:1rem;border:2px solid #D4AF37;padding:1.5rem 2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+        
+        <!-- Title Section -->
+        <div style="text-align:center;margin-bottom:1.5rem;">
+            <h2 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.25rem;color:#D4AF37;margin-bottom:0.5rem;">
+                <i class="fa-solid fa-sliders" style="color:#D4AF37;margin-right:0.5rem;"></i>
+                SESSION CONTROLS
+            </h2>
+        </div>
+
+        <!-- Session Info Display -->
+        <div style="background-color:#ffffff;border-radius:0.75rem;border:1px solid #d1d5db;padding:1.25rem;margin-bottom:1rem;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">
+                <!-- Session Time -->
+                <div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.5rem;">
+                        <i class="fa-solid fa-clock" style="color:#006400;font-size:1.5rem;"></i>
+                    </div>
+                    <div style="font-size:0.75rem;color:#6b7280;font-weight:600;margin-bottom:0.25rem;">SESSION TIME</div>
+                    <div style="font-size:1rem;font-weight:600;color:#374151;">@Model.SessionTime</div>
+                </div>
+
+                <!-- Duration -->
+                <div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.5rem;">
+                        <i class="fa-solid fa-hourglass-half" style="color:#006400;font-size:1.5rem;"></i>
+                    </div>
+                    <div style="font-size:0.75rem;color:#6b7280;font-weight:600;margin-bottom:0.25rem;">DURATION</div>
+                    <div style="font-size:1rem;font-weight:600;color:#374151;">@Model.SessionDuration min</div>
+                </div>
+
+                <!-- Topic -->
+                <div style="grid-column:span 3;">
+                    <div style="font-size:0.75rem;color:#6b7280;font-weight:600;margin-bottom:0.5rem;">TOPIC</div>
+                    <div style="font-size:0.875rem;font-weight:500;color:#374151;">@GetSessionTopicDisplay()</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Participant Links Section -->
+        <div style="background-color:#ffffff;border-radius:0.75rem;border:1px solid #d1d5db;padding:1.25rem;margin-bottom:1rem;">
+            <h4 style="display:flex;align-items:center;justify-content:center;gap:0.375rem;font-weight:600;font-size:0.875rem;color:#3B82F6;margin:0 0 0.75rem 0;text-align:center;">
+                <i class="fa-solid fa-link" style="color:#3B82F6;font-size:0.875rem;"></i>
+                <span>Participant Links</span>
+            </h4>
+
+            <!-- [DEBUG-WORKITEM:session-opener:simple] Two sticky buttons for canvas selection ;CLEANUP_OK -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+                <!-- Asset Canvas Button -->
+                <button type="button" 
+                        @onclick="SelectAssetCanvas"
+                        style="@GetButtonStyle(Model.IsAssetCanvasPressed)"
+                        title="Copy Asset Canvas link and route participants here">
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;">
+                        <i class="fa-solid fa-comments" style="font-size:1.5rem;"></i>
+                        <span style="font-weight:600;font-size:0.875rem;">Asset Canvas</span>
+                    </div>
+                </button>
+
+                <!-- Transcript Canvas Button -->
+                <button type="button" 
+                        @onclick="SelectTranscriptCanvas"
+                        style="@GetButtonStyle(Model.IsTranscriptCanvasPressed)"
+                        title="Copy Transcript Canvas link and route participants here">
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;">
+                        <i class="fa-solid fa-scroll" style="font-size:1.5rem;"></i>
+                        <span style="font-weight:600;font-size:0.875rem;">Transcript Canvas</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Selection Indicator -->
+            @if (Model.SelectedCanvas != CanvasType.None)
+            {
+                <div style="background-color:#EFF6FF;border:1px solid #3B82F6;border-radius:0.5rem;padding:0.75rem;text-align:center;margin-bottom:0.75rem;">
+                    <i class="fa-solid fa-check-circle" style="color:#10b981;margin-right:0.5rem;"></i>
+                    <span style="color:#3B82F6;font-weight:600;font-size:0.875rem;">
+                        Participants will join: @GetCanvasDisplayName()
+                    </span>
+                </div>
+            }
+
+            <!-- Start Session Button -->
+            <!-- [DEBUG-WORKITEM:session-opener:simple] Start Session button routes participants based on selected canvas ;CLEANUP_OK -->
+            <button type="button" 
+                    @onclick="OnStartSession"
+                    disabled="@(Model.SelectedCanvas == CanvasType.None)"
+                    style="@GetStartButtonStyle()">
+                <i class="fa-solid fa-play" style="margin-right:0.5rem;"></i>
+                <span>Start Session</span>
+            </button>
+
+            @if (Model.SelectedCanvas == CanvasType.None)
+            {
+                <p style="color:#ef4444;font-size:0.75rem;margin-top:0.5rem;text-align:center;">
+                    Please select a canvas type before starting the session
+                </p>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public HostSessionOpenerViewModel Model { get; set; } = null!;
+    [Parameter] public string BaseUrl { get; set; } = "https://localhost:9091";
+    [Parameter] public EventCallback OnStartSessionClicked { get; set; }
+
+    // [DEBUG-WORKITEM:session-opener:simple] Asset Canvas selection handler ;CLEANUP_OK
+    private async Task SelectAssetCanvas()
+    {
+        var url = $"{BaseUrl}/session/canvas/{ExtractUserToken()}";
+        await CopyToClipboard(url);
+        
+        Model.SelectedCanvas = CanvasType.AssetCanvas;
+        Model.IsAssetCanvasPressed = true;
+        Model.IsTranscriptCanvasPressed = false;
+        
+        StateHasChanged();
+    }
+
+    // [DEBUG-WORKITEM:session-opener:simple] Transcript Canvas selection handler ;CLEANUP_OK
+    private async Task SelectTranscriptCanvas()
+    {
+        var url = $"{BaseUrl}/transcript/canvas/{ExtractUserToken()}";
+        await CopyToClipboard(url);
+        
+        Model.SelectedCanvas = CanvasType.TranscriptCanvas;
+        Model.IsAssetCanvasPressed = false;
+        Model.IsTranscriptCanvasPressed = true;
+        
+        StateHasChanged();
+    }
+
+    // [DEBUG-WORKITEM:session-opener:simple] Start Session event handler ;CLEANUP_OK
+    private async Task OnStartSession()
+    {
+        if (Model.SelectedCanvas != CanvasType.None && OnStartSessionClicked.HasDelegate)
+        {
+            await OnStartSessionClicked.InvokeAsync();
+        }
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error copying to clipboard: {ex.Message}");
+        }
+    }
+
+    private string ExtractUserToken()
+    {
+        // Extract token from UserLandingUrl (format: baseUrl/user/landing/{token})
+        if (string.IsNullOrEmpty(Model?.UserLandingUrl))
+            return "";
+
+        var segments = Model.UserLandingUrl.Split('/');
+        return segments.Length > 0 ? segments[^1] : "";
+    }
+
+    private string GetSessionTopicDisplay()
+    {
+        // Display session topic from selected session dropdown
+        return Model?.SelectedSession ?? "Session Topic";
+    }
+
+    private string GetCanvasDisplayName()
+    {
+        return Model.SelectedCanvas switch
+        {
+            CanvasType.AssetCanvas => "Asset Canvas (Q&A Session)",
+            CanvasType.TranscriptCanvas => "Transcript Canvas (Read-Only)",
+            _ => ""
+        };
+    }
+
+    // [DEBUG-WORKITEM:session-opener:simple] Dynamic button styling based on pressed state ;CLEANUP_OK
+    private string GetButtonStyle(bool isPressed)
+    {
+        var baseStyle = "width:100%;padding:1.5rem 1rem;border:2px solid;border-radius:0.75rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);font-family:'Poppins',sans-serif;";
+        
+        if (isPressed)
+        {
+            // Pressed state - green background with darker border
+            return baseStyle + "background:#10B981;color:white;border-color:#059669;box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);transform:scale(0.98);";
+        }
+        else
+        {
+            // Unpressed state - light blue background
+            return baseStyle + "background:#EFF6FF;color:#3B82F6;border-color:#3B82F6;";
+        }
+    }
+
+    private string GetStartButtonStyle()
+    {
+        var baseStyle = "width:100%;background-color:#006400;color:#ffffff;font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;padding:0.875rem 1.5rem;border-radius:0.75rem;border:none;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);";
+        
+        if (Model?.SelectedCanvas == CanvasType.None)
+        {
+            // Disabled state
+            return baseStyle + "opacity:0.5;cursor:not-allowed;";
+        }
+        else
+        {
+            return baseStyle + "hover:background-color:#004d00;";
+        }
+    }
+}

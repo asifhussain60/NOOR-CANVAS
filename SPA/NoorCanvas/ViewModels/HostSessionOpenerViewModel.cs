@@ -3,6 +3,16 @@ using System.ComponentModel.DataAnnotations;
 namespace NoorCanvas.ViewModels
 {
     /// <summary>
+    /// Canvas type selection for participant routing
+    /// </summary>
+    public enum CanvasType
+    {
+        None,
+        AssetCanvas,
+        TranscriptCanvas
+    }
+
+    /// <summary>
     /// ViewModel for the Host Session Opener component
     /// Manages state for session creation and form validation.
     /// </summary>
@@ -54,6 +64,11 @@ namespace NoorCanvas.ViewModels
 
         // UI Interaction State
         public bool UserCopied { get; set; } = false;
+
+        // [DEBUG-WORKITEM:session-opener:simple] Canvas selection tracking for participant routing ;CLEANUP_OK
+        public CanvasType SelectedCanvas { get; set; } = CanvasType.None;
+        public bool IsAssetCanvasPressed { get; set; } = false;
+        public bool IsTranscriptCanvasPressed { get; set; } = false;
 
         /// <summary>
         /// Validates all required form fields.

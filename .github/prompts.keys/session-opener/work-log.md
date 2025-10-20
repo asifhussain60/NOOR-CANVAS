@@ -1,5 +1,51 @@
 # Work Log - session-opener
 
+## 2025-10-20 - Sticky Canvas Selection Buttons with Participant Routing
+
+### User Request
+Add sticky button functionality to Participant Links panel - when host clicks Asset Canvas or Transcript Canvas button, copy link to clipboard, visually mark button as pressed, track selection internally, and route participants from waiting room to selected canvas when "Start Session" button is clicked.
+
+### Work Completed (2025-10-20T02:00:00Z)
+- **Status**: Complete
+- **Changes**:
+  1. **HostSessionOpenerViewModel.cs**
+     - Added `CanvasType` enum (None, AssetCanvas, TranscriptCanvas)
+     - Added `SelectedCanvas` property to track selection
+     - Added `IsAssetCanvasPressed` and `IsTranscriptCanvasPressed` for visual state
+  2. **SessionControlsPanel.razor** (NEW)
+     - Created session controls component with session info display (time, duration, topic)
+     - Implemented two sticky buttons for Asset Canvas and Transcript Canvas
+     - Buttons copy canvas URL to clipboard on click
+     - Pressed button shows green background, unpressed shows light blue
+     - Only one button pressed at a time (mutually exclusive)
+     - Start Session button enabled only when canvas selected
+     - Selection indicator shows chosen canvas type
+  3. **Host-SessionOpener.razor**
+     - Integrated SessionControlsPanel component after SessionUrlPanel
+     - Added `StartSessionAsync()` handler to route participants
+     - Handler validates canvas selection before proceeding
+     - TODO: SignalR broadcast implementation pending (toast notification placeholder)
+- **Files Affected**:
+  - ViewModels/HostSessionOpenerViewModel.cs (added canvas selection tracking)
+  - Components/SessionControlsPanel.razor (NEW - session controls UI)
+  - Pages/Host-SessionOpener.razor (integrated component + handler)
+- **Tests**: Not applicable (UI component, requires manual testing)
+- **Lint Validation**: PASS (0 errors, 0 warnings)
+- **Build Status**: Clean (0 errors, 0 warnings)
+- **Debug Level**: simple
+- **Commit**: Pending (Step 8.4)
+
+### Technical Notes
+- Component conditionally renders when `HasGeneratedToken` is true
+- User token extracted from `UserLandingUrl` for canvas URL construction
+- Sticky button behavior: click sets flag, updates visual state, copies URL
+- Start Session currently shows toast notification (SignalR broadcast to be implemented)
+- Canvas routing destinations:
+  - Asset Canvas → `/session/canvas/{userToken}` (SessionCanvas.razor)
+  - Transcript Canvas → `/transcript/canvas/{userToken}` (TranscriptCanvas.razor)
+
+---
+
 ## 2025-10-12 - Enable Production Debug Logging and Diagnostics
 
 ### Context

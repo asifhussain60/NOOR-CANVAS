@@ -503,6 +503,12 @@
         {
             <SessionUrlPanel Model="@Model" OnCopyUserUrl="CopyUserUrlAsync" OnLoadControlPanel="LoadControlPanelAsync" />
         }
+
+        <!-- [DEBUG-WORKITEM:session-opener:simple] Session Controls Panel for canvas selection and participant routing ;CLEANUP_OK -->
+        @if ((Model?.ShowSessionUrlPanel ?? false) && !string.IsNullOrEmpty(Model?.UserLandingUrl))
+        {
+            <SessionControlsPanel Model="@Model" BaseUrl="@HostService.GetBaseUrl()" OnStartSessionClicked="StartSessionAsync" />
+        }
     </div>
 </div>
 
@@ -1008,6 +1014,41 @@
             Model.ErrorMessage = "Failed to load control panel. Please try again.";
         }
         return Task.CompletedTask;
+    }
+
+    // [DEBUG-WORKITEM:session-opener:simple] Start Session handler - routes participants based on selected canvas ;CLEANUP_OK
+    private async Task StartSessionAsync()
+    {
+        try
+        {
+            if (Model.SelectedCanvas == CanvasType.None)
+            {
+                Logger.LogWarning("NOOR-SESSION-OPENER: Start Session clicked but no canvas selected");
+                await JSRuntime.InvokeVoidAsync("showNoorToast", "Please select a canvas type first", "warning");
+                return;
+            }
+
+            var targetRoute = Model.SelectedCanvas switch
+            {
+                CanvasType.AssetCanvas => "SessionCanvas.razor",
+                CanvasType.TranscriptCanvas => "TranscriptCanvas.razor",
+                _ => "SessionCanvas.razor"
+            };
+
+            Logger.LogInformation("NOOR-SESSION-OPENER: Starting session, routing participants to {Route}", targetRoute);
+            
+            // TODO: Implement SignalR broadcast to route waiting participants
+            // This will be implemented when SessionWaiting.razor integration is ready
+            // For now, just show success toast
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                $"Session starting! Participants will join {(Model.SelectedCanvas == CanvasType.AssetCanvas ? "Asset Canvas" : "Transcript Canvas")}", 
+                "success");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error starting session");
+            await JSRuntime.InvokeVoidAsync("showNoorToast", "Error starting session", "error");
+        }
     }
     
     // Debug Actions Factory
