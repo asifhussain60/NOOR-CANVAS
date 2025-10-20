@@ -292,5 +292,20 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to end session" });
             }
         }
+
+        /// <summary>
+        /// Get session information by user token for routing decisions.
+        /// Used by UserLanding.razor to determine which canvas to route to based on CanvasType.
+        /// NOTE: This method needs SimplifiedCanvasDbContext to access UserToken and CanvasType properties.
+        /// For now, returning NOT_IMPLEMENTED - will be added to a separate API controller.
+        /// </summary>
+        /// <param name="token">User token (8-character alphanumeric).</param>
+        /// <returns>Session info including CanvasType.</returns>
+        [HttpGet("info/{token}")]
+        public IActionResult GetSessionInfo(string token)
+        {
+            _logger.LogWarning("[user-landing] GetSessionInfo endpoint not yet implemented - use /api/participant/session-info/{token} instead");
+            return StatusCode(501, new { error = "Use /api/participant/session-info/{token} instead" });
+        }
     }
 }

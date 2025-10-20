@@ -389,6 +389,15 @@ namespace NoorCanvas.Controllers
         {
             try
             {
+                // [user-landing] Validate canvasType parameter
+                var validCanvasTypes = new[] { "asset", "transcript" };
+                if (!validCanvasTypes.Contains(canvasType.ToLowerInvariant()))
+                {
+                    _logger.LogWarning("[user-landing] Invalid canvasType '{CanvasType}' for session {SessionId} - defaulting to 'asset'", 
+                        canvasType, sessionId);
+                    canvasType = "asset";
+                }
+
                 // [DEBUG-WORKITEM:hcp-sticky-buttons:simple] Log canvas type selection ;CLEANUP_OK
                 _logger.LogInformation("NOOR-INFO: Starting session: {SessionId} with canvas type: {CanvasType}", sessionId, canvasType);
 
@@ -400,6 +409,11 @@ namespace NoorCanvas.Controllers
 
                 session.StartedAt = DateTime.UtcNow;
                 session.Status = "Active";
+                session.CanvasType = canvasType.ToLowerInvariant(); // [user-landing] Persist canvas type to database
+                
+                _logger.LogInformation("[user-landing] Session {SessionId} - CanvasType set to '{CanvasType}'", 
+                    sessionId, session.CanvasType);
+                
                 await _context.SaveChangesAsync();
 
                 // Broadcast SessionBegan event via SignalR with canvas type for routing

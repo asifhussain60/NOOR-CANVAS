@@ -706,5 +706,48 @@ namespace NoorCanvas.Controllers
                 return new Dictionary<string, string>();
             }
         }
+
+        /// <summary>
+        /// Get session information by user token for routing decisions.
+        /// Used by UserLanding.razor to determine which canvas to route to based on CanvasType.
+        /// </summary>
+        /// <param name="token">User token (8-character alphanumeric).</param>
+        /// <returns>Session info including CanvasType.</returns>
+        [HttpGet("session-info/{token}")]
+        public async Task<IActionResult> GetSessionInfoByToken(string token)
+        {
+            try
+            {
+                _logger.LogInformation("[user-landing] Querying session info for token: {Token}", token);
+
+                var session = await _context.Sessions
+                    .Where(s => s.UserToken == token)
+                    .Select(s => new
+                    {
+                        sessionId = s.SessionId,
+                        canvasType = s.CanvasType ?? "asset", // Default to "asset" if NULL
+                        status = s.Status,
+                        startedAt = s.StartedAt,
+                        albumId = s.AlbumId
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (session == null)
+                {
+                    _logger.LogWarning("[user-landing] Session not found for token: {Token}", token);
+                    return NotFound(new { error = "Session not found" });
+                }
+
+                _logger.LogInformation("[user-landing] Session {SessionId} - CanvasType: {CanvasType}, Status: {Status}",
+                    session.sessionId, session.canvasType, session.status);
+
+                return Ok(session);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[user-landing] Error querying session info for token: {Token}", token);
+                return StatusCode(500, new { error = "Failed to retrieve session information" });
+            }
+        }
     }
 }

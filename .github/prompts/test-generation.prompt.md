@@ -401,6 +401,15 @@ Receive from task.prompt.md or plan.prompt.md:
 
 **Purpose**: Validate migration syntax, execution safety, rollback functionality, and data integrity
 
+**Database Configuration:**
+- **SQL Server Instance**: `AHHOME`
+- **Production Database**: `KSESSIONS`
+- **Development Database**: `KSESSIONS_DEV`
+- **Connection String Format**: `sqlcmd -S AHHOME -d {DATABASE_NAME} -E`
+- **Authentication**: Windows Authentication (Trusted Connection)
+
+**CRITICAL**: All migration validation tests execute against `KSESSIONS_DEV` only (NEVER production).
+
 **Test Types:**
 
 #### 1. SQL Syntax Validation Test
@@ -493,7 +502,7 @@ test.describe('Migration Validation: {migration-description}', () => {
     try {
       // Execute migration against KSESSIONS_DEV (not production)
       const migrationOutput = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${migrationFile}" -b`,
         { encoding: 'utf-8' }
       );
       
@@ -503,7 +512,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       
       // Verify MigrationHistory record created
       const historyCheck = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -512,7 +521,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       // Verify schema changes applied (example: check column exists)
       // Customize this query based on your specific migration
       const schemaCheck = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -528,7 +537,7 @@ test.describe('Migration Validation: {migration-description}', () => {
     try {
       // Execute rollback against KSESSIONS_DEV
       const rollbackOutput = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${rollbackFile}" -b`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${rollbackFile}" -b`,
         { encoding: 'utf-8' }
       );
       
@@ -538,7 +547,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       
       // Verify MigrationHistory updated with rollback timestamp
       const historyCheck = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}' AND RolledBackAt IS NOT NULL" -h -1`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}' AND RolledBackAt IS NOT NULL" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -546,7 +555,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       
       // Verify schema changes reversed (example: check column removed)
       const schemaCheck = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -562,21 +571,21 @@ test.describe('Migration Validation: {migration-description}', () => {
     try {
       // First execution (should apply changes)
       const firstRun = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${migrationFile}" -b`,
         { encoding: 'utf-8' }
       );
       expect(firstRun).toContain('completed successfully');
       
       // Second execution (should skip - already applied)
       const secondRun = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -i "${migrationFile}" -b`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -i "${migrationFile}" -b`,
         { encoding: 'utf-8' }
       );
       expect(secondRun).toContain('already applied - skipping');
       
       // Verify only one MigrationHistory entry exists
       const historyCount = execSync(
-        `sqlcmd -S localhost -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        `sqlcmd -S AHHOME -d KSESSIONS_DEV -Q "SELECT COUNT(*) FROM canvas.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -662,7 +671,7 @@ try {
 # Step 4: Cleanup (rollback KSESSIONS_DEV to clean state)
 Write-Host "[4/4] Cleaning up KSESSIONS_DEV..." -ForegroundColor Cyan
 try {
-    sqlcmd -S localhost -d KSESSIONS_DEV -i $rollbackFile -b
+    sqlcmd -S AHHOME -d KSESSIONS_DEV -i $rollbackFile -b
     Write-Host "  ✅ Database cleaned (rollback executed)" -ForegroundColor Green
 } catch {
     Write-Host "  ⚠️ Cleanup failed (manual rollback may be needed)" -ForegroundColor Yellow

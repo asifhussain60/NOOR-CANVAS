@@ -607,6 +607,77 @@ try {
         Write-Success "Created deployment directory"
     }
 
+    # Step 4.5: Pre-Deployment Validation - Check for problematic configuration files
+    # [DEBUG-WORKITEM:deploy:pre-validation] Prevent appsettings.local.json from being deployed
+    Write-Step "Pre-Deployment Validation: Checking publish output for dangerous configuration files..."
+    
+    $preDeploymentIssues = @()
+    
+    # Check 1: Ensure appsettings.local.json is NOT in publish output
+    Write-Info "→ Checking for appsettings.local.json in publish directory..."
+    $localConfigPath = Join-Path $PublishPath "appsettings.local.json"
+    if (Test-Path $localConfigPath) {
+        Write-Host "  ✗ CRITICAL: appsettings.local.json found in publish output!" -ForegroundColor Red
+        Write-Host "    This file overrides production settings and MUST NOT be deployed." -ForegroundColor Red
+        Write-Host "    Location: $localConfigPath" -ForegroundColor Yellow
+        $preDeploymentIssues += "appsettings.local.json found in publish directory (overrides production configuration)"
+    } else {
+        Write-Host "  ✓ appsettings.local.json correctly excluded from publish" -ForegroundColor Green
+    }
+    
+    # Check 2: Ensure appsettings.*.local.json patterns are not present
+    Write-Info "→ Checking for other local configuration overrides..."
+    $localConfigPatterns = Get-ChildItem -Path $PublishPath -Filter "appsettings.*.local.json" -ErrorAction SilentlyContinue
+    if ($localConfigPatterns.Count -gt 0) {
+        Write-Host "  ✗ CRITICAL: Local configuration overrides found!" -ForegroundColor Red
+        foreach ($localConfig in $localConfigPatterns) {
+            Write-Host "    - $($localConfig.Name)" -ForegroundColor Yellow
+            $preDeploymentIssues += "Local configuration file found: $($localConfig.Name)"
+        }
+    } else {
+        Write-Host "  ✓ No local configuration overrides found" -ForegroundColor Green
+    }
+    
+    # Check 3: Verify appsettings.Production.json exists
+    Write-Info "→ Verifying production configuration file exists..."
+    $prodConfigPath = Join-Path $PublishPath "appsettings.Production.json"
+    if (Test-Path $prodConfigPath) {
+        Write-Host "  ✓ appsettings.Production.json present" -ForegroundColor Green
+        
+        # Verify it contains KSESSIONS reference
+        $prodConfigContent = Get-Content $prodConfigPath -Raw
+        if ($prodConfigContent -match "Database=KSESSIONS[^_]") {
+            Write-Host "  ✓ Production config references KSESSIONS database" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠ WARNING: Production config may not reference KSESSIONS database" -ForegroundColor Yellow
+            Write-Host "    Please verify appsettings.Production.json manually" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  ✗ appsettings.Production.json NOT found!" -ForegroundColor Red
+        $preDeploymentIssues += "appsettings.Production.json missing from publish directory"
+    }
+    
+    # Fail deployment if critical issues found
+    if ($preDeploymentIssues.Count -gt 0) {
+        Write-Host "`n========================================" -ForegroundColor Red
+        Write-Host "  PRE-DEPLOYMENT VALIDATION FAILED" -ForegroundColor Red
+        Write-Host "========================================" -ForegroundColor Red
+        Write-Host "`nThe following issues MUST be resolved before deploying:" -ForegroundColor Yellow
+        foreach ($issue in $preDeploymentIssues) {
+            Write-Host "  ❌ $issue" -ForegroundColor Red
+        }
+        Write-Host "`nRESOLUTION STEPS:" -ForegroundColor Cyan
+        Write-Host "  1. Ensure appsettings.local.json is in .gitignore" -ForegroundColor Gray
+        Write-Host "  2. Delete appsettings.local.json from your workspace source" -ForegroundColor Gray
+        Write-Host "  3. Re-run: dotnet publish -c Release" -ForegroundColor Gray
+        Write-Host "  4. Re-run: .\ncdeploy.ps1" -ForegroundColor Gray
+        Write-Host "`nDO NOT deploy with local configuration files - they will override production settings!" -ForegroundColor Red
+        
+        throw "Pre-deployment validation failed. Cannot proceed with deployment."
+    }
+    
+    Write-Success "Pre-deployment validation passed - ready to deploy"
+    
     # Step 5: Deploy the application
     Write-Step "Deploying application to $DeployPath..."
     
@@ -820,6 +891,32 @@ try {
     $validationFailed = $false
     $validationErrors = @()
     
+    # Validation 0: CRITICAL - Ensure appsettings.local.json is NOT deployed
+    Write-Info "→ Validating no local configuration overrides deployed..."
+    $deployedLocalConfig = Join-Path $DeployPath "appsettings.local.json"
+    if (Test-Path $deployedLocalConfig) {
+        Write-Host "  ✗ CRITICAL: appsettings.local.json found in deployment!" -ForegroundColor Red
+        Write-Host "    This file overrides production configuration and must be removed!" -ForegroundColor Red
+        Write-Host "    Location: $deployedLocalConfig" -ForegroundColor Yellow
+        $validationErrors += "appsettings.local.json deployed to production (CRITICAL: overrides production settings)"
+        $validationFailed = $true
+    } else {
+        Write-Host "  ✓ No appsettings.local.json in deployment" -ForegroundColor Green
+    }
+    
+    # Check for other local configuration patterns
+    $deployedLocalPatterns = Get-ChildItem -Path $DeployPath -Filter "appsettings.*.local.json" -ErrorAction SilentlyContinue
+    if ($deployedLocalPatterns.Count -gt 0) {
+        Write-Host "  ✗ WARNING: Local configuration files found in deployment:" -ForegroundColor Yellow
+        foreach ($localConfig in $deployedLocalPatterns) {
+            Write-Host "    - $($localConfig.Name)" -ForegroundColor Yellow
+            $validationErrors += "Local configuration file deployed: $($localConfig.Name)"
+        }
+        $validationFailed = $true
+    } else {
+        Write-Host "  ✓ No local configuration overrides deployed" -ForegroundColor Green
+    }
+    
     # Validation 1: NoorCanvas web.config - verify Production environment and KSESSIONS database
     Write-Info "→ Validating NoorCanvas configuration..."
     $webConfigPath = Join-Path $DeployPath "web.config"
@@ -843,19 +940,31 @@ try {
         $validationFailed = $true
     }
     
-    # Validation 2: NoorCanvas appsettings.json - verify KSESSIONS database
-    Write-Info "→ Validating NoorCanvas appsettings.json..."
-    $appsettingsPath = Join-Path $DeployPath "appsettings.json"
-    if (Test-Path $appsettingsPath) {
-        $appsettingsContent = Get-Content $appsettingsPath -Raw
+    # Validation 2: NoorCanvas appsettings.Production.json - verify KSESSIONS database
+    Write-Info "→ Validating NoorCanvas appsettings.Production.json..."
+    $appsettingsProdPath = Join-Path $DeployPath "appsettings.Production.json"
+    if (Test-Path $appsettingsProdPath) {
+        $appsettingsProdContent = Get-Content $appsettingsProdPath -Raw
         
-        if ($appsettingsContent -match 'Database=KSESSIONS') {
-            Write-Host "  ✓ NoorCanvas appsettings: KSESSIONS database" -ForegroundColor Green
+        if ($appsettingsProdContent -match 'Database=KSESSIONS[^_]') {
+            Write-Host "  ✓ NoorCanvas appsettings.Production.json: KSESSIONS database" -ForegroundColor Green
         } else {
-            Write-Host "  ✗ NoorCanvas appsettings: NOT KSESSIONS database!" -ForegroundColor Red
-            $validationErrors += "NoorCanvas appsettings.json does not reference KSESSIONS production database"
+            Write-Host "  ✗ NoorCanvas appsettings.Production.json: NOT KSESSIONS database!" -ForegroundColor Red
+            $validationErrors += "NoorCanvas appsettings.Production.json does not reference KSESSIONS production database"
             $validationFailed = $true
         }
+    } else {
+        Write-Host "  ✗ appsettings.Production.json not found!" -ForegroundColor Red
+        $validationErrors += "NoorCanvas appsettings.Production.json missing at $appsettingsProdPath"
+        $validationFailed = $true
+    }
+    
+    # Validation 2.5: NoorCanvas appsettings.json - verify base settings (optional - Production.json should override)
+    Write-Info "→ Validating NoorCanvas appsettings.json (base configuration)..."
+    $appsettingsPath = Join-Path $DeployPath "appsettings.json"
+    if (Test-Path $appsettingsPath) {
+        Write-Host "  ✓ NoorCanvas appsettings.json present (base configuration)" -ForegroundColor Green
+        # Don't fail if base config has dev database - Production.json should override
     } else {
         Write-Host "  ✗ appsettings.json not found!" -ForegroundColor Red
         $validationErrors += "NoorCanvas appsettings.json missing at $appsettingsPath"
@@ -961,6 +1070,34 @@ try {
         } finally {
             Pop-Location
         }
+    }
+
+    # Step 9: Automated Post-Deployment Smoke Tests
+    # [DEBUG-WORKITEM:deploy:smoke-tests] Run comprehensive validation after deployment
+    Write-Step "Running automated post-deployment smoke tests..."
+    Write-Info "→ Executing: post-deploy-smoke-test.ps1"
+    
+    $smokeTestScript = Join-Path $WorkspaceRoot "Scripts\post-deploy-smoke-test.ps1"
+    if (Test-Path $smokeTestScript) {
+        try {
+            # Run smoke tests and capture exit code
+            & $smokeTestScript -SkipApiTests
+            $smokeTestExitCode = $LASTEXITCODE
+            
+            if ($smokeTestExitCode -eq 0) {
+                Write-Success "Smoke tests passed - deployment validated!"
+            } else {
+                Write-Warning "Smoke tests detected issues (Exit Code: $smokeTestExitCode)"
+                Write-Host "  Review the smoke test output above for details." -ForegroundColor Yellow
+                Write-Host "  Deployment completed but may require manual verification." -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Warning "Failed to run smoke tests: $($_.Exception.Message)"
+            Write-Info "You can run smoke tests manually: .\Scripts\post-deploy-smoke-test.ps1"
+        }
+    } else {
+        Write-Warning "Smoke test script not found at: $smokeTestScript"
+        Write-Info "Skipping automated validation. Please test manually."
     }
 
     # Final summary
