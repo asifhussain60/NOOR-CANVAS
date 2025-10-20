@@ -145,7 +145,10 @@
         {
             "id": 4,
             "title": "Universal Recovery Protocol",
-            "status": "not-started",
+            "status": "completed",
+            "startedAt": "2025-10-20T16:00:00Z",
+            "completedAt": "2025-10-20T16:15:00Z",
+            "durationMinutes": 15,
             "dependencies": [
                 3
             ],
@@ -153,30 +156,30 @@
                 {
                     "id": "4.1",
                     "description": "Update plan.json with interruptedAt field",
-                    "completed": false
+                    "completed": true
                 },
                 {
                     "id": "4.2",
                     "description": "Add Step 0.5.5 to task.prompt.md",
-                    "completed": false
+                    "completed": true
                 },
                 {
                     "id": "4.3",
                     "description": "Define 'continue' command pattern",
-                    "completed": false
+                    "completed": true
                 },
                 {
                     "id": "4.4",
                     "description": "Document recovery workflow",
-                    "completed": false
+                    "completed": true
                 }
             ],
             "validation": {
-                "buildPassed": false,
-                "lintPassed": false,
+                "buildPassed": true,
+                "lintPassed": true,
                 "testCreated": false
             },
-            "userApproved": false
+            "userApproved": true
         },
         {
             "id": 5,

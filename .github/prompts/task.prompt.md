@@ -263,6 +263,83 @@ Agent Actions:
 
 ---
 
+### Step 0.5.5: Recovery Detection (CONDITIONAL)
+
+**Trigger:** ALWAYS when `key` parameter is resolved (Step 0.5 or Step 2.1)
+
+**Purpose:** Detect interrupted workflows and offer seamless recovery from last checkpoint
+
+**Detection:**
+1. **Load plan.json**: `.github/prompts.keys/{key}/{key}.plan.json`
+2. **Check for interruptedAt field**:
+   ```json
+   "interruptedAt": {
+     "phase": 4,
+     "step": "4.2",
+     "timestamp": "2025-10-20T15:30:00Z",
+     "reason": "build-failure",
+     "errorMessage": "CS0103: The name 'foo' does not exist",
+     "lastSuccessfulPhase": 3
+   }
+   ```
+3. **If interruptedAt exists** → Present recovery option:
+   ```
+   🔄 INTERRUPTED WORKFLOW DETECTED
+   
+   Key: {key}
+   Last Successful Phase: Phase {lastSuccessfulPhase}
+   Interrupted At: Phase {phase}, Step {step}
+   Reason: {reason}
+   Timestamp: {timestamp}
+   
+   Error: {errorMessage}
+   
+   Would you like to resume from Phase {phase}? (yes/no)
+   ```
+
+4. **User Response:**
+   - **"yes"** / **"resume"** / **"continue"** → Proceed to recovery workflow
+   - **"no"** / **"start over"** → Clear interruptedAt, proceed normally
+   - **No response** → Assume "yes" after 5 seconds
+
+**Recovery Workflow:**
+1. **Load checkpoint tag**: `checkpoint/{key}/{timestamp}`
+   ```bash
+   git tag -l "checkpoint/{key}/*" | tail -1
+   ```
+2. **Verify checkpoint exists** (last successful phase should have tag)
+3. **Resume from interrupted phase**:
+   - Set `current_phase = interruptedAt.phase`
+   - Load phase tasks from plan.md
+   - Skip completed tasks (check plan.json task.completed flags)
+   - Execute remaining tasks
+4. **Clear interruptedAt on phase completion**:
+   ```json
+   "interruptedAt": null
+   ```
+
+**User Commands (Alternative Triggers):**
+- **"continue"** → Auto-detect most recent interrupted key, resume
+- **"resume {key}"** → Resume specific key's interrupted workflow
+- **"continue from phase {N}"** → Resume from specific phase (override interruptedAt.phase)
+
+**Validation:**
+- If NO plan.json found → Skip recovery (no workflow to resume)
+- If NO interruptedAt field → Skip recovery (no interruption detected)
+- If checkpoint tag missing → Warn user, offer fresh start from interrupted phase
+
+**Output:**
+```
+✅ Resuming from Phase {phase}: {title}
+
+Last Checkpoint: Phase {lastSuccessfulPhase} ({checkpoint-tag})
+Skipping completed tasks: {completed-task-count}/{total-task-count}
+
+Executing remaining tasks...
+```
+
+---
+
 ### Step 0.25: Key Folder Existence Validation (MANDATORY)
 
 **Trigger:** ALWAYS when `key` parameter is provided or auto-detected

@@ -749,6 +749,19 @@ Low Priority:
         }
       }
     },
+    "interruptedAt": {
+      "type": "object",
+      "description": "Recovery checkpoint set when workflow is interrupted (error, crash, cancellation). Cleared on successful phase completion.",
+      "properties": {
+        "phase": { "type": "integer", "description": "Phase number where interruption occurred" },
+        "step": { "type": "string", "description": "Step identifier (e.g., '4.2', '5.1')" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When interruption occurred" },
+        "reason": { "type": "string", "enum": ["error", "build-failure", "test-failure", "validation-failure", "user-cancel", "crash"], "description": "Cause of interruption" },
+        "errorMessage": { "type": "string", "description": "Error details if applicable" },
+        "lastSuccessfulPhase": { "type": "integer", "description": "Last phase that completed successfully" }
+      },
+      "required": ["phase", "step", "timestamp", "reason"]
+    },
     "enhancements": {
       "type": "array",
       "items": {
