@@ -190,4 +190,78 @@
 
 ---
 
+## [2025-10-20T01:00:00Z] - task agent (self-executing)
+
+**Status**: Phase 4 Complete  
+**Phase**: Progress Tracking & Dependency Validation
+
+**Work Done**:
+- ✅ **Enhanced Dynamic Progress Tracker Template** (lines 1940-2000)
+  * Added comprehensive checklist fields per phase:
+    - Build status: "0 errors, 0 warnings" (strict mode)
+    - Lint validation: "all modified files"
+    - Test passing: "{N}/{M} scenarios"
+    - Test stability: "{X} stable, {Y} flaky (from 3x run)"
+    - Percy baseline: "{baseline-id}" (or "N/A - no visual changes")
+    - Commit: "{short-sha} - {commit message first line}"
+    - Tag: "checkpoint/{key}/{timestamp}"
+    - User approval flag
+  * Update protocol documented: Task agent reads {key}.plan.md, marks ✅, fills values, writes back
+  * Concise user messages: Bullet summary only, no checklist dump
+  * Example checklist update and user message format provided
+  
+- ✅ **Implemented Phase Completion Verification Protocol** (lines 1387-1469)
+  * 7-step verification before marking phase complete:
+    1. All TODO items checked off
+    2. Build passes (zero errors, zero warnings) - command: `dotnet build --no-incremental`
+    3. Lint validation passes - command: `npm run lint`
+    4. Playwright tests created and passing (or flaky with justification) - 3x run stability check
+    5. Percy baseline created (if visual changes)
+    6. Commit created with correct format: `[{key}] Phase {N}: {Title}` with debug marker
+    7. Checkpoint tag created: `checkpoint/{key}/{timestamp}`
+  * Halt on failure with specific error messages and resolution steps
+  * Verification output format: Success (✅ all checks) or Failure (❌ with errors)
+  * Benefits: Quality gates enforced, no incomplete phases slip through
+  
+- ✅ **Implemented Phase Dependency Validation Protocol** (lines 1471-1564)
+  * 4-step validation before starting next phase:
+    1. Check "Previous Phase Dependencies" section in Phase N+1
+    2. Verify required files exist - `Test-Path` checks
+    3. Verify required commits exist - `git tag -l checkpoint/{key}/*` checks
+    4. Verify required tests pass - `npx playwright test {file}` verification
+  * Validation commands provided with PowerShell examples
+  * Halt on failure with resolution steps (fix previous phase, investigate regressions, re-verify)
+  * Benefits: Prevents out-of-order execution, catches regressions early, clean phase transitions
+  
+- ✅ **Enhanced Approval Gate & Sequential Execution** (lines 1907-1973)
+  * Integrated verification and validation into phase transition flow
+  * 7-step sequential protocol:
+    1. Run Phase Completion Verification (halt if fails)
+    2. Update Progress Tracker silently
+    3. Update {key}.plan.json (completedAt, durationMinutes, SHA, tag, metrics)
+    4. Run Phase Dependency Validation for next phase (halt if fails)
+    5. Automatically begin next phase introduction
+    6. Update {key}.plan.json for new phase (in-progress, startedAt)
+    7. Execute next phase tasks
+  * Updated flow diagram: Phase N Complete → Verify → Update Tracker → Update JSON → User "proceed" → Validate Dependencies → Begin Phase N+1
+  * Halt points documented: Verification fails OR Dependencies fail
+  * No manual commands required (seamless flow with quality gates)
+
+**Files Modified**:
+- `.github/prompts/plan.prompt.md` (added ~275 lines: Progress Tracker enhancement, Phase Completion Verification Protocol, Phase Dependency Validation Protocol, enhanced Approval Gate)
+
+**Commit**: `75771f43`  
+**Tag**: `checkpoint/plan-prompt-enhancement/20251020-010000`
+
+**Validation**: PASS
+- Manual review: Progress Tracker template includes all required fields (build, lint, tests, stability, Percy, commit, tag)
+- Manual review: Verification protocol catches all quality gate failures (incomplete TODOs, build errors, test failures, missing commits/tags)
+- Manual review: Dependency validation prevents out-of-order execution (checks files, commits, tests)
+- Manual review: Sequential flow integrates verification and validation seamlessly
+- Manual review: User messages remain concise (no checklist dumps, just bullet summaries)
+
+**Next Phase**: Phase 5 - Git Commit Integration & Phase Checkpoints
+
+---
+
 **Cross-Reference**: This work-log tracks execution progress. For complete plan details, architecture analysis, and task prompts, see `plan-prompt-enhancement.plan.md`.
