@@ -123,8 +123,8 @@ Before moving to next phase, verify:
   - [x] Test: Playwright E2E test with browser log validation ✅
 - [x] **Phase 4:** UserLanding Post-Registration Navigation ✅
   - [x] Test: Playwright E2E test with browser log validation ✅
-- [ ] **Phase 5:** Session Ended Handling
-  - [ ] Test: Playwright E2E test with browser log validation
+- [x] **Phase 5:** Session Ended Handling ✅
+  - [x] Test: Playwright E2E test with browser log validation ✅
 - [ ] **Phase 6:** localStorage Infrastructure
   - [ ] Test: Playwright E2E test with browser log validation
 - [ ] **Phase 7:** Expiration Extension Logic

@@ -1126,6 +1126,15 @@
         // [DEBUG-WORKITEM:userlanding:guard:transcript] Registration verification - prevent unregistered users from accessing transcript view ;CLEANUP_OK
         if (!string.IsNullOrEmpty(SessionToken))
         {
+            // [DEBUG-WORKITEM:userlanding:session-ended] Check session status BEFORE registration verification ;CLEANUP_OK
+            var sessionStatus = await CheckSessionStatusAsync(SessionToken, requestId);
+            if (sessionStatus.IsEnded)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:session-ended] Session {SessionId} has ended - redirecting to SessionEnded page ;CLEANUP_OK", sessionStatus.SessionId);
+                Navigation.NavigateTo($"/session/ended/{sessionStatus.SessionId}", forceLoad: true);
+                return;
+            }
+
             // Check for sessionStorage bypass flag (set after successful registration)
             var bypassFlag = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", "noor_registration_complete");
             
@@ -1823,6 +1832,55 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Error disposing SignalR connection");
+        }
+    }
+
+    // [DEBUG-WORKITEM:userlanding:session-ended] Check session status before allowing access ;CLEANUP_OK
+    /// <summary>
+    /// Check if session has ended before allowing access
+    /// Prevents users from accessing ended sessions
+    /// </summary>
+    private async Task<(bool IsEnded, long SessionId)> CheckSessionStatusAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:session-ended] Checking session status for token: {0} ;CLEANUP_OK", token);
+
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var validationUrl = $"/api/participant/session/{token}/validate";
+            var response = await httpClient.GetAsync(validationUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:session-ended] Session validation API failed: {0} ;CLEANUP_OK", 
+                    response.StatusCode);
+                return (false, 0);
+            }
+
+            var validationContent = await response.Content.ReadAsStringAsync();
+            var validationData = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(validationContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (validationData.TryGetProperty("Session", out var sessionElement))
+            {
+                var sessionId = sessionElement.GetProperty("SessionId").GetInt64();
+                var status = sessionElement.GetProperty("Status").GetString() ?? "";
+                
+                var isEnded = string.Equals(status, "Ended", StringComparison.OrdinalIgnoreCase);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:session-ended] Session {SessionId} status: {Status}, IsEnded: {IsEnded} ;CLEANUP_OK", 
+                    sessionId, status, isEnded);
+                
+                return (isEnded, sessionId);
+            }
+
+            Logger.LogWarning("[DEBUG-WORKITEM:userlanding:session-ended] No session data in validation response ;CLEANUP_OK");
+            return (false, 0);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:session-ended] Exception during session status check ;CLEANUP_OK");
+            return (false, 0);
         }
     }
 

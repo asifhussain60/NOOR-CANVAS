@@ -95,14 +95,29 @@
 
 ---
 
-### Phase 5: Add Session Ended Handling
+### Phase 5: Add Session Ended Handling ✅ COMPLETED
 **Outcome:** Ended sessions redirect to SessionEnded page  
 **Debug:** `[DEBUG-WORKITEM:userlanding:session-ended];CLEANUP_OK`  
-**Files:** All session pages (SessionWaiting, SessionCanvas, TranscriptCanvas)
+**Files:** 
+- `SPA/NoorCanvas/Pages/SessionWaiting.razor`
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+- `SPA/NoorCanvas/Pages/TranscriptCanvas.razor`
 
 **Changes:**
-- Check session status in registration guard
-- If status == "ended", redirect to `/session/ended/{sessionId}`
+- Added `CheckSessionStatusAsync()` method to all three session pages
+- Calls `/api/participant/session/{token}/validate` endpoint to retrieve session status
+- Checks `Session.Status == "Ended"` BEFORE registration verification
+- Redirects to `/session/ended/{sessionId}` if session has ended
+- Session status check takes priority over registration guard (fail-secure pattern)
+
+**Testing:**
+- Created `Tests/UI/phase5-session-ended-redirect.spec.ts` with 4 test scenarios
+- Created `Scripts/run-phase5-test.ps1` orchestration script
+- Build: ✅ Zero errors, zero warnings
+- Lint: ✅ All files pass validation
+- Test prerequisites: Session 212 must have Status='Ended' in database
+
+**Date Completed:** 2025-10-19
 
 ---
 
