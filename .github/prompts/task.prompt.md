@@ -44,6 +44,21 @@ Controls agent output detail level shown to user (does NOT affect functionality)
 Subtasks to execute sequentially, halting on failure.  
 **Special:** `"mark complete"` or `"completed"` triggers Step 9 (cross-layer documentation, debug cleanup, completion)
 
+### github-branch *(optional, default=`development`)*
+Target branch for implementation work. Typically received from plan agent handoff or specified explicitly by user.  
+**Options:** 
+- `development` (default): ALL development work per SelfAwareness.instructions.md
+- `master`: Production only (requires explicit override, triggers warning in Step 0)
+
+**Usage:**
+- **From plan handoff:** Plan agent automatically includes this in task invocation
+- **User override:** Can specify explicitly if working outside plan workflow
+- **Default behavior:** If omitted, defaults to `development` branch
+
+**Validation:** Step 0 (Branch Verification) validates current git branch matches this parameter
+
+**See:** `SelfAwareness.instructions.md` - Branch Strategy section
+
 ### annotate *(optional)* - **DEPRECATED - Use in plan.prompt.md instead**
 **DEPRECATED:** Image analysis has been moved to plan.prompt.md Step 0.6
 
@@ -195,20 +210,61 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 - **`master`** - Production only (PROTECTED - deploy target)
 - **`development`** - ALL development work (DEFAULT)
 
-**Verification:**
-```bash
-git branch --show-current
-# Expected: development
-```
+**Verification Process:**
 
-**If on wrong branch:**
-```bash
-git checkout development
-```
+1. **Check current git branch:**
+   ```bash
+   git branch --show-current
+   # Expected: development (or github-branch parameter value)
+   ```
+
+2. **Validate against github-branch parameter:**
+   - **If `github-branch` parameter provided:** Verify current branch matches parameter
+   - **If `github-branch` NOT provided:** Default to `development`, verify current branch is `development`
+
+3. **Branch Mismatch Handling:**
+   - **Current branch = `master` AND github-branch = `development` (or not specified):**
+     ```
+     ⚠️ CRITICAL: Cannot execute on master branch
+     
+     Current branch: master
+     Required branch: development (per github-branch parameter)
+     
+     Per SelfAwareness.instructions.md, ALL development work occurs in 'development' branch.
+     
+     ACTION REQUIRED: Switch to development branch
+     Command: git checkout development
+     
+     ❌ ABORTING task execution
+     ```
+     **EXIT with error - do NOT proceed**
+   
+   - **Current branch ≠ github-branch parameter:**
+     ```
+     ⚠️ WARNING: Branch mismatch detected
+     
+     Current branch: {current-branch}
+     Expected branch: {github-branch} (from parameter)
+     
+     Would you like to:
+     1. Switch to {github-branch} branch (recommended)
+     2. Proceed on {current-branch} anyway (override)
+     
+     Respond with "1" or "2"
+     ```
+     - If user chooses "1" → Switch branch: `git checkout {github-branch}`
+     - If user chooses "2" → Warn and document override in work log
+
+4. **Branch Validation Success:**
+   ```
+   ✓ Branch verified: {current-branch}
+   (Matches github-branch parameter: {github-branch})
+   ```
 
 **Enforcement:**
-- ⚠️ **ABORT** task execution if on `master` branch
-- ✅ **PROCEED** only if on `development` branch
+- ⚠️ **ABORT** task execution if on `master` branch (unless github-branch explicitly set to `master`)
+- ✅ **PROCEED** if current branch matches github-branch parameter
+- ⚠️ **PROMPT** user if mismatch detected (allow override with warning)
 
 **See:** `SelfAwareness.instructions.md` - Branch Strategy section
 

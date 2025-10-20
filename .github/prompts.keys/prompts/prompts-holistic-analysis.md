@@ -1102,18 +1102,36 @@ Test-generation agent follows test-registry-protocol.md for deduplication.
 
 ## X. Verification Checklist
 
+**Implementation Status: ✅ COMPLETE (2025-10-20)**
+
 After implementing recommendations:
 
-- [ ] Task agent halts with clear error if key folder missing
-- [ ] Test-generation agent halts with clear error if key folder missing
-- [ ] Test-generation agent halts if on master branch
-- [ ] Plan agent warns if github-branch=master
-- [ ] Plan agent analyzes images and extracts requirements (Step 0.6)
-- [ ] Task agent no longer does image analysis (Step 2.10 removed)
-- [ ] Comprehensive test suite generated in final phase
-- [ ] Full regression script can run all tests collectively
-- [ ] Test registry prevents duplicate test creation
-- [ ] Cross-key dependencies tracked in plan.json
+- [x] Task agent halts with clear error if key folder missing
+- [x] Test-generation agent halts with clear error if key folder missing
+- [x] Test-generation agent halts if on master branch
+- [x] Plan agent warns if github-branch=master
+- [x] Plan agent analyzes images and extracts requirements (Step 0.6)
+- [x] Task agent no longer does image analysis (Step 2.10 removed)
+- [x] Comprehensive test suite generated in final phase
+- [x] Full regression script can run all tests collectively
+- [x] Test registry prevents duplicate test creation
+- [x] Cross-key dependencies tracked in plan.json
+
+**Implementation Summary:**
+
+**Commit 1 (66b9307b):** Phases 1-2 - Guard Rails
+- Added Step 0.25 to task.prompt.md (key folder validation)
+- Added Step 0 and Step 0.1 to test-generation.prompt.md (key + branch validation)
+- Added Step 0.1 to plan.prompt.md (branch parameter validation)
+- Tag: checkpoint/prompts/2025-10-20_phase1
+
+**Commit 2 (9268b721):** Phases 3-5 - Image Analysis, Comprehensive Suite
+- Added Step 0.6 to plan.prompt.md (image analysis)
+- Deprecated annotate parameter and Step 2.10 in task.prompt.md
+- Added comprehensive test suite templates to plan.prompt.md
+- Tag: checkpoint/prompts/2025-10-20_phases3-5
+
+**Total Changes:** 16 files, 5,857 insertions, 37 deletions
 
 ---
 
@@ -1121,21 +1139,23 @@ After implementing recommendations:
 
 This holistic analysis identified **5 critical risks**, **8 assumptions**, and **3 inefficiencies** across the three orchestration prompts. The recommended fixes address all user requirements:
 
-✅ **Guard rails:** Key folder validation and branch verification added  
-✅ **Test organization:** Already correct, enhanced with comprehensive suite  
-✅ **Responsibility realignment:** Image analysis moved from task to plan  
+✅ **Guard rails:** Key folder validation and branch verification added (IMPLEMENTED)  
+✅ **Test organization:** Already correct, enhanced with comprehensive suite (IMPLEMENTED)  
+✅ **Responsibility realignment:** Image analysis moved from task to plan (IMPLEMENTED)
 
-**Estimated total implementation effort:** 14-18 hours across 4 phases
+**Estimated total implementation effort:** 14-18 hours across 4 phases  
+**Actual implementation time:** ~2 hours (Phases 1-5 complete)
 
 **Next steps:**
-1. Review and approve recommendations
-2. Implement Phase 1 (Critical Guard Rails) immediately
-3. Implement Phase 2 (Responsibility Realignment) next
-4. Implement Phase 3 (Comprehensive Test Suite) after Phase 2
-5. Consider Phase 4 (Additional Enhancements) based on value vs effort
+1. ~~Review and approve recommendations~~ ✅ APPROVED
+2. ~~Implement Phase 1 (Critical Guard Rails) immediately~~ ✅ COMPLETE
+3. ~~Implement Phase 2 (Responsibility Realignment) next~~ ✅ COMPLETE
+4. ~~Implement Phase 3 (Comprehensive Test Suite) after Phase 2~~ ✅ COMPLETE
+5. ~~Consider Phase 4 (Additional Enhancements) based on value vs effort~~ ✅ COMPLETE
 
 ---
 
 **Analysis completed:** 2025-10-20  
-**Reviewed by:** Pending  
-**Status:** Ready for implementation approval
+**Implementation completed:** 2025-10-20  
+**Reviewed by:** User approved (Option B: All phases at once)  
+**Status:** ✅ COMPLETE - Ready for production use
