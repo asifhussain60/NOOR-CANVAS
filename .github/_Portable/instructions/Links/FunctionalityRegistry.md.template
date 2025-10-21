@@ -1,3 +1,15 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 # Functionality Registry - Regression Prevention System
 
 ## Overview
@@ -32,8 +44,8 @@ The registry tracks which files and methods control critical behaviors:
 ```markdown
 ### Breaking Change Detection
 - **File Watch**: 
-  - `SPA/NoorCanvas/Pages/UserLanding.razor`
-  - `SPA/NoorCanvas/Services/AuthService.cs`
+  - `SPA/{{PROJECT_NAME}}/Pages/UserLanding.razor`
+  - `SPA/{{PROJECT_NAME}}/Services/AuthService.cs`
 - **Method Watch**:
   - `OnInitializedAsync()` - Initialization logic
   - `ValidateToken()` - Token validation
@@ -235,11 +247,11 @@ Confirm all behaviors work? (yes/no)
 
 ### 4. Test Coverage Strategy
 **Priority Order**:
-1. **Automated E2E Tests** ({{TEST_FRAMEWORK}}) - Best coverage, run automatically
+1. **Automated E2E Tests** (Playwright) - Best coverage, run automatically
 2. **Automated Unit Tests** - Fast, cover specific logic
 3. **Manual Validation Checklist** - Fallback when no automated tests exist
 
-**Recommendation**: Create {{TEST_FRAMEWORK}} tests for all core behaviors over time.
+**Recommendation**: Create Playwright tests for all core behaviors over time.
 
 ---
 
@@ -257,7 +269,7 @@ Confirm all behaviors work? (yes/no)
 - ✅ **Registration Access**: After token validation → Waiting room access enabled
 
 ### Related Test Coverage
-- **Automated Tests**: None (recommended: create {{TEST_FRAMEWORK}} test)
+- **Automated Tests**: None (recommended: create Playwright test)
 - **Manual Validation**:
   - Navigate to /session/canvas/KJAHA99L (valid)
   - Verify: Registration panel appears immediately
@@ -268,9 +280,9 @@ Confirm all behaviors work? (yes/no)
 
 ### Breaking Change Detection
 - **File Watch**:
-  - `SPA/NoorCanvas/Pages/UserLanding.razor` - Main UI component
-  - `SPA/NoorCanvas/Controllers/ParticipantController.cs` - Validation API
-  - `SPA/NoorCanvas/Services/SimplifiedTokenService.cs` - Token logic
+  - `SPA/{{PROJECT_NAME}}/Pages/UserLanding.razor` - Main UI component
+  - `SPA/{{PROJECT_NAME}}/Controllers/ParticipantController.cs` - Validation API
+  - `SPA/{{PROJECT_NAME}}/Services/SimplifiedTokenService.cs` - Token logic
 - **Method Watch**:
   - `UserLanding.OnInitializedAsync()` - Panel state initialization
   - `UserLanding.LoadSessionInfoAsync()` - Token validation & error handling
@@ -361,10 +373,10 @@ Run manual validation to ensure behaviors are testable and accurate.
 
 ### Breaking Change Detection
 - **File Watch**:
-  - `SPA/NoorCanvas/Pages/SessionCanvas.razor` - Canvas rendering
-  - `SPA/NoorCanvas/wwwroot/css/session-transcript.css` - Asset styling
+  - `SPA/{{PROJECT_NAME}}/Pages/Session{{SCHEMA_PRIMARY}}.razor` - Canvas rendering
+  - `SPA/{{PROJECT_NAME}}/wwwroot/css/session-transcript.css` - Asset styling
 - **Method Watch**:
-  - `SessionCanvas.RenderContent()` - Content display logic
+  - `Session{{SCHEMA_PRIMARY}}.RenderContent()` - Content display logic
 - **State Watch**:
   - `.canvas-asset-content` CSS class - Must have `display: flex; justify-content: center`
 
@@ -406,7 +418,7 @@ Run manual validation to ensure behaviors are testable and accurate.
 - Basic regression history tracking
 
 ### Phase 2 (Future)
-- Automated {{TEST_FRAMEWORK}} test execution when File Watch triggers
+- Automated Playwright test execution when File Watch triggers
 - Contract-based testing with JSON schema validation
 - Performance regression detection (load time, API response time)
 - Visual regression testing with screenshot comparison
@@ -433,3 +445,4 @@ The **Functionality Registry** is a lightweight, practical system that:
 **ROI**: Prevents silent regressions, improves code confidence, enables safer refactoring, reduces manual QA overhead.
 
 **Integration**: Seamlessly integrates with existing task workflow in Step 8.2 (no disruption to current process).
+

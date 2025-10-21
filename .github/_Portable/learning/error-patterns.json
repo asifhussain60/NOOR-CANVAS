@@ -1,6 +1,1 @@
-{
-    "schema_version": "1.0.0",
-    "last_updated": "[Will be set during setup]",
-    "description": "Known error patterns across all agents. This file starts empty and populates as agents encounter and document errors.",
-    "patterns": []
-}
+[]

@@ -1,387 +1,206 @@
-# Portable AI Agent System
+# AI Agent System - Portable Template
 
-A complete, self-contained AI agent infrastructure that can be deployed to any software project.
-
----
-
-## 🚀 Quick Start
-
-1. **Copy this folder** to your project root
-2. **Run setup**: `setup.bat` (Windows) or `./setup.ps1` (PowerShell/Linux/Mac)
-3. **Follow prompts** to configure for your project
-4. **Start using**: `@workspace /question What agents are available?`
+**Version:** 2.5.0  
+**Last Updated:** October 21, 2025  
+**Status:** Production Ready
 
 ---
 
-## 📋 What's Included
+## Overview
 
-### AI Agent System
-- **8 Specialized Agents** for development tasks
-- **2 Meta-Agents** for system management
-- **Smart Learning System** that improves over time
-- **Comprehensive Documentation** framework
-- **Automated Testing** integration
-- **Code Quality** enforcement
+This is a **drop-in ready** AI agent system that provides intelligent coding assistance through specialized agents. The system uses GitHub Copilot with custom prompts to enable sophisticated workflows like feature planning, task execution, code refactoring, test generation, and more.
 
-### Complete Infrastructure
-- ✅ Agent prompt definitions
-- ✅ Instruction files
-- ✅ Learning infrastructure
-- ✅ Workspace organization
-- ✅ Template variables system
-- ✅ Setup automation
+### Key Features
+
+✅ **10+ Specialized Agents** - Each agent handles specific workflows  
+✅ **Automatic Configuration** - Run `@workspace /total-recall` to configure  
+✅ **Learning System** - Agents learn from patterns and improve over time  
+✅ **Cross-Agent Coordination** - Agents work together seamlessly  
+✅ **Technology Agnostic** - Supports .NET, Node.js, Python, Java, Ruby, Go, PHP  
+✅ **Production Tested** - Battle-tested in real-world projects
 
 ---
 
-## 🤖 Available Agents
+## Quick Start (3 Steps)
 
-### Task Agent (`/task`)
-Execute features, bug fixes, and incremental work
-- Phase-based processing
-- Automatic test generation
-- Git integration
-- Progress tracking
-
-### Refactor Agent (`/refactor`)
-Safe code quality improvements and architectural refactoring
-- Preserves functionality
-- Maintains test coverage
-- Analyzer integration
-
-### Sync Agent (`/sync`)
-Keep documentation synchronized with code
-- Architecture updates
-- API contract validation
-- Cross-reference checking
-
-### Healthcheck Agent (`/healthcheck`)
-Validate system health and configuration
-- Build verification
-- Dependency checking
-- Database connectivity
-- Code quality metrics
-
-### Question Agent (`/question`)
-Answer questions about the project
-- Context-aware responses
-- Code examples
-- Documentation references
-
-### Test Generation Agent (`/test`)
-Generate comprehensive automated tests
-- Unit tests
-- Integration tests
-- E2E tests
-- Coverage tracking
-
-### Learning Analysis Agent (`/analyze-learning`)
-Extract patterns and generate insights
-- Success pattern identification
-- Failure pattern avoidance
-- Performance optimization
-- Recommendation generation
-
-### Cohesion Review Agent (`/cohesion-review`)
-Review code quality and architectural alignment
-- Quality metrics
-- Architecture compliance
-- Technical debt tracking
-- Improvement recommendations
-
-### Port Instructions Agent (`/port-instructions`) - Meta
-Regenerate the portable system with latest improvements
-- Creates/updates _Portable folder
-- Extracts templates from current project
-- Maintains portability
-- **Use when:** Updating portable system with improvements
-
-### Total Recall Agent (`/total-recall`) - Meta
-Analyze project and populate all templates with project data
-- Deep project analysis
-- Template population
-- Infrastructure documentation
-- **Use when:** After setup.bat to fully customize AI system
-
----
-
-## 💾 Technology Compatibility
-
-### Supported Project Types
-
-**Fully Tested:**
-- ✅ .NET (C#, ASP.NET Core, Blazor)
-- ✅ Node.js (JavaScript, TypeScript, Express, React, Vue)
-- ✅ Python (Django, Flask, FastAPI)
-- ✅ Java (Spring Boot, Jakarta EE)
-
-**Community Supported:**
-- 🔶 Ruby (Rails, Sinatra)
-- 🔶 Go (any framework)
-- 🔶 PHP (Laravel, Symfony)
-- 🔶 Other (custom configuration required)
-
-### Database Support
-- SQL Server
-- PostgreSQL
-- MySQL/MariaDB
-- MongoDB
-- Oracle
-- SQLite
-
-### Testing Frameworks
-- Playwright
-- Selenium
-- Jest
-- xUnit/NUnit
-- pytest
-- JUnit
-- RSpec
-
----
-
-## 📦 Installation
-
-### Automated Setup (Recommended)
-
-**Windows:**
-```cmd
-setup.bat
+### 1. Copy to Your Project
+```powershell
+# Copy this entire folder to your project
+cp -r .github/_Portable/* your-project/.github/
 ```
 
-**PowerShell/Linux/Mac:**
-```bash
-./setup.ps1
+### 2. Run Configuration
+```powershell
+# In your project, invoke total-recall agent
+@workspace /total-recall
 ```
 
-The setup script will:
-1. Detect your project type
-2. Prompt for configuration
-3. Generate customized files
-4. Create workspace structure
-5. Produce setup summary
+**What total-recall does:**
+- Scans your project structure (package.json, *.csproj, requirements.txt, etc.)
+- Detects technology stack, frameworks, build tools
+- Replaces all `{{TEMPLATE_VARIABLES}}` with project-specific values
+- Creates configured `.github/` folder ready to use
 
-### Manual Setup
+### 3. Start Using Agents
+```powershell
+# Ask what agents are available
+@workspace /question "What agents are available?"
 
-1. Copy all files from `.github/_Portable/` to your project's `.github/` folder
-2. Manually replace `{{VARIABLE}}` placeholders in template files
-3. Remove `.template` extensions
-4. Create workspace folders (see structure below)
+# Or jump right in with feature planning
+@workspace /feature key=my-feature user_request="Add user authentication"
+```
 
 ---
 
-## 🗂️ Workspace Structure
+## Technology Compatibility
 
-After setup, your project will have:
+| Technology | Status | Notes |
+|-----------|--------|-------|
+| **.NET** (C#, F#) | ✅ Full Support | ASP.NET Core, Blazor, Entity Framework |
+| **Node.js** (JavaScript, TypeScript) | ✅ Full Support | React, Vue, Express, NestJS |
+| **Python** | ✅ Full Support | Django, Flask, FastAPI, SQLAlchemy |
+| **Java** | ✅ Full Support | Spring Boot, Maven, Gradle |
+| **Ruby** | ✅ Full Support | Rails, Sinatra, Bundler |
+| **Go** | ✅ Full Support | Gin, Echo, go modules |
+| **PHP** | ✅ Full Support | Laravel, Symfony, Composer |
+
+---
+
+## Agent Overview
+
+### Planning & Coordination
+- **`/feature`** - Feature planning agent (creates implementation plans)
+- **`/question`** - Q&A agent (answers questions about codebase/agents)
+
+### Development
+- **`/task`** - Task execution agent (implements features phase-by-phase)
+- **`/refactor`** - Code refactoring agent (improves code quality)
+- **`/commit`** - Commit message generator (creates conventional commits)
+
+### Testing & Quality
+- **`/test-generation`** - Test generation agent (creates E2E/unit tests)
+- **`/healthcheck`** - System health validation (checks agent system integrity)
+- **`/sync`** - Documentation synchronization (keeps docs up-to-date)
+
+### Analysis & Learning
+- **`/analyze-learning`** - Learning extraction (analyzes patterns from work)
+- **`/cohesion-review`** - Prompt cohesion audit (validates agent consistency)
+
+### Maintenance
+- **`/cleanup`** - Workspace cleanup (removes temporary artifacts)
+- **`/port-instructions`** - Template generation (creates portable versions)
+- **`/total-recall`** - Configuration agent (THIS PROMPT - configures templates)
+
+---
+
+## Template Variables
+
+The system uses standardized template variables that total-recall replaces:
+
+### Project Identity
+- `{{PROJECT_NAME}}` - Your project name
+- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, etc.)
+- `{{LANGUAGES}}` - Programming languages
+- `{{FRAMEWORKS}}` - Frameworks and libraries
+
+### Build & Test
+- `{{BUILD_COMMAND}}` - Build command (e.g., `npm run build`)
+- `{{TEST_COMMAND}}` - Test command (e.g., `npm test`)
+- `{{RUN_COMMAND}}` - Run command (e.g., `npm start`)
+- `{{LINT_COMMAND}}` - Linting command (e.g., `npm run lint`)
+
+### Database
+- `{{DATABASE_TYPE}}` - Database type and ORM
+- `{{DATABASE_NAME}}` - Primary database name
+- `{{DATABASE_SERVER}}` - Database server
+- `{{SCHEMA_PRIMARY}}` - Primary writable schema
+- `{{SCHEMA_READONLY}}` - Read-only schemas
+
+### Infrastructure
+- `{{API_BASE_URL}}` - API base URL
+- `{{UI_FRAMEWORK}}` - UI framework
+- `{{REALTIME_TECH}}` - Real-time technology (SignalR, Socket.IO, etc.)
+- `{{AUTH_TYPE}}` - Authentication type
+
+### Paths
+- `{{SOURCE_PATH}}` - Main source code path
+- `{{TEST_PATH}}` - Test files path
+- `{{CONFIG_PATH}}` - Configuration files path
+- `{{WORKSPACE_PATH}}` - Workspace folder path
+
+### Tools & Quality
+- `{{ANALYZER_TOOLS}}` - Code analysis tools
+- `{{TEST_FRAMEWORK}}` - Testing framework
+- `{{PACKAGE_MANAGER}}` - Package manager
+
+---
+
+## Directory Structure
 
 ```
 .github/
-├── instructions/          # Core operating instructions
-│   ├── SelfAwareness.instructions.md
-│   └── Links/            # Reference documentation
-├── prompts/              # Agent definitions
-│   └── shared/          # Reusable documentation
-├── learning/            # Learning system
-│   ├── patterns/       # Learned patterns
-│   ├── insights/       # Insights
-│   └── recommendations/  # Improvements
-└── reports/            # Agent reports
-
-Workspaces/
-├── Copilot/           # Agent workspace
-│   ├── _DOCS/        # Documentation
-│   ├── artifacts/    # Build artifacts
-│   ├── config/       # Configurations
-│   └── prompts.keys/ # Work tracking
-├── CodeQuality/      # Code analysis
-└── TEMP/            # Temporary files
+├── instructions/
+│   ├── SelfAwareness.instructions.md       - Global operating rules
+│   └── Links/
+│       ├── SystemIndex.md                   - System documentation index
+│       ├── Architecture.md                  - Architecture patterns
+│       ├── InfrastructureQuickRef.md       - Infrastructure reference
+│       ├── PlaywrightQuickRef.md           - Testing reference
+│       └── ... (other reference docs)
+├── prompts/
+│   ├── feature.prompt.md                    - Feature planning agent
+│   ├── task.prompt.md                       - Task execution agent
+│   ├── refactor.prompt.md                   - Refactoring agent
+│   ├── test-generation.prompt.md           - Test generation agent
+│   ├── ... (other agent prompts)
+│   └── shared/
+│       ├── commit-message-format.md        - Commit conventions
+│       ├── execution-flow.md               - Agent workflows
+│       └── ... (shared guidelines)
+└── learning/
+    ├── README.md                            - Learning system docs
+    ├── PATTERN_SCHEMA.md                    - Pattern structure
+    ├── patterns/                            - Reusable patterns
+    ├── insights/                            - Technology insights
+    └── recommendations/                     - Active recommendations
 ```
 
 ---
 
-## 🎯 Common Workflows
+## Troubleshooting
 
-### Implementing a Feature
-```
-@workspace /task key=feature-name tasks="Implement user authentication"
-```
+### "Template variables still present after running total-recall"
+- **Cause:** total-recall couldn't detect project type
+- **Solution:** Manually specify project type:
+  ```
+  @workspace /total-recall project-type=".NET"
+  ```
 
-### Fixing a Bug
-```
-@workspace /task key=bug-123 tasks="Fix login redirect issue
----
-Add test for redirect
----
-Update documentation"
-```
+### "Agent not found" error
+- **Cause:** Prompt file not in `.github/prompts/`
+- **Solution:** Verify all `.template` files were copied and renamed
 
-### Improving Code Quality
-```
-@workspace /refactor key=cleanup scope=service
-```
+### "Agent behaving incorrectly"
+- **Cause:** Configuration may be incomplete
+- **Solution:** Re-run total-recall with explicit parameters:
+  ```
+  @workspace /total-recall project-type=".NET" frameworks="ASP.NET Core, Blazor"
+  ```
 
-### Generating Tests
-```
-@workspace /test target=src/services/UserService.ts
-```
-
-### Checking System Health
-```
-@workspace /healthcheck
-```
-
-### Updating Documentation
-```
-@workspace /sync
-```
-
-### Asking Questions
-```
-@workspace /question How does authentication work in this project?
-```
+### Need help?
+- Run: `@workspace /question "How do I use the task agent?"`
+- Check: `START-HERE.md` for quick start examples
+- Review: `QUICK-REFERENCE.md` for agent syntax
 
 ---
 
-## 🔧 Configuration
+## What's Next?
 
-### Template Variables
-
-All template files use `{{VARIABLE}}` placeholders that setup.ps1 replaces:
-
-**Project Identity:**
-- `{{PROJECT_NAME}}` - Your project name
-- `{{PROJECT_TYPE}}` - .NET, Node.js, Python, etc.
-- `{{LANGUAGES}}` - Programming languages
-- `{{FRAMEWORKS}}` - Framework names
-
-**Build & Test:**
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
-- `{{RUN_COMMAND}}` - Run command
-- `{{LINT_COMMAND}}` - Linting command
-
-**Database:**
-- `{{DATABASE_NAME}}` - Primary database
-- `{{DATABASE_SERVER}}` - Database server
-- `{{DATABASE_TYPE}}` - Database type
-- `{{SCHEMA_PRIMARY}}` - Writable schema
-- `{{SCHEMA_READONLY}}` - Read-only schemas
-
-**Infrastructure:**
-- `{{API_BASE_URL}}` - API base URL
-- `{{APP_PORT}}` - Application port
-- `{{REALTIME_TECH}}` - Real-time technology
-- `{{UI_FRAMEWORK}}` - UI framework
-
-See `QUICK-REFERENCE.md` for complete list.
+1. ✅ Read **START-HERE.md** for detailed examples
+2. ✅ Check **QUICK-REFERENCE.md** for agent syntax
+3. ✅ Review **STATUS.md** for version info and limitations
+4. ✅ Try creating a feature: `@workspace /feature key=test user_request="Add hello world endpoint"`
 
 ---
 
-## 📚 Documentation
-
-- **START-HERE.md** - Quick start guide
-- **QUICK-REFERENCE.md** - Command reference
-- **COMPLETE.md** - Setup completion checklist
-- **STATUS.md** - Version and compatibility info
-
----
-
-## 🌟 Features
-
-### Smart Learning System
-- Captures successful patterns
-- Avoids known failures
-- Improves over time
-- Generates recommendations
-
-### Automated Testing
-- Test generation per phase
-- Multiple test types
-- Coverage tracking
-- Integration with CI/CD
-
-### Code Quality
-- Analyzer integration
-- Linting enforcement
-- Quality metrics
-- Technical debt tracking
-
-### Git Integration
-- Checkpoint commits
-- Rollback support
-- Traceability
-- Clean history
-
-### Documentation Sync
-- Automatic updates
-- Cross-reference validation
-- API contract checking
-- Architecture alignment
-
----
-
-## 🆘 Troubleshooting
-
-### Setup Issues
-
-**PowerShell execution policy error:**
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
-```
-
-**Template variables not replaced:**
-- Run setup.bat/setup.ps1 again
-- Check for .template extensions on files
-- Manually edit files if needed
-
-### Agent Issues
-
-**Agent not responding:**
-- Check SelfAwareness.instructions.md is in place
-- Verify agent prompt file exists
-- Review SystemIndex.md for correct structure
-
-**Build/test failures:**
-- Review error messages carefully
-- Check InfrastructureQuickRef.md configuration
-- Run healthcheck: `@workspace /healthcheck`
-
----
-
-## 📊 Version History
-
-- **v1.0.0** (Initial Release)
-  - Complete portable system
-  - 8 specialized agents
-  - Learning infrastructure
-  - Multi-language support
-  - Automated setup
-
----
-
-## 🤝 Contributing
-
-This portable system improves based on real-world usage:
-
-1. **Report Issues** - Document problems encountered
-2. **Share Patterns** - Contribute learned patterns
-3. **Suggest Improvements** - Propose enhancements
-4. **Update Templates** - Improve template quality
-
----
-
-## 📄 License
-
-This AI agent infrastructure is provided as-is for use in software projects. Customize freely for your needs.
-
----
-
-## 🔗 Links
-
-- **Documentation**: See `.github/instructions/Links/`
-- **Agent Prompts**: See `.github/prompts/`
-- **Learning System**: See `.github/learning/`
-- **Project Setup**: See `PROJECT-SETUP-SUMMARY.md` (generated after setup)
-
----
-
-**Ready to get started? Run `setup.bat` or `./setup.ps1` now!**
+**Welcome to the AI Agent System!** 🚀

@@ -3,7 +3,6 @@ D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Relea
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\web.config
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\web.Debug.config
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\web.Release.config
-D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\appsettings.local.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\NoorCanvas.staticwebassets.runtime.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\NoorCanvas.staticwebassets.endpoints.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.Avalonia\bin\Release\net8.0\NoorCanvas.exe

@@ -1,291 +1,310 @@
-# START HERE - Portable AI Agent System
+# START HERE - AI Agent System Quick Start
 
-**3-Step Quick Start** → Ready in 5 minutes!
-
----
-
-## Step 1: Run Setup (2 minutes)
-
-### Windows
-```cmd
-setup.bat
-```
-
-### PowerShell/Linux/Mac
-```bash
-./setup.ps1
-```
-
-**What happens:**
-- Detects your project type automatically
-- Asks configuration questions
-- Generates customized files
-- Creates workspace structure
-- Produces summary document
+**Welcome!** This guide gets you using AI agents in 5 minutes.
 
 ---
 
-## Step 2: Review Setup (2 minutes)
+## Step 1: Configuration (30 seconds)
 
-Open and review:
-- `PROJECT-SETUP-SUMMARY.md` - Configuration details
-- `.github/instructions/SelfAwareness.instructions.md` - Operating rules
-- `.github/instructions/Links/SystemIndex.md` - Navigation hub
+Copy this folder to your project, then run:
 
----
-
-## Step 3: Try Your First Agent (1 minute)
-
-```
-@workspace /question What agents are available?
-```
-
-**Success!** You're now ready to use all 8 AI agents.
-
----
-
-## Agent Quick Reference
-
-### 💼 Task Agent - Execute Work
-```
-@workspace /task key=feature-name tasks="Implement X
----
-Add tests for X
----
-Update docs"
-```
-
-**Use for:** Features, bug fixes, incremental work
-
----
-
-### 🔧 Refactor Agent - Improve Code
-```
-@workspace /refactor key=cleanup scope=module
-```
-
-**Use for:** Code quality, architecture improvements
-
----
-
-### 🔄 Sync Agent - Update Docs
-```
-@workspace /sync
-```
-
-**Use for:** Keeping documentation current
-
----
-
-### 🏥 Healthcheck Agent - Validate System
-```
-@workspace /healthcheck
-```
-
-**Use for:** Build verification, system validation
-
----
-
-### ❓ Question Agent - Get Answers
-```
-@workspace /question How does [feature] work?
-```
-
-**Use for:** Learning about the project
-
----
-
-### 🧪 Test Agent - Generate Tests
-```
-@workspace /test target=src/MyService.cs
-```
-
-**Use for:** Creating test suites
-
----
-
-### 📊 Learning Agent - Extract Patterns
-```
-@workspace /analyze-learning
-```
-
-**Use for:** Continuous improvement
-
----
-
-### 🎯 Cohesion Agent - Review Quality
-```
-@workspace /cohesion-review
-```
-
-**Use for:** Architecture compliance, quality audits
-
----
-
-### 🔄 Port Instructions Agent - Create Portable System (Meta)
-```
-@workspace /port-instructions
-```
-
-**Use for:** Regenerating the _Portable folder with latest improvements  
-**Note:** This is a meta-agent that creates the portable system itself
-
----
-
-### 🔍 Total Recall Agent - Populate Templates (Meta)
 ```
 @workspace /total-recall
 ```
 
-**Use for:** Analyzing a new project and populating all templates with project data  
-**Note:** Run this AFTER setup.bat to fully customize the system for your project
+That's it! total-recall scans your project and configures everything automatically.
+
+---
+
+## Step 2: Learn What's Available (1 minute)
+
+Ask the question agent:
+
+```
+@workspace /question "What agents are available and what do they do?"
+```
+
+---
+
+## Step 3: Try Your First Feature (3 minutes)
+
+Create a simple feature with the planning agent:
+
+```
+@workspace /feature key=hello-world user_request="Add a hello world endpoint that returns JSON"
+```
+
+**What happens:**
+1. Feature agent creates a detailed plan
+2. Shows you 4-5 phases to implement
+3. Asks for your approval
+4. You say "proceed"
+5. Agent outputs handoff command
+6. **YOU run the command** to start implementation
+7. Task agent implements each phase
 
 ---
 
 ## Common Workflows
 
-### New Feature
+### Planning → Implementation → Testing
+
 ```
-# 1. Implement feature
-@workspace /task key=login tasks="Add login functionality"
+# Step 1: Plan the feature
+@workspace /feature key=user-auth user_request="Add JWT authentication"
 
-# 2. Generate tests
-@workspace /test target=src/auth/LoginService
+# Step 2: After reviewing plan, start implementation  
+# (Feature agent gives you this command)
+@workspace /task key=user-auth github-branch=development tasks="Phase 1: ...\n---\nPhase 2: ..."
 
-# 3. Check quality
+# Step 3: Generate tests
+@workspace /test-generation feature=authentication scenario="login with valid credentials"
+```
+
+### Quick Refactoring
+
+```
+@workspace /refactor target="src/services/UserService.cs" focus="Extract validation logic to separate class"
+```
+
+### Generate Commit Message
+
+```
+# After making changes
+@workspace /commit
+```
+
+### Ask Questions
+
+```
+@workspace /question "How does the session management work?"
+@workspace /question "What's the best practice for error handling in this codebase?"
+@workspace /question "Show me examples of using the database context"
+```
+
+---
+
+## Agent Descriptions
+
+### 🎯 Feature Planning Agent (`/feature`)
+
+**Purpose:** Turns user requests into detailed, phased implementation plans
+
+**When to use:**
+- Starting a new feature
+- Need structured approach to complex changes
+- Want validation before coding
+
+**Example:**
+```
+@workspace /feature key=dark-mode user_request="Add dark mode toggle to UI"
+```
+
+**Output:**
+- Multi-phase implementation plan
+- Test requirements
+- Architecture analysis
+- Handoff command for task agent
+
+**CRITICAL:** Feature agent NEVER executes code directly. It only plans and presents handoff commands for your approval.
+
+---
+
+### ⚙️ Task Execution Agent (`/task`)
+
+**Purpose:** Implements features phase-by-phase based on plan
+
+**When to use:**
+- After feature agent creates a plan
+- Implementing from existing plan document
+
+**Example:**
+```
+@workspace /task key=dark-mode github-branch=development debug-level=simple tasks="Phase 1: Add theme state\n---\nPhase 2: Wire UI toggle"
+```
+
+**Output:**
+- Implementation for each phase
+- Build validation after changes
+- Commit after each phase
+- Progress updates
+
+---
+
+### 🔄 Refactor Agent (`/refactor`)
+
+**Purpose:** Improves code quality and structure
+
+**When to use:**
+- Code smells detected
+- Need to extract/simplify logic
+- Performance optimization
+
+**Example:**
+```
+@workspace /refactor target="src/api/SessionController.cs" focus="Extract validation to middleware"
+```
+
+**Output:**
+- Refactored code
+- Preserved functionality
+- Tests updated if needed
+
+---
+
+### 🧪 Test Generation Agent (`/test-generation`)
+
+**Purpose:** Creates end-to-end and unit tests
+
+**When to use:**
+- After implementing a feature
+- Need test coverage
+- Visual regression testing (Percy)
+
+**Example:**
+```
+@workspace /test-generation feature=login scenario="user logs in with valid credentials" tokens="Host=ABC123,User=XYZ789"
+```
+
+**Output:**
+- Playwright E2E tests
+- Percy visual tests (if UI changes)
+- Test orchestration scripts
+
+---
+
+### 💬 Question Agent (`/question`)
+
+**Purpose:** Answers questions about codebase, architecture, agents
+
+**When to use:**
+- Need to understand how something works
+- Looking for examples
+- Learning agent capabilities
+
+**Example:**
+```
+@workspace /question "How do I use SignalR hubs in this project?"
+@workspace /question "What's the database schema for sessions?"
+```
+
+**Output:**
+- Clear answers with code examples
+- Links to relevant files
+- Best practices
+
+---
+
+### 📝 Commit Agent (`/commit`)
+
+**Purpose:** Generates conventional commit messages
+
+**When to use:**
+- After making changes
+- Need proper commit format
+
+**Example:**
+```
+@workspace /commit
+```
+
+**Output:**
+- Conventional commit message
+- Scope and description
+- Breaking change flags if applicable
+
+---
+
+### 🏥 Health Check Agent (`/healthcheck`)
+
+**Purpose:** Validates agent system integrity
+
+**When to use:**
+- After configuration
+- Troubleshooting agent issues
+- Verifying setup
+
+**Example:**
+```
 @workspace /healthcheck
-
-# 4. Mark complete
-@workspace /task key=login tasks="mark complete"
 ```
 
-### Bug Fix
-```
-# 1. Fix the bug
-@workspace /task key=bug-123 tasks="Fix null reference in User.cs"
-
-# 2. Add regression test
-@workspace /task key=bug-123 tasks="Add test for null case"
-
-# 3. Update docs
-@workspace /sync
-```
-
-### Code Quality
-```
-# 1. Refactor code
-@workspace /refactor key=cleanup-services scope=service
-
-# 2. Check improvements
-@workspace /cohesion-review
-
-# 3. Extract learnings
-@workspace /analyze-learning
-```
+**Output:**
+- System health report
+- Missing files warnings
+- Configuration validation
 
 ---
 
-## Pro Tips
+### 🧹 Cleanup Agent (`/cleanup`)
 
-### 📌 Phase-Based Tasks
-Use `---` to separate phases:
+**Purpose:** Removes temporary files and artifacts
+
+**When to use:**
+- After completing work
+- Before committing
+- Workspace feeling cluttered
+
+**Example:**
 ```
-@workspace /task key=feature tasks="Phase 1: Create component
+@workspace /cleanup
+```
+
+**Output:**
+- Cleaned workspace
+- List of removed files
+- Disk space recovered
+
 ---
-Phase 2: Add styling
----
-Phase 3: Wire up API"
+
+## Tips & Tricks
+
+### 1. Use Key Parameters Consistently
+```
+# Start with feature agent
+@workspace /feature key=user-profile user_request="..."
+
+# Continue with same key
+@workspace /task key=user-profile ...
+@workspace /test-generation key=user-profile ...
 ```
 
-Each phase gets its own test and validation.
-
-### 🔖 Learning System
-The system learns as you work:
-- Captures successful patterns
-- Avoids known failures
-- Generates recommendations
-- Improves efficiency
-
-Run `/analyze-learning` weekly to extract insights.
-
-### 📝 Documentation Sync
-Keep docs current automatically:
+### 2. Break Large Features into Phases
 ```
-@workspace /sync target=architecture
+# Instead of one huge request
+@workspace /feature key=big-feature user_request="Implement entire user management system"
+
+# Break it down
+@workspace /feature key=user-mgmt-phase1 user_request="Add user registration"
+@workspace /feature key=user-mgmt-phase2 user_request="Add user profile editing"
 ```
 
-Syncs Architecture.md with actual codebase.
-
-### 🎯 Debug Logging
-Control debug output:
+### 3. Use Question Agent for Exploration
 ```
-@workspace /task key=feature debug-level=trace tasks="..."
+# Before implementing
+@workspace /question "Show me existing authentication patterns in this codebase"
+
+# Then implement
+@workspace /feature key=new-auth ...
 ```
 
-Options: `none`, `simple`, `trace`
+### 4. Review Plans Before Execution
+Feature agent creates plans → You review → You approve → You run handoff command
+
+Never skip the review step!
 
 ---
 
 ## Next Steps
 
-### Customize Your Setup
-1. Review `.github/instructions/Links/InfrastructureQuickRef.md`
-2. Update with actual database details
-3. Add project-specific information
-4. Configure code quality tools
-
-### Learn the System
-1. Read `SelfAwareness.instructions.md` - Core rules
-2. Browse `.github/prompts/` - Agent capabilities
-3. Check `.github/learning/` - Learning system
-4. Review `SystemIndex.md` - Navigation
-
-### Start Working
-1. Create your first task
-2. Let agents generate tests
-3. Watch the learning system grow
-4. Enjoy increased productivity!
+1. ✅ Run `@workspace /total-recall` to configure
+2. ✅ Try `@workspace /question "What agents are available?"`
+3. ✅ Create first feature with `/feature`
+4. ✅ Check `QUICK-REFERENCE.md` for syntax details
+5. ✅ Review `README.md` for deeper understanding
 
 ---
 
-## Troubleshooting
+**You're ready to go!** 🚀
 
-### Setup Failed
-- Check PowerShell execution policy
-- Run as administrator if needed
-- Verify project structure matches expected type
-
-### Agents Not Working
-- Ensure SelfAwareness.instructions.md exists
-- Check agent prompt files present
-- Verify workspace structure created
-
-### Documentation Issues
-- Run `/sync` to update docs
-- Check SystemIndex.md for navigation
-- Review generated template files
-
----
-
-## Getting Help
-
-### Documentation
-- **README.md** - Overview and features
-- **QUICK-REFERENCE.md** - Command syntax
-- **COMPLETE.md** - Setup checklist
-- **STATUS.md** - Version info
-
-### In-System Help
-```
-@workspace /question [your question]
-```
-
-The Question agent can answer project-specific questions.
-
----
-
-**Ready to build amazing things? Start with your first task!**
-
-```
-@workspace /task key=getting-started tasks="Verify setup is complete"
-```
+Start with: `@workspace /question "What should I try first?"`

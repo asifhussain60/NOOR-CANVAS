@@ -1,3 +1,16 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 mode: agent
 ---
 
@@ -18,7 +31,7 @@ When a question relates to **end-to-end testing** or **test creation**, route to
 
 ### Route to test-generation.prompt.md When:
 - ✅ Question asks "how do I test X feature?"
-- ✅ Question about creating {{TEST_FRAMEWORK}} tests
+- ✅ Question about creating Playwright tests
 - ✅ Troubleshooting test failures requiring new test coverage
 - ✅ User requests E2E test for specific functionality
 - ✅ Question about multi-user or multi-browser test scenarios
@@ -27,33 +40,33 @@ When a question relates to **end-to-end testing** or **test creation**, route to
 ```markdown
 ## 🎯 Test Generation Needed
 
-Your question about [X] requires creating a new {{TEST_FRAMEWORK}} test. This should be handled by the **Test Generation Agent**.
+Your question about [X] requires creating a new Playwright test. This should be handled by the **Test Generation Agent**.
 
 ### Recommended Invocation:
-@workspace /task "Generate {{TEST_FRAMEWORK}} test for [feature]" --test-generation
+@workspace /task "Generate Playwright test for [feature]" --test-generation
 
 ### What Will Be Generated:
-- Test file: `{{TEST_PATH}}/UI/{feature}-{scenario}.spec.ts`
+- Test file: `Tests/UI/{feature}-{scenario}.spec.ts`
 - Server management (PW_MODE=standalone preferred)
 - Multi-browser setup if needed (participant + host contexts)
 - Canonical Session 212 test data (PQ9N5YWW, KJAHA99L)
-- API validation patterns from {{TEST_FRAMEWORK}}TestPaths.MD
+- API validation patterns from PlaywrightTestPaths.MD
 
 ### Prerequisites:
 1. Feature must be implemented and working
 2. API endpoints should be defined and tested
-3. {{REALTIME_TECH}} broadcasts configured (if real-time feature)
+3. SignalR broadcasts configured (if real-time feature)
 
 **Next Step:** Invoke task.prompt.md which will evaluate and call test-generation.prompt.md automatically, or invoke test-generation.prompt.md directly with parameters.
 ```
 
 ### Answer Directly When:
-- ❌ Question about **existing** test structure or configuration (analyze {{TEST_FRAMEWORK}}Config.MD)
+- ❌ Question about **existing** test structure or configuration (analyze PlaywrightConfig.MD)
 - ❌ Understanding test results or debugging test failures (investigate test output)
 - ❌ Configuration questions (timeout, browser, artifact paths)
 - ❌ Test patterns or best practices (reference existing tests)
 
-**For these cases:** Provide analysis using {{TEST_FRAMEWORK}}Config.MD, {{TEST_FRAMEWORK}}TestPaths.MD, and existing test files.
+**For these cases:** Provide analysis using PlaywrightConfig.MD, PlaywrightTestPaths.MD, and existing test files.
 
 ---
 
@@ -82,15 +95,15 @@ The **Application Knowledge Agent** provides expert-level answers about any aspe
 ### How to Invoke
 ```
 @workspace /question "How does session management work?" depth=comprehensive
-@workspace /question "Why is the share button not appearing?" context="SessionCanvas.razor" depth=diagnostic
+@workspace /question "Why is the share button not appearing?" context="Session{{SCHEMA_PRIMARY}}.razor" depth=diagnostic
 @workspace /question "What controls the canvas styling?" depth=quick
-@workspace /question "What version of {{REALTIME_TECH}} are we using?" depth=standard
+@workspace /question "What version of SignalR are we using?" depth=standard
 ```
 
 ### Integration with Other Agents
 - **Supports All Agents**: Provides knowledge and investigation for task, refactor, sync, healthcheck
 - **Reads From**: 
-  - NOOR-CANVAS_ARCHITECTURE.MD (52 API endpoints, 15+ services, 4 {{REALTIME_TECH}} hubs)
+  - NOOR-CANVAS_ARCHITECTURE.MD (52 API endpoints, 15+ services, 4 SignalR hubs)
   - SystemStructureSummary.md (architectural orientation)
   - All code layers (UI, API, Services, Database, Configuration)
 - **Analysis Patterns**: 
@@ -128,14 +141,14 @@ You are the **Application Knowledge Agent** - providing **concise, cross-layer a
 ```
 ## Problem
 - Issue description
-- Affected component: `SessionCanvas.razor`
+- Affected component: `Session{{SCHEMA_PRIMARY}}.razor`
 
 ## Root Cause
-- Missing {{REALTIME_TECH}} handler at line 245
+- Missing SignalR handler at line 245
 - Config value not set in `appsettings.json`
 
 ## Solution
-1. Add handler to `TranscriptCanvas.razor:180`
+1. Add handler to `Transcript{{SCHEMA_PRIMARY}}.razor:180`
 2. Set `EnableBroadcast: true` in config
 3. Restart app to apply changes
 ```
@@ -148,7 +161,7 @@ Frontend → API → Service → Database → Broadcast → UI
 
 **Example Flow:**
 ```
-UI Event → JavaScript → JSInvokable Method → API Endpoint → Service Layer → Database → {{REALTIME_TECH}} Broadcast → All Clients
+UI Event → JavaScript → JSInvokable Method → API Endpoint → Service Layer → Database → SignalR Broadcast → All Clients
 ```
 
 **If any layer is missing → Flag as incomplete implementation**
@@ -156,23 +169,23 @@ UI Event → JavaScript → JSInvokable Method → API Endpoint → Service Laye
 ### 🗄️ Database Knowledge (MANDATORY)
 **When user asks about "database":**
 - Default assumption: **{{DATABASE_NAME}}** database
-- Server: {{DATABASE_SERVER}}
-- Connection: `_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")`
+- Server: AHHOME
+- Connection: `_configuration.GetConnectionString("DefaultConnection")`
 - **Schema Rules**:
   - ✅ `{{SCHEMA_PRIMARY}}.*` - READ-WRITE (Questions, Votes, Participants, Annotations)
-  - ❌ `{{SCHEMA_READONLY}}.*` - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries, Groups, Categories)
+  - ❌ `dbo.*` - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries, Groups, Categories)
   - ❌ All other schemas - **READ-ONLY**
 - **Always reference**: `InfrastructureQuickRef.md` for database details
 
 ### Reference Documentation
 - **SelfAwareness.instructions.md** - Global operating guardrails for all agents
 - **SystemIndex.md** - Central navigation hub with database rules prominently featured
-- **Architecture.md** - Complete system architecture (52 API endpoints, 15+ services, 4 {{REALTIME_TECH}} hubs)
+- **Architecture.md** - Complete system architecture (52 API endpoints, 15+ services, 4 SignalR hubs)
 - **InfrastructureQuickRef.md** ⭐ **MANDATORY** - Database connections, schema rules, API endpoints, test data
 - **API-Contract-Validation.md** - Cross-layer contract validation rules
 - **FunctionalityRegistry.md** - Feature tracking schema
-- **{{TEST_FRAMEWORK}}Config.MD** - E2E test configuration
-- **{{TEST_FRAMEWORK}}TestPaths.MD** - Test patterns and canonical test data
+- **PlaywrightConfig.MD** - E2E test configuration
+- **PlaywrightTestPaths.MD** - Test patterns and canonical test data
 
 ---
 
@@ -214,7 +227,7 @@ UI Event → JavaScript → JSInvokable Method → API Endpoint → Service Laye
 - API endpoint: [Controller.Action]
 - Service processes: [BusinessLogic]
 - Database updates: [Table.Column]
-- Broadcast via: [{{REALTIME_TECH}} hub]
+- Broadcast via: [SignalR hub]
 
 ### Files Involved
 - UI: `Component.razor:123`
@@ -224,7 +237,7 @@ UI Event → JavaScript → JSInvokable Method → API Endpoint → Service Laye
 
 ### Configuration
 - Setting: `appsettings.json:EnableFeature=true`
-- Connection: `{{CONNECTION_STRING_KEY}}`
+- Connection: `DefaultConnection`
 ```
 
 ### 🚨 **Troubleshooting**  
@@ -300,7 +313,7 @@ UI Event → JavaScript → JSInvokable Method → API Endpoint → Service Laye
 - **API Layer**: Find controllers, endpoints, DTOs
 - **Service Layer**: Check business logic, processing
 - **Database Layer**: Verify models, migrations, queries
-- **Integration**: Validate {{REALTIME_TECH}} hubs, API contracts
+- **Integration**: Validate SignalR hubs, API contracts
 
 ### 3. Generate Concise Answer
 - **Format**: Bullets only (no code unless requested)
@@ -487,3 +500,4 @@ After answering questions:
 - **Gaps identified** (missing implementations flagged)
 - **Actionable steps** provided (numbered, specific)
 - **Pattern contributed** if common question (update question-patterns.json)
+

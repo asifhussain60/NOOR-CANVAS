@@ -1,3 +1,16 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 # commit.prompt.md
 
 ---
@@ -380,7 +393,7 @@ foreach ($keyFile in $keyFiles) {
 **Expected Output**:
 ```
 🔍 Key Data Streams Found: 42
-  ✓ Clean: canvas.md
+  ✓ Clean: {{SCHEMA_PRIMARY}}.md
   📝 Cleaning: prompts.md (redundant N/A sections)
   📝 Cleaning: hcp.md (outdated business rules)
   ✓ Clean: sync.md
@@ -413,7 +426,7 @@ git commit -m "docs: extract common patterns from key data streams"
 1. **Search for Debug Markers**:
    ```powershell
    # Search for all files containing DEBUG-WORKITEM markers
-   $debugFiles = Get-ChildItem -Path "SPA/", "{{TEST_PATH}}/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
+   $debugFiles = Get-ChildItem -Path "SPA/", "Tests/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
        Where-Object { (Get-Content $_.FullName -Raw) -match '\[DEBUG-WORKITEM:.*\] ;CLEANUP_OK' }
    
    Write-Host "`n🔍 Files with Debug Markers: $($debugFiles.Count)" -ForegroundColor Cyan
@@ -459,7 +472,7 @@ git commit -m "docs: extract common patterns from key data streams"
 4. **Verify Cleanup**:
    ```powershell
    # Re-scan for any remaining markers
-   $remainingMarkers = Get-ChildItem -Path "SPA/", "{{TEST_PATH}}/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
+   $remainingMarkers = Get-ChildItem -Path "SPA/", "Tests/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
        Where-Object { (Get-Content $_.FullName -Raw) -match '\[DEBUG-WORKITEM:.*\] ;CLEANUP_OK' }
    
    if ($remainingMarkers.Count -eq 0) {
@@ -483,10 +496,10 @@ git commit -m "docs: extract common patterns from key data streams"
 **Expected Output**:
 ```
 🔍 Files with Debug Markers: 8
-  📝 SessionCanvas.razor: 12 unique marker(s)
+  📝 Session{{SCHEMA_PRIMARY}}.razor: 12 unique marker(s)
   📝 HostControlPanel.razor: 8 unique marker(s)
   📝 QuestionController.cs: 6 unique marker(s)
-  ✅ Cleaned: SessionCanvas.razor
+  ✅ Cleaned: Session{{SCHEMA_PRIMARY}}.razor
   ✅ Cleaned: HostControlPanel.razor
   ✅ Cleaned: QuestionController.cs
   ...
@@ -801,3 +814,4 @@ The agent MUST provide the summary report (Step 9) showing which steps were exec
 - **Automatic git skip**: Commit/push automatically skipped if no uncommitted changes
 
 **Important**: By default, all validation steps run on the entire codebase. This ensures comprehensive validation but takes time. Use skip parameters to optimize for speed when appropriate.
+

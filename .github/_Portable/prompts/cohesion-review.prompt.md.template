@@ -1,3 +1,16 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 # Prompt System Cohesion Review Agent
 
 ---
@@ -29,7 +42,7 @@ nckill
 **Fallback** (if `nckill` not available):
 ```powershell
 Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { 
-    $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' 
+    $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*{{PROJECT_NAME}}*' 
 } | Stop-Process -Force
 ```
 
@@ -102,9 +115,9 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 
 4. **Pattern Integration Points**:
    - **task.prompt.md**: Add successful execution patterns to Step 5 examples
-   - **refactor.prompt.md**: Add code quality patterns from {{ANALYZER_TOOLS}} reports
+   - **refactor.prompt.md**: Add code quality patterns from Roslynator reports
    - **healthcheck.prompt.md**: Add validation patterns from failure logs
-   - **test-generation.prompt.md**: Add test patterns from {{TEST_FRAMEWORK}} successes
+   - **test-generation.prompt.md**: Add test patterns from Playwright successes
    - **SelfAwareness.instructions.md**: Add architectural patterns from implementations
 
 **Output**: List of patterns with source files and recommended integration points
@@ -235,7 +248,7 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 1. **Check for shared module usage**: How many prompts use `shared/`?
 2. **Check for auto-load**: How many use "Step 2.3" auto-load?
 3. **Check for lazy loading**: Any prompts load all files upfront unnecessarily?
-4. **Spot validation duplication**: Count "dotnet build" occurrences
+4. **Spot validation duplication**: Count "{{BUILD_COMMAND}}" occurrences
 
 **Heuristics**:
 - If `shared/` not used → opportunity
@@ -526,17 +539,17 @@ Analyze all files in `.github/instructions/` and `.github/instructions/Links/`:
 - Architecture.md
 - SystemIndex.md
 - InfrastructureQuickRef.md
-- {{TEST_FRAMEWORK}}QuickRef.md
+- PlaywrightQuickRef.md
 - ValidationFramework.md
 - API-Contract-Validation.md
 - AnalyzerConfig.MD
-- {{TEST_FRAMEWORK}}Config.MD
-- {{TEST_FRAMEWORK}}TestPaths.MD
+- PlaywrightConfig.MD
+- PlaywrightTestPaths.MD
 - FunctionalityRegistry.md
 - SelfAwareness.instructions.md
 
 **Consolidation Opportunities**:
-- Combine similar files (e.g., {{TEST_FRAMEWORK}}QuickRef.md + {{TEST_FRAMEWORK}}Config.MD + {{TEST_FRAMEWORK}}TestPaths.MD → single comprehensive file)
+- Combine similar files (e.g., PlaywrightQuickRef.md + PlaywrightConfig.MD + PlaywrightTestPaths.MD → single comprehensive file)
 - Merge overlapping content (e.g., Architecture.md + SystemIndex.md redundant sections)
 - Eliminate duplicate information across files
 - Keep footprint small and efficient
@@ -574,7 +587,7 @@ Analyze all files in `.github/prompts/` and `.github/prompts/shared/`:
 
 **Consolidation Guidelines**:
 1. **Merge files with >70% overlapping content**
-2. **Combine related configurations** ({{TEST_FRAMEWORK}} files, Analyzer files)
+2. **Combine related configurations** (Playwright files, Analyzer files)
 3. **Eliminate redundant instructions** (duplicate steps, mandates)
 4. **Preserve critical information** - don't lose data during consolidation
 5. **Update all references** - ensure prompts reference consolidated files correctly
@@ -637,7 +650,7 @@ See .github/reports/cohesion-review-[DATE].md for full report"
 #### 9.1: Determine If Sync Is Needed
 
 **Invoke sync.prompt.md IF any of these occurred**:
-- ✅ Files were merged/consolidated (e.g., {{TEST_FRAMEWORK}} files combined)
+- ✅ Files were merged/consolidated (e.g., Playwright files combined)
 - ✅ Files were deleted (obsolete duplicates removed)
 - ✅ References were updated across multiple files
 - ✅ SystemIndex.md structure changed
@@ -747,7 +760,7 @@ verbosity: concise
 4. ✅ Implementation roadmap
 5. ✅ Metrics and scoring
 6. ✅ Git commit with all findings
-7. ✅ **QuickRef files updated** (InfrastructureQuickRef.md, {{TEST_FRAMEWORK}}QuickRef.md)
+7. ✅ **QuickRef files updated** (InfrastructureQuickRef.md, PlaywrightQuickRef.md)
 8. ✅ **Sync agent invoked** (if consolidations were performed) - ensures documentation alignment
 
 ### QuickRef Auto-Update Protocol
@@ -757,12 +770,12 @@ verbosity: concise
 1. **InfrastructureQuickRef.md**
    - Database connection strings (verify against appsettings.json)
    - API endpoints (verify against Architecture.md)
-   - {{REALTIME_TECH}} hubs (verify against code)
+   - SignalR hubs (verify against code)
    - External dependencies (SQL Server, Kestrel ports)
-   - Schema access rules ({{SCHEMA_PRIMARY}}.* vs {{SCHEMA_READONLY}}.*)
+   - Schema access rules ({{SCHEMA_PRIMARY}}.* vs dbo.*)
 
-2. **{{TEST_FRAMEWORK}}QuickRef.md**
-   - Test patterns (verify against {{TEST_FRAMEWORK}}Config.MD)
+2. **PlaywrightQuickRef.md**
+   - Test patterns (verify against PlaywrightConfig.MD)
    - Test data (Session 212, tokens)
    - Execution commands (verify against package.json scripts)
    - Configuration modes (standalone, temp, CI)
@@ -773,7 +786,7 @@ verbosity: concise
 2. **Compare with source of truth**:
    - appsettings.json for database connections
    - Architecture.md for API endpoints
-   - {{TEST_FRAMEWORK}}.config.cjs for test configuration
+   - playwright.config.cjs for test configuration
    - Actual test files for patterns
    - **ACTUAL DATABASE SCHEMA** (query {{DATABASE_NAME}}) ⚠️ MANDATORY
    - **ACTUAL CODEBASE** (grep for table/API usage) ⚠️ MANDATORY
@@ -843,15 +856,15 @@ Include in cohesion review report:
 
 **Query Date**: 2025-10-12
 **Database**: {{DATABASE_NAME}}
-**Server**: {{DATABASE_SERVER}}
+**Server**: AHHOME
 
 **{{SCHEMA_PRIMARY}}.* Schema Tables** (4 found):
-- canvas.AssetLookup ✅
-- canvas.Sessions ✅
-- canvas.Participants ✅
-- canvas.SessionData ✅
+- {{SCHEMA_PRIMARY}}.AssetLookup ✅
+- {{SCHEMA_PRIMARY}}.Sessions ✅
+- {{SCHEMA_PRIMARY}}.Participants ✅
+- {{SCHEMA_PRIMARY}}.SessionData ✅
 
-**{{SCHEMA_READONLY}}.* Schema Tables** (sample, 47 total):
+**dbo.* Schema Tables** (sample, 47 total):
 - dbo.Members ✅ (used in code: 12 references)
 - dbo.SessionTokens ✅ (used in code: 8 references)
 - dbo.Sessions ✅ (used in code: 45 references)
@@ -913,7 +926,7 @@ cd "D:\PROJECTS\{{PROJECT_NAME}}\Workspaces\Scripts"
 - 📄 Markdown report with evidence (timestamped)
 
 **Script Actions**:
-1. **Queries {{DATABASE_NAME}}** for actual {{SCHEMA_PRIMARY}}.* and {{SCHEMA_READONLY}}.* tables
+1. **Queries {{DATABASE_NAME}}** for actual {{SCHEMA_PRIMARY}}.* and dbo.* tables
 2. **Verifies obsolete tables** do NOT exist (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
 3. **Verifies expected tables** DO exist (dbo.Groups, dbo.Categories, dbo.Sessions, dbo.Speakers, dbo.SessionTranscripts)
 4. **Searches codebase** for table references in C# files
@@ -935,7 +948,7 @@ If validation script fails or finds issues:
 #### Verification
 - Cross-reference InfrastructureQuickRef.md with SystemIndex.md
 - Ensure database rules are consistent
-- Verify {{TEST_FRAMEWORK}}QuickRef.md matches test-generation.prompt.md patterns
+- Verify PlaywrightQuickRef.md matches test-generation.prompt.md patterns
 - Confirm all QuickRef files have auto-update protocol section
 
 ### Success Criteria
@@ -1097,3 +1110,4 @@ If validation script fails or finds issues:
 - Comprehensive reporting
 - Action item generation
 - 12 architecture/efficiency/quality recommendations
+

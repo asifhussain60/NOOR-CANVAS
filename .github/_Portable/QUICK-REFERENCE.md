@@ -1,480 +1,339 @@
-# Quick Reference - AI Agent System
+# QUICK REFERENCE - AI Agent Syntax
 
-Fast lookup for agent commands, parameters, and workflows.
+**Fast lookup for agent invocations and parameters**
 
 ---
 
 ## Agent Invocation Syntax
 
-### Basic Pattern
+### Feature Planning Agent
 ```
-@workspace /agent-name [parameters]
-```
-
-### With Parameters
-```
-@workspace /agent-name param1=value param2=value
-```
-
-### Multi-line Tasks
-```
-@workspace /task key=name tasks="Task 1
----
-Task 2
----
-Task 3"
-```
-
----
-
-## Agents & Commands
-
-### Task Agent
-```bash
-# Basic task
-@workspace /task key=feature-name tasks="Implement feature"
-
-# Multi-phase task
-@workspace /task key=feature tasks="Phase 1
----
-Phase 2"
-
-# Mark complete
-@workspace /task key=feature tasks="mark complete"
-
-# With debug logging
-@workspace /task key=feature debug-level=trace tasks="..."
+@workspace /feature key={unique-id} user_request="{description}" [github-branch=development] [context="{background}"] [scope="{boundaries}"] [constraints="{limits}"] [include_suggestions=true]
 ```
 
 **Parameters:**
-- `key` - Task identifier (required)
-- `debug-level` - `none`, `simple`, `trace` (optional)
-- `verbosity` - `concise`, `detailed` (optional)
-- `tasks` - Task description or multi-phase list (optional)
+- `key` (required) - Unique identifier for this work
+- `user_request` (required) - What you want to implement
+- `github-branch` (optional, default=development) - Target branch
+- `context` (optional) - Additional background info
+- `scope` (optional) - Boundaries (UI only, full-stack, etc.)
+- `constraints` (optional) - Deadlines, compatibility requirements
+- `include_suggestions` (optional, default=true) - Propose enhancements
+
+**Example:**
+```
+@workspace /feature key=dark-mode user_request="Add dark mode toggle to application" scope="UI + state management" constraints="Must work on mobile"
+```
+
+---
+
+### Task Execution Agent
+```
+@workspace /task key={id} github-branch={branch} tasks="{Phase 1: ...\n---\nPhase 2: ...}" [debug-level=simple] [verbosity=concise]
+```
+
+**Parameters:**
+- `key` (required) - Work identifier (matches feature key)
+- `github-branch` (required) - Target branch for commits
+- `tasks` (required) - Phase descriptions separated by `\n---\n`
+- `debug-level` (optional) - simple|detailed|none
+- `verbosity` (optional) - concise|detailed
+
+**Example:**
+```
+@workspace /task key=dark-mode github-branch=development debug-level=simple tasks="Phase 1: Add theme state management\n---\nPhase 2: Create toggle component\n---\nPhase 3: Apply theme to components"
+```
 
 ---
 
 ### Refactor Agent
-```bash
-# Basic refactor
-@workspace /refactor key=cleanup
-
-# Scoped refactor
-@workspace /refactor key=cleanup scope=module
-
-# File-specific
-@workspace /refactor key=cleanup scope=file
+```
+@workspace /refactor target="{file-path}" focus="{what-to-refactor}" [scope="{boundaries}"] [preserve="{must-keep}"]
 ```
 
 **Parameters:**
-- `key` - Refactor identifier (required)
-- `scope` - `file`, `module`, `service`, `global` (optional)
-- `debug-level` - Debug output level (optional)
+- `target` (required) - File or directory path
+- `focus` (required) - What to refactor (extract method, simplify, etc.)
+- `scope` (optional) - Boundaries of refactoring
+- `preserve` (optional) - What must not change
 
----
-
-### Sync Agent
-```bash
-# Sync all documentation
-@workspace /sync
-
-# Sync specific docs
-@workspace /sync target=architecture
-@workspace /sync target=api
+**Example:**
 ```
-
-**Parameters:**
-- `target` - `architecture`, `api`, `all` (optional)
-
----
-
-### Healthcheck Agent
-```bash
-# Full health check
-@workspace /healthcheck
+@workspace /refactor target="src/services/UserService.cs" focus="Extract validation logic to separate validator class" preserve="Public API must stay the same"
 ```
-
-**No parameters** - Runs complete system validation
-
----
-
-### Question Agent
-```bash
-# Ask a question
-@workspace /question How does authentication work?
-@workspace /question Where is the API defined?
-@workspace /question What testing framework do we use?
-```
-
-**No parameters** - Just ask your question
 
 ---
 
 ### Test Generation Agent
-```bash
-# Generate tests for a file
-@workspace /test target=src/services/UserService.ts
-
-# Specific test type
-@workspace /test target=src/api/UserController.cs test-type=integration
-
-# All test types
-@workspace /test target=components/Login.tsx test-type=all
+```
+@workspace /test-generation feature="{feature-name}" scenario="{test-scenario}" [endpoints="{api-endpoints}"] [tokens="{test-tokens}"] [key={work-id}] [percy=true] [headed=true]
 ```
 
 **Parameters:**
-- `target` - File/module to test (required)
-- `test-type` - `unit`, `integration`, `e2e`, `all` (optional)
+- `feature` (required) - Feature being tested
+- `scenario` (required) - Test scenario description
+- `endpoints` (optional) - API endpoints to test
+- `tokens` (optional) - Test tokens (format: "Host=ABC,User=XYZ")
+- `key` (optional) - Associated work identifier
+- `percy` (optional, default=false) - Include Percy visual tests
+- `headed` (optional, default=false) - Run in headed mode
+
+**Example:**
+```
+@workspace /test-generation feature=login scenario="User logs in with valid credentials" endpoints="/api/auth/login" tokens="Host=PQ9N5YWW,User=KJAHA99L" percy=true
+```
 
 ---
 
-### Learning Analysis Agent
-```bash
-# Analyze all learning
-@workspace /analyze-learning
-
-# Specific period
-@workspace /analyze-learning period=last-week
+### Question Agent
+```
+@workspace /question "{your-question}"
 ```
 
 **Parameters:**
-- `period` - Analysis timeframe (optional)
+- Question text (required) - Your question in natural language
+
+**Examples:**
+```
+@workspace /question "How do I use the database context?"
+@workspace /question "What agents are available?"
+@workspace /question "Show me examples of SignalR hub usage"
+@workspace /question "What's the authentication flow?"
+```
+
+---
+
+### Commit Agent
+```
+@workspace /commit [scope="{scope}"] [breaking=true]
+```
+
+**Parameters:**
+- `scope` (optional) - Commit scope (api, ui, database, etc.)
+- `breaking` (optional) - Mark as breaking change
+
+**Example:**
+```
+@workspace /commit scope=api
+@workspace /commit breaking=true
+```
+
+---
+
+### Health Check Agent
+```
+@workspace /healthcheck [detailed=true]
+```
+
+**Parameters:**
+- `detailed` (optional, default=false) - Show detailed diagnostics
+
+**Example:**
+```
+@workspace /healthcheck
+@workspace /healthcheck detailed=true
+```
+
+---
+
+### Cleanup Agent
+```
+@workspace /cleanup [aggressive=false] [dry-run=false]
+```
+
+**Parameters:**
+- `aggressive` (optional, default=false) - Remove more artifacts
+- `dry-run` (optional, default=false) - Show what would be removed
+
+**Example:**
+```
+@workspace /cleanup
+@workspace /cleanup aggressive=true dry-run=true
+```
+
+---
+
+### Sync Agent
+```
+@workspace /sync [target="{documentation-file}"] [validate=true]
+```
+
+**Parameters:**
+- `target` (optional) - Specific file to sync
+- `validate` (optional, default=true) - Validate after sync
+
+**Example:**
+```
+@workspace /sync
+@workspace /sync target="README.md"
+```
+
+---
+
+### Analyze Learning Agent
+```
+@workspace /analyze-learning key={work-id} [extract-patterns=true]
+```
+
+**Parameters:**
+- `key` (required) - Work identifier to analyze
+- `extract-patterns` (optional, default=true) - Extract reusable patterns
+
+**Example:**
+```
+@workspace /analyze-learning key=dark-mode
+```
 
 ---
 
 ### Cohesion Review Agent
-```bash
-# Review entire project
-@workspace /cohesion-review
-
-# Review specific scope
-@workspace /cohesion-review scope=module-name
+```
+@workspace /cohesion-review [fix=false]
 ```
 
 **Parameters:**
-- `scope` - What to review (optional)
+- `fix` (optional, default=false) - Auto-fix cohesion issues
+
+**Example:**
+```
+@workspace /cohesion-review
+@workspace /cohesion-review fix=true
+```
 
 ---
 
-### Port Instructions Agent (Meta)
-```bash
-# Regenerate the _Portable folder
+### Port Instructions Agent
+```
+@workspace /port-instructions [prompt="{prompt-file}"]
+```
+
+**Parameters:**
+- `prompt` (optional) - Specific prompt to port (selective update)
+
+**Examples:**
+```
 @workspace /port-instructions
+@workspace /port-instructions prompt=task.prompt.md
 ```
-
-**No parameters** - Creates/updates entire portable system  
-**Use when:** You've made improvements to prompts/instructions and want to update the portable template
 
 ---
 
-### Total Recall Agent (Meta)
-```bash
-# Analyze project and populate templates
-@workspace /total-recall
+### Total Recall Agent
+```
+@workspace /total-recall [project-type="{type}"] [frameworks="{list}"] [database-type="{type}"]
 ```
 
-**No parameters** - Performs deep project analysis and populates all templates  
-**Use when:** After running setup.bat in a new project to customize the AI system
+**Parameters:**
+- `project-type` (optional) - .NET, Node.js, Python, Java, Ruby, Go, PHP
+- `frameworks` (optional) - Comma-separated framework list
+- `database-type` (optional) - Database and ORM type
+
+**Examples:**
+```
+@workspace /total-recall
+@workspace /total-recall project-type=".NET" frameworks="ASP.NET Core, Blazor"
+@workspace /total-recall project-type="Node.js" frameworks="Express, React" database-type="PostgreSQL + Sequelize"
+```
 
 ---
 
 ## Template Variables Reference
 
 ### Project Identity
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{PROJECT_NAME}}` | Project name | "MyProject" |
-| `{{PROJECT_TYPE}}` | Project type | ".NET", "Node.js" |
-| `{{LANGUAGES}}` | Languages | "C#, JavaScript" |
-| `{{FRAMEWORKS}}` | Frameworks | "ASP.NET Core, React" |
+- `{{PROJECT_NAME}}` - Project name
+- `{{PROJECT_TYPE}}` - Project type
+- `{{LANGUAGES}}` - Programming languages
+- `{{FRAMEWORKS}}` - Frameworks/libraries
 
 ### Build & Test
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{BUILD_COMMAND}}` | Build command | "dotnet build" |
-| `{{TEST_COMMAND}}` | Test command | "npm test" |
-| `{{RUN_COMMAND}}` | Run command | "dotnet run" |
-| `{{LINT_COMMAND}}` | Lint command | "npm run lint" |
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+- `{{RUN_COMMAND}}` - Run command
+- `{{LINT_COMMAND}}` - Lint command
 
 ### Database
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{DATABASE_NAME}}` | Database name | "MyApp_DB" |
-| `{{DATABASE_SERVER}}` | Server | "localhost" |
-| `{{DATABASE_TYPE}}` | Type | "SQL Server" |
-| `{{SCHEMA_PRIMARY}}` | Writable schema | "dbo" |
-| `{{SCHEMA_READONLY}}` | Read-only schemas | "ref, legacy" |
-| `{{CONNECTION_STRING_KEY}}` | Config key | "DefaultConnection" |
+- `{{DATABASE_TYPE}}` - Database type
+- `{{DATABASE_NAME}}` - Database name
+- `{{DATABASE_SERVER}}` - Server address
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{SCHEMA_READONLY}}` - Read-only schemas
+- `{{CONNECTION_STRING_KEY}}` - Config key
 
 ### Infrastructure
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{API_BASE_URL}}` | API base URL | "https://localhost:5001/api" |
-| `{{APP_PORT}}` | App port | "5000" |
-| `{{REALTIME_TECH}}` | Real-time tech | "SignalR" |
-| `{{UI_FRAMEWORK}}` | UI framework | "React" |
-| `{{AUTH_TYPE}}` | Auth type | "JWT" |
+- `{{API_BASE_URL}}` - API base URL
+- `{{UI_FRAMEWORK}}` - UI framework
+- `{{REALTIME_TECH}}` - Real-time tech
+- `{{AUTH_TYPE}}` - Auth type
 
 ### Paths
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{SOURCE_PATH}}` | Source path | "src/" |
-| `{{TEST_PATH}}` | Test path | "tests/" |
-| `{{CONFIG_PATH}}` | Config path | "config/" |
-| `{{WORKSPACE_PATH}}` | Workspace | "Workspaces/" |
+- `{{SOURCE_PATH}}` - Source code path
+- `{{TEST_PATH}}` - Test files path
+- `{{CONFIG_PATH}}` - Config files path
+- `{{WORKSPACE_PATH}}` - Workspace path
 
 ### Tools & Quality
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{ANALYZER_TOOLS}}` | Analyzers | "Roslynator, StyleCop" |
-| `{{TEST_FRAMEWORK}}` | Testing | "xUnit, Playwright" |
-| `{{PACKAGE_MANAGER}}` | Packages | "NuGet", "npm" |
-
-### Branch Strategy
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{PRODUCTION_BRANCH}}` | Prod branch | "master" |
-| `{{DEVELOPMENT_BRANCH}}` | Dev branch | "development" |
-| `{{DEPLOYMENT_SCRIPT}}` | Deploy script | "Scripts/deploy.ps1" |
-
-### Additional
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{API_COUNT}}` | API count | "52" |
-| `{{SERVICE_COUNT}}` | Service count | "17" |
-| `{{LAUNCH_SCRIPT}}` | Launch script | "./run.ps1" |
-| `{{BUILD_LAUNCH_SCRIPT}}` | Build+Launch | "./build-and-run.ps1" |
-
-**Total:** 30+ template variables
+- `{{ANALYZER_TOOLS}}` - Analysis tools
+- `{{TEST_FRAMEWORK}}` - Test framework
+- `{{PACKAGE_MANAGER}}` - Package manager
 
 ---
 
 ## Common Patterns
 
-### Implementing a Feature
-```bash
-# 1. Create implementation
-@workspace /task key=login tasks="Implement login form"
+### Full Feature Workflow
+```
+# 1. Plan
+@workspace /feature key=feature-x user_request="Description"
 
-# 2. Add tests
-@workspace /test target=src/auth/Login.tsx
+# 2. Review plan (feature agent outputs this)
+# ... review the plan ...
 
-# 3. Check health
-@workspace /healthcheck
+# 3. User says "proceed"
+# Feature agent outputs handoff command
 
-# 4. Mark complete
-@workspace /task key=login tasks="mark complete"
+# 4. Execute (copy command from feature agent)
+@workspace /task key=feature-x github-branch=development tasks="..."
+
+# 5. Generate tests
+@workspace /test-generation feature=feature-x scenario="main flow"
+
+# 6. Commit
+@workspace /commit scope=feature-x
 ```
 
-### Fixing a Bug
-```bash
-# 1. Fix bug with test
-@workspace /task key=bug-123 tasks="Fix null ref
----
-Add regression test"
-
-# 2. Validate
-@workspace /healthcheck
-
-# 3. Update docs
-@workspace /sync
+### Quick Fix Workflow
 ```
-
-### Code Cleanup
-```bash
 # 1. Refactor
-@workspace /refactor key=cleanup scope=service
+@workspace /refactor target="src/buggy-file.cs" focus="Fix null reference"
 
-# 2. Review quality
-@workspace /cohesion-review
+# 2. Test
+@workspace /test-generation feature=bugfix scenario="verify fix"
 
-# 3. Extract learnings
-@workspace /analyze-learning
+# 3. Commit
+@workspace /commit scope=bugfix
+```
+
+### Exploration Workflow
+```
+# 1. Ask questions
+@workspace /question "How does feature X work?"
+
+# 2. Review agent response
+
+# 3. Try implementing
+@workspace /feature key=exploration ...
 ```
 
 ---
 
-## Keyboard Shortcuts
+## Tips
 
-### VS Code
-- `Ctrl+I` or `Cmd+I` - Open Copilot Chat
-- `Ctrl+Shift+I` or `Cmd+Shift+I` - Inline Chat
-- Type `@workspace` to invoke agents
-
-### Chat Shortcuts
-- `@workspace` - Workspace agent
-- `/task` - Task execution
-- `/question` - Ask questions
-- `---` - Phase separator in multi-line
+1. **Use consistent keys** across feature → task → test-generation
+2. **Always specify github-branch** (defaults to development)
+3. **Review plans before proceeding** - feature agent waits for approval
+4. **Break large features** into smaller phases
+5. **Use question agent liberally** for learning
 
 ---
 
-## File Locations Reference
-
-### Core Instructions
-```
-.github/instructions/SelfAwareness.instructions.md
-.github/instructions/Links/SystemIndex.md
-.github/instructions/Links/Architecture.md
-.github/instructions/Links/InfrastructureQuickRef.md
-```
-
-### Agent Prompts
-```
-.github/prompts/task.prompt.md
-.github/prompts/refactor.prompt.md
-.github/prompts/sync.prompt.md
-.github/prompts/healthcheck.prompt.md
-.github/prompts/question.prompt.md
-.github/prompts/test-generation.prompt.md
-.github/prompts/analyze-learning.prompt.md
-.github/prompts/cohesion-review.prompt.md
-```
-
-### Shared Documentation
-```
-.github/prompts/shared/*.md
-```
-
-### Learning System
-```
-.github/learning/README.md
-.github/learning/PATTERN_SCHEMA.md
-.github/learning/patterns/*.json
-.github/learning/insights/*.json
-.github/learning/recommendations/*.md
-```
-
-### Workspaces
-```
-Workspaces/Copilot/_DOCS/
-Workspaces/Copilot/prompts.keys/
-Workspaces/CodeQuality/
-Workspaces/TEMP/
-```
-
----
-
-## Validation Commands
-
-### Build
-```bash
-# .NET
-dotnet build
-
-# Node.js
-npm run build
-
-# Python
-python -m build
-
-# Java
-mvn clean install
-```
-
-### Test
-```bash
-# .NET
-dotnet test
-
-# Node.js
-npm test
-
-# Python
-pytest
-
-# Java
-mvn test
-```
-
-### Lint
-```bash
-# .NET
-dotnet format --verify-no-changes
-
-# Node.js
-npm run lint
-
-# Python
-flake8
-
-# Java
-mvn checkstyle:check
-```
-
----
-
-## Troubleshooting Quick Fixes
-
-### Setup Issues
-```powershell
-# Fix execution policy
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
-
-# Re-run setup
-./setup.ps1
-```
-
-### Build Failures
-```bash
-# Check healthcheck
-@workspace /healthcheck
-
-# Review errors
-@workspace /question Why is the build failing?
-```
-
-### Test Failures
-```bash
-# Regenerate tests
-@workspace /test target=[failing-module]
-
-# Check patterns
-.github/learning/error-patterns.json
-```
-
-### Documentation Out of Sync
-```bash
-# Sync everything
-@workspace /sync
-
-# Sync specific
-@workspace /sync target=architecture
-```
-
----
-
-## Best Practices
-
-### ✅ Do
-- Use descriptive key names
-- Create checkpoint commits
-- Run healthcheck before completion
-- Update learning system regularly
-- Keep documentation synchronized
-
-### ❌ Don't
-- Skip branch verification
-- Ignore build warnings
-- Commit without tests
-- Skip documentation updates
-- Ignore failed validations
-
----
-
-## Getting More Help
-
-### Documentation
-- **README.md** - System overview
-- **START-HERE.md** - Getting started
-- **COMPLETE.md** - Setup checklist
-- **STATUS.md** - Version info
-
-### In-Chat Help
-```
-@workspace /question [your specific question]
-```
-
----
-
-**Quick Reference v1.0.0** | Always keep this handy!
+**Need help?** Run: `@workspace /question "How do I ...?"`

@@ -652,7 +652,7 @@ ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asse
 
 - **Migration README**: `Scripts/Migrations/Prod/README.md`
 - **Agent Prompts**:
-  - Plan Agent: `.github/prompts/plan.prompt.md` (Database Migration Protocol)
+  - Feature Planning Agent: `.github/prompts/feature.prompt.md` (Database Migration Protocol)
   - Task Agent: `.github/prompts/task.prompt.md` (Step 5d: Migration Generation)
   - Test Agent: `.github/prompts/test-generation.prompt.md` (Migration Validation Tests)
 - **Deployment Plan**: `.github/prompts.keys/deployment-migration/deployment-migration.plan.md`

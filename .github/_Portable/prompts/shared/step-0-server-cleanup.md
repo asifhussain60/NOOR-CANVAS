@@ -33,7 +33,11 @@ This PowerShell alias kills all `dotnet.exe` processes running Kestrel servers.
 - Confirm terminal output shows processes terminated
 - If `nckill` command not found, use fallback:
   ```powershell
-  Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' } | Stop-Process -Force
+  # Generic pattern - stops all Kestrel/web server processes
+  Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' } | Stop-Process -Force
+  
+  # Or stop by specific process name if known
+  Get-Process -Name "YourAppName" -ErrorAction SilentlyContinue | Stop-Process -Force
   ```
 
 ### 0.3. Expected Output

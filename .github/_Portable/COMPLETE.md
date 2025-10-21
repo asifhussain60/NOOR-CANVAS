@@ -1,304 +1,258 @@
-# Setup Completion Checklist
+# COMPLETE - Setup Verification Checklist
 
-Use this checklist to verify your portable AI agent system is correctly installed and configured.
-
----
-
-## ✅ Installation Verification
-
-### Step 1: Files Created
-- [ ] `.github/instructions/SelfAwareness.instructions.md` exists
-- [ ] `.github/instructions/Links/` folder with 10+ files
-- [ ] `.github/prompts/` folder with 8 agent prompt files
-- [ ] `.github/prompts/shared/` folder with shared docs
-- [ ] `.github/learning/` folder with README and schema
-- [ ] `Workspaces/Copilot/` structure created
-- [ ] `Workspaces/CodeQuality/` structure created
-- [ ] `Workspaces/TEMP/` folder created
-- [ ] `PROJECT-SETUP-SUMMARY.md` in project root
-
-### Step 2: Template Processing
-- [ ] All `.template` extensions removed from generated files
-- [ ] No `{{VARIABLE}}` placeholders remain in generated files
-- [ ] Configuration values correctly populated
-- [ ] File paths updated for project structure
+Use this checklist to verify your AI Agent System is configured correctly.
 
 ---
 
-## 🔧 Configuration Verification
+## ✅ Configuration Checklist
 
-### Project Identity
-- [ ] Project name configured
-- [ ] Project type selected (NET, Node.js, etc.)
-- [ ] Languages listed
-- [ ] Frameworks documented
+### Step 1: Folder Structure
+- [ ] `.github/` folder exists in project root
+- [ ] `.github/instructions/` contains instruction files
+- [ ] `.github/instructions/Links/` contains reference docs
+- [ ] `.github/prompts/` contains agent prompt files
+- [ ] `.github/prompts/shared/` contains shared modules
+- [ ] `.github/learning/` contains learning system files
 
-### Build & Test
-- [ ] Build command correct
-- [ ] Test command correct
-- [ ] Run command correct
-- [ ] Lint command correct
+### Step 2: Template Replacement
+- [ ] NO files contain `{{PROJECT_NAME}}` template variables
+- [ ] NO files contain `{{DATABASE_NAME}}` template variables
+- [ ] NO files contain `{{BUILD_COMMAND}}` template variables
+- [ ] All `.template` extensions removed from files
 
-### Database
-- [ ] Database name configured
-- [ ] Server/host configured
-- [ ] Database type specified
-- [ ] Primary schema identified
-- [ ] Read-only schemas documented
-- [ ] Connection string key set
+### Step 3: Agent Availability
+Test each agent:
 
-### Infrastructure
-- [ ] API base URL configured
-- [ ] Application port set
-- [ ] Real-time technology noted (if applicable)
-- [ ] UI framework documented (if applicable)
+```powershell
+# Feature agent
+@workspace /feature key=test user_request="test feature"
+# Should respond with plan draft
 
-### Branch Strategy
-- [ ] Production branch name set
-- [ ] Development branch name set
-- [ ] Deployment script path configured (if applicable)
+# Question agent
+@workspace /question "What agents are available?"
+# Should list all agents
 
----
-
-## 📚 Documentation Verification
-
-### Core Documentation
-- [ ] Read `SelfAwareness.instructions.md` - understand operating rules
-- [ ] Review `SystemIndex.md` - know navigation structure
-- [ ] Check `Architecture.md` - understand project architecture
-- [ ] Verify `InfrastructureQuickRef.md` - confirm database/API details
-- [ ] Review `ValidationFramework.md` - understand validation levels
-
-### Agent Prompts
-- [ ] Browse `.github/prompts/` - familiarize with agents
-- [ ] Read `task.prompt.md` - understand task execution
-- [ ] Check `question.prompt.md` - know how to ask questions
-- [ ] Review shared docs in `prompts/shared/`
-
----
-
-## 🧪 Functional Testing
-
-### Test Agent Invocation
-- [ ] Try: `@workspace /question What agents are available?`
-- [ ] Verify response lists 8 agents
-- [ ] Response references correct documentation
-
-### Test Basic Task
-```bash
-@workspace /task key=setup-test tasks="Verify setup is complete"
+# Health check
+@workspace /healthcheck
+# Should show system status
 ```
-- [ ] Agent responds appropriately
-- [ ] No errors about missing files
-- [ ] Work logs would be created (if executed)
 
-### Test Healthcheck
-```bash
+- [ ] Feature agent responds
+- [ ] Question agent responds
+- [ ] Health check runs successfully
+
+### Step 4: Project-Specific Configuration
+
+Verify project values are correctly set:
+
+- [ ] Project name appears in SelfAwareness.instructions.md
+- [ ] Build commands match your project in prompts
+- [ ] Database references match your database in InfrastructureQuickRef.md
+- [ ] Test framework matches your project in PlaywrightQuickRef.md
+
+---
+
+## 🧪 Functional Tests
+
+### Test 1: Question Agent
+```
+@workspace /question "What is the project name?"
+```
+**Expected:** Should return your actual project name, not `{{PROJECT_NAME}}`
+
+### Test 2: Feature Planning
+```
+@workspace /feature key=test-feature user_request="Add a simple hello world endpoint"
+```
+**Expected:** 
+- Shows plan draft (30-50 lines)
+- Lists 2-4 phases
+- Asks for approval
+- **DOES NOT execute automatically**
+
+### Test 3: Health Check
+```
 @workspace /healthcheck
 ```
-- [ ] Agent runs validation
-- [ ] Build command recognized
-- [ ] Test command recognized
-- [ ] Reports appropriate status
+**Expected:**
+- All prompts validated ✅
+- All instructions validated ✅
+- No missing files ❌
+- Configuration complete ✅
 
-### Test Documentation Sync
-```bash
-@workspace /sync
+### Test 4: Handoff Protocol
 ```
-- [ ] Agent can read Architecture.md
-- [ ] Agent can access codebase
-- [ ] No errors about missing documentation
+# After feature agent shows plan, say:
+proceed
+```
+**Expected:**
+- Feature agent writes plan files
+- Feature agent OUTPUTS a command like: `@workspace /task key=test-feature ...`
+- Feature agent tells you: "Copy the command above and run it to begin execution."
+- Feature agent **STOPS** (does not execute the command itself)
 
 ---
 
-## 🎯 Workspace Structure Verification
+## ⚠️ Common Issues & Fixes
 
-### Copilot Workspace
+### Issue: "Template variables still present"
+**Symptom:** Files contain `{{PROJECT_NAME}}` or similar  
+**Cause:** total-recall didn't run or couldn't detect project type  
+**Fix:**
 ```
-Workspaces/Copilot/
-├── _DOCS/
-│   ├── summaries/
-│   ├── analysis/
-│   ├── configs/
-│   └── migrations/
-├── artifacts/
-├── config/
-├── prompts.keys/
-└── learning/
+@workspace /total-recall project-type=".NET" frameworks="ASP.NET Core"
 ```
-- [ ] All folders created
-- [ ] Folders are empty (normal for new setup)
 
-### Code Quality Workspace
-```
-Workspaces/CodeQuality/
-├── Analysis/
-│   ├── Config/
-│   ├── Reports/
-│   └── Logs/
-└── README.md (if created)
-```
-- [ ] Folder structure exists
-- [ ] Ready for analysis tools
+### Issue: "Agent not found"
+**Symptom:** Error: "Unknown command /feature"  
+**Cause:** Prompt files not in `.github/prompts/`  
+**Fix:** Verify all files copied correctly, `.template` extensions removed
 
-### TEMP Workspace
+### Issue: "Feature agent executing automatically"
+**Symptom:** Feature agent runs task commands without asking  
+**Cause:** Old version of feature.prompt.md (before October 21, 2025 fix)  
+**Fix:** Re-run port-instructions:
 ```
-Workspaces/TEMP/
+@workspace /port-instructions prompt=feature.prompt.md
 ```
-- [ ] Folder created
-- [ ] Empty (normal)
+
+### Issue: "Build commands don't work"
+**Symptom:** Agent tries wrong build command (e.g., `dotnet build` in Node.js project)  
+**Cause:** Incorrect project type detection  
+**Fix:** Explicitly set project type:
+```
+@workspace /total-recall project-type="Node.js" frameworks="Express, React"
+```
+
+### Issue: "Database references incorrect"
+**Symptom:** Agent references wrong database or schema  
+**Cause:** total-recall couldn't detect database configuration  
+**Fix:** Manually update `.github/instructions/InfrastructureQuickRef.md` with your database details
 
 ---
 
-## 🚀 Ready-to-Use Checklist
+## 📋 Final Verification
 
-### Learning System
-- [ ] `.github/learning/README.md` explains learning system
-- [ ] `PATTERN_SCHEMA.md` documents pattern structure
-- [ ] `error-patterns.json` ready for population
-- [ ] `patterns/` folder ready for pattern files
-- [ ] `insights/` folder ready for insights
-- [ ] `recommendations/` folders created
+Run this comprehensive check:
 
-### Quality Tools
-- [ ] Know where to run code analysis
-- [ ] Understand validation levels
-- [ ] Know how to check code quality
+```powershell
+# 1. Health check
+@workspace /healthcheck detailed=true
 
-### Git Integration
-- [ ] Understand branch strategy
-- [ ] Know checkpoint commit workflow
-- [ ] Understand rollback procedure
+# 2. List agents
+@workspace /question "What agents are available?"
 
----
+# 3. Test feature planning
+@workspace /feature key=verification-test user_request="Add a test endpoint"
 
-## 📊 Post-Setup Tasks
+# 4. Verify handoff (should NOT auto-execute)
+# Say "proceed" after reviewing plan
+# Feature agent should OUTPUT command, not execute it
 
-### Customize Documentation
-- [ ] Update `InfrastructureQuickRef.md` with actual:
-  - Database connection details (keep secrets in config)
-  - API endpoint inventory
-  - Environment variables
-  - Configuration file locations
-  
-- [ ] Update `Architecture.md` with:
-  - Actual API controllers/endpoints
-  - Services and components
-  - Database schema
-  - Integration patterns
-  
-- [ ] Update `FunctionalityRegistry.md` with:
-  - Implemented features
-  - Planned features
-  - Feature status
-
-### Configure Tools
-- [ ] Set up code analyzers for your project type
-- [ ] Configure test framework
-- [ ] Set up linting tools
-- [ ] Configure CI/CD integration (if applicable)
-
-### Initialize Learning
-- [ ] Run first task to create initial work log
-- [ ] Complete a feature end-to-end
-- [ ] Run `/analyze-learning` to extract first patterns
-- [ ] Review generated patterns
-
----
-
-## ✨ Success Criteria
-
-You're ready when:
-
-✅ All agents respond correctly  
-✅ `/question` answers project questions  
-✅ `/task` can execute work  
-✅ `/healthcheck` validates system  
-✅ Documentation is accessible  
-✅ Workspace structure is correct  
-✅ Learning system is initialized  
-
----
-
-## 🎓 Next Steps
-
-### Start Using Agents
-
-**First Task:**
-```bash
-@workspace /task key=first-feature tasks="Implement [simple feature]"
+# 5. Clean up test
+@workspace /cleanup
 ```
 
-**Generate Tests:**
-```bash
-@workspace /test target=[your-code-file]
-```
-
-**Check Health:**
-```bash
-@workspace /healthcheck
-```
-
-**Ask Questions:**
-```bash
-@workspace /question How does [feature] work in this project?
-```
-
-### Build Knowledge Base
-
-1. **Execute tasks regularly** - Populate work logs
-2. **Run learning analysis weekly** - Extract patterns
-3. **Review recommendations** - Implement improvements
-4. **Keep docs synchronized** - Run `/sync` regularly
-
-### Optimize Workflow
-
-1. Use phase-based tasks for complex work
-2. Let agents generate tests automatically
-3. Run healthcheck before marking tasks complete
-4. Review learning insights for efficiency gains
+**All checks passed?** ✅ Your system is ready!
 
 ---
 
-## 🆘 If Something's Wrong
+## 🚀 Ready to Use!
 
-### Missing Files
-- Re-run `setup.ps1` or `setup.bat`
-- Check for errors in setup output
-- Verify script completed successfully
+Your AI Agent System is configured and ready. Here's what to do next:
 
-### Template Variables Not Replaced
-- Check for `.template` extensions on files
-- Look for `{{VARIABLE}}` in file contents
-- Re-run setup if needed
+### Immediate Next Steps
+1. ✅ Create your first real feature:
+   ```
+   @workspace /feature key=my-first-feature user_request="[Your feature description]"
+   ```
 
-### Agents Not Working
-- Verify `SelfAwareness.instructions.md` exists
-- Check agent prompt files in `.github/prompts/`
-- Review `SystemIndex.md` for structure
-- Try `/question` agent first (simplest test)
+2. ✅ Explore capabilities:
+   ```
+   @workspace /question "What are some advanced features I should know about?"
+   ```
 
-### Documentation Issues
-- Verify all Links files generated
-- Check cross-references are valid
-- Update with project-specific details
-- Run `/sync` to update
+3. ✅ Review documentation:
+   - `README.md` - Full system overview
+   - `START-HERE.md` - Quick start guide
+   - `QUICK-REFERENCE.md` - Syntax reference
 
----
+### Recommended First Features
+- **Simple endpoint**: Good for learning the workflow
+- **UI component**: Tests visual regression capabilities
+- **Database migration**: Demonstrates full-stack coordination
+- **Refactoring task**: Shows code improvement abilities
 
-## 📝 Completion Confirmation
-
-Once everything is verified:
-
-- [ ] **I have reviewed all checklist items**
-- [ ] **All agents are responding correctly**
-- [ ] **Documentation is customized for my project**
-- [ ] **Workspace structure is complete**
-- [ ] **I understand how to use the system**
-- [ ] **I'm ready to start development with AI agents!**
+### Learning Resources
+```
+@workspace /question "How do I...?"
+@workspace /question "Show me examples of...?"
+@workspace /question "What's the best practice for...?"
+```
 
 ---
 
-**Congratulations! Your AI agent system is ready.** 🎉
+## 📊 Success Metrics
 
-Start with: `@workspace /task key=first-task tasks="[your first real task]"`
+Track these to measure effectiveness:
+
+### Short Term (First Week)
+- [ ] Completed 3+ features using feature → task workflow
+- [ ] Generated tests for 2+ features
+- [ ] Used refactor agent 2+ times
+- [ ] Asked question agent 10+ questions
+- [ ] Zero template variable errors
+
+### Medium Term (First Month)
+- [ ] Feature completion time reduced by 30%
+- [ ] Test coverage increased
+- [ ] Code quality metrics improved
+- [ ] Learning patterns accumulated (10+ patterns)
+- [ ] All team members trained on agent usage
+
+### Long Term (First Quarter)
+- [ ] 50+ features implemented via agents
+- [ ] Comprehensive pattern library built
+- [ ] Team productivity metrics show improvement
+- [ ] System customized to project needs
+- [ ] Contributing improvements back to templates
+
+---
+
+## 🎯 Optimization Opportunities
+
+After using the system for a while:
+
+1. **Analyze Learning Patterns**
+   ```
+   @workspace /analyze-learning key=recent-feature
+   ```
+
+2. **Review Agent Cohesion**
+   ```
+   @workspace /cohesion-review
+   ```
+
+3. **Update Templates**
+   - Capture proven patterns
+   - Update shared modules
+   - Enhance instructions with project-specific learnings
+
+4. **Share Improvements**
+   - Export your learning patterns
+   - Update portable templates
+   - Help others avoid your mistakes
+
+---
+
+## ✅ COMPLETE
+
+**Congratulations!** Your AI Agent System is fully configured and verified.
+
+**Need help?** `@workspace /question "I need help with..."`
+
+**Ready to build?** `@workspace /feature key=next-feature user_request="..."`
+
+---
+
+**Happy coding!** 🚀

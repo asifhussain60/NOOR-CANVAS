@@ -1,3 +1,15 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 # HTML Service Responsibilities
 
 **Purpose**: Clear documentation of HTML processing services and their distinct responsibilities.
@@ -22,13 +34,13 @@ All services use **`HtmlTransformPatterns.cs`** as single source of truth for re
 
 ## 1. HtmlParsingService
 
-**Location**: `SPA/NoorCanvas/Services/HtmlParsingService.cs`  
+**Location**: `SPA/{{PROJECT_NAME}}/Services/HtmlParsingService.cs`  
 **Purpose**: Advanced HTML validation, sanitization, and safe rendering  
-**Context**: Replaces basic {{UI_FRAMEWORK}} MarkupString with robust parsing
+**Context**: Replaces basic Blazor MarkupString with robust parsing
 
 ### Responsibilities:
 - ✅ HTML security validation (XSS, script injection prevention)
-- ✅ {{UI_FRAMEWORK}} compatibility analysis
+- ✅ Blazor compatibility analysis
 - ✅ Safe rendering with error recovery
 - ✅ Content transformation using `HtmlTransformPatterns`
 - ✅ Parse mode support (Safe, Strict, Permissive)
@@ -45,13 +57,13 @@ public SafeHtmlResult ParseHtml(string? htmlContent, ParseMode mode = ParseMode.
 ### When to Use:
 - Validating and sanitizing broadcast HTML content
 - Converting unsafe HTML to safe MarkupString
-- Analyzing HTML for {{UI_FRAMEWORK}} compatibility
+- Analyzing HTML for Blazor compatibility
 
 ---
 
 ## 2. AssetHtmlProcessingService
 
-**Location**: `SPA/NoorCanvas/Services/AssetHtmlProcessingService.cs`  
+**Location**: `SPA/{{PROJECT_NAME}}/Services/AssetHtmlProcessingService.cs`  
 **Purpose**: Asset detection, extraction, and share button injection  
 **Context**: Host-to-participant asset sharing workflow
 
@@ -89,7 +101,7 @@ public bool ValidateHtmlForAssetProcessing(string htmlContent)
 
 ## 3. UnifiedHtmlTransformService
 
-**Location**: `SPA/NoorCanvas/Services/UnifiedHtmlTransformService.cs`  
+**Location**: `SPA/{{PROJECT_NAME}}/Services/UnifiedHtmlTransformService.cs`  
 **Purpose**: Role-based HTML transformations (host vs participant views)  
 **Context**: Unified transformation logic for both user roles
 
@@ -119,7 +131,7 @@ public string TransformForParticipant(string html)
 
 ## 4. AssetProcessingService (Legacy)
 
-**Location**: `SPA/NoorCanvas/Services/AssetProcessingService.cs`  
+**Location**: `SPA/{{PROJECT_NAME}}/Services/AssetProcessingService.cs`  
 **Purpose**: Transcript HTML transformations (deprecated pattern)  
 **Context**: Legacy service maintained for backward compatibility
 
@@ -149,7 +161,7 @@ public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, int?
 
 ## HtmlTransformPatterns.cs - Single Source of Truth ✅
 
-**Location**: `SPA/NoorCanvas/Services/HtmlTransformPatterns.cs`  
+**Location**: `SPA/{{PROJECT_NAME}}/Services/HtmlTransformPatterns.cs`  
 **Purpose**: Centralized regex patterns for all HTML transformations
 
 ### Consolidated Patterns:
@@ -210,7 +222,7 @@ public static readonly Regex DataIslamicContentPattern
   - etc.
 
 ### Integration Tests:
-- ✅ {{TEST_FRAMEWORK}} visual regression tests for asset sharing
+- ✅ Playwright visual regression tests for asset sharing
 - ✅ Session transcript rendering tests
 
 ---
@@ -278,3 +290,4 @@ public static readonly Regex DataIslamicContentPattern
 ---
 
 **Refactor Phase 2 Status**: ✅ **COMPLETE** - Service responsibilities documented and validated
+

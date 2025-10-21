@@ -1,0 +1,21 @@
+# Learning Patterns
+
+This directory contains learned patterns organized by agent type.
+
+Pattern files will be created automatically as agents execute and learning analysis runs.
+
+---
+
+## Expected Files
+
+- `task-patterns.json` - Task execution patterns
+- `refactor-patterns.json` - Refactoring patterns
+- `test-patterns.json` - Test generation patterns
+- `validation-patterns.json` - Validation approaches
+- `cleanup-patterns.json` - Cleanup strategies
+
+---
+
+## Note
+
+Files are created on-demand. An empty directory is normal for new projects.

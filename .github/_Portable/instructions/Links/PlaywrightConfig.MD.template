@@ -1,115 +1,102 @@
 # Generic Template - Customized During Setup
 
-**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
 **Template Variables:**
-- `{{TEST_FRAMEWORK}}` - Testing framework
-- `{{TEST_PATH}}` - Test files path
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
 ---
+# Playwright Configuration — Canonical Reference
 
-# {{TEST_FRAMEWORK}} Configuration
+## Required Reading
+- **MANDATORY:** `.github/instructions/Links/PlaywrightTestPaths.MD` (canonical test data and proven patterns)
 
-## Purpose
-Configuration and best practices for {{TEST_FRAMEWORK}} testing in {{PROJECT_NAME}}.
+# Playwright Configuration — Canonical Reference
 
----
+## Primary Configuration
+**File:** `config/testing/playwright.config.cjs` (centralized, CommonJS format)
 
-## Configuration
-
-### Config File Location
-- **Main Config**: `config/testing/[test-config-file]`
-- **Test Files**: `{{TEST_PATH}}/`
-
-### Test Execution
-```bash
-{{TEST_COMMAND}}
+### Core Settings
+```javascript
+{
+    timeout: 30000,
+    testDir: '../../',
+    testMatch: [
+        '**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'
+    ],
+    retries: 0,
+    use: {
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+        outputDir: 'Workspaces/TEMP/playwright-artifacts'
+    }
+}
 ```
 
----
+### Environment Mode Overrides
 
-## Test Structure
+#### Standalone Mode (`PW_MODE=standalone`)
+**Purpose:** Automatic .NET app lifecycle management for testing
+- **webServer Configuration:**
+  - `command: 'dotnet run'`
+  - `cwd: '../../SPA/{{PROJECT_NAME}}'`
+  - `port: 9091`
+  - `reuseExistingServer: !process.env.CI`
+  - `timeout: 60000`
+- **Settings:** `timeout: 120000`, `retries: 0`, `workers: 1`
+- **UI:** `headless: false`, `viewport: 1280x720`
+- **Artifacts:** `trace: 'retain-on-failure'`, `video: 'retain-on-failure'`
+- **Reporter:** HTML report to `Workspaces/TEMP/playwright-report/standalone-html`
 
-### Test Organization
-```
-{{TEST_PATH}}/
-├── unit/              # Unit tests
-├── integration/       # Integration tests
-└── e2e/              # End-to-end tests
-```
+#### Temp Mode (`PW_MODE=temp`)
+**Purpose:** Enhanced artifact collection for debugging
+- **Settings:** `retries: 0`, `workers: 1`
+- **Artifacts:** `video: 'on'`, `trace: 'on'`
 
-### Naming Conventions
-- Test files: `[feature].spec.ts` or `[feature].test.ts`
-- Test descriptions: Clear, descriptive names
-- Test data: Use canonical test data from InfrastructureQuickRef.md
+### npm Script Integration
+**Centralized Scripts (from `package.json`):**
+- `npm run test` - Basic test execution
+- `npm run test:headed` - Headed browser mode
+- `npm run test:debug` - Debug mode with DevTools
+- `npm run test:ui-mode` - Playwright UI mode
+- `npm run test:codegen` - Code generation tool
+- `npm run test:report` - View HTML reports
+- `npm run test:trace` - Trace viewer
 
----
+### TypeScript Integration
+**Configuration:** `config/testing/tsconfig.json`
+- **npm Script:** `npm run build:tests` - TypeScript compilation check
+- **Command:** `node_modules/typescript/lib/tsc.js --noEmit --project config/testing/tsconfig.json`
 
-## Test Patterns
+### Artifact Organization
+**Base Directory:** `Workspaces/TEMP/playwright-artifacts/`
+- **Reports:** JSON format to `Workspaces/TEMP/playwright-report/report.json`
+- **HTML Reports:** Mode-specific subdirectories
+- **Traces/Screenshots:** Organized by test run and failure context
 
-### Unit Tests
-```typescript
-// Example unit test pattern
-describe('ExampleFeature', () => {
-  it('should perform expected behavior', () => {
-    // Test implementation
-  });
-});
-```
+### Application Integration
+**Target Application:** ASP.NET Core 8.0 + {{UI_FRAMEWORK}} ({{PROJECT_NAME}})
+- **Base URL:** `https://localhost:9091` (auto-configured via webServer)
+- **Lifecycle:** Playwright manages app startup/shutdown in standalone mode
+- **Context:** Node.js test environment with .NET app as managed subprocess
 
-### Integration Tests
-```typescript
-// Example integration test pattern
-describe('ExampleIntegration', () => {
-  it('should integrate with external service', async () => {
-    // Test implementation
-  });
-});
-```
-
-### E2E Tests
-```typescript
-// Example E2E test pattern
-test('should complete user workflow', async () => {
-  // Test implementation
-});
-```
-
----
-
-## Best Practices
-
-1. **Use Canonical Test Data**: Reference test data from InfrastructureQuickRef.md
-2. **Isolate Tests**: Each test should be independent
-3. **Clean Up**: Ensure proper cleanup after tests
-4. **Descriptive Names**: Use clear, descriptive test names
-5. **Test One Thing**: Each test should validate one specific behavior
+### Legacy Compatibility
+**Locations:** `PlayWright/config/` and repository root
+- **Purpose:** Backward compatibility for existing test structures
+- **Status:** Maintained alongside centralized configuration
 
 ---
+## Sync Protocol
+This file must reflect the **REAL current state** of the project.  
+- `/sync` is responsible for updating this file automatically.  
+- Obsolete data must be removed.  
+- Modified values must be updated to match source of truth in the repo.  
+- Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.
+- **Dependencies:** PlaywrightTestPaths.MD must be consulted for canonical test data.  
 
-## Debugging Tests
-
-### Debug Mode
-[Document how to run tests in debug mode]
-
-### Common Issues
-[Document common test failures and solutions]
-
----
-
-## CI/CD Integration
-
-### Automated Testing
-[Document how tests run in CI/CD pipeline]
-
-### Test Reports
-[Document where test reports are generated]
-
----
-
-## Version History
-
-- **v1.0.0** ([Date]): Initial test configuration
-  - Configured {{TEST_FRAMEWORK}}
-  - Established test structure
-  - Documented test patterns

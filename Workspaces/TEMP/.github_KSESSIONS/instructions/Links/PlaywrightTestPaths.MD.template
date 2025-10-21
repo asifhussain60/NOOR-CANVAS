@@ -1,0 +1,75 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+
+**Template Variables:**
+- `{{TEST_PATH}}` - Test files path
+- `{{PROJECT_NAME}}` - Project name
+
+---
+
+# Test Paths
+
+## Purpose
+Documents test file organization and paths for {{PROJECT_NAME}}.
+
+---
+
+## Test Directory Structure
+
+```
+{{TEST_PATH}}/
+├── unit/              # Unit tests
+├── integration/       # Integration tests
+├── e2e/              # End-to-end tests
+├── fixtures/         # Test fixtures and helpers
+└── data/             # Test data files
+```
+
+---
+
+## Test Path Conventions
+
+### Unit Tests
+- **Location**: `{{TEST_PATH}}/unit/`
+- **Pattern**: `[feature].spec.ts` or `[feature].test.ts`
+- **Purpose**: Test individual functions/classes in isolation
+
+### Integration Tests
+- **Location**: `{{TEST_PATH}}/integration/`
+- **Pattern**: `[feature]-integration.spec.ts`
+- **Purpose**: Test interactions between components
+
+### E2E Tests
+- **Location**: `{{TEST_PATH}}/e2e/`
+- **Pattern**: `[workflow]-e2e.spec.ts`
+- **Purpose**: Test complete user workflows
+
+---
+
+## Test Fixtures
+
+### Fixture Location
+`{{TEST_PATH}}/fixtures/`
+
+### Common Fixtures
+[Document common test fixtures and helpers]
+
+---
+
+## Test Data
+
+### Data Files Location
+`{{TEST_PATH}}/data/`
+
+### Canonical Test Data
+See `InfrastructureQuickRef.md` for canonical test identifiers and data.
+
+---
+
+## Version History
+
+- **v1.0.0** ([Date]): Initial test paths documentation
+  - Established test directory structure
+  - Defined path conventions
+  - Documented test data locations
