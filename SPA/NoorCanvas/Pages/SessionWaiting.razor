@@ -1675,9 +1675,19 @@ background-color: #effff9;
             }
             else
             {
-                var totalMinutes = Math.Floor(timeLeft.TotalMinutes);
-                var seconds = timeLeft.Seconds;
-                Model.FormattedTime = $"{totalMinutes:00}:{seconds:00}";
+                // Format as H:mm if >= 60 minutes remaining, else M:ss
+                if (timeLeft.TotalMinutes >= 60)
+                {
+                    var totalHours = Math.Floor(timeLeft.TotalHours);
+                    var minutes = timeLeft.Minutes;
+                    Model.FormattedTime = $"{totalHours:0}:{minutes:00}";
+                }
+                else
+                {
+                    var minutes = Math.Floor(timeLeft.TotalMinutes);
+                    var seconds = timeLeft.Seconds;
+                    Model.FormattedTime = $"{minutes:00}:{seconds:00}";
+                }
                 
                 var progress = ((_countdownDurationMs - timeLeft.TotalMilliseconds) / _countdownDurationMs) * 100;
                 Model.Progress = Math.Max(0, Math.Min(100, (int)progress));
