@@ -1,46 +1,84 @@
 # START HERE - Portable AI Agent System
 
-**3-Step Quick Start** → Ready in 5 minutes!
+**Drop-In Setup** → Ready in 30 seconds!
 
 ---
 
-## Step 1: Run Setup (2 minutes)
+## 🚀 Quick Setup (3 Steps)
 
-### Windows
-```cmd
-setup.bat
-```
+### Step 1: Copy _Portable Folder (10 seconds)
 
-### PowerShell/Linux/Mac
+Copy the entire `.github/_Portable/` folder to your project:
+
 ```bash
-./setup.ps1
+# From this project
+cp -r .github/_Portable/ /path/to/your/project/.github/
+
+# Or on Windows
+xcopy /E /I .github\_Portable\ C:\path\to\your\project\.github\
 ```
 
-**What happens:**
-- Detects your project type automatically
-- Asks configuration questions
-- Generates customized files
-- Creates workspace structure
-- Produces summary document
+**Result:** Your project now has `.github/` folder with prompts, instructions, and learning infrastructure.
 
 ---
 
-## Step 2: Review Setup (2 minutes)
+### Step 2: Run total-recall (15 seconds)
 
-Open and review:
-- `PROJECT-SETUP-SUMMARY.md` - Configuration details
-- `.github/instructions/SelfAwareness.instructions.md` - Operating rules
-- `.github/instructions/Links/SystemIndex.md` - Navigation hub
+Open your project in VS Code with GitHub Copilot, then run:
+
+```
+@workspace /total-recall
+```
+
+**What total-recall does automatically:**
+- 🔍 **Scans** your project structure
+- 🎯 **Detects** project type (.NET, Node.js, Python, Java, etc.)
+- 📝 **Extracts** configuration (database, ports, build commands, etc.)
+- ✨ **Populates** all 35+ template variables
+- 🧹 **Processes** .template files (replaces variables, removes extensions)
+- ✅ **Validates** completeness (ensures no {{VARIABLES}} remain)
+
+**No manual configuration required!**
 
 ---
 
-## Step 3: Try Your First Agent (1 minute)
+### Step 3: Verify Setup (5 seconds)
+
+Test that agents are ready:
 
 ```
 @workspace /question What agents are available?
 ```
 
-**Success!** You're now ready to use all 8 AI agents.
+**Expected Response:** List of 8 specialized agents + 2 meta-agents
+
+**Success!** You're now ready to use all AI agents.
+
+---
+
+## 🎯 Understanding the System
+
+### What You Just Installed
+
+**8 Specialized Agents:**
+- 💼 **Task Agent** - Execute features, bug fixes, incremental work
+- 🔧 **Refactor Agent** - Improve code quality and architecture
+- 🔄 **Sync Agent** - Keep documentation synchronized
+- 🏥 **Healthcheck Agent** - Validate system health
+- ❓ **Question Agent** - Answer questions about your project
+- 🧪 **Test Agent** - Generate test suites
+- 📊 **Learning Agent** - Extract success patterns
+- 🎯 **Cohesion Agent** - Review quality and architecture
+
+**2 Meta-Agents:**
+- 🔄 **Port Instructions** - Regenerate portable system
+- 🔍 **Total Recall** - Configure system for new projects
+
+**Infrastructure:**
+- Learning system (patterns, insights, recommendations)
+- Workspace structure (organized work areas)
+- Self-awareness (core operating instructions)
+- Documentation sync (automatic updates)
 
 ---
 
@@ -132,13 +170,14 @@ Update docs"
 
 ---
 
-### 🔍 Total Recall Agent - Populate Templates (Meta)
+### 🔍 Total Recall Agent - Configure for New Projects (Meta)
 ```
 @workspace /total-recall
 ```
 
-**Use for:** Analyzing a new project and populating all templates with project data  
-**Note:** Run this AFTER setup.bat to fully customize the system for your project
+**Use for:** First-time setup after copying _Portable to a new project  
+**What it does:** Scans project, detects configuration, populates all templates automatically  
+**When to run:** Immediately after copying _Portable folder (Step 2 of setup)
 
 ---
 
@@ -250,20 +289,27 @@ Options: `none`, `simple`, `trace`
 
 ## Troubleshooting
 
-### Setup Failed
-- Check PowerShell execution policy
-- Run as administrator if needed
-- Verify project structure matches expected type
+## Troubleshooting
+
+### total-recall Not Responding
+- Ensure `.github/` folder copied correctly from _Portable
+- Verify GitHub Copilot is active in VS Code
+- Try running again: `@workspace /total-recall`
+
+### Template Variables Not Replaced
+- Check if total-recall completed successfully
+- Look for .template files still present (should be removed)
+- Some variables may require manual configuration if project structure is non-standard
 
 ### Agents Not Working
-- Ensure SelfAwareness.instructions.md exists
-- Check agent prompt files present
-- Verify workspace structure created
+- Ensure SelfAwareness.instructions.md exists in `.github/instructions/`
+- Check agent prompt files present in `.github/prompts/`
+- Verify workspace structure created (Workspaces/Copilot/)
 
-### Documentation Issues
-- Run `/sync` to update docs
-- Check SystemIndex.md for navigation
-- Review generated template files
+### Project Type Not Detected
+- Ensure project has standard files (.sln for .NET, package.json for Node.js, etc.)
+- Check if project structure matches expected patterns
+- May need to manually configure some variables in template files
 
 ---
 
