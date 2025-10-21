@@ -2887,7 +2887,61 @@ To deploy these changes to production:
 
 ---
 
-**Status**: ✅ Implementation complete and ready for {next step}
+**Status**: ✅ Implementation complete and ready for cleanup analysis
+
+---
+
+## 🧹 Workspace Cleanup Analysis
+
+**Affected Folders Detected**: {List folders where work was performed}
+
+Example:
+- Scripts/ (3 new migration scripts created)
+- Tests/UI/ (5 new test files created)
+- .github/prompts.keys/{key}/ (work artifacts and logs)
+- PlayWright/tests/ (2 test files modified)
+
+**Invoking Cleanup Agent** to analyze affected folders for:
+- Duplicate files (same content or similar naming)
+- Non-professional naming (test-copy-copy.md, DEBUG-old-v2.ps1)
+- Obsolete files (old logs, empty files, superseded documentation)
+- Misplaced files (tests in non-test folders, docs in code folders)
+- Broken references (links to moved/deleted files)
+- Folder structure issues (empty folders, deep nesting)
+
+---
+
+**Cleanup Agent Invocation**:
+
+@workspace /cleanup target_folders="{comma-delimited list of affected folders}" scope=analyze-and-propose dry_run=true github-branch={github-branch}
+
+**What Cleanup Agent Will Do**:
+1. Analyze target folders for organizational issues
+2. Propose concrete reorganization plan with risk assessment
+3. Wait for your approval before making ANY changes
+4. Execute approved actions with full validation
+5. Provide detailed cleanup report with before/after comparison
+
+**User Control**: You can:
+- Review proposed changes before approval
+- Approve all, some, or none of the proposed actions
+- Skip cleanup entirely if not needed ("skip cleanup")
+- Defer cleanup to later ("cleanup later")
+
+**Safety Guarantees**:
+- ✅ Full backup created before ANY deletions
+- ✅ All references updated when files moved
+- ✅ Build and tests validated after cleanup
+- ✅ Complete rollback capability if needed
+
+---
+
+**Next Steps**: 
+
+1. **Review cleanup analysis** - See what organizational issues were found
+2. **Approve proposed changes** - Or skip if not needed
+3. **Commit final state** - After cleanup validation passes
+
 ```
 
 **This summary provides:**
@@ -2896,8 +2950,9 @@ To deploy these changes to production:
 - Validation status
 - Clear next steps
 - Handoff instructions (if needed)
+- Automatic cleanup analysis for affected folders
 
-**After providing this summary, execution for this key is COMPLETE.**
+**After providing this summary and cleanup analysis, execution for this key is COMPLETE.**
 
 ---
 
