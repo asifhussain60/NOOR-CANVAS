@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # Prompt Enhancement Libraries Reference
 
 **Version**: 1.0.0  
@@ -13,7 +19,7 @@ This document catalogs established prompt engineering libraries that can enhance
 
 ---
 
-## 🎯 Prompt Optimization Frameworks
+## ðŸŽ¯ Prompt Optimization Frameworks
 
 ### DSPy (Stanford NLP)
 **Repository**: https://github.com/stanfordnlp/dspy  
@@ -25,7 +31,7 @@ This document catalogs established prompt engineering libraries that can enhance
 **Key Features**:
 - Automatic prompt optimization using few-shot learning
 - Compile prompts into optimized versions based on training data
-- Signature-based prompt declaration (inputs → outputs)
+- Signature-based prompt declaration (inputs â†’ outputs)
 - Support for multiple LLM backends (OpenAI, Anthropic, local models)
 - Metric-driven optimization (accuracy, latency, cost)
 
@@ -100,7 +106,7 @@ Issues found:
 
 ---
 
-## 🔗 Prompt Orchestration Platforms
+## ðŸ”— Prompt Orchestration Platforms
 
 ### LangChain
 **Repository**: https://github.com/langchain-ai/langchain  
@@ -118,7 +124,7 @@ Issues found:
 - Agent framework with tool selection
 
 **Use Cases**:
-- Multi-step agent workflows (task → refactor → validate)
+- Multi-step agent workflows (task â†’ refactor â†’ validate)
 - Context management across agent calls
 - Integration with vector stores for codebase search
 - Building interactive debugging assistants
@@ -146,13 +152,13 @@ result = chain.run(key="user-auth", task="Add 2FA")
 
 ### Semantic Kernel (Microsoft)
 **Repository**: https://github.com/microsoft/semantic-kernel  
-**Language**: {{LANGUAGES}}, Python, Java  
+**Language**: C#, Python, Java  
 **License**: MIT  
 
 **Purpose**: Enterprise-grade SDK for integrating LLMs into applications with plugins and planners.
 
 **Key Features**:
-- **Native {{LANGUAGES}} support** (aligns with {{PROJECT_NAME}} stack)
+- **Native C# support** (aligns with {{PROJECT_NAME}} stack)
 - Plugin system for extending LLM capabilities
 - Planners for multi-step task decomposition
 - Memory stores (short-term, long-term, semantic)
@@ -160,7 +166,7 @@ result = chain.run(key="user-auth", task="Add 2FA")
 - Token management and cost optimization
 
 **Use Cases**:
-- Native integration with .NET/{{UI_FRAMEWORK}} stack
+- Native integration with .NET/Blazor stack
 - Plugin-based agent architecture
 - Enterprise-grade prompt management
 - Automated planning for complex tasks
@@ -183,7 +189,7 @@ var result = await function.InvokeAsync("MyCode.cs");
 ```
 
 **Integration Considerations**:
-- **HIGHEST COMPATIBILITY** - native {{LANGUAGES}} integration
+- **HIGHEST COMPATIBILITY** - native C# integration
 - Could replace current prompt parsing logic
 - Plugin system could modularize agent capabilities
 - Planner could handle task.prompt.md execution workflow
@@ -191,7 +197,7 @@ var result = await function.InvokeAsync("MyCode.cs");
 
 ---
 
-## 🧪 Prompt Testing & Evaluation
+## ðŸ§ª Prompt Testing & Evaluation
 
 ### PromptTools
 **Repository**: https://github.com/hegelai/prompttools  
@@ -288,7 +294,7 @@ tests:
 
 ---
 
-## 🏗️ Development & Debugging Tools
+## ðŸ—ï¸ Development & Debugging Tools
 
 ### LangSmith (LangChain)
 **Repository**: https://smith.langchain.com  
@@ -348,27 +354,27 @@ tests:
 
 ---
 
-## 📊 Comparison Matrix
+## ðŸ“Š Comparison Matrix
 
-| Library | Language | Primary Use Case | {{LANGUAGES}} Support | Self-Hostable | License |
+| Library | Language | Primary Use Case | C# Support | Self-Hostable | License |
 |---------|----------|-----------------|------------|---------------|---------|
-| **DSPy** | Python | Prompt Optimization | ❌ | ✅ | MIT |
-| **Guidance** | Python | Constrained Generation | ❌ | ✅ | MIT |
-| **LangChain** | Python/JS | Orchestration | ❌ | ✅ | MIT |
-| **Semantic Kernel** | **{{LANGUAGES}}**/Python/Java | Enterprise Orchestration | ✅ | ✅ | MIT |
-| **PromptTools** | Python | Testing & Evaluation | ❌ | ✅ | Apache 2.0 |
-| **PromptFoo** | TypeScript | CLI Testing | ❌ | ✅ | MIT |
-| **LangSmith** | Platform | Observability | ✅ (SDK) | ❌ | Commercial |
-| **Langfuse** | TypeScript | Observability | ✅ (SDK) | ✅ | MIT |
+| **DSPy** | Python | Prompt Optimization | âŒ | âœ… | MIT |
+| **Guidance** | Python | Constrained Generation | âŒ | âœ… | MIT |
+| **LangChain** | Python/JS | Orchestration | âŒ | âœ… | MIT |
+| **Semantic Kernel** | **C#**/Python/Java | Enterprise Orchestration | âœ… | âœ… | MIT |
+| **PromptTools** | Python | Testing & Evaluation | âŒ | âœ… | Apache 2.0 |
+| **PromptFoo** | TypeScript | CLI Testing | âŒ | âœ… | MIT |
+| **LangSmith** | Platform | Observability | âœ… (SDK) | âŒ | Commercial |
+| **Langfuse** | TypeScript | Observability | âœ… (SDK) | âœ… | MIT |
 
 ---
 
-## 💡 Recommendations for {{PROJECT_NAME}}
+## ðŸ’¡ Recommendations for {{PROJECT_NAME}}
 
 ### Immediate Opportunities (High Value, Low Effort)
 
-1. **Semantic Kernel ({{LANGUAGES}})**
-   - **Why**: Native {{LANGUAGES}} support, enterprise-grade, Microsoft-backed
+1. **Semantic Kernel (C#)**
+   - **Why**: Native C# support, enterprise-grade, Microsoft-backed
    - **Use Case**: Replace custom prompt parsing, add plugin system for agents
    - **Effort**: 2-3 weeks integration
    - **Impact**: Standardized prompt management, better token handling
@@ -409,7 +415,7 @@ tests:
 
 ---
 
-## 🚀 Getting Started
+## ðŸš€ Getting Started
 
 ### Semantic Kernel (Recommended First Step)
 
@@ -498,7 +504,7 @@ tests:
 
 ---
 
-## 📚 Additional Resources
+## ðŸ“š Additional Resources
 
 ### Learning Materials
 - **Prompt Engineering Guide**: https://www.promptingguide.ai
@@ -517,7 +523,7 @@ tests:
 
 ---
 
-## 🔄 Maintenance
+## ðŸ”„ Maintenance
 
 **Update Frequency**: Quarterly (or when major library updates occur)  
 **Owner**: Development Team  

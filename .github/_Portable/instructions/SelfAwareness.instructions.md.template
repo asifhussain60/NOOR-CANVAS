@@ -1,34 +1,33 @@
 # Generic Template - Customized During Setup
 
-**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
-**Template Variables Used:**
+**Template Variables:**
 - `{{PROJECT_NAME}}` - Your project name
-- `{{PRODUCTION_BRANCH}}` - Production branch name (default: master/main)
-- `{{DEVELOPMENT_BRANCH}}` - Development branch name (default: development/dev)
-- `{{DEPLOYMENT_SCRIPT}}` - Deployment script path
+- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, etc.)
+- `{{FRAMEWORKS}}` - Frameworks/libraries
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+- `{{RUN_COMMAND}}` - Run command
+- `{{LINT_COMMAND}}` - Linting command
+- `{{DATABASE_TYPE}}` - Database/ORM type
 - `{{DATABASE_NAME}}` - Primary database name
-- `{{DATABASE_SERVER}}` - Database server name
+- `{{DATABASE_SERVER}}` - Database server
 - `{{SCHEMA_PRIMARY}}` - Primary writable schema
 - `{{SCHEMA_READONLY}}` - Read-only schemas (comma-separated)
 - `{{CONNECTION_STRING_KEY}}` - Connection string config key
 - `{{SOURCE_PATH}}` - Main source code path
-- `{{BUILD_COMMAND}}` - Build command
-- `{{RUN_COMMAND}}` - Run command
-- `{{TEST_COMMAND}}` - Test command
-- `{{LAUNCH_SCRIPT}}` - Application launch script
-- `{{BUILD_LAUNCH_SCRIPT}}` - Build and launch script
+- `{{TEST_PATH}}` - Test files path
+- `{{CONFIG_PATH}}` - Configuration files path
 - `{{TEST_FRAMEWORK}}` - Testing framework
-- `{{ANALYZER_TOOLS}}` - Code analysis tools
-- `{{LINT_COMMAND}}` - Linting command
 - `{{UI_FRAMEWORK}}` - UI framework
-- `{{REALTIME_TECH}}` - Real-time technology
+- `{{ANALYZER_TOOLS}}` - Code analysis tools
+- `{{PACKAGE_MANAGER}}` - Package manager
 - `{{API_BASE_URL}}` - API base URL
-- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, etc.)
+- `{{REALTIME_TECH}}` - Real-time technology
 
 ---
 
-````instructions
 # SelfAwareness – Global Operating Guardrails (2.5.0)
 
 > Canonical operating rules for all agents. Keep **.github/prompts/** as the source of truth.  
@@ -37,13 +36,13 @@
 ## 🔀 Branch Strategy (CRITICAL)
 
 **BRANCH STRUCTURE**:
-- **`{{PRODUCTION_BRANCH}}`** - Production branch (PROTECTED)
-  - ALWAYS represents what's currently deployed in production via `{{DEPLOYMENT_SCRIPT}}`
-  - NEVER commit directly to {{PRODUCTION_BRANCH}}
-  - Only receives merges from `{{DEVELOPMENT_BRANCH}}` after testing
-  - Deployment script: `{{DEPLOYMENT_SCRIPT}}` deploys from this branch
+- **`master`** - Production branch (PROTECTED)
+  - ALWAYS represents what's currently deployed in production
+  - NEVER commit directly to master
+  - Only receives merges from `development` after testing
+  - Deployment script deploys from this branch
   
-- **`{{DEVELOPMENT_BRANCH}}`** - Active development branch (DEFAULT)
+- **`development`** - Active development branch (DEFAULT)
   - ALL development work happens here
   - ALL feature implementations
   - ALL bug fixes
@@ -51,32 +50,32 @@
   - Agents should ALWAYS work in this branch
 
 **WORKFLOW**:
-1. **Development**: All work done in `{{DEVELOPMENT_BRANCH}}` branch
+1. **Development**: All work done in `development` branch
 2. **Testing**: Validate changes thoroughly in development
-3. **Merge**: When ready for production, merge `{{DEVELOPMENT_BRANCH}}` → `{{PRODUCTION_BRANCH}}`
-4. **Deploy**: Run `{{DEPLOYMENT_SCRIPT}}` which deploys from `{{PRODUCTION_BRANCH}}` branch
-5. **Continue**: Resume development work in `{{DEVELOPMENT_BRANCH}}` branch
+3. **Merge**: When ready for production, merge `development` → `master`
+4. **Deploy**: Run deployment script which deploys from `master` branch
+5. **Continue**: Resume development work in `development` branch
 
 **ENFORCEMENT**:
-- ⚠️ **NEVER** modify `{{PRODUCTION_BRANCH}}` branch directly
-- ✅ **ALWAYS** create commits in `{{DEVELOPMENT_BRANCH}}` branch
-- ✅ **ALWAYS** verify you're in `{{DEVELOPMENT_BRANCH}}` before starting work:
-  ```bash
-  git branch --show-current  # Should return: {{DEVELOPMENT_BRANCH}}
+- ⚠️ **NEVER** modify `master` branch directly
+- ✅ **ALWAYS** create commits in `development` branch
+- ✅ **ALWAYS** verify you're in `development` before starting work:
+  ```{{SHELL_TYPE}}
+  git branch --show-current  # Should return: development
   ```
-- ❌ If on `{{PRODUCTION_BRANCH}}`, switch immediately:
-  ```bash
-  git checkout {{DEVELOPMENT_BRANCH}}
+- ❌ If on `master`, switch immediately:
+  ```{{SHELL_TYPE}}
+  git checkout development
   ```
 
 **RATIONALE**:
-- Production stability: `{{PRODUCTION_BRANCH}}` only contains tested, deployable code
-- Safe experimentation: `{{DEVELOPMENT_BRANCH}}` allows iteration without affecting production
-- Clear deployment path: `{{DEPLOYMENT_SCRIPT}}` knows to deploy from `{{PRODUCTION_BRANCH}}`
-- Easy rollback: Can revert `{{PRODUCTION_BRANCH}}` without losing development work
+- Production stability: `master` only contains tested, deployable code
+- Safe experimentation: `development` allows iteration without affecting production
+- Clear deployment path: Deployment script knows to deploy from `master`
+- Easy rollback: Can revert `master` without losing development work
 
 ## Scope
-Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
+Governs all agent operations including task execution, testing, cleanup, synchronization, and refactoring.
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
@@ -84,9 +83,9 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 - **`.github/instructions/Links/InfrastructureQuickRef.md`** - **MANDATORY** for database operations - contains {{DATABASE_NAME}} connection details and schema access rules
 - **`.github/instructions/Links/Architecture.md`** - Comprehensive application architecture documentation including:
   - Complete API endpoint catalog
-  - UI pages and component inventory
+  - Component and page inventory
   - Service architecture with responsibilities
-  - Real-time communication documentation
+  - Real-time communication patterns ({{REALTIME_TECH}})
   - Data model catalog and database schemas
   - Authentication flows and security patterns
   - Integration patterns and common workflows
@@ -98,14 +97,15 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", assume **{{DATABASE_NAME}}** unless specified otherwise
 - Server: {{DATABASE_SERVER}}
-- Connection: Always use `_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")`
+- Connection: Always use `{{CONNECTION_STRING_KEY}}`
 
 **SCHEMA ACCESS CONTROL**:
-- ✅ **`{{SCHEMA_PRIMARY}}` schema**: READ-WRITE allowed
-  - Primary application schema for all write operations
+- ✅ **`{{SCHEMA_PRIMARY}}`**: READ-WRITE allowed
+  - Primary writable schema for application data
   
-- ❌ **`{{SCHEMA_READONLY}}` schema(s)**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
-  - Read-only schemas for reference data, legacy data, or external system integration
+- ❌ **`{{SCHEMA_READONLY}}`**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
+  - Reference data and legacy tables
+  - Stored procedures for read operations only
   
 - ❌ **All other schemas**: **READ-ONLY**
 
@@ -145,11 +145,11 @@ For each phase, agents must:
 ### Temporary Test Management
 - **Location**: All phase tests go in `Workspaces/TEMP/` directory
 - **Cleanup**: Remove temporary phase tests after all phases complete (unless `commit:false`)
-- **Distinction**: Permanent tests follow proper structure as per config files in `config/testing/`
+- **Distinction**: Permanent tests follow proper structure as per config files in `{{CONFIG_PATH}}`
 - **Isolation**: Each phase test should be independent and not depend on previous phase tests
 
 ### Phase Completion Logging
-- **Format**: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] phase_{number}_complete status=success/failure ;CLEANUP_OK`
+- **Format**: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] phase_{number}_complete status=success/failure ;CLEANUP_OK`
 - **Required**: Each phase must log completion before proceeding to next phase
 - **Failure Handling**: If phase fails, stop processing and report failure with specific phase number  
 
@@ -172,16 +172,16 @@ Workspaces/Copilot/
 ```
 
 ### Code Quality Analysis Organization
-**MANDATORY**: All code analysis data is strictly organized under `Workspaces/CodeQuality/` with documentation stored appropriately:
+**MANDATORY**: All code analysis data is strictly organized under `Workspaces/CodeQuality/`:
 
 ```
 Workspaces/CodeQuality/
 ├── README.md                         # Comprehensive usage documentation
-├── run-analysis.ps1                 # Automated analysis execution script
+├── run-analyzer.{{SCRIPT_EXT}}      # Automated analysis execution script
 ├── CONFIGURATION_COMPLETE.md        # Setup completion status
-└── Analysis/
+└── Analyzer/
     ├── Config/
-    │   └── analysis.config          # Main analysis configuration
+    │   └── analyzer.config          # Main analyzer configuration
     ├── Reports/
     │   ├── baseline-analysis.json   # Initial baseline for comparison
     │   ├── latest-analysis.json     # Most recent analysis
@@ -191,17 +191,10 @@ Workspaces/CodeQuality/
         └── analysis_*.log           # Timestamped historical logs
 ```
 
-**Analysis Documentation Features:**
-- **Automatic Generation**: Enhanced markdown documentation with executive summaries
-- **Health Scoring**: Project health scores calculated from diagnostic patterns
-- **Severity Analysis**: Issues grouped by severity levels
-- **File Rankings**: Identification of files requiring the most attention
-- **Actionable Recommendations**: Specific improvement suggestions based on analysis
-
-**Analysis Execution Rules:**
-- **NEVER** run analysis commands directly in project root
-- **ALWAYS** use: `.\Workspaces\CodeQuality\run-analysis.ps1`
-- **Report Access**: Latest results always at `Workspaces/CodeQuality/Analysis/Reports/latest-analysis.json`
+**Analyzer Execution Rules:**
+- **NEVER** run analyzer commands directly in project root
+- **ALWAYS** use: `{{ANALYZER_SCRIPT_PATH}}`
+- **Report Access**: Latest results always at `Workspaces/CodeQuality/Analyzer/Reports/latest-analysis.json`
 - **No Root Pollution**: All analysis artifacts are contained in the organized structure
 
 **Enforcement:**
@@ -209,29 +202,32 @@ Workspaces/CodeQuality/
 - **Analysis**: `Workspaces/Copilot/_DOCS/analysis/`
 - **Config Documentation**: `Workspaces/Copilot/_DOCS/configs/`
 - **Migration Reports**: `Workspaces/Copilot/_DOCS/migrations/`
-- **Code Quality**: `Workspaces/CodeQuality/Analysis/`
+- **Code Quality**: `Workspaces/CodeQuality/Analyzer/`
 - **Never use project root** for any temporary or analysis files
 
 ## Absolute Runtime Rules
 
 ### For {{PROJECT_TYPE}} Application Development
-- **Launch Scripts**:
-  - `{{LAUNCH_SCRIPT}}`  (launch only)  
-  - `{{BUILD_LAUNCH_SCRIPT}}` (clean, build, then launch)  
+- Launch via designated scripts in `Workspaces/Global/` directory
+- Use appropriate build commands: `{{BUILD_COMMAND}}`
+- Use appropriate run commands: `{{RUN_COMMAND}}`
 - If the agent initiates a stop/restart, **self-attribute** in logs and summaries.
 
 ### For Database Access Architecture
-- **CRITICAL RULE**: Database data MUST ONLY be accessed via appropriate application layers
-- **UI Layer Best Practice**: UI components should use proper data access patterns (APIs, services, etc.)
-- **Required Pattern**: UI → Service/API → Data Access Layer → Database
-- **API-First**: All database operations should go through properly designed endpoints/services with DTOs
-- **No Direct Queries**: Avoid direct database queries in UI layer
-- **Enforcement**: Data access should be properly abstracted and centralized
+- **CRITICAL RULE**: Database data MUST be accessed through proper architectural layers
+- **UI Layer**: Follow {{UI_FRAMEWORK}} best practices for data access
+- **API-First**: All database operations should go through properly designed API endpoints
+- **Direct Access**: Only permitted in designated service/repository layers
+- **Enforcement**: UI components must use proper HTTP clients for all data access
 
-### For {{TEST_FRAMEWORK}} Testing
-- Test execution should follow project-specific patterns
-- Tests should manage application lifecycle appropriately
-- Use project configuration files for test setup
+### For Testing with {{TEST_FRAMEWORK}}
+**CRITICAL**: Testing framework has its own server management system - DO NOT manually start the app!
+
+- **Never** manually run application before tests
+- **Never** launch the app in a separate window/terminal for tests
+- Testing framework manages application lifecycle **automatically** via configuration
+- Use appropriate test commands: `{{TEST_COMMAND}}`
+- Tests run with framework managing the application as needed
 
 ## Debug Logging Rules
 - All debug lines must use the consistent marker:  
@@ -244,27 +240,30 @@ Workspaces/CodeQuality/
   - **trace**: log every step of the flow, including intermediate calculations, branching decisions, and results.  
 
 ## Analyzer & Linter Enforcement
-All agents must enforce **industry-standard analyzers and linters** before declaring success.
+All agents must enforce **{{ANALYZER_TOOLS}}** before declaring success.
 
-### Analysis Tool Integration
-**For {{PROJECT_TYPE}} projects:**
-- Use appropriate analyzer tools: {{ANALYZER_TOOLS}}
-- Configure analyzers in project configuration files
-- Enforce code quality standards during build
-- Treat warnings according to project standards
+### Analyzer Integration
+- **Tools**: {{ANALYZER_TOOLS}}
+- **Configuration**: Centralized configuration ensures:  
+  - Latest analysis standards enabled
+  - Code style enforcement in build
+  - Warning treatment (project-specific)
+- **Suppressions**: Intentionally suppressed rules per project standards
+- **Invariant**: Do **not** attempt to reintroduce suppressed rules unless explicitly instructed.
 
 ### Linting Integration
-- Main config: Centralized linting configuration
-- Project-specific linting rules as needed
-- **Baseline Debt**: Document and accept known acceptable violations
-- Agents must **not** attempt to eliminate documented baseline debt unless explicitly instructed
+- Main config: `{{LINT_CONFIG_PATH}}`
+- **Baseline Debt**: Accepted technical debt patterns documented
+- Agents must **not** attempt to eliminate accepted debts unless explicitly instructed.
 
-### Build Script Enforcement
+### Package Manager Scripts
 All agents must use the centralized scripts for linting, formatting, and testing:
 
 - **Linting**: `{{LINT_COMMAND}}`
-- **Building**: `{{BUILD_COMMAND}}`
-- **Testing**: `{{TEST_COMMAND}}`
+- **Formatting Check**: `{{FORMAT_CHECK_COMMAND}}`
+- **Formatting Fix**: `{{FORMAT_FIX_COMMAND}}`
+- **Type Check**: `{{TYPE_CHECK_COMMAND}}`
+- **Tests**: `{{TEST_COMMAND}}`
 
 **Enforcement Rules:**
 - Run from repository root directory
@@ -273,24 +272,24 @@ All agents must use the centralized scripts for linting, formatting, and testing
 - **Error Interpretation**: Distinguish between config issues vs. actual code problems
 
 ## Modernization Guardrails
-- **Best Practices**: Follow current best practices for {{PROJECT_TYPE}}
-- **Typing**: Use strong typing where available
-- **Error Handling**: Use safe defaults and proper error handling
-- **Code Hygiene**: Delete unused code instead of commenting out
-- **Formatting**: Always format with project formatter
+- **Imports**: All new code must use modern import syntax per {{PROJECT_TYPE}} standards
+- **Typing**: Prefer explicit types over any/dynamic. If unavoidable, document why.  
+- **Error Handling**: Use proper error handling patterns for resilience.  
+- **Code Hygiene**: Delete unused functions/variables instead of prefixing with `_`.  
+- **Formatting**: Always format using project formatter configuration
 
 ## Memory of Failures & Prohibited Retries
 Agents must **record and respect failed approaches**:  
-- Do not retry approaches that have previously failed
-- Document failed approaches in learning system
-- Respect documented prohibited patterns
+- Do not retry approaches that have been documented as failures
+- Do not force rewrites when patterns are established
+- Do not attempt to "fix" intentionally suppressed rules
 
 ## Test Strategy Rules
 - Always generate tests incrementally:  
-  1. Begin with simple unit tests
+  1. Begin with simple checks
   2. Progress to integration tests
-  3. Only at the final stage use full end-to-end tests
-- If a test hangs, agents must self-recover and retry with reduced scope
+  3. Only at the final stage use full end-to-end scenarios
+- If a test hangs, agents must self-recover and retry with reduced scope.  
 
 ## Logging for Success/Failure Memory
 - On success: append `;SUCCESS_PATH` to debug logs.  
@@ -307,79 +306,87 @@ Agents must **record and respect failed approaches**:
 ## Key Infrastructure
 
 ### Configuration File Organization
-All configuration files centralized for better organization:
+All configuration files are centralized:
 
 ```
-config/
-└── testing/
-    ├── linting.config        # Linting configuration
-    ├── testing.config        # Test framework configuration
-    └── formatting.config     # Formatting configuration
+{{CONFIG_PATH}}/
+├── linting/                 # Linting configurations
+├── testing/                 # Test configurations
+├── formatting/              # Formatter configurations
+└── analysis/               # Code analysis configurations
 ```
 
 **Key Points:**
-- **Centralized Location**: All configs in `config/testing/` directory
-- **Build Scripts**: All scripts reference the centralized config locations
-- **Backward Compatibility**: Legacy configs maintained for specific use cases where needed
-- **Path Updates**: All relative paths correctly updated for new directory structure
+- **Centralized Location**: All configs in designated directory
+- **Scripts**: All package.json/build scripts reference the centralized locations
+- **Path Updates**: All relative paths correctly updated for directory structure
+
+### Application Launch & Port Management
 
 ### Database Connectivity
 
 #### {{DATABASE_NAME}} Connection String
 ```
-{{DATABASE_CONNECTION_STRING}}
+{{CONNECTION_STRING_EXAMPLE}}
 ```
 
-All agents and scripts must connect only to the specified database instance above.
+**Connection Requirements:**
+- Use specified database server and credentials
+- All agents and scripts must connect to specified instance
+- Connection string must be consistent across all applications
 
-#### Entity Framework / ORM
-- Use retry logic for database context initialization
-- Connection string must match above for all applications
+#### Application Server
+- Default app port: {{DEFAULT_PORT}}
+- Use proper launch scripts for port management
+- Always check for orphaned processes before launch
+
+#### ORM/Data Access
+- Use {{DATABASE_TYPE}} for data access
+- Connection string must match configuration
+- Use retry logic for connection initialization
+
+#### Testing Infrastructure
+- Centralized under {{TEST_PATH}}
+- Main config: `{{TEST_CONFIG_PATH}}`
+- All scripts reference the centralized config location
+
+#### Real-Time Communication
+- Technology: {{REALTIME_TECH}}
+- Handle exceptions during message parsing
+- Use resilient serialization formats for updates
 
 #### API Endpoints
-- **Authentication**: Follow project-specific authentication patterns
-- **Connection String Standard**: Always use identical connection strings across all applications
-- **Timeout Configuration**: Use appropriate timeout for operations
+- Base URL: {{API_BASE_URL}}
+- **Connection String Standard**: Use identical connection strings across all applications
 - **Route Conflicts**: Always check for ambiguous route patterns during development
-
-### Test Infrastructure
-- **Centralized Structure**: All test artifacts under appropriate test directory
-- **Artifact Management**: Organized into tests/, reports/, results/, artifacts/, config/
-- **Configuration**: Centralized configuration files
-- **Path Resolution**: All paths relative to project root for consistency
+- **Authentication Flows**: Validate token formats match expected endpoint requirements
 
 ## Key Requirements
 
 ### Authentication & Session Management
-- **Token Consistency**: Maintain token validation throughout application
-- **Session Management**: Support proper session handling patterns
+- **Token Consistency**: Maintain token validation throughout workflows
 - **Multi-route Support**: Components must handle multiple route patterns
-- **Error Handling**: Authentication failures must show user-friendly messages
+- **Error Handling**: Show user-friendly messages, not technical errors
 
 ### UI/UX Standards
-- **Responsive Design**: All UI components must be properly responsive
-- **Visual Consistency**: Maintain consistent theme and styling
-- **Branding**: Proper logo and brand element placement
-- **Animation Support**: Support smooth transitions where appropriate
+- **Responsive Design**: Proper layout and sizing across devices
+- **Visual Consistency**: Maintain theme and styling standards
+- **Component Structure**: Follow {{UI_FRAMEWORK}} best practices
 
 ### API Integration Requirements
-- **Database Integration**: Support proper database context handling
+- **Database Integration**: Support proper database contexts
 - **Validation Logic**: Implement comprehensive validation
-- **Real-time Updates**: Handle real-time communication properly
-- **Data Mapping**: Proper mapping between UI and database schemas
+- **Real-time Updates**: {{REALTIME_TECH}} must handle updates without connection drops
 
 ### Data Management
-- **Dynamic Loading**: Support dynamic data loading patterns
-- **Validation**: Proper validation and storage with appropriate access control
-- **Real-time Updates**: Real-time updates via appropriate technology
-- **Reference Data**: Proper handling of reference data
+- **Dynamic Loading**: Support loading from database
+- **Real-time Updates**: Proper real-time data synchronization
+- **Proper Validation**: Validate all data operations
 
 ---
 
 **Version:** 2.8.0  
-**Last Updated:** Template Creation for Portable System  
-
-```
+**Last Updated:** Template Version for Portable System
 
 ---
 
@@ -387,8 +394,7 @@ All agents and scripts must connect only to the specified database instance abov
 This instruction set references the central `SystemIndex.md`. Any structural changes must be reflected there.
 
 ## Git Backup & Rollback Discipline
-- Every /workitem and /continue must begin by creating a backup commit.
+- Every operation must begin by creating a backup commit.
 - Undo logs must store commit hashes for rollback.
 - Rollback uses `git reset --hard <hash>`.
-- On /keylock, squash backup commits into one final commit.
-````
+- On completion, squash backup commits into one final commit.

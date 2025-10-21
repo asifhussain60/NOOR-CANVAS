@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # commit.prompt.md
 
 ---
@@ -44,7 +50,7 @@ You are the **Commit Orchestrator Agent**.
 Always follow `.github/instructions/SelfAwareness.instructions.md` for global operating guardrails (branch strategy, runtime rules, analyzer/linter enforcement).
 
 ### What
-The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow that ensures system cohesion, synchronization, learning extraction, and code quality before creating commits and pushing to origin. It orchestrates four critical agents in sequence: cohesion-review → sync → analyze-learning → refactor.
+The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow that ensures system cohesion, synchronization, learning extraction, and code quality before creating commits and pushing to origin. It orchestrates four critical agents in sequence: cohesion-review â†’ sync â†’ analyze-learning â†’ refactor.
 
 **IMPORTANT**: Validation steps (cohesion review, sync, learning analysis, refactor) execute on **ALL CODE** in the workspace, regardless of whether there are uncommitted changes. Only the git commit/push steps are conditional on having uncommitted changes.
 
@@ -117,7 +123,7 @@ if ($skipCohesion -eq $true) {
                   Select-Object -First 1
     
     if ($lastReview -and ((Get-Date) - $lastReview.LastWriteTime).TotalHours -lt 24) {
-        Write-Host "✓ Skipping cohesion review (recent analysis found)" -ForegroundColor Green
+        Write-Host "âœ“ Skipping cohesion review (recent analysis found)" -ForegroundColor Green
         # Skip to Step 2
     }
 }
@@ -149,7 +155,7 @@ if ($skipCohesion -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-sync Check if sync can be skipped ;CLEANUP_OK
 if ($skipSync -eq $true) {
-    Write-Host "✓ Skipping sync (skip-sync=true parameter provided)" -ForegroundColor Green
+    Write-Host "âœ“ Skipping sync (skip-sync=true parameter provided)" -ForegroundColor Green
     # Skip to Step 3
 }
 ```
@@ -181,7 +187,7 @@ if ($skipSync -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-learning Check if learning analysis can be skipped ;CLEANUP_OK
 if ($skipLearning -eq $true) {
-    Write-Host "✓ Skipping learning analysis (skip-learning=true parameter provided)" -ForegroundColor Green
+    Write-Host "âœ“ Skipping learning analysis (skip-learning=true parameter provided)" -ForegroundColor Green
     # Skip to Step 3.5
 }
 ```
@@ -213,7 +219,7 @@ if ($skipLearning -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-refactor Check if refactor can be skipped ;CLEANUP_OK
 if ($skipRefactor -eq $true) {
-    Write-Host "✓ Skipping refactor (skip-refactor=true parameter provided)" -ForegroundColor Green
+    Write-Host "âœ“ Skipping refactor (skip-refactor=true parameter provided)" -ForegroundColor Green
     # Skip to Step 4
 }
 ```
@@ -255,7 +261,7 @@ if ($skipRefactor -eq $true) {
 # Locate all key metadata files
 $keyFiles = Get-ChildItem ".github/prompts.keys/*/*.md" -Include "*prompts.md", "*analysis.md", "*notes.md" -Recurse
 
-Write-Host "`n🔍 Key Data Streams Found: $($keyFiles.Count)" -ForegroundColor Cyan
+Write-Host "`nðŸ” Key Data Streams Found: $($keyFiles.Count)" -ForegroundColor Cyan
 ```
 
 #### 4.2. Analyze for Redundancies
@@ -268,7 +274,7 @@ Write-Host "`n🔍 Key Data Streams Found: $($keyFiles.Count)" -ForegroundColor 
 
 **Example Redundancies to Remove**:
 ```markdown
-❌ REDUNDANT:
+âŒ REDUNDANT:
 ## File Mappings
 ### Frontend (Views)
 - N/A - No frontend views involved
@@ -277,34 +283,34 @@ Write-Host "`n🔍 Key Data Streams Found: $($keyFiles.Count)" -ForegroundColor 
 ### Backend (Controllers)
 - N/A - No backend controllers involved
 
-✅ COMPACT:
+âœ… COMPACT:
 ## File Mappings
 - **Scope**: Documentation only (no frontend/backend changes)
 ```
 
 **Example Outdated Business Rules**:
 ```markdown
-❌ OUTDATED:
+âŒ OUTDATED:
 - Annotation system integration (removed in Issue #67)
 - Legacy vote counting logic (replaced by VotingService)
 
-✅ REMOVE: Delete references to deleted features
+âœ… REMOVE: Delete references to deleted features
 ```
 
 #### 4.3. Extract to Links/Shared
 **Move reusable content to appropriate shared locations:**
 
-1. **Common Patterns → `.github/instructions/Links/`**
+1. **Common Patterns â†’ `.github/instructions/Links/`**
    - Infrastructure references
    - Standard workflows
    - Cross-cutting concerns
 
-2. **Prompt Boilerplate → `.github/prompts/shared/`**
+2. **Prompt Boilerplate â†’ `.github/prompts/shared/`**
    - Step templates
    - Commit message formats
    - Validation procedures
 
-3. **Key Templates → `Workspaces/Copilot/prompts.keys/_template/`**
+3. **Key Templates â†’ `Workspaces/Copilot/prompts.keys/_template/`**
    - Standard key structure
    - Metadata schema
    - Work log format
@@ -364,7 +370,7 @@ foreach ($keyFile in $keyFiles) {
                        $content.Length -gt 10000  # Verbose files
     
     if ($hasRedundancies) {
-        Write-Host "  📝 Cleaning: $($keyFile.Name)" -ForegroundColor Yellow
+        Write-Host "  ðŸ“ Cleaning: $($keyFile.Name)" -ForegroundColor Yellow
         
         # Apply cleanup transformations
         # (Implementation would use regex/string operations)
@@ -372,20 +378,20 @@ foreach ($keyFile in $keyFiles) {
         # Optionally commit cleanup
         git add $keyFile.FullName
     } else {
-        Write-Host "  ✓ Clean: $($keyFile.Name)" -ForegroundColor Green
+        Write-Host "  âœ“ Clean: $($keyFile.Name)" -ForegroundColor Green
     }
 }
 ```
 
 **Expected Output**:
 ```
-🔍 Key Data Streams Found: 42
-  ✓ Clean: canvas.md
-  📝 Cleaning: prompts.md (redundant N/A sections)
-  📝 Cleaning: hcp.md (outdated business rules)
-  ✓ Clean: sync.md
+ðŸ” Key Data Streams Found: 42
+  âœ“ Clean: {{SCHEMA_PRIMARY}}.md
+  ðŸ“ Cleaning: prompts.md (redundant N/A sections)
+  ðŸ“ Cleaning: hcp.md (outdated business rules)
+  âœ“ Clean: sync.md
 ...
-✅ Cleanup Complete: 12 files optimized, 30 files clean
+âœ… Cleanup Complete: 12 files optimized, 30 files clean
 ```
 
 #### 4.6. Update Links/Shared Folders
@@ -413,10 +419,10 @@ git commit -m "docs: extract common patterns from key data streams"
 1. **Search for Debug Markers**:
    ```powershell
    # Search for all files containing DEBUG-WORKITEM markers
-   $debugFiles = Get-ChildItem -Path "SPA/", "{{TEST_PATH}}/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
+   $debugFiles = Get-ChildItem -Path "SPA/", "Tests/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
        Where-Object { (Get-Content $_.FullName -Raw) -match '\[DEBUG-WORKITEM:.*\] ;CLEANUP_OK' }
    
-   Write-Host "`n🔍 Files with Debug Markers: $($debugFiles.Count)" -ForegroundColor Cyan
+   Write-Host "`nðŸ” Files with Debug Markers: $($debugFiles.Count)" -ForegroundColor Cyan
    ```
 
 2. **Display Debug Marker Summary**:
@@ -426,7 +432,7 @@ git commit -m "docs: extract common patterns from key data streams"
        $markers = ([regex]::Matches($content, '\[DEBUG-WORKITEM:([^:]+):[^\]]+\]')).Groups |
                   Where-Object { $_.Index -gt 0 } | Select-Object -ExpandProperty Value -Unique
        
-       Write-Host "  📝 $($file.Name): $($markers.Count) unique marker(s)" -ForegroundColor Yellow
+       Write-Host "  ðŸ“ $($file.Name): $($markers.Count) unique marker(s)" -ForegroundColor Yellow
    }
    ```
 
@@ -451,7 +457,7 @@ git commit -m "docs: extract common patterns from key data streams"
        
        if ($content -ne $originalContent) {
            Set-Content -Path $file.FullName -Value $content -NoNewline
-           Write-Host "  ✅ Cleaned: $($file.Name)" -ForegroundColor Green
+           Write-Host "  âœ… Cleaned: $($file.Name)" -ForegroundColor Green
        }
    }
    ```
@@ -459,13 +465,13 @@ git commit -m "docs: extract common patterns from key data streams"
 4. **Verify Cleanup**:
    ```powershell
    # Re-scan for any remaining markers
-   $remainingMarkers = Get-ChildItem -Path "SPA/", "{{TEST_PATH}}/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
+   $remainingMarkers = Get-ChildItem -Path "SPA/", "Tests/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
        Where-Object { (Get-Content $_.FullName -Raw) -match '\[DEBUG-WORKITEM:.*\] ;CLEANUP_OK' }
    
    if ($remainingMarkers.Count -eq 0) {
-       Write-Host "`n✅ Debug Marker Cleanup Complete - Zero markers remaining" -ForegroundColor Green
+       Write-Host "`nâœ… Debug Marker Cleanup Complete - Zero markers remaining" -ForegroundColor Green
    } else {
-       Write-Host "`n⚠️ Warning: $($remainingMarkers.Count) files still contain debug markers" -ForegroundColor Yellow
+       Write-Host "`nâš ï¸ Warning: $($remainingMarkers.Count) files still contain debug markers" -ForegroundColor Yellow
        foreach ($file in $remainingMarkers) {
            Write-Host "  - $($file.FullName)" -ForegroundColor Red
        }
@@ -476,22 +482,22 @@ git commit -m "docs: extract common patterns from key data streams"
    ```powershell
    if ($debugFiles.Count -gt 0) {
        git add $debugFiles
-       Write-Host "`n✅ Staged $($debugFiles.Count) cleaned files" -ForegroundColor Green
+       Write-Host "`nâœ… Staged $($debugFiles.Count) cleaned files" -ForegroundColor Green
    }
    ```
 
 **Expected Output**:
 ```
-🔍 Files with Debug Markers: 8
-  📝 SessionCanvas.razor: 12 unique marker(s)
-  📝 HostControlPanel.razor: 8 unique marker(s)
-  📝 QuestionController.cs: 6 unique marker(s)
-  ✅ Cleaned: SessionCanvas.razor
-  ✅ Cleaned: HostControlPanel.razor
-  ✅ Cleaned: QuestionController.cs
+ðŸ” Files with Debug Markers: 8
+  ðŸ“ Session{{SCHEMA_PRIMARY}}.razor: 12 unique marker(s)
+  ðŸ“ HostControlPanel.razor: 8 unique marker(s)
+  ðŸ“ QuestionController.cs: 6 unique marker(s)
+  âœ… Cleaned: Session{{SCHEMA_PRIMARY}}.razor
+  âœ… Cleaned: HostControlPanel.razor
+  âœ… Cleaned: QuestionController.cs
   ...
-✅ Debug Marker Cleanup Complete - Zero markers remaining
-✅ Staged 8 cleaned files
+âœ… Debug Marker Cleanup Complete - Zero markers remaining
+âœ… Staged 8 cleaned files
 ```
 
 **Patterns Removed**:
@@ -512,29 +518,29 @@ git commit -m "docs: extract common patterns from key data streams"
 # DEBUG-WORKITEM:commit:verify-changes Check uncommitted change count ;CLEANUP_OK
 $uncommittedCount = (git status --porcelain).Count
 
-Write-Host "`n📊 Uncommitted Changes: $uncommittedCount" -ForegroundColor Cyan
+Write-Host "`nðŸ“Š Uncommitted Changes: $uncommittedCount" -ForegroundColor Cyan
 
 if ($uncommittedCount -eq 0) {
-    Write-Host "✓ No uncommitted changes detected - Skipping git operations" -ForegroundColor Green
+    Write-Host "âœ“ No uncommitted changes detected - Skipping git operations" -ForegroundColor Green
     # Skip to Step 9 (Summary Report)
     # Note: Validation steps (1-4) already executed on entire codebase
 } else {
     # Proceed to Step 6
-    Write-Host "⚠ Proceeding to commit $uncommittedCount changes" -ForegroundColor Yellow
+    Write-Host "âš  Proceeding to commit $uncommittedCount changes" -ForegroundColor Yellow
 }
 ```
 
 **Output**:
 ```
-📊 Uncommitted Changes: 12
-⚠ Proceeding to commit 12 changes
+ðŸ“Š Uncommitted Changes: 12
+âš  Proceeding to commit 12 changes
 ```
 
 **OR**:
 
 ```
-📊 Uncommitted Changes: 0
-✓ No uncommitted changes detected - Skipping git operations
+ðŸ“Š Uncommitted Changes: 0
+âœ“ No uncommitted changes detected - Skipping git operations
 ```
 
 **Note**: If no uncommitted changes exist, Steps 6-8 are automatically skipped, but validation steps (1-4) have already run on the entire codebase.
@@ -578,11 +584,11 @@ git add -A
 git commit -m $commitMessage
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Commit failed with exit code: $LASTEXITCODE" -ForegroundColor Red
+    Write-Host "âŒ Commit failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "✓ Commit created successfully" -ForegroundColor Green
+Write-Host "âœ“ Commit created successfully" -ForegroundColor Green
 ```
 
 ---
@@ -594,7 +600,7 @@ Write-Host "✓ Commit created successfully" -ForegroundColor Green
 ```powershell
 # DEBUG-WORKITEM:commit:check-push Check if push is enabled ;CLEANUP_OK
 if ($push -eq $false) {
-    Write-Host "ℹ Push skipped (push=false)" -ForegroundColor Cyan
+    Write-Host "â„¹ Push skipped (push=false)" -ForegroundColor Cyan
     # Skip to Step 7
 }
 ```
@@ -607,12 +613,12 @@ if ($push -eq $false) {
 git push origin master
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Push failed with exit code: $LASTEXITCODE" -ForegroundColor Red
-    Write-Host "⚠ Commits created but not pushed to origin" -ForegroundColor Yellow
+    Write-Host "âŒ Push failed with exit code: $LASTEXITCODE" -ForegroundColor Red
+    Write-Host "âš  Commits created but not pushed to origin" -ForegroundColor Yellow
     exit 1
 }
 
-Write-Host "✓ Changes pushed to origin successfully" -ForegroundColor Green
+Write-Host "âœ“ Changes pushed to origin successfully" -ForegroundColor Green
 ```
 
 ---
@@ -625,18 +631,18 @@ Write-Host "✓ Changes pushed to origin successfully" -ForegroundColor Green
 $finalUncommittedCount = (git status --porcelain).Count
 
 if ($finalUncommittedCount -ne 0) {
-    Write-Host "❌ CRITICAL: Uncommitted changes detected after commit!" -ForegroundColor Red
+    Write-Host "âŒ CRITICAL: Uncommitted changes detected after commit!" -ForegroundColor Red
     Write-Host "   Uncommitted count: $finalUncommittedCount" -ForegroundColor Red
     git status --short
     exit 1
 }
 
-Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundColor Green
+Write-Host "`nâœ… Verification Complete: Zero uncommitted changes" -ForegroundColor Green
 ```
 
 **Expected Output**:
 ```
-✅ Verification Complete: Zero uncommitted changes
+âœ… Verification Complete: Zero uncommitted changes
 ```
 
 **Failure Handling**:
@@ -651,9 +657,9 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 **Provide comprehensive execution summary.**
 
 ```
-✅ Commit Workflow Complete
+âœ… Commit Workflow Complete
 
-📋 Execution Summary:
+ðŸ“‹ Execution Summary:
 - **Key**: {key-name or 'none'}
 - **Cohesion Review**: {executed on all prompts/instructions | skipped}
 - **Sync**: {executed on all docs/configs | skipped}
@@ -665,7 +671,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - **Push**: {successful | skipped | failed}
 - **Final Status**: {X} commits pushed OR validation complete with 0 uncommitted changes
 
-🎯 System State:
+ðŸŽ¯ System State:
 - Prompts: {validated on entire system | skipped}
 - Documentation: {synchronized across entire system | skipped}
 - Learning: {patterns extracted from all keys | skipped}
@@ -674,16 +680,16 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - Git Status: {X uncommitted changes} or {clean}
 - Remote: {up to date | local only}
 
-💡 Validation Coverage:
+ðŸ’¡ Validation Coverage:
 - Total Files Analyzed: {count}
 - Validation Scope: {Entire Codebase | Partial (some steps skipped)}
 ```
 
 **Example Output (No Uncommitted Changes)**:
 ```
-✅ Commit Workflow Complete
+âœ… Commit Workflow Complete
 
-📋 Execution Summary:
+ðŸ“‹ Execution Summary:
 - Key: none
 - Cohesion Review: executed on all prompts/instructions
 - Sync: executed on all docs/configs
@@ -693,7 +699,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - Push: skipped (no changes to push)
 - Final Status: Validation complete, 0 uncommitted changes
 
-🎯 System State:
+ðŸŽ¯ System State:
 - Prompts: validated and cohesive
 - Documentation: synchronized
 - Learning: patterns extracted
@@ -701,7 +707,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - Git Status: clean
 - Remote: up to date
 
-💡 Result: Full codebase validation completed successfully. No changes to commit.
+ðŸ’¡ Result: Full codebase validation completed successfully. No changes to commit.
 ```
 
 ---
@@ -721,7 +727,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - **VALIDATION STEPS ALWAYS RUN ON ALL CODE**: Steps 1-4 analyze the entire workspace, not just uncommitted changes
 - **DO NOT skip validation steps based on git status** - they validate the entire codebase
 - **ONLY skip git operations** (commit/push) if no uncommitted changes exist
-- **ALWAYS log skip reasons** - display "✓ Skipping [step] ([reason])" when skipping
+- **ALWAYS log skip reasons** - display "âœ“ Skipping [step] ([reason])" when skipping
 - **NEVER skip Step 8 verification** if a commit was created
 - **NEVER proceed if cohesion review finds issues** - abort and fix issues first
 - **ALWAYS commit before pushing** - Step 6 must complete before Step 7
@@ -757,17 +763,17 @@ If any validation step finds issues, the workflow must report failure and provid
 Before beginning execution, the agent MUST acknowledge:
 
 ```
-🔍 COMMIT WORKFLOW EXECUTION PLAN
+ðŸ” COMMIT WORKFLOW EXECUTION PLAN
 ================================
 
-Step 0: Server Cleanup - MANDATORY ✓
+Step 0: Server Cleanup - MANDATORY âœ“
 Step 1: Cohesion Review - checking skip condition...
 Step 2: Sync - checking skip condition...
 Step 3: Analyze Learning - checking skip condition...
 Step 3.5: Refactor - checking skip condition...
 Step 4: Key Cleanup - checking skip condition...
-Step 4.7: Debug Cleanup - MANDATORY ✓
-Step 5-8: Commit/Push/Verify - MANDATORY ✓
+Step 4.7: Debug Cleanup - MANDATORY âœ“
+Step 5-8: Commit/Push/Verify - MANDATORY âœ“
 
 Parameters Received:
 - key: {value or 'none'}
@@ -782,10 +788,10 @@ Proceeding with execution...
 
 ### During Execution
 For each step, the agent MUST output:
-- **If executing**: `▶️ STEP X: [Step Name] - EXECUTING`
-- **If checking skip**: `🔍 STEP X: [Step Name] - CHECKING SKIP CONDITION`
-- **If skipping**: `⏭️ STEP X: [Step Name] - SKIPPED ([reason])`
-- **If completing**: `✅ STEP X: [Step Name] - COMPLETE`
+- **If executing**: `â–¶ï¸ STEP X: [Step Name] - EXECUTING`
+- **If checking skip**: `ðŸ” STEP X: [Step Name] - CHECKING SKIP CONDITION`
+- **If skipping**: `â­ï¸ STEP X: [Step Name] - SKIPPED ([reason])`
+- **If completing**: `âœ… STEP X: [Step Name] - COMPLETE`
 
 ### After Execution
 The agent MUST provide the summary report (Step 9) showing which steps were executed vs skipped.

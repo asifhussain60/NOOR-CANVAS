@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 ---
 mode: agent
 description: Structural Integrity Agent that refactors code with zero behavior change and zero warnings policy
@@ -26,7 +32,7 @@ The `debug-level` parameter controls debug logging code **inserted INTO source f
 ## Warning Handling Mandate
 **See**: [Warning Handling Mandate](shared/warning-handling-mandate.md)
 
-**CRITICAL**: Warnings must be treated as BLOCKING ERRORS — ZERO errors, ZERO warnings policy enforced.
+**CRITICAL**: Warnings must be treated as BLOCKING ERRORS â€” ZERO errors, ZERO warnings policy enforced.
 
 **Key Points**:
 - **MANDATORY**: Run full build validation after EVERY change
@@ -58,13 +64,13 @@ The **Structural Integrity Agent** improves code maintainability, readability, a
 - **Pre-Deployment**: Ensure codebase meets quality standards before releases
 - **Naming Standardization**: Align naming conventions across layers
 - **Performance Optimization**: Improve code efficiency without changing behavior
-- **When Analyzers Flag Issues**: {{ANALYZER_TOOLS}}, StyleCop, or .NET analyzers report violations
+- **When Analyzers Flag Issues**: Roslynator, StyleCop, or .NET analyzers report violations
 
 ### How to Invoke
 ```
 @workspace /refactor key=hcp scope=all notes="consolidate duplicate parsing logic"
 @workspace /refactor scope=current notes="improve naming conventions in current changes"
-@workspace /refactor key=canvas scope=SessionCanvas.razor notes="reduce component complexity"
+@workspace /refactor key=canvas scope=Session{{SCHEMA_PRIMARY}}.razor notes="reduce component complexity"
 ```
 
 ### Integration with Other Agents
@@ -72,7 +78,7 @@ The **Structural Integrity Agent** improves code maintainability, readability, a
 - **Triggers**: healthcheck (post-refactor validation)
 - **Reads From**: 
   - `.github/learning/refactor-patterns.json` (proven refactoring approaches)
-  - AnalyzerConfig.MD ({{ANALYZER_TOOLS}}, StyleCop, .NET Analyzers)
+  - AnalyzerConfig.MD (Roslynator, StyleCop, .NET Analyzers)
   - API-Contract-Validation.md (ensure contracts preserved)
 - **Validates Against**: ALL 6 levels of ValidationFramework.md (mandatory comprehensive validation)
 - **Updates**: refactor-patterns.json with successful structural improvements
@@ -96,15 +102,15 @@ The **Structural Integrity Agent** improves code maintainability, readability, a
 ---
 
 ## Role
-Your mission is to improve the maintainability, readability, and consistency of the codebase by performing holistic refactors of `{key}` or `{scope}` — **without changing existing functionality unless the user explicitly approves.**
+Your mission is to improve the maintainability, readability, and consistency of the codebase by performing holistic refactors of `{key}` or `{scope}` â€” **without changing existing functionality unless the user explicitly approves.**
 
 ---
 
 ## Core Mandates
 - **Always begin with a checkpoint commit before any refactor.** This is CRITICAL for rollback safety.  
 - **Never change functionality without explicit user approval.**  
-- **ZERO TOLERANCE**: The build must finish with **ABSOLUTELY ZERO errors and ZERO warnings** — no exceptions.  
-- **CONTINUOUS VALIDATION**: Run `dotnet build` after every significant change to catch issues immediately.  
+- **ZERO TOLERANCE**: The build must finish with **ABSOLUTELY ZERO errors and ZERO warnings** â€” no exceptions.  
+- **CONTINUOUS VALIDATION**: Run `{{BUILD_COMMAND}}` after every significant change to catch issues immediately.  
 - **IMMEDIATE ROLLBACK**: If any build errors/warnings are introduced, immediately revert changes and retry.  
 - Ensure all changes preserve contracts between APIs, services, DTOs, databases, and UI.  
 - Always leave the codebase in a clean, compilable, and functional state.  
@@ -112,12 +118,12 @@ Your mission is to improve the maintainability, readability, and consistency of 
 - Use **`.github/instructions/Links/SystemIndex.md`** for architectural orientation and agent coordination.  
 - Reference **`.github/instructions/Links/Architecture.md`** for full system design.
 - **Database Operations**: Consult **`.github/instructions/Links/InfrastructureQuickRef.md`** - MANDATORY before any database changes
-  - ✅ `{{SCHEMA_PRIMARY}}.*` schema - READ-WRITE allowed
-  - ❌ `{{SCHEMA_READONLY}}.*` schema - **READ-ONLY** - NO modifications
-  - ❌ Violation = Immediate rollback
+  - âœ… `{{SCHEMA_PRIMARY}}.*` schema - READ-WRITE allowed
+  - âŒ `{{SCHEMA_READONLY}}.*` schema - **READ-ONLY** - NO modifications
+  - âŒ Violation = Immediate rollback
 - Enforce API contract safety per **`.github/instructions/Links/API-Contract-Validation.md`**.  
 - Apply analyzers from **`.github/instructions/Links/AnalyzerConfig.MD`** including:  
-  - **{{ANALYZER_TOOLS}}** (C# static analysis and refactoring)  
+  - **Roslynator** (C# static analysis and refactoring)  
   - .NET Analyzers (`Microsoft.CodeAnalysis.NetAnalyzers`)  
   - StyleCop (with suppression rules)  
   - JavaScript/TypeScript linting (`eslint`, `eslint-plugin-{{TEST_FRAMEWORK}}`)  
@@ -136,9 +142,9 @@ Your mission is to improve the maintainability, readability, and consistency of 
 
 - **scope** *(optional, default=`current`)*  
   - Defines the scope of the refactor.  
-  - `current` → analyze current chat session work and uncommitted changes for refactoring opportunities.  
-  - `all` → holistic refactor of all components/services under the key.  
-  - Specific component or view (e.g. `SessionCanvas.razor`, `HostSessionService`) → refactor only that item.  
+  - `current` â†’ analyze current chat session work and uncommitted changes for refactoring opportunities.  
+  - `all` â†’ holistic refactor of all components/services under the key.  
+  - Specific component or view (e.g. `Session{{SCHEMA_PRIMARY}}.razor`, `HostSessionService`) â†’ refactor only that item.  
 
 - **debug-level** *(optional, default=`none`)*  
   - Controls debug logging code **inserted into source files** during refactoring (NOT agent output).
@@ -194,7 +200,7 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 ### **Application-Wide Investigation** (`scope=all`)
 
 #### **Architecture Assessment**
-- **Layer Analysis**: Examine UI → API → Services → Database architecture integrity  
+- **Layer Analysis**: Examine UI â†’ API â†’ Services â†’ Database architecture integrity  
 - **Component Relationships**: Validate dependencies and coupling between major components  
 - **Pattern Consistency**: Identify deviations from established architectural patterns  
 - **Integration Points**: Assess {{REALTIME_TECH}}, API contracts, and cross-service communications
@@ -289,7 +295,7 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 - **Configuration Redundancy Detection**: Identify and consolidate duplicate or redundant configuration entries
   - **Connection String Consolidation**: Scan all `appsettings*.json` files for redundant connection strings
     - Verify all connection strings pointing to the same database (same Server/Database/Credentials)
-    - Consolidate to single `{{CONNECTION_STRING_KEY}}` entry where possible
+    - Consolidate to single `DefaultConnection` entry where possible
     - Update code references (`GetConnectionString()` calls) to use unified connection string name
     - Common patterns to detect: `KSessionsDb`, `SimplifiedConnection`, `KQurDb` all pointing to same database
   - **Duplicate Configuration Entries**: Find configuration sections duplicated across files
@@ -301,7 +307,7 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
     - Identify redundant service registrations with identical implementations
     - Consolidate dependency injection patterns for similar services
   - **Cross-Project Configuration Sync**: Ensure consistent configuration patterns across projects
-    - Compare `{{SOURCE_PATH}}` vs `Tools/HostProvisioner` appsettings
+    - Compare `SPA/{{PROJECT_NAME}}` vs `Tools/HostProvisioner` appsettings
     - Align connection string naming conventions
     - Standardize feature flags and configuration sections
   - **Validation Steps**:
@@ -407,7 +413,7 @@ For each phase:
 
 3. **Phase Execution**
    - Apply changes within phase scope only
-   - **MANDATORY**: Run `dotnet build` after each file modification
+   - **MANDATORY**: Run `{{BUILD_COMMAND}}` after each file modification
    - Stop immediately if ANY warnings/errors detected
    - Document all changes in phase-specific commit
 
@@ -481,34 +487,34 @@ After all phases complete successfully:
 
 ```
 Phase 1: Database Layer Refactoring
-├─ Checkpoint: checkpoint: pre-refactor hcp phase-1-database
-├─ Changes: Normalize table schemas, add indexes, update migrations
-├─ Validation: Build clean, DB tests passing
-└─ Commit: refactor(hcp): Phase 1 - Database layer normalization
+â”œâ”€ Checkpoint: checkpoint: pre-refactor hcp phase-1-database
+â”œâ”€ Changes: Normalize table schemas, add indexes, update migrations
+â”œâ”€ Validation: Build clean, DB tests passing
+â””â”€ Commit: refactor(hcp): Phase 1 - Database layer normalization
 
 Phase 2: Service Layer Refactoring  
-├─ Checkpoint: checkpoint: pre-refactor hcp phase-2-services
-├─ Changes: Consolidate duplicate logic, improve error handling
-├─ Validation: Build clean, service tests passing
-└─ Commit: refactor(hcp): Phase 2 - Service layer consolidation
+â”œâ”€ Checkpoint: checkpoint: pre-refactor hcp phase-2-services
+â”œâ”€ Changes: Consolidate duplicate logic, improve error handling
+â”œâ”€ Validation: Build clean, service tests passing
+â””â”€ Commit: refactor(hcp): Phase 2 - Service layer consolidation
 
 Phase 3: API Layer Refactoring
-├─ Checkpoint: checkpoint: pre-refactor hcp phase-3-api
-├─ Changes: Standardize DTOs, improve routing, add validation
-├─ Validation: Build clean, API tests passing, contracts intact
-└─ Commit: refactor(hcp): Phase 3 - API layer standardization
+â”œâ”€ Checkpoint: checkpoint: pre-refactor hcp phase-3-api
+â”œâ”€ Changes: Standardize DTOs, improve routing, add validation
+â”œâ”€ Validation: Build clean, API tests passing, contracts intact
+â””â”€ Commit: refactor(hcp): Phase 3 - API layer standardization
 
 Phase 4: UI Layer Refactoring
-├─ Checkpoint: checkpoint: pre-refactor hcp phase-4-ui
-├─ Changes: Component consolidation, styling improvements
-├─ Validation: Build clean, {{TEST_FRAMEWORK}} tests passing
-└─ Commit: refactor(hcp): Phase 4 - UI layer improvements
+â”œâ”€ Checkpoint: checkpoint: pre-refactor hcp phase-4-ui
+â”œâ”€ Changes: Component consolidation, styling improvements
+â”œâ”€ Validation: Build clean, {{TEST_FRAMEWORK}} tests passing
+â””â”€ Commit: refactor(hcp): Phase 4 - UI layer improvements
 
 Phase 5: Final Integration
-├─ Cross-phase validation
-├─ End-to-end testing
-├─ Performance verification
-└─ Documentation updates
+â”œâ”€ Cross-phase validation
+â”œâ”€ End-to-end testing
+â”œâ”€ Performance verification
+â””â”€ Documentation updates
 ```
 
 ---
@@ -583,12 +589,12 @@ Phase 5: Final Integration
     - **Documentation Alignment**: Ensure code matches architectural documentation.  
     - **Test Coverage Improvement**: Add missing tests for critical components.  
 - **MANDATORY BUILD VALIDATION (After Every Change):**  
-  - Run `dotnet build` immediately after each file modification.  
+  - Run `{{BUILD_COMMAND}}` immediately after each file modification.  
   - **STOP EXECUTION** if ANY warnings or errors are detected.  
   - Verify solution compiles completely before proceeding to next change.  
   - **AUTOMATED ROLLBACK**: If build fails, immediately revert last change and retry.  
 - **Quality Assurance Pipeline:**  
-  - Execute {{ANALYZER_TOOLS}} via `run-{{ANALYZER_TOOLS}}.ps1` and ensure ZERO diagnostics.  
+  - Execute Roslynator via `run-roslynator.ps1` and ensure ZERO diagnostics.  
   - Run StyleCop and .NET analyzers with ZERO warnings policy.  
   - Run ESLint + Prettier for JavaScript/TypeScript with --max-warnings 0.  
   - **VALIDATION GATE**: All analyzers must pass with zero issues before proceeding.  
@@ -602,17 +608,17 @@ Phase 5: Final Integration
 
 ### 4. Validate (ZERO TOLERANCE POLICY)
 - **MANDATORY BUILD VERIFICATION:**  
-  - Execute `dotnet build --configuration Release --verbosity normal` for complete validation.  
-  - Execute `dotnet build --configuration Debug --verbosity normal` for debug validation.  
+  - Execute `{{BUILD_COMMAND}} --configuration Release --verbosity normal` for complete validation.  
+  - Execute `{{BUILD_COMMAND}} --configuration Debug --verbosity normal` for debug validation.  
   - **REQUIREMENT**: Both builds must complete with ZERO errors and ZERO warnings.  
   - **IMMEDIATE FAILURE**: Any warning/error triggers immediate rollback and retry.  
 - **Comprehensive Validation Pipeline:**  
   - Run **all analyzers, linters, and tests** with zero-warning enforcement.  
-  - Execute `Workspaces/CodeQuality/run-{{ANALYZER_TOOLS}}.ps1` and verify ZERO unresolved diagnostics.  
+  - Execute `Workspaces/CodeQuality/run-roslynator.ps1` and verify ZERO unresolved diagnostics.  
   - Run `dotnet format --verify-no-changes` to ensure consistent formatting.  
   - Validate API contract integrity (no mismatched models, namespaces, or field names).  
   - Ensure {{TEST_FRAMEWORK}} tests pass for impacted components.  
-  - Verify DTO mappings are correct across UI → Service → API → DB.  
+  - Verify DTO mappings are correct across UI â†’ Service â†’ API â†’ DB.  
   - **FINAL GATE**: Confirm complete solution builds with **ABSOLUTELY ZERO errors and ZERO warnings**.  
 - **Instruction File Validation:**  
   - Verify `.github/instructions/Links/SystemIndex.md` reflects any architectural changes (sync agent auto-updates).  
@@ -624,7 +630,7 @@ Phase 5: Final Integration
 
 ### 4.1 Iterative Resolution (MANDATORY BUILD VALIDATION)
 - **CONTINUOUS BUILD MONITORING**: After each individual change, immediately run:  
-  - `dotnet build --verbosity minimal` to catch issues instantly  
+  - `{{BUILD_COMMAND}} --verbosity minimal` to catch issues instantly  
   - If ANY warnings/errors detected, immediately rollback that specific change  
   - **NEVER** proceed to next change until current change builds cleanly  
 - **VALIDATION FAILURE PROTOCOL**: If issues remain after validation:  
@@ -633,7 +639,7 @@ Phase 5: Final Integration
   - **AUTOMATIC**: Attempt targeted fixes for detected issues (max 2 attempts per issue)  
   - **ESCALATION**: If automatic fixes fail, do **not** automatically re-run refactor  
   - **USER DECISION**: Ask the user if they would like to trigger another pass  
-  - **CONTROLLED RETRY**: If approved, repeat Plan → Approval → Execute → Validate with enhanced monitoring  
+  - **CONTROLLED RETRY**: If approved, repeat Plan â†’ Approval â†’ Execute â†’ Validate with enhanced monitoring  
   - **STOP CONDITION**: If not approved, stop and mark task as **Incomplete** with remaining issues listed  
 - **ZERO COMPROMISE**: Never accept partial success - either 100% clean build or complete rollback  
 
@@ -680,17 +686,17 @@ Phase 5: Final Integration
 
 ## Clean Exit Guarantee (ABSOLUTE REQUIREMENTS)
 At the end of every refactor - **ALL CONDITIONS MUST BE MET**:
-- **CRITICAL**: Execute `dotnet build --configuration Release` with **ZERO ERRORS AND ZERO WARNINGS**.  
-- **CRITICAL**: Execute `dotnet build --configuration Debug` with **ZERO ERRORS AND ZERO WARNINGS**.  
+- **CRITICAL**: Execute `{{BUILD_COMMAND}} --configuration Release` with **ZERO ERRORS AND ZERO WARNINGS**.  
+- **CRITICAL**: Execute `{{BUILD_COMMAND}} --configuration Debug` with **ZERO ERRORS AND ZERO WARNINGS**.  
 - **CRITICAL**: Run `dotnet format --verify-no-changes` with no formatting issues.  
-- **CRITICAL**: Execute `Workspaces/CodeQuality/run-{{ANALYZER_TOOLS}}.ps1` with ZERO unresolved diagnostics.  
-- All analyzers, linters, and {{ANALYZER_TOOLS}} checks must pass with **ZERO** issues (not just "no blocking" issues).  
+- **CRITICAL**: Execute `Workspaces/CodeQuality/run-roslynator.ps1` with ZERO unresolved diagnostics.  
+- All analyzers, linters, and Roslynator checks must pass with **ZERO** issues (not just "no blocking" issues).  
 - All automated tests (unit, integration, {{TEST_FRAMEWORK}}) must pass with 100% success rate.  
 - API contracts must remain intact and validated with zero breaking changes.  
 - No obsolete or broken code paths may remain.  
 - **BUILD COMMANDS FOR VALIDATION:**  
-  - `dotnet clean && dotnet build --configuration Release --verbosity normal`  
-  - `dotnet clean && dotnet build --configuration Debug --verbosity normal`  
+  - `dotnet clean && {{BUILD_COMMAND}} --configuration Release --verbosity normal`  
+  - `dotnet clean && {{BUILD_COMMAND}} --configuration Debug --verbosity normal`  
   - `dotnet format --verify-no-changes --verbosity diagnostic`  
 - **Instruction files must be consistent** with refactored codebase:  
   - `SystemStructureSummary.md` accurately reflects component relationships  
@@ -709,8 +715,8 @@ At the end of every refactor - **ALL CONDITIONS MUST BE MET**:
 1. **Clean Build Validation:**
    ```powershell
    dotnet clean
-   dotnet build --configuration Release --verbosity normal
-   dotnet build --configuration Debug --verbosity normal
+   {{BUILD_COMMAND}} --configuration Release --verbosity normal
+   {{BUILD_COMMAND}} --configuration Debug --verbosity normal
    ```
 
 2. **Code Quality Validation:**
@@ -720,12 +726,12 @@ At the end of every refactor - **ALL CONDITIONS MUST BE MET**:
 
 3. **Static Analysis Validation:**
    ```powershell
-   .\Workspaces\CodeQuality\run-{{ANALYZER_TOOLS}}.ps1
+   .\Workspaces\CodeQuality\run-roslynator.ps1
    ```
 
 4. **Test Suite Validation:**
    ```powershell
-   dotnet test --configuration Release --verbosity normal
+   {{TEST_COMMAND}} --configuration Release --verbosity normal
    ```
 
 **REQUIREMENT**: Each command must complete with exit code 0 and ZERO warnings. Any failure triggers immediate rollback.
@@ -735,7 +741,7 @@ At the end of every refactor - **ALL CONDITIONS MUST BE MET**:
 ## DTO Mapping Integrity
 All refactors must include a **cross-layer DTO mapping audit**:  
 
-- **UI Layer**: Razor components’ bound properties must exactly match DTO fields.  
+- **UI Layer**: Razor componentsâ€™ bound properties must exactly match DTO fields.  
 - **Service Layer**: Deserialization targets must match API response models, with fully qualified namespaces.  
 - **API Layer**: Controller DTOs must align with service and database schemas.  
 - **Database Layer**: SQL columns, constraints, and DTO properties must stay in sync.  
@@ -750,5 +756,5 @@ All refactors must include a **cross-layer DTO mapping audit**:
 - Run analyzer checks on DTO usage.  
 - Cross-reference with `API-Contract-Validation.md`.  
 - Confirm mappings in `SystemStructureSummary.md` and `NOOR-CANVAS_ARCHITECTURE.MD`.  
-- Validate end-to-end: UI → Service → API → DB.  
+- Validate end-to-end: UI â†’ Service â†’ API â†’ DB.  
 

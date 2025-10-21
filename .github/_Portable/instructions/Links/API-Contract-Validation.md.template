@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # API Contract Validation Guidelines
 
 ## Overview
@@ -11,7 +17,7 @@ Before beginning any refactoring that touches API endpoints or service classes:
 1. **Catalog API Response Models**
    - List all affected API controller endpoints
    - Document the exact response model type for each endpoint
-   - Note the complete namespace path (e.g., `NoorCanvas.Controllers.CreateSessionResponse`)
+   - Note the complete namespace path (e.g., `Noor{{SCHEMA_PRIMARY}}.Controllers.CreateSessionResponse`)
 
 2. **Service Class Verification** 
    - Identify all service classes that consume these APIs
@@ -40,7 +46,7 @@ var response = await httpResponse.Content.ReadFromJsonAsync<SessionCreationRespo
 **Correct Implementation:**
 ```csharp
 // Use exact match with full qualification
-var response = await httpResponse.Content.ReadFromJsonAsync<NoorCanvas.Controllers.CreateSessionResponse>();
+var response = await httpResponse.Content.ReadFromJsonAsync<Noor{{SCHEMA_PRIMARY}}.Controllers.CreateSessionResponse>();
 ```
 
 #### Field Name Mapping

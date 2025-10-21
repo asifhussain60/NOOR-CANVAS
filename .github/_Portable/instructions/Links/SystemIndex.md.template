@@ -1,10 +1,38 @@
-# System Index
+﻿# Generic Template - Customized During Setup
 
-**Cen**See**: `InfrastructureQuickRef.md` for complete database documentation
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
 ---
 
-## 🧪 Automated End-to-End Visual Regression Testing
+# System Index
+
+**Version**: 3.2.0  
+**Last Updated**: 2025-10-21  
+**Maintained By**: Sync Agent  
+**Auto-Update**: This file is automatically updated by Copilot agents when infrastructure, architecture, or configuration changes occur.
+
+**Active Agents**: 9
+- plan, task, question, test-generation, refactor, healthcheck, analyze-learning, sync, cohesion-review
+
+---
+
+## ðŸ—„ï¸ Critical Database Rules
+
+**PRIMARY DATABASE: {{DATABASE_NAME}}**
+- When user mentions "database", they mean **{{DATABASE_NAME}}**
+- Server: {{DATABASE_SERVER}}
+- Connection: `_configuration.GetConnectionString("DefaultConnection")`
+
+**SCHEMA ACCESS RULES**:
+- âœ… **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- âŒ **`{{SCHEMA_READONLY}}.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+- âŒ **All other schemas** - **READ-ONLY**
+
+**See**: `InfrastructureQuickRef.md` for complete database documentation
+
+---
+
+## ðŸ§ª Automated End-to-End Visual Regression Testing
 
 **When user mentions "{{TEST_FRAMEWORK}} test" or "pwtest":**
 
@@ -20,14 +48,18 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 ---
 
-## 📋 Quick Navigation
+## ðŸ“‹ Quick Navigation
+
+### Planning & Orchestration
+- **plan.prompt.md** â­ **NEW** - Interactive planning for complex implementations (requirement refinement, phased execution, test plans, architecture analysis)
+- **shared/agent-handoff-protocol.md** - Agent-to-agent handoff specification (plan â†’ task workflow)
 
 ### Architecture & Infrastructure
 - **Architecture.md** - Full system design (controllers, services, {{REALTIME_TECH}} hubs, database schema)
-- **InfrastructureQuickRef.md** ⭐ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
+- **InfrastructureQuickRef.md** â­ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
 
 ### Validation & Quality
-- **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)ion hub for all architectural and configuration references.**
+- **ValidationFramework.md** - 6-level validation pipeline (build â†’ analyzers â†’ E2E)ion hub for all architectural and configuration references.**
 
 **Version**: 3.1.0  
 **Last Updated**: 2025-10-14  
@@ -36,35 +68,35 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 ---
 
-## �️ Critical Database Rules
+## ï¿½ï¸ Critical Database Rules
 
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", they mean **{{DATABASE_NAME}}**
 - Server: {{DATABASE_SERVER}}
-- Connection: `_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")`
+- Connection: `_configuration.GetConnectionString("DefaultConnection")`
 
 **SCHEMA ACCESS RULES**:
-- ✅ **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
-- ❌ **`{{SCHEMA_READONLY}}.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
-- ❌ **All other schemas** - **READ-ONLY**
+- âœ… **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- âŒ **`{{SCHEMA_READONLY}}.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+- âŒ **All other schemas** - **READ-ONLY**
 
 **See**: `InfrastructureQuickRef.md` for complete database documentation
 
 ---
 
-## �📋 Quick Navigation
+## ï¿½ðŸ“‹ Quick Navigation
 
 ### Architecture & Infrastructure
 - **Architecture.md** - Full system design (controllers, services, {{REALTIME_TECH}} hubs, database schema)
-- **InfrastructureQuickRef.md** ⭐ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
+- **InfrastructureQuickRef.md** â­ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
 
 ### Validation & Quality
-- **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)
+- **ValidationFramework.md** - 6-level validation pipeline (build â†’ analyzers â†’ E2E)
 - **API-Contract-Validation.md** - Cross-layer contract validation rules
-- **AnalyzerConfig.MD** - Code quality tool configurations ({{ANALYZER_TOOLS}}, StyleCop, ESLint)
+- **AnalyzerConfig.MD** - Code quality tool configurations (Roslynator, StyleCop, ESLint)
 
 ### Testing
-- **{{TEST_FRAMEWORK}}QuickRef.md** ⭐ - Complete {{TEST_FRAMEWORK}} testing guide (test creation, execution, patterns)
+- **{{TEST_FRAMEWORK}}QuickRef.md** â­ - Complete {{TEST_FRAMEWORK}} testing guide (test creation, execution, patterns)
 - **{{TEST_FRAMEWORK}}Config.MD** - Detailed configuration reference
 - **{{TEST_FRAMEWORK}}TestPaths.MD** - Canonical test patterns and test data
 
@@ -72,20 +104,46 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 - **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
 
 ### Prompt Enhancement (Optional)
-- **PromptEnhancementLibraries.md** 💡 - External libraries for prompt optimization, testing, and orchestration (DSPy, Semantic Kernel, LangChain, PromptFoo, Langfuse)
+- **PromptEnhancementLibraries.md** ðŸ’¡ - External libraries for prompt optimization, testing, and orchestration (DSPy, Semantic Kernel, LangChain, PromptFoo, Langfuse)
 
 ---
 
-## 🤖 Active Prompt Agents
+## ðŸ¤– Active Prompt Agents
 
 ### Primary Agents
+
+- **feature.prompt.md** - Feature Planning Agent â­ **NEW**
+  - Interactive planning agent for complex implementations
+  - Refines user requests into phased, testable plans
+  - Includes test specification generation
+  - User approval gate before execution
+  - Hands off to task.prompt.md for implementation
+  - Image analysis support for visual requirements (Step 0.6)
+  - **WHEN TO USE**: Complex multi-phase work (3+ phases), unclear requirements, need comprehensive test plan
+  - **HANDOFF**: Generates comprehensive plan â†’ invokes task.prompt.md automatically
+  - **KEY FEATURES**:
+    - Interactive refinement with user approval
+    - Phase-based breakdown with dependencies
+    - Technology stack analysis
+    - Architecture layer detection
+    - Cross-key pattern analysis
+    - Enhancement recommendations
+    - Test specification generation
+    - JSON tracking for programmatic progress queries
+    - System Context Pack (APIs, database schemas, {{REALTIME_TECH}} hubs, test data)
+  - **OUTPUTS**: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
+  - **SIZE**: 3740 lines (largest prompt - module extraction planned)
+
 - **task.prompt.md** - Canonical task executor
   - File auto-loading, checkpoint commits
   - 9-step workflow with validation gates
+  - **Plan integration**: Loads `{key}.plan.md` and `{key}.plan.json` when available
   - Automatic test generation using {{TEST_FRAMEWORK}}, Percy, and configured libraries (Step 6.1)
   - Functionality registry validation (Step 8.2)
   - **MUST** consult InfrastructureQuickRef.md for database rules
   - **MUST** consult {{TEST_FRAMEWORK}}QuickRef.md for test creation
+  - **WHEN TO USE**: Simple tasks, quick fixes, or continuation of planned work
+  - **HANDOFF**: Called by plan.prompt.md for phased execution
   - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
 
 - **question.prompt.md** - Application knowledge agent
@@ -131,32 +189,32 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
   - Cross-agent coordination review
 
 ### Retired Agents
-- **retrosync.prompt.md** → Replaced by sync
-- **cleanup.prompt.md** → Folded into sync
-- **task.md** → Merged into task.prompt.md
-- **align.prompt.md** → Renamed to healthcheck.prompt.md
+- **retrosync.prompt.md** â†’ Replaced by sync
+- **cleanup.prompt.md** â†’ Folded into sync
+- **task.md** â†’ Merged into task.prompt.md
+- **align.prompt.md** â†’ Renamed to healthcheck.prompt.md
 
 ---
 
-## 🎯 Functionality Registry Quick Reference
+## ðŸŽ¯ Functionality Registry Quick Reference
 
 ### For Task Agent (Step 8.2)
 
 **Workflow**:
 ```
-1. Load {key}.md → Parse registry (behaviors, file watch, test coverage)
+1. Load {key}.md â†’ Parse registry (behaviors, file watch, test coverage)
 2. Compare modified files vs file watch
-   - Match → High regression risk → Trigger validation
-   - No match → Low risk → Skip validation
+   - Match â†’ High regression risk â†’ Trigger validation
+   - No match â†’ Low risk â†’ Skip validation
 3. Execute validation (automated tests or manual checklist)
-4. Handle result (PASS → allow commit | FAIL → block commit)
+4. Handle result (PASS â†’ allow commit | FAIL â†’ block commit)
 ```
 
 ### Validation Output Templates
 
 **Registry Exists + Validation PASS**:
 ```
-✅ Functionality Validation: PASS
+âœ… Functionality Validation: PASS
 - Core behaviors: 5 verified
 - Tests executed: 3 manual validations
 - Registry updated (Last Validation: 2025-10-12 14:23:45)
@@ -164,7 +222,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 **Registry Exists + Validation FAIL**:
 ```
-❌ Functionality Validation: FAIL
+âŒ Functionality Validation: FAIL
 - Failed behaviors: Valid Token Flow
 - Test failures: User saw token panel flash
 - COMMIT BLOCKED - fix regression before proceeding
@@ -172,7 +230,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 **No File Watch Match**:
 ```
-✓ No file/method watch matches - low regression risk
+âœ“ No file/method watch matches - low regression risk
 - Modified files: 2
 - Watched files: 3 (no overlap)
 - Validation: SKIPPED (optional)
@@ -180,7 +238,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 **No Registry Exists**:
 ```
-ℹ️ No Functionality Registry found for key 'user-auth'
+â„¹ï¸ No Functionality Registry found for key 'user-auth'
 Consider adding one to track core behaviors and prevent regressions.
 
 Template: .github/prompts.keys/_template/key-template.md
@@ -190,18 +248,18 @@ Guide: .github/instructions/Links/FunctionalityRegistry.md
 ### Manual Validation Prompt Template
 
 ```
-⚠️ REGRESSION RISK: Manual Validation Required
+âš ï¸ REGRESSION RISK: Manual Validation Required
 
 Modified File: UserLanding.razor (File Watch match)
 Affected Behaviors: 3 core behaviors
 
 Please verify the following still work:
 
-□ Behavior 1 description
+â–¡ Behavior 1 description
   Navigate to: URL
   Expected: Outcome
   
-□ Behavior 2 description
+â–¡ Behavior 2 description
   Navigate to: URL
   Expected: Outcome
 
@@ -210,15 +268,48 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## 🔄 Agent Coordination Protocols
+## ðŸ”„ Recommended Workflows
+
+### Complex Feature Implementation (Multi-Phase)
+1. **feature.prompt.md** - Refine requirements, generate phased plan with test specifications
+2. **User approval** - Review plan draft, select enhancements, answer open questions
+3. **User says "proceed"** - Feature planning agent invokes task.prompt.md automatically
+4. **task.prompt.md** - Execute phases sequentially (loads `{key}.plan.md` and `{key}.plan.json`)
+5. **test-generation.prompt.md** - Generate E2E tests (invoked automatically by task agent)
+6. **healthcheck.prompt.md** - Validate implementation (recommended)
+
+### Simple Task Implementation (Single-Phase)
+1. **task.prompt.md** - Direct execution (skip planning for simple tasks)
+2. **test-generation.prompt.md** - Generate tests if needed
+3. **healthcheck.prompt.md** - Validate (optional)
+
+### Code Quality Improvement
+1. **refactor.prompt.md** - Improve structure, reduce complexity
+2. **healthcheck.prompt.md** - Validate no behavior change
+3. **sync.prompt.md** - Clean up obsolete files (optional)
+
+### System Maintenance
+1. **sync.prompt.md** - Documentation alignment, configuration updates, cleanup
+2. **healthcheck.prompt.md** - Validate system integrity
+3. **cohesion-review.prompt.md** - Audit prompt system (monthly)
+
+### Investigation & Analysis
+1. **question.prompt.md** - Deep application analysis, Q&A
+2. **analyze-learning.prompt.md** - Extract patterns from completed keys
+3. **cohesion-review.prompt.md** - Review prompt system health
+
+---
+
+## ðŸ”„ Agent Coordination Protocols
 
 ### Interaction Patterns
-- **analyze-learning** → Analyzes key data, updates learning infrastructure, generates recommendations
-- **task** → Executes work, creates tests automatically, updates key stream progressively
-- **refactor** → Improves structure, triggers **healthcheck** for validation
-- **sync** → Orchestrates state, maintains documentation alignment, updates **SystemIndex.md**
-- **healthcheck** → Validates integrity, reports to **sync** for fixes
-- **question** → Analyzes queries, supports all agents with knowledge
+- **plan** â†’ Creates comprehensive plan, invokes **task** automatically with `{key}.plan.md`, `{key}.plan.json`
+- **task** â†’ Loads plan (if exists), executes work, creates tests automatically, updates key stream progressively
+- **analyze-learning** â†’ Analyzes key data, updates learning infrastructure, generates recommendations
+- **refactor** â†’ Improves structure, triggers **healthcheck** for validation
+- **sync** â†’ Orchestrates state, maintains documentation alignment, updates **SystemIndex.md**
+- **healthcheck** â†’ Validates integrity, reports to **sync** for fixes
+- **question** â†’ Analyzes queries, supports all agents with knowledge
 
 ### Cross-Agent Learning Infrastructure
 - **Directory**: `Workspaces/Copilot/learning/`
@@ -233,7 +324,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## 📊 Current System Snapshot
+## ðŸ“Š Current System Snapshot
 
 **Last Architecture Scan**: 2025-10-12
 
@@ -266,7 +357,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## 🔧 Key Management
+## ðŸ”§ Key Management
 
 - **Location**: `.github/prompts.keys`
 - **States**: `new`, `In Progress`, `complete`
@@ -275,7 +366,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## 🎓 LLM Optimization Principles
+## ðŸŽ“ LLM Optimization Principles
 
 - **Consistent Structure**: All prompts follow identical format patterns
 - **Clear Parameters**: Standardized parameter names across agents
@@ -285,7 +376,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## 📚 Related Documentation
+## ðŸ“š Related Documentation
 
 ### Global Instructions
 - **SelfAwareness.instructions.md** - Global guardrails and operating rules
@@ -296,7 +387,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## 🔄 Auto-Update Protocol
+## ðŸ”„ Auto-Update Protocol
 
 This file is automatically updated by the **sync** agent when:
 - New API endpoints are added or removed
@@ -310,9 +401,9 @@ This file is automatically updated by the **sync** agent when:
 **Update Frequency**: On-demand when changes are detected
 
 **Update Sections**:
-- 📊 Current System Snapshot
-- 🤖 Active Prompt Agents
-- 📋 Quick Navigation (if new reference files added)
+- ðŸ“Š Current System Snapshot
+- ðŸ¤– Active Prompt Agents
+- ðŸ“‹ Quick Navigation (if new reference files added)
 
 **Verification**: After updates, sync agent runs healthcheck to ensure consistency across:
 - Architecture.md

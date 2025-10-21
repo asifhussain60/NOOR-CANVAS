@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # Infrastructure Quick Reference
 
 **Version**: 2.0.0  
@@ -6,7 +12,7 @@
 
 ---
 
-## 🗄️ Database Connections
+## ðŸ—„ï¸ Database Connections
 
 ### Primary Database: {{DATABASE_NAME}}
 **When user mentions "database", they mean {{DATABASE_NAME}} unless specified otherwise.**
@@ -15,27 +21,27 @@
 - **Database Name**: `{{DATABASE_NAME}}`
 - **Server**: `{{DATABASE_SERVER}}`
 - **Authentication**: SQL Server authentication (credentials in appsettings.json)
-- **Connection Key**: `"{{CONNECTION_STRING_KEY}}"` or `"KSessionsDb"`
-- **Configuration Location**: `SPA/NoorCanvas/appsettings.json` → `ConnectionStrings` section
+- **Connection Key**: `"DefaultConnection"` or `"KSessionsDb"`
+- **Configuration Location**: `SPA/{{PROJECT_NAME}}/appsettings.json` â†’ `ConnectionStrings` section
 
-### ⚠️ CRITICAL DATABASE RULES
+### âš ï¸ CRITICAL DATABASE RULES
 
 **READ-ONLY RESTRICTION**:
-- ✅ **`{{SCHEMA_PRIMARY}}.*` schema**: READ-WRITE allowed (Session Canvas features)
-- ❌ **`{{SCHEMA_READONLY}}.*` schema**: **READ-ONLY** - NO modifications allowed
-- ❌ **All other schemas**: **READ-ONLY** - NO modifications allowed
+- âœ… **`{{SCHEMA_PRIMARY}}.*` schema**: READ-WRITE allowed (Session Canvas features)
+- âŒ **`{{SCHEMA_READONLY}}.*` schema**: **READ-ONLY** - NO modifications allowed
+- âŒ **All other schemas**: **READ-ONLY** - NO modifications allowed
 
 **Schema Usage**:
 - `{{SCHEMA_PRIMARY}}.*` - Session Canvas feature (questions, votes, participants, annotations)
-  - `canvas.Questions`
-  - `canvas.QuestionVotes`
-  - `canvas.Participants`
-  - `canvas.AssetLookup`
+  - `{{SCHEMA_PRIMARY}}.Questions`
+  - `{{SCHEMA_PRIMARY}}.QuestionVotes`
+  - `{{SCHEMA_PRIMARY}}.Participants`
+  - `{{SCHEMA_PRIMARY}}.AssetLookup`
   
 - `{{SCHEMA_READONLY}}.*` - **READ-ONLY** (legacy Islamic content database)
   - `dbo.Groups` - Islamic content collections (Albums)
   - `dbo.Categories` - Subdivisions within Groups
-  - `dbo.Sessions` - Individual Islamic learning sessions (LEGACY - different from canvas.Sessions)
+  - `dbo.Sessions` - Individual Islamic learning sessions (LEGACY - different from {{SCHEMA_PRIMARY}}.Sessions)
   - `dbo.Speakers` - Session instructors/presenters
   - `dbo.SessionTranscripts` - Transcript content for annotation
   
@@ -57,7 +63,7 @@
 **NEVER hardcode connection strings in code. Always use:**
 ```csharp
 // Correct approach
-_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")
+_configuration.GetConnectionString("DefaultConnection")
 _configuration.GetConnectionString("KSessionsDb")
 _configuration.GetConnectionString("KQurDb")
 
@@ -67,7 +73,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 
 ---
 
-## 🔌 External Dependencies
+## ðŸ”Œ External Dependencies
 
 ### Required Services
 1. **SQL Server** ({{DATABASE_SERVER}} server)
@@ -87,7 +93,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 ### Configuration Files
 - `appsettings.json` - Production settings
 - `appsettings.Development.json` - Development overrides
-- **Location**: `SPA/NoorCanvas/`
+- **Location**: `SPA/{{PROJECT_NAME}}/`
 
 ### Environment Variables (Optional)
 - `ASPNETCORE_ENVIRONMENT` - Development/Production
@@ -194,7 +200,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 #### SessionHub (`/hub/session`) - PRIMARY
 **Purpose**: Production sessions, real-time HTML broadcasting, participant sync
 
-**Client Methods** (server → client):
+**Client Methods** (server â†’ client):
 - `ReceiveQuestionSubmitted` - New question submitted
 - `ReceiveQuestionVoted` - Question vote updated
 - `ReceiveQuestionDeleted` - Question deleted
@@ -205,7 +211,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 - `ParticipantLeft` - Participant left session
 - `SessionStateChanged` - Session state updated
 
-**Server Methods** (client → server):
+**Server Methods** (client â†’ server):
 - `JoinSession(sessionId, userToken)` - Join session group
 - `LeaveSession(sessionId)` - Leave session group
 - `BroadcastContent(sessionId, htmlContent)` - Broadcast HTML (host only)
@@ -320,17 +326,17 @@ const BASE_URL = 'https://localhost:9091';
 ## File Locations
 
 ### Configuration
-- **appsettings.json**: `SPA/NoorCanvas/appsettings.json`
+- **appsettings.json**: `SPA/{{PROJECT_NAME}}/appsettings.json`
 - **{{TEST_FRAMEWORK}} Config**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
 - **ESLint Config**: `config/testing/eslint.config.js`
 - **TypeScript Config**: `config/testing/tsconfig.json`
 
 ### Code
-- **Controllers**: `SPA/NoorCanvas/Controllers/*.cs`
-- **Services**: `SPA/NoorCanvas/Services/*.cs`
-- **Hubs**: `SPA/NoorCanvas/Hubs/*.cs`
-- **Components**: `SPA/NoorCanvas/Components/**/*.razor`
-- **Pages**: `SPA/NoorCanvas/Components/Pages/*.razor`
+- **Controllers**: `SPA/{{PROJECT_NAME}}/Controllers/*.cs`
+- **Services**: `SPA/{{PROJECT_NAME}}/Services/*.cs`
+- **Hubs**: `SPA/{{PROJECT_NAME}}/Hubs/*.cs`
+- **Components**: `SPA/{{PROJECT_NAME}}/Components/**/*.razor`
+- **Pages**: `SPA/{{PROJECT_NAME}}/Components/Pages/*.razor`
 
 ### Tests
 - **E2E ({{TEST_FRAMEWORK}})**: `Tests/UI/*.spec.ts`
@@ -351,29 +357,29 @@ const BASE_URL = 'https://localhost:9091';
 
 ## Critical Anti-Patterns (Hallucination Prevention)
 
-### ❌ DO NOT Reference Obsolete Features
+### âŒ DO NOT Reference Obsolete Features
 - **Annotation System** - DELETED in annotation removal commit (2025-01-11)
-  - No `canvas.Annotations` table
+  - No `{{SCHEMA_PRIMARY}}.Annotations` table
   - No `AnnotationHub` {{REALTIME_TECH}} hub
   - No `/api/Annotations` controller
   - No annotation-related components or services
 
-### ❌ DO NOT Hardcode Credentials
+### âŒ DO NOT Hardcode Credentials
 - Never put connection strings in code
 - Never commit passwords or secrets to git
 - Always use `_configuration.GetConnectionString()`
 
-### ❌ DO NOT Assume File Locations
+### âŒ DO NOT Assume File Locations
 - Always check `SystemStructureSummary.md` for current structure
 - Use `file_search` or `grep_search` to verify file existence
 - Reference files by absolute paths when possible
 
-### ❌ DO NOT Invent API Endpoints
+### âŒ DO NOT Invent API Endpoints
 - Always check this file or `API-Contract-Validation.md` for actual endpoints
 - Verify controller methods before referencing in tests or code
 - Use `grep_search` to find actual route attributes
 
-### ❌ DO NOT Create New Test Sessions
+### âŒ DO NOT Create New Test Sessions
 - **ALWAYS use Session 212** for E2E tests
 - Do not create random session IDs
 - Do not hardcode tokens other than PQ9N5YWW/KJAHA99L

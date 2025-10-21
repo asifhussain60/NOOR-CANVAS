@@ -61,15 +61,18 @@ Automatically generate appropriate test coverage for UI changes following establ
 **Script MUST include these components:**
 
 ```powershell
-# 1. Kill existing processes
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+# 1. Kill existing processes (adjust process name for your app)
+Get-Process -Name "YourAppName" -ErrorAction SilentlyContinue | Stop-Process -Force
+# Or for dotnet processes:
+# Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' } | Stop-Process -Force
 
 # 2. Launch app in separate elevated PowerShell window
 Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-Command",
-    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; `
+    "cd 'C:\Path\To\Your\Project'; `
      `$env:ASPNETCORE_ENVIRONMENT = 'Development'; `
+     `$env:ASPNETCORE_URLS = 'https://localhost:5001'; `
      Write-Host 'ASPNETCORE_ENVIRONMENT = `$env:ASPNETCORE_ENVIRONMENT' -ForegroundColor Green; `
      dotnet run"
 ) -Verb RunAs
@@ -82,7 +85,7 @@ $appReady = $false
 
 while (-not $appReady -and $retryCount -lt $maxRetries) {
     try {
-        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
+        $response = Invoke-WebRequest -Uri "https://localhost:5001" -SkipCertificateCheck -TimeoutSec 2
         if ($response.StatusCode -eq 200) {
             $appReady = $true
         }
@@ -98,11 +101,11 @@ if (-not $appReady) {
 }
 
 # 4. Run Playwright tests
-cd "D:\PROJECTS\NOOR CANVAS\Tests\UI"
+cd "C:\Path\To\Your\Tests"
 npx playwright test {test-file}.spec.ts --headed --reporter=list
 
 # 5. Cleanup
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process -Name "YourAppName" -ErrorAction SilentlyContinue | Stop-Process -Force
 ```
 
 ### Execution Method

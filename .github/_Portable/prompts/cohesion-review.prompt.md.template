@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # Prompt System Cohesion Review Agent
 
 ---
@@ -29,7 +35,7 @@ nckill
 **Fallback** (if `nckill` not available):
 ```powershell
 Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { 
-    $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' 
+    $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*{{PROJECT_NAME}}*' 
 } | Stop-Process -Force
 ```
 
@@ -86,12 +92,12 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 **Fast Pattern Extraction** (3-5 minutes):
 
 1. **Success Patterns** (grep for):
-   - "✅", "success", "completed successfully", "resolved"
+   - "âœ…", "success", "completed successfully", "resolved"
    - Files: `*-completion.md`, `*-summary.md`, `implemented-recommendations.md`
    - Extract: What worked, time saved, patterns applied
 
 2. **Failure Patterns** (grep for):
-   - "❌", "failed", "error", "issue", "problem"
+   - "âŒ", "failed", "error", "issue", "problem"
    - Files: `*-issues.md`, `prod-issues.md`, work logs with failures
    - Extract: What failed, root cause, preventive measures
 
@@ -102,7 +108,7 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 
 4. **Pattern Integration Points**:
    - **task.prompt.md**: Add successful execution patterns to Step 5 examples
-   - **refactor.prompt.md**: Add code quality patterns from {{ANALYZER_TOOLS}} reports
+   - **refactor.prompt.md**: Add code quality patterns from Roslynator reports
    - **healthcheck.prompt.md**: Add validation patterns from failure logs
    - **test-generation.prompt.md**: Add test patterns from {{TEST_FRAMEWORK}} successes
    - **SelfAwareness.instructions.md**: Add architectural patterns from implementations
@@ -110,10 +116,10 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 **Output**: List of patterns with source files and recommended integration points
 
 **Heuristics**:
-- If pattern appears in 3+ keys → high-confidence pattern
-- If pattern has success_rate > 0.8 → reliable pattern
-- If pattern saved >10 minutes → high-value pattern
-- If pattern prevented errors → critical pattern
+- If pattern appears in 3+ keys â†’ high-confidence pattern
+- If pattern has success_rate > 0.8 â†’ reliable pattern
+- If pattern saved >10 minutes â†’ high-value pattern
+- If pattern prevented errors â†’ critical pattern
 
 **Time Saved**: Prevents rediscovering solutions, compounds learning over time
 
@@ -174,15 +180,15 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 
 **Fast Analysis**:
 1. **Extract section headers** from all files (grep for `## `, `### `)
-2. **Identify exact duplicates**: Same header in multiple files → potential redundancy
+2. **Identify exact duplicates**: Same header in multiple files â†’ potential redundancy
 3. **Sample first 100 lines** of each duplicate section, compare
 4. **Flag for review**: Mark sections with >80% similarity
 5. **Skip deep analysis**: Don't read entire sections unless similarity detected
 
 **Heuristics**:
-- Sections starting with "Step 0", "Step 1", "Checkpoint" → likely duplicates
-- Sections containing "debug logging", "warning handling" → likely duplicates
-- Identical code blocks (compare first/last 3 lines) → confirmed duplicates
+- Sections starting with "Step 0", "Step 1", "Checkpoint" â†’ likely duplicates
+- Sections containing "debug logging", "warning handling" â†’ likely duplicates
+- Identical code blocks (compare first/last 3 lines) â†’ confirmed duplicates
 
 **Output**: List of redundancies (estimated in <3 minutes vs. full read)
 
@@ -191,22 +197,22 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 
 **Fast Analysis**:
 1. **Use checklist** of common agent types:
-   - [ ] Task execution (task.prompt.md) ✅
-   - [ ] Testing (test-generation.prompt.md) ✅
-   - [ ] Refactoring (refactor.prompt.md) ✅
-   - [ ] Health check (healthcheck.prompt.md) ✅
-   - [ ] Deployment (deployment.prompt.md) ❌
-   - [ ] Migration (migration.prompt.md) ❌
-   - [ ] Security audit (security-audit.prompt.md) ❌
-   - [ ] Performance tuning (performance.prompt.md) ❌
+   - [ ] Task execution (task.prompt.md) âœ…
+   - [ ] Testing (test-generation.prompt.md) âœ…
+   - [ ] Refactoring (refactor.prompt.md) âœ…
+   - [ ] Health check (healthcheck.prompt.md) âœ…
+   - [ ] Deployment (deployment.prompt.md) âŒ
+   - [ ] Migration (migration.prompt.md) âŒ
+   - [ ] Security audit (security-audit.prompt.md) âŒ
+   - [ ] Performance tuning (performance.prompt.md) âŒ
 
 2. **Check workflow definitions**: Grep for "invoke", "route", "handoff" keywords
 3. **Identify undefined workflows**: No mentions = gap
 
 **Heuristics**:
-- If prompt count < 10 → likely missing specialized agents
-- If no "deployment" mentions → gap
-- If no "migration" mentions → gap
+- If prompt count < 10 â†’ likely missing specialized agents
+- If no "deployment" mentions â†’ gap
+- If no "migration" mentions â†’ gap
 
 **Output**: List of gaps (estimated in <2 minutes)
 
@@ -215,11 +221,11 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 
 **Fast Analysis**:
 1. **Extract commit format examples** (grep for `git commit -m`)
-2. **Compare formats**: Different patterns → conflict
+2. **Compare formats**: Different patterns â†’ conflict
 3. **Extract verbosity defaults** (grep for `verbosity.*default`)
-4. **Compare defaults**: Different values → conflict
+4. **Compare defaults**: Different values â†’ conflict
 5. **Extract file expectations** (grep for `.md` vs `.json`)
-6. **Compare formats**: Mixed expectations → conflict
+6. **Compare formats**: Mixed expectations â†’ conflict
 
 **Heuristics**:
 - Check first 5 commit examples per file (enough to detect pattern)
@@ -235,12 +241,12 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 1. **Check for shared module usage**: How many prompts use `shared/`?
 2. **Check for auto-load**: How many use "Step 2.3" auto-load?
 3. **Check for lazy loading**: Any prompts load all files upfront unnecessarily?
-4. **Spot validation duplication**: Count "dotnet build" occurrences
+4. **Spot validation duplication**: Count "{{BUILD_COMMAND}}" occurrences
 
 **Heuristics**:
-- If `shared/` not used → opportunity
-- If >5 prompts have identical sections → consolidation opportunity
-- If large files loaded for small tasks → lazy load opportunity
+- If `shared/` not used â†’ opportunity
+- If >5 prompts have identical sections â†’ consolidation opportunity
+- If large files loaded for small tasks â†’ lazy load opportunity
 
 **Output**: High-level efficiency list (detail in action items)
 
@@ -253,8 +259,8 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 3. **Formatting**: Check heading levels (# vs ## vs ###), consistent?
 
 **Heuristics**:
-- If first 100 lines match pattern → assume rest matches
-- If >80% consistent → mark as "good enough"
+- If first 100 lines match pattern â†’ assume rest matches
+- If >80% consistent â†’ mark as "good enough"
 - Don't deep dive into minor variations
 
 **Output**: Consistency score (good/acceptable/needs improvement)
@@ -271,7 +277,7 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 - Versioned files: 1 point
 - Examples present: 1 point
 - No TODOs: 1 point
-- Total 3 points → score 10/10, 2 points → 7/10, etc.
+- Total 3 points â†’ score 10/10, 2 points â†’ 7/10, etc.
 
 **Output**: Documentation score (estimated, not deep analysis)
 
@@ -280,13 +286,13 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 
 **Fast Analysis**:
 1. **Grep for agent references**: Count mentions of other prompts
-2. **Check for routing responses**: Look for "🔄 Routing" patterns
+2. **Check for routing responses**: Look for "ðŸ”„ Routing" patterns
 3. **Check for shared context**: Look for "key metadata", "work-log" references
 
 **Heuristics**:
-- If >3 cross-references per file → well integrated
-- If routing patterns present → good integration
-- If shared context used → good integration
+- If >3 cross-references per file â†’ well integrated
+- If routing patterns present â†’ good integration
+- If shared context used â†’ good integration
 
 **Output**: Integration score (good/needs protocols/poor)
 
@@ -386,7 +392,7 @@ Create report in `.github/reports/cohesion-review-YYYY-MM-DD.md`:
 ## File Change Log (Incremental Mode Only)
 
 **Changed Files** (analyzed):
-- task.prompt.md (hash: abc123... → def456...)
+- task.prompt.md (hash: abc123... â†’ def456...)
 - [other changed files]
 
 **Unchanged Files** (reused findings):
@@ -498,7 +504,7 @@ cd "D:\PROJECTS\{{PROJECT_NAME}}\Workspaces\Scripts"
 .\Validate-DocumentationGroundTruth.ps1 -GenerateReport
 ```
 
-**Expected Output**: `✅ Passed: X | ❌ Failed: 0 | ⚠️ Warnings: Y`
+**Expected Output**: `âœ… Passed: X | âŒ Failed: 0 | âš ï¸ Warnings: Y`
 
 **Script Actions**:
 1. Query {{DATABASE_NAME}} for actual database schema
@@ -515,9 +521,9 @@ cd "D:\PROJECTS\{{PROJECT_NAME}}\Workspaces\Scripts"
 - Do NOT proceed to Step 8 (commit) until validation passes
 
 **Failure Handling**:
-- ❌ If script fails to run: Fix script issues first
-- ❌ If validation finds incorrect documentation: Update docs with correct information from database queries
-- ⚠️ If warnings appear: Review and address if critical
+- âŒ If script fails to run: Fix script issues first
+- âŒ If validation finds incorrect documentation: Update docs with correct information from database queries
+- âš ï¸ If warnings appear: Review and address if critical
 
 ---
 
@@ -536,7 +542,7 @@ Analyze all files in `.github/instructions/` and `.github/instructions/Links/`:
 - SelfAwareness.instructions.md
 
 **Consolidation Opportunities**:
-- Combine similar files (e.g., {{TEST_FRAMEWORK}}QuickRef.md + {{TEST_FRAMEWORK}}Config.MD + {{TEST_FRAMEWORK}}TestPaths.MD → single comprehensive file)
+- Combine similar files (e.g., {{TEST_FRAMEWORK}}QuickRef.md + {{TEST_FRAMEWORK}}Config.MD + {{TEST_FRAMEWORK}}TestPaths.MD â†’ single comprehensive file)
 - Merge overlapping content (e.g., Architecture.md + SystemIndex.md redundant sections)
 - Eliminate duplicate information across files
 - Keep footprint small and efficient
@@ -637,16 +643,16 @@ See .github/reports/cohesion-review-[DATE].md for full report"
 #### 9.1: Determine If Sync Is Needed
 
 **Invoke sync.prompt.md IF any of these occurred**:
-- ✅ Files were merged/consolidated (e.g., {{TEST_FRAMEWORK}} files combined)
-- ✅ Files were deleted (obsolete duplicates removed)
-- ✅ References were updated across multiple files
-- ✅ SystemIndex.md structure changed
-- ✅ README_AI.md file listings changed
+- âœ… Files were merged/consolidated (e.g., {{TEST_FRAMEWORK}} files combined)
+- âœ… Files were deleted (obsolete duplicates removed)
+- âœ… References were updated across multiple files
+- âœ… SystemIndex.md structure changed
+- âœ… README_AI.md file listings changed
 
 **Skip sync IF**:
-- ❌ No consolidations were performed (analysis-only run)
-- ❌ Only the cohesion review report was generated
-- ❌ No structural changes to prompt/instruction ecosystem
+- âŒ No consolidations were performed (analysis-only run)
+- âŒ Only the cohesion review report was generated
+- âŒ No structural changes to prompt/instruction ecosystem
 
 #### 9.2: Invoke Sync Agent
 
@@ -741,14 +747,14 @@ verbosity: concise
 ## Expected Outcomes
 
 ### Deliverables
-1. ✅ Comprehensive cohesion review report
-2. ✅ Prioritized list of recommendations
-3. ✅ Action items for each recommendation
-4. ✅ Implementation roadmap
-5. ✅ Metrics and scoring
-6. ✅ Git commit with all findings
-7. ✅ **QuickRef files updated** (InfrastructureQuickRef.md, {{TEST_FRAMEWORK}}QuickRef.md)
-8. ✅ **Sync agent invoked** (if consolidations were performed) - ensures documentation alignment
+1. âœ… Comprehensive cohesion review report
+2. âœ… Prioritized list of recommendations
+3. âœ… Action items for each recommendation
+4. âœ… Implementation roadmap
+5. âœ… Metrics and scoring
+6. âœ… Git commit with all findings
+7. âœ… **QuickRef files updated** (InfrastructureQuickRef.md, {{TEST_FRAMEWORK}}QuickRef.md)
+8. âœ… **Sync agent invoked** (if consolidations were performed) - ensures documentation alignment
 
 ### QuickRef Auto-Update Protocol
 **MANDATORY**: After cohesion review, update QuickRef files to ensure they reflect current system state
@@ -759,7 +765,7 @@ verbosity: concise
    - API endpoints (verify against Architecture.md)
    - {{REALTIME_TECH}} hubs (verify against code)
    - External dependencies (SQL Server, Kestrel ports)
-   - Schema access rules ({{SCHEMA_PRIMARY}}.* vs {{SCHEMA_READONLY}}.*)
+   - Schema access rules ({{SCHEMA_PRIMARY}}.* vs dbo.*)
 
 2. **{{TEST_FRAMEWORK}}QuickRef.md**
    - Test patterns (verify against {{TEST_FRAMEWORK}}Config.MD)
@@ -775,8 +781,8 @@ verbosity: concise
    - Architecture.md for API endpoints
    - {{TEST_FRAMEWORK}}.config.cjs for test configuration
    - Actual test files for patterns
-   - **ACTUAL DATABASE SCHEMA** (query {{DATABASE_NAME}}) ⚠️ MANDATORY
-   - **ACTUAL CODEBASE** (grep for table/API usage) ⚠️ MANDATORY
+   - **ACTUAL DATABASE SCHEMA** (query {{DATABASE_NAME}}) âš ï¸ MANDATORY
+   - **ACTUAL CODEBASE** (grep for table/API usage) âš ï¸ MANDATORY
 3. **Identify drift**:
    - Missing endpoints
    - Outdated configuration
@@ -831,10 +837,10 @@ grep -r "FROM dbo\." --include="*.sql" Scripts/ Migrations/
 ```
 
 **Step 3: Validation Rules**
-- ❌ If documentation claims "Table X exists" but `SELECT OBJECT_ID('dbo.X')` returns NULL → **Documentation is WRONG, update it**
-- ❌ If documentation claims "Code uses dbo.X" but grep returns 0 matches → **Documentation is WRONG, update it**
-- ✅ If database query shows table exists AND code references found → Documentation can reference it
-- ⚠️ If table exists but NO code references → Warn in report (orphaned table?)
+- âŒ If documentation claims "Table X exists" but `SELECT OBJECT_ID('dbo.X')` returns NULL â†’ **Documentation is WRONG, update it**
+- âŒ If documentation claims "Code uses dbo.X" but grep returns 0 matches â†’ **Documentation is WRONG, update it**
+- âœ… If database query shows table exists AND code references found â†’ Documentation can reference it
+- âš ï¸ If table exists but NO code references â†’ Warn in report (orphaned table?)
 
 **Step 4: Evidence Requirements**
 Include in cohesion review report:
@@ -846,20 +852,20 @@ Include in cohesion review report:
 **Server**: {{DATABASE_SERVER}}
 
 **{{SCHEMA_PRIMARY}}.* Schema Tables** (4 found):
-- canvas.AssetLookup ✅
-- canvas.Sessions ✅
-- canvas.Participants ✅
-- canvas.SessionData ✅
+- {{SCHEMA_PRIMARY}}.AssetLookup âœ…
+- {{SCHEMA_PRIMARY}}.Sessions âœ…
+- {{SCHEMA_PRIMARY}}.Participants âœ…
+- {{SCHEMA_PRIMARY}}.SessionData âœ…
 
-**{{SCHEMA_READONLY}}.* Schema Tables** (sample, 47 total):
-- dbo.Members ✅ (used in code: 12 references)
-- dbo.SessionTokens ✅ (used in code: 8 references)
-- dbo.Sessions ✅ (used in code: 45 references)
+**dbo.* Schema Tables** (sample, 47 total):
+- dbo.Members âœ… (used in code: 12 references)
+- dbo.SessionTokens âœ… (used in code: 8 references)
+- dbo.Sessions âœ… (used in code: 45 references)
 ... (see full list in validation script output)
 
 **Obsolete References Removed**:
-- ❌ dbo.Users (does NOT exist in database, removed from docs)
-- ❌ dbo.Tokens (does NOT exist in database, removed from docs)
+- âŒ dbo.Users (does NOT exist in database, removed from docs)
+- âŒ dbo.Tokens (does NOT exist in database, removed from docs)
 
 **Verification Method**: 
 - Database query via sqlcmd
@@ -879,8 +885,8 @@ grep -r "api/question/submit" --include="*.cs"
 ```
 
 **Step 2: Verify Against Architecture.md**
-- If Architecture.md lists endpoint but grep finds no controller → Drift
-- If controller exists but Architecture.md missing endpoint → Drift
+- If Architecture.md lists endpoint but grep finds no controller â†’ Drift
+- If controller exists but Architecture.md missing endpoint â†’ Drift
 
 ##### For Configuration References:
 
@@ -907,13 +913,13 @@ cd "D:\PROJECTS\{{PROJECT_NAME}}\Workspaces\Scripts"
 ```
 
 **Expected Output**:
-- ✅ Database schema validation (actual tables vs documented tables)
-- ✅ Codebase reference validation (grep for actual usage)
-- ✅ Documentation accuracy check (6 key files scanned)
-- 📄 Markdown report with evidence (timestamped)
+- âœ… Database schema validation (actual tables vs documented tables)
+- âœ… Codebase reference validation (grep for actual usage)
+- âœ… Documentation accuracy check (6 key files scanned)
+- ðŸ“„ Markdown report with evidence (timestamped)
 
 **Script Actions**:
-1. **Queries {{DATABASE_NAME}}** for actual {{SCHEMA_PRIMARY}}.* and {{SCHEMA_READONLY}}.* tables
+1. **Queries {{DATABASE_NAME}}** for actual {{SCHEMA_PRIMARY}}.* and dbo.* tables
 2. **Verifies obsolete tables** do NOT exist (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
 3. **Verifies expected tables** DO exist (dbo.Groups, dbo.Categories, dbo.Sessions, dbo.Speakers, dbo.SessionTranscripts)
 4. **Searches codebase** for table references in C# files
@@ -991,7 +997,7 @@ If validation script fails or finds issues:
 
 3. **Implement Agent Registry**:
    - Create `agents.json` mapping agent capabilities to prompts
-   - Enables automatic routing: "I need to refactor code" → routes to refactor.prompt.md
+   - Enables automatic routing: "I need to refactor code" â†’ routes to refactor.prompt.md
    - Enables dependency tracking: task.prompt.md depends on test-generation.prompt.md
 
 4. **Create Prompt Versioning**:

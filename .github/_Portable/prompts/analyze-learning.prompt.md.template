@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 ---
 mode: agent
 purpose: Analyze historical task outcomes to extract success/failure patterns and update learning infrastructure
@@ -198,7 +204,7 @@ See: `.github/prompts/shared/pre-analysis-cleanup.md` for cleanup workflow and g
 
 #### Technology-Specific Insights
 - Analyze patterns by technology:
-  - ASP.NET Core patterns
+  - {{FRAMEWORKS}} patterns
   - Blazor rendering optimizations
   - {{REALTIME_TECH}} message handling
   - Entity Framework query efficiency

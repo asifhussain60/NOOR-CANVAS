@@ -1,198 +1,75 @@
-# Pattern Schema
+# Learning Pattern Schema
 
-This document defines the standard schema for documenting patterns in the learning system.
-
----
-
-## Purpose
-
-Ensures consistency across all pattern files, making them easy to query, analyze, and apply.
+## Overview
+This document defines the JSON schema for all learning pattern files in the `Workspaces/Copilot/learning/` directory. All agents must follow this schema when contributing learnings to the self-improvement infrastructure.
 
 ---
 
-## Pattern Structure
+## Pattern File Types
 
-### JSON Schema
+### 1. task-patterns.json
+**Purpose**: Successful implementation patterns from task agent executions
 
+**Schema**:
 ```json
 {
-  "pattern_name": "descriptive-kebab-case",
-  "category": "success|failure|performance",
-  "occurrences": 0,
-  "context": "When and where this pattern applies",
-  "symptoms": ["Observable indicators that pattern applies"],
-  "solution": "How to handle or what to do",
-  "examples": ["Specific instances from work logs"],
-  "related_patterns": ["other-pattern-name"],
-  "tags": ["tag1", "tag2"],
-  "last_seen": "YYYY-MM-DD",
-  "severity": "low|medium|high|critical",
-  "confidence": 0.0
-}
-```
-
----
-
-## Field Definitions
-
-### pattern_name *(required)*
-**Type**: string  
-**Format**: kebab-case  
-**Description**: Unique identifier for the pattern  
-**Example**: `api-endpoint-validation-success`
-
-### category *(required)*
-**Type**: enum  
-**Values**: `success` | `failure` | `performance`  
-**Description**: Pattern category  
-- `success` - Proven successful approach
-- `failure` - Known failure or anti-pattern
-- `performance` - Performance optimization
-
-### occurrences *(required)*
-**Type**: integer  
-**Description**: Number of times pattern observed  
-**Note**: Increment each time pattern is seen
-
-### context *(required)*
-**Type**: string  
-**Description**: When, where, and why this pattern applies  
-**Example**: "When creating API endpoints with input validation"
-
-### symptoms *(required for failures)*
-**Type**: array of strings  
-**Description**: Observable indicators that pattern applies  
-**Example**: ["Build error CS1234", "Test failure in validation", "NullReferenceException"]
-
-### solution *(required)*
-**Type**: string  
-**Description**: How to handle the pattern  
-- For success: What to do
-- For failure: How to avoid or fix
-- For performance: How to optimize
-
-### examples *(optional)*
-**Type**: array of strings  
-**Description**: Specific instances from work logs  
-**Format**: "Key: description - outcome"  
-**Example**: ["task-123: Added validation - 0 bugs", "refactor-456: Extracted service - tests passed"]
-
-### related_patterns *(optional)*
-**Type**: array of strings  
-**Description**: Names of related patterns  
-**Use**: To link patterns that often appear together
-
-### tags *(optional)*
-**Type**: array of strings  
-**Description**: Keywords for searching/filtering  
-**Example**: ["api", "validation", "database", "ui"]
-
-### last_seen *(required)*
-**Type**: string  
-**Format**: YYYY-MM-DD  
-**Description**: Most recent occurrence date
-
-### severity *(optional, for failures)*
-**Type**: enum  
-**Values**: `low` | `medium` | `high` | `critical`  
-**Description**: Impact severity for failure patterns
-
-### confidence *(optional)*
-**Type**: float  
-**Range**: 0.0 to 1.0  
-**Description**: Confidence in pattern (based on occurrences and consistency)  
-**Calculation**: min(occurrences / 10, 1.0)
-
----
-
-## Example Patterns
-
-### Success Pattern
-
-```json
-{
-  "pattern_name": "api-first-architecture",
-  "category": "success",
-  "occurrences": 12,
-  "context": "When creating new features requiring database access",
-  "symptoms": ["Need to display database data in UI", "Real-time updates required"],
-  "solution": "Create API endpoint first, then use HTTP client in UI components. Never inject DbContext directly in UI layer.",
-  "examples": [
-    "hostcontrolpanel: Used API endpoints for session data - clean separation",
-    "participant-list: API-based participant loading - tests easy to write"
-  ],
-  "related_patterns": ["dto-mapping", "service-layer-pattern"],
-  "tags": ["architecture", "api", "database", "ui"],
-  "last_seen": "2025-01-15",
-  "confidence": 1.0
-}
-```
-
-### Failure Pattern
-
-```json
-{
-  "pattern_name": "direct-dbcontext-in-ui",
-  "category": "failure",
-  "occurrences": 5,
-  "context": "When injecting DbContext directly into Razor components",
-  "symptoms": [
-    "Build error: Cannot resolve DbContext",
-    "Tight coupling between UI and database",
-    "Difficult to test components"
-  ],
-  "solution": "Use API-first architecture. Create controller endpoint, use HttpClient in component.",
-  "examples": [
-    "hostcontrolpanel-old: Direct DbContext injection - rollback required",
-    "session-canvas-attempt: DbContext in component - architecture violation"
-  ],
-  "related_patterns": ["api-first-architecture"],
-  "tags": ["anti-pattern", "architecture", "database", "ui"],
-  "last_seen": "2025-01-10",
-  "severity": "high",
-  "confidence": 0.5
-}
-```
-
-### Performance Pattern
-
-```json
-{
-  "pattern_name": "bulk-database-operations",
-  "category": "performance",
-  "occurrences": 8,
-  "context": "When inserting/updating multiple records",
-  "symptoms": ["Slow database operations", "Multiple round-trips"],
-  "solution": "Use bulk operations (AddRange, UpdateRange) instead of individual Add/Update in loops.",
-  "examples": [
-    "participant-import: Switched to AddRange - 10x faster",
-    "question-sync: Used bulk update - reduced time from 5s to 500ms"
-  ],
-  "related_patterns": ["database-optimization"],
-  "tags": ["performance", "database", "optimization"],
-  "last_seen": "2025-01-12",
-  "confidence": 0.8
-}
-```
-
----
-
-## Pattern File Structure
-
-Each pattern file (e.g., `task-patterns.json`) should contain an array of pattern objects:
-
-```json
-{
-  "schema_version": "1.0.0",
-  "last_updated": "2025-01-15",
   "patterns": [
     {
-      "pattern_name": "pattern-1",
-      ...
-    },
+      "id": "unique-pattern-identifier",
+      "name": "Human-readable pattern name",
+      "category": "ui|api|service|database|signalr|testing|configuration",
+      "description": "Detailed description of what this pattern accomplishes",
+      "context": "When and why to use this pattern",
+      "implementation": {
+        "steps": [
+          "Step 1: Action to take",
+          "Step 2: Next action",
+          "Step 3: Continuation..."
+        ],
+        "files_affected": [
+          "path/to/file1.cs",
+          "path/to/file2.razor"
+        ],
+        "dependencies": [
+          "Required NuGet package 1",
+          "Required npm package 2"
+        ]
+      },
+      "validation": {
+        "tests_required": true,
+        "playwright_coverage": ["user interaction", "visual regression"],
+        "analyzer_checks": ["CS1234", "RCS5678"]
+      },
+      "success_metrics": {
+        "usage_count": 5,
+        "success_rate": 1.0,
+        "avg_execution_time_seconds": 45
+      },
+      "examples": [
+        {
+          "key": "hcp",
+          "git_commit": "abc123def456...",
+          "description": "Successfully implemented feature X using this pattern"
+        }
+      ],
+      "last_updated": "2025-10-10T16:00:00Z",
+      "contributed_by": "task"
+    }
+  ],
+  "anti_patterns": [
     {
-      "pattern_name": "pattern-2",
-      ...
+      "id": "unique-antipattern-identifier",
+      "name": "What NOT to do",
+      "description": "Why this approach fails",
+      "failures": [
+        {
+          "key": "session",
+          "git_commit": "def456abc789...",
+          "error": "Error message encountered",
+          "lesson": "What we learned from this failure"
+        }
+      ],
+      "alternative": "Reference to pattern ID that should be used instead"
     }
   ]
 }
@@ -200,40 +77,450 @@ Each pattern file (e.g., `task-patterns.json`) should contain an array of patter
 
 ---
 
-## Maintenance
+### 2. refactor-patterns.json
+**Purpose**: Structural improvement patterns from refactor agent executions
 
-### Adding Patterns
-1. Use `/analyze-learning` agent to extract from work logs
-2. Or manually add following this schema
-3. Ensure `pattern_name` is unique within file
-4. Set `occurrences` to 1 for new patterns
-
-### Updating Patterns
-1. Increment `occurrences` when pattern seen again
-2. Update `last_seen` date
-3. Add new examples
-4. Adjust `confidence` if needed
-
-### Removing Patterns
-1. Remove if obsolete (technology/architecture changed)
-2. Document removal reason in git commit
-3. Consider archiving instead of deleting
+**Schema**:
+```json
+{
+  "patterns": [
+    {
+      "id": "unique-refactor-pattern-id",
+      "name": "Refactoring pattern name",
+      "type": "code_quality|performance|maintainability|architecture",
+      "description": "What this refactoring accomplishes",
+      "before": {
+        "symptoms": ["Code smell 1", "Issue 2"],
+        "metrics": {
+          "complexity": 15,
+          "duplication": "30%"
+        }
+      },
+      "after": {
+        "improvements": ["Improvement 1", "Benefit 2"],
+        "metrics": {
+          "complexity": 5,
+          "duplication": "0%"
+        }
+      },
+      "implementation": {
+        "roslynator_rules": ["RCS1001", "RCS1234"],
+        "steps": [
+          "Extract method X",
+          "Consolidate duplicates",
+          "Apply SOLID principle Y"
+        ]
+      },
+      "validation": {
+        "healthcheck_required": true,
+        "all_6_levels": true
+      },
+      "success_metrics": {
+        "usage_count": 3,
+        "success_rate": 1.0
+      },
+      "examples": [
+        {
+          "key": "cleanup",
+          "git_commit": "xyz789abc123...",
+          "files_refactored": 5,
+          "lines_reduced": 200
+        }
+      ],
+      "last_updated": "2025-10-10T15:00:00Z",
+      "contributed_by": "refactor"
+    }
+  ]
+}
+```
 
 ---
 
-## Best Practices
+### 3. validation-patterns.json
+**Purpose**: Common validation issues and resolution patterns from healthcheck agent
 
-1. **Be Specific**: Patterns should be actionable, not vague
-2. **Use Examples**: Real examples are more valuable than descriptions
-3. **Keep Current**: Remove obsolete patterns promptly
-4. **Link Patterns**: Use `related_patterns` to build knowledge graph
-5. **Tag Well**: Tags make patterns discoverable
+**Schema**:
+```json
+{
+  "patterns": [
+    {
+      "id": "unique-validation-pattern-id",
+      "name": "Validation issue pattern",
+      "category": "contract_mismatch|architectural_drift|configuration|dependency",
+      "description": "Common validation issue description",
+      "detection": {
+        "symptoms": ["Symptom 1", "Indicator 2"],
+        "layers_affected": ["UI", "API", "Database"],
+        "validation_level": 3
+      },
+      "resolution": {
+        "steps": [
+          "Step 1 to resolve",
+          "Step 2 to verify"
+        ],
+        "preventive_measures": [
+          "How to avoid this in future"
+        ]
+      },
+      "success_metrics": {
+        "occurrences": 2,
+        "resolution_rate": 1.0
+      },
+      "examples": [
+        {
+          "key": "api-contract",
+          "git_commit": "abc123xyz789...",
+          "issue": "DTO case mismatch between UI and API",
+          "resolution_time_minutes": 15
+        }
+      ],
+      "last_updated": "2025-10-10T14:00:00Z",
+      "contributed_by": "healthcheck"
+    }
+  ]
+}
+```
 
 ---
 
-## Version History
+### 4. integration-patterns.json
+**Purpose**: Cross-layer integration patterns (UI ↔ API ↔ Services ↔ Database ↔ SignalR)
 
-- **v1.0.0** (Setup): Initial schema from portable template
-  - Standard pattern structure defined
-  - Field definitions documented
-  - Example patterns provided
+**Schema**:
+```json
+{
+  "patterns": [
+    {
+      "id": "unique-integration-pattern-id",
+      "name": "Integration pattern name",
+      "layers": ["UI", "API", "Service", "Database", "SignalR"],
+      "description": "End-to-end integration workflow",
+      "workflow": {
+        "ui_layer": {
+          "components": ["Component1.razor", "Component2.razor"],
+          "events": ["onclick", "onchange"],
+          "signalr_methods": ["ReceiveUpdate"]
+        },
+        "api_layer": {
+          "endpoints": ["POST /api/endpoint1", "GET /api/endpoint2"],
+          "dtos": ["RequestDto", "ResponseDto"],
+          "authorization": ["RequireRole(\"Admin\")"]
+        },
+        "service_layer": {
+          "services": ["ServiceName"],
+          "methods": ["CreateAsync", "UpdateAsync"],
+          "dependencies": ["IRepository", "IMapper"]
+        },
+        "database_layer": {
+          "tables": ["TableName"],
+          "migrations": ["AddTableNameMigration"],
+          "queries": ["SELECT ... WHERE ..."]
+        },
+        "signalr_layer": {
+          "hubs": ["HubName"],
+          "methods": ["BroadcastUpdate"],
+          "groups": ["session-{id}"]
+        }
+      },
+      "configuration": {
+        "appsettings": {
+          "Section:Key": "value"
+        },
+        "dependency_injection": [
+          "services.AddScoped<IService, Service>()"
+        ]
+      },
+      "testing": {
+        "unit_tests": ["ServiceTests.cs"],
+        "integration_tests": ["ApiTests.cs"],
+        "playwright_tests": ["feature.spec.ts"]
+      },
+      "success_metrics": {
+        "usage_count": 4,
+        "success_rate": 1.0
+      },
+      "examples": [
+        {
+          "key": "session-management",
+          "git_commit": "def456ghi789...",
+          "feature": "Real-time session updates with SignalR"
+        }
+      ],
+      "last_updated": "2025-10-10T13:00:00Z",
+      "contributed_by": "task"
+    }
+  ]
+}
+```
+
+---
+
+### 5. question-patterns.json
+**Purpose**: Frequently asked questions and investigation patterns from question agent
+
+**Schema**:
+```json
+{
+  "patterns": [
+    {
+      "id": "unique-question-pattern-id",
+      "question_category": "feature|troubleshooting|styling|configuration|architecture",
+      "common_questions": [
+        "How does X work?",
+        "Why is Y not appearing?",
+        "What controls Z styling?"
+      ],
+      "investigation_workflow": {
+        "steps": [
+          "1. Check UI layer (razor components)",
+          "2. Trace event handlers and JavaScript",
+          "3. Verify API endpoints and DTOs",
+          "4. Review service layer logic",
+          "5. Validate database queries"
+        ],
+        "files_to_check": [
+          "UI/*.razor",
+          "Controllers/*.cs",
+          "Services/*.cs"
+        ]
+      },
+      "common_answers": {
+        "summary": "High-level explanation",
+        "details": {
+          "ui_layer": "UI implementation details",
+          "api_layer": "API endpoint details",
+          "service_layer": "Business logic details",
+          "database_layer": "Data persistence details"
+        },
+        "code_references": [
+          "File1.cs:45-67",
+          "Component.razor:123-145"
+        ]
+      },
+      "gap_patterns": [
+        "Missing feature X",
+        "Inconsistency in Y"
+      ],
+      "success_metrics": {
+        "question_frequency": 5,
+        "answer_accuracy": 0.95
+      },
+      "last_updated": "2025-10-10T12:00:00Z",
+      "contributed_by": "question"
+    }
+  ]
+}
+```
+
+---
+
+### 6. analyze-learning-patterns.json
+**Purpose**: Meta-patterns identified by analyze-learning agent across all pattern types
+
+**Schema**:
+```json
+{
+  "meta_patterns": [
+    {
+      "id": "unique-meta-pattern-id",
+      "name": "Cross-agent pattern name",
+      "description": "Pattern observed across multiple agents",
+      "agents_involved": ["task", "refactor", "healthcheck"],
+      "trend": "improving|stable|declining",
+      "insights": [
+        "Insight 1 from cross-agent analysis",
+        "Insight 2 from trend analysis"
+      ],
+      "recommendations": [
+        "Recommendation 1 for system improvement",
+        "Recommendation 2 for workflow optimization"
+      ],
+      "evidence": [
+        {
+          "agent": "task",
+          "pattern_id": "task-pattern-123",
+          "metric": "success_rate: 1.0"
+        },
+        {
+          "agent": "refactor",
+          "pattern_id": "refactor-pattern-456",
+          "metric": "complexity_reduction: 60%"
+        }
+      ],
+      "last_updated": "2025-10-10T11:00:00Z",
+      "contributed_by": "analyze-learning"
+    }
+  ],
+  "system_health": {
+    "overall_success_rate": 0.92,
+    "avg_execution_time_seconds": 60,
+    "most_common_failures": [
+      "Contract mismatch",
+      "Missing dependencies"
+    ],
+    "improvement_areas": [
+      "Configuration validation",
+      "Cross-browser testing"
+    ],
+    "last_analysis": "2025-10-10T10:00:00Z"
+  }
+}
+```
+
+---
+
+## Pattern Contribution Workflow
+
+### For All Agents
+
+1. **Query Before Execute** (Mandatory):
+   ```
+   Read Workspaces/Copilot/learning/{agent}-patterns.json
+   Search for relevant patterns matching current task context
+   Apply proven approaches from pattern library
+   ```
+
+2. **Execute Task**:
+   - Follow proven patterns when applicable
+   - Document deviations and rationale
+   - Track execution metrics (time, success/failure, errors)
+
+3. **Contribute After Success** (Mandatory):
+   - Update pattern file with new learnings
+   - Increment success metrics for used patterns
+   - Add new patterns for novel solutions
+   - Document failures as anti-patterns
+
+4. **Update Schema Compliance**:
+   - Ensure all fields in schema are populated
+   - Use ISO-8601 timestamps for dates
+   - Include full git commit SHA hashes
+   - Maintain alphabetical sorting by pattern ID
+
+---
+
+## Pattern Usage Examples
+
+### Example 1: Task Agent Using Patterns
+
+```typescript
+// Step 1: Query patterns before execution
+const patterns = await readJSON('Workspaces/Copilot/learning/task-patterns.json');
+const relevantPattern = patterns.patterns.find(p => 
+  p.category === 'ui' && p.name.includes('SignalR')
+);
+
+// Step 2: Apply pattern
+if (relevantPattern) {
+  // Follow implementation steps from pattern
+  for (const step of relevantPattern.implementation.steps) {
+    executeStep(step);
+  }
+}
+
+// Step 3: After success, update metrics
+relevantPattern.success_metrics.usage_count++;
+relevantPattern.last_updated = new Date().toISOString();
+await writeJSON('Workspaces/Copilot/learning/task-patterns.json', patterns);
+```
+
+### Example 2: Refactor Agent Contributing New Pattern
+
+```typescript
+// After successful refactor
+const newPattern = {
+  id: 'extract-duplicate-logic-001',
+  name: 'Extract Duplicate Service Logic',
+  type: 'code_quality',
+  description: 'Consolidate duplicate data access logic across services',
+  before: {
+    symptoms: ['Duplicate LINQ queries', 'Copy-paste service methods'],
+    metrics: { complexity: 12, duplication: '40%' }
+  },
+  after: {
+    improvements: ['Single source of truth', 'Reduced complexity'],
+    metrics: { complexity: 5, duplication: '0%' }
+  },
+  implementation: {
+    roslynator_rules: ['RCS1036', 'RCS1175'],
+    steps: [
+      'Identify duplicate logic patterns',
+      'Extract to base service or repository',
+      'Update all callers to use extracted method',
+      'Run full validation suite'
+    ]
+  },
+  validation: { healthcheck_required: true, all_6_levels: true },
+  success_metrics: { usage_count: 1, success_rate: 1.0 },
+  examples: [{
+    key: 'service-refactor',
+    git_commit: getCurrentCommitHash(),
+    files_refactored: 3,
+    lines_reduced: 150
+  }],
+  last_updated: new Date().toISOString(),
+  contributed_by: 'refactor'
+};
+
+// Add to patterns file
+const patterns = await readJSON('Workspaces/Copilot/learning/refactor-patterns.json');
+patterns.patterns.push(newPattern);
+await writeJSON('Workspaces/Copilot/learning/refactor-patterns.json', patterns);
+```
+
+---
+
+## Validation Rules
+
+### Schema Compliance
+- All required fields must be populated
+- Dates must use ISO-8601 format (YYYY-MM-DDTHH:mm:ssZ)
+- Git commits must be full SHA hashes (40 characters)
+- Success rates must be between 0.0 and 1.0
+- Pattern IDs must be unique within their file
+
+### Pattern Quality
+- Descriptions must be clear and actionable
+- Steps must be specific and ordered
+- Examples must include real git commits and keys
+- Metrics must be measurable and updated
+
+### File Maintenance
+- Patterns sorted alphabetically by ID
+- Anti-patterns separated from successful patterns
+- Stale patterns (>6 months unused) marked for review
+- Broken patterns (success_rate < 0.5) moved to anti-patterns
+
+---
+
+## analyze-learning Agent Responsibilities
+
+1. **Weekly Analysis** (or after 10 completed keys):
+   - Read all pattern files
+   - Identify cross-agent meta-patterns
+   - Calculate system-wide success metrics
+   - Generate improvement recommendations
+   - Update analyze-learning-patterns.json
+
+2. **Pattern Health Checks**:
+   - Identify stale patterns (not used in 6 months)
+   - Flag low-success patterns (success_rate < 0.5)
+   - Recommend pattern consolidation opportunities
+   - Detect missing pattern categories
+
+3. **Knowledge Distribution**:
+   - Share successful patterns across agent boundaries
+   - Promote high-success patterns (usage_count > 10, success_rate > 0.9)
+   - Archive obsolete patterns
+   - Generate pattern usage reports
+
+---
+
+## Future Enhancements
+
+- Pattern versioning for backward compatibility
+- Pattern dependency graphs (pattern A requires pattern B)
+- Automated pattern discovery from successful keys
+- Pattern effectiveness scoring (success_rate × usage_count)
+- Cross-repository pattern sharing
+- Machine learning for pattern recommendation

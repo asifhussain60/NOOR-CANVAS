@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 ---
 mode: agent
 description: Synchronization and cleanup agent for prompts, instructions, configs, and hygiene tasks
@@ -21,7 +27,7 @@ See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
 ---
 
 ## Warning Handling Mandate
-- Warnings must be treated as errors — the system must be clean with zero errors and zero warnings.  
+- Warnings must be treated as errors â€” the system must be clean with zero errors and zero warnings.  
 - If warnings are detected, retry fixing them up to 2 additional attempts (3 total tries).  
 - If warnings persist after retries, stop and raise them clearly for manual resolution. Do not loop infinitely.  
 
@@ -76,7 +82,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - Delete unused components, services, and DTOs
 - Eliminate duplicate code and consolidate logic
 - Normalize code formatting (Prettier, StyleCop)
-- Clean up temporary test files in `Workspaces/TEMP/` (keep production tests in {{TEST_PATH}}/UI/)
+- Clean up temporary test files in `Workspaces/TEMP/` (keep production tests in Tests/UI/)
 - Archive deprecated artifacts to `.archive/`
 
 ---
@@ -99,7 +105,7 @@ You also enforce project hygiene by performing cleanup duties:
 - Ensure analyzers, linters, and configs remain clean after every operation.
 - Running analyzers/linters/tests for validation
 
-⚠️ **ABSOLUTE MANDATE: ALL {{TEST_FRAMEWORK}} TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
+âš ï¸ **ABSOLUTE MANDATE: ALL {{TEST_FRAMEWORK}} TESTS REQUIRE ORCHESTRATION SCRIPTS** âš ï¸
 
 **Before running any {{TEST_FRAMEWORK}} or Percy automated tests as part of sync or cleanup operations, you MUST use orchestration scripts. Direct execution of `npx {{TEST_FRAMEWORK}} test` is PROHIBITED.**
 
@@ -108,17 +114,17 @@ You also enforce project hygiene by performing cleanup duties:
 **Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
 
 **Key Requirements**:
-- ✅ Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
-- ✅ Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` and `$env:ASPNETCORE_URLS = 'https://localhost:9091'` before `dotnet run`
-- ✅ Health check with retry logic (10 attempts, 3-second delays)
-- ✅ Automated cleanup after tests complete
-- ❌ NEVER run `npx {{TEST_FRAMEWORK}} test` directly from terminal
+- âœ… Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
+- âœ… Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` and `$env:ASPNETCORE_URLS = 'https://localhost:9091'` before `{{RUN_COMMAND}}`
+- âœ… Health check with retry logic (10 attempts, 3-second delays)
+- âœ… Automated cleanup after tests complete
+- âŒ NEVER run `npx {{TEST_FRAMEWORK}} test` directly from terminal
 
 
 ### Reference Documentation
 - **SystemIndex.md** - Central navigation hub (AUTO-UPDATED by sync agent, includes database rules)
 - **Architecture.md** - System architecture (sync after major changes)
-- **InfrastructureQuickRef.md** ⭐ - Database ({{DATABASE_NAME}} schema rules), API, {{REALTIME_TECH}}, test infrastructure
+- **InfrastructureQuickRef.md** â­ - Database ({{DATABASE_NAME}} schema rules), API, {{REALTIME_TECH}}, test infrastructure
 - **ValidationFramework.md** - Validation pipeline (Levels 1-3, 6 mandatory for sync)
 - **API-Contract-Validation.md** - Contract validation rules
 - **AnalyzerConfig.MD** - Analyzer and linter configurations
@@ -195,22 +201,22 @@ This guarantees rollback capability if sync introduces instability.
     - Files with overlapping content (>70% similarity)
     - Key data streams that can be combined without losing information
   - **Pattern Matching Rules:**
-    - Match singular/plural variations: "prompt" ↔ "prompts"
-    - Match abbreviations: "config" ↔ "configuration", "ref" ↔ "reference"
-    - Match related terms: "quick ref" ↔ "paths" ↔ "config" (if {{TEST_FRAMEWORK}}-related)
+    - Match singular/plural variations: "prompt" â†” "prompts"
+    - Match abbreviations: "config" â†” "configuration", "ref" â†” "reference"
+    - Match related terms: "quick ref" â†” "paths" â†” "config" (if {{TEST_FRAMEWORK}}-related)
     - Preserve unique information during consolidation
     - Update all references to point to consolidated files
   - **Consolidation Examples:**
-    - Merge: {{TEST_FRAMEWORK}}QuickRef.md + {{TEST_FRAMEWORK}}Config.MD + {{TEST_FRAMEWORK}}TestPaths.MD → {{TEST_FRAMEWORK}}Reference.md
-    - Merge: step-0-*.md files if similar across prompts → single shared file
-    - Combine: Duplicate mandate sections → single shared mandate file
+    - Merge: {{TEST_FRAMEWORK}}QuickRef.md + {{TEST_FRAMEWORK}}Config.MD + {{TEST_FRAMEWORK}}TestPaths.MD â†’ {{TEST_FRAMEWORK}}Reference.md
+    - Merge: step-0-*.md files if similar across prompts â†’ single shared file
+    - Combine: Duplicate mandate sections â†’ single shared mandate file
   
 - **Portable System Synchronization (_Portable/):**
   - **Keep generic templates in sync** with project-specific prompts/instructions
   - **Bidirectional sync workflow:**
-    - `.github/prompts/*.md` → `.github/_Portable/prompts/*.md.template`
-    - `.github/instructions/*.md` → `.github/_Portable/instructions/*.md.template`
-    - `.github/prompts/shared/*.md` → `.github/_Portable/prompts/shared/*.md` (no template suffix - these are generic)
+    - `.github/prompts/*.md` â†’ `.github/_Portable/prompts/*.md.template`
+    - `.github/instructions/*.md` â†’ `.github/_Portable/instructions/*.md.template`
+    - `.github/prompts/shared/*.md` â†’ `.github/_Portable/prompts/shared/*.md` (no template suffix - these are generic)
   - **Template Conversion Rules:**
     - Remove project-specific paths (replace with `{{PROJECT_ROOT}}`, `{{WORKSPACE_ROOT}}`)
     - Remove hardcoded database names (replace with `{{DATABASE_NAME}}`)
@@ -238,12 +244,12 @@ This guarantees rollback capability if sync introduces instability.
     .\Validate-DocumentationGroundTruth.ps1 -GenerateReport
     ```
   - **Script validates:**
-    - ✅ Database schema (query {{DATABASE_NAME}} for actual tables)
-    - ✅ Codebase references (grep for actual usage in C# files)
-    - ✅ Documentation accuracy (scan 6 key instruction files)
-    - ✅ Obsolete reference detection (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
-    - ✅ Expected table verification (dbo.Groups, Categories, Sessions, Speakers, SessionTranscripts)
-  - **Expected output:** `✅ Passed: X | ❌ Failed: 0 | ⚠️ Warnings: Y`
+    - âœ… Database schema (query {{DATABASE_NAME}} for actual tables)
+    - âœ… Codebase references (grep for actual usage in C# files)
+    - âœ… Documentation accuracy (scan 6 key instruction files)
+    - âœ… Obsolete reference detection (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
+    - âœ… Expected table verification (dbo.Groups, Categories, Sessions, Speakers, SessionTranscripts)
+  - **Expected output:** `âœ… Passed: X | âŒ Failed: 0 | âš ï¸ Warnings: Y`
   - **Integration:**
     - Attach validation report to sync commit
     - If validation fails, sync CANNOT be marked complete

@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # {{TEST_FRAMEWORK}} Testing Quick Reference
 
 **Version**: 2.0.0  
@@ -6,28 +12,28 @@
 
 ---
 
-## ⚠️ CRITICAL: Server Management Rules
+## âš ï¸ CRITICAL: Server Management Rules
 
 **{{TEST_FRAMEWORK}} MANAGES THE SERVER AUTOMATICALLY - DO NOT START IT MANUALLY!**
 
 Port policy: The application must bind only to HTTPS on 9091. Do not bind to 9090.
 
-### ❌ NEVER Do This for {{TEST_FRAMEWORK}} Tests:
+### âŒ NEVER Do This for {{TEST_FRAMEWORK}} Tests:
 ```powershell
 # WRONG - Don't manually start the app
-dotnet run
+{{RUN_COMMAND}}
 ./Workspaces/Global/nc.ps1
 ./Workspaces/Global/ncb.ps1
-Start-Process powershell -ArgumentList "dotnet run"
+Start-Process powershell -ArgumentList "{{RUN_COMMAND}}"
 ```
 
-### ✅ ALWAYS Do This:
+### âœ… ALWAYS Do This:
 ```bash
 # RIGHT - Let {{TEST_FRAMEWORK}} manage everything
 PW_MODE=standalone npx {{TEST_FRAMEWORK}} test
 
 # {{TEST_FRAMEWORK}} automatically:
-# 1. Starts dotnet run (background subprocess)
+# 1. Starts {{RUN_COMMAND}} (background subprocess)
 # 2. Waits for port 9091 to be ready
 # 3. Runs all tests
 # 4. Stops the server
@@ -36,7 +42,7 @@ PW_MODE=standalone npx {{TEST_FRAMEWORK}} test
 
 ### How webServer Works:
 - **Not a separate window**: Server runs as invisible Node.js subprocess
-- **Automatic lifecycle**: Start → Wait → Test → Stop
+- **Automatic lifecycle**: Start â†’ Wait â†’ Test â†’ Stop
 - **Port monitoring**: Waits for port 9091 to respond before testing
 - **Process cleanup**: Kills server process when tests complete
 - **Error handling**: Stops server even if tests fail
@@ -49,16 +55,16 @@ PW_MODE=standalone npx {{TEST_FRAMEWORK}} test
 
 ---
 
-## 📝 CRITICAL: Code Style Rules
+## ðŸ“ CRITICAL: Code Style Rules
 
 ### Emoji Usage in Test Scripts
-**❌ NEVER use emojis in console.log statements or test code**
+**âŒ NEVER use emojis in console.log statements or test code**
 
 ```typescript
 // WRONG - Contains emojis
-console.log('📱 Loading Host Control Panel...');
-console.log('✅ Test passed');
-console.log('🖱️ Clicking button...');
+console.log('ðŸ“± Loading Host Control Panel...');
+console.log('âœ… Test passed');
+console.log('ðŸ–±ï¸ Clicking button...');
 
 // RIGHT - ASCII only
 console.log('[INFO] Loading Host Control Panel...');
@@ -85,14 +91,14 @@ console.log('[INFO] Additional context');     // Information
 
 ---
 
-## 🖥️ CRITICAL: Application Management for Manual Testing
+## ðŸ–¥ï¸ CRITICAL: Application Management for Manual Testing
 
 **When YOU (Copilot) need to run tests that require manual app startup:**
 
 ### Step 1: Launch Application in Separate PowerShell Window
 ```powershell
 # Start app in NEW window (not background process)
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'; $env:ASPNETCORE_URLS='https://localhost:9091'; {{RUN_COMMAND}}" -WindowStyle Normal
 
 # Store the process info
 # The app will run in its own window, visible to user
@@ -117,8 +123,8 @@ npx {{TEST_FRAMEWORK}} test path/to/test.spec.ts --headed --reporter=list
 ```powershell
 # Find and kill the app PowerShell window process
 $appProcess = Get-Process powershell | Where-Object { 
-    $_.MainWindowTitle -like "*dotnet run*" -or 
-    $_.CommandLine -like "*NoorCanvas*dotnet run*" 
+    $_.MainWindowTitle -like "*{{RUN_COMMAND}}*" -or 
+    $_.CommandLine -like "*{{PROJECT_NAME}}*{{RUN_COMMAND}}*" 
 }
 
 if ($appProcess) {
@@ -140,7 +146,7 @@ if ($portProcess -match '\s+(\d+)$') {
 ### Complete Workflow Example
 ```powershell
 # 1. Launch app
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'; $env:ASPNETCORE_URLS='https://localhost:9091'; {{RUN_COMMAND}}" -WindowStyle Normal
 
 # 2. Wait for startup
 Start-Sleep -Seconds 20
@@ -154,15 +160,15 @@ if ($pid) { Stop-Process -Id $pid -Force }
 ```
 
 ### When to Use This Approach
-- **✅ Use when**: Test file is in `Workspaces/TEMP/` (temporary test)
-- **✅ Use when**: Debugging specific issues that need visual app window
-- **✅ Use when**: Percy visual regression tests need manual verification
-- **❌ NEVER use**: For standard CI/CD tests in `{{TEST_FRAMEWORK}}/tests/`
-- **❌ NEVER use**: When `webServer` configuration is available in `{{TEST_FRAMEWORK}}.config.cjs`
+- **âœ… Use when**: Test file is in `Workspaces/TEMP/` (temporary test)
+- **âœ… Use when**: Debugging specific issues that need visual app window
+- **âœ… Use when**: Percy visual regression tests need manual verification
+- **âŒ NEVER use**: For standard CI/CD tests in `{{TEST_FRAMEWORK}}/tests/`
+- **âŒ NEVER use**: When `webServer` configuration is available in `{{TEST_FRAMEWORK}}.config.cjs`
 
 ---
 
-## 🎯 Testing Strategy Overview
+## ðŸŽ¯ Testing Strategy Overview
 
 **{{PROJECT_NAME}} uses three complementary testing approaches:**
 
@@ -188,7 +194,7 @@ if ($pid) { Stop-Process -Id $pid -Force }
 
 ---
 
-## 🎯 When User Says "{{TEST_FRAMEWORK}} Test" or "pwtest"
+## ðŸŽ¯ When User Says "{{TEST_FRAMEWORK}} Test" or "pwtest"
 
 **Copilot Should Know**:
 1. **Test Location**: `{{TEST_FRAMEWORK}}/tests/` or `Tests/UI/` or `Workspaces/TEMP/` (for temporary tests)
@@ -201,7 +207,7 @@ if ($pid) { Stop-Process -Id $pid -Force }
 
 ---
 
-## 📁 Test File Structure
+## ðŸ“ Test File Structure
 
 ### Standard Test Template
 ```typescript
@@ -235,7 +241,7 @@ test.describe('Feature Name', () => {
 
 ---
 
-## 🎯 Testing Approach Decision Matrix
+## ðŸŽ¯ Testing Approach Decision Matrix
 
 **Use this matrix to choose the right testing tool for your change:**
 
@@ -247,34 +253,34 @@ test.describe('Feature Name', () => {
 | **Component Refactor** | Percy + {{TEST_FRAMEWORK}} | Percy validates visual consistency, {{TEST_FRAMEWORK}} validates behavior | Refactoring question card component |
 | **API Change** | {{TEST_FRAMEWORK}} (Functional E2E) | Tests API contract, response format, error handling | New participant endpoint, {{REALTIME_TECH}} hub changes |
 | **Responsive Design** | Percy (Multi-viewport) | Tests layout across 375px/768px/1280px viewports | Mobile-first design, tablet layout, desktop grid |
-| **Theme Changes** | Percy + Stylelint | Percy validates visual output, Stylelint validates CSS quality | Dark mode, color scheme updates, {{UI_FRAMEWORK}} theme |
+| **Theme Changes** | Percy + Stylelint | Percy validates visual output, Stylelint validates CSS quality | Dark mode, color scheme updates, Blazor theme |
 | **Accessibility Fix** | {{TEST_FRAMEWORK}} (Functional E2E) | Tests ARIA attributes, keyboard navigation, screen reader support | ARIA labels, focus management, semantic HTML |
 
 ### Decision Flowchart
 
 ```
 Did you change...
-│
-├─ User flows/interactions? → {{TEST_FRAMEWORK}} Functional Test
-│  ├─ Examples: Login, navigation, form submission, voting
-│  └─ File: Tests/UI/*-functional.spec.ts
-│
-├─ Visual appearance/CSS? → Percy Visual Test + Stylelint
-│  ├─ Examples: Button colors, card layouts, spacing, themes
-│  ├─ Visual Test: Tests/UI/*-visual.spec.ts (Percy)
-│  └─ CSS Quality: npm run lint:css (Stylelint)
-│
-├─ API/{{REALTIME_TECH}} contract? → {{TEST_FRAMEWORK}} Functional Test
-│  ├─ Examples: New endpoints, hub methods, response format
-│  └─ File: Tests/UI/*-api.spec.ts
-│
-├─ Component internals (no UI change)? → {{TEST_FRAMEWORK}} Functional Test
-│  ├─ Examples: Refactoring, performance optimization
-│  └─ Validate behavior remains unchanged
-│
-└─ Multi-viewport responsive design? → Percy Multi-viewport Test
-   ├─ Examples: Mobile layout, tablet breakpoints, grid systems
-   └─ File: Tests/UI/*-responsive.spec.ts
+â”‚
+â”œâ”€ User flows/interactions? â†’ {{TEST_FRAMEWORK}} Functional Test
+â”‚  â”œâ”€ Examples: Login, navigation, form submission, voting
+â”‚  â””â”€ File: Tests/UI/*-functional.spec.ts
+â”‚
+â”œâ”€ Visual appearance/CSS? â†’ Percy Visual Test + Stylelint
+â”‚  â”œâ”€ Examples: Button colors, card layouts, spacing, themes
+â”‚  â”œâ”€ Visual Test: Tests/UI/*-visual.spec.ts (Percy)
+â”‚  â””â”€ CSS Quality: npm run lint:css (Stylelint)
+â”‚
+â”œâ”€ API/{{REALTIME_TECH}} contract? â†’ {{TEST_FRAMEWORK}} Functional Test
+â”‚  â”œâ”€ Examples: New endpoints, hub methods, response format
+â”‚  â””â”€ File: Tests/UI/*-api.spec.ts
+â”‚
+â”œâ”€ Component internals (no UI change)? â†’ {{TEST_FRAMEWORK}} Functional Test
+â”‚  â”œâ”€ Examples: Refactoring, performance optimization
+â”‚  â””â”€ Validate behavior remains unchanged
+â”‚
+â””â”€ Multi-viewport responsive design? â†’ Percy Multi-viewport Test
+   â”œâ”€ Examples: Mobile layout, tablet breakpoints, grid systems
+   â””â”€ File: Tests/UI/*-responsive.spec.ts
 ```
 
 ### Quick Reference Commands
@@ -287,7 +293,7 @@ npx {{TEST_FRAMEWORK}} test Tests/UI/feature-name-functional.spec.ts --headed
 npm run test:percy:visual -- Tests/UI/feature-name-visual.spec.ts
 
 # CSS Quality Check (Stylelint)
-npm run lint:css -- SPA/NoorCanvas/Components/**/*.razor
+npm run lint:css -- SPA/{{PROJECT_NAME}}/Components/**/*.razor
 
 # Full Test Suite (All 3 Approaches)
 npx {{TEST_FRAMEWORK}} test && npm run test:percy && npm run lint:css
@@ -327,7 +333,7 @@ test.describe('Visual Regression: Feature Name', () => {
 
 ---
 
-## 🔧 Configuration Files
+## ðŸ”§ Configuration Files
 
 ### Primary Config: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
 
@@ -363,7 +369,7 @@ $env:PW_MODE='standalone'; npx {{TEST_FRAMEWORK}} test
 ```
 
 **Features**:
-- Starts .NET app automatically (`dotnet run` in `SPA/NoorCanvas`)
+- Starts .NET app automatically (`{{RUN_COMMAND}}` in `SPA/{{PROJECT_NAME}}`)
 - Port: 9091
 - Timeout: 60000ms for app startup
 - Workers: 1 (sequential execution)
@@ -412,7 +418,7 @@ $env:PW_MODE='temp'; npx {{TEST_FRAMEWORK}} test
 
 ---
 
-## 🧪 Test Data (Session 212)
+## ðŸ§ª Test Data (Session 212)
 
 ### Canonical Test Session
 **Session ID**: `212`
@@ -465,7 +471,7 @@ $env:PW_MODE='temp'; npx {{TEST_FRAMEWORK}} test
 
 ---
 
-## 🚀 Test Execution Commands
+## ðŸš€ Test Execution Commands
 
 ### Run All Tests
 ```bash
@@ -474,7 +480,7 @@ npx {{TEST_FRAMEWORK}} test
 
 ### Run Specific Test File
 ```bash
-npx {{TEST_FRAMEWORK}} test Tests/UI/session-canvas.spec.ts
+npx {{TEST_FRAMEWORK}} test Tests/UI/session-{{SCHEMA_PRIMARY}}.spec.ts
 ```
 
 ### Run Tests in Headed Mode
@@ -511,7 +517,7 @@ npx {{TEST_FRAMEWORK}} show-report
 
 ---
 
-## 📝 Test Writing Patterns
+## ðŸ“ Test Writing Patterns
 
 ### API-Based Approach (Preferred)
 **Pattern**: Load data from API, not localStorage
@@ -605,7 +611,7 @@ await expect(page.locator('selector')).toHaveAttribute('attr', 'value');
 
 ---
 
-## 🎯 Common Test Scenarios
+## ðŸŽ¯ Common Test Scenarios
 
 ### 1. Navigation Test
 ```typescript
@@ -662,7 +668,7 @@ test('should receive {{REALTIME_TECH}} updates', async ({ page }) => {
 
 ---
 
-## 🐛 Debugging Tips
+## ðŸ› Debugging Tips
 
 ### 1. Slow Motion
 ```typescript
@@ -694,7 +700,7 @@ page.on('console', msg => console.log('Browser:', msg.text()));
 
 ---
 
-## ⚙️ TypeScript Configuration
+## âš™ï¸ TypeScript Configuration
 
 **File**: `config/testing/tsconfig.json`
 
@@ -719,7 +725,7 @@ page.on('console', msg => console.log('Browser:', msg.text()));
 
 ---
 
-## 🧹 Cleanup Rules
+## ðŸ§¹ Cleanup Rules
 
 ### Temporary Test Cleanup
 **When**: After task completion (in key data stream update)
@@ -736,7 +742,7 @@ Remove-Item "Workspaces/TEMP/{{TEST_FRAMEWORK}}-artifacts/*" -Recurse -Force
 
 ---
 
-## 📊 Test Reporting
+## ðŸ“Š Test Reporting
 
 ### HTML Report (Default)
 ```bash
@@ -755,7 +761,7 @@ Configured in `{{TEST_FRAMEWORK}}.config.cjs` per mode
 
 ---
 
-## 🔗 Integration Points
+## ðŸ”— Integration Points
 
 ### With Task Agent
 - **Step 6.1**: Automatic {{TEST_FRAMEWORK}} test generation for UI tasks
@@ -774,7 +780,7 @@ Configured in `{{TEST_FRAMEWORK}}.config.cjs` per mode
 
 ---
 
-## 📚 Related Documentation
+## ðŸ“š Related Documentation
 
 - **{{TEST_FRAMEWORK}}Config.MD** - Detailed configuration reference
 - **{{TEST_FRAMEWORK}}TestPaths.MD** - Canonical test patterns and Session 212 data
@@ -783,7 +789,7 @@ Configured in `{{TEST_FRAMEWORK}}.config.cjs` per mode
 
 ---
 
-## 🔄 Auto-Update Protocol
+## ðŸ”„ Auto-Update Protocol
 
 **This file is maintained by**:
 - **cohesion-review** agent - Updates during system-wide reviews

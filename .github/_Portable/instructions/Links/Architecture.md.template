@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # Architecture
 
 ## Purpose
@@ -158,7 +164,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 #### GET /api/host/ksessions/countries/flags
 - **Purpose**: Country flag mappings from KSESSIONS database
 - **Query Parameters**: `countryCodes[]` (optional) - filter by specific ISO2 codes
-- **Response**: `CountryFlagsResponse` with dictionary mapping ISO2 → lowercase flag codes
+- **Response**: `CountryFlagsResponse` with dictionary mapping ISO2 â†’ lowercase flag codes
 - **Usage**: Replaces direct database queries for participant country flag display
 
 #### GET /api/host/asset-lookup
@@ -267,7 +273,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 #### ConfigurableLoadingService
 - **Purpose**: Enhanced loading UI with configuration
 - **Key Methods**: `ShowLoading()`, `HideLoading()`, `ConfigureSpinner()`
-- **Integration**: All {{UI_FRAMEWORK}} components, enhanced user experience
+- **Integration**: All Blazor components, enhanced user experience
 - **Features**: Configurable spinners, loading state management
 
 #### SafeHtmlRenderingService
@@ -349,7 +355,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 - **Features**: Session control, Q&A moderation, real-time content broadcasting
 - **Architecture**: API-First (no direct DbContext injection)
 
-#### SessionCanvas.razor (`/session-canvas/{token}`)
+#### Session{{SCHEMA_PRIMARY}}.razor (`/session-canvas/{token}`)
 - **Purpose**: Main participant session interface
 - **APIs**: Participant validation, session data, Q&A submission
 - **{{REALTIME_TECH}}**: SessionHub, QAHub real-time updates
@@ -364,7 +370,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 #### Host-SessionOpener.razor (`/host/session-opener/{hostToken}`)
 - **Purpose**: Host session creation with cascading dropdowns
 - **Service**: HostSessionService (wraps KSESSIONS APIs)
-- **Features**: Album→Category→Session selection, custom scheduling
+- **Features**: Albumâ†’Categoryâ†’Session selection, custom scheduling
 
 #### HostControlRedirect.razor (`/host/control/{hostToken}`)  
 - **Purpose**: Backward compatibility redirect for old routing

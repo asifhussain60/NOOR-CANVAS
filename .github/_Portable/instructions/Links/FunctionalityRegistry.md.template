@@ -1,3 +1,9 @@
+﻿# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+---
+
 # Functionality Registry - Regression Prevention System
 
 ## Overview
@@ -14,9 +20,9 @@ Each key maintains a list of **critical behaviors** that must always work, regar
 
 ```markdown
 ### Core Behaviors (Must Always Work)
-- ✅ **Behavior 1**: Valid token in URL → Direct to registration (no flash)
-- ✅ **Behavior 2**: Invalid token → Show error message
-- ✅ **Behavior 3**: Missing token → Show token entry panel
+- âœ… **Behavior 1**: Valid token in URL â†’ Direct to registration (no flash)
+- âœ… **Behavior 2**: Invalid token â†’ Show error message
+- âœ… **Behavior 3**: Missing token â†’ Show token entry panel
 ```
 
 **Characteristics**:
@@ -32,17 +38,17 @@ The registry tracks which files and methods control critical behaviors:
 ```markdown
 ### Breaking Change Detection
 - **File Watch**: 
-  - `SPA/NoorCanvas/Pages/UserLanding.razor`
-  - `SPA/NoorCanvas/Services/AuthService.cs`
+  - `SPA/{{PROJECT_NAME}}/Pages/UserLanding.razor`
+  - `SPA/{{PROJECT_NAME}}/Services/AuthService.cs`
 - **Method Watch**:
   - `OnInitializedAsync()` - Initialization logic
   - `ValidateToken()` - Token validation
 ```
 
 **Purpose**:
-- When task modifies a watched file → **Trigger validation workflow**
-- When task modifies a watched method → **Flag regression risk**
-- When no watches match → **Low regression risk, validation optional**
+- When task modifies a watched file â†’ **Trigger validation workflow**
+- When task modifies a watched method â†’ **Flag regression risk**
+- When no watches match â†’ **Low regression risk, validation optional**
 
 ---
 
@@ -71,7 +77,7 @@ When a task modifies code under a key with Functionality Registry:
 
 #### Step 1: Load Registry
 ```
-✓ Loaded Functionality Registry for key 'user-auth'
+âœ“ Loaded Functionality Registry for key 'user-auth'
   - Core Behaviors: 5
   - File Watch: 3 files
   - Method Watch: 3 methods
@@ -80,7 +86,7 @@ When a task modifies code under a key with Functionality Registry:
 
 #### Step 2: Detect Regression Risk
 ```
-⚠️ REGRESSION RISK DETECTED
+âš ï¸ REGRESSION RISK DETECTED
   - Modified file: UserLanding.razor (matches File Watch)
   - Affected behaviors: 3 core behaviors
   - Validation REQUIRED before commit
@@ -90,23 +96,23 @@ When a task modifies code under a key with Functionality Registry:
 **Option A - Automated Tests Available:**
 ```bash
 npm test -- Tests/UI/user-auth-flow.spec.ts
-# All tests pass → Update Last Validation → Allow commit
+# All tests pass â†’ Update Last Validation â†’ Allow commit
 ```
 
 **Option B - Manual Validation Only:**
 ```
-⚠️ Manual Validation Required
+âš ï¸ Manual Validation Required
 Please verify the following behaviors still work:
-□ Valid token flow (no flash)
-□ Invalid token error handling
-□ Missing token default behavior
+â–¡ Valid token flow (no flash)
+â–¡ Invalid token error handling
+â–¡ Missing token default behavior
 
 Confirm all behaviors work? (yes/no)
 ```
 
 #### Step 4: Update Registry
 ```
-✅ Functionality Validation: PASS
+âœ… Functionality Validation: PASS
   - Core behaviors: 5 verified
   - Tests executed: 3 passed (manual)
   - Registry updated (Last Validation: 2025-01-11)
@@ -128,15 +134,15 @@ Confirm all behaviors work? (yes/no)
 - Before git commit (Step 8.1)
 
 **Workflow**:
-1. Load `{key}.md` → Parse `## Functionality Registry` section
+1. Load `{key}.md` â†’ Parse `## Functionality Registry` section
 2. Compare modified files from Step 5 with File Watch list
-3. **IF match found** → Execute validation (automated or manual)
-4. **IF validation passes** → Update Last Validation, allow commit
-5. **IF validation fails** → Log regression, BLOCK commit
+3. **IF match found** â†’ Execute validation (automated or manual)
+4. **IF validation passes** â†’ Update Last Validation, allow commit
+5. **IF validation fails** â†’ Log regression, BLOCK commit
 
 **Output to User**:
 ```
-✅ Functionality Validation: PASS
+âœ… Functionality Validation: PASS
 - Core behaviors: 5 verified
 - Tests executed: Manual validation
 - Registry updated with new behaviors
@@ -153,9 +159,9 @@ Confirm all behaviors work? (yes/no)
 **Purpose**: Track core behaviors that MUST continue working across all changes to prevent regressions.
 
 ### Core Behaviors (Must Always Work)
-- ✅ **Behavior 1**: Description of critical user-facing functionality
-- ✅ **Behavior 2**: Another critical behavior
-- ✅ **Behavior 3**: Third core behavior
+- âœ… **Behavior 1**: Description of critical user-facing functionality
+- âœ… **Behavior 2**: Another critical behavior
+- âœ… **Behavior 3**: Third core behavior
 
 ### Related Test Coverage
 - **Automated Tests**:
@@ -192,13 +198,13 @@ Confirm all behaviors work? (yes/no)
 ## Best Practices
 
 ### 1. What to Track
-✅ **DO Track**:
+âœ… **DO Track**:
 - User-facing behaviors (login flow, data display, navigation)
 - Critical business logic (payment processing, data validation)
 - Security behaviors (authentication, authorization, data protection)
 - Performance requirements (page load < 2s, API response < 500ms)
 
-❌ **DON'T Track**:
+âŒ **DON'T Track**:
 - Implementation details (variable names, code structure)
 - Non-critical UI tweaks (button colors, spacing adjustments)
 - Experimental features not yet released
@@ -207,11 +213,11 @@ Confirm all behaviors work? (yes/no)
 ### 2. Writing Good Behavior Descriptions
 **Good**:
 ```markdown
-- ✅ **Valid Token Flow**: User with valid token in URL skips login screen and goes directly to dashboard
+- âœ… **Valid Token Flow**: User with valid token in URL skips login screen and goes directly to dashboard
 ```
 **Bad**:
 ```markdown
-- ✅ **OnInitialized Works**: The OnInitializedAsync method executes correctly
+- âœ… **OnInitialized Works**: The OnInitializedAsync method executes correctly
 ```
 
 **Good descriptions**:
@@ -250,11 +256,11 @@ Confirm all behaviors work? (yes/no)
 ## Functionality Registry
 
 ### Core Behaviors (Must Always Work)
-- ✅ **Valid Token Flow**: Valid token in URL → Direct to registration panel (no flash/flicker)
-- ✅ **Invalid Token Handling**: Invalid token → Show token panel with error message
-- ✅ **Missing Token Default**: No token in URL → Show token entry panel
-- ✅ **Error Recovery**: Validation failures → Revert to token panel with helpful error
-- ✅ **Registration Access**: After token validation → Waiting room access enabled
+- âœ… **Valid Token Flow**: Valid token in URL â†’ Direct to registration panel (no flash/flicker)
+- âœ… **Invalid Token Handling**: Invalid token â†’ Show token panel with error message
+- âœ… **Missing Token Default**: No token in URL â†’ Show token entry panel
+- âœ… **Error Recovery**: Validation failures â†’ Revert to token panel with helpful error
+- âœ… **Registration Access**: After token validation â†’ Waiting room access enabled
 
 ### Related Test Coverage
 - **Automated Tests**: None (recommended: create {{TEST_FRAMEWORK}} test)
@@ -268,9 +274,9 @@ Confirm all behaviors work? (yes/no)
 
 ### Breaking Change Detection
 - **File Watch**:
-  - `SPA/NoorCanvas/Pages/UserLanding.razor` - Main UI component
-  - `SPA/NoorCanvas/Controllers/ParticipantController.cs` - Validation API
-  - `SPA/NoorCanvas/Services/SimplifiedTokenService.cs` - Token logic
+  - `SPA/{{PROJECT_NAME}}/Pages/UserLanding.razor` - Main UI component
+  - `SPA/{{PROJECT_NAME}}/Controllers/ParticipantController.cs` - Validation API
+  - `SPA/{{PROJECT_NAME}}/Services/SimplifiedTokenService.cs` - Token logic
 - **Method Watch**:
   - `UserLanding.OnInitializedAsync()` - Panel state initialization
   - `UserLanding.LoadSessionInfoAsync()` - Token validation & error handling
@@ -298,13 +304,13 @@ Confirm all behaviors work? (yes/no)
 - Modify UserLanding.razor under `user-auth` key
 - Accidentally break token validation logic
 - Build succeeds (no compile errors)
-- **Regression ships to production** ❌
+- **Regression ships to production** âŒ
 
 **After Functionality Registry**:
 - Modify UserLanding.razor under `user-auth` key
-- File Watch detects change → Triggers validation
+- File Watch detects change â†’ Triggers validation
 - Manual checklist or automated tests verify behaviors
-- **Regression caught before commit** ✅
+- **Regression caught before commit** âœ…
 
 ### Improves Code Confidence
 - Developers know exactly what behaviors are critical
@@ -348,23 +354,23 @@ Run manual validation to ensure behaviors are testable and accurate.
 ## Functionality Registry
 
 ### Core Behaviors (Must Always Work)
-- ✅ **Asset Centering**: All Islamic content assets (poetry, hadees, ayah) load centered in canvas
-- ✅ **Layer Visibility**: Hidden layers don't display, visible layers render correctly
-- ✅ **Real-Time Updates**: Canvas updates when host broadcasts new content
+- âœ… **Asset Centering**: All Islamic content assets (poetry, hadees, ayah) load centered in canvas
+- âœ… **Layer Visibility**: Hidden layers don't display, visible layers render correctly
+- âœ… **Real-Time Updates**: Canvas updates when host broadcasts new content
 
 ### Related Test Coverage
 - **Manual Validation**:
   - Load Session 212 as participant (KJAHA99L)
   - Verify: Hadees card appears centered in canvas
-  - Host broadcasts poetry → Verify: Poetry appears centered
-  - Host hides layer → Verify: Content disappears from participant view
+  - Host broadcasts poetry â†’ Verify: Poetry appears centered
+  - Host hides layer â†’ Verify: Content disappears from participant view
 
 ### Breaking Change Detection
 - **File Watch**:
-  - `SPA/NoorCanvas/Pages/SessionCanvas.razor` - Canvas rendering
-  - `SPA/NoorCanvas/wwwroot/css/session-transcript.css` - Asset styling
+  - `SPA/{{PROJECT_NAME}}/Pages/Session{{SCHEMA_PRIMARY}}.razor` - Canvas rendering
+  - `SPA/{{PROJECT_NAME}}/wwwroot/css/session-transcript.css` - Asset styling
 - **Method Watch**:
-  - `SessionCanvas.RenderContent()` - Content display logic
+  - `Session{{SCHEMA_PRIMARY}}.RenderContent()` - Content display logic
 - **State Watch**:
   - `.canvas-asset-content` CSS class - Must have `display: flex; justify-content: center`
 
@@ -383,9 +389,9 @@ Run manual validation to ensure behaviors are testable and accurate.
 
 ### "Validation blocking commit"
 **Causes**:
-- Automated tests failed → Fix test failures
-- Manual validation rejected → Investigate and fix regression
-- File Watch triggered but no validation → Complete manual checklist
+- Automated tests failed â†’ Fix test failures
+- Manual validation rejected â†’ Investigate and fix regression
+- File Watch triggered but no validation â†’ Complete manual checklist
 
 **Resolution**: Fix regressions before commit, or use `--skip-validation` flag (NOT RECOMMENDED).
 
@@ -399,7 +405,7 @@ Run manual validation to ensure behaviors are testable and accurate.
 
 ## Future Enhancements
 
-### Phase 1 (Current) ✅
+### Phase 1 (Current) âœ…
 - Functionality Registry schema in key template
 - Manual validation workflow in task.prompt.md Step 8.2
 - File/Method Watch detection
@@ -422,11 +428,11 @@ Run manual validation to ensure behaviors are testable and accurate.
 ## Summary
 
 The **Functionality Registry** is a lightweight, practical system that:
-1. ✅ **Tracks** core user-facing behaviors in key metadata
-2. ✅ **Detects** when changes affect critical functionality (File/Method Watch)
-3. ✅ **Validates** behaviors through automated tests or manual checklists
-4. ✅ **Prevents** regressions by blocking commits when validation fails
-5. ✅ **Documents** regression history for learning and improvement
+1. âœ… **Tracks** core user-facing behaviors in key metadata
+2. âœ… **Detects** when changes affect critical functionality (File/Method Watch)
+3. âœ… **Validates** behaviors through automated tests or manual checklists
+4. âœ… **Prevents** regressions by blocking commits when validation fails
+5. âœ… **Documents** regression history for learning and improvement
 
 **Adoption**: Start with high-value keys (authentication, payments, core features) and expand gradually.
 
