@@ -106,9 +106,33 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 - **Continuous Work** (use "Adding to previous key data stream," to auto-detect and continue recent work)
 
 ### How to Invoke
+
+**Via Plan Agent Handoff** (Recommended for complex work):
 ```
+# Step 1: User initiates planning
+@workspace /plan key=user-landing user_request="Route users to asset or transcript canvas based on host selection"
+
+# Step 2: Plan agent creates comprehensive plan, user reviews
+[Plan agent presents 30-50 line draft]
+
+# Step 3: User approves
+User: "proceed"
+
+# Step 4: Plan agent automatically invokes task agent
+Plan Agent: @workspace /task key=user-landing github-branch=development tasks="Phase 1: Database Schema\n---\nPhase 2: Backend Persistence\n---\nPhase 3: Frontend Routing\n---\nPhase 4: Testing"
+
+# Task agent loads plan and executes phases
+```
+
+**Direct Invocation** (For simple tasks):
+```
+# Simple single-task execution
 @workspace /task key=hcp tasks="Fix hadees token removal in SessionCanvas"
+
+# Multi-phase execution (manual phases)
 @workspace /task key=canvas tasks="Add share button\n---\nCreate Playwright test"
+
+# Mark task complete (triggers comprehensive documentation)
 @workspace /task key=hcp tasks="mark complete"
 
 # Auto-detect previous key (Step 0.5 Protocol)
@@ -170,31 +194,80 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 
 ---
 
+## Integration with Other Agents
+
+### Called By
+- **plan.prompt.md** (Planning Orchestrator) - Receives comprehensive execution plans
+  - Plan includes: phased tasks, test specifications, branch strategy, technology stack, architecture layers
+  - Handoff format: `key`, `tasks`, `github-branch`, `debug-level`, `verbosity`
+  - Task agent executes phases sequentially per plan
+  - **See**: [Agent Handoff Protocol](shared/agent-handoff-protocol.md) for complete handoff specification
+- **Direct user invocation** - For simple tasks without planning
+
+### Calls (Orchestrates)
+- **test-generation.prompt.md** - Automatic test generation for UI changes (Step 6.1)
+- **healthcheck.prompt.md** - Post-implementation validation (recommended but manual)
+
+### When to Use
+- **Use plan.prompt.md first** if:
+  - Complex multi-phase implementation (3+ phases)
+  - Need comprehensive test plan
+  - Want interactive planning with user approval
+  - Requirements unclear or need refinement
+  - Significant architecture changes
+- **Use task.prompt.md directly** if:
+  - Simple, well-defined task (1-2 steps)
+  - Already have clear plan
+  - Quick fix or minor change
+  - Continuing existing work
+  - Bug fixes with known solution
+
+---
+
 ## Plan Integration Protocol
+
+**See**: [Agent Handoff Protocol](shared/agent-handoff-protocol.md) for complete handoff specification
 
 **WHEN invoked with `key` parameter:**
 
 1. **ALWAYS check for comprehensive plan first**: `.github/prompts.keys/{key}/{key}.plan.md`
 2. **If plan exists:**
-   - Load complete phase details from plan document
-   - Load JSON tracking data from `.github/prompts.keys/{key}/{key}.plan.json`
-   - Use plan's technology stack analysis (skip redundant discovery)
-   - Reference plan's architecture layers
-   - Follow plan's test specifications
-   - Update plan's JSON tracking after each phase
-   - Apply plan's System Context Pack (APIs, DB, SignalR, test data)
+   - ✅ Load complete phase details from `{key}.plan.md`
+   - ✅ Load JSON tracking data from `{key}.plan.json`
+   - ✅ Use plan's technology stack analysis (skip redundant discovery)
+   - ✅ Reference plan's architecture layers
+   - ✅ Follow plan's test specifications
+   - ✅ Update plan's JSON tracking after each phase
+   - ✅ Apply plan's System Context Pack (APIs, DB, SignalR, test data)
+   - ✅ Report phase completion with progress tracking
 3. **If plan missing:**
+   - ⚠️ Warn user: "No comprehensive plan found. Consider running @workspace /plan first for complex multi-phase work."
    - Use lightweight planning (current Step 3 behavior)
-   - Warn user: "⚠️ No comprehensive plan found. Consider running @workspace /plan first for complex multi-phase work."
    - Generate simple work plan and proceed
    - Update markdown work-log only (no JSON tracking)
 
-**Benefits:**
-- ✅ Eliminates redundant analysis (technology stack already discovered by plan agent)
+**Plan Context Files** (automatically loaded when plan exists):
+- `{key}.plan.md` - Complete plan specification with phases, tests, architecture
+- `{key}.plan.json` - JSON tracking for programmatic progress queries
+- `work-log.md` - Execution history and key data stream
+
+**Benefits of Plan Integration:**
+- ✅ Eliminates redundant analysis (technology stack already discovered)
 - ✅ Ensures implementation follows approved architecture
 - ✅ Maintains consistency across phases
 - ✅ JSON tracking enables programmatic progress queries
 - ✅ Reuses pre-gathered context (APIs, DB schemas, test data)
+- ✅ Clear phase boundaries with validation gates
+- ✅ Better user experience with plan approval workflow
+
+**Example: Plan Handoff Flow**
+```
+User: @workspace /plan key=user-landing user_request="Route users based on host selection"
+[Plan agent creates plan, user approves]
+Plan Agent: @workspace /task key=user-landing github-branch=development tasks="Phase 1: ...\n---\nPhase 2: ..."
+Task Agent: ✅ Loaded comprehensive plan from .github/prompts.keys/user-landing/user-landing.plan.md
+Task Agent: [Executes phases sequentially]
+```
 
 ---
 

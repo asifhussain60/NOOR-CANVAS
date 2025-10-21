@@ -1,6 +1,28 @@
 # System Index
 
-**Cen**See**: `InfrastructureQuickRef.md` for complete database documentation
+**Version**: 3.2.0  
+**Last Updated**: 2025-10-21  
+**Maintained By**: Sync Agent  
+**Auto-Update**: This file is automatically updated by Copilot agents when infrastructure, architecture, or configuration changes occur.
+
+**Active Agents**: 9
+- plan, task, question, test-generation, refactor, healthcheck, analyze-learning, sync, cohesion-review
+
+---
+
+## 🗄️ Critical Database Rules
+
+**PRIMARY DATABASE: KSESSIONS_DEV**
+- When user mentions "database", they mean **KSESSIONS_DEV**
+- Server: AHHOME
+- Connection: `_configuration.GetConnectionString("DefaultConnection")`
+
+**SCHEMA ACCESS RULES**:
+- ✅ **`canvas.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- ❌ **`dbo.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+- ❌ **All other schemas** - **READ-ONLY**
+
+**See**: `InfrastructureQuickRef.md` for complete database documentation
 
 ---
 
@@ -21,6 +43,10 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ---
 
 ## 📋 Quick Navigation
+
+### Planning & Orchestration
+- **plan.prompt.md** ⭐ **NEW** - Interactive planning for complex implementations (requirement refinement, phased execution, test plans, architecture analysis)
+- **shared/agent-handoff-protocol.md** - Agent-to-agent handoff specification (plan → task workflow)
 
 ### Architecture & Infrastructure
 - **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
@@ -79,13 +105,39 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ## 🤖 Active Prompt Agents
 
 ### Primary Agents
+
+- **plan.prompt.md** - Planning Orchestrator ⭐ **NEW**
+  - Interactive planning agent for complex implementations
+  - Refines user requests into phased, testable plans
+  - Includes test specification generation
+  - User approval gate before execution
+  - Hands off to task.prompt.md for implementation
+  - Image analysis support for visual requirements (Step 0.6)
+  - **WHEN TO USE**: Complex multi-phase work (3+ phases), unclear requirements, need comprehensive test plan
+  - **HANDOFF**: Generates comprehensive plan → invokes task.prompt.md automatically
+  - **KEY FEATURES**:
+    - Interactive refinement with user approval
+    - Phase-based breakdown with dependencies
+    - Technology stack analysis
+    - Architecture layer detection
+    - Cross-key pattern analysis
+    - Enhancement recommendations
+    - Test specification generation
+    - JSON tracking for programmatic progress queries
+    - System Context Pack (APIs, database schemas, SignalR hubs, test data)
+  - **OUTPUTS**: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
+  - **SIZE**: 3740 lines (largest prompt - module extraction planned)
+
 - **task.prompt.md** - Canonical task executor
   - File auto-loading, checkpoint commits
   - 9-step workflow with validation gates
+  - **Plan integration**: Loads `{key}.plan.md` and `{key}.plan.json` when available
   - Automatic test generation using Playwright, Percy, and configured libraries (Step 6.1)
   - Functionality registry validation (Step 8.2)
   - **MUST** consult InfrastructureQuickRef.md for database rules
   - **MUST** consult PlaywrightQuickRef.md for test creation
+  - **WHEN TO USE**: Simple tasks, quick fixes, or continuation of planned work
+  - **HANDOFF**: Called by plan.prompt.md for phased execution
   - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
 
 - **question.prompt.md** - Application knowledge agent
@@ -210,11 +262,44 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
+## � Recommended Workflows
+
+### Complex Feature Implementation (Multi-Phase)
+1. **plan.prompt.md** - Refine requirements, generate phased plan with test specifications
+2. **User approval** - Review plan draft, select enhancements, answer open questions
+3. **User says "proceed"** - Plan agent invokes task.prompt.md automatically
+4. **task.prompt.md** - Execute phases sequentially (loads `{key}.plan.md` and `{key}.plan.json`)
+5. **test-generation.prompt.md** - Generate E2E tests (invoked automatically by task agent)
+6. **healthcheck.prompt.md** - Validate implementation (recommended)
+
+### Simple Task Implementation (Single-Phase)
+1. **task.prompt.md** - Direct execution (skip planning for simple tasks)
+2. **test-generation.prompt.md** - Generate tests if needed
+3. **healthcheck.prompt.md** - Validate (optional)
+
+### Code Quality Improvement
+1. **refactor.prompt.md** - Improve structure, reduce complexity
+2. **healthcheck.prompt.md** - Validate no behavior change
+3. **sync.prompt.md** - Clean up obsolete files (optional)
+
+### System Maintenance
+1. **sync.prompt.md** - Documentation alignment, configuration updates, cleanup
+2. **healthcheck.prompt.md** - Validate system integrity
+3. **cohesion-review.prompt.md** - Audit prompt system (monthly)
+
+### Investigation & Analysis
+1. **question.prompt.md** - Deep application analysis, Q&A
+2. **analyze-learning.prompt.md** - Extract patterns from completed keys
+3. **cohesion-review.prompt.md** - Review prompt system health
+
+---
+
 ## 🔄 Agent Coordination Protocols
 
 ### Interaction Patterns
+- **plan** → Creates comprehensive plan, invokes **task** automatically with `{key}.plan.md`, `{key}.plan.json`
+- **task** → Loads plan (if exists), executes work, creates tests automatically, updates key stream progressively
 - **analyze-learning** → Analyzes key data, updates learning infrastructure, generates recommendations
-- **task** → Executes work, creates tests automatically, updates key stream progressively
 - **refactor** → Improves structure, triggers **healthcheck** for validation
 - **sync** → Orchestrates state, maintains documentation alignment, updates **SystemIndex.md**
 - **healthcheck** → Validates integrity, reports to **sync** for fixes
