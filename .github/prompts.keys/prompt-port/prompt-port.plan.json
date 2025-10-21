@@ -1,0 +1,63 @@
+{
+    "key": "prompt-port",
+    "version": "1.0",
+    "status": "in-progress",
+    "createdAt": "2025-10-21T00:00:00Z",
+    "startedAt": "2025-10-21T00:00:00Z",
+    "completedAt": null,
+    "phases": [
+        {
+            "id": 1,
+            "title": "Update port-instructions.prompt.md",
+            "status": "complete",
+            "startedAt": "2025-10-21T00:00:00Z",
+            "completedAt": "2025-10-21T00:05:00Z",
+            "commit": "19d7fccd",
+            "tag": "checkpoint/prompt-port/phase1-20251021-000500"
+        },
+        {
+            "id": 2,
+            "title": "Update total-recall.prompt.md",
+            "status": "complete",
+            "startedAt": "2025-10-21T00:10:00Z",
+            "completedAt": "2025-10-21T00:15:00Z",
+            "commit": "add1e0bd",
+            "tag": "checkpoint/prompt-port/phase2-20251021-001500"
+        },
+        {
+            "id": 3,
+            "title": "Update Documentation",
+            "status": "complete",
+            "startedAt": "2025-10-21T00:20:00Z",
+            "completedAt": "2025-10-21T00:30:00Z",
+            "commit": "c26201d4",
+            "tag": "checkpoint/prompt-port/phase3-20250121-002000"
+        },
+        {
+            "id": 4,
+            "title": "Test in Mock Project",
+            "status": "not-started",
+            "startedAt": null,
+            "completedAt": null,
+            "commit": null,
+            "tag": null
+        },
+        {
+            "id": 5,
+            "title": "Regenerate _Portable FROM SCRATCH",
+            "status": "not-started",
+            "startedAt": null,
+            "completedAt": null,
+            "commit": null,
+            "tag": null
+        }
+    ],
+    "metrics": {
+        "totalPhases": 5,
+        "completedPhases": 3,
+        "testsCreated": 0,
+        "testsPassing": 0,
+        "testsFlaky": 0,
+        "testsFailing": 0
+    }
+}
