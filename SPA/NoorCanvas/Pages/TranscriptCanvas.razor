@@ -62,10 +62,7 @@
 
     /* [DEBUG-WORKITEM:canvas:toastr-styling:trace] Toast styling moved to ~/css/noor-toastr.css for reuse across all views ;CLEANUP_OK */
 
-    .canvas-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
-    @@media (max-width: 1024px) {
-        .canvas-main-grid { grid-template-columns: 1fr; }
-    }
+    /* [DIAGNOSTIC:transcript-canvas:layout-simplify] Removed .canvas-main-grid - using .canvas-area-container as outer container ;CLEANUP_OK */
     
     /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple-tinted background to distinguish from SessionCanvas ;CLEANUP_OK */
     .session-canvas-root {
@@ -177,6 +174,10 @@
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
         border: 2px solid #D4AF37;
         position: relative;
+        /* [DIAGNOSTIC:transcript-canvas:width-alignment] Ensure header total width matches content grid on desktop/iPad ;CLEANUP_OK */
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .canvas-header-content {
@@ -188,7 +189,8 @@
 
     .canvas-header-logo {
         flex-shrink: 0;
-        margin: 0 auto;
+        /* [DIAGNOSTIC:transcript-canvas:logo-margin] Added 20px bottom margin for spacing below logo ;CLEANUP_OK */
+        margin: 0 auto 20px auto;
         display: block;
     }
 
@@ -290,23 +292,8 @@
         flex: 1;
     }
 
-    /* Main Grid Layout */
-    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
-    /* [TRACE-WORKITEM:transcript-canvas:layout-redesign] Default to full-width canvas, sidebar hidden (0 width) ;CLEANUP_OK */
-    /* [SIMPLE:hcp-canvas:transcript-grid] Added max-width and overflow constraints ;CLEANUP_OK */
-    /* [SIMPLE:hcp-canvas:min-width] Added min-width:0 to prevent flex overflow from share button injection ;CLEANUP_OK */
-    .canvas-main-grid {
-        display: grid;
-        grid-template-columns: 1fr 0;
-        gap: 1.5rem;
-        height: auto;
-        align-items: stretch;
-        max-width: 100%;
-        overflow: hidden;
-        min-width: 0;
-    }
-
-    /* Canvas Area Styles */
+    /* Canvas Area Styles - Now the outer container */
+    /* [DIAGNOSTIC:transcript-canvas:layout-simplify] Converted to outer container with golden border matching header ;CLEANUP_OK */
     /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height to allow canvas to expand for tall assets ;CLEANUP_OK */
     /* [SIMPLE:hcp-canvas:canvas-area] Added box-sizing for proper width calculation ;CLEANUP_OK */
     /* [SIMPLE:hcp-canvas:min-width] Added min-width:0 to prevent flex overflow from share button injection ;CLEANUP_OK */
@@ -315,26 +302,28 @@
         border-radius: 1rem;
         padding: 1rem;
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        border: 2px solid #D4AF37;
+        border: 2px solid #D4AF37; /* Golden border matching header */
         display: flex;
         flex-direction: column;
         min-height: 400px;
         /* [DIAGNOSTIC:canvas:height:TRACE] Removed max-height: 700px - was preventing expansion to fit assets ;CLEANUP_OK */
+        width: 100%;
         max-width: 100%;
         box-sizing: border-box;
         min-width: 0;
+        margin-bottom: 0.75rem; /* Match header spacing */
     }
 
 /* [TRACE-WORKITEM:transcript-canvas:visual-distinction] Purple border accent to distinguish from SessionCanvas green ;CLEANUP_OK */
 /* [TRACE-WORKITEM:transcript-canvas:scroll-lock] Participant scroll disabled - host controls position ;CLEANUP_OK */
 /* [SIMPLE:hcp-canvas:content-area] Added max-width and box-sizing ;CLEANUP_OK */
 /* [SIMPLE:hcp-canvas:min-width] Added min-width:0 to prevent flex overflow from share button injection ;CLEANUP_OK */
+/* [DIAGNOSTIC:transcript-canvas:spacing-fix] Removed margin: 10px to eliminate right-side overflow/spacing ;CLEANUP_OK */
 .canvas-content-area {
     flex: 1;
     padding: 1rem;
     border-radius: 1rem;
     transition: all 0.2s;
-    margin: 10px;
     overflow: visible; /* [DIAGNOSTIC:canvas:height:TRACE] Allow natural expansion to fit asset ;CLEANUP_OK */
     display: flex;
     flex-direction: column;
@@ -833,12 +822,7 @@
             padding: 0.75rem;
         }
         
-        .canvas-main-grid {
-            grid-template-columns: 1fr;
-            height: auto;
-            gap: 1rem;
-            min-width: 0;
-        }
+        /* [DIAGNOSTIC:transcript-canvas:layout-simplify] Removed .canvas-main-grid mobile rules ;CLEANUP_OK */
 
         /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Canvas area takes full width on mobile ;CLEANUP_OK */
         .canvas-area-container {
@@ -996,13 +980,8 @@
 
     /* Responsive Layout - Mobile Landscape */
     /* [TRACE-WORKITEM:transcript-canvas:sidebar-removal] Sidebar CSS removed - landscape uses full-width canvas ;CLEANUP_OK */
+    /* [DIAGNOSTIC:transcript-canvas:layout-simplify] Removed .canvas-main-grid landscape rules ;CLEANUP_OK */
     @@media (max-width: 1024px) and (orientation: landscape) {
-        .canvas-main-grid {
-            grid-template-columns: 1fr !important;
-            height: auto;
-            gap: 1rem;
-        }
-
         .canvas-area-container {
             order: 1;
             width: 100%;
@@ -1092,53 +1071,48 @@
             </div>
             
             <!-- Main Canvas Area -->
-            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar removed, grid simplified to single column ;CLEANUP_OK -->
-            <!-- [TRACE-WORKITEM:transcript-canvas:html-structure-fix] Fixed double >> syntax error ;CLEANUP_OK -->
-            <div class="canvas-main-grid">
+            <!-- [DIAGNOSTIC:transcript-canvas:layout-simplify] Removed .canvas-main-grid wrapper, .canvas-area-container is now outer container ;CLEANUP_OK -->
+            <div class="canvas-area-container">
+                
+                <!-- Welcome Message Panel -->
+                <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Welcome panel with inline toggle button ;CLEANUP_OK -->
+                <div class="canvas-welcome-panel">
+                    <div class="canvas-welcome-content">
+                        <span class="canvas-welcome-text">
+                            @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
+                            {
+                                @($"Welcome, {Model.CurrentParticipantName}")
+                            }
+                            else
+                            {
+                                @("Welcome To The Session")
+                            }
+                        </span>
+                        
+                        <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Button converted to open question modal ;CLEANUP_OK -->
+                        <button @onclick="OpenQuestionModal" 
+                                class="canvas-sidebar-toggle"
+                                title="Ask a Question">
+                            <i class="fa-solid fa-comment-dots canvas-sidebar-toggle-icon"></i>
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- Canvas Content Area -->
-                <div class="canvas-area-container">
-                    
-                    <!-- Welcome Message Panel -->
-                    <!-- [TRACE-WORKITEM:transcript-canvas:toggle-repositioning] Welcome panel with inline toggle button ;CLEANUP_OK -->
-                    <div class="canvas-welcome-panel">
-                        <div class="canvas-welcome-content">
-                            <span class="canvas-welcome-text">
-                                @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
-                                {
-                                    @($"Welcome, {Model.CurrentParticipantName}")
-                                }
-                                else
-                                {
-                                    @("Welcome To The Session")
-                                }
-                            </span>
-                            
-                            <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Button converted to open question modal ;CLEANUP_OK -->
-                            <button @onclick="OpenQuestionModal" 
-                                    class="canvas-sidebar-toggle"
-                                    title="Ask a Question">
-                                <i class="fa-solid fa-comment-dots canvas-sidebar-toggle-icon"></i>
-                            </button>
+                <div class="canvas-content-area">
+                    @if (!string.IsNullOrEmpty(Model?.SharedAssetContent))
+                    {
+                        <div class="canvas-asset-content islamic-content" data-theme="narrow">
+                            @((MarkupString)GetSafeHtmlContent(Model.SharedAssetContent))
                         </div>
-                    </div>
-                    
-                    <!-- Canvas Content Area -->
-                    <div class="canvas-content-area">
-                        @if (!string.IsNullOrEmpty(Model?.SharedAssetContent))
-                        {
-                            <div class="canvas-asset-content islamic-content" data-theme="narrow">
-                                @((MarkupString)GetSafeHtmlContent(Model.SharedAssetContent))
-                            </div>
-                        }
-                        else
-                        {
-                            <p class="canvas-empty-message canvas-animate-pulse-subtle">Content from the session will appear here.</p>
-                        }
-                    </div>
-
-                    @* [SIMPLE:hcp-unify:panel-removal] "Ask a Question" panel removed - use debug panel to simulate questions ;CLEANUP_OK *@
+                    }
+                    else
+                    {
+                        <p class="canvas-empty-message canvas-animate-pulse-subtle">Content from the session will appear here.</p>
+                    }
                 </div>
+
+                @* [SIMPLE:hcp-unify:panel-removal] "Ask a Question" panel removed - use debug panel to simulate questions ;CLEANUP_OK *@
             </div>
 
             <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar removed, question modal only ;CLEANUP_OK -->

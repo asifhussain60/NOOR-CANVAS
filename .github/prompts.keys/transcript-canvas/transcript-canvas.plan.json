@@ -1,0 +1,127 @@
+{
+    "key": "transcript-canvas",
+    "branch": "development",
+    "created": "2025-10-21T00:00:00Z",
+    "updated": "2025-10-21T00:00:00Z",
+    "status": "ready-for-implementation",
+    "version": "v1.0",
+    "phases": [
+        {
+            "phaseNumber": 1,
+            "title": "CSS Width Alignment",
+            "status": "not-started",
+            "description": "Ensure .canvas-header and .canvas-main-grid use same max-width constraint for desktop/iPad",
+            "files": [
+                "SPA/NoorCanvas/Pages/TranscriptCanvas.razor"
+            ],
+            "testType": "functional-e2e",
+            "percyRequired": true,
+            "estimatedEffort": "30-45 minutes"
+        },
+        {
+            "phaseNumber": 2,
+            "title": "Logo Margin Addition",
+            "status": "not-started",
+            "description": "Add 20px margin-bottom to .canvas-header-logo div",
+            "files": [
+                "SPA/NoorCanvas/Pages/TranscriptCanvas.razor"
+            ],
+            "testType": "functional-e2e",
+            "percyRequired": true,
+            "estimatedEffort": "15-30 minutes"
+        }
+    ],
+    "enhancements": [
+        {
+            "id": "A",
+            "title": "Percy Visual Regression Tests",
+            "priority": "high",
+            "effort": "low",
+            "selected": true,
+            "description": "Verify alignment across desktop (1280px), iPad (768px), mobile (375px)"
+        },
+        {
+            "id": "B",
+            "title": "Responsive Breakpoint Verification",
+            "priority": "high",
+            "effort": "low",
+            "selected": true,
+            "description": "Ensure changes don't break mobile layout"
+        },
+        {
+            "id": "C",
+            "title": "CSS Audit Comments",
+            "priority": "medium",
+            "effort": "low",
+            "selected": true,
+            "description": "Document width constraints for future maintenance"
+        }
+    ],
+    "files": {
+        "modified": [
+            "SPA/NoorCanvas/Pages/TranscriptCanvas.razor"
+        ],
+        "created": [
+            "Tests/UI/transcript-canvas-width-alignment.spec.ts",
+            "Scripts/run-transcript-canvas-alignment-tests.ps1"
+        ]
+    },
+    "testing": {
+        "framework": "Playwright",
+        "visualRegression": "Percy",
+        "testFile": "Tests/UI/transcript-canvas-width-alignment.spec.ts",
+        "orchestrationScript": "Scripts/run-transcript-canvas-alignment-tests.ps1",
+        "percySnapshots": 4,
+        "mode": "headed"
+    },
+    "architecture": {
+        "framework": "ASP.NET Core 8.0",
+        "platform": "Blazor Server",
+        "layers": [
+            "UI"
+        ],
+        "components": [
+            "TranscriptCanvas.razor"
+        ]
+    },
+    "risks": [
+        {
+            "level": "low",
+            "description": "CSS-only changes, component-scoped, reversible"
+        },
+        {
+            "level": "medium",
+            "description": "Responsive breakpoints may affect mobile layout",
+            "mitigation": "Enhancement B (mobile verification tests)"
+        }
+    ],
+    "successCriteria": [
+        "Desktop (1280px): Header and content grid have identical widths",
+        "iPad Portrait (768px): Alignment maintained",
+        "iPad Landscape (1024px): Alignment maintained",
+        "Logo container has 20px margin-bottom",
+        "All Playwright tests pass",
+        "Percy baselines approved",
+        "Mobile layout unaffected"
+    ],
+    "openQuestions": [
+        {
+            "id": 1,
+            "question": "Should the width alignment apply to mobile views as well?",
+            "status": "pending-user-input",
+            "assumption": "Desktop/iPad focus, mobile verification for breakage only"
+        },
+        {
+            "id": 2,
+            "question": "Are there other sections that need similar width alignment?",
+            "status": "pending-user-input",
+            "assumption": "Focus on header and main grid per request"
+        },
+        {
+            "id": 3,
+            "question": "Should the 20px margin scale down on mobile?",
+            "status": "deferred",
+            "decision": "Will evaluate during Phase 2 testing"
+        }
+    ]
+}

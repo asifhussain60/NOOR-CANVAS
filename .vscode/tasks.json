@@ -417,6 +417,20 @@
 				"clear": false
 			},
 			"problemMatcher": []
+		},
+		{
+			"label": "run-transcript-canvas-visual-tests",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/Scripts/run-transcript-canvas-visual-tests.ps1"
+			],
+			"problemMatcher": [],
+			"group": "test"
 		}
 	]
 }
