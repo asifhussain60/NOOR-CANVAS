@@ -62,10 +62,10 @@ Analyzes the entire `.github` folder structure (instructions, prompts, learning 
 - ✅ Complete deletion and recreation of `.github/_Portable/` folder
 - ✅ Generic templates for all prompts and instructions
 - ✅ Template variables replacing project-specific values
-- ✅ Working `setup.bat` and `setup.ps1` scripts
+- ✅ **NO setup scripts** - total-recall handles configuration
 - ✅ Comprehensive documentation (README, START-HERE, QUICK-REFERENCE)
 - ✅ Preserved learning infrastructure structure
-- ✅ Ready-to-copy portable system
+- ✅ **Drop-in ready portable system** (copy and run total-recall)
 
 **Selective Update Mode (prompt parameter provided):**
 - ✅ Updated template for specified prompt only
@@ -84,8 +84,8 @@ Analyzes the entire `.github` folder structure (instructions, prompts, learning 
 2. **NO PROJECT SPECIFICS**: All templates must be 100% generic
 3. **TEMPLATE VARIABLES**: Use `{{VARIABLE_NAME}}` for all project-specific values
 4. **PRESERVE STRUCTURE**: Maintain identical folder hierarchy as source
-5. **WORKING SETUP**: Setup scripts must detect project type and populate templates
-6. **COMPLETE SYSTEM**: User must be able to copy folder and run setup immediately
+5. **DROP-IN READY**: User copies folder and runs total-recall (NO setup scripts)
+6. **COMPLETE SYSTEM**: Portable system must work immediately with total-recall configuration
 
 ### Template Variable Standards
 
@@ -304,7 +304,6 @@ Skipped (Preserved):
 ===================
 - All other prompt templates
 - Instructions templates
-- Setup scripts (setup.bat, setup.ps1)
 - Documentation (README, START-HERE, etc.)
 
 Next Steps:
@@ -533,121 +532,23 @@ Files to copy WITHOUT templating (these are universal):
 
 ---
 
-### Step 4: Setup Script Creation (Full Regeneration Only)
+### Step 4: Documentation Creation (Full Regeneration Only)
 
 **ONLY executed in Full Regeneration Mode.**
 
-**Create:** `.github/_Portable/setup.bat` (Windows)
-
-**Script Requirements:**
-
-1. **Project Type Detection:**
-   - Scan for `.csproj`, `.sln` → .NET
-   - Scan for `package.json` + `node_modules` → Node.js/JavaScript
-   - Scan for `requirements.txt`, `setup.py` → Python
-   - Scan for `pom.xml`, `build.gradle` → Java
-   - Scan for `Gemfile` → Ruby
-   - Scan for `go.mod` → Go
-   - Scan for `composer.json` → PHP
-
-2. **Template Variable Population:**
-   - Prompt user for project name
-   - Auto-detect or prompt for database details
-   - Auto-detect build/test commands
-   - Generate project-specific values
-
-3. **File Generation:**
-   - Copy all `.template` files
-   - Replace `{{VARIABLES}}` with actual values
-   - Remove `.template` extension
-   - Place in correct `.github/` locations
-
-4. **Folder Structure Creation:**
-   ```
-   .github/
-   ├── instructions/
-   │   └── Links/
-   ├── prompts/
-   │   └── shared/
-   ├── learning/
-   │   ├── patterns/
-   │   ├── insights/
-   │   └── recommendations/
-   └── reports/
-   
-   Workspaces/
-   ├── Copilot/
-   │   ├── prompts.keys/
-   │   ├── work-logs/
-   │   └── learning/
-   └── TEMP/
-   ```
-
-5. **Tool Installation:**
-   - Install Playwright (if UI testing detected)
-   - Install analyzers (Roslynator for .NET, ESLint for JS, etc.)
-   - Configure quality tools
-
-6. **Summary Generation:**
-   - Create `PROJECT-SETUP-SUMMARY.md` in project root
-   - List all installed components
-   - Show next steps
-
-**Create:** `.github/_Portable/setup.ps1` (PowerShell/Linux/Mac)
-- Cross-platform version of setup.bat
-- Same functionality, PowerShell syntax
-
-**Script Template Structure:**
-```powershell
-# setup.ps1
-param(
-    [string]$ProjectName = "",
-    [switch]$AutoDetect = $true
-)
-
-# 1. Welcome & Overview
-Write-Host "🚀 Portable AI Agent System Setup" -ForegroundColor Cyan
-Write-Host "=================================" -ForegroundColor Cyan
-
-# 2. Project Type Detection
-function Detect-ProjectType { ... }
-
-# 3. Interactive Configuration
-function Get-ProjectConfig { ... }
-
-# 4. Template Processing
-function Process-Templates { ... }
-
-# 5. Folder Structure Creation
-function Create-WorkspaceFolders { ... }
-
-# 6. Tool Installation
-function Install-DevelopmentTools { ... }
-
-# 7. Summary Generation
-function Generate-SetupSummary { ... }
-
-# 8. Main Execution
-$config = Get-ProjectConfig
-Process-Templates -Config $config
-Create-WorkspaceFolders
-Install-DevelopmentTools -ProjectType $config.ProjectType
-Generate-SetupSummary -Config $config
-
-Write-Host "✅ Setup Complete!" -ForegroundColor Green
-```
-
----
-
-### Step 5: Documentation Creation (Full Regeneration Only)
-
-**ONLY executed in Full Regeneration Mode.**
+**NO SETUP SCRIPTS**: This portable system uses total-recall for intelligent configuration instead of setup.bat/setup.ps1
 
 **Create:** `.github/_Portable/README.md`
 
 **Content:**
 - System overview
+- Drop-in setup workflow (3 steps)
+- total-recall configuration explanation
 - Features list
+- Template variable reference
+- Troubleshooting guide
+
+**Key Sections:**
 - Technology compatibility matrix
 - Installation instructions (automated & manual)
 - Quick start guide
@@ -831,7 +732,6 @@ For EACH template file:
 ## Files Preserved (Not Modified)
 - All other prompt templates
 - All instruction templates
-- Setup scripts (setup.bat, setup.ps1)
 - Documentation (README, START-HERE, QUICK-REFERENCE, STATUS, COMPLETE)
 - Other shared files not referenced by this prompt
 - Other learning files not referenced by this prompt
@@ -844,9 +744,9 @@ For EACH template file:
 ## Usage Instructions
 
 **To apply this update to a new project:**
-1. Copy .github/_Portable/ to new project (entire folder)
-2. Run setup.bat or setup.ps1
-3. The updated {promptFile} template will be deployed
+1. Copy `.github/_Portable/` to new project (entire folder)
+2. Run: `@workspace /total-recall`
+3. The updated {promptFile} template will be configured
 
 **To update other prompts:**
 ```
@@ -861,7 +761,7 @@ For EACH template file:
 
 ## Next Steps
 - Review changes in .github/_Portable/prompts/{promptFile}.template
-- Test template with setup.bat in a test project
+- Test with total-recall in a test project
 - Commit changes to repository
 - Run full regeneration periodically to sync all files
 ```
@@ -888,11 +788,11 @@ For EACH template file:
 
 - ✅ `.github/_Portable/` folder completely regenerated
 - ✅ All source files have template equivalents
-- ✅ Setup scripts are functional and tested
-- ✅ Documentation is comprehensive
+- ✅ **NO setup scripts** (total-recall handles configuration)
+- ✅ Documentation explains drop-in workflow
 - ✅ Zero project-specific values in templates
 - ✅ Ready for immediate use in new projects
-- ✅ User can copy folder and run setup without modifications
+- ✅ User can copy folder and run total-recall without modifications
 
 ---
 
@@ -901,11 +801,17 @@ For EACH template file:
 **Maintenance:**
 - Run `/port-instructions` after major improvements to AI system
 - Keep templates in sync with source prompts
-- Update setup scripts when adding new project type support
+- Update total-recall when adding new project type support
 - Version documentation in STATUS.md
 
 **Quality:**
 - Templates should be MORE generic than necessary
-- Better to prompt user than assume values
+- Better to let total-recall detect than assume values
 - Include comments explaining complex sections
 - Preserve all workflows and logic exactly
+
+**Drop-In Workflow:**
+- Copy `.github/_Portable/` → new project `.github/`
+- Run `@workspace /total-recall` to scan and configure
+- No manual script execution required
+- total-recall intelligently populates all templates
