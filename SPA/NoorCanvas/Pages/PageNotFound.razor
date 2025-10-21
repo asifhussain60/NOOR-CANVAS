@@ -1,0 +1,222 @@
+@page "/not-found"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Navigation
+@inject ILogger<PageNotFound> Logger
+
+<PageTitle>Page Not Found - NOOR Canvas</PageTitle>
+
+<HeadContent>
+    @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
+</HeadContent>
+
+<style>
+    /* Root Container - Matching SessionEnded and UserLanding theme */
+    .page-not-found-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .page-not-found-container {
+        width: 100%;
+        max-width: 35rem;
+        background-color: #FFFFFF;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border-radius: 1.5rem;
+        padding: 2rem 3rem;
+        text-align: center;
+        /* Fade-in animation */
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Logo - Matching UserLanding style */
+    .page-not-found-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Logo sizing to 200x200px for desktop */
+    .page-not-found-logo img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+    }
+
+    /* Phone logo sizing maintained at 175x175px */
+    @@media (max-width: 767px) {
+        .page-not-found-logo img {
+            width: 175px;
+            height: 175px;
+        }
+    }
+
+    /* Content Section */
+    .page-not-found-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Icon Container */
+    .page-not-found-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-not-found-icon i {
+        font-size: 4rem;
+        color: #D4AF37;
+    }
+
+    /* Title - Green color matching UserLanding (#006400) */
+    .page-not-found-title {
+        font-size: 2.5rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #006400;
+        margin: 0;
+    }
+
+    /* Message */
+    .page-not-found-message {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.125rem;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* Return Button */
+    .page-not-found-button-wrapper {
+        margin-top: 2rem;
+    }
+
+    .page-not-found-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        color: white;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        transition: transform 0.2s, box-shadow 0.2s;
+        transform: scale(1);
+        box-shadow: 0 10px 15px -3px rgba(0,100,0,0.4), 0 4px 6px -2px rgba(0,100,0,0.2);
+        background-color: #006400;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .page-not-found-button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 18px -3px rgba(0,100,0,0.5), 0 5px 8px -2px rgba(0,100,0,0.3);
+    }
+
+    .page-not-found-button-icon {
+        margin-right: 0.5rem;
+    }
+
+    /* Timestamp */
+    .page-not-found-timestamp {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #9CA3AF;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* Fade-in Animation */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Mobile Responsive */
+    @@media (max-width: 767px) {
+        .page-not-found-container {
+            padding: 1.5rem 2rem;
+        }
+
+        .page-not-found-title {
+            font-size: 2rem;
+        }
+
+        .page-not-found-message {
+            font-size: 1rem;
+        }
+
+        .page-not-found-icon i {
+            font-size: 3rem;
+        }
+    }
+</style>
+
+<div class="page-not-found-root">
+    <div class="page-not-found-container">
+        <!-- Logo -->
+        <div class="page-not-found-logo">
+            <img src="/images/NoorCanvas.png?v=20250924" alt="NOOR Canvas" />
+        </div>
+
+        <div class="page-not-found-content">
+            <!-- Icon -->
+            <div class="page-not-found-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            
+            <h1 class="page-not-found-title">Page Not Found</h1>
+
+            <!-- Main Message -->
+            <p class="page-not-found-message">
+                The page you're looking for doesn't exist or may have been moved. 
+                Please check the URL or return to the login page to access NOOR Canvas.
+            </p>
+
+            <!-- Return Button -->
+            <div class="page-not-found-button-wrapper">
+                <a href="/user/landing" class="page-not-found-button">
+                    <i class="fa-solid fa-arrow-left page-not-found-button-icon"></i>
+                    <span>Return to Login</span>
+                </a>
+            </div>
+
+            <!-- Timestamp -->
+            <div class="page-not-found-timestamp">
+                <i class="fa-solid fa-clock"></i>
+                <span>@DateTime.Now.ToString("MMMM d, yyyy h:mm tt")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Log 404 event for analytics
+        var requestedUrl = Navigation.Uri;
+        Logger.LogWarning("NOOR-404: Page not found - URL: {RequestedUrl}, Timestamp: {Timestamp}", 
+            requestedUrl, DateTime.Now);
+    }
+}

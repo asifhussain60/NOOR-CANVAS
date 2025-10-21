@@ -1,12 +1,13 @@
 ﻿@using NoorCanvas.Components.Loading
+@using NoorCanvas.Pages
 
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>
     <NotFound>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p>Sorry, there's nothing at this address.</p>
+        <LayoutView Layout="@typeof(EmptyLayout)">
+            <PageNotFound />
         </LayoutView>
     </NotFound>
 </Router>
