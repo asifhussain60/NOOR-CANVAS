@@ -1132,6 +1132,7 @@
                                    @onkeydown="HandleQuestionKeyDown"
                                    class="canvas-form-textarea" 
                                    placeholder="Ask a question..." 
+                                   autocomplete="off"
                                    disabled="@(Model?.SessionStatus != "Active")"></textarea>
                             <button @onclick="SubmitQuestion" 
                                     type="button"
