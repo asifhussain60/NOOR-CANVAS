@@ -384,13 +384,56 @@ Issues Found: {count}
 **Purpose:** Execute approved cleanup actions with validation
 
 **Execution Order:**
-1. Reference Updates (fix broken links FIRST)
-2. File Moves (relocate misplaced files)
-3. Renames (improve naming)
-4. Deletions (remove duplicates, obsolete files)
-5. Folder Restructuring (flatten, consolidate)
+1. TEMP Folder Cleanup (ALWAYS execute if Workspaces/TEMP exists and has content)
+2. Reference Updates (fix broken links)
+3. File Moves (relocate misplaced files)
+4. Renames (improve naming)
+5. Deletions (remove duplicates, obsolete files)
+6. Folder Restructuring (flatten, consolidate)
 
-**For Each Action:**
+**Special Action: Workspaces/TEMP Folder Cleanup (AUTOMATIC)**
+
+If `Workspaces/TEMP/` folder exists and contains files, ALWAYS execute this cleanup:
+
+```powershell
+# Step 3.1: TEMP Folder Cleanup (AUTOMATIC)
+Write-Host "`n🔄 [Step 3.1] Workspaces/TEMP Cleanup..." -ForegroundColor Cyan
+
+if (Test-Path "Workspaces/TEMP") {
+    $tempFiles = Get-ChildItem -Path "Workspaces/TEMP" -Recurse -File
+    
+    if ($tempFiles.Count -gt 0) {
+        # Archive TEMP contents first
+        $timestamp = Get-Date -Format "yyyy-MM-dd"
+        $archivePath = "Workspaces/Archive/$timestamp-temp-cleanup"
+        
+        New-Item -ItemType Directory -Path $archivePath -Force | Out-Null
+        Copy-Item -Path "Workspaces/TEMP/*" -Destination $archivePath -Recurse -Force
+        
+        # Calculate size before cleanup
+        $sizeMB = [math]::Round(($tempFiles | Measure-Object -Property Length -Sum).Sum / 1MB, 2)
+        
+        # Empty TEMP folder (delete all contents)
+        Remove-Item -Path "Workspaces/TEMP/*" -Recurse -Force
+        
+        Write-Host "✅ TEMP folder cleaned: $($tempFiles.Count) files archived and deleted ($sizeMB MB freed)" -ForegroundColor Green
+        Write-Host "   Archived to: $archivePath" -ForegroundColor Gray
+    } else {
+        Write-Host "✅ TEMP folder already empty" -ForegroundColor Green
+    }
+} else {
+    Write-Host "⚠️  Workspaces/TEMP folder does not exist" -ForegroundColor Yellow
+}
+```
+
+**Why TEMP Cleanup is Automatic:**
+- TEMP folders are by definition temporary/transient
+- Contents are safe to archive and delete
+- Reduces workspace clutter automatically
+- Always backed up to Archive before deletion
+- No risk to project functionality
+
+**For Each Action (after TEMP cleanup):**
 
 1. **Log Action**:
    ```
@@ -402,6 +445,7 @@ Issues Found: {count}
    - For **MOVES**: Update references, then move file
    - For **RENAMES**: Update references, then rename
    - For **UPDATES**: Create backup, then update
+   - For **TEMP CLEANUP**: Always archive first, then delete all contents
 
 3. **Validate Operation**:
    - Verify file operation succeeded
@@ -421,8 +465,9 @@ Issues Found: {count}
 
 **Output (Real-Time):**
 ```
-🔄 Executing Cleanup (15 actions)
+🔄 Executing Cleanup (16 actions)
 
+✅ [AUTOMATIC] Workspaces/TEMP cleaned (27 files archived, 0.15 MB freed)
 ✅ [1/15] DELETE Scripts/deploy-backup.ps1 (1.2 KB freed)
 ✅ [2/15] DELETE TEMP/deploy-old.ps1 (1.2 KB freed)
 ✅ [3/15] UPDATE README.md line 45 (reference fixed)
