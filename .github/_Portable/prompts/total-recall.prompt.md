@@ -15,10 +15,16 @@ You are the **Total Recall Agent** - an advanced reconnaissance and knowledge ac
 Performs exhaustive analysis of an entire project to extract all architectural, technical, and domain knowledge required to make the portable AI agent system fully operational and context-aware. This is the "intelligence gathering" phase that transforms generic templates into project-aware assistants.
 
 ### When to Use
-- **Immediately after** running `.github/_Portable/setup.bat` in a new project
+- **Immediately after** copying `.github/_Portable/` to a new project
 - Before using any other AI agents for the first time
 - After major architectural changes (re-run to update knowledge)
 - When onboarding to an existing project
+
+**New Workflow (Drop-In System)**:
+1. Copy `.github/_Portable/` → new project `.github/`
+2. Run `@workspace /total-recall`
+3. total-recall scans project, populates templates, removes `.template` extensions
+4. AI agents ready to use
 
 ### How to Invoke
 ```
@@ -26,6 +32,8 @@ Performs exhaustive analysis of an entire project to extract all architectural, 
 ```
 
 ### Expected Outcomes
+- ✅ All `.template` files detected and processed
+- ✅ Template variables extracted and populated
 - ✅ Complete infrastructure documentation (`InfrastructureQuickRef.md`)
 - ✅ Full architecture catalog (`Architecture.md`)
 - ✅ System index with navigation (`SystemIndex.md`)
@@ -34,7 +42,7 @@ Performs exhaustive analysis of an entire project to extract all architectural, 
 - ✅ Database schema maps and access rules
 - ✅ Technology stack inventory
 - ✅ Testing framework configuration
-- ✅ All template variables populated in instructions
+- ✅ `.template` extensions removed from all files
 - ✅ Ready-to-use AI agents with full project context
 
 ---
@@ -42,12 +50,13 @@ Performs exhaustive analysis of an entire project to extract all architectural, 
 ## Core Mandates
 
 ### Critical Rules
-1. **NON-DESTRUCTIVE**: Never modify source code, only documentation
+1. **NON-DESTRUCTIVE**: Never modify source code, only documentation and templates
 2. **EXHAUSTIVE**: Leave no stone unturned - analyze everything
 3. **ACCURATE**: Verify findings against actual code/config
 4. **STRUCTURED**: Follow template schemas exactly
 5. **TRACEABLE**: Document sources for every finding
 6. **COMPLETE**: Don't skip sections - populate all templates fully
+7. **TEMPLATE PROCESSING**: Find all `.template` files, populate variables, remove extensions
 
 ### Analysis Depth
 - **Level 1**: File system structure and project type
@@ -65,36 +74,258 @@ Performs exhaustive analysis of an entire project to extract all architectural, 
 
 ## Execution Steps
 
-### Step 0: Pre-Analysis Validation
+### Step 0: Template Detection and Pre-Analysis
 
-**Verify Prerequisites:**
+**NEW WORKFLOW**: total-recall now handles template population (no setup.bat required)
+
+#### 0.1: Detect Template Files
+
+**Scan for all `.template` files in `.github/` folder:**
+
 ```powershell
-# Check that setup was run
-Test-Path ".github/instructions" -and
-Test-Path ".github/prompts" -and
-Test-Path ".github/learning" -and
-Test-Path "Workspaces/Copilot"
+$templateFiles = Get-ChildItem -Path ".github" -Filter "*.template" -Recurse -File
+Write-Host "Found $($templateFiles.Count) template files to process"
 ```
 
-**If missing:**
-- ❌ HALT: Setup has not been run
-- 📌 Instruct user to run `.github/_Portable/setup.bat` first
-- 📌 Explain: "Total Recall requires the workspace structure created by setup"
+**Expected locations:**
+- `.github/prompts/*.prompt.md.template` (all prompt files)
+- `.github/instructions/*.instructions.md.template` (instruction files)
+- `.github/instructions/Links/*.md.template` (reference documentation)
 
-**Verify Template Files Exist:**
-- `.github/instructions/Architecture.md` (setup.bat should have removed .template extension)
-- `.github/instructions/Links/InfrastructureQuickRef.md` (setup.bat should have removed .template extension)
-- `.github/instructions/Links/SystemIndex.md` (setup.bat should have removed .template extension)
-- All other instruction files (WITHOUT .template extension)
+**If NO .template files found:**
+- ✅ CONTINUE: Templates already processed (re-run scenario)
+- 📌 Skip template processing steps
+- 📌 Proceed to project analysis (Step 1)
 
-**If files still have .template extension:**
-- ❌ HALT: Setup script did not complete properly
-- 📌 The setup.bat script should copy all `.template` files and remove the extension
-- 📌 Instruct user to verify setup.bat ran successfully
+**If .template files found:**
+- ✅ CONTINUE: First-time setup detected
+- 📌 Proceed to template processing (Step 0.2)
 
-**If missing or still have {{VARIABLES}}:**
-- ⚠️ WARN: Some templates not populated by setup
-- 📌 Continue with analysis but note gaps
+#### 0.2: Extract Template Variables
+
+**For each template file, extract all `{{VARIABLES}}`:**
+
+```powershell
+$allVariables = @{}
+foreach ($templateFile in $templateFiles) {
+    $content = Get-Content $templateFile.FullName -Raw
+    $matches = [regex]::Matches($content, '\{\{([A-Z_]+)\}\}')
+    foreach ($match in $matches) {
+        $varName = $match.Groups[1].Value
+        if (-not $allVariables.ContainsKey($varName)) {
+            $allVariables[$varName] = $null  # Will be populated in Step 0.3
+        }
+    }
+}
+
+Write-Host "Extracted $($allVariables.Count) unique template variables"
+```
+
+**Output to user:**
+```
+🔍 Template Analysis Complete
+
+Found 45 template files:
+  - Prompts: 12 files
+  - Instructions: 1 file
+  - Reference Docs: 32 files
+
+Extracted 35 unique variables:
+  - Project Identity: PROJECT_NAME, PROJECT_TYPE, LANGUAGES, FRAMEWORKS
+  - Build Commands: BUILD_COMMAND, TEST_COMMAND, RUN_COMMAND, LINT_COMMAND
+  - Database: DATABASE_TYPE, DATABASE_NAME, DATABASE_SERVER, SCHEMA_PRIMARY
+  - Infrastructure: APP_PORT, APP_BASE_URL, UI_FRAMEWORK, REALTIME_TECH
+  - (... and 21 more)
+
+Next: Auto-detecting values from project structure...
+```
+
+#### 0.3: Intelligent Value Population
+
+**Auto-detect values from project structure:**
+
+**Project Type Detection** (see Step 1.1 for full logic):
+- Scan for `.csproj`, `.sln` → `{{PROJECT_TYPE}}` = ".NET"
+- Scan for `package.json` → `{{PROJECT_TYPE}}` = "Node.js"
+- Scan for `requirements.txt` → `{{PROJECT_TYPE}}` = "Python"
+- Scan for `pom.xml`, `build.gradle` → `{{PROJECT_TYPE}}` = "Java"
+
+**Project Name Detection**:
+- Extract from `.sln` file name (e.g., `MyProject.sln` → "MyProject")
+- Extract from root folder name
+- Prompt user if ambiguous
+
+**Build Command Detection** (based on project type):
+- .NET: `dotnet build`
+- Node.js: `npm run build` or detect from `package.json` scripts
+- Python: `python setup.py build` or detect from `setup.py`
+- Java: `mvn package` or `gradle build`
+
+**Database Detection**:
+- Scan `appsettings.json`, `.env`, `application.properties` for connection strings
+- Extract database name, server, type
+- If not found, prompt user or use defaults
+
+**Port Detection**:
+- Scan `launchSettings.json`, `package.json`, `.env` for port numbers
+- Extract `{{APP_PORT}}`, `{{APP_BASE_URL}}`
+- Default to common ports (5000 for .NET, 3000 for Node.js, etc.)
+
+**Populate Variables Table**:
+```powershell
+$allVariables = @{
+    "PROJECT_NAME" = $detectedProjectName
+    "PROJECT_TYPE" = $detectedProjectType
+    "LANGUAGES" = $detectedLanguages -join ", "
+    "FRAMEWORKS" = $detectedFrameworks -join ", "
+    "BUILD_COMMAND" = $detectedBuildCommand
+    "TEST_COMMAND" = $detectedTestCommand
+    "RUN_COMMAND" = $detectedRunCommand
+    # ... (populate all 35 variables)
+}
+```
+
+**Output to user:**
+```
+✅ Auto-Detection Complete
+
+Detected Values:
+  PROJECT_NAME: MyAwesomeProject
+  PROJECT_TYPE: .NET
+  LANGUAGES: C#, JavaScript, TypeScript
+  FRAMEWORKS: ASP.NET Core 8.0, Blazor Server, SignalR
+  BUILD_COMMAND: dotnet build
+  TEST_COMMAND: dotnet test
+  RUN_COMMAND: dotnet run
+  DATABASE_TYPE: SQL Server + Entity Framework
+  DATABASE_NAME: MyProjectDB
+  DATABASE_SERVER: localhost
+  APP_PORT: 5000
+  APP_BASE_URL: https://localhost:5001
+  (... and 23 more)
+
+Variables Requiring User Input (not auto-detectable):
+  - None (all values detected successfully!)
+
+OR
+
+  - SCHEMA_PRIMARY: Enter writable schema name (default: 'dbo'): _____
+  - AUTH_TYPE: Select (JWT/OAuth/Cookie): _____
+```
+
+#### 0.4: Process Templates (Replace Variables)
+
+**For each template file:**
+
+1. **Read template content**
+2. **Replace all `{{VARIABLES}}` with actual values**
+3. **Write to new file WITHOUT .template extension**
+4. **Delete original .template file** (cleanup)
+
+```powershell
+foreach ($templateFile in $templateFiles) {
+    $content = Get-Content $templateFile.FullName -Raw
+    
+    # Replace all variables
+    foreach ($varName in $allVariables.Keys) {
+        $pattern = "\{\{$varName\}\}"
+        $value = $allVariables[$varName]
+        $content = $content -replace $pattern, $value
+    }
+    
+    # Determine output path (remove .template extension)
+    $outputPath = $templateFile.FullName -replace '\.template$', ''
+    
+    # Write processed file
+    Set-Content -Path $outputPath -Value $content -Encoding UTF8
+    
+    # Delete template
+    Remove-Item $templateFile.FullName -Force
+    
+    Write-Host "✅ Processed: $($templateFile.Name) → $([System.IO.Path]::GetFileName($outputPath))"
+}
+```
+
+**Output to user:**
+```
+� Template Processing Complete
+
+Processed 45 files:
+  ✅ feature.prompt.md.template → feature.prompt.md
+  ✅ task.prompt.md.template → task.prompt.md
+  ✅ refactor.prompt.md.template → refactor.prompt.md
+  ✅ Architecture.md.template → Architecture.md
+  ✅ InfrastructureQuickRef.md.template → InfrastructureQuickRef.md
+  (... and 40 more)
+
+All template files removed.
+All {{VARIABLES}} replaced with project-specific values.
+
+Next: Analyzing project structure for documentation generation...
+```
+
+#### 0.5: Validation
+
+**Verify template processing was successful:**
+
+```powershell
+# Check for any remaining .template files
+$remainingTemplates = Get-ChildItem -Path ".github" -Filter "*.template" -Recurse -File
+if ($remainingTemplates.Count -gt 0) {
+    Write-Error "❌ Template processing incomplete: $($remainingTemplates.Count) .template files remain"
+    EXIT
+}
+
+# Check for any remaining {{VARIABLES}}
+$processedFiles = Get-ChildItem -Path ".github" -Recurse -File -Include "*.md", "*.prompt.md"
+$filesWithVariables = @()
+foreach ($file in $processedFiles) {
+    $content = Get-Content $file.FullName -Raw
+    if ($content -match '\{\{[A-Z_]+\}\}') {
+        $filesWithVariables += $file.FullName
+    }
+}
+
+if ($filesWithVariables.Count -gt 0) {
+    Write-Warning "⚠️ Found unpopulated variables in $($filesWithVariables.Count) files:"
+    foreach ($file in $filesWithVariables) {
+        Write-Host "  - $file"
+    }
+    Write-Host "Continuing with analysis, but manual review recommended."
+}
+else {
+    Write-Host "✅ Validation Complete: All templates processed, no remaining variables"
+}
+```
+
+**Output:**
+```
+✅ Validation Complete
+
+- 0 .template files remaining
+- 0 files with unpopulated {{VARIABLES}}
+- 45 files ready for use
+
+Template setup complete! Proceeding to project analysis...
+```
+
+---
+
+### Step 0 (Legacy): Pre-Analysis Validation (DEPRECATED)
+
+**NOTE:** This step is DEPRECATED in the new drop-in workflow. Step 0 (above) replaces this logic.
+
+**Old Workflow (setup.bat)**:
+- Verify Prerequisites (setup.bat ran)
+- Check for template files (should be removed by setup.bat)
+- Verify variables populated (should be done by setup.bat)
+
+**New Workflow (total-recall)**:
+- Step 0.1: Detect template files
+- Step 0.2: Extract variables
+- Step 0.3: Auto-detect values
+- Step 0.4: Process templates
+- Step 0.5: Validate
 
 ---
 
