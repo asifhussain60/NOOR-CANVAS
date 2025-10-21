@@ -169,83 +169,91 @@ Phase 2"
 
 ### Total Recall Agent (Meta)
 ```bash
-# Analyze project and populate templates
+# Scan project and populate templates
 @workspace /total-recall
 ```
 
-**No parameters** - Performs deep project analysis and populates all templates  
-**Use when:** After running setup.bat in a new project to customize the AI system
+**No parameters** - Performs intelligent project analysis and populates all 35+ templates automatically  
+**Use when:** Immediately after copying _Portable folder to a new project (first-time setup)  
+**What it does:**
+- Detects project type (.NET, Node.js, Python, Java)
+- Extracts configuration from standard files (.sln, package.json, appsettings.json, etc.)
+- Populates all {{VARIABLE}} placeholders
+- Removes .template extensions
+- Validates completeness
 
 ---
 
 ## Template Variables Reference
 
+**Auto-Population:** total-recall automatically detects and populates these variables from your project.
+
 ### Project Identity
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{PROJECT_NAME}}` | Project name | "MyProject" |
-| `{{PROJECT_TYPE}}` | Project type | ".NET", "Node.js" |
-| `{{LANGUAGES}}` | Languages | "C#, JavaScript" |
-| `{{FRAMEWORKS}}` | Frameworks | "ASP.NET Core, React" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{PROJECT_NAME}}` | Project name | "MyProject" | .sln, package.json, pom.xml |
+| `{{PROJECT_TYPE}}` | Project type | ".NET", "Node.js" | File extensions, dependencies |
+| `{{LANGUAGES}}` | Languages | "C#, JavaScript" | File extensions scan |
+| `{{FRAMEWORKS}}` | Frameworks | "ASP.NET Core, React" | .csproj, package.json dependencies |
 
 ### Build & Test
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{BUILD_COMMAND}}` | Build command | "dotnet build" |
-| `{{TEST_COMMAND}}` | Test command | "npm test" |
-| `{{RUN_COMMAND}}` | Run command | "dotnet run" |
-| `{{LINT_COMMAND}}` | Lint command | "npm run lint" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{BUILD_COMMAND}}` | Build command | "dotnet build" | Project type detection |
+| `{{TEST_COMMAND}}` | Test command | "npm test" | package.json scripts, test frameworks |
+| `{{RUN_COMMAND}}` | Run command | "dotnet run" | Project type, launch settings |
+| `{{LINT_COMMAND}}` | Lint command | "npm run lint" | package.json scripts, .eslintrc |
 
 ### Database
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{DATABASE_NAME}}` | Database name | "MyApp_DB" |
-| `{{DATABASE_SERVER}}` | Server | "localhost" |
-| `{{DATABASE_TYPE}}` | Type | "SQL Server" |
-| `{{SCHEMA_PRIMARY}}` | Writable schema | "dbo" |
-| `{{SCHEMA_READONLY}}` | Read-only schemas | "ref, legacy" |
-| `{{CONNECTION_STRING_KEY}}` | Config key | "DefaultConnection" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{DATABASE_NAME}}` | Database name | "MyApp_DB" | Connection strings, appsettings.json |
+| `{{DATABASE_SERVER}}` | Server | "localhost" | Connection strings, .env |
+| `{{DATABASE_TYPE}}` | Type | "SQL Server" | Connection string format, packages |
+| `{{SCHEMA_PRIMARY}}` | Writable schema | "dbo" | Default conventions, migrations |
+| `{{SCHEMA_READONLY}}` | Read-only schemas | "ref, legacy" | Manual (rarely auto-detectable) |
+| `{{CONNECTION_STRING_KEY}}` | Config key | "DefaultConnection" | appsettings.json, .env |
 
 ### Infrastructure
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{API_BASE_URL}}` | API base URL | "https://localhost:5001/api" |
-| `{{APP_PORT}}` | App port | "5000" |
-| `{{REALTIME_TECH}}` | Real-time tech | "SignalR" |
-| `{{UI_FRAMEWORK}}` | UI framework | "React" |
-| `{{AUTH_TYPE}}` | Auth type | "JWT" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{API_BASE_URL}}` | API base URL | "https://localhost:5001/api" | launchSettings.json, .env |
+| `{{APP_PORT}}` | App port | "5000" | launchSettings.json, package.json |
+| `{{REALTIME_TECH}}` | Real-time tech | "SignalR" | Dependencies, hub files |
+| `{{UI_FRAMEWORK}}` | UI framework | "React" | package.json, .csproj |
+| `{{AUTH_TYPE}}` | Auth type | "JWT" | Middleware, packages |
 
 ### Paths
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{SOURCE_PATH}}` | Source path | "src/" |
-| `{{TEST_PATH}}` | Test path | "tests/" |
-| `{{CONFIG_PATH}}` | Config path | "config/" |
-| `{{WORKSPACE_PATH}}` | Workspace | "Workspaces/" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{SOURCE_PATH}}` | Source path | "src/" | Directory structure scan |
+| `{{TEST_PATH}}` | Test path | "tests/" | Test framework detection |
+| `{{CONFIG_PATH}}` | Config path | "config/" | Configuration file locations |
+| `{{WORKSPACE_PATH}}` | Workspace | "Workspaces/" | Convention or creation |
 
 ### Tools & Quality
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{ANALYZER_TOOLS}}` | Analyzers | "Roslynator, StyleCop" |
-| `{{TEST_FRAMEWORK}}` | Testing | "xUnit, Playwright" |
-| `{{PACKAGE_MANAGER}}` | Packages | "NuGet", "npm" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{ANALYZER_TOOLS}}` | Analyzers | "Roslynator, StyleCop" | .editorconfig, package references |
+| `{{TEST_FRAMEWORK}}` | Testing | "xUnit, Playwright" | Package dependencies |
+| `{{PACKAGE_MANAGER}}` | Packages | "NuGet", "npm" | Project type detection |
 
 ### Branch Strategy
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{PRODUCTION_BRANCH}}` | Prod branch | "master" |
-| `{{DEVELOPMENT_BRANCH}}` | Dev branch | "development" |
-| `{{DEPLOYMENT_SCRIPT}}` | Deploy script | "Scripts/deploy.ps1" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{PRODUCTION_BRANCH}}` | Prod branch | "master" | Git config, convention |
+| `{{DEVELOPMENT_BRANCH}}` | Dev branch | "development" | Git branch list |
+| `{{DEPLOYMENT_SCRIPT}}` | Deploy script | "Scripts/deploy.ps1" | Script directory scan |
 
 ### Additional
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{API_COUNT}}` | API count | "52" |
-| `{{SERVICE_COUNT}}` | Service count | "17" |
-| `{{LAUNCH_SCRIPT}}` | Launch script | "./run.ps1" |
-| `{{BUILD_LAUNCH_SCRIPT}}` | Build+Launch | "./build-and-run.ps1" |
+| Variable | Description | Example | Auto-Detected From |
+|----------|-------------|---------|---------------------|
+| `{{API_COUNT}}` | API count | "52" | Controller/route scanning |
+| `{{SERVICE_COUNT}}` | Service count | "17" | Service class scanning |
+| `{{LAUNCH_SCRIPT}}` | Launch script | "./run.ps1" | Script directory scan |
+| `{{BUILD_LAUNCH_SCRIPT}}` | Build+Launch | "./build-and-run.ps1" | Script directory scan |
 
-**Total:** 30+ template variables
+**Total:** 35+ template variables automatically populated by total-recall!
 
 ---
 
