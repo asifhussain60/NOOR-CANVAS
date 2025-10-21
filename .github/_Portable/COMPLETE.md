@@ -1,62 +1,71 @@
 # Setup Completion Checklist
 
-Use this checklist to verify your portable AI agent system is correctly installed and configured.
+Use this checklist to verify your portable AI agent system is correctly installed via the drop-in workflow.
 
 ---
 
-## ✅ Installation Verification
+## ✅ Installation Verification (Drop-In Workflow)
 
-### Step 1: Files Created
+### Step 1: Copy Verified
+- [ ] `.github/` folder copied to project root
 - [ ] `.github/instructions/SelfAwareness.instructions.md` exists
 - [ ] `.github/instructions/Links/` folder with 10+ files
 - [ ] `.github/prompts/` folder with 8 agent prompt files
 - [ ] `.github/prompts/shared/` folder with shared docs
 - [ ] `.github/learning/` folder with README and schema
+- [ ] All .template files present (will be processed by total-recall)
+
+### Step 2: total-recall Execution
+- [ ] Ran `@workspace /total-recall` command
+- [ ] total-recall completed successfully
+- [ ] All `.template` extensions removed from files
+- [ ] No `{{VARIABLE}}` placeholders remain in files
+- [ ] Configuration values automatically populated
+- [ ] Validation step passed
+
+### Step 3: Workspace Structure Created
 - [ ] `Workspaces/Copilot/` structure created
 - [ ] `Workspaces/CodeQuality/` structure created
 - [ ] `Workspaces/TEMP/` folder created
-- [ ] `PROJECT-SETUP-SUMMARY.md` in project root
-
-### Step 2: Template Processing
-- [ ] All `.template` extensions removed from generated files
-- [ ] No `{{VARIABLE}}` placeholders remain in generated files
-- [ ] Configuration values correctly populated
-- [ ] File paths updated for project structure
+- [ ] All required subdirectories present
 
 ---
 
 ## 🔧 Configuration Verification
 
+**Auto-Populated by total-recall** - Verify these were detected correctly:
+
 ### Project Identity
-- [ ] Project name configured
-- [ ] Project type selected (NET, Node.js, etc.)
-- [ ] Languages listed
-- [ ] Frameworks documented
+- [ ] Project name configured (from .sln, package.json, etc.)
+- [ ] Project type detected (.NET, Node.js, Python, Java)
+- [ ] Languages listed (from file extensions)
+- [ ] Frameworks documented (from dependencies)
 
 ### Build & Test
-- [ ] Build command correct
-- [ ] Test command correct
-- [ ] Run command correct
-- [ ] Lint command correct
+- [ ] Build command correct (from project type)
+- [ ] Test command correct (from test framework detection)
+- [ ] Run command correct (from launch settings)
+- [ ] Lint command correct (from package.json scripts, if applicable)
 
 ### Database
-- [ ] Database name configured
-- [ ] Server/host configured
-- [ ] Database type specified
-- [ ] Primary schema identified
-- [ ] Read-only schemas documented
-- [ ] Connection string key set
+- [ ] Database name configured (from connection strings)
+- [ ] Server/host configured (from appsettings.json, .env)
+- [ ] Database type specified (from connection string format)
+- [ ] Primary schema identified (from conventions/migrations)
+- [ ] Connection string key set (from appsettings.json)
 
 ### Infrastructure
-- [ ] API base URL configured
-- [ ] Application port set
-- [ ] Real-time technology noted (if applicable)
-- [ ] UI framework documented (if applicable)
+- [ ] API base URL configured (from launchSettings.json)
+- [ ] Application port set (from launch settings)
+- [ ] Real-time technology noted (from dependencies, if applicable)
+- [ ] UI framework documented (from dependencies, if applicable)
 
 ### Branch Strategy
-- [ ] Production branch name set
-- [ ] Development branch name set
-- [ ] Deployment script path configured (if applicable)
+- [ ] Production branch name set (from git config/convention)
+- [ ] Development branch name set (from git branches)
+- [ ] Deployment script path configured (from Scripts/ scan, if applicable)
+
+**If any value is incorrect:** Edit the affected files manually to correct auto-detected values.
 
 ---
 
@@ -262,21 +271,29 @@ You're ready when:
 
 ## 🆘 If Something's Wrong
 
-### Missing Files
-- Re-run `setup.ps1` or `setup.bat`
-- Check for errors in setup output
-- Verify script completed successfully
+### total-recall Failed
+- Ensure `.github/` folder copied correctly
+- Check project has standard files (.sln, package.json, etc.)
+- Try running `@workspace /total-recall` again
+- Check for error messages in output
 
 ### Template Variables Not Replaced
-- Check for `.template` extensions on files
-- Look for `{{VARIABLE}}` in file contents
-- Re-run setup if needed
+- Verify total-recall completed successfully
+- Check for `.template` extensions still present (shouldn't be)
+- Look for `{{VARIABLE}}` in file contents (shouldn't be any)
+- Re-run total-recall if templates weren't processed
 
 ### Agents Not Working
-- Verify `SelfAwareness.instructions.md` exists
+- Verify `SelfAwareness.instructions.md` exists in `.github/instructions/`
 - Check agent prompt files in `.github/prompts/`
 - Review `SystemIndex.md` for structure
 - Try `/question` agent first (simplest test)
+
+### Project Type Not Detected
+- Ensure project has standard files for type (.csproj, package.json, requirements.txt, pom.xml)
+- Check if project structure matches expected patterns
+- May need to manually edit files if project is non-standard
+- Verify file extensions match declared language
 
 ### Documentation Issues
 - Verify all Links files generated
@@ -290,10 +307,22 @@ You're ready when:
 
 Once everything is verified:
 
-- [ ] **I have reviewed all checklist items**
+- [ ] **I have copied .github/_Portable/ to my project**
+- [ ] **I have run @workspace /total-recall successfully**
+- [ ] **All template variables have been populated**
+- [ ] **No .template files remain**
 - [ ] **All agents are responding correctly**
-- [ ] **Documentation is customized for my project**
+- [ ] **Documentation is accessible**
 - [ ] **Workspace structure is complete**
+- [ ] **Ready to start using agents!**
+
+---
+
+**🎉 Congratulations!** Your portable AI agent system is ready. Start with:
+
+```
+@workspace /question What should I build first?
+```
 - [ ] **I understand how to use the system**
 - [ ] **I'm ready to start development with AI agents!**
 
