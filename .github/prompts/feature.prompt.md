@@ -487,13 +487,24 @@ For complete image analysis workflow, classification taxonomy, and vision tool i
 
 ---
 
-## Interaction Protocol
+## Interaction Protocol (Iterative Planning with [P]roceed / [C]hange)
+
+**Overview**: Planning is an iterative loop. Present draft → User reviews → User chooses [P]roceed or [C]hange → Repeat until [P]roceed
 
 ### Step 1: Confirmation Semantics
 1) Confirmation semantics: If the user message ends with a question mark (?), treat it as a confirmation request. Reframe their request, confirm intent, and propose safe alternatives when appropriate. Do not proceed to finalize until the user confirms.
 
-### Step 2: Iterative Refinement
-2) Iterative refinement: Present a Plan Draft containing:
+### Step 2: Iterative Refinement (LOOP UNTIL USER SATISFIED)
+
+**Protocol**: Present plan draft → User reviews → User chooses [P]roceed or [C]hange → Loop until [P]roceed
+
+**Iteration Loop**:
+1. Present concise plan draft (30-50 lines maximum)
+2. Wait for user response
+3. If user requests change → Apply change → Show updated draft → Return to step 2
+4. If user says proceed → Exit loop → Go to Step 6 (Finalization)
+
+**Plan Draft Contents**:
    - Goals and success criteria
    - **Technology Context** (from Step 0.5 - framework, versions, compatibility notes)
    - **Architecture Layers** (from Step 0.5 - affected layers: UI/API/Services/Database/SignalR/Infrastructure)
@@ -573,17 +584,137 @@ For complete image analysis workflow, classification taxonomy, and vision tool i
 - User can review files if needed
 - Sequential execution reads from files, not chat
 
-### Step 3: Inclusion Prompts
-3) Inclusion prompts: For each suggestion, explicitly ask whether to include it. Keep a running decision table and show "Pending decisions" clearly.
+---
+
+### Step 2.5: Plan Refinement Loop (MANDATORY)
+
+**After presenting Plan Draft, ALWAYS end with these options:**
+
+```markdown
+---
+
+## 📋 Plan Review Options
+
+**[P] PROCEED** - Plan approved, ready to finalize and begin implementation
+- User says: "p", "P", "proceed", "continue", "yes", "approved", "looks good"
+- Action: Finalize plan, write files, begin Phase 1
+
+**[C] CHANGE PLAN** - Request modifications to the plan
+- User says: "change: {description of change}"
+- Examples:
+  * "change: add a phase for user authentication"
+  * "change: remove Phase 3, merge it with Phase 2"
+  * "change: include enhancement A and B only"
+  * "change: add Percy visual testing to all phases"
+- Action: Apply change, show updated Plan Draft v{N+1}, return to review
+
+**[Q] CLARIFY** - Ask questions about the plan
+- User asks: "why {X}?", "what does {Y} mean?", "how will {Z} work?"
+- Action: Provide detailed explanation, return to review options
+
+---
+
+**Your choice?** [P]roceed / [C]hange / [Q]uestion
+```
+
+**Iteration Protocol**:
+
+1. **Present Initial Draft** (v1.0)
+   - Show concise plan draft (30-50 lines)
+   - End with Plan Review Options
+   - Wait for user response
+
+2. **User Says [P]roceed** → Go to Step 6 (Finalization)
+   - Recognized phrases: "p", "P", "proceed", "continue", "yes", "approved", "looks good", "ready"
+   - Exit refinement loop
+   - Write plan files
+   - Begin implementation
+
+3. **User Says [C]hange** → Apply Change and Re-present
+   - Parse change request (format: "change: {description}")
+   - Apply requested change to plan
+   - Increment version (v1.0 → v1.1 → v1.2, etc.)
+   - Show updated Plan Draft v{N+1}
+   - Highlight what changed: "🔄 Updated: {what was modified}"
+   - End with Plan Review Options again
+   - Wait for user response
+   - Loop until user says [P]roceed
+
+4. **User Says [Q]uestion** → Clarify and Re-present
+   - Answer user's question with detailed explanation
+   - Re-show current Plan Draft (same version)
+   - End with Plan Review Options again
+   - Wait for user response
+
+**Change Request Examples**:
+
+```
+User: "change: add authentication phase before Phase 1"
+Agent: 
+  🔄 Updated: Added Phase 1 (Authentication), renumbered subsequent phases
+  
+  ## Plan Draft v1.1
+  [... updated draft with new Phase 1 ...]
+  
+  [P]roceed / [C]hange / [Q]uestion
+
+---
+
+User: "change: remove enhancements, just basic implementation"
+Agent:
+  🔄 Updated: Removed all enhancements (A, B, C, D)
+  
+  ## Plan Draft v1.2
+  [... updated draft without enhancements ...]
+  
+  [P]roceed / [C]hange / [Q]uestion
+
+---
+
+User: "change: combine Phase 2 and 3 into one phase"
+Agent:
+  🔄 Updated: Merged Phase 2 (Database) and Phase 3 (API) into single Phase 2 (Database + API)
+  
+  ## Plan Draft v1.3
+  [... updated draft with merged phase ...]
+  
+  [P]roceed / [C]hange / [Q]uestion
+```
+
+**Multiple Changes Handling**:
+
+User can request multiple changes before proceeding:
+- Each change increments version
+- Each change shows updated draft
+- User can request unlimited changes
+- Only "proceed" exits the loop
+
+**Version Tracking**:
+- v1.0 = Initial draft
+- v1.1 = After first change
+- v1.2 = After second change
+- vN.M = After Nth change
+- Final version written to {key}.plan.md
+
+**Benefits**:
+- ✅ User has full control over plan
+- ✅ Clear proceed/change semantics
+- ✅ No ambiguity about approval
+- ✅ Iterative refinement until satisfaction
+- ✅ Version history shows evolution
+- ✅ No premature finalization
+
+### Step 3: Enhancement Selection (INTEGRATED INTO STEP 2.5)
+3) Enhancement selection: Handled through iterative refinement loop. User can request "change: include enhancement A and B" or "change: remove all enhancements"
 
 ### Step 4: Key Data Stream Alignment
 4) Key data stream alignment: Maintain plan continuity under the provided key. Use the same key later when handing off to task and test-generation.
 
-### Step 5: Completion Signal
-5) Completion signal: When the user says "begin implementation", "ready to implement", "proceed", or similar, finalize the plan and produce the handoff payloads.
+### Step 5: Refinement Loop Exit (ONLY TRIGGERED BY [P]ROCEED)
+5) Exit condition: User must explicitly say [P]roceed to exit refinement loop and trigger finalization. Recognized phrases: "p", "P", "proceed", "continue", "yes", "approved", "looks good", "ready to implement", "begin implementation"
 
 ### Step 6: MANDATORY Handoff Protocol (CRITICAL)
-**When user confirms with "begin implementation", "ready to implement", "proceed", or similar:**
+**When user confirms with [P]roceed (after exiting Step 2.5 refinement loop):**
 
 1. ✅ **Output the finalized plan summary**
 2. ✅ **Write the plan to `.github/prompts.keys/{key}/work-log.md`** using the Key Data Stream Entry Template
