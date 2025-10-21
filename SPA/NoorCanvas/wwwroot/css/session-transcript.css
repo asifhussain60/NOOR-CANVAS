@@ -263,13 +263,16 @@
 .session-transcript-content .inlineArabic,
 .transcript-display .inlineArabic,
 .islamic-content .inlineArabic {
-    font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', serif;
+    /* Use KashkoleTradArabic if available; fall back to widely available Arabic fonts */
+    font-family: KashkoleTradArabic, "Traditional Arabic", "Scheherazade New", Amiri, serif !important;
+    font-size: 1.5em !important; /* Match ksessions.css inlineArabic sizing */
+    word-spacing: 3px;
+    letter-spacing: normal;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-style: normal;
     direction: rtl;
-    font-size: 1.3rem !important; /* Match session212.html */
-    font-weight: 700;
-    display: inline-block;
-    unicode-bidi: bidi-override;
-    text-rendering: optimizelegibility;
+    display: inline !important; /* Ensure it flows with the text */
 }
 
 /* Verse Containers */
@@ -1227,6 +1230,15 @@
     display: inline !important;
     unicode-bidi: bidi-override;
     text-rendering: optimizelegibility;
+}
+
+/* Specific adjustment: paragraphs using inlineArabic should be slightly smaller for line-height harmony */
+[data-islamic-content] p.inlineArabic,
+.ks-transcript p.inlineArabic,
+.session-transcript-content p.inlineArabic,
+.transcript-display p.inlineArabic,
+.islamic-content p.inlineArabic {
+    font-size: 1.1rem !important;
 }
 
 /* Esoteric Block */

@@ -3092,7 +3092,8 @@ th {
     }
 
     .fr-view span.inlineArabic, p.inlineArabic {
-        font-family: KashkoleTradArabic !important;
+        /* Prefer KashkoleTradArabic; provide strong Arabic fallbacks */
+        font-family: KashkoleTradArabic, "Traditional Arabic", "Scheherazade New", Amiri, serif !important;
         font-size: 1.5em !important; /* Relative to the example block's base font size */
         word-spacing: 3px;
         letter-spacing: normal;
