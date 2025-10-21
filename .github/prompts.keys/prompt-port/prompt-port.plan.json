@@ -36,17 +36,18 @@
         {
             "id": 4,
             "title": "Test in Mock Project",
-            "status": "not-started",
+            "status": "skipped",
             "startedAt": null,
             "completedAt": null,
             "commit": null,
-            "tag": null
+            "tag": null,
+            "skipReason": "User request - skip testing phase"
         },
         {
             "id": 5,
             "title": "Regenerate _Portable FROM SCRATCH",
-            "status": "not-started",
-            "startedAt": null,
+            "status": "in-progress",
+            "startedAt": "2025-10-21T00:35:00Z",
             "completedAt": null,
             "commit": null,
             "tag": null
