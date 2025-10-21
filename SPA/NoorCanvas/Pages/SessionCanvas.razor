@@ -62,6 +62,77 @@
 
     /* [DEBUG-WORKITEM:canvas:toastr-styling:trace] Toast styling moved to ~/css/noor-toastr.css for reuse across all views ;CLEANUP_OK */
 
+    /* [FEATURE:canvas-receivers] Portrait Orientation Overlay - Mobile & Tablet Only ;CLEANUP_OK */
+    .canvas-portrait-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #F8F5F1;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    .canvas-portrait-message-card {
+        background-color: #FFFFFF;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        max-width: 90%;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border: 2px solid #D4AF37;
+    }
+
+    .canvas-portrait-icon {
+        font-size: 4rem;
+        color: #D4AF37;
+        margin-bottom: 1.5rem;
+        animation: portraitPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .canvas-portrait-heading {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #006400;
+        margin-bottom: 1rem;
+    }
+
+    .canvas-portrait-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: #4A5568;
+        line-height: 1.6;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes portraitPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .6; }
+    }
+
+    /* [FEATURE:canvas-receivers] Show overlay and hide content in portrait mode on mobile/tablet ;CLEANUP_OK */
+    @@media (max-width: 1024px) and (orientation: portrait) {
+        .canvas-portrait-overlay {
+            display: flex !important;
+        }
+        
+        .session-canvas-container,
+        .canvas-main-grid,
+        .canvas-area-container,
+        .canvas-sidebar {
+            display: none !important;
+        }
+    }
+
     .canvas-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
     @@media (max-width: 1024px) {
         .canvas-main-grid { grid-template-columns: 1fr; }
@@ -1009,6 +1080,17 @@
 <!-- Root container matching SessionWaiting.razor structure -->
 <div class="session-canvas-root">
     
+    <!-- [FEATURE:canvas-receivers] Portrait Orientation Overlay (Mobile/Tablet Only) ;CLEANUP_OK -->
+    <div class="canvas-portrait-overlay">
+        <div class="canvas-portrait-message-card">
+            <i class="fas fa-mobile-screen-button fa-rotate-90 canvas-portrait-icon"></i>
+            <h2 class="canvas-portrait-heading">Landscape Mode Required</h2>
+            <p class="canvas-portrait-text">
+                Please rotate your device to landscape orientation for the best viewing experience.
+            </p>
+        </div>
+    </div>
+
     @* [DIAGNOSTIC-COMPONENT] Reusable diagnostic logger ;CLEANUP_OK *@
     <DiagnosticLogger @ref="diagnosticLogger" />
     
