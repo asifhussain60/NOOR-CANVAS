@@ -3,7 +3,7 @@
 **Status**: ✅ Production  
 **Version**: 1.0.0  
 **Last Updated**: 2025-10-20  
-**Owner**: plan agent  
+**Owner**: feature planning agent  
 
 ## Purpose
 
@@ -411,9 +411,9 @@ GO
 
 ---
 
-## Integration with plan.prompt.md
+## Integration with feature.prompt.md
 
-This module is used throughout plan agent execution:
+This module is used throughout feature planning agent execution:
 
 - **Step 2 (Phase Breakdown)**: Apply Phase Breakdown Algorithm to generate 3-7 phases
 - **Step 2 (Enhancement Recommendations)**: Use Intelligent Enhancement Recommendation System
@@ -421,7 +421,7 @@ This module is used throughout plan agent execution:
 - **Step 6 ({key}.plan.md writing)**: Document phase deliverables using Phase Deliverables structure
 - **Step 6 (task agent handoff)**: Ensure migration specifications included in handoff context
 
-### Example Usage in plan.prompt.md
+### Example Usage in feature.prompt.md
 
 ```markdown
 ### Step 2: Draft Plan
@@ -442,7 +442,7 @@ This module is used throughout plan agent execution:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2025-10-20 | Initial extraction from plan.prompt.md (Steps 2-4, ~450 lines) |
+| 1.0.0 | 2025-10-20 | Initial extraction from feature.prompt.md (Steps 2-4, ~450 lines) |
 
 ---
 
@@ -452,3 +452,4 @@ This module is used throughout plan agent execution:
 - [agent-handoff-protocol.md](./agent-handoff-protocol.md) - Standardized agent-to-agent handoffs
 - [commit-message-format.md](./commit-message-format.md) - Commit message structure
 - [task-parameters-reference.md](./task-parameters-reference.md) - Task agent parameter specifications
+

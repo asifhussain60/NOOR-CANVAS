@@ -75,7 +75,7 @@ Suggest running plan prompt first:
 Image analysis should be done during planning phase for proper requirement extraction.
 
 Recommended approach:
-@workspace /plan key={key} user_request="{requirements}" annotate="{image-files}"
+@workspace /feature key={key} user_request="{requirements}" annotate="{image-files}"
 
 This will:
 - Extract requirements from images using vision analysis
@@ -110,7 +110,7 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 **Via Plan Agent Handoff** (Recommended for complex work):
 ```
 # Step 1: User initiates planning
-@workspace /plan key=user-landing user_request="Route users to asset or transcript canvas based on host selection"
+@workspace /feature key=user-landing user_request="Route users to asset or transcript canvas based on host selection"
 
 # Step 2: Plan agent creates comprehensive plan, user reviews
 [Plan agent presents 30-50 line draft]
@@ -241,7 +241,7 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
    - ✅ Apply plan's System Context Pack (APIs, DB, SignalR, test data)
    - ✅ Report phase completion with progress tracking
 3. **If plan missing:**
-   - ⚠️ Warn user: "No comprehensive plan found. Consider running @workspace /plan first for complex multi-phase work."
+   - ⚠️ Warn user: "No comprehensive plan found. Consider running @workspace /feature first for complex multi-phase work."
    - Use lightweight planning (current Step 3 behavior)
    - Generate simple work plan and proceed
    - Update markdown work-log only (no JSON tracking)
@@ -262,7 +262,7 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 
 **Example: Plan Handoff Flow**
 ```
-User: @workspace /plan key=user-landing user_request="Route users based on host selection"
+User: @workspace /feature key=user-landing user_request="Route users based on host selection"
 [Plan agent creates plan, user approves]
 Plan Agent: @workspace /task key=user-landing github-branch=development tasks="Phase 1: ...\n---\nPhase 2: ..."
 Task Agent: ✅ Loaded comprehensive plan from .github/prompts.keys/user-landing/user-landing.plan.md
@@ -489,7 +489,7 @@ Executing remaining tasks...
      REQUIRED ACTION:
      Run the planning agent first to create the key infrastructure:
      
-     @workspace /plan key={key} user_request="{your requirements}"
+     @workspace /feature key={key} user_request="{your requirements}"
      
      The planning agent will:
      - Create the key folder structure
@@ -511,7 +511,7 @@ Executing remaining tasks...
      Using lightweight planning mode for simple tasks.
      
      For complex multi-phase work, consider running:
-     @workspace /plan key={key} user_request="{requirements}"
+     @workspace /feature key={key} user_request="{requirements}"
      ```
 
 **Output:**
@@ -574,7 +574,7 @@ This ensures rollback capability if the task introduces instability.
 - **2.12:** Load System Context Pack (if {key}.plan.md exists - load pre-gathered context)
 
 **Note on Step 2.10 Deprecation:**
-Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement gathering during planning phase. If user provides `annotate` parameter or images during task execution, warn that image analysis should be done in planning phase and suggest running `@workspace /plan` first.
+Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement gathering during planning phase. If user provides `annotate` parameter or images during task execution, warn that image analysis should be done in planning phase and suggest running `@workspace /feature` first.
 
 **Routing Logic:**
 - Error reported → 2.4 triages → Routes to 2.5, 2.6, 2.7, or 2.8
@@ -1775,3 +1775,4 @@ Search all modified source files and remove debug logging markers:
 ## Diagnostic Mode Details
 
 **See:** `.github/prompts/shared/debug-logging-mandate.md` for complete diagnostic mode patterns, marker formats, and use cases.
+

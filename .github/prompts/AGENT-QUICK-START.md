@@ -13,12 +13,12 @@ The NoorCanvas project uses a three-agent system for multi-phase implementations
 ### Basic Invocation
 
 ```
-@workspace /plan key={your-key} user_request="{your request}"
+@workspace /feature key={your-key} user_request="{your request}"
 ```
 
 **Example:**
 ```
-@workspace /plan key=feature-user-authentication user_request="Add OAuth2 authentication with Google and Microsoft providers"
+@workspace /feature key=feature-user-authentication user_request="Add OAuth2 authentication with Google and Microsoft providers"
 ```
 
 ### What the Planning Agent Does
@@ -183,7 +183,7 @@ Every implementation gets:
 ### Scenario 1: New Feature Implementation
 
 ```
-@workspace /plan key=feature-dark-mode user_request="Add dark mode theme toggle with persistent user preference"
+@workspace /feature key=feature-dark-mode user_request="Add dark mode theme toggle with persistent user preference"
 ```
 
 Agent creates:
@@ -197,7 +197,7 @@ Agent creates:
 ### Scenario 2: Bug Fix with Regression Prevention
 
 ```
-@workspace /plan key=bugfix-session-title-display user_request="Fix session title truncation on mobile devices"
+@workspace /feature key=bugfix-session-title-display user_request="Fix session title truncation on mobile devices"
 ```
 
 Agent creates:
@@ -209,7 +209,7 @@ Agent creates:
 ### Scenario 3: Refactoring with Safety
 
 ```
-@workspace /plan key=refactor-auth-service user_request="Extract authentication logic into separate service layer"
+@workspace /feature key=refactor-auth-service user_request="Extract authentication logic into separate service layer"
 ```
 
 Agent creates:
@@ -309,3 +309,4 @@ For issues or questions:
 **Last Updated**: October 20, 2025  
 **System Version**: Planning Agent v1.0 (Enhanced)  
 **Implementation**: plan-prompt-enhancement key (6 phases, 1400+ lines)
+

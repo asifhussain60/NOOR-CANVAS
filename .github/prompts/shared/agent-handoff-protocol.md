@@ -12,7 +12,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 
 ---
 
-## plan.prompt.md → task.prompt.md Handoff
+## feature.prompt.md → task.prompt.md Handoff
 
 **Purpose**: Hand off from interactive planning to phased execution
 
@@ -77,7 +77,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 
 ### Handoff Workflow
 
-**Plan Agent Responsibilities** (Step 6):
+**feature planning agent Responsibilities** (Step 6):
 1. ✅ Write `{key}.plan.md` with complete plan specification
 2. ✅ Write `{key}.plan.json` with JSON tracking structure
 3. ✅ Write `work-log.md` with key data stream entry
@@ -96,7 +96,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
    - Apply plan's System Context Pack
 3. ✅ If plan missing:
    - Use lightweight planning (current behavior)
-   - Warn user: "⚠️ No comprehensive plan found. Consider running @workspace /plan first."
+   - Warn user: "⚠️ No comprehensive plan found. Consider running @workspace /feature first."
 4. ✅ Execute phases sequentially per plan
 5. ✅ Update `work-log.md` with progress
 6. ✅ Report completion with summary
@@ -105,17 +105,17 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 
 **User Flow**:
 ```
-User: @workspace /plan key=user-landing user_request="Route users to asset or transcript canvas based on host selection"
+User: @workspace /feature key=user-landing user_request="Route users to asset or transcript canvas based on host selection"
 
-[Plan agent creates comprehensive plan]
+[feature planning agent creates comprehensive plan]
 
-Plan Agent: "## Plan Draft v1.0 ..."
+feature planning agent: "## Plan Draft v1.0 ..."
 
 User: "proceed"
 
-Plan Agent: [Writes {key}.plan.md, {key}.plan.json, work-log.md]
-Plan Agent: "✓ Plan finalized. Invoking task agent now..."
-Plan Agent: @workspace /task key=user-landing github-branch=development debug-level=simple verbosity=concise tasks="Phase 1: Database Schema\n---\nPhase 2: Backend Persistence\n---\nPhase 3: Frontend Routing\n---\nPhase 4: Testing"
+feature planning agent: [Writes {key}.plan.md, {key}.plan.json, work-log.md]
+feature planning agent: "✓ Plan finalized. Invoking task agent now..."
+feature planning agent: @workspace /task key=user-landing github-branch=development debug-level=simple verbosity=concise tasks="Phase 1: Database Schema\n---\nPhase 2: Backend Persistence\n---\nPhase 3: Frontend Routing\n---\nPhase 4: Testing"
 
 [Task agent takes over]
 
@@ -132,7 +132,7 @@ User: "proceed"
 
 ### Benefits
 
-- ✅ **No redundant analysis**: Technology stack already discovered by plan agent
+- ✅ **No redundant analysis**: Technology stack already discovered by feature planning agent
 - ✅ **Consistent implementation**: Follows approved architecture
 - ✅ **Progress tracking**: JSON enables programmatic queries
 - ✅ **Pre-gathered context**: APIs, database schemas, test data reused
@@ -205,7 +205,7 @@ User: "proceed"
 
 ## Related Files
 
-- **plan.prompt.md** - Planning orchestrator (Step 6: Handoff Protocol)
+- **feature.prompt.md** - Feature Planning Agent (Step 6: Handoff Protocol)
 - **task.prompt.md** - Task executor (Plan Integration Protocol)
 - **SelfAwareness.instructions.md** - Global operating guardrails
 - **SystemIndex.md** - Agent coordination documentation
@@ -221,3 +221,5 @@ User: "proceed"
 - Added workflow examples
 - Added future handoff patterns
 - Extracted from cohesion review action item 01
+
+

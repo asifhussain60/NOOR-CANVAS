@@ -9,7 +9,7 @@
 ## Overview
 
 Successfully implemented a cohesive three-agent system where:
-- **plan.prompt.md** orchestrates (analyzes, recommends, prepares handoff)
+- **feature.prompt.md** orchestrates (analyzes, recommends, prepares handoff)
 - **task.prompt.md** executes (implements phases, updates tracking)
 - **test-generation.prompt.md** verifies (generates tests from specifications)
 
@@ -45,7 +45,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Added**:
 - Load "System Context Pack" section from plan
 - Cache APIs, database schemas, SignalR hubs, test data
-- Skip redundant exploration (context already gathered by plan agent)
+- Skip redundant exploration (context already gathered by feature planning agent)
 - Output summary of loaded context
 
 **Benefits**:
@@ -245,7 +245,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Location**: "Workflow Integration" section
 
 **Changed**:
-- Added `plan.prompt.md` as invoker
+- Added `feature.prompt.md` as invoker
 - Added `phase` parameter (from plan)
 - Added context sources (primary: plan, fallback: parameters)
 - Added test registry duplicate detection results to returns
@@ -269,7 +269,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 
 ```
 ┌────────────────────────────────┐
-│   @workspace /plan             │
+│   @workspace /feature             │
 │   • Technology stack discovery │
 │   • Phase breakdown            │
 │   • Test specifications        │
@@ -278,7 +278,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 │           {key}.plan.json      │
 └────────────────────────────────┘
               ↓
-      🛑 PLAN AGENT STOPS
+      🛑 feature planning agent STOPS
               ↓
 ┌────────────────────────────────┐
 │ USER RUNS HANDOFF COMMAND      │
@@ -312,7 +312,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 ## Key Benefits
 
 ### For Users:
-- ✅ **No redundant questions** - Plan agent asks once, task agent uses answers
+- ✅ **No redundant questions** - feature planning agent asks once, task agent uses answers
 - ✅ **Consistent implementation** - Task agent follows approved architecture
 - ✅ **Progress visibility** - JSON tracking enables "what's the status?" queries
 - ✅ **Safety** - Phase-by-phase approval with rollback capability
@@ -345,7 +345,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 - ✅ **System Context Pack** - Pre-gathered execution context
 
 ### Recommended Workflow:
-1. **Complex work** (3+ phases) → Use `@workspace /plan` first
+1. **Complex work** (3+ phases) → Use `@workspace /feature` first
 2. **Simple tasks** (1-2 steps) → Use `@workspace /task` directly
 3. **Multi-phase projects** → Always generate plan for consistency
 
@@ -383,3 +383,5 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 ---
 
 **Status**: ✅ Ready for use. All changes implemented and backward compatible.
+
+

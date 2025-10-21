@@ -106,7 +106,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 
 ### Primary Agents
 
-- **plan.prompt.md** - Planning Orchestrator ⭐ **NEW**
+- **feature.prompt.md** - Feature Planning Agent ⭐ **NEW**
   - Interactive planning agent for complex implementations
   - Refines user requests into phased, testable plans
   - Includes test specification generation
@@ -262,12 +262,12 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## � Recommended Workflows
+## 🔄 Recommended Workflows
 
 ### Complex Feature Implementation (Multi-Phase)
-1. **plan.prompt.md** - Refine requirements, generate phased plan with test specifications
+1. **feature.prompt.md** - Refine requirements, generate phased plan with test specifications
 2. **User approval** - Review plan draft, select enhancements, answer open questions
-3. **User says "proceed"** - Plan agent invokes task.prompt.md automatically
+3. **User says "proceed"** - Feature planning agent invokes task.prompt.md automatically
 4. **task.prompt.md** - Execute phases sequentially (loads `{key}.plan.md` and `{key}.plan.json`)
 5. **test-generation.prompt.md** - Generate E2E tests (invoked automatically by task agent)
 6. **healthcheck.prompt.md** - Validate implementation (recommended)

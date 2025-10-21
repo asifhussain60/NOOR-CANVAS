@@ -27,8 +27,8 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
      Test generation requires an initialized key data stream.
      
      REQUIRED ACTION:
-     1. Run planning agent first:
-        @workspace /plan key={key} user_request="{your requirements}"
+     1. Run feature planning agent first:
+        @workspace /feature key={key} user_request="{your requirements}"
      
      2. After planning, run task agent:
         @workspace /task key={key} tasks="..."
