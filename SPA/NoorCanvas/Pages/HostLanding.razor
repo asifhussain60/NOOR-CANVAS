@@ -565,16 +565,12 @@
     console.log('[DEBUG-WORKITEM:debug-panel:devmode:TRACE] ASPNETCORE_ENVIRONMENT:', window.__ASPNETCORE_ENVIRONMENT__, ';CLEANUP_OK');
 </script>
 
-@* Database Info Panel - Show DevPanel in dev mode, ProductionInfoPanel in production *@
+@* Debug Panel - Development Only (NO production info panel per security policy) *@
 @if (DevModeService.ShowDevPanels)
 {
     <NoorCanvas.Components.Development.DebugPanel CurrentViewName="HostLanding" 
                                                    DebugActions="GetHostLandingDebugActions()" 
                                                    GenericMessage="Host Landing debug actions" />
-}
-else
-{
-    <NoorCanvas.Components.Production.ProductionInfoPanel />
 }
 
 <style>
