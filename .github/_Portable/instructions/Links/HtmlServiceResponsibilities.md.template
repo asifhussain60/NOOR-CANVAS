@@ -1,9 +1,15 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 # HTML Service Responsibilities
 
 **Purpose**: Clear documentation of HTML processing services and their distinct responsibilities.
@@ -33,11 +39,11 @@ All services use **`HtmlTransformPatterns.cs`** as single source of truth for re
 **Context**: Replaces basic Blazor MarkupString with robust parsing
 
 ### Responsibilities:
-- âœ… HTML security validation (XSS, script injection prevention)
-- âœ… Blazor compatibility analysis
-- âœ… Safe rendering with error recovery
-- âœ… Content transformation using `HtmlTransformPatterns`
-- âœ… Parse mode support (Safe, Strict, Permissive)
+- ✅ HTML security validation (XSS, script injection prevention)
+- ✅ Blazor compatibility analysis
+- ✅ Safe rendering with error recovery
+- ✅ Content transformation using `HtmlTransformPatterns`
+- ✅ Parse mode support (Safe, Strict, Permissive)
 
 ### Key Methods:
 ```csharp
@@ -45,8 +51,8 @@ public SafeHtmlResult ParseHtml(string? htmlContent, ParseMode mode = ParseMode.
 ```
 
 ### Dependencies:
-- âœ… Uses `HtmlTransformPatterns.cs` for transformations
-- âœ… No duplicate regex patterns
+- ✅ Uses `HtmlTransformPatterns.cs` for transformations
+- ✅ No duplicate regex patterns
 
 ### When to Use:
 - Validating and sanitizing broadcast HTML content
@@ -62,11 +68,11 @@ public SafeHtmlResult ParseHtml(string? htmlContent, ParseMode mode = ParseMode.
 **Context**: Host-to-participant asset sharing workflow
 
 ### Responsibilities:
-- âœ… Detect Islamic content assets (ayah-card, ahadees, Arabic text, tables)
-- âœ… Extract asset metadata for sharing
-- âœ… Inject "Share with Participants" buttons
-- âœ… Generate asset-specific HTML for participant views
-- âœ… Track shared assets per session
+- ✅ Detect Islamic content assets (ayah-card, ahadees, Arabic text, tables)
+- ✅ Extract asset metadata for sharing
+- ✅ Inject "Share with Participants" buttons
+- ✅ Generate asset-specific HTML for participant views
+- ✅ Track shared assets per session
 
 ### Key Methods:
 ```csharp
@@ -82,9 +88,9 @@ public bool ValidateHtmlForAssetProcessing(string htmlContent)
 4. **islamic-table** - Structured Islamic data tables
 
 ### Dependencies:
-- âœ… Uses `HtmlAgilityPack` for DOM manipulation
-- âœ… Uses `SafeHtmlRenderingService` for final rendering
-- âœ… Uses `HtmlTransformPatterns.cs` indirectly through SafeHtmlRenderingService
+- ✅ Uses `HtmlAgilityPack` for DOM manipulation
+- ✅ Uses `SafeHtmlRenderingService` for final rendering
+- ✅ Uses `HtmlTransformPatterns.cs` indirectly through SafeHtmlRenderingService
 
 ### When to Use:
 - Host Control Panel asset detection
@@ -100,11 +106,11 @@ public bool ValidateHtmlForAssetProcessing(string htmlContent)
 **Context**: Unified transformation logic for both user roles
 
 ### Responsibilities:
-- âœ… Transform HTML for **host view** (includes delete buttons, admin controls)
-- âœ… Transform HTML for **participant view** (clean, read-only content)
-- âœ… Apply consistent transformations using `HtmlTransformPatterns`
-- âœ… Add `[data-islamic-content]` attributes for styling
-- âœ… Remove/preserve controls based on user role
+- ✅ Transform HTML for **host view** (includes delete buttons, admin controls)
+- ✅ Transform HTML for **participant view** (clean, read-only content)
+- ✅ Apply consistent transformations using `HtmlTransformPatterns`
+- ✅ Add `[data-islamic-content]` attributes for styling
+- ✅ Remove/preserve controls based on user role
 
 ### Key Methods:
 ```csharp
@@ -113,8 +119,8 @@ public string TransformForParticipant(string html)
 ```
 
 ### Dependencies:
-- âœ… Uses `HtmlTransformPatterns.cs` for all regex patterns
-- âœ… Zero duplicate patterns
+- ✅ Uses `HtmlTransformPatterns.cs` for all regex patterns
+- ✅ Zero duplicate patterns
 
 ### When to Use:
 - Transforming broadcast content for host display
@@ -130,9 +136,9 @@ public string TransformForParticipant(string html)
 **Context**: Legacy service maintained for backward compatibility
 
 ### Responsibilities:
-- âš ï¸ Transform transcript HTML with session-specific metadata
-- âš ï¸ Apply centralized `HtmlTransformPatterns` transformations
-- âš ï¸ **Note**: Overlaps with UnifiedHtmlTransformService - candidate for deprecation
+- ⚠️ Transform transcript HTML with session-specific metadata
+- ⚠️ Apply centralized `HtmlTransformPatterns` transformations
+- ⚠️ **Note**: Overlaps with UnifiedHtmlTransformService - candidate for deprecation
 
 ### Key Methods:
 ```csharp
@@ -140,7 +146,7 @@ public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, int?
 ```
 
 ### Dependencies:
-- âœ… Uses `HtmlTransformPatterns.cs` for transformations
+- ✅ Uses `HtmlTransformPatterns.cs` for transformations
 
 ### Deprecation Status:
 - **Current**: Still in use for transcript workflows
@@ -153,7 +159,7 @@ public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, int?
 
 ---
 
-## HtmlTransformPatterns.cs - Single Source of Truth âœ…
+## HtmlTransformPatterns.cs - Single Source of Truth ✅
 
 **Location**: `SPA/{{PROJECT_NAME}}/Services/HtmlTransformPatterns.cs`  
 **Purpose**: Centralized regex patterns for all HTML transformations
@@ -166,23 +172,23 @@ public static readonly Regex DataIslamicContentPattern
 // ... all transformation patterns centralized
 ```
 
-### Usage Validation: âœ… **VERIFIED**
-- âœ… `HtmlParsingService` uses `HtmlTransformPatterns`
-- âœ… `UnifiedHtmlTransformService` uses `HtmlTransformPatterns`
-- âœ… `AssetProcessingService` uses `HtmlTransformPatterns`
-- âœ… `AssetHtmlProcessingService` uses `SafeHtmlRenderingService` (which uses patterns)
+### Usage Validation: ✅ **VERIFIED**
+- ✅ `HtmlParsingService` uses `HtmlTransformPatterns`
+- ✅ `UnifiedHtmlTransformService` uses `HtmlTransformPatterns`
+- ✅ `AssetProcessingService` uses `HtmlTransformPatterns`
+- ✅ `AssetHtmlProcessingService` uses `SafeHtmlRenderingService` (which uses patterns)
 
 ### Benefits:
-- âœ… Zero duplicate regex patterns
-- âœ… Single source of truth for all transformations
-- âœ… Easier maintenance and testing
-- âœ… Consistent behavior across all services
+- ✅ Zero duplicate regex patterns
+- ✅ Single source of truth for all transformations
+- ✅ Easier maintenance and testing
+- ✅ Consistent behavior across all services
 
 ---
 
 ## Service Consolidation Assessment
 
-### âœ… **KEEP SEPARATE** (Justified Domain Boundaries)
+### ✅ **KEEP SEPARATE** (Justified Domain Boundaries)
 
 **Reason**: Each service serves a distinct business domain with minimal overlap:
 
@@ -191,7 +197,7 @@ public static readonly Regex DataIslamicContentPattern
 3. **UnifiedHtmlTransformService**: Role-based transformation domain
 4. **AssetProcessingService**: Transcript domain (legacy)
 
-### âš ï¸ **CONSOLIDATION OPPORTUNITY**
+### ⚠️ **CONSOLIDATION OPPORTUNITY**
 
 **Target**: Merge `AssetProcessingService` into `UnifiedHtmlTransformService`
 
@@ -208,7 +214,7 @@ public static readonly Regex DataIslamicContentPattern
 ## Testing Coverage
 
 ### Unit Tests:
-- âœ… `Tests/Unit/HtmlParsingServiceTests.cs` (8 test methods)
+- ✅ `Tests/Unit/HtmlParsingServiceTests.cs` (8 test methods)
   - TransformHtml_ShouldRemoveHadeesSubjectTokens
   - TransformHtml_ShouldRemoveDeleteButtons
   - TransformHtml_ShouldAddDataIslamicContentAttribute
@@ -216,71 +222,72 @@ public static readonly Regex DataIslamicContentPattern
   - etc.
 
 ### Integration Tests:
-- âœ… {{TEST_FRAMEWORK}} visual regression tests for asset sharing
-- âœ… Session transcript rendering tests
+- ✅ Playwright visual regression tests for asset sharing
+- ✅ Session transcript rendering tests
 
 ---
 
 ## Architecture Diagram
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                   HTML Processing Layer                     â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚                                                             â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
-â”‚  â”‚ HtmlParsing      â”‚    â”‚ AssetHtmlProcessing      â”‚     â”‚
-â”‚  â”‚ Service          â”‚    â”‚ Service                  â”‚     â”‚
-â”‚  â”‚                  â”‚    â”‚                          â”‚     â”‚
-â”‚  â”‚ â€¢ Security       â”‚    â”‚ â€¢ Asset Detection        â”‚     â”‚
-â”‚  â”‚ â€¢ Validation     â”‚    â”‚ â€¢ Button Injection       â”‚     â”‚
-â”‚  â”‚ â€¢ Sanitization   â”‚    â”‚ â€¢ Share Workflow         â”‚     â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
-â”‚           â”‚                        â”‚                       â”‚
-â”‚           â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”             â”‚
-â”‚           â”‚    â”‚                             â”‚             â”‚
-â”‚           â”‚    â”‚  HtmlTransformPatterns.cs   â”‚             â”‚
-â”‚           â”‚    â”‚  (Single Source of Truth)   â”‚             â”‚
-â”‚           â”‚    â”‚                             â”‚             â”‚
-â”‚           â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜             â”‚
-â”‚           â”‚                â”‚                               â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”              â”‚
-â”‚  â”‚ UnifiedHtml     â”‚  â”‚ AssetProcessing   â”‚              â”‚
-â”‚  â”‚ TransformServiceâ”‚  â”‚ Service (Legacy)  â”‚              â”‚
-â”‚  â”‚                 â”‚  â”‚                   â”‚              â”‚
-â”‚  â”‚ â€¢ Host View     â”‚  â”‚ â€¢ Transcripts     â”‚              â”‚
-â”‚  â”‚ â€¢ Participant   â”‚  â”‚ (Deprecation     â”‚              â”‚
-â”‚  â”‚   View          â”‚  â”‚  Candidate)       â”‚              â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â”‚
-â”‚                                                             â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌─────────────────────────────────────────────────────────────┐
+│                   HTML Processing Layer                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────┐    ┌──────────────────────────┐     │
+│  │ HtmlParsing      │    │ AssetHtmlProcessing      │     │
+│  │ Service          │    │ Service                  │     │
+│  │                  │    │                          │     │
+│  │ • Security       │    │ • Asset Detection        │     │
+│  │ • Validation     │    │ • Button Injection       │     │
+│  │ • Sanitization   │    │ • Share Workflow         │     │
+│  └────────┬─────────┘    └─────────┬────────────────┘     │
+│           │                        │                       │
+│           │    ┌───────────────────┴─────────┐             │
+│           │    │                             │             │
+│           │    │  HtmlTransformPatterns.cs   │             │
+│           │    │  (Single Source of Truth)   │             │
+│           │    │                             │             │
+│           │    └───────────┬─────────────────┘             │
+│           │                │                               │
+│  ┌────────┴────────┐  ┌────┴──────────────┐              │
+│  │ UnifiedHtml     │  │ AssetProcessing   │              │
+│  │ TransformService│  │ Service (Legacy)  │              │
+│  │                 │  │                   │              │
+│  │ • Host View     │  │ • Transcripts     │              │
+│  │ • Participant   │  │ (Deprecation     │              │
+│  │   View          │  │  Candidate)       │              │
+│  └─────────────────┘  └───────────────────┘              │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Summary
 
-### âœ… **Well-Structured Architecture**
+### ✅ **Well-Structured Architecture**
 - Clear separation of concerns
 - Centralized pattern management
 - Distinct business domains
 
-### âœ… **No Consolidation Needed (Current State)**
+### ✅ **No Consolidation Needed (Current State)**
 - Services serve different purposes
 - Minimal overlap after `HtmlTransformPatterns.cs` extraction
 - Domain boundaries justify separate services
 
-### âš ï¸ **Future Improvement Opportunity**
+### ⚠️ **Future Improvement Opportunity**
 - Consider deprecating `AssetProcessingService`
 - Migrate transcript logic to `UnifiedHtmlTransformService`
 - Low priority - not urgent
 
-### âœ… **Validation Complete**
-- All services use `HtmlTransformPatterns.cs` âœ…
-- Zero duplicate regex patterns âœ…
-- Proper dependency structure âœ…
-- Comprehensive test coverage âœ…
+### ✅ **Validation Complete**
+- All services use `HtmlTransformPatterns.cs` ✅
+- Zero duplicate regex patterns ✅
+- Proper dependency structure ✅
+- Comprehensive test coverage ✅
 
 ---
 
-**Refactor Phase 2 Status**: âœ… **COMPLETE** - Service responsibilities documented and validated
+**Refactor Phase 2 Status**: ✅ **COMPLETE** - Service responsibilities documented and validated
+

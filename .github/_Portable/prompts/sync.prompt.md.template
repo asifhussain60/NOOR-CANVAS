@@ -1,9 +1,16 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 ---
 mode: agent
 description: Synchronization and cleanup agent for prompts, instructions, configs, and hygiene tasks
@@ -27,7 +34,7 @@ See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
 ---
 
 ## Warning Handling Mandate
-- Warnings must be treated as errors â€” the system must be clean with zero errors and zero warnings.  
+- Warnings must be treated as errors — the system must be clean with zero errors and zero warnings.  
 - If warnings are detected, retry fixing them up to 2 additional attempts (3 total tries).  
 - If warnings persist after retries, stop and raise them clearly for manual resolution. Do not loop infinitely.  
 
@@ -42,7 +49,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 
 ### When to Use
 - **Documentation Sync**: Update SystemIndex.md, Architecture.md after architectural changes
-- **Configuration Updates**: Refresh AnalyzerConfig.MD, {{TEST_FRAMEWORK}}Config.MD, ValidationFramework.md
+- **Configuration Updates**: Refresh AnalyzerConfig.MD, PlaywrightConfig.MD, ValidationFramework.md
 - **Cleanup Operations**: Remove unused files, eliminate duplicate code, normalize formatting
 - **Post-Refactor**: Clean up temporary files and obsolete code artifacts
 - **Periodic Maintenance**: Regular system hygiene (weekly/monthly)
@@ -50,7 +57,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 
 ### How to Invoke
 ```
-@workspace /sync key=system-docs notes="update architecture documentation after {{REALTIME_TECH}} changes"
+@workspace /sync key=system-docs notes="update architecture documentation after SignalR changes"
 @workspace /sync key=cleanup notes="remove unused components and services"
 @workspace /sync key=config-refresh notes="update analyzer and test configurations"
 ```
@@ -75,7 +82,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - Normalized formatting across codebase
 - Clean build with zero errors/warnings
 - Updated learning patterns with sync improvements
-- **All {{TEST_FRAMEWORK}} and Percy tests executed only after server is started in a separate admin PowerShell window (not VS Code terminal)**
+- **All Playwright and Percy tests executed only after server is started in a separate admin PowerShell window (not VS Code terminal)**
 
 ### Cleanup Duties (Consolidated from cleanup.prompt.md)
 - Remove retired prompts and obsolete instruction files
@@ -105,37 +112,37 @@ You also enforce project hygiene by performing cleanup duties:
 - Ensure analyzers, linters, and configs remain clean after every operation.
 - Running analyzers/linters/tests for validation
 
-âš ï¸ **ABSOLUTE MANDATE: ALL {{TEST_FRAMEWORK}} TESTS REQUIRE ORCHESTRATION SCRIPTS** âš ï¸
+⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
 
-**Before running any {{TEST_FRAMEWORK}} or Percy automated tests as part of sync or cleanup operations, you MUST use orchestration scripts. Direct execution of `npx {{TEST_FRAMEWORK}} test` is PROHIBITED.**
+**Before running any Playwright or Percy automated tests as part of sync or cleanup operations, you MUST use orchestration scripts. Direct execution of `npx playwright test` is PROHIBITED.**
 
 **Required Orchestration Script Pattern**: See `Scripts/run-debug-panel-e2e-visual-test.ps1` for reference implementation.
 
 **Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
 
 **Key Requirements**:
-- âœ… Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
-- âœ… Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` and `$env:ASPNETCORE_URLS = 'https://localhost:9091'` before `{{RUN_COMMAND}}`
-- âœ… Health check with retry logic (10 attempts, 3-second delays)
-- âœ… Automated cleanup after tests complete
-- âŒ NEVER run `npx {{TEST_FRAMEWORK}} test` directly from terminal
+- ✅ Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
+- ✅ Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` and `$env:ASPNETCORE_URLS = 'https://localhost:9091'` before `dotnet run`
+- ✅ Health check with retry logic (10 attempts, 3-second delays)
+- ✅ Automated cleanup after tests complete
+- ❌ NEVER run `npx playwright test` directly from terminal
 
 
 ### Reference Documentation
 - **SystemIndex.md** - Central navigation hub (AUTO-UPDATED by sync agent, includes database rules)
 - **Architecture.md** - System architecture (sync after major changes)
-- **InfrastructureQuickRef.md** â­ - Database ({{DATABASE_NAME}} schema rules), API, {{REALTIME_TECH}}, test infrastructure
+- **InfrastructureQuickRef.md** ⭐ - Database ({{DATABASE_NAME}} schema rules), API, SignalR, test infrastructure
 - **ValidationFramework.md** - Validation pipeline (Levels 1-3, 6 mandatory for sync)
 - **API-Contract-Validation.md** - Contract validation rules
 - **AnalyzerConfig.MD** - Analyzer and linter configurations
-- **{{TEST_FRAMEWORK}}Config.MD** - Test configuration
+- **PlaywrightConfig.MD** - Test configuration
 - **FileMetrics.md** - Documentation drift detection (located in Workspaces/Global/)
 
 ### Database Knowledge (For SystemIndex.md Updates)
 When updating SystemIndex.md, ensure database rules remain prominent:
 - Primary database: {{DATABASE_NAME}}
 - `{{SCHEMA_PRIMARY}}.*` schema: READ-WRITE
-- `{{SCHEMA_READONLY}}.*` schema: READ-ONLY
+- `dbo.*` schema: READ-ONLY
 - See InfrastructureQuickRef.md for complete rules
 
 ### Learning Integration
@@ -192,31 +199,31 @@ This guarantees rollback capability if sync introduces instability.
 ### 3. Execute
 - **Synchronization:**  
   - Create or update prompts and instruction link files to match source of truth.  
-  - Replace `[PLACEHOLDER]` blocks with live repo data (AnalyzerConfig, {{TEST_FRAMEWORK}}Config, etc.).  
+  - Replace `[PLACEHOLDER]` blocks with live repo data (AnalyzerConfig, PlaywrightConfig, etc.).  
   - Remove obsolete or retired files.  
   - Alphabetically sort all keys and maintain status integrity.  
   - **Consolidate similar data streams using pattern matching:**
     - Files with similar names (e.g., "prompt" and "prompts", "config" and "configuration")
-    - Files with similar purposes (e.g., multiple {{TEST_FRAMEWORK}} configuration files)
+    - Files with similar purposes (e.g., multiple Playwright configuration files)
     - Files with overlapping content (>70% similarity)
     - Key data streams that can be combined without losing information
   - **Pattern Matching Rules:**
-    - Match singular/plural variations: "prompt" â†” "prompts"
-    - Match abbreviations: "config" â†” "configuration", "ref" â†” "reference"
-    - Match related terms: "quick ref" â†” "paths" â†” "config" (if {{TEST_FRAMEWORK}}-related)
+    - Match singular/plural variations: "prompt" ↔ "prompts"
+    - Match abbreviations: "config" ↔ "configuration", "ref" ↔ "reference"
+    - Match related terms: "quick ref" ↔ "paths" ↔ "config" (if Playwright-related)
     - Preserve unique information during consolidation
     - Update all references to point to consolidated files
   - **Consolidation Examples:**
-    - Merge: {{TEST_FRAMEWORK}}QuickRef.md + {{TEST_FRAMEWORK}}Config.MD + {{TEST_FRAMEWORK}}TestPaths.MD â†’ {{TEST_FRAMEWORK}}Reference.md
-    - Merge: step-0-*.md files if similar across prompts â†’ single shared file
-    - Combine: Duplicate mandate sections â†’ single shared mandate file
+    - Merge: PlaywrightQuickRef.md + PlaywrightConfig.MD + PlaywrightTestPaths.MD → PlaywrightReference.md
+    - Merge: step-0-*.md files if similar across prompts → single shared file
+    - Combine: Duplicate mandate sections → single shared mandate file
   
 - **Portable System Synchronization (_Portable/):**
   - **Keep generic templates in sync** with project-specific prompts/instructions
   - **Bidirectional sync workflow:**
-    - `.github/prompts/*.md` â†’ `.github/_Portable/prompts/*.md.template`
-    - `.github/instructions/*.md` â†’ `.github/_Portable/instructions/*.md.template`
-    - `.github/prompts/shared/*.md` â†’ `.github/_Portable/prompts/shared/*.md` (no template suffix - these are generic)
+    - `.github/prompts/*.md` → `.github/_Portable/prompts/*.md.template`
+    - `.github/instructions/*.md` → `.github/_Portable/instructions/*.md.template`
+    - `.github/prompts/shared/*.md` → `.github/_Portable/prompts/shared/*.md` (no template suffix - these are generic)
   - **Template Conversion Rules:**
     - Remove project-specific paths (replace with `{{PROJECT_ROOT}}`, `{{WORKSPACE_ROOT}}`)
     - Remove hardcoded database names (replace with `{{DATABASE_NAME}}`)
@@ -244,12 +251,12 @@ This guarantees rollback capability if sync introduces instability.
     .\Validate-DocumentationGroundTruth.ps1 -GenerateReport
     ```
   - **Script validates:**
-    - âœ… Database schema (query {{DATABASE_NAME}} for actual tables)
-    - âœ… Codebase references (grep for actual usage in C# files)
-    - âœ… Documentation accuracy (scan 6 key instruction files)
-    - âœ… Obsolete reference detection (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
-    - âœ… Expected table verification (dbo.Groups, Categories, Sessions, Speakers, SessionTranscripts)
-  - **Expected output:** `âœ… Passed: X | âŒ Failed: 0 | âš ï¸ Warnings: Y`
+    - ✅ Database schema (query {{DATABASE_NAME}} for actual tables)
+    - ✅ Codebase references (grep for actual usage in C# files)
+    - ✅ Documentation accuracy (scan 6 key instruction files)
+    - ✅ Obsolete reference detection (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
+    - ✅ Expected table verification (dbo.Groups, Categories, Sessions, Speakers, SessionTranscripts)
+  - **Expected output:** `✅ Passed: X | ❌ Failed: 0 | ⚠️ Warnings: Y`
   - **Integration:**
     - Attach validation report to sync commit
     - If validation fails, sync CANNOT be marked complete
@@ -282,7 +289,7 @@ This guarantees rollback capability if sync introduces instability.
   - Template placeholders follow convention: `{{VARIABLE_NAME}}`
   - Version numbers synchronized between project-specific and portable files
 - Confirm solution builds with **zero errors and zero warnings**.
-- **Confirm all {{TEST_FRAMEWORK}} and Percy tests were executed only after server was started in a separate admin PowerShell window (not VS Code terminal).**
+- **Confirm all Playwright and Percy tests were executed only after server was started in a separate admin PowerShell window (not VS Code terminal).**
 
 ### 6. Summary + Key Management
 - Update the **keys folder** (`.github/prompts.keys`).  
@@ -330,4 +337,5 @@ If any of these conditions fail, the sync task must remain **In Progress** and e
 - Default state: `In Progress`.  
 - State changes only occur when explicitly marked as `complete`.  
 - Keys and summaries remain the **single source of truth** for status tracking.
+
 

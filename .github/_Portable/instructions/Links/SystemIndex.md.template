@@ -1,9 +1,15 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 # System Index
 
 **Version**: 3.2.0  
@@ -16,50 +22,50 @@
 
 ---
 
-## ðŸ—„ï¸ Critical Database Rules
+## 🗄️ Critical Database Rules
 
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", they mean **{{DATABASE_NAME}}**
-- Server: {{DATABASE_SERVER}}
+- Server: AHHOME
 - Connection: `_configuration.GetConnectionString("DefaultConnection")`
 
 **SCHEMA ACCESS RULES**:
-- âœ… **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
-- âŒ **`{{SCHEMA_READONLY}}.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
-- âŒ **All other schemas** - **READ-ONLY**
+- ✅ **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- ❌ **`dbo.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+- ❌ **All other schemas** - **READ-ONLY**
 
 **See**: `InfrastructureQuickRef.md` for complete database documentation
 
 ---
 
-## ðŸ§ª Automated End-to-End Visual Regression Testing
+## 🧪 Automated End-to-End Visual Regression Testing
 
-**When user mentions "{{TEST_FRAMEWORK}} test" or "pwtest":**
+**When user mentions "Playwright test" or "pwtest":**
 
-Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Percy, and any other configured libraries to reproduce and fix the issue. Ensure that the application is launched in a separate PowerShell window (not a Terminal window) before executing any headed tests to maintain proper environment isolation and visual consistency.
+Create automated end-to-end visual regression tests using Playwright, Percy, and any other configured libraries to reproduce and fix the issue. Ensure that the application is launched in a separate PowerShell window (not a Terminal window) before executing any headed tests to maintain proper environment isolation and visual consistency.
 
-- Test Location: `{{TEST_FRAMEWORK}}/tests/`, `Tests/UI/`, or `Workspaces/TEMP/` (temporary)
-- Configuration: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+- Test Location: `PlayWright/tests/`, `Tests/UI/`, or `Workspaces/TEMP/` (temporary)
+- Configuration: `config/testing/playwright.config.cjs`
 - Test Data: Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
 - Base URL: `https://localhost:9091`
-- Execution: `npx {{TEST_FRAMEWORK}} test` or `$env:PW_MODE='standalone'; npx {{TEST_FRAMEWORK}} test`
+- Execution: `npx playwright test` or `$env:PW_MODE='standalone'; npx playwright test`
 
-**See**: `{{TEST_FRAMEWORK}}QuickRef.md` for complete testing documentation
+**See**: `PlaywrightQuickRef.md` for complete testing documentation
 
 ---
 
-## ðŸ“‹ Quick Navigation
+## 📋 Quick Navigation
 
 ### Planning & Orchestration
-- **plan.prompt.md** â­ **NEW** - Interactive planning for complex implementations (requirement refinement, phased execution, test plans, architecture analysis)
-- **shared/agent-handoff-protocol.md** - Agent-to-agent handoff specification (plan â†’ task workflow)
+- **plan.prompt.md** ⭐ **NEW** - Interactive planning for complex implementations (requirement refinement, phased execution, test plans, architecture analysis)
+- **shared/agent-handoff-protocol.md** - Agent-to-agent handoff specification (plan → task workflow)
 
 ### Architecture & Infrastructure
-- **Architecture.md** - Full system design (controllers, services, {{REALTIME_TECH}} hubs, database schema)
-- **InfrastructureQuickRef.md** â­ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
+- **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
+- **InfrastructureQuickRef.md** ⭐ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
 
 ### Validation & Quality
-- **ValidationFramework.md** - 6-level validation pipeline (build â†’ analyzers â†’ E2E)ion hub for all architectural and configuration references.**
+- **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)ion hub for all architectural and configuration references.**
 
 **Version**: 3.1.0  
 **Last Updated**: 2025-10-14  
@@ -68,51 +74,51 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 ---
 
-## ï¿½ï¸ Critical Database Rules
+## �️ Critical Database Rules
 
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", they mean **{{DATABASE_NAME}}**
-- Server: {{DATABASE_SERVER}}
+- Server: AHHOME
 - Connection: `_configuration.GetConnectionString("DefaultConnection")`
 
 **SCHEMA ACCESS RULES**:
-- âœ… **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
-- âŒ **`{{SCHEMA_READONLY}}.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
-- âŒ **All other schemas** - **READ-ONLY**
+- ✅ **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- ❌ **`dbo.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+- ❌ **All other schemas** - **READ-ONLY**
 
 **See**: `InfrastructureQuickRef.md` for complete database documentation
 
 ---
 
-## ï¿½ðŸ“‹ Quick Navigation
+## �📋 Quick Navigation
 
 ### Architecture & Infrastructure
-- **Architecture.md** - Full system design (controllers, services, {{REALTIME_TECH}} hubs, database schema)
-- **InfrastructureQuickRef.md** â­ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
+- **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
+- **InfrastructureQuickRef.md** ⭐ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
 
 ### Validation & Quality
-- **ValidationFramework.md** - 6-level validation pipeline (build â†’ analyzers â†’ E2E)
+- **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)
 - **API-Contract-Validation.md** - Cross-layer contract validation rules
 - **AnalyzerConfig.MD** - Code quality tool configurations (Roslynator, StyleCop, ESLint)
 
 ### Testing
-- **{{TEST_FRAMEWORK}}QuickRef.md** â­ - Complete {{TEST_FRAMEWORK}} testing guide (test creation, execution, patterns)
-- **{{TEST_FRAMEWORK}}Config.MD** - Detailed configuration reference
-- **{{TEST_FRAMEWORK}}TestPaths.MD** - Canonical test patterns and test data
+- **PlaywrightQuickRef.md** ⭐ - Complete Playwright testing guide (test creation, execution, patterns)
+- **PlaywrightConfig.MD** - Detailed configuration reference
+- **PlaywrightTestPaths.MD** - Canonical test patterns and test data
 
 ### Feature Tracking
 - **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
 
 ### Prompt Enhancement (Optional)
-- **PromptEnhancementLibraries.md** ðŸ’¡ - External libraries for prompt optimization, testing, and orchestration (DSPy, Semantic Kernel, LangChain, PromptFoo, Langfuse)
+- **PromptEnhancementLibraries.md** 💡 - External libraries for prompt optimization, testing, and orchestration (DSPy, Semantic Kernel, LangChain, PromptFoo, Langfuse)
 
 ---
 
-## ðŸ¤– Active Prompt Agents
+## 🤖 Active Prompt Agents
 
 ### Primary Agents
 
-- **feature.prompt.md** - Feature Planning Agent â­ **NEW**
+- **feature.prompt.md** - Feature Planning Agent ⭐ **NEW**
   - Interactive planning agent for complex implementations
   - Refines user requests into phased, testable plans
   - Includes test specification generation
@@ -120,7 +126,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
   - Hands off to task.prompt.md for implementation
   - Image analysis support for visual requirements (Step 0.6)
   - **WHEN TO USE**: Complex multi-phase work (3+ phases), unclear requirements, need comprehensive test plan
-  - **HANDOFF**: Generates comprehensive plan â†’ invokes task.prompt.md automatically
+  - **HANDOFF**: Generates comprehensive plan → invokes task.prompt.md automatically
   - **KEY FEATURES**:
     - Interactive refinement with user approval
     - Phase-based breakdown with dependencies
@@ -130,7 +136,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
     - Enhancement recommendations
     - Test specification generation
     - JSON tracking for programmatic progress queries
-    - System Context Pack (APIs, database schemas, {{REALTIME_TECH}} hubs, test data)
+    - System Context Pack (APIs, database schemas, SignalR hubs, test data)
   - **OUTPUTS**: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
   - **SIZE**: 3740 lines (largest prompt - module extraction planned)
 
@@ -138,10 +144,10 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
   - File auto-loading, checkpoint commits
   - 9-step workflow with validation gates
   - **Plan integration**: Loads `{key}.plan.md` and `{key}.plan.json` when available
-  - Automatic test generation using {{TEST_FRAMEWORK}}, Percy, and configured libraries (Step 6.1)
+  - Automatic test generation using Playwright, Percy, and configured libraries (Step 6.1)
   - Functionality registry validation (Step 8.2)
   - **MUST** consult InfrastructureQuickRef.md for database rules
-  - **MUST** consult {{TEST_FRAMEWORK}}QuickRef.md for test creation
+  - **MUST** consult PlaywrightQuickRef.md for test creation
   - **WHEN TO USE**: Simple tasks, quick fixes, or continuation of planned work
   - **HANDOFF**: Called by plan.prompt.md for phased execution
   - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
@@ -151,7 +157,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
   - Deep application analysis
   - Supports all agents with investigation
   - **MUST** reference InfrastructureQuickRef.md for infrastructure queries
-  - **MUST** reference {{TEST_FRAMEWORK}}QuickRef.md for test-related questions
+  - **MUST** reference PlaywrightQuickRef.md for test-related questions
 
 - **refactor.prompt.md** - Structural integrity agent
   - Checkpointed refactoring workflow
@@ -172,7 +178,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
   - Reports to sync for fixes
 
 - **test-generation.prompt.md** - Automated end-to-end visual regression test generator
-  - Creates tests using {{TEST_FRAMEWORK}}, Percy, and configured libraries
+  - Creates tests using Playwright, Percy, and configured libraries
   - Session 212 canonical patterns
   - Multi-browser testing support
   - API-based test approaches
@@ -189,32 +195,32 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
   - Cross-agent coordination review
 
 ### Retired Agents
-- **retrosync.prompt.md** â†’ Replaced by sync
-- **cleanup.prompt.md** â†’ Folded into sync
-- **task.md** â†’ Merged into task.prompt.md
-- **align.prompt.md** â†’ Renamed to healthcheck.prompt.md
+- **retrosync.prompt.md** → Replaced by sync
+- **cleanup.prompt.md** → Folded into sync
+- **task.md** → Merged into task.prompt.md
+- **align.prompt.md** → Renamed to healthcheck.prompt.md
 
 ---
 
-## ðŸŽ¯ Functionality Registry Quick Reference
+## 🎯 Functionality Registry Quick Reference
 
 ### For Task Agent (Step 8.2)
 
 **Workflow**:
 ```
-1. Load {key}.md â†’ Parse registry (behaviors, file watch, test coverage)
+1. Load {key}.md → Parse registry (behaviors, file watch, test coverage)
 2. Compare modified files vs file watch
-   - Match â†’ High regression risk â†’ Trigger validation
-   - No match â†’ Low risk â†’ Skip validation
+   - Match → High regression risk → Trigger validation
+   - No match → Low risk → Skip validation
 3. Execute validation (automated tests or manual checklist)
-4. Handle result (PASS â†’ allow commit | FAIL â†’ block commit)
+4. Handle result (PASS → allow commit | FAIL → block commit)
 ```
 
 ### Validation Output Templates
 
 **Registry Exists + Validation PASS**:
 ```
-âœ… Functionality Validation: PASS
+✅ Functionality Validation: PASS
 - Core behaviors: 5 verified
 - Tests executed: 3 manual validations
 - Registry updated (Last Validation: 2025-10-12 14:23:45)
@@ -222,7 +228,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 **Registry Exists + Validation FAIL**:
 ```
-âŒ Functionality Validation: FAIL
+❌ Functionality Validation: FAIL
 - Failed behaviors: Valid Token Flow
 - Test failures: User saw token panel flash
 - COMMIT BLOCKED - fix regression before proceeding
@@ -230,7 +236,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 **No File Watch Match**:
 ```
-âœ“ No file/method watch matches - low regression risk
+✓ No file/method watch matches - low regression risk
 - Modified files: 2
 - Watched files: 3 (no overlap)
 - Validation: SKIPPED (optional)
@@ -238,7 +244,7 @@ Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Pe
 
 **No Registry Exists**:
 ```
-â„¹ï¸ No Functionality Registry found for key 'user-auth'
+ℹ️ No Functionality Registry found for key 'user-auth'
 Consider adding one to track core behaviors and prevent regressions.
 
 Template: .github/prompts.keys/_template/key-template.md
@@ -248,18 +254,18 @@ Guide: .github/instructions/Links/FunctionalityRegistry.md
 ### Manual Validation Prompt Template
 
 ```
-âš ï¸ REGRESSION RISK: Manual Validation Required
+⚠️ REGRESSION RISK: Manual Validation Required
 
 Modified File: UserLanding.razor (File Watch match)
 Affected Behaviors: 3 core behaviors
 
 Please verify the following still work:
 
-â–¡ Behavior 1 description
+□ Behavior 1 description
   Navigate to: URL
   Expected: Outcome
   
-â–¡ Behavior 2 description
+□ Behavior 2 description
   Navigate to: URL
   Expected: Outcome
 
@@ -268,7 +274,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸ”„ Recommended Workflows
+## 🔄 Recommended Workflows
 
 ### Complex Feature Implementation (Multi-Phase)
 1. **feature.prompt.md** - Refine requirements, generate phased plan with test specifications
@@ -300,16 +306,16 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸ”„ Agent Coordination Protocols
+## 🔄 Agent Coordination Protocols
 
 ### Interaction Patterns
-- **plan** â†’ Creates comprehensive plan, invokes **task** automatically with `{key}.plan.md`, `{key}.plan.json`
-- **task** â†’ Loads plan (if exists), executes work, creates tests automatically, updates key stream progressively
-- **analyze-learning** â†’ Analyzes key data, updates learning infrastructure, generates recommendations
-- **refactor** â†’ Improves structure, triggers **healthcheck** for validation
-- **sync** â†’ Orchestrates state, maintains documentation alignment, updates **SystemIndex.md**
-- **healthcheck** â†’ Validates integrity, reports to **sync** for fixes
-- **question** â†’ Analyzes queries, supports all agents with knowledge
+- **plan** → Creates comprehensive plan, invokes **task** automatically with `{key}.plan.md`, `{key}.plan.json`
+- **task** → Loads plan (if exists), executes work, creates tests automatically, updates key stream progressively
+- **analyze-learning** → Analyzes key data, updates learning infrastructure, generates recommendations
+- **refactor** → Improves structure, triggers **healthcheck** for validation
+- **sync** → Orchestrates state, maintains documentation alignment, updates **SystemIndex.md**
+- **healthcheck** → Validates integrity, reports to **sync** for fixes
+- **question** → Analyzes queries, supports all agents with knowledge
 
 ### Cross-Agent Learning Infrastructure
 - **Directory**: `Workspaces/Copilot/learning/`
@@ -324,7 +330,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸ“Š Current System Snapshot
+## 📊 Current System Snapshot
 
 **Last Architecture Scan**: 2025-10-12
 
@@ -333,7 +339,7 @@ Confirm all behaviors work correctly? (yes/no)
 - **Total Endpoints**: 52+
 - **Key Controllers**: Admin, Host, Participant, Question, Session, Annotations, Health, Token, HostProvisioner, Issue, Logs
 
-### {{REALTIME_TECH}} Hubs
+### SignalR Hubs
 - **Total Hubs**: 4
 - **Active Hubs**: SessionHub, QAHub, AnnotationHub, TestHub (dev only)
 
@@ -357,7 +363,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸ”§ Key Management
+## 🔧 Key Management
 
 - **Location**: `.github/prompts.keys`
 - **States**: `new`, `In Progress`, `complete`
@@ -366,7 +372,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸŽ“ LLM Optimization Principles
+## 🎓 LLM Optimization Principles
 
 - **Consistent Structure**: All prompts follow identical format patterns
 - **Clear Parameters**: Standardized parameter names across agents
@@ -376,7 +382,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸ“š Related Documentation
+## 📚 Related Documentation
 
 ### Global Instructions
 - **SelfAwareness.instructions.md** - Global guardrails and operating rules
@@ -387,23 +393,23 @@ Confirm all behaviors work correctly? (yes/no)
 
 ---
 
-## ðŸ”„ Auto-Update Protocol
+## 🔄 Auto-Update Protocol
 
 This file is automatically updated by the **sync** agent when:
 - New API endpoints are added or removed
 - Controllers, services, or hubs are created/modified
 - Database schema changes occur
 - New Razor components are added
-- {{REALTIME_TECH}} hub functionality changes
+- SignalR hub functionality changes
 - Prompt agents are created, modified, or retired
 - Learning infrastructure is enhanced
 
 **Update Frequency**: On-demand when changes are detected
 
 **Update Sections**:
-- ðŸ“Š Current System Snapshot
-- ðŸ¤– Active Prompt Agents
-- ðŸ“‹ Quick Navigation (if new reference files added)
+- 📊 Current System Snapshot
+- 🤖 Active Prompt Agents
+- 📋 Quick Navigation (if new reference files added)
 
 **Verification**: After updates, sync agent runs healthcheck to ensure consistency across:
 - Architecture.md
@@ -416,3 +422,4 @@ This file is automatically updated by the **sync** agent when:
 - 2025-10-12: Merged ReferenceIndex.md, SystemStructureSummary.md, FunctionalityRegistry-QuickRef.md into SystemIndex.md
 - 2025-01-11: Added InfrastructureQuickRef.md
 - 2025-01-11: Created FunctionalityRegistry-QuickRef.md
+

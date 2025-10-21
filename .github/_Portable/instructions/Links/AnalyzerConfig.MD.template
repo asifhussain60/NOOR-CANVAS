@@ -1,10 +1,16 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
-# Analyzer Configuration â€” Canonical Reference
+---
+# Analyzer Configuration — Canonical Reference
 
 This file defines analyzer and linting tools Copilot must use for **refactor** and code quality tasks.
 
@@ -35,20 +41,20 @@ This file defines analyzer and linting tools Copilot must use for **refactor** a
 
 ### JavaScript/TypeScript Linting
 **Primary Configuration:** `config/testing/eslint.config.js`
-- **Target:** `{{TEST_FRAMEWORK}}/**/*.{ts,tsx}` files
+- **Target:** `PlayWright/**/*.{ts,tsx}` files
 - **Parser:** `@typescript-eslint/parser`
-- **Plugins:** `@typescript-eslint/eslint-plugin`, `eslint-plugin-{{TEST_FRAMEWORK}}`
+- **Plugins:** `@typescript-eslint/eslint-plugin`, `eslint-plugin-playwright`
 - **Key Rules:**
   - `@typescript-eslint/no-unused-vars: warn`
   - `@typescript-eslint/no-explicit-any: warn`
   - `no-duplicate-imports: error`
-  - `{{TEST_FRAMEWORK}}/no-skipped-test: warn`
+  - `playwright/no-skipped-test: warn`
 - **npm Script:** `npm run lint` (zero-tolerance: `--max-warnings=0`)
 
 ### Formatting Standards
 **Configuration:** `config/testing/.prettierrc`
 - **npm Scripts:** `npm run format` (fix), `npm run format:check` (validate)
-- **Target:** `{{TEST_FRAMEWORK}}/**/*.{ts,tsx}` files
+- **Target:** `PlayWright/**/*.{ts,tsx}` files
 - **Integration:** Centralized configuration approach
 
 ---
@@ -82,3 +88,4 @@ This file must reflect the **REAL current state** of the project.
 - Obsolete data must be removed.  
 - Modified values must be updated to match source of truth in the repo.  
 - Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.  
+

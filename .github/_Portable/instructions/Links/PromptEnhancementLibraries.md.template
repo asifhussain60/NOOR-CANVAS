@@ -1,9 +1,15 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 # Prompt Enhancement Libraries Reference
 
 **Version**: 1.0.0  
@@ -19,7 +25,7 @@ This document catalogs established prompt engineering libraries that can enhance
 
 ---
 
-## ðŸŽ¯ Prompt Optimization Frameworks
+## 🎯 Prompt Optimization Frameworks
 
 ### DSPy (Stanford NLP)
 **Repository**: https://github.com/stanfordnlp/dspy  
@@ -31,7 +37,7 @@ This document catalogs established prompt engineering libraries that can enhance
 **Key Features**:
 - Automatic prompt optimization using few-shot learning
 - Compile prompts into optimized versions based on training data
-- Signature-based prompt declaration (inputs â†’ outputs)
+- Signature-based prompt declaration (inputs → outputs)
 - Support for multiple LLM backends (OpenAI, Anthropic, local models)
 - Metric-driven optimization (accuracy, latency, cost)
 
@@ -106,7 +112,7 @@ Issues found:
 
 ---
 
-## ðŸ”— Prompt Orchestration Platforms
+## 🔗 Prompt Orchestration Platforms
 
 ### LangChain
 **Repository**: https://github.com/langchain-ai/langchain  
@@ -124,7 +130,7 @@ Issues found:
 - Agent framework with tool selection
 
 **Use Cases**:
-- Multi-step agent workflows (task â†’ refactor â†’ validate)
+- Multi-step agent workflows (task → refactor → validate)
 - Context management across agent calls
 - Integration with vector stores for codebase search
 - Building interactive debugging assistants
@@ -197,7 +203,7 @@ var result = await function.InvokeAsync("MyCode.cs");
 
 ---
 
-## ðŸ§ª Prompt Testing & Evaluation
+## 🧪 Prompt Testing & Evaluation
 
 ### PromptTools
 **Repository**: https://github.com/hegelai/prompttools  
@@ -294,7 +300,7 @@ tests:
 
 ---
 
-## ðŸ—ï¸ Development & Debugging Tools
+## 🏗️ Development & Debugging Tools
 
 ### LangSmith (LangChain)
 **Repository**: https://smith.langchain.com  
@@ -354,22 +360,22 @@ tests:
 
 ---
 
-## ðŸ“Š Comparison Matrix
+## 📊 Comparison Matrix
 
 | Library | Language | Primary Use Case | C# Support | Self-Hostable | License |
 |---------|----------|-----------------|------------|---------------|---------|
-| **DSPy** | Python | Prompt Optimization | âŒ | âœ… | MIT |
-| **Guidance** | Python | Constrained Generation | âŒ | âœ… | MIT |
-| **LangChain** | Python/JS | Orchestration | âŒ | âœ… | MIT |
-| **Semantic Kernel** | **C#**/Python/Java | Enterprise Orchestration | âœ… | âœ… | MIT |
-| **PromptTools** | Python | Testing & Evaluation | âŒ | âœ… | Apache 2.0 |
-| **PromptFoo** | TypeScript | CLI Testing | âŒ | âœ… | MIT |
-| **LangSmith** | Platform | Observability | âœ… (SDK) | âŒ | Commercial |
-| **Langfuse** | TypeScript | Observability | âœ… (SDK) | âœ… | MIT |
+| **DSPy** | Python | Prompt Optimization | ❌ | ✅ | MIT |
+| **Guidance** | Python | Constrained Generation | ❌ | ✅ | MIT |
+| **LangChain** | Python/JS | Orchestration | ❌ | ✅ | MIT |
+| **Semantic Kernel** | **C#**/Python/Java | Enterprise Orchestration | ✅ | ✅ | MIT |
+| **PromptTools** | Python | Testing & Evaluation | ❌ | ✅ | Apache 2.0 |
+| **PromptFoo** | TypeScript | CLI Testing | ❌ | ✅ | MIT |
+| **LangSmith** | Platform | Observability | ✅ (SDK) | ❌ | Commercial |
+| **Langfuse** | TypeScript | Observability | ✅ (SDK) | ✅ | MIT |
 
 ---
 
-## ðŸ’¡ Recommendations for {{PROJECT_NAME}}
+## 💡 Recommendations for {{PROJECT_NAME}}
 
 ### Immediate Opportunities (High Value, Low Effort)
 
@@ -415,7 +421,7 @@ tests:
 
 ---
 
-## ðŸš€ Getting Started
+## 🚀 Getting Started
 
 ### Semantic Kernel (Recommended First Step)
 
@@ -504,7 +510,7 @@ tests:
 
 ---
 
-## ðŸ“š Additional Resources
+## 📚 Additional Resources
 
 ### Learning Materials
 - **Prompt Engineering Guide**: https://www.promptingguide.ai
@@ -523,7 +529,7 @@ tests:
 
 ---
 
-## ðŸ”„ Maintenance
+## 🔄 Maintenance
 
 **Update Frequency**: Quarterly (or when major library updates occur)  
 **Owner**: Development Team  
@@ -545,3 +551,4 @@ tests:
 
 **Version History**:
 - **1.0.0** (2025-10-13): Initial documentation with 8 libraries, comparison matrix, integration recommendations
+

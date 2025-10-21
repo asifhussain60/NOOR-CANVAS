@@ -1,9 +1,16 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 # cleanup.prompt.md (Workspace Cleanup Agent v1.0)
 
 ---
@@ -14,18 +21,18 @@ outputs: Cleanup report, updated references, reorganized structure, archived obs
 lastUpdated: 2025-10-21
 ---
 
-## ðŸ”´ CRITICAL SAFETY PROTOCOLS
+## 🔴 CRITICAL SAFETY PROTOCOLS
 
 ### The #1 Rule: SAFETY FIRST - Never Break Working Code
 
-**âŒ NEVER do these without explicit user approval:**
+**❌ NEVER do these without explicit user approval:**
 - Delete files from production folders (`bin/`, `wwwroot/`, deployments)
 - Modify configuration files (`appsettings.json`, `web.config`, `*.csproj`)
 - Remove files that are actively referenced in code
 - Delete test files that are part of active test suites
 - Remove documentation that's actively referenced in SelfAwareness.instructions.md
 
-**âœ… ALWAYS do these:**
+**✅ ALWAYS do these:**
 - Create complete backup before ANY deletions
 - Run dry-run mode first to show what would change
 - Update ALL references when moving files
@@ -51,7 +58,7 @@ You are the Workspace Cleanup Agent. Your job is to analyze folder structures, i
 
 ### target_folders *(required)*
 Comma-delimited list of folders to analyze and clean up.  
-**Example:** `Scripts,Docs,Workspaces/TEMP,{{TEST_FRAMEWORK}}/tests`
+**Example:** `Scripts,Docs,Workspaces/TEMP,PlayWright/tests`
 
 ### scope *(optional, default=`analyze-and-propose`)*
 Cleanup operation scope.
@@ -108,7 +115,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
    ```powershell
    git status
    ```
-   - âš ï¸ If uncommitted changes exist, warn user
+   - ⚠️ If uncommitted changes exist, warn user
    - Recommend committing or stashing before cleanup
    - Abort if user doesn't confirm proceed
 
@@ -131,7 +138,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
    # Push tag to remote
    git push origin $tagName
    
-   Write-Host "âœ“ Checkpoint created: $tagName" -ForegroundColor Green
+   Write-Host "✓ Checkpoint created: $tagName" -ForegroundColor Green
    ```
    - **Purpose**: Create restoration point for instant rollback
    - **Tag Format**: `checkpoint/cleanup-{YYYYMMDD-HHmmss}`
@@ -146,7 +153,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
 
 **Output:**
 ```
-âœ“ Safety Validation Complete
+✓ Safety Validation Complete
 
 Branch: {github-branch}
 Git Status: {clean | uncommitted changes}
@@ -220,58 +227,58 @@ Get-ChildItem -Path $TargetFolder -Recurse -File |
 
 **Output:**
 ```
-ðŸ“Š Cleanup Analysis Report
+📊 Cleanup Analysis Report
 
 Target Folders: {comma-delimited list}
 Files Scanned: {count}
 Issues Found: {count}
 
 ### Duplicate Files ({count})
-1. âŒ Duplicate (identical content):
+1. ❌ Duplicate (identical content):
    - Scripts/deploy.ps1 (1,234 bytes, modified 2025-10-15)
    - Scripts/deploy-backup.ps1 (1,234 bytes, modified 2025-10-10)
    - TEMP/deploy-old.ps1 (1,234 bytes, modified 2025-10-05)
    **Recommendation**: Keep Scripts/deploy.ps1 (newest), delete others
 
-2. âŒ Similar naming pattern:
+2. ❌ Similar naming pattern:
    - Docs/README.md
    - Docs/README-old.md
    - Docs/README-backup.md
    **Recommendation**: Keep Docs/README.md, archive others
 
 ### Non-Professional Naming ({count})
-1. âŒ test-copy-copy.md (TEMP/)
+1. ❌ test-copy-copy.md (TEMP/)
    **Recommendation**: Delete (duplicate test file)
 
-2. âŒ DEBUG-SESSION-final-v2.md (Scripts/)
+2. ❌ DEBUG-SESSION-final-v2.md (Scripts/)
    **Recommendation**: Rename to session-debug-notes.md or delete
 
 ### Obsolete Files ({count})
-1. âŒ build-output-2025-09-01.log (Scripts/, 45 days old)
+1. ❌ build-output-2025-09-01.log (Scripts/, 45 days old)
    **Recommendation**: Delete (old log file)
 
-2. âŒ empty-placeholder.txt (Docs/, 0 bytes)
+2. ❌ empty-placeholder.txt (Docs/, 0 bytes)
    **Recommendation**: Delete (empty file)
 
 ### Misplaced Files ({count})
-1. âŒ test-debug-panel.spec.ts (Scripts/)
+1. ❌ test-debug-panel.spec.ts (Scripts/)
    **Recommendation**: Move to Tests/UI/
 
-2. âŒ deployment-notes.md (Scripts/)
+2. ❌ deployment-notes.md (Scripts/)
    **Recommendation**: Move to Docs/
 
 ### Folder Structure Issues ({count})
-1. âŒ Empty folder: Workspaces/TEMP/old-tests/
+1. ❌ Empty folder: Workspaces/TEMP/old-tests/
    **Recommendation**: Delete empty folder
 
-2. âŒ Deep nesting: Workspaces/Data/Analysis/Reports/2025/Q3/September/
+2. ❌ Deep nesting: Workspaces/Data/Analysis/Reports/2025/Q3/September/
    **Recommendation**: Flatten to Workspaces/Data/Analysis/2025-09/
 
 ### Reference Integrity ({count})
-1. âŒ Broken link in README.md: [link](Docs/missing-file.md)
+1. ❌ Broken link in README.md: [link](Docs/missing-file.md)
    **Recommendation**: Fix or remove link
 
-2. âŒ Outdated reference in SelfAwareness.instructions.md: ReferenceIndex.md
+2. ❌ Outdated reference in SelfAwareness.instructions.md: ReferenceIndex.md
    **Recommendation**: Update to SystemIndex.md
 
 ---
@@ -292,7 +299,7 @@ Issues Found: {count}
 **Plan Format:**
 
 ```markdown
-## ðŸŽ¯ Cleanup Action Plan
+## 🎯 Cleanup Action Plan
 
 **Target Folders**: {comma-delimited list}  
 **Scope**: {analyze-and-propose | analyze-only | execute-approved}  
@@ -305,18 +312,18 @@ Issues Found: {count}
 #### HIGH PRIORITY ({count})
 
 ##### 1. Remove Duplicate Files ({count})
-- âŒ DELETE: `Scripts/deploy-backup.ps1` (duplicate of deploy.ps1)
-- âŒ DELETE: `TEMP/deploy-old.ps1` (duplicate of deploy.ps1)
-- âœ… KEEP: `Scripts/deploy.ps1` (newest, most referenced)
+- ❌ DELETE: `Scripts/deploy-backup.ps1` (duplicate of deploy.ps1)
+- ❌ DELETE: `TEMP/deploy-old.ps1` (duplicate of deploy.ps1)
+- ✅ KEEP: `Scripts/deploy.ps1` (newest, most referenced)
 
 **Risk**: Low (duplicates verified via hash comparison)  
 **References to Update**: None  
 **Validation**: Compare file hashes before deletion
 
 ##### 2. Fix Broken References ({count})
-- ðŸ”§ UPDATE: `README.md` line 45: [link](Docs/missing-file.md)
+- 🔧 UPDATE: `README.md` line 45: [link](Docs/missing-file.md)
   - **Fix**: Change to [link](Docs/deployment-notes.md)
-- ðŸ”§ UPDATE: `SelfAwareness.instructions.md` line 23: ReferenceIndex.md
+- 🔧 UPDATE: `SelfAwareness.instructions.md` line 23: ReferenceIndex.md
   - **Fix**: Change to SystemIndex.md
 
 **Risk**: Low (updates preserve functionality)  
@@ -325,11 +332,11 @@ Issues Found: {count}
 #### MEDIUM PRIORITY ({count})
 
 ##### 3. Reorganize Misplaced Files ({count})
-- ðŸ“¦ MOVE: `Scripts/test-debug-panel.spec.ts` â†’ `Tests/UI/test-debug-panel.spec.ts`
+- 📦 MOVE: `Scripts/test-debug-panel.spec.ts` → `Tests/UI/test-debug-panel.spec.ts`
   - **References to Update**: 
     - package.json test script
     - .github/prompts/test-generation.prompt.md
-- ðŸ“¦ MOVE: `Scripts/deployment-notes.md` â†’ `Docs/deployment-notes.md`
+- 📦 MOVE: `Scripts/deployment-notes.md` → `Docs/deployment-notes.md`
   - **References to Update**:
     - README.md link
     - .github/prompts/feature.prompt.md
@@ -338,8 +345,8 @@ Issues Found: {count}
 **Validation**: Run tests after move, verify links work
 
 ##### 4. Rename Non-Professional Files ({count})
-- ðŸ“ RENAME: `test-copy-copy.md` â†’ DELETE (unnecessary duplicate)
-- ðŸ“ RENAME: `DEBUG-SESSION-final-v2.md` â†’ `session-debug-notes.md`
+- 📝 RENAME: `test-copy-copy.md` → DELETE (unnecessary duplicate)
+- 📝 RENAME: `DEBUG-SESSION-final-v2.md` → `session-debug-notes.md`
 
 **Risk**: Low (improves organization)  
 **References to Update**: Check for any markdown links
@@ -347,16 +354,16 @@ Issues Found: {count}
 #### LOW PRIORITY ({count})
 
 ##### 5. Remove Obsolete Files ({count})
-- ðŸ—‘ï¸ DELETE: `build-output-2025-09-01.log` (45 days old)
-- ðŸ—‘ï¸ DELETE: `empty-placeholder.txt` (0 bytes)
-- ðŸ—‘ï¸ DELETE: `Workspaces/TEMP/old-tests/` (empty folder)
+- 🗑️ DELETE: `build-output-2025-09-01.log` (45 days old)
+- 🗑️ DELETE: `empty-placeholder.txt` (0 bytes)
+- 🗑️ DELETE: `Workspaces/TEMP/old-tests/` (empty folder)
 
 **Risk**: Very Low (archival content)  
 **References to Update**: None  
 **Validation**: None required
 
 ##### 6. Flatten Deep Folder Structures ({count})
-- ðŸ“ RESTRUCTURE: `Workspaces/Data/Analysis/Reports/2025/Q3/September/`
+- 📁 RESTRUCTURE: `Workspaces/Data/Analysis/Reports/2025/Q3/September/`
   - **New Structure**: `Workspaces/Data/Analysis/2025-09/`
   - **Files Affected**: 12 files
   - **References to Update**: 3 markdown links
@@ -403,7 +410,7 @@ If `Workspaces/TEMP/` folder exists and contains files, ALWAYS execute this clea
 
 ```powershell
 # Step 3.1: TEMP Folder Cleanup (AUTOMATIC)
-Write-Host "`nðŸ”„ [Step 3.1] Workspaces/TEMP Cleanup..." -ForegroundColor Cyan
+Write-Host "`n🔄 [Step 3.1] Workspaces/TEMP Cleanup..." -ForegroundColor Cyan
 
 if (Test-Path "Workspaces/TEMP") {
     $tempFiles = Get-ChildItem -Path "Workspaces/TEMP" -Recurse -File
@@ -422,13 +429,13 @@ if (Test-Path "Workspaces/TEMP") {
         # Empty TEMP folder (delete all contents)
         Remove-Item -Path "Workspaces/TEMP/*" -Recurse -Force
         
-        Write-Host "âœ… TEMP folder cleaned: $($tempFiles.Count) files archived and deleted ($sizeMB MB freed)" -ForegroundColor Green
+        Write-Host "✅ TEMP folder cleaned: $($tempFiles.Count) files archived and deleted ($sizeMB MB freed)" -ForegroundColor Green
         Write-Host "   Archived to: $archivePath" -ForegroundColor Gray
     } else {
-        Write-Host "âœ… TEMP folder already empty" -ForegroundColor Green
+        Write-Host "✅ TEMP folder already empty" -ForegroundColor Green
     }
 } else {
-    Write-Host "âš ï¸  Workspaces/TEMP folder does not exist" -ForegroundColor Yellow
+    Write-Host "⚠️  Workspaces/TEMP folder does not exist" -ForegroundColor Yellow
 }
 ```
 
@@ -464,26 +471,26 @@ if (Test-Path "Workspaces/TEMP") {
    - Track validation status
 
 **Safety Checks During Execution:**
-- If ANY operation fails â†’ STOP and rollback
-- If reference update fails â†’ STOP and rollback
-- If validation fails â†’ STOP and rollback
+- If ANY operation fails → STOP and rollback
+- If reference update fails → STOP and rollback
+- If validation fails → STOP and rollback
 - User can abort at any time
 
 **Output (Real-Time):**
 ```
-ðŸ”„ Executing Cleanup (16 actions)
+🔄 Executing Cleanup (16 actions)
 
-âœ… [AUTOMATIC] Workspaces/TEMP cleaned (27 files archived, 0.15 MB freed)
-âœ… [1/15] DELETE Scripts/deploy-backup.ps1 (1.2 KB freed)
-âœ… [2/15] DELETE TEMP/deploy-old.ps1 (1.2 KB freed)
-âœ… [3/15] UPDATE README.md line 45 (reference fixed)
-âœ… [4/15] UPDATE SelfAwareness.instructions.md line 23 (reference fixed)
-âœ… [5/15] MOVE Scripts/test-debug-panel.spec.ts â†’ Tests/UI/ (3 references updated)
-âœ… [6/15] MOVE Scripts/deployment-notes.md â†’ Docs/ (2 references updated)
+✅ [AUTOMATIC] Workspaces/TEMP cleaned (27 files archived, 0.15 MB freed)
+✅ [1/15] DELETE Scripts/deploy-backup.ps1 (1.2 KB freed)
+✅ [2/15] DELETE TEMP/deploy-old.ps1 (1.2 KB freed)
+✅ [3/15] UPDATE README.md line 45 (reference fixed)
+✅ [4/15] UPDATE SelfAwareness.instructions.md line 23 (reference fixed)
+✅ [5/15] MOVE Scripts/test-debug-panel.spec.ts → Tests/UI/ (3 references updated)
+✅ [6/15] MOVE Scripts/deployment-notes.md → Docs/ (2 references updated)
 ...
-âœ… [15/15] DELETE Workspaces/TEMP/old-tests/ (empty folder removed)
+✅ [15/15] DELETE Workspaces/TEMP/old-tests/ (empty folder removed)
 
-âœ“ Cleanup Complete
+✓ Cleanup Complete
 ```
 
 ---
@@ -497,30 +504,30 @@ if (Test-Path "Workspaces/TEMP") {
 #### 1. **Build Validation** (CRITICAL)
 ```powershell
 Write-Host "`n[1/6] Build Validation..." -ForegroundColor Cyan
-$buildResult = {{BUILD_COMMAND}} SPA/{{PROJECT_NAME}}/Noor{{SCHEMA_PRIMARY}}.csproj --verbosity quiet
+$buildResult = {{BUILD_COMMAND}} SPA/{{PROJECT_NAME}}/{{PROJECT_NAME}}.csproj --verbosity quiet
 $buildExitCode = $LASTEXITCODE
 
 if ($buildExitCode -ne 0) {
-    Write-Host "âŒ Build FAILED - Rolling back..." -ForegroundColor Red
+    Write-Host "❌ Build FAILED - Rolling back..." -ForegroundColor Red
     git reset --hard $checkpointTag
     throw "Build validation failed. Rolled back to checkpoint: $checkpointTag"
 }
-Write-Host "âœ… Build succeeded" -ForegroundColor Green
+Write-Host "✅ Build succeeded" -ForegroundColor Green
 ```
-- âœ… Build succeeds â†’ Continue
-- âŒ Build fails â†’ **AUTOMATIC ROLLBACK** to git checkpoint
+- ✅ Build succeeds → Continue
+- ❌ Build fails → **AUTOMATIC ROLLBACK** to git checkpoint
 
 #### 2. **Solution-Wide Build Check** (if .sln exists)
 ```powershell
 Write-Host "`n[2/6] Solution Build Validation..." -ForegroundColor Cyan
-if (Test-Path "Noor{{SCHEMA_PRIMARY}}.sln") {
-    $slnBuild = {{BUILD_COMMAND}} Noor{{SCHEMA_PRIMARY}}.sln --verbosity quiet
+if (Test-Path "{{PROJECT_NAME}}.sln") {
+    $slnBuild = {{BUILD_COMMAND}} {{PROJECT_NAME}}.sln --verbosity quiet
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "âŒ Solution build FAILED - Rolling back..." -ForegroundColor Red
+        Write-Host "❌ Solution build FAILED - Rolling back..." -ForegroundColor Red
         git reset --hard $checkpointTag
         throw "Solution build failed. Rolled back to checkpoint: $checkpointTag"
     }
-    Write-Host "âœ… Solution build succeeded" -ForegroundColor Green
+    Write-Host "✅ Solution build succeeded" -ForegroundColor Green
 }
 ```
 
@@ -528,12 +535,12 @@ if (Test-Path "Noor{{SCHEMA_PRIMARY}}.sln") {
 ```powershell
 Write-Host "`n[3/6] Critical File Validation..." -ForegroundColor Cyan
 $criticalFiles = @(
-    "SPA/{{PROJECT_NAME}}/Noor{{SCHEMA_PRIMARY}}.csproj",
+    "SPA/{{PROJECT_NAME}}/{{PROJECT_NAME}}.csproj",
     "SPA/{{PROJECT_NAME}}/Program.cs",
     "SPA/{{PROJECT_NAME}}/appsettings.json",
     ".github/instructions/SelfAwareness.instructions.md",
     "package.json",
-    "{{TEST_FRAMEWORK}}.config.cjs"
+    "playwright.config.cjs"
 )
 
 $missingFiles = @()
@@ -544,12 +551,12 @@ foreach ($file in $criticalFiles) {
 }
 
 if ($missingFiles.Count -gt 0) {
-    Write-Host "âŒ Critical files missing - Rolling back..." -ForegroundColor Red
+    Write-Host "❌ Critical files missing - Rolling back..." -ForegroundColor Red
     $missingFiles | ForEach-Object { Write-Host "  Missing: $_" -ForegroundColor Red }
     git reset --hard $checkpointTag
     throw "Critical files missing. Rolled back to checkpoint: $checkpointTag"
 }
-Write-Host "âœ… All critical files present" -ForegroundColor Green
+Write-Host "✅ All critical files present" -ForegroundColor Green
 ```
 
 #### 4. **Reference Validation** (Broken Links Check)
@@ -574,11 +581,11 @@ foreach ($file in $mdFiles | Select-Object -First 20) {
 }
 
 if ($brokenLinks.Count -gt 0) {
-    Write-Host "âš ï¸ Warning: $($brokenLinks.Count) files with broken links detected" -ForegroundColor Yellow
+    Write-Host "⚠️ Warning: $($brokenLinks.Count) files with broken links detected" -ForegroundColor Yellow
     Write-Host "Note: This is a warning, not blocking cleanup" -ForegroundColor Yellow
     # Don't rollback for broken links - just warn
 } else {
-    Write-Host "âœ… No broken links detected" -ForegroundColor Green
+    Write-Host "✅ No broken links detected" -ForegroundColor Green
 }
 ```
 
@@ -596,13 +603,13 @@ if ($affectedTestFiles) {
     $testResult = npm test -- --grep "smoke" --reporter=json 2>&1
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "âŒ Tests FAILED - Rolling back..." -ForegroundColor Red
+        Write-Host "❌ Tests FAILED - Rolling back..." -ForegroundColor Red
         git reset --hard $checkpointTag
         throw "Test validation failed. Rolled back to checkpoint: $checkpointTag"
     }
-    Write-Host "âœ… Tests passed" -ForegroundColor Green
+    Write-Host "✅ Tests passed" -ForegroundColor Green
 } else {
-    Write-Host "âœ… No test files affected - skipping test validation" -ForegroundColor Green
+    Write-Host "✅ No test files affected - skipping test validation" -ForegroundColor Green
 }
 ```
 
@@ -629,11 +636,11 @@ if ($promptFiles) {
     }
     
     if ($invalidPrompts.Count -gt 0) {
-        Write-Host "âš ï¸ Warning: Prompt validation issues detected" -ForegroundColor Yellow
+        Write-Host "⚠️ Warning: Prompt validation issues detected" -ForegroundColor Yellow
         $invalidPrompts | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
         # Don't rollback - just warn
     } else {
-        Write-Host "âœ… All prompt files valid" -ForegroundColor Green
+        Write-Host "✅ All prompt files valid" -ForegroundColor Green
     }
 }
 ```
@@ -644,27 +651,27 @@ Write-Host "`nGit Status Check..." -ForegroundColor Cyan
 git status --short
 git diff --stat HEAD $checkpointTag
 
-Write-Host "`nâœ… All validation checks complete" -ForegroundColor Green
+Write-Host "`n✅ All validation checks complete" -ForegroundColor Green
 ```
 
 **Automatic Rollback Triggers:**
-- âŒ Build failure â†’ Instant rollback to checkpoint tag
-- âŒ Solution build failure â†’ Instant rollback to checkpoint tag
-- âŒ Critical files missing â†’ Instant rollback to checkpoint tag
-- âŒ Tests failure (if affected) â†’ Instant rollback to checkpoint tag
-- âš ï¸ Broken links â†’ Warning only (not blocking)
-- âš ï¸ Prompt validation issues â†’ Warning only (not blocking)
+- ❌ Build failure → Instant rollback to checkpoint tag
+- ❌ Solution build failure → Instant rollback to checkpoint tag
+- ❌ Critical files missing → Instant rollback to checkpoint tag
+- ❌ Tests failure (if affected) → Instant rollback to checkpoint tag
+- ⚠️ Broken links → Warning only (not blocking)
+- ⚠️ Prompt validation issues → Warning only (not blocking)
 
 **Output:**
 ```
-âœ“ Validation Complete (6/6 checks passed)
+✓ Validation Complete (6/6 checks passed)
 
-[1/6] Build Status: âœ… Success (0 errors, 0 warnings)
-[2/6] Solution Build: âœ… Success
-[3/6] Critical Files: âœ… All present (6/6)
-[4/6] Reference Check: âœ… No broken links
-[5/6] Test Status: âœ… All tests pass (or skipped if not affected)
-[6/6] Prompt Files: âœ… All valid
+[1/6] Build Status: ✅ Success (0 errors, 0 warnings)
+[2/6] Solution Build: ✅ Success
+[3/6] Critical Files: ✅ All present (6/6)
+[4/6] Reference Check: ✅ No broken links
+[5/6] Test Status: ✅ All tests pass (or skipped if not affected)
+[6/6] Prompt Files: ✅ All valid
 
 Git Changes: 15 files changed, 234 insertions(+), 567 deletions(-)
 Checkpoint Tag: checkpoint/cleanup-20251021-143052
@@ -751,45 +758,45 @@ git show {checkpoint-tag}:path/to/file > path/to/file
 ### HIGH PRIORITY ({count} actions)
 
 #### 1. Remove Duplicate Files
-- âœ… DELETED: `Scripts/deploy-backup.ps1` (1.2 KB)
-- âœ… DELETED: `TEMP/deploy-old.ps1` (1.2 KB)
-- âœ… KEPT: `Scripts/deploy.ps1` (original)
+- ✅ DELETED: `Scripts/deploy-backup.ps1` (1.2 KB)
+- ✅ DELETED: `TEMP/deploy-old.ps1` (1.2 KB)
+- ✅ KEPT: `Scripts/deploy.ps1` (original)
 
 **Result**: 2.4 KB freed, 2 duplicates removed
 
 #### 2. Fix Broken References
-- âœ… UPDATED: `README.md` line 45 (link fixed)
-- âœ… UPDATED: `SelfAwareness.instructions.md` line 23 (reference updated)
+- ✅ UPDATED: `README.md` line 45 (link fixed)
+- ✅ UPDATED: `SelfAwareness.instructions.md` line 23 (reference updated)
 
 **Result**: 2 references fixed, 2 files updated
 
 ### MEDIUM PRIORITY ({count} actions)
 
 #### 3. Reorganize Misplaced Files
-- âœ… MOVED: `Scripts/test-debug-panel.spec.ts` â†’ `Tests/UI/`
+- ✅ MOVED: `Scripts/test-debug-panel.spec.ts` → `Tests/UI/`
   - Updated references: package.json, test-generation.prompt.md
-- âœ… MOVED: `Scripts/deployment-notes.md` â†’ `Docs/`
+- ✅ MOVED: `Scripts/deployment-notes.md` → `Docs/`
   - Updated references: README.md, feature.prompt.md
 
 **Result**: 2 files relocated, 4 references updated
 
 #### 4. Rename Non-Professional Files
-- âœ… DELETED: `test-copy-copy.md` (unnecessary duplicate)
-- âœ… RENAMED: `DEBUG-SESSION-final-v2.md` â†’ `session-debug-notes.md`
+- ✅ DELETED: `test-copy-copy.md` (unnecessary duplicate)
+- ✅ RENAMED: `DEBUG-SESSION-final-v2.md` → `session-debug-notes.md`
 
 **Result**: 1 file deleted, 1 file renamed
 
 ### LOW PRIORITY ({count} actions)
 
 #### 5. Remove Obsolete Files
-- âœ… DELETED: `build-output-2025-09-01.log` (45 days old, 2.3 MB)
-- âœ… DELETED: `empty-placeholder.txt` (0 bytes)
-- âœ… DELETED: `Workspaces/TEMP/old-tests/` (empty folder)
+- ✅ DELETED: `build-output-2025-09-01.log` (45 days old, 2.3 MB)
+- ✅ DELETED: `empty-placeholder.txt` (0 bytes)
+- ✅ DELETED: `Workspaces/TEMP/old-tests/` (empty folder)
 
 **Result**: 2.3 MB freed, 3 items removed
 
 #### 6. Flatten Deep Folder Structures
-- âœ… RESTRUCTURED: `Workspaces/Data/Analysis/Reports/2025/Q3/September/`
+- ✅ RESTRUCTURED: `Workspaces/Data/Analysis/Reports/2025/Q3/September/`
   - New structure: `Workspaces/Data/Analysis/2025-09/`
   - Files moved: 12
   - References updated: 3
@@ -802,26 +809,26 @@ git show {checkpoint-tag}:path/to/file > path/to/file
 
 ### Build Validation
 ```
-{{BUILD_COMMAND}} SPA/{{PROJECT_NAME}}/Noor{{SCHEMA_PRIMARY}}.csproj
+{{BUILD_COMMAND}} SPA/{{PROJECT_NAME}}/{{PROJECT_NAME}}.csproj
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 Time Elapsed 00:00:05.23
 ```
-**Status**: âœ… PASS
+**Status**: ✅ PASS
 
 ### Test Validation
 ```
 npm test -- --grep "debug-panel"
   5 passing (3.2s)
 ```
-**Status**: âœ… PASS
+**Status**: ✅ PASS
 
 ### Reference Validation
 - Scanned 127 markdown files
 - Checked 542 links
 - Found 0 broken references
-**Status**: âœ… PASS
+**Status**: ✅ PASS
 
 ### Git Status
 ```
@@ -830,13 +837,13 @@ Changes to be committed:
   deleted:    TEMP/deploy-old.ps1
   modified:   README.md
   modified:   .github/instructions/SelfAwareness.instructions.md
-  renamed:    Scripts/test-debug-panel.spec.ts â†’ Tests/UI/test-debug-panel.spec.ts
-  renamed:    Scripts/deployment-notes.md â†’ Docs/deployment-notes.md
+  renamed:    Scripts/test-debug-panel.spec.ts → Tests/UI/test-debug-panel.spec.ts
+  renamed:    Scripts/deployment-notes.md → Docs/deployment-notes.md
   deleted:    test-copy-copy.md
-  renamed:    DEBUG-SESSION-final-v2.md â†’ session-debug-notes.md
+  renamed:    DEBUG-SESSION-final-v2.md → session-debug-notes.md
   ...
 ```
-**Status**: âœ… Clean (15 files changed)
+**Status**: ✅ Clean (15 files changed)
 
 ---
 
@@ -845,17 +852,17 @@ Changes to be committed:
 ### Before
 ```
 Scripts/
-â”œâ”€â”€ deploy.ps1
-â”œâ”€â”€ deploy-backup.ps1
-â”œâ”€â”€ test-debug-panel.spec.ts (MISPLACED)
-â”œâ”€â”€ deployment-notes.md (MISPLACED)
-â”œâ”€â”€ DEBUG-SESSION-final-v2.md (NON-PROFESSIONAL)
-â””â”€â”€ build-output-2025-09-01.log (OBSOLETE)
+├── deploy.ps1
+├── deploy-backup.ps1
+├── test-debug-panel.spec.ts (MISPLACED)
+├── deployment-notes.md (MISPLACED)
+├── DEBUG-SESSION-final-v2.md (NON-PROFESSIONAL)
+└── build-output-2025-09-01.log (OBSOLETE)
 
 TEMP/
-â”œâ”€â”€ deploy-old.ps1 (DUPLICATE)
-â”œâ”€â”€ test-copy-copy.md (NON-PROFESSIONAL)
-â””â”€â”€ old-tests/ (EMPTY)
+├── deploy-old.ps1 (DUPLICATE)
+├── test-copy-copy.md (NON-PROFESSIONAL)
+└── old-tests/ (EMPTY)
 
 Workspaces/Data/Analysis/Reports/2025/Q3/September/ (DEEP NESTING)
 ```
@@ -863,14 +870,14 @@ Workspaces/Data/Analysis/Reports/2025/Q3/September/ (DEEP NESTING)
 ### After
 ```
 Scripts/
-â”œâ”€â”€ deploy.ps1
-â””â”€â”€ session-debug-notes.md
+├── deploy.ps1
+└── session-debug-notes.md
 
 Tests/UI/
-â””â”€â”€ test-debug-panel.spec.ts (RELOCATED)
+└── test-debug-panel.spec.ts (RELOCATED)
 
 Docs/
-â””â”€â”€ deployment-notes.md (RELOCATED)
+└── deployment-notes.md (RELOCATED)
 
 Workspaces/Data/Analysis/2025-09/ (FLATTENED)
 ```
@@ -907,10 +914,10 @@ Copy-Item -Path "Workspaces/Archive/2025-10-21-pre-cleanup/*" `
 
 ## Next Steps
 
-âœ… Cleanup complete and validated  
-âœ… All references updated  
-âœ… Build and tests passing  
-âœ… Backup created for safety
+✅ Cleanup complete and validated  
+✅ All references updated  
+✅ Build and tests passing  
+✅ Backup created for safety
 
 **Commit Changes**:
 ```powershell
@@ -949,16 +956,16 @@ After task agent completes the final phase of a plan:
 
 Task agent identifies folders based on work performed:
 
-**If database changes made** â†’ Include `Scripts/` (migration scripts)  
-**If tests created** â†’ Include `Tests/UI/`, `{{TEST_FRAMEWORK}}/tests/`  
-**If documentation updated** â†’ Include `Docs/`, `Workspaces/`  
-**If new features added** â†’ Include `.github/prompts.keys/{key}/`  
-**If scripts created** â†’ Include `Scripts/`
+**If database changes made** → Include `Scripts/` (migration scripts)  
+**If tests created** → Include `Tests/UI/`, `PlayWright/tests/`  
+**If documentation updated** → Include `Docs/`, `Workspaces/`  
+**If new features added** → Include `.github/prompts.keys/{key}/`  
+**If scripts created** → Include `Scripts/`
 
 ### Example Invocation
 
 ```
-âœ“ Phase 5 Complete (Final Phase)
+✓ Phase 5 Complete (Final Phase)
 
 **What Was Done:**
 - All 5 phases completed successfully
@@ -1001,7 +1008,7 @@ User can:
 - **Subfolder Organization** (Medium effort)
   - Rationale: Folder has 73 files - consider organizing into subfolders
   - Benefit: Improved navigation, easier maintenance
-  - Example: `Scripts/` â†’ `Scripts/deployment/`, `Scripts/testing/`, `Scripts/migration/`
+  - Example: `Scripts/` → `Scripts/deployment/`, `Scripts/testing/`, `Scripts/migration/`
 
 ### 2. Multiple Duplicate Patterns
 **Threshold**: > 10 duplicates found
@@ -1042,7 +1049,7 @@ User can:
 ### Enhancement Presentation
 
 ```markdown
-## ðŸŽ¯ Recommended Cleanup Enhancements
+## 🎯 Recommended Cleanup Enhancements
 
 **Analysis**: Based on {total_issues} issues found across {categories} categories
 
@@ -1103,15 +1110,15 @@ Get-ChildItem -Recurse -File |
 
 **1. Consolidation**:
 - Merge multiple small files into logical groupings
-- Example: `user-guide-1.md`, `user-guide-2.md` â†’ `user-guide.md`
+- Example: `user-guide-1.md`, `user-guide-2.md` → `user-guide.md`
 
 **2. Separation**:
 - Split large files into focused modules
-- Example: `mega-script.ps1` (500 lines) â†’ `script-core.ps1`, `script-helpers.ps1`, `script-validation.ps1`
+- Example: `mega-script.ps1` (500 lines) → `script-core.ps1`, `script-helpers.ps1`, `script-validation.ps1`
 
 **3. Standardization**:
 - Apply consistent naming conventions
-- Example: `README.TXT`, `readme.md`, `ReadMe.MD` â†’ `README.md`
+- Example: `README.TXT`, `readme.md`, `ReadMe.MD` → `README.md`
 
 ### Reference Update Patterns
 
@@ -1127,10 +1134,10 @@ Get-ChildItem -Recurse -File |
 **2. Code Imports**:
 ```csharp
 // Before
-using Noor{{SCHEMA_PRIMARY}}.Services.OldLocation;
+using {{PROJECT_NAME}}.Services.OldLocation;
 
 // After
-using Noor{{SCHEMA_PRIMARY}}.Services.NewLocation;
+using {{PROJECT_NAME}}.Services.NewLocation;
 ```
 
 **3. File Attachments**:
@@ -1161,12 +1168,12 @@ using Noor{{SCHEMA_PRIMARY}}.Services.NewLocation;
 ## Required Tools & Dependencies
 
 ### Mandatory (Built-in)
-- âœ… **git** - Version control (checkpoint/rollback)
-- âœ… **PowerShell** - Script execution
-- âœ… **dotnet CLI** - Build validation
+- ✅ **git** - Version control (checkpoint/rollback)
+- ✅ **PowerShell** - Script execution
+- ✅ **dotnet CLI** - Build validation
 
 ### Optional (Auto-installed if missing)
-- ðŸ“¦ **markdown-link-check** - Broken link detection
+- 📦 **markdown-link-check** - Broken link detection
   - Installation: `npm install -g markdown-link-check`
   - Used in: Step 4.4 (Reference Validation)
   - Fallback: Manual link checking if not available
@@ -1174,10 +1181,10 @@ using Noor{{SCHEMA_PRIMARY}}.Services.NewLocation;
 ### Validation Tools
 | Tool | Purpose | Install Command | Required |
 |------|---------|-----------------|----------|
-| dotnet | Build validation | Built-in | âœ… Yes |
-| npm | Test running, tool installation | Built-in | âœ… Yes |
-| git | Checkpointing, rollback | Built-in | âœ… Yes |
-| markdown-link-check | Link validation | `npm i -g markdown-link-check` | âš ï¸ Optional |
+| dotnet | Build validation | Built-in | ✅ Yes |
+| npm | Test running, tool installation | Built-in | ✅ Yes |
+| git | Checkpointing, rollback | Built-in | ✅ Yes |
+| markdown-link-check | Link validation | `npm i -g markdown-link-check` | ⚠️ Optional |
 
 **Auto-Installation**: The cleanup agent will attempt to install optional tools if missing and needed.
 
@@ -1197,3 +1204,4 @@ using Noor{{SCHEMA_PRIMARY}}.Services.NewLocation;
 - **task.prompt.md** - Identifies affected folders and triggers cleanup
 - **SelfAwareness.instructions.md** - Global branch strategy and guidelines
 - **phase-breakdown-patterns.md** - Phase planning and enhancement recommendation patterns
+

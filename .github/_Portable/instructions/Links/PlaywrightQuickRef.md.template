@@ -1,39 +1,45 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
-# {{TEST_FRAMEWORK}} Testing Quick Reference
+---
+# Playwright Testing Quick Reference
 
 **Version**: 2.0.0  
 **Last Updated**: 2025-10-16  
-**Purpose**: Authoritative {{TEST_FRAMEWORK}} testing reference - eliminates ambiguity in test creation and execution
+**Purpose**: Authoritative Playwright testing reference - eliminates ambiguity in test creation and execution
 
 ---
 
-## âš ï¸ CRITICAL: Server Management Rules
+## ⚠️ CRITICAL: Server Management Rules
 
-**{{TEST_FRAMEWORK}} MANAGES THE SERVER AUTOMATICALLY - DO NOT START IT MANUALLY!**
+**PLAYWRIGHT MANAGES THE SERVER AUTOMATICALLY - DO NOT START IT MANUALLY!**
 
 Port policy: The application must bind only to HTTPS on 9091. Do not bind to 9090.
 
-### âŒ NEVER Do This for {{TEST_FRAMEWORK}} Tests:
+### ❌ NEVER Do This for Playwright Tests:
 ```powershell
 # WRONG - Don't manually start the app
-{{RUN_COMMAND}}
+dotnet run
 ./Workspaces/Global/nc.ps1
 ./Workspaces/Global/ncb.ps1
-Start-Process powershell -ArgumentList "{{RUN_COMMAND}}"
+Start-Process powershell -ArgumentList "dotnet run"
 ```
 
-### âœ… ALWAYS Do This:
+### ✅ ALWAYS Do This:
 ```bash
-# RIGHT - Let {{TEST_FRAMEWORK}} manage everything
-PW_MODE=standalone npx {{TEST_FRAMEWORK}} test
+# RIGHT - Let Playwright manage everything
+PW_MODE=standalone npx playwright test
 
-# {{TEST_FRAMEWORK}} automatically:
-# 1. Starts {{RUN_COMMAND}} (background subprocess)
+# Playwright automatically:
+# 1. Starts dotnet run (background subprocess)
 # 2. Waits for port 9091 to be ready
 # 3. Runs all tests
 # 4. Stops the server
@@ -42,7 +48,7 @@ PW_MODE=standalone npx {{TEST_FRAMEWORK}} test
 
 ### How webServer Works:
 - **Not a separate window**: Server runs as invisible Node.js subprocess
-- **Automatic lifecycle**: Start â†’ Wait â†’ Test â†’ Stop
+- **Automatic lifecycle**: Start → Wait → Test → Stop
 - **Port monitoring**: Waits for port 9091 to respond before testing
 - **Process cleanup**: Kills server process when tests complete
 - **Error handling**: Stops server even if tests fail
@@ -51,20 +57,20 @@ PW_MODE=standalone npx {{TEST_FRAMEWORK}} test
 - **Browser Development**: Manual testing in browser (use `nc.ps1`)
 - **Debugging**: Visual Studio/VS Code debugger
 - **Demo Pages**: Showing features to stakeholders
-- **NEVER**: For running automated {{TEST_FRAMEWORK}} tests
+- **NEVER**: For running automated Playwright tests
 
 ---
 
-## ðŸ“ CRITICAL: Code Style Rules
+## 📝 CRITICAL: Code Style Rules
 
 ### Emoji Usage in Test Scripts
-**âŒ NEVER use emojis in console.log statements or test code**
+**❌ NEVER use emojis in console.log statements or test code**
 
 ```typescript
 // WRONG - Contains emojis
-console.log('ðŸ“± Loading Host Control Panel...');
-console.log('âœ… Test passed');
-console.log('ðŸ–±ï¸ Clicking button...');
+console.log('📱 Loading Host Control Panel...');
+console.log('✅ Test passed');
+console.log('🖱️ Clicking button...');
 
 // RIGHT - ASCII only
 console.log('[INFO] Loading Host Control Panel...');
@@ -91,14 +97,14 @@ console.log('[INFO] Additional context');     // Information
 
 ---
 
-## ðŸ–¥ï¸ CRITICAL: Application Management for Manual Testing
+## 🖥️ CRITICAL: Application Management for Manual Testing
 
 **When YOU (Copilot) need to run tests that require manual app startup:**
 
 ### Step 1: Launch Application in Separate PowerShell Window
 ```powershell
 # Start app in NEW window (not background process)
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'; $env:ASPNETCORE_URLS='https://localhost:9091'; {{RUN_COMMAND}}" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
 
 # Store the process info
 # The app will run in its own window, visible to user
@@ -115,16 +121,16 @@ netstat -ano | findstr "LISTENING" | findstr ":9091"
 
 ### Step 3: Run Tests in Current Terminal
 ```powershell
-# Run {{TEST_FRAMEWORK}} tests in the CURRENT terminal window
-npx {{TEST_FRAMEWORK}} test path/to/test.spec.ts --headed --reporter=list
+# Run Playwright tests in the CURRENT terminal window
+npx playwright test path/to/test.spec.ts --headed --reporter=list
 ```
 
 ### Step 4: Clean Up After Tests Complete
 ```powershell
 # Find and kill the app PowerShell window process
 $appProcess = Get-Process powershell | Where-Object { 
-    $_.MainWindowTitle -like "*{{RUN_COMMAND}}*" -or 
-    $_.CommandLine -like "*{{PROJECT_NAME}}*{{RUN_COMMAND}}*" 
+    $_.MainWindowTitle -like "*dotnet run*" -or 
+    $_.CommandLine -like "*{{PROJECT_NAME}}*dotnet run*" 
 }
 
 if ($appProcess) {
@@ -146,13 +152,13 @@ if ($portProcess -match '\s+(\d+)$') {
 ### Complete Workflow Example
 ```powershell
 # 1. Launch app
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'; $env:ASPNETCORE_URLS='https://localhost:9091'; {{RUN_COMMAND}}" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
 
 # 2. Wait for startup
 Start-Sleep -Seconds 20
 
 # 3. Run tests
-npx {{TEST_FRAMEWORK}} test Workspaces/TEMP/share-transcript-navigation.spec.ts --headed
+npx playwright test Workspaces/TEMP/share-transcript-navigation.spec.ts --headed
 
 # 4. Cleanup
 $pid = (netstat -ano | findstr ":9091" | findstr "LISTENING" | Select-String -Pattern '\s+(\d+)$').Matches.Groups[1].Value
@@ -160,28 +166,28 @@ if ($pid) { Stop-Process -Id $pid -Force }
 ```
 
 ### When to Use This Approach
-- **âœ… Use when**: Test file is in `Workspaces/TEMP/` (temporary test)
-- **âœ… Use when**: Debugging specific issues that need visual app window
-- **âœ… Use when**: Percy visual regression tests need manual verification
-- **âŒ NEVER use**: For standard CI/CD tests in `{{TEST_FRAMEWORK}}/tests/`
-- **âŒ NEVER use**: When `webServer` configuration is available in `{{TEST_FRAMEWORK}}.config.cjs`
+- **✅ Use when**: Test file is in `Workspaces/TEMP/` (temporary test)
+- **✅ Use when**: Debugging specific issues that need visual app window
+- **✅ Use when**: Percy visual regression tests need manual verification
+- **❌ NEVER use**: For standard CI/CD tests in `PlayWright/tests/`
+- **❌ NEVER use**: When `webServer` configuration is available in `playwright.config.cjs`
 
 ---
 
-## ðŸŽ¯ Testing Strategy Overview
+## 🎯 Testing Strategy Overview
 
 **{{PROJECT_NAME}} uses three complementary testing approaches:**
 
-### 1. **Functional E2E Tests** ({{TEST_FRAMEWORK}} - Standard)
+### 1. **Functional E2E Tests** (Playwright - Standard)
 - **Purpose**: Verify user interactions and business logic
-- **When**: User flows, API integration, multi-user scenarios, {{REALTIME_TECH}} broadcasts
-- **Tools**: {{TEST_FRAMEWORK}} `@{{TEST_FRAMEWORK}}/test`
+- **When**: User flows, API integration, multi-user scenarios, SignalR broadcasts
+- **Tools**: Playwright `@playwright/test`
 - **Example**: Submit question, vote on question, participant registration
 
-### 2. **Visual Regression Tests** (Percy + {{TEST_FRAMEWORK}})
+### 2. **Visual Regression Tests** (Percy + Playwright)
 - **Purpose**: Catch visual/CSS rendering issues
 - **When**: CSS changes, layout modifications, responsive design, color scheme updates
-- **Tools**: Percy `@percy/{{TEST_FRAMEWORK}}` + {{TEST_FRAMEWORK}}
+- **Tools**: Percy `@percy/playwright` + Playwright
 - **Example**: Question card styling, vote badge positioning, modal layouts
 
 ### 3. **CSS Quality Tests** (Stylelint - Pre-commit)
@@ -194,11 +200,11 @@ if ($pid) { Stop-Process -Id $pid -Force }
 
 ---
 
-## ðŸŽ¯ When User Says "{{TEST_FRAMEWORK}} Test" or "pwtest"
+## 🎯 When User Says "Playwright Test" or "pwtest"
 
 **Copilot Should Know**:
-1. **Test Location**: `{{TEST_FRAMEWORK}}/tests/` or `Tests/UI/` or `Workspaces/TEMP/` (for temporary tests)
-2. **Configuration**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+1. **Test Location**: `PlayWright/tests/` or `Tests/UI/` or `Workspaces/TEMP/` (for temporary tests)
+2. **Configuration**: `config/testing/playwright.config.cjs`
 3. **Test Data**: Session 212 with tokens KJAHA99L (user) / PQ9N5YWW (host)
 4. **Base URL**: `https://localhost:9091`
 5. **Execution Modes**: standalone, temp, CI, **percy** (visual regression)
@@ -207,11 +213,11 @@ if ($pid) { Stop-Process -Id $pid -Force }
 
 ---
 
-## ðŸ“ Test File Structure
+## 📁 Test File Structure
 
 ### Standard Test Template
 ```typescript
-import { test, expect } from '@{{TEST_FRAMEWORK}}/test';
+import { test, expect } from '@playwright/test';
 
 test.describe('Feature Name', () => {
   test('should do something specific', async ({ page }) => {
@@ -235,75 +241,75 @@ test.describe('Feature Name', () => {
   - `host-control-panel-navigation.spec.ts`
 
 ### Test Location Rules
-1. **Permanent Tests**: `{{TEST_FRAMEWORK}}/tests/` or `Tests/UI/`
+1. **Permanent Tests**: `PlayWright/tests/` or `Tests/UI/`
 2. **Temporary Tests**: `Workspaces/TEMP/` (auto-cleanup after task completion)
 3. **Phase Tests**: `Workspaces/TEMP/` with naming: `{agent}-phase-{n}-{key}-{RUN_ID}.spec.ts`
 
 ---
 
-## ðŸŽ¯ Testing Approach Decision Matrix
+## 🎯 Testing Approach Decision Matrix
 
 **Use this matrix to choose the right testing tool for your change:**
 
 | Change Type | Testing Tool | Why | Example |
 |------------|--------------|-----|---------|
-| **User Workflow/Behavior** | {{TEST_FRAMEWORK}} (Functional E2E) | Tests actual user interactions, API calls, {{REALTIME_TECH}} updates | User joins session, submits question, votes |
+| **User Workflow/Behavior** | Playwright (Functional E2E) | Tests actual user interactions, API calls, SignalR updates | User joins session, submits question, votes |
 | **Visual/Styling Changes** | Percy (Visual Regression) | Pixel-perfect comparison across viewports, catches unintended CSS changes | Orange card rendering, button styles, layout shifts |
 | **CSS Code Quality** | Stylelint (Pre-commit) | Prevents CSS conflicts before they reach the browser | Class naming conventions, duplicate properties, color formats |
-| **Component Refactor** | Percy + {{TEST_FRAMEWORK}} | Percy validates visual consistency, {{TEST_FRAMEWORK}} validates behavior | Refactoring question card component |
-| **API Change** | {{TEST_FRAMEWORK}} (Functional E2E) | Tests API contract, response format, error handling | New participant endpoint, {{REALTIME_TECH}} hub changes |
+| **Component Refactor** | Percy + Playwright | Percy validates visual consistency, Playwright validates behavior | Refactoring question card component |
+| **API Change** | Playwright (Functional E2E) | Tests API contract, response format, error handling | New participant endpoint, SignalR hub changes |
 | **Responsive Design** | Percy (Multi-viewport) | Tests layout across 375px/768px/1280px viewports | Mobile-first design, tablet layout, desktop grid |
 | **Theme Changes** | Percy + Stylelint | Percy validates visual output, Stylelint validates CSS quality | Dark mode, color scheme updates, Blazor theme |
-| **Accessibility Fix** | {{TEST_FRAMEWORK}} (Functional E2E) | Tests ARIA attributes, keyboard navigation, screen reader support | ARIA labels, focus management, semantic HTML |
+| **Accessibility Fix** | Playwright (Functional E2E) | Tests ARIA attributes, keyboard navigation, screen reader support | ARIA labels, focus management, semantic HTML |
 
 ### Decision Flowchart
 
 ```
 Did you change...
-â”‚
-â”œâ”€ User flows/interactions? â†’ {{TEST_FRAMEWORK}} Functional Test
-â”‚  â”œâ”€ Examples: Login, navigation, form submission, voting
-â”‚  â””â”€ File: Tests/UI/*-functional.spec.ts
-â”‚
-â”œâ”€ Visual appearance/CSS? â†’ Percy Visual Test + Stylelint
-â”‚  â”œâ”€ Examples: Button colors, card layouts, spacing, themes
-â”‚  â”œâ”€ Visual Test: Tests/UI/*-visual.spec.ts (Percy)
-â”‚  â””â”€ CSS Quality: npm run lint:css (Stylelint)
-â”‚
-â”œâ”€ API/{{REALTIME_TECH}} contract? â†’ {{TEST_FRAMEWORK}} Functional Test
-â”‚  â”œâ”€ Examples: New endpoints, hub methods, response format
-â”‚  â””â”€ File: Tests/UI/*-api.spec.ts
-â”‚
-â”œâ”€ Component internals (no UI change)? â†’ {{TEST_FRAMEWORK}} Functional Test
-â”‚  â”œâ”€ Examples: Refactoring, performance optimization
-â”‚  â””â”€ Validate behavior remains unchanged
-â”‚
-â””â”€ Multi-viewport responsive design? â†’ Percy Multi-viewport Test
-   â”œâ”€ Examples: Mobile layout, tablet breakpoints, grid systems
-   â””â”€ File: Tests/UI/*-responsive.spec.ts
+│
+├─ User flows/interactions? → Playwright Functional Test
+│  ├─ Examples: Login, navigation, form submission, voting
+│  └─ File: Tests/UI/*-functional.spec.ts
+│
+├─ Visual appearance/CSS? → Percy Visual Test + Stylelint
+│  ├─ Examples: Button colors, card layouts, spacing, themes
+│  ├─ Visual Test: Tests/UI/*-visual.spec.ts (Percy)
+│  └─ CSS Quality: npm run lint:css (Stylelint)
+│
+├─ API/SignalR contract? → Playwright Functional Test
+│  ├─ Examples: New endpoints, hub methods, response format
+│  └─ File: Tests/UI/*-api.spec.ts
+│
+├─ Component internals (no UI change)? → Playwright Functional Test
+│  ├─ Examples: Refactoring, performance optimization
+│  └─ Validate behavior remains unchanged
+│
+└─ Multi-viewport responsive design? → Percy Multi-viewport Test
+   ├─ Examples: Mobile layout, tablet breakpoints, grid systems
+   └─ File: Tests/UI/*-responsive.spec.ts
 ```
 
 ### Quick Reference Commands
 
 ```bash
-# Functional E2E Tests ({{TEST_FRAMEWORK}})
-npx {{TEST_FRAMEWORK}} test Tests/UI/feature-name-functional.spec.ts --headed
+# Functional E2E Tests (Playwright)
+npx playwright test Tests/UI/feature-name-functional.spec.ts --headed
 
-# Visual Regression Tests (Percy + {{TEST_FRAMEWORK}})
+# Visual Regression Tests (Percy + Playwright)
 npm run test:percy:visual -- Tests/UI/feature-name-visual.spec.ts
 
 # CSS Quality Check (Stylelint)
 npm run lint:css -- SPA/{{PROJECT_NAME}}/Components/**/*.razor
 
 # Full Test Suite (All 3 Approaches)
-npx {{TEST_FRAMEWORK}} test && npm run test:percy && npm run lint:css
+npx playwright test && npm run test:percy && npm run lint:css
 ```
 
 ### Percy Visual Test Template
 
 ```typescript
-import { test, expect } from '@{{TEST_FRAMEWORK}}/test';
-import percySnapshot from '@percy/{{TEST_FRAMEWORK}}';
+import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
 
 test.describe('Visual Regression: Feature Name', () => {
   test('should render component correctly across viewports', async ({ page }) => {
@@ -333,9 +339,9 @@ test.describe('Visual Regression: Feature Name', () => {
 
 ---
 
-## ðŸ”§ Configuration Files
+## 🔧 Configuration Files
 
-### Primary Config: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+### Primary Config: `config/testing/playwright.config.cjs`
 
 **Core Settings**:
 ```javascript
@@ -343,7 +349,7 @@ test.describe('Visual Regression: Feature Name', () => {
   timeout: 30000,
   testDir: '../../',
   testMatch: [
-    '**/{{TEST_FRAMEWORK}}/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+    '**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
     '**/Tests/UI/**/*.{test,spec}.{js,ts,jsx,tsx}',
     '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'
   ],
@@ -365,18 +371,18 @@ test.describe('Visual Regression: Feature Name', () => {
 
 **Usage**:
 ```bash
-$env:PW_MODE='standalone'; npx {{TEST_FRAMEWORK}} test
+$env:PW_MODE='standalone'; npx playwright test
 ```
 
 **Features**:
-- Starts .NET app automatically (`{{RUN_COMMAND}}` in `SPA/{{PROJECT_NAME}}`)
+- Starts .NET app automatically (`dotnet run` in `SPA/{{PROJECT_NAME}}`)
 - Port: 9091
 - Timeout: 60000ms for app startup
 - Workers: 1 (sequential execution)
 - Headless: false (visible browser)
 - Viewport: 1280x720
 - Video/Trace: retain-on-failure
-- Report: `Workspaces/TEMP/{{TEST_FRAMEWORK}}-report/standalone-html`
+- Report: `Workspaces/TEMP/playwright-report/standalone-html`
 
 **When to Use**:
 - Manual test execution
@@ -388,7 +394,7 @@ $env:PW_MODE='standalone'; npx {{TEST_FRAMEWORK}} test
 
 **Usage**:
 ```bash
-$env:PW_MODE='temp'; npx {{TEST_FRAMEWORK}} test
+$env:PW_MODE='temp'; npx playwright test
 ```
 
 **Features**:
@@ -418,7 +424,7 @@ $env:PW_MODE='temp'; npx {{TEST_FRAMEWORK}} test
 
 ---
 
-## ðŸ§ª Test Data (Session 212)
+## 🧪 Test Data (Session 212)
 
 ### Canonical Test Session
 **Session ID**: `212`
@@ -464,60 +470,60 @@ $env:PW_MODE='temp'; npx {{TEST_FRAMEWORK}} test
 ### Other Test Data
 - **Base URL**: `https://localhost:9091`
 - **API Base**: `https://localhost:9091/api`
-- **{{REALTIME_TECH}} Hubs**: 
+- **SignalR Hubs**: 
   - `/hub/session`
   - `/hub/qa`
   - `/hub/annotation`
 
 ---
 
-## ðŸš€ Test Execution Commands
+## 🚀 Test Execution Commands
 
 ### Run All Tests
 ```bash
-npx {{TEST_FRAMEWORK}} test
+npx playwright test
 ```
 
 ### Run Specific Test File
 ```bash
-npx {{TEST_FRAMEWORK}} test Tests/UI/session-{{SCHEMA_PRIMARY}}.spec.ts
+npx playwright test Tests/UI/session-{{SCHEMA_PRIMARY}}.spec.ts
 ```
 
 ### Run Tests in Headed Mode
 ```bash
-npx {{TEST_FRAMEWORK}} test --headed
+npx playwright test --headed
 ```
 
 ### Run Tests with UI Mode (Interactive)
 ```bash
-npx {{TEST_FRAMEWORK}} test --ui
+npx playwright test --ui
 ```
 
 ### Run in Standalone Mode
 ```bash
-$env:PW_MODE='standalone'; npx {{TEST_FRAMEWORK}} test
+$env:PW_MODE='standalone'; npx playwright test
 ```
 
 ### Run Specific Browser
 ```bash
-npx {{TEST_FRAMEWORK}} test --project=chromium
-npx {{TEST_FRAMEWORK}} test --project=firefox
-npx {{TEST_FRAMEWORK}} test --project=webkit
+npx playwright test --project=chromium
+npx playwright test --project=firefox
+npx playwright test --project=webkit
 ```
 
 ### Debug Mode
 ```bash
-npx {{TEST_FRAMEWORK}} test --debug
+npx playwright test --debug
 ```
 
 ### Generate Report
 ```bash
-npx {{TEST_FRAMEWORK}} show-report
+npx playwright show-report
 ```
 
 ---
 
-## ðŸ“ Test Writing Patterns
+## 📝 Test Writing Patterns
 
 ### API-Based Approach (Preferred)
 **Pattern**: Load data from API, not localStorage
@@ -611,7 +617,7 @@ await expect(page.locator('selector')).toHaveAttribute('attr', 'value');
 
 ---
 
-## ðŸŽ¯ Common Test Scenarios
+## 🎯 Common Test Scenarios
 
 ### 1. Navigation Test
 ```typescript
@@ -650,15 +656,15 @@ test('should load data from API', async ({ page }) => {
 });
 ```
 
-### 4. {{REALTIME_TECH}} Real-Time Test
+### 4. SignalR Real-Time Test
 ```typescript
-test('should receive {{REALTIME_TECH}} updates', async ({ page }) => {
+test('should receive SignalR updates', async ({ page }) => {
   await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
   
   // Trigger action that should broadcast
   await page.click('[data-testid="vote-button"]');
   
-  // Wait for {{REALTIME_TECH}} update to reflect
+  // Wait for SignalR update to reflect
   await page.waitForSelector('[data-testid="vote-count-updated"]');
   
   const count = await page.locator('[data-testid="vote-count"]').textContent();
@@ -668,7 +674,7 @@ test('should receive {{REALTIME_TECH}} updates', async ({ page }) => {
 
 ---
 
-## ðŸ› Debugging Tips
+## 🐛 Debugging Tips
 
 ### 1. Slow Motion
 ```typescript
@@ -680,7 +686,7 @@ test.use({
 ```
 
 ### 2. Screenshots on Failure (Automatic)
-- Configured in `{{TEST_FRAMEWORK}}.config.cjs`
+- Configured in `playwright.config.cjs`
 - Location: `test-results/` folder
 
 ### 3. Video Recording
@@ -690,7 +696,7 @@ test.use({
 
 ### 4. Trace Viewer
 ```bash
-npx {{TEST_FRAMEWORK}} show-trace test-results/trace.zip
+npx playwright show-trace test-results/trace.zip
 ```
 
 ### 5. Console Logs
@@ -700,7 +706,7 @@ page.on('console', msg => console.log('Browser:', msg.text()));
 
 ---
 
-## âš™ï¸ TypeScript Configuration
+## ⚙️ TypeScript Configuration
 
 **File**: `config/testing/tsconfig.json`
 
@@ -713,10 +719,10 @@ page.on('console', msg => console.log('Browser:', msg.text()));
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["node", "@{{TEST_FRAMEWORK}}/test"]
+    "types": ["node", "@playwright/test"]
   },
   "include": [
-    "../../{{TEST_FRAMEWORK}}/**/*.ts",
+    "../../PlayWright/**/*.ts",
     "../../Tests/UI/**/*.ts",
     "../../Workspaces/TEMP/**/*.ts"
   ]
@@ -725,7 +731,7 @@ page.on('console', msg => console.log('Browser:', msg.text()));
 
 ---
 
-## ðŸ§¹ Cleanup Rules
+## 🧹 Cleanup Rules
 
 ### Temporary Test Cleanup
 **When**: After task completion (in key data stream update)
@@ -733,7 +739,7 @@ page.on('console', msg => console.log('Browser:', msg.text()));
 **Pattern**:
 ```powershell
 Remove-Item "Workspaces/TEMP/*-phase-*.spec.ts" -Force
-Remove-Item "Workspaces/TEMP/{{TEST_FRAMEWORK}}-artifacts/*" -Recurse -Force
+Remove-Item "Workspaces/TEMP/playwright-artifacts/*" -Recurse -Force
 ```
 
 **Exceptions**: 
@@ -742,29 +748,29 @@ Remove-Item "Workspaces/TEMP/{{TEST_FRAMEWORK}}-artifacts/*" -Recurse -Force
 
 ---
 
-## ðŸ“Š Test Reporting
+## 📊 Test Reporting
 
 ### HTML Report (Default)
 ```bash
-npx {{TEST_FRAMEWORK}} show-report
+npx playwright show-report
 ```
 
-**Location**: `{{TEST_FRAMEWORK}}-report/` or mode-specific folder
+**Location**: `playwright-report/` or mode-specific folder
 
 ### JSON Report
 ```bash
-npx {{TEST_FRAMEWORK}} test --reporter=json
+npx playwright test --reporter=json
 ```
 
 ### Custom Reporter
-Configured in `{{TEST_FRAMEWORK}}.config.cjs` per mode
+Configured in `playwright.config.cjs` per mode
 
 ---
 
-## ðŸ”— Integration Points
+## 🔗 Integration Points
 
 ### With Task Agent
-- **Step 6.1**: Automatic {{TEST_FRAMEWORK}} test generation for UI tasks
+- **Step 6.1**: Automatic Playwright test generation for UI tasks
 - **Test Location**: `Workspaces/TEMP/` for phase tests
 - **Cleanup**: After successful task completion
 
@@ -774,22 +780,22 @@ Configured in `{{TEST_FRAMEWORK}}.config.cjs` per mode
 - API-based test approaches
 
 ### With Validation Framework
-- Level 5: E2E Testing with {{TEST_FRAMEWORK}}
+- Level 5: E2E Testing with Playwright
 - Required for UI feature tasks
 - Optional for backend-only tasks
 
 ---
 
-## ðŸ“š Related Documentation
+## 📚 Related Documentation
 
-- **{{TEST_FRAMEWORK}}Config.MD** - Detailed configuration reference
-- **{{TEST_FRAMEWORK}}TestPaths.MD** - Canonical test patterns and Session 212 data
+- **PlaywrightConfig.MD** - Detailed configuration reference
+- **PlaywrightTestPaths.MD** - Canonical test patterns and Session 212 data
 - **InfrastructureQuickRef.md** - API endpoints for test assertions
-- **Architecture.md** - {{REALTIME_TECH}} hubs and real-time testing
+- **Architecture.md** - SignalR hubs and real-time testing
 
 ---
 
-## ðŸ”„ Auto-Update Protocol
+## 🔄 Auto-Update Protocol
 
 **This file is maintained by**:
 - **cohesion-review** agent - Updates during system-wide reviews
@@ -797,18 +803,19 @@ Configured in `{{TEST_FRAMEWORK}}.config.cjs` per mode
 
 **Update Triggers**:
 - New test patterns discovered
-- Configuration changes in `{{TEST_FRAMEWORK}}.config.cjs`
+- Configuration changes in `playwright.config.cjs`
 - New test data added (beyond Session 212)
 - New environment modes added
 - Test execution strategy changes
 
 **Verification**:
-- Compare with `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+- Compare with `config/testing/playwright.config.cjs`
 - Validate Session 212 test data still valid
 - Ensure test commands match actual npm scripts
-- Cross-reference with `{{TEST_FRAMEWORK}}Config.MD` and `{{TEST_FRAMEWORK}}TestPaths.MD`
+- Cross-reference with `PlaywrightConfig.MD` and `PlaywrightTestPaths.MD`
 
 ---
 
 **Version History**:
-- **1.0.0** (2025-10-12): Initial creation - Consolidated {{TEST_FRAMEWORK}} testing knowledge
+- **1.0.0** (2025-10-12): Initial creation - Consolidated Playwright testing knowledge
+

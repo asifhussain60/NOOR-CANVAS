@@ -1,9 +1,15 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 # Infrastructure Quick Reference
 
 **Version**: 2.0.0  
@@ -12,24 +18,24 @@
 
 ---
 
-## ðŸ—„ï¸ Database Connections
+## 🗄️ Database Connections
 
 ### Primary Database: {{DATABASE_NAME}}
 **When user mentions "database", they mean {{DATABASE_NAME}} unless specified otherwise.**
 
 **Connection Details**:
 - **Database Name**: `{{DATABASE_NAME}}`
-- **Server**: `{{DATABASE_SERVER}}`
+- **Server**: `AHHOME`
 - **Authentication**: SQL Server authentication (credentials in appsettings.json)
 - **Connection Key**: `"DefaultConnection"` or `"KSessionsDb"`
-- **Configuration Location**: `SPA/{{PROJECT_NAME}}/appsettings.json` â†’ `ConnectionStrings` section
+- **Configuration Location**: `SPA/{{PROJECT_NAME}}/appsettings.json` → `ConnectionStrings` section
 
-### âš ï¸ CRITICAL DATABASE RULES
+### ⚠️ CRITICAL DATABASE RULES
 
 **READ-ONLY RESTRICTION**:
-- âœ… **`{{SCHEMA_PRIMARY}}.*` schema**: READ-WRITE allowed (Session Canvas features)
-- âŒ **`{{SCHEMA_READONLY}}.*` schema**: **READ-ONLY** - NO modifications allowed
-- âŒ **All other schemas**: **READ-ONLY** - NO modifications allowed
+- ✅ **`{{SCHEMA_PRIMARY}}.*` schema**: READ-WRITE allowed (Session Canvas features)
+- ❌ **`dbo.*` schema**: **READ-ONLY** - NO modifications allowed
+- ❌ **All other schemas**: **READ-ONLY** - NO modifications allowed
 
 **Schema Usage**:
 - `{{SCHEMA_PRIMARY}}.*` - Session Canvas feature (questions, votes, participants, annotations)
@@ -38,14 +44,14 @@
   - `{{SCHEMA_PRIMARY}}.Participants`
   - `{{SCHEMA_PRIMARY}}.AssetLookup`
   
-- `{{SCHEMA_READONLY}}.*` - **READ-ONLY** (legacy Islamic content database)
+- `dbo.*` - **READ-ONLY** (legacy Islamic content database)
   - `dbo.Groups` - Islamic content collections (Albums)
   - `dbo.Categories` - Subdivisions within Groups
   - `dbo.Sessions` - Individual Islamic learning sessions (LEGACY - different from {{SCHEMA_PRIMARY}}.Sessions)
   - `dbo.Speakers` - Session instructors/presenters
   - `dbo.SessionTranscripts` - Transcript content for annotation
   
-- `{{SCHEMA_READONLY}}.*` **Stored Procedures** - **READ-ONLY**
+- `dbo.*` **Stored Procedures** - **READ-ONLY**
   - `dbo.GetAllGroups` - Retrieves all Groups/Albums
   - `dbo.GetCategoriesForGroup` - Retrieves Categories for a specific Group
   
@@ -54,7 +60,7 @@
 
 ### Secondary Database: KQUR_DEV
 - **Database Name**: `KQUR_DEV`
-- **Server**: `{{DATABASE_SERVER}}`
+- **Server**: `AHHOME`
 - **Connection Key**: `"KQurDb"`
 - **Usage**: Quranic content (READ-ONLY)
 - **Access**: Via API endpoints only
@@ -68,15 +74,15 @@ _configuration.GetConnectionString("KSessionsDb")
 _configuration.GetConnectionString("KQurDb")
 
 // WRONG - Never do this
-var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
+var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
 ```
 
 ---
 
-## ðŸ”Œ External Dependencies
+## 🔌 External Dependencies
 
 ### Required Services
-1. **SQL Server** ({{DATABASE_SERVER}} server)
+1. **SQL Server** (AHHOME server)
    - {{DATABASE_NAME}} database
    - KQUR_DEV database
    
@@ -84,7 +90,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
    - HTTPS Port: 9091
    - HTTP Port: 5000 (redirect to HTTPS)
 
-3. **{{REALTIME_TECH}} Hubs** (Real-time communication)
+3. **SignalR Hubs** (Real-time communication)
    - SessionHub: `/hub/session`
    - QAHub: `/hub/qa`
    - AnnotationHub: `/hub/annotation`
@@ -193,14 +199,14 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 
 ---
 
-## {{REALTIME_TECH}} Hubs (WebSocket)
+## SignalR Hubs (WebSocket)
 
 ### Hub Endpoints
 
 #### SessionHub (`/hub/session`) - PRIMARY
 **Purpose**: Production sessions, real-time HTML broadcasting, participant sync
 
-**Client Methods** (server â†’ client):
+**Client Methods** (server → client):
 - `ReceiveQuestionSubmitted` - New question submitted
 - `ReceiveQuestionVoted` - Question vote updated
 - `ReceiveQuestionDeleted` - Question deleted
@@ -211,7 +217,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 - `ParticipantLeft` - Participant left session
 - `SessionStateChanged` - Session state updated
 
-**Server Methods** (client â†’ server):
+**Server Methods** (client → server):
 - `JoinSession(sessionId, userToken)` - Join session group
 - `LeaveSession(sessionId)` - Leave session group
 - `BroadcastContent(sessionId, htmlContent)` - Broadcast HTML (host only)
@@ -226,7 +232,7 @@ var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 - `QuestionUpdated` - Question text changed
 
 #### TestHub (`/hub/test`) - DEVELOPMENT ONLY
-**Purpose**: Testing/debugging {{REALTIME_TECH}} connections
+**Purpose**: Testing/debugging SignalR connections
 
 **Client Methods**:
 - `ReceiveMessage` - Test message broadcast
@@ -261,12 +267,12 @@ const PARTICIPANT_TOKEN = 'KJAHA99L';
 const BASE_URL = 'https://localhost:9091';
 ```
 
-### {{TEST_FRAMEWORK}} Configuration
-**Config File**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+### Playwright Configuration
+**Config File**: `config/testing/playwright.config.cjs`
 
 **Server Management**:
-- `PW_MODE=standalone` - {{TEST_FRAMEWORK}} does NOT start server (recommended)
-- `PW_MODE=managed` - {{TEST_FRAMEWORK}} starts/stops server automatically
+- `PW_MODE=standalone` - Playwright does NOT start server (recommended)
+- `PW_MODE=managed` - Playwright starts/stops server automatically
 - **Default**: `standalone` (assumes server already running)
 
 **Before Tests**: Execute `nckill` to terminate any running Kestrel servers
@@ -300,7 +306,7 @@ const BASE_URL = 'https://localhost:9091';
 - **ASPNETCORE_URLS**: `https://localhost:9091` (override)
 
 ### Testing
-- **PW_MODE**: `standalone` | `managed` ({{TEST_FRAMEWORK}} server management)
+- **PW_MODE**: `standalone` | `managed` (Playwright server management)
 
 ---
 
@@ -327,7 +333,7 @@ const BASE_URL = 'https://localhost:9091';
 
 ### Configuration
 - **appsettings.json**: `SPA/{{PROJECT_NAME}}/appsettings.json`
-- **{{TEST_FRAMEWORK}} Config**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+- **Playwright Config**: `config/testing/playwright.config.cjs`
 - **ESLint Config**: `config/testing/eslint.config.js`
 - **TypeScript Config**: `config/testing/tsconfig.json`
 
@@ -339,7 +345,7 @@ const BASE_URL = 'https://localhost:9091';
 - **Pages**: `SPA/{{PROJECT_NAME}}/Components/Pages/*.razor`
 
 ### Tests
-- **E2E ({{TEST_FRAMEWORK}})**: `Tests/UI/*.spec.ts`
+- **E2E (Playwright)**: `Tests/UI/*.spec.ts`
 - **Unit Tests**: `Tests/Unit/*.cs`
 
 ### Documentation
@@ -357,29 +363,29 @@ const BASE_URL = 'https://localhost:9091';
 
 ## Critical Anti-Patterns (Hallucination Prevention)
 
-### âŒ DO NOT Reference Obsolete Features
+### ❌ DO NOT Reference Obsolete Features
 - **Annotation System** - DELETED in annotation removal commit (2025-01-11)
   - No `{{SCHEMA_PRIMARY}}.Annotations` table
-  - No `AnnotationHub` {{REALTIME_TECH}} hub
+  - No `AnnotationHub` SignalR hub
   - No `/api/Annotations` controller
   - No annotation-related components or services
 
-### âŒ DO NOT Hardcode Credentials
+### ❌ DO NOT Hardcode Credentials
 - Never put connection strings in code
 - Never commit passwords or secrets to git
 - Always use `_configuration.GetConnectionString()`
 
-### âŒ DO NOT Assume File Locations
+### ❌ DO NOT Assume File Locations
 - Always check `SystemStructureSummary.md` for current structure
 - Use `file_search` or `grep_search` to verify file existence
 - Reference files by absolute paths when possible
 
-### âŒ DO NOT Invent API Endpoints
+### ❌ DO NOT Invent API Endpoints
 - Always check this file or `API-Contract-Validation.md` for actual endpoints
 - Verify controller methods before referencing in tests or code
 - Use `grep_search` to find actual route attributes
 
-### âŒ DO NOT Create New Test Sessions
+### ❌ DO NOT Create New Test Sessions
 - **ALWAYS use Session 212** for E2E tests
 - Do not create random session IDs
 - Do not hardcode tokens other than PQ9N5YWW/KJAHA99L
@@ -391,6 +397,7 @@ const BASE_URL = 'https://localhost:9091';
 - **v1.0.0** (2025-01-11): Initial creation
   - Extracted from live appsettings.json, Program.cs, Controllers
   - Added Session 212 canonical test data
-  - Documented all API endpoints and {{REALTIME_TECH}} hubs
+  - Documented all API endpoints and SignalR hubs
   - Added anti-patterns section for hallucination prevention
   - Removed obsolete annotation system references
+

@@ -486,6 +486,44 @@ Files to template:
 - Preserve ALL logic, workflows, and structure
 - Keep examples generic or use `{{EXAMPLE_*}}` variables
 
+**CRITICAL PROTOCOL ENFORCEMENT:**
+
+For `feature.prompt.md` template, **MUST ENFORCE** the correct handoff protocol in Step 6:
+
+```markdown
+### Step 6: MANDATORY Handoff Protocol (CRITICAL)
+
+5. ✅ **Output the EXACT invocation strings** for handoff (copy-paste ready)
+6. ✅ **Instruct user to copy and run the handoff command**
+7. 🛑 **STOP - DO NOT EXECUTE ANY CODE YOURSELF**
+
+**What you MUST NOT do:**
+- ❌ Execute the @workspace /task command yourself (user must run it)
+- ❌ Automatically invoke the task agent
+- ❌ Send messages on behalf of the user
+
+**Correct Protocol: PRESENT HANDOFF FOR USER APPROVAL**
+
+**CRITICAL EXECUTION STEPS:**
+3. **Plan agent OUTPUTS the @workspace /task command as text**
+4. **Plan agent tells user: "Copy the command above and run it to begin execution."**
+5. **Plan agent STOPS and waits for user to run the command**
+6. **USER** reviews and runs the command when ready
+
+**WHY THIS PROTOCOL EXISTS:**
+- ✅ User retains control over when execution begins
+- ✅ User can review the exact handoff command before execution
+- ✅ Clear separation between planning and execution phases
+```
+
+**VIOLATIONS TO REMOVE** (if found in source):
+- ❌ "AUTOMATICALLY invoke the task agent"
+- ❌ "Plan agent MUST send a new message containing the @workspace /task command"
+- ❌ "You must actually SEND this message to trigger the task agent"
+- ❌ "Show handoff commands to user (handoff is automatic)"
+
+**This ensures feature.prompt.md templates NEVER execute directly - they only plan and present handoff commands.**
+
 #### 3.3 Shared Documentation (Copy As-Is)
 
 **Create:** `.github/_Portable/prompts/shared/`

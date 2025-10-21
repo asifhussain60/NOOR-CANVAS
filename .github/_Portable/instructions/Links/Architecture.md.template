@@ -1,9 +1,15 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 # Architecture
 
 ## Purpose
@@ -11,7 +17,7 @@ This document contains the **detailed system design and architecture** for the p
 It serves as the authoritative reference for developers and Copilot when a deep understanding of the system is required.
 
 **Last Updated:** October 12, 2025  
-**Current System Status:** 11 Controllers, 4 {{REALTIME_TECH}} Hubs, 17+ Services, API-First Architecture
+**Current System Status:** 11 Controllers, 4 SignalR Hubs, 17+ Services, API-First Architecture
 
 ---
 
@@ -37,7 +43,7 @@ It serves as the authoritative reference for developers and Copilot when a deep 
 ### 4. Application Architecture
 - Razor views and their dependencies (15+ pages, 10+ components)
 - Services and components (17+ services)
-- {{REALTIME_TECH}} real-time communication (4 hubs)
+- SignalR real-time communication (4 hubs)
 - Integration between layers
 
 ### 5. Interactions and Dependencies
@@ -74,7 +80,7 @@ It serves as the authoritative reference for developers and Copilot when a deep 
   - `GET /api/host/sessions/{sessionId}/details` - Session details
   - `POST /api/host/share-asset` - Asset broadcasting
   - `POST /api/host/extract-asset` - Asset extraction
-- **Architecture**: API-First with comprehensive {{REALTIME_TECH}} integration
+- **Architecture**: API-First with comprehensive SignalR integration
 
 #### ParticipantController
 - **Purpose**: User registration, session joining, country flag integration
@@ -93,7 +99,7 @@ It serves as the authoritative reference for developers and Copilot when a deep 
   - `POST /api/question/{questionId}/vote` - Vote on question
   - `GET /api/question/session/{sessionToken}` - Get session Q&A
   - `POST /api/question/{questionId}/delete` - Delete question
-- **Features**: Real-time Q&A, voting system, {{REALTIME_TECH}} broadcasting
+- **Features**: Real-time Q&A, voting system, SignalR broadcasting
 
 #### SessionController
 - **Purpose**: Session lifecycle management
@@ -164,7 +170,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 #### GET /api/host/ksessions/countries/flags
 - **Purpose**: Country flag mappings from KSESSIONS database
 - **Query Parameters**: `countryCodes[]` (optional) - filter by specific ISO2 codes
-- **Response**: `CountryFlagsResponse` with dictionary mapping ISO2 â†’ lowercase flag codes
+- **Response**: `CountryFlagsResponse` with dictionary mapping ISO2 → lowercase flag codes
 - **Usage**: Replaces direct database queries for participant country flag display
 
 #### GET /api/host/asset-lookup
@@ -183,7 +189,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 
 ---
 
-## {{REALTIME_TECH}} Hubs Architecture (Current: 4 Hubs)
+## SignalR Hubs Architecture (Current: 4 Hubs)
 
 ### SessionHub (`/hub/session`)
 - **Purpose**: Real-time session management and coordination
@@ -265,7 +271,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 #### SessionStateService
 - **Purpose**: Session state management and synchronization
 - **Key Methods**: `GetSessionStateAsync()`, `UpdateSessionStateAsync()`, `NotifyStateChange()`
-- **Integration**: SessionController, {{REALTIME_TECH}} hubs
+- **Integration**: SessionController, SignalR hubs
 - **Features**: Real-time state synchronization, session lifecycle tracking
 
 ### UI and Experience Services
@@ -351,26 +357,26 @@ As part of architecture modernization, new APIs have been created to eliminate d
 #### HostControlPanel.razor (`/host/control-panel/{hostToken}`)
 - **Purpose**: Primary host interface for session management
 - **APIs**: Enhanced session details, asset lookup, country flags from KSESSIONS
-- **{{REALTIME_TECH}}**: SessionHub, QAHub, AnnotationHub integration
+- **SignalR**: SessionHub, QAHub, AnnotationHub integration
 - **Features**: Session control, Q&A moderation, real-time content broadcasting
 - **Architecture**: API-First (no direct DbContext injection)
 
 #### Session{{SCHEMA_PRIMARY}}.razor (`/session-canvas/{token}`)
 - **Purpose**: Main participant session interface
 - **APIs**: Participant validation, session data, Q&A submission
-- **{{REALTIME_TECH}}**: SessionHub, QAHub real-time updates
+- **SignalR**: SessionHub, QAHub real-time updates
 - **Features**: Q&A interaction, voting, real-time content reception
 
 #### SessionWaiting.razor (`/session-waiting/{token}`)
 - **Purpose**: Pre-session waiting room with participant list
 - **APIs**: Token validation, participant list, country flags
-- **{{REALTIME_TECH}}**: SessionHub participant updates
+- **SignalR**: SessionHub participant updates
 - **Features**: Countdown timer, participant list, real-time updates
 
 #### Host-SessionOpener.razor (`/host/session-opener/{hostToken}`)
 - **Purpose**: Host session creation with cascading dropdowns
 - **Service**: HostSessionService (wraps KSESSIONS APIs)
-- **Features**: Albumâ†’Categoryâ†’Session selection, custom scheduling
+- **Features**: Album→Category→Session selection, custom scheduling
 
 #### HostControlRedirect.razor (`/host/control/{hostToken}`)  
 - **Purpose**: Backward compatibility redirect for old routing
@@ -389,7 +395,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 
 ### Component Dependencies and Integration
 - **API-First Architecture**: All components use HTTP APIs, no direct database access
-- **{{REALTIME_TECH}} Integration**: Real-time updates across all interactive components
+- **SignalR Integration**: Real-time updates across all interactive components
 - **Service Layer**: Comprehensive service injection for business logic
 - **State Management**: SessionStateService coordination across components
 
@@ -416,7 +422,7 @@ As part of architecture modernization, new APIs have been created to eliminate d
 ### Data Access Patterns
 - **API-First**: All database access via HTTP APIs
 - **No Direct DbContext**: Components use HTTP clients, not direct database injection
-- **Real-time Sync**: {{REALTIME_TECH}} for live data updates
+- **Real-time Sync**: SignalR for live data updates
 - **Cross-Database**: Canvas and KSESSIONS integration via new API endpoints
 
 ---
@@ -450,3 +456,4 @@ This file must reflect the **REAL current state** of the project.
 - Obsolete data must be removed.  
 - Modified values must be updated to match source of truth in the repo.  
 - **SystemIndex.md** is updated in parallel to maintain system snapshot consistency.
+

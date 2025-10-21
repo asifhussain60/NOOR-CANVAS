@@ -1,9 +1,16 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
+---
 ---
 mode: agent
 purpose: Analyze historical task outcomes to extract success/failure patterns and update learning infrastructure
@@ -204,11 +211,11 @@ See: `.github/prompts/shared/pre-analysis-cleanup.md` for cleanup workflow and g
 
 #### Technology-Specific Insights
 - Analyze patterns by technology:
-  - {{FRAMEWORKS}} patterns
+  - ASP.NET Core patterns
   - Blazor rendering optimizations
-  - {{REALTIME_TECH}} message handling
+  - SignalR message handling
   - Entity Framework query efficiency
-  - {{TEST_FRAMEWORK}} test reliability
+  - Playwright test reliability
 - Extract framework-specific learnings
 
 #### Cross-Agent Workflow Insights
@@ -417,3 +424,4 @@ After completing analysis:
 **Version:** 1.0  
 **Created:** October 9, 2025  
 **Maintainer:** GitHub Copilot (System)
+

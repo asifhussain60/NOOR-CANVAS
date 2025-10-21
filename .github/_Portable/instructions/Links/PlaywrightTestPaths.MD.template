@@ -1,10 +1,16 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks  
+- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
-# {{TEST_FRAMEWORK}} Test Paths â€” Canonical Test Data Reference
+---
+# Playwright Test Paths — Canonical Test Data Reference
 
 ## Required Test Data (Proven Working Patterns)
 
@@ -43,8 +49,8 @@
 }
 ```
 **Test Results**: 
-- **KJAHA99L**: Returns "Peter Parker" participant data âœ…
-- **PQ9N5YWW**: May return 404 (host token behavior) âš ï¸
+- **KJAHA99L**: Returns "Peter Parker" participant data ✅
+- **PQ9N5YWW**: May return 404 (host token behavior) ⚠️
 
 #### Asset Lookup API
 **Endpoint**: `/api/host/asset-lookup`
@@ -97,7 +103,7 @@ Contains 8 active asset types:
 
 ### Proven Test Patterns
 
-#### Multi-Browser Participant Isolation Tests âœ… (API-Based Approach)
+#### Multi-Browser Participant Isolation Tests ✅ (API-Based Approach)
 ```typescript
 // Navigate directly to session canvas (eliminates storage dependency)
 await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
@@ -113,7 +119,7 @@ await expect(page.locator('.session-canvas-container').first()).toBeVisible({ ti
 // Host token PQ9N5YWW shows different content (host behavior)
 ```
 
-#### API-Based Participant Verification âœ…
+#### API-Based Participant Verification ✅
 ```typescript
 // Test participant API directly
 const response = await page.request.get(`https://localhost:9091/api/participant/session/KJAHA99L/me`);
@@ -175,9 +181,9 @@ for (const button of shareButtons) {
 **Command**: `$env:PW_MODE="standalone"` (PowerShell)
 
 #### Configuration File
-**Path**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
+**Path**: `config/testing/playwright.config.cjs`
 **webServer Settings**:
-- `command: '{{RUN_COMMAND}}'`
+- `command: 'dotnet run'`
 - `cwd: '../../SPA/{{PROJECT_NAME}}'`
 - `port: 9091`
 - `timeout: 60000`
@@ -185,43 +191,43 @@ for (const button of shareButtons) {
 ### Common Failure Scenarios (Avoid These)
 
 #### Invalid Tokens
-- âŒ `TEST1234` (causes authentication failures)
-- âŒ `HOST212A` (deprecated token format)
-- âŒ Random session IDs (use only Session 212 for consistency)
+- ❌ `TEST1234` (causes authentication failures)
+- ❌ `HOST212A` (deprecated token format)
+- ❌ Random session IDs (use only Session 212 for consistency)
 
 #### Incorrect API Calls
-- âŒ Direct database access in tests (use API endpoints only)
-- âŒ Missing query parameters (`guid` parameter required for most endpoints)
-- âŒ Wrong session ID (use 212 for asset detection tests)
+- ❌ Direct database access in tests (use API endpoints only)
+- ❌ Missing query parameters (`guid` parameter required for most endpoints)
+- ❌ Wrong session ID (use 212 for asset detection tests)
 
 #### App Lifecycle Issues
-- âŒ Manual app startup via PowerShell scripts
-- âŒ Missing `PW_MODE=standalone` environment variable
-- âŒ Not waiting for `networkidle` state after navigation
+- ❌ Manual app startup via PowerShell scripts
+- ❌ Missing `PW_MODE=standalone` environment variable
+- ❌ Not waiting for `networkidle` state after navigation
 
 ### Test File Organization
 
 #### Working Test Locations
-- `Tests/UI/assetlookup-database-detection.spec.ts` âœ… (Asset detection)
-- `Tests/UI/focused-assetshare-test.spec.ts` âœ… (Asset sharing)
-- `{{TEST_FRAMEWORK}}/tests/assetlookup-api-test.spec.ts` âœ… (API integration)
-- `{{TEST_FRAMEWORK}}/tests/multi-browser-participant-isolation.spec.ts` âœ… (API-based multi-browser isolation - ALL TESTS PASS)
-- `{{TEST_FRAMEWORK}}/tests/simple-session-test.spec.ts` âœ… (Session canvas validation)
+- `Tests/UI/assetlookup-database-detection.spec.ts` ✅ (Asset detection)
+- `Tests/UI/focused-assetshare-test.spec.ts` ✅ (Asset sharing)
+- `PlayWright/tests/assetlookup-api-test.spec.ts` ✅ (API integration)
+- `PlayWright/tests/multi-browser-participant-isolation.spec.ts` ✅ (API-based multi-browser isolation - ALL TESTS PASS)
+- `PlayWright/tests/simple-session-test.spec.ts` ✅ (Session canvas validation)
 
 #### Temporary Test Location
 - `Workspaces/TEMP/` (for development/debug tests)
 
 ### Multi-Browser Isolation Testing (API-Based Solution) 
 
-#### Problem Solved âœ…
+#### Problem Solved ✅
 **Issue**: "Both tabs are still showing the same name on multiple browsers"
 **Root Cause**: Storage-based participant identification (localStorage/sessionStorage)
 **Solution**: Complete API-based approach using `/api/participant/session/{token}/me`
 
 #### Test Results Summary
-- **âœ… Test 1**: Multi-browser isolation works - different browsers show different content
-- **âœ… Test 2**: Storage clearance graceful handling - API approach unaffected by localStorage/sessionStorage clearing  
-- **âœ… Test 3**: Page refresh persistence - participant identity maintained across refreshes
+- **✅ Test 1**: Multi-browser isolation works - different browsers show different content
+- **✅ Test 2**: Storage clearance graceful handling - API approach unaffected by localStorage/sessionStorage clearing  
+- **✅ Test 3**: Page refresh persistence - participant identity maintained across refreshes
 
 #### Key Implementation Details
 - **Eliminated**: `InitializeUserGuidAsync()` method (storage-based approach)
@@ -264,3 +270,4 @@ This file consolidates **PROVEN working patterns** from successful test implemen
 - Remove obsolete or failing test approaches
 - Maintain Session 212 and PQ9N5YWW as canonical test data unless specified otherwise
 - All patterns must be validated against actual working code before inclusion
+

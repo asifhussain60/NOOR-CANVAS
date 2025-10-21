@@ -1,3 +1,16 @@
+# Generic Template - Customized During Setup
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 # port-instructions.prompt.md
 
 ---
@@ -92,13 +105,13 @@ Analyzes the entire `.github` folder structure (instructions, prompts, learning 
 All templates MUST use these standardized variables:
 
 #### Project Identity
-- `{{PROJECT_NAME}}` - Project name (e.g., "NOOR CANVAS" → "MyProject")
+- `{{PROJECT_NAME}}` - Project name (e.g., "{{PROJECT_NAME}}" → "MyProject")
 - `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, Ruby, Go, PHP)
 - `{{LANGUAGES}}` - Programming languages (e.g., "C#, JavaScript, TypeScript")
 - `{{FRAMEWORKS}}` - Frameworks/libraries (e.g., "ASP.NET Core, Blazor, SignalR")
 
 #### Build & Test
-- `{{BUILD_COMMAND}}` - Build command (e.g., `dotnet build`, `npm run build`, `mvn package`)
+- `{{BUILD_COMMAND}}` - Build command (e.g., `{{BUILD_COMMAND}}`, `npm run build`, `mvn package`)
 - `{{TEST_COMMAND}}` - Test command (e.g., `dotnet test`, `npm test`, `pytest`)
 - `{{RUN_COMMAND}}` - Run command (e.g., `dotnet run`, `npm start`, `python app.py`)
 - `{{LINT_COMMAND}}` - Linting command (e.g., `dotnet format`, `npm run lint`, `flake8`)
@@ -409,10 +422,10 @@ From each file, identify and catalog:
 
 **Example Extraction:**
 ```
-Source: "PRIMARY DATABASE: KSESSIONS_DEV"
+Source: "PRIMARY DATABASE: {{DATABASE_NAME}}"
 Template: "PRIMARY DATABASE: {{DATABASE_NAME}}"
 
-Source: "dotnet build SPA/NoorCanvas/NoorCanvas.csproj"
+Source: "{{BUILD_COMMAND}} SPA/{{PROJECT_NAME}}/{{PROJECT_NAME}}.csproj"
 Template: "{{BUILD_COMMAND}}"
 
 Source: "ASP.NET Core, Blazor Server, SignalR"
@@ -485,6 +498,44 @@ Files to template:
 - Replace ALL project-specific values with template variables
 - Preserve ALL logic, workflows, and structure
 - Keep examples generic or use `{{EXAMPLE_*}}` variables
+
+**CRITICAL PROTOCOL ENFORCEMENT:**
+
+For `feature.prompt.md` template, **MUST ENFORCE** the correct handoff protocol in Step 6:
+
+```markdown
+### Step 6: MANDATORY Handoff Protocol (CRITICAL)
+
+5. ✅ **Output the EXACT invocation strings** for handoff (copy-paste ready)
+6. ✅ **Instruct user to copy and run the handoff command**
+7. 🛑 **STOP - DO NOT EXECUTE ANY CODE YOURSELF**
+
+**What you MUST NOT do:**
+- ❌ Execute the @workspace /task command yourself (user must run it)
+- ❌ Automatically invoke the task agent
+- ❌ Send messages on behalf of the user
+
+**Correct Protocol: PRESENT HANDOFF FOR USER APPROVAL**
+
+**CRITICAL EXECUTION STEPS:**
+3. **Plan agent OUTPUTS the @workspace /task command as text**
+4. **Plan agent tells user: "Copy the command above and run it to begin execution."**
+5. **Plan agent STOPS and waits for user to run the command**
+6. **USER** reviews and runs the command when ready
+
+**WHY THIS PROTOCOL EXISTS:**
+- ✅ User retains control over when execution begins
+- ✅ User can review the exact handoff command before execution
+- ✅ Clear separation between planning and execution phases
+```
+
+**VIOLATIONS TO REMOVE** (if found in source):
+- ❌ "AUTOMATICALLY invoke the task agent"
+- ❌ "Plan agent MUST send a new message containing the @workspace /task command"
+- ❌ "You must actually SEND this message to trigger the task agent"
+- ❌ "Show handoff commands to user (handoff is automatic)"
+
+**This ensures feature.prompt.md templates NEVER execute directly - they only plan and present handoff commands.**
 
 #### 3.3 Shared Documentation (Copy As-Is)
 
@@ -815,3 +866,4 @@ For EACH template file:
 - Run `@workspace /total-recall` to scan and configure
 - No manual script execution required
 - total-recall intelligently populates all templates
+

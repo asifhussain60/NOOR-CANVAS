@@ -1,12 +1,19 @@
-﻿# Generic Template - Customized During Setup
+# Generic Template - Customized During Setup
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
----
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
 
 ---
+---
 mode: agent
-description: Generate {{TEST_FRAMEWORK}} end-to-end tests (functional and visual) with orchestration, browser-log guards, and key-scoped placement.
+description: Generate Playwright end-to-end tests (functional and visual) with orchestration, browser-log guards, and key-scoped placement.
 ---
 
 # Test Generation Agent
@@ -22,10 +29,10 @@ description: Generate {{TEST_FRAMEWORK}} end-to-end tests (functional and visual
 **Validation:**
 
 1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
-   - If NOT exists â†’ HALT immediately
+   - If NOT exists → HALT immediately
    - Error message to user:
      ```
-     âŒ ERROR: Key folder does not exist
+     ❌ ERROR: Key folder does not exist
      
      Key: {key}
      Expected path: .github/prompts.keys/{key}/
@@ -48,22 +55,22 @@ description: Generate {{TEST_FRAMEWORK}} end-to-end tests (functional and visual
    - **EXIT with status code 1**
 
 2. **Check if test directory exists**: `.github/prompts.keys/{key}/tests/`
-   - If NOT exists â†’ Create it automatically
+   - If NOT exists → Create it automatically
    - Log: `"Created test directory: .github/prompts.keys/{key}/tests/"`
 
 3. **Check if scripts directory exists**: `.github/prompts.keys/{key}/scripts/`
-   - If NOT exists â†’ Create it automatically
+   - If NOT exists → Create it automatically
    - Log: `"Created scripts directory: .github/prompts.keys/{key}/scripts/"`
 
 4. **Check if test registry exists**: `.github/prompts.keys/{key}/tests/test-registry.md`
-   - If NOT exists â†’ Create it using template (see Test Registry Protocol below)
-   - If exists â†’ Load for deduplication check
+   - If NOT exists → Create it using template (see Test Registry Protocol below)
+   - If exists → Load for deduplication check
 
 **Output:**
-- **Concise:** `"âœ“ Key infrastructure validated"`
+- **Concise:** `"✓ Key infrastructure validated"`
 - **Detailed:**
   ```
-  âœ“ Key Infrastructure Validation
+  ✓ Key Infrastructure Validation
   
   Key: {key}
   Key Folder: EXISTS
@@ -78,7 +85,7 @@ description: Generate {{TEST_FRAMEWORK}} end-to-end tests (functional and visual
 
 ### Step 0.1: Branch Verification (MANDATORY)
 
-âš ï¸ **ALWAYS verify you're in the correct branch before generating any tests.**
+⚠️ **ALWAYS verify you're in the correct branch before generating any tests.**
 
 **Branch Strategy:**
 - **`master`** - Production only (PROTECTED - deploy target)
@@ -96,11 +103,11 @@ git checkout development
 ```
 
 **Enforcement:**
-- âš ï¸ **ABORT** test generation if on `master` branch
-- âœ… **PROCEED** only if on `development` branch
+- ⚠️ **ABORT** test generation if on `master` branch
+- ✅ **PROCEED** only if on `development` branch
 - Error message if on master:
   ```
-  âŒ ERROR: Cannot generate tests on master branch
+  ❌ ERROR: Cannot generate tests on master branch
   
   Current branch: master
   Required branch: development
@@ -119,10 +126,10 @@ git checkout development
 **See:** `SelfAwareness.instructions.md` - Branch Strategy section
 
 **Output:**
-- **Concise:** `"âœ“ Branch verified: development"`
+- **Concise:** `"✓ Branch verified: development"`
 - **Detailed:**
   ```
-  âœ“ Branch Verification
+  ✓ Branch Verification
   
   Current Branch: development
   Target Branch: development (from plan or default)
@@ -139,7 +146,7 @@ git checkout development
 
 1. **Check for test specification in plan**: `.github/prompts.keys/{key}/{key}.plan.md`
 2. **If plan exists:**
-   - Locate current phase's "{{TEST_FRAMEWORK}} Test Specification" section
+   - Locate current phase's "Playwright Test Specification" section
    - Use specified test scenarios (already defined by plan)
    - Use specified logging behavior, selector strategy
    - Use specified mode (headed/headless), Percy requirements
@@ -149,20 +156,20 @@ git checkout development
    - Check for duplicate tests before generation
 3. **If plan missing:**
    - Use current test-generation.prompt.md behavior (infer from parameters)
-   - Warn: "âš ï¸ No test specification found in plan. Generating based on parameters."
+   - Warn: "⚠️ No test specification found in plan. Generating based on parameters."
    - Generate test using decision matrix and canonical patterns
 
 **Benefits:**
-- âœ… Tests match approved plan specifications
-- âœ… Consistent test coverage across phases
-- âœ… No duplication (test registry prevents re-creation)
-- âœ… Technology-aware test generation (plan provides framework context)
-- âœ… Pre-validated test data (Session 212 from plan's System Context Pack)
+- ✅ Tests match approved plan specifications
+- ✅ Consistent test coverage across phases
+- ✅ No duplication (test registry prevents re-creation)
+- ✅ Technology-aware test generation (plan provides framework context)
+- ✅ Pre-validated test data (Session 212 from plan's System Context Pack)
 
 ---
 
 ## Role
-You are the **Test Generation Agent** responsible for creating {{TEST_FRAMEWORK}} end-to-end tests following canonical patterns and proven test data.
+You are the **Test Generation Agent** responsible for creating Playwright end-to-end tests following canonical patterns and proven test data.
 
 Always follow `.github/instructions/SelfAwareness.instructions.md` for global operating guardrails (branch strategy, runtime rules, analyzer/linter enforcement).
 
@@ -173,7 +180,7 @@ PORT POLICY: The {{PROJECT_NAME}} app must always bind to HTTPS on port 9091 onl
 - Required: Set ASPNETCORE_URLS to https://localhost:9091 before launching
 - Do NOT bind to http://localhost:9090 (prevents port conflicts and Kestrel binding errors)
 
-CRITICAL WARNING: **ABSOLUTE MANDATE: ALL {{TEST_FRAMEWORK}} TESTS REQUIRE ORCHESTRATION SCRIPTS**
+CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
 
 ### 1. Server Management Protocol
 
@@ -181,23 +188,23 @@ CRITICAL WARNING: **ABSOLUTE MANDATE: ALL {{TEST_FRAMEWORK}} TESTS REQUIRE ORCHE
 > 
 > This section provides a summary. For complete patterns, troubleshooting, and working examples, see the canonical reference above.
 
-**Before running any {{TEST_FRAMEWORK}} or Percy automated tests, the {{PROJECT_NAME}} application MUST be launched via an orchestration script. Direct execution of `npx {{TEST_FRAMEWORK}} test` is PROHIBITED.**
+**Before running any Playwright or Percy automated tests, the {{PROJECT_NAME}} application MUST be launched via an orchestration script. Direct execution of `npx playwright test` is PROHIBITED.**
 
 #### Critical Orchestration Mandates
 
 **ALWAYS:**
-- âœ… Use `Start-Process -PassThru -WindowStyle Minimized` (NEVER `Start-Job`)
-- âœ… Include `try/finally` cleanup blocks with `Stop-Process -Id $app.Id -Force`
-- âœ… Use health check polling with timeout (NEVER fixed `Start-Sleep` delays)
-- âœ… Minimize PowerShell window with `-WindowStyle Minimized` parameter
-- âœ… Use ASCII characters ONLY in scripts (NO emojis, Unicode, special characters)
-- âœ… Source app hosting variables from `.github/_Portable/DATA/app-hosting.env`
+- ✅ Use `Start-Process -PassThru -WindowStyle Minimized` (NEVER `Start-Job`)
+- ✅ Include `try/finally` cleanup blocks with `Stop-Process -Id $app.Id -Force`
+- ✅ Use health check polling with timeout (NEVER fixed `Start-Sleep` delays)
+- ✅ Minimize PowerShell window with `-WindowStyle Minimized` parameter
+- ✅ Use ASCII characters ONLY in scripts (NO emojis, Unicode, special characters)
+- ✅ Source app hosting variables from `.github/_Portable/DATA/app-hosting.env`
 
 **NEVER:**
-- âŒ `Start-Job` (causes orphaned processes, unreliable cleanup)
-- âŒ Fixed delays like `Start-Sleep -Seconds 10` before tests
-- âŒ Running `npx {{TEST_FRAMEWORK}} test` without orchestration
-- âŒ Unicode characters in PowerShell scripts (encoding issues)
+- ❌ `Start-Job` (causes orphaned processes, unreliable cleanup)
+- ❌ Fixed delays like `Start-Sleep -Seconds 10` before tests
+- ❌ Running `npx playwright test` without orchestration
+- ❌ Unicode characters in PowerShell scripts (encoding issues)
 
 #### Minimal Orchestration Template
 
@@ -240,7 +247,7 @@ try {
     } while ($true)
     
     # STEP 4: Run tests
-    npx {{TEST_FRAMEWORK}} test Tests/UI/{test-file}.spec.ts --reporter=list --headed
+    npx playwright test Tests/UI/{test-file}.spec.ts --reporter=list --headed
 }
 finally {
     # STEP 5: ALWAYS cleanup (even if tests fail)
@@ -256,28 +263,28 @@ finally {
 
 | Factor | Start-Process -PassThru | Start-Job |
 |--------|------------------------|-----------|
-| **Process ID Access** | âœ… Direct via `$app.Id` | âŒ Requires complex extraction |
-| **Cleanup Reliability** | âœ… `Stop-Process -Id $app.Id` | âŒ Often orphans processes |
-| **Window Control** | âœ… `-WindowStyle Minimized` | âŒ No control |
-| **Environment Variables** | âœ… Inherited automatically | âš ï¸ Requires manual passing |
-| **Error Visibility** | âœ… Visible in separate window | âŒ Hidden in job |
-| **Recommended** | âœ… YES | âŒ NO |
+| **Process ID Access** | ✅ Direct via `$app.Id` | ❌ Requires complex extraction |
+| **Cleanup Reliability** | ✅ `Stop-Process -Id $app.Id` | ❌ Often orphans processes |
+| **Window Control** | ✅ `-WindowStyle Minimized` | ❌ No control |
+| **Environment Variables** | ✅ Inherited automatically | ⚠️ Requires manual passing |
+| **Error Visibility** | ✅ Visible in separate window | ❌ Hidden in job |
+| **Recommended** | ✅ YES | ❌ NO |
 
 **See test-orchestration-patterns.md Section 4 for detailed comparison and troubleshooting.**
 
-#### {{TEST_FRAMEWORK}}'s webServer vs Orchestration Scripts
+#### Playwright's webServer vs Orchestration Scripts
 
 **Two Different Server Management Approaches:**
 
-1. **{{TEST_FRAMEWORK}}'s Built-in `webServer` Config** (in `{{TEST_FRAMEWORK}}.config.cjs`)
-   - Runs `{{RUN_COMMAND}}` as **invisible background subprocess** within Node.js
+1. **Playwright's Built-in `webServer` Config** (in `playwright.config.cjs`)
+   - Runs `dotnet run` as **invisible background subprocess** within Node.js
    - **Does NOT launch in separate PowerShell window**
-   - Automatic lifecycle: start â†’ wait â†’ test â†’ stop
+   - Automatic lifecycle: start → wait → test → stop
    - Use when: Percy visual tests, simple functional tests
    - Limitation: Cannot set environment variables properly for DevMode
 
 2. **PowerShell Orchestration Scripts** (in `Scripts/` directory)
-   - Launches `{{RUN_COMMAND}}` in **separate PowerShell window** (minimized)
+   - Launches `dotnet run` in **separate PowerShell window** (minimized)
    - Visible window with app logs
    - Explicit environment variable control (`ASPNETCORE_ENVIRONMENT=Development`, `ASPNETCORE_URLS=https://localhost:9091`)
    - Use when: E2E tests requiring DevMode, debugging, complex setup
@@ -293,9 +300,9 @@ finally {
 
 
 ### 2. Canonical References (MANDATORY)
-- **`InfrastructureQuickRef.md`**: Database connections, API endpoints, {{REALTIME_TECH}} hubs, Session 212 tokens
-- **`{{TEST_FRAMEWORK}}Config.MD`**: Configuration, modes, artifact paths, webServer settings
-- **`{{TEST_FRAMEWORK}}TestPaths.MD`**: Proven tokens, URLs, API patterns, expected responses
+- **`InfrastructureQuickRef.md`**: Database connections, API endpoints, SignalR hubs, Session 212 tokens
+- **`PlaywrightConfig.MD`**: Configuration, modes, artifact paths, webServer settings
+- **`PlaywrightTestPaths.MD`**: Proven tokens, URLs, API patterns, expected responses
 - **Session 212**: Default test session with transcript data
 - **Tokens**: Host=`PQ9N5YWW`, User=`KJAHA99L` (Peter Parker)
 
@@ -363,20 +370,20 @@ Receive from task.prompt.md or plan.prompt.md:
 5. **Wait strategies**:
    - Navigation: `page.waitForLoadState('networkidle')`
    - API calls: Explicit `page.waitForTimeout(3000)` after critical operations
-   - {{REALTIME_TECH}}: Wait for specific broadcast events or UI state changes
+   - SignalR: Wait for specific broadcast events or UI state changes
 6. **Artifact capture**: `PW_MODE=standalone` enables auto-screenshots/traces on failure
 
-### Test Type Selection (See {{TEST_FRAMEWORK}}QuickRef.md Decision Matrix)
+### Test Type Selection (See PlaywrightQuickRef.md Decision Matrix)
 
-**When to generate Functional E2E Tests ({{TEST_FRAMEWORK}}):**
+**When to generate Functional E2E Tests (Playwright):**
 - User workflows (login, navigation, form submission)
 - API contract validation (endpoints, response format)
-- {{REALTIME_TECH}} real-time updates (question broadcasts, voting)
+- SignalR real-time updates (question broadcasts, voting)
 - Multi-user synchronization (host/participant interactions)
 - Accessibility features (ARIA, keyboard navigation)
 - Component behavior (without visual changes)
 
-**When to generate Visual Regression Tests (Percy + {{TEST_FRAMEWORK}}):**
+**When to generate Visual Regression Tests (Percy + Playwright):**
 - CSS/styling changes (colors, layouts, spacing)
 - Component visual consistency (orange cards, buttons)
 - Responsive design (mobile/tablet/desktop viewports)
@@ -391,7 +398,7 @@ Receive from task.prompt.md or plan.prompt.md:
 - Component library development
 - Pre-commit validation (class naming, property conflicts)
 
-**When to generate Migration Validation Tests (SQL + {{TEST_FRAMEWORK}}):**
+**When to generate Migration Validation Tests (SQL + Playwright):**
 - Database schema changes (ALTER TABLE, CREATE INDEX, etc.)
 - Production migration scripts created in Scripts/Migrations/Prod/pending/
 - Migration rollback verification
@@ -408,10 +415,10 @@ Receive from task.prompt.md or plan.prompt.md:
 **Purpose**: Validate migration syntax, execution safety, rollback functionality, and data integrity
 
 **Database Configuration:**
-- **SQL Server Instance**: `{{DATABASE_SERVER}}`
+- **SQL Server Instance**: `AHHOME`
 - **Production Database**: `KSESSIONS`
 - **Development Database**: `{{DATABASE_NAME}}`
-- **Connection String Format**: `sqlcmd -S {{DATABASE_SERVER}} -d {DATABASE_NAME} -E`
+- **Connection String Format**: `sqlcmd -S AHHOME -d {DATABASE_NAME} -E`
 - **Authentication**: Windows Authentication (Trusted Connection)
 
 **CRITICAL**: All migration validation tests execute against `{{DATABASE_NAME}}` only (NEVER production).
@@ -452,7 +459,7 @@ migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
 **Test Template:**
 
 ```typescript
-import { test, expect } from '@{{TEST_FRAMEWORK}}/test';
+import { test, expect } from '@playwright/test';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 
@@ -508,7 +515,7 @@ test.describe('Migration Validation: {migration-description}', () => {
     try {
       // Execute migration against {{DATABASE_NAME}} (not production)
       const migrationOutput = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -i "${migrationFile}" -b`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -i "${migrationFile}" -b`,
         { encoding: 'utf-8' }
       );
       
@@ -518,7 +525,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       
       // Verify MigrationHistory record created
       const historyCheck = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM {{SCHEMA_PRIMARY}}.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM {{SCHEMA_PRIMARY}}.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -527,7 +534,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       // Verify schema changes applied (example: check column exists)
       // Customize this query based on your specific migration
       const schemaCheck = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('{{SCHEMA_PRIMARY}}.Sessions') AND name = 'CanvasType'" -h -1`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('{{SCHEMA_PRIMARY}}.Sessions') AND name = 'CanvasType'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -543,7 +550,7 @@ test.describe('Migration Validation: {migration-description}', () => {
     try {
       // Execute rollback against {{DATABASE_NAME}}
       const rollbackOutput = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -i "${rollbackFile}" -b`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -i "${rollbackFile}" -b`,
         { encoding: 'utf-8' }
       );
       
@@ -553,7 +560,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       
       // Verify MigrationHistory updated with rollback timestamp
       const historyCheck = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM {{SCHEMA_PRIMARY}}.MigrationHistory WHERE MigrationId = '${migrationId}' AND RolledBackAt IS NOT NULL" -h -1`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM {{SCHEMA_PRIMARY}}.MigrationHistory WHERE MigrationId = '${migrationId}' AND RolledBackAt IS NOT NULL" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -561,7 +568,7 @@ test.describe('Migration Validation: {migration-description}', () => {
       
       // Verify schema changes reversed (example: check column removed)
       const schemaCheck = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('{{SCHEMA_PRIMARY}}.Sessions') AND name = 'CanvasType'" -h -1`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('{{SCHEMA_PRIMARY}}.Sessions') AND name = 'CanvasType'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -577,21 +584,21 @@ test.describe('Migration Validation: {migration-description}', () => {
     try {
       // First execution (should apply changes)
       const firstRun = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -i "${migrationFile}" -b`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -i "${migrationFile}" -b`,
         { encoding: 'utf-8' }
       );
       expect(firstRun).toContain('completed successfully');
       
       // Second execution (should skip - already applied)
       const secondRun = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -i "${migrationFile}" -b`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -i "${migrationFile}" -b`,
         { encoding: 'utf-8' }
       );
       expect(secondRun).toContain('already applied - skipping');
       
       // Verify only one MigrationHistory entry exists
       const historyCount = execSync(
-        `sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM {{SCHEMA_PRIMARY}}.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
+        `sqlcmd -S AHHOME -d {{DATABASE_NAME}} -Q "SELECT COUNT(*) FROM {{SCHEMA_PRIMARY}}.MigrationHistory WHERE MigrationId = '${migrationId}'" -h -1`,
         { encoding: 'utf-8' }
       ).trim();
       
@@ -636,40 +643,40 @@ $migrationFile = "Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{d
 $rollbackFile = "Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql"
 
 if (-not (Test-Path $migrationFile)) {
-    Write-Host "âŒ Migration file not found: $migrationFile" -ForegroundColor Red
+    Write-Host "❌ Migration file not found: $migrationFile" -ForegroundColor Red
     exit 1
 }
 
 if (-not (Test-Path $rollbackFile)) {
-    Write-Host "âŒ Rollback file not found: $rollbackFile" -ForegroundColor Red
+    Write-Host "❌ Rollback file not found: $rollbackFile" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "  âœ… Migration files verified" -ForegroundColor Green
+Write-Host "  ✅ Migration files verified" -ForegroundColor Green
 
 # Step 2: Backup {{DATABASE_NAME}} (optional but recommended)
 Write-Host "[2/4] Creating database backup (optional)..." -ForegroundColor Cyan
 # Add backup logic here if desired
-Write-Host "  âš ï¸ Backup skipped (optional step)" -ForegroundColor Yellow
+Write-Host "  ⚠️ Backup skipped (optional step)" -ForegroundColor Yellow
 
 # Step 3: Run migration validation tests
 Write-Host "[3/4] Running migration validation tests..." -ForegroundColor Cyan
 $testFile = ".github/prompts.keys/{key}/tests/migration-{timestamp}-{key}-{description}-validation.spec.ts"
 
-${{TEST_FRAMEWORK}}Args = @(
+$playwrightArgs = @(
     "test",
     $testFile
 )
 
 if ($Headed) {
-    ${{TEST_FRAMEWORK}}Args += "--headed"
+    $playwrightArgs += "--headed"
 }
 
 try {
-    npx {{TEST_FRAMEWORK}} @{{TEST_FRAMEWORK}}Args
-    Write-Host "  âœ… Migration validation tests passed" -ForegroundColor Green
+    npx playwright @playwrightArgs
+    Write-Host "  ✅ Migration validation tests passed" -ForegroundColor Green
 } catch {
-    Write-Host "  âŒ Migration validation tests failed" -ForegroundColor Red
+    Write-Host "  ❌ Migration validation tests failed" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     exit 1
 }
@@ -677,10 +684,10 @@ try {
 # Step 4: Cleanup (rollback {{DATABASE_NAME}} to clean state)
 Write-Host "[4/4] Cleaning up {{DATABASE_NAME}}..." -ForegroundColor Cyan
 try {
-    sqlcmd -S {{DATABASE_SERVER}} -d {{DATABASE_NAME}} -i $rollbackFile -b
-    Write-Host "  âœ… Database cleaned (rollback executed)" -ForegroundColor Green
+    sqlcmd -S AHHOME -d {{DATABASE_NAME}} -i $rollbackFile -b
+    Write-Host "  ✅ Database cleaned (rollback executed)" -ForegroundColor Green
 } catch {
-    Write-Host "  âš ï¸ Cleanup failed (manual rollback may be needed)" -ForegroundColor Yellow
+    Write-Host "  ⚠️ Cleanup failed (manual rollback may be needed)" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -693,7 +700,7 @@ Write-Host "Migration ID: {YYYYMMDD-HHMMSS} is ready for deployment" -Foreground
 ```markdown
 ### migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
 - **Created**: {ISO-8601-timestamp}
-- **Type**: Migration Validation (SQL + {{TEST_FRAMEWORK}})
+- **Type**: Migration Validation (SQL + Playwright)
 - **Scenario**: Validate migration {migration-id} syntax, execution, rollback, and idempotency
 - **Phase**: Phase {N} (from plan)
 - **Status**: Active
@@ -706,12 +713,12 @@ Write-Host "Migration ID: {YYYYMMDD-HHMMSS} is ready for deployment" -Foreground
 
 **When to Generate Migration Tests:**
 
-âœ… **ALWAYS generate when**:
+✅ **ALWAYS generate when**:
 - Task agent creates production migration scripts (Step 5d)
 - Phase plan contains "Production Migration Specification"
 - User explicitly requests migration validation tests
 
-âŒ **DO NOT generate when**:
+❌ **DO NOT generate when**:
 - Development-only database changes ({{DATABASE_NAME}} test data)
 - No production migration scripts created
 - Code-only changes (no database impact)
@@ -738,9 +745,9 @@ Write-Host "Migration ID: {YYYYMMDD-HHMMSS} is ready for deployment" -Foreground
 {feature}-{test-type}.spec.ts
 ```
 Examples:
-- `debug-panel-islamic-questions-functional.spec.ts` ({{TEST_FRAMEWORK}} E2E)
+- `debug-panel-islamic-questions-functional.spec.ts` (Playwright E2E)
 - `canvas-questions-orange-card-visual.spec.ts` (Percy visual)
-- `question-enter-key-submit-functional.spec.ts` ({{TEST_FRAMEWORK}} E2E)
+- `question-enter-key-submit-functional.spec.ts` (Playwright E2E)
 - `session-canvas-responsive-visual.spec.ts` (Percy multi-viewport)
 Examples:
 - `debug-panel-islamic-questions-broadcast.spec.ts`
@@ -764,15 +771,15 @@ Examples:
 **Before generating any test:**
 
 1. **Check if test registry exists**: `.github/prompts.keys/{key}/tests/test-registry.md`
-   - If missing â†’ Create new registry using template below
-   - If exists â†’ Load and parse for duplicate detection
+   - If missing → Create new registry using template below
+   - If exists → Load and parse for duplicate detection
 
 2. **Search for duplicate scenarios**:
    - Match by feature + scenario combination
    - Match by test file name pattern
-   - If exact match found â†’ **Skip generation**, inform user:
+   - If exact match found → **Skip generation**, inform user:
      ```
-     âš ï¸ Test already exists for this scenario
+     ⚠️ Test already exists for this scenario
      
      Existing test: {test-file-name}.spec.ts
      Created: {timestamp}
@@ -780,7 +787,7 @@ Examples:
      
      Skipping duplicate test generation.
      ```
-   - If similar match found â†’ Warn user, offer to generate variant
+   - If similar match found → Warn user, offer to generate variant
 
 3. **Generate test** (if no duplicates found)
 
@@ -819,26 +826,26 @@ Examples:
    - **See**: `.github/tests/README.md` for similarity calculation algorithm
 
 **Benefits:**
-- âœ… Prevents duplicate test creation (per-key and global)
-- âœ… Clear test inventory per key (test-registry.md)
-- âœ… Cross-key test discovery and reuse (test-index.json)
-- âœ… Facilitates test cleanup during Step 9 completion
-- âœ… Enables test reuse across phases and keys
-- âœ… Facilitates test cleanup during Step 9 completion
-- âœ… Enables test reuse across phases
+- ✅ Prevents duplicate test creation (per-key and global)
+- ✅ Clear test inventory per key (test-registry.md)
+- ✅ Cross-key test discovery and reuse (test-index.json)
+- ✅ Facilitates test cleanup during Step 9 completion
+- ✅ Enables test reuse across phases and keys
+- ✅ Facilitates test cleanup during Step 9 completion
+- ✅ Enables test reuse across phases
 
 **Directory Structure Example:**
 ```
 .github/prompts.keys/canvas/
-â”œâ”€â”€ {{SCHEMA_PRIMARY}}.md (key data stream)
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ test-registry.md (log of all tests)
-â”‚   â”œâ”€â”€ share-button-functional.spec.ts
-â”‚   â”œâ”€â”€ share-button-visual.spec.ts
-â”‚   â””â”€â”€ question-deletion-functional.spec.ts
-â””â”€â”€ scripts/
-    â”œâ”€â”€ run-share-button-test.ps1
-    â””â”€â”€ run-question-deletion-test.ps1
+├── {{SCHEMA_PRIMARY}}.md (key data stream)
+├── tests/
+│   ├── test-registry.md (log of all tests)
+│   ├── share-button-functional.spec.ts
+│   ├── share-button-visual.spec.ts
+│   └── question-deletion-functional.spec.ts
+└── scripts/
+    ├── run-share-button-test.ps1
+    └── run-question-deletion-test.ps1
 ```
 
 **Test Registry Format** (`.github/prompts.keys/{key}/tests/test-registry.md`):
@@ -875,7 +882,7 @@ Examples:
 ## Template Structure
 
 ```typescript
-import { test, expect, Page, Browser } from '@{{TEST_FRAMEWORK}}/test';
+import { test, expect, Page, Browser } from '@playwright/test';
 
 /**
  * Test Suite: {Feature Name}
@@ -887,8 +894,8 @@ import { test, expect, Page, Browser } from '@{{TEST_FRAMEWORK}}/test';
  * - Mode: PW_MODE=standalone (auto-start) or manual server
  * 
  * References:
- * - {{TEST_FRAMEWORK}}TestPaths.MD: Session 212 tokens
- * - {{TEST_FRAMEWORK}}Config.MD: Test configuration
+ * - PlaywrightTestPaths.MD: Session 212 tokens
+ * - PlaywrightConfig.MD: Test configuration
  */
 
 test.describe('{Feature Name}', () => {
@@ -911,7 +918,7 @@ test.describe('{Feature Name}', () => {
     userPage.on('console', (msg) => consoleMessages.push({ type: msg.type(), text: msg.text() }));
 
     try {
-            // Step 2: Navigate using canonical URLs from {{TEST_FRAMEWORK}}TestPaths.MD
+            // Step 2: Navigate using canonical URLs from PlaywrightTestPaths.MD
             await userPage.goto('https://localhost:9091/session/canvas/KJAHA99L');
             await userPage.waitForLoadState('networkidle');
             
@@ -928,7 +935,7 @@ test.describe('{Feature Name}', () => {
             // Step 6: Assert expected outcomes
             // ... assertions ...
             
-            // Step 7: Verify API responses match {{TEST_FRAMEWORK}}TestPaths.MD patterns
+            // Step 7: Verify API responses match PlaywrightTestPaths.MD patterns
             // ... API validation ...
             
             // Step 8: Assert no browser console errors occurred during the test
@@ -950,8 +957,8 @@ test.describe('{Feature Name}', () => {
 # Set mode before test execution
 $env:PW_MODE="standalone"
 
-# Run tests ({{TEST_FRAMEWORK}} handles server lifecycle)
-npx {{TEST_FRAMEWORK}} test debug-panel-islamic-questions-broadcast.spec.ts --headed
+# Run tests (Playwright handles server lifecycle)
+npx playwright test debug-panel-islamic-questions-broadcast.spec.ts --headed
 ```
 
 ### Example 2: Manual Server Check
@@ -960,7 +967,7 @@ test.beforeAll(async () => {
     // Verify server is accessible
     const response = await fetch('https://localhost:9091/api/health');
     if (!response.ok) {
-        throw new Error('Server not running. Start with: {{RUN_COMMAND}} (in SPA/{{PROJECT_NAME}})');
+        throw new Error('Server not running. Start with: dotnet run (in SPA/{{PROJECT_NAME}})');
     }
 });
 ```
@@ -972,15 +979,15 @@ test.beforeAll(async () => {
 Before running tests, you MUST start the server in a separate, elevated (Administrator) PowerShell window:
 
 ```powershell
-# Open PowerShell as Administrator (right-click â†’ "Run as administrator")
+# Open PowerShell as Administrator (right-click → "Run as administrator")
 cd 'D:\PROJECTS\{{PROJECT_NAME}}\SPA\{{PROJECT_NAME}}'
 $env:ASPNETCORE_URLS = 'https://localhost:9091'
-{{RUN_COMMAND}}
+dotnet run
 ```
 
 # Optionally, for CI/CD or automation, use standalone mode:
 $env:PW_MODE="standalone"
-npx {{TEST_FRAMEWORK}} test
+npx playwright test
 ```
 
 ## Multi-Browser Test Pattern
@@ -1012,7 +1019,7 @@ test('Multi-user question synchronization', async ({ browser }) => {
         await participantPage.fill('.canvas-form-textarea', 'Test question');
         await participantPage.click('.canvas-form-submit-button');
         
-        // Wait for {{REALTIME_TECH}} broadcast
+        // Wait for SignalR broadcast
         await hostPage.waitForTimeout(2000);
         
         // Verify host sees the question
@@ -1029,7 +1036,7 @@ test('Multi-user question synchronization', async ({ browser }) => {
 ## API Validation Pattern
 
 ```typescript
-// Verify API responses match {{TEST_FRAMEWORK}}TestPaths.MD expected data
+// Verify API responses match PlaywrightTestPaths.MD expected data
 const response = await page.request.get(
     'https://localhost:9091/api/participant/session/KJAHA99L/me'
 );
@@ -1056,7 +1063,7 @@ page.on('console', msg => {
 const criticalErrors = consoleErrors.filter(err => 
     err.includes('NotifyQuestionDeleted') ||
     err.includes('appendChild') ||
-    err.includes('{{REALTIME_TECH}}')
+    err.includes('SignalR')
 );
 
 expect(criticalErrors).toHaveLength(0);
@@ -1071,7 +1078,7 @@ expect(criticalErrors).toHaveLength(0);
 **Plan Integration:**
 
 **If plan specifies Percy requirement:**
-1. Check plan's "{{TEST_FRAMEWORK}} Test Specification" â†’ Percy: Yes/No
+1. Check plan's "Playwright Test Specification" → Percy: Yes/No
 2. If Percy: Yes:
    - Use plan's visual change rationale
    - Capture specified screens/flows from plan
@@ -1083,13 +1090,13 @@ expect(criticalErrors).toHaveLength(0);
 
 **If no plan:**
 1. Use decision matrix (existing logic below)
-2. Infer from change type (CSS/styling â†’ Percy, behavior â†’ functional)
+2. Infer from change type (CSS/styling → Percy, behavior → functional)
 
 ---
 
 ```typescript
-import { test, expect } from '@{{TEST_FRAMEWORK}}/test';
-import percySnapshot from '@percy/{{TEST_FRAMEWORK}}';
+import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
 
 /**
  * Visual Regression Test: {Feature Name}
@@ -1107,7 +1114,7 @@ import percySnapshot from '@percy/{{TEST_FRAMEWORK}}';
  * - See .percy.yml for full config
  * 
  * References:
- * - {{TEST_FRAMEWORK}}QuickRef.md: Decision matrix for when to use Percy
+ * - PlaywrightQuickRef.md: Decision matrix for when to use Percy
  * - VISUAL_REGRESSION_TESTING.md: Percy setup and workflows
  */
 
@@ -1169,7 +1176,7 @@ npm run test:percy:headed -- Tests/UI/feature-visual.spec.ts
 npm run test:percy
 
 # Run visual test without Percy (for debugging)
-npx {{TEST_FRAMEWORK}} test Tests/UI/feature-visual.spec.ts --headed
+npx playwright test Tests/UI/feature-visual.spec.ts --headed
 ```
 
 ### Percy Snapshot Best Practices
@@ -1203,7 +1210,7 @@ npx {{TEST_FRAMEWORK}} test Tests/UI/feature-visual.spec.ts --headed
 
 **CONCISE OUTPUT** (default):
 ```markdown
-âœ… Test Created: {test-file}.spec.ts
+✅ Test Created: {test-file}.spec.ts
 
 **Test Type**: {Functional E2E | Visual Regression (Percy)}
 **Scenarios**: {X} test scenarios covering {brief-description}
@@ -1219,12 +1226,12 @@ npx {{TEST_FRAMEWORK}} test Tests/UI/feature-visual.spec.ts --headed
 ```
 
 **RULES:**
-- âœ… YES: Bulleted summary of what test scenarios cover
-- âœ… YES: How to run the test
-- âœ… YES: Link to registry for full specification
-- âŒ NO: Full test code (it's in the file)
-- âŒ NO: File locations (user doesn't care)
-- âŒ NO: Template examples or code blocks
+- ✅ YES: Bulleted summary of what test scenarios cover
+- ✅ YES: How to run the test
+- ✅ YES: Link to registry for full specification
+- ❌ NO: Full test code (it's in the file)
+- ❌ NO: File locations (user doesn't care)
+- ❌ NO: Template examples or code blocks
 
 ---
 
@@ -1252,7 +1259,7 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 
 **File Structure** (both modes):
 1. **File header**: Feature description, prerequisites, references
-2. **Imports**: {{TEST_FRAMEWORK}} test framework
+2. **Imports**: Playwright test framework
 3. **Test suite**: Descriptive test.describe block
 4. **Server check**: beforeAll hook with readiness verification (if not using webServer)
 5. **Test cases**: One or more test() blocks with clear step comments
@@ -1264,11 +1271,11 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 > **MANDATORY**: Follow canonical patterns from `.github/prompts/shared/test-orchestration-patterns.md`
 
 **Critical Requirements:**
-- âœ… **ALWAYS** use `Start-Process -PassThru -WindowStyle Minimized` (NEVER `Start-Job`)
-- âœ… **ALWAYS** include `try/finally` cleanup block with `Stop-Process -Id $app.Id -Force`
-- âœ… **ALWAYS** use health check polling with timeout (NEVER fixed `Start-Sleep` delays)
-- âœ… **ALWAYS** use ASCII characters ONLY (NO emojis, Unicode, special characters)
-- âœ… **OPTIONAL** source variables from `.github/_Portable/DATA/app-hosting.env` for portability
+- ✅ **ALWAYS** use `Start-Process -PassThru -WindowStyle Minimized` (NEVER `Start-Job`)
+- ✅ **ALWAYS** include `try/finally` cleanup block with `Stop-Process -Id $app.Id -Force`
+- ✅ **ALWAYS** use health check polling with timeout (NEVER fixed `Start-Sleep` delays)
+- ✅ **ALWAYS** use ASCII characters ONLY (NO emojis, Unicode, special characters)
+- ✅ **OPTIONAL** source variables from `.github/_Portable/DATA/app-hosting.env` for portability
 
 **Script Structure:**
 1. **File header**: ASCII-only comments describing purpose and usage
@@ -1276,7 +1283,7 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 3. **App launch**: `$app = Start-Process ... -PassThru -WindowStyle Minimized`
 4. **try block start**: Wrap health check and test execution
 5. **Health check polling**: Loop with 500ms intervals, timeout after 60 seconds
-6. **Test execution**: `npx {{TEST_FRAMEWORK}} test ".github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed`
+6. **Test execution**: `npx playwright test ".github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed`
 7. **finally block**: `Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue`
 
 **Example** (see test-orchestration-patterns.md for complete template with comments):
@@ -1302,7 +1309,7 @@ try {
         }
     } while ($true)
     
-    npx {{TEST_FRAMEWORK}} test ".github/prompts.keys/{key}/tests/{feature}.spec.ts" --reporter=list
+    npx playwright test ".github/prompts.keys/{key}/tests/{feature}.spec.ts" --reporter=list
 }
 finally {
     Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
@@ -1381,7 +1388,7 @@ finally {
 
 ## Success Criteria
 
-- [PASS] Uses canonical Session 212 data from {{TEST_FRAMEWORK}}TestPaths.MD
+- [PASS] Uses canonical Session 212 data from PlaywrightTestPaths.MD
 - [PASS] Includes server readiness check (standalone mode aware)
 - [PASS] Explicitly binds server to https://localhost:9091 (sets ASPNETCORE_URLS)
 - [PASS] Follows proven API-based participant loading pattern
@@ -1457,3 +1464,4 @@ finally {
 - **Commit**: {SHA}
 - **Status**: In production (key directory test deleted)
 ```
+

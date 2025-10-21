@@ -3,31 +3,14 @@
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
 **Template Variables:**
-- `{{PROJECT_NAME}}` - Your project name
-- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, etc.)
-- `{{FRAMEWORKS}}` - Frameworks/libraries
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
-- `{{RUN_COMMAND}}` - Run command
-- `{{LINT_COMMAND}}` - Linting command
-- `{{DATABASE_TYPE}}` - Database/ORM type
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
 - `{{DATABASE_NAME}}` - Primary database name
-- `{{DATABASE_SERVER}}` - Database server
-- `{{SCHEMA_PRIMARY}}` - Primary writable schema
-- `{{SCHEMA_READONLY}}` - Read-only schemas (comma-separated)
-- `{{CONNECTION_STRING_KEY}}` - Connection string config key
-- `{{SOURCE_PATH}}` - Main source code path
-- `{{TEST_PATH}}` - Test files path
-- `{{CONFIG_PATH}}` - Configuration files path
-- `{{TEST_FRAMEWORK}}` - Testing framework
-- `{{UI_FRAMEWORK}}` - UI framework
-- `{{ANALYZER_TOOLS}}` - Code analysis tools
-- `{{PACKAGE_MANAGER}}` - Package manager
-- `{{API_BASE_URL}}` - API base URL
-- `{{REALTIME_TECH}}` - Real-time technology
+- `{{SCHEMA_PRIMARY}}` - Primary database schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{WORKSPACE_PATH}}` - Workspace folder path
 
 ---
-
 # SelfAwareness – Global Operating Guardrails (2.5.0)
 
 > Canonical operating rules for all agents. Keep **.github/prompts/** as the source of truth.  
@@ -37,10 +20,10 @@
 
 **BRANCH STRUCTURE**:
 - **`master`** - Production branch (PROTECTED)
-  - ALWAYS represents what's currently deployed in production
+  - ALWAYS represents what's currently deployed in production via `ncdeploy.ps1`
   - NEVER commit directly to master
   - Only receives merges from `development` after testing
-  - Deployment script deploys from this branch
+  - Deployment script: `Scripts/ncdeploy.ps1` deploys from this branch
   
 - **`development`** - Active development branch (DEFAULT)
   - ALL development work happens here
@@ -53,39 +36,39 @@
 1. **Development**: All work done in `development` branch
 2. **Testing**: Validate changes thoroughly in development
 3. **Merge**: When ready for production, merge `development` → `master`
-4. **Deploy**: Run deployment script which deploys from `master` branch
+4. **Deploy**: Run `ncdeploy.ps1` which deploys from `master` branch
 5. **Continue**: Resume development work in `development` branch
 
 **ENFORCEMENT**:
 - ⚠️ **NEVER** modify `master` branch directly
 - ✅ **ALWAYS** create commits in `development` branch
 - ✅ **ALWAYS** verify you're in `development` before starting work:
-  ```{{SHELL_TYPE}}
+  ```powershell
   git branch --show-current  # Should return: development
   ```
 - ❌ If on `master`, switch immediately:
-  ```{{SHELL_TYPE}}
+  ```powershell
   git checkout development
   ```
 
 **RATIONALE**:
 - Production stability: `master` only contains tested, deployable code
 - Safe experimentation: `development` allows iteration without affecting production
-- Clear deployment path: Deployment script knows to deploy from `master`
+- Clear deployment path: `ncdeploy.ps1` knows to deploy from `master`
 - Easy rollback: Can revert `master` without losing development work
 
 ## Scope
-Governs all agent operations including task execution, testing, cleanup, synchronization, and refactoring.
+Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
 - **`.github/instructions/Links/SystemIndex.md`** - Central navigation hub for all architectural references, agent coordination, and system snapshots
 - **`.github/instructions/Links/InfrastructureQuickRef.md`** - **MANDATORY** for database operations - contains {{DATABASE_NAME}} connection details and schema access rules
 - **`.github/instructions/Links/Architecture.md`** - Comprehensive application architecture documentation including:
-  - Complete API endpoint catalog
-  - Component and page inventory
-  - Service architecture with responsibilities
-  - Real-time communication patterns ({{REALTIME_TECH}})
+  - Complete API endpoint catalog (52 endpoints across 11 controllers)
+  - Razor pages and component inventory (15+ pages, 10+ components)
+  - Service architecture (15+ services with responsibilities)
+  - SignalR hub documentation (4 hubs with methods and events)
   - Data model catalog and database schemas
   - Authentication flows and security patterns
   - Integration patterns and common workflows
@@ -96,21 +79,24 @@ Governs all agent operations including task execution, testing, cleanup, synchro
 
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", assume **{{DATABASE_NAME}}** unless specified otherwise
-- Server: {{DATABASE_SERVER}}
-- Connection: Always use `{{CONNECTION_STRING_KEY}}`
+- Server: AHHOME
+- Connection: Always use `_configuration.GetConnectionString("DefaultConnection")`
 
 **SCHEMA ACCESS CONTROL**:
-- ✅ **`{{SCHEMA_PRIMARY}}`**: READ-WRITE allowed
-  - Primary writable schema for application data
+- ✅ **`{{SCHEMA_PRIMARY}}.*` schema**: READ-WRITE allowed
+  - {{SCHEMA_PRIMARY}}.Questions, {{SCHEMA_PRIMARY}}.QuestionVotes, {{SCHEMA_PRIMARY}}.Participants, {{SCHEMA_PRIMARY}}.AssetLookup, {{SCHEMA_PRIMARY}}.Sessions
   
-- ❌ **`{{SCHEMA_READONLY}}`**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
-  - Reference data and legacy tables
-  - Stored procedures for read operations only
+- ❌ **`dbo.*` schema**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
+  - dbo.Groups (Albums), dbo.Categories, dbo.Sessions (LEGACY), dbo.Speakers, dbo.SessionTranscripts
+  - dbo.GetAllGroups (stored procedure), dbo.GetCategoriesForGroup (stored procedure)
+  
+  > **Verified 2025-10-12**: Only dbo tables with EF models or direct SQL usage are listed.
+  > {{PROJECT_NAME}} does NOT use dbo.Members, dbo.SessionTokens, dbo.Users, or dbo.Tokens.
   
 - ❌ **All other schemas**: **READ-ONLY**
 
 **VIOLATION CONSEQUENCES**:
-- Any attempt to modify `{{SCHEMA_READONLY}}` or other READ-ONLY schemas will result in:
+- Any attempt to modify `dbo.*` or other READ-ONLY schemas will result in:
   - Immediate task failure
   - Rollback to checkpoint
   - User notification of violation
@@ -134,9 +120,9 @@ All agents must handle `---` delimited input as separate todo items:
 ### Phase Processing Workflow
 For each phase, agents must:
 1. **Implementation**: Make the required change for this specific phase
-2. **Test Generation**: Create headless, silent test in `Workspaces/TEMP/`
+2. **Test Generation**: Create headless, silent Playwright test in `Workspaces/TEMP/`
    - Naming: `{agent}-phase-{phase_number}-{key}-{RUN_ID}.spec.ts`
-   - Must be headless and silent (no UI)
+   - Must be headless and silent (no browser UI)
    - Must validate the specific change made in this phase
 3. **Test Validation**: Ensure test passes (retry up to 3 times if needed)
 4. **Phase Completion**: Mark complete with debug log
@@ -145,7 +131,7 @@ For each phase, agents must:
 ### Temporary Test Management
 - **Location**: All phase tests go in `Workspaces/TEMP/` directory
 - **Cleanup**: Remove temporary phase tests after all phases complete (unless `commit:false`)
-- **Distinction**: Permanent tests follow proper structure as per config files in `{{CONFIG_PATH}}`
+- **Distinction**: Permanent tests follow proper structure as per config files in `config/testing/`
 - **Isolation**: Each phase test should be independent and not depend on previous phase tests
 
 ### Phase Completion Logging
@@ -171,30 +157,44 @@ Workspaces/Copilot/
 └── prompts.keys/           # Key-based prompt storage
 ```
 
-### Code Quality Analysis Organization
-**MANDATORY**: All code analysis data is strictly organized under `Workspaces/CodeQuality/`:
+### Code Quality Analysis - Roslynator Organization
+**MANDATORY**: All Roslynator code analysis data is strictly organized under `Workspaces/CodeQuality/` with documentation stored in `Workspaces/Documentation/ROSLYNATOR DOCS/`:
 
 ```
 Workspaces/CodeQuality/
 ├── README.md                         # Comprehensive usage documentation
-├── run-analyzer.{{SCRIPT_EXT}}      # Automated analysis execution script
+├── run-roslynator.ps1               # Automated analysis execution script
 ├── CONFIGURATION_COMPLETE.md        # Setup completion status
-└── Analyzer/
+└── Roslynator/
     ├── Config/
-    │   └── analyzer.config          # Main analyzer configuration
+    │   └── roslynator.config        # Main Roslynator configuration
     ├── Reports/
     │   ├── baseline-analysis.json   # Initial baseline for comparison
-    │   ├── latest-analysis.json     # Most recent analysis
+    │   ├── latest-analysis.json     # Most recent analysis (GitLab format)
     │   └── analysis_*.json          # Timestamped historical reports
     └── Logs/
         ├── latest-analysis.log      # Most recent execution log
         └── analysis_*.log           # Timestamped historical logs
+
+Workspaces/Documentation/ROSLYNATOR DOCS/
+├── latest-roslynator-documentation.md    # Most recent analysis documentation
+└── roslynator-documentation_*.md         # Timestamped historical documentation
 ```
 
-**Analyzer Execution Rules:**
-- **NEVER** run analyzer commands directly in project root
-- **ALWAYS** use: `{{ANALYZER_SCRIPT_PATH}}`
-- **Report Access**: Latest results always at `Workspaces/CodeQuality/Analyzer/Reports/latest-analysis.json`
+**Roslynator Documentation Features:**
+- **Automatic Generation**: Enhanced markdown documentation with executive summaries
+- **Health Scoring**: Project health scores calculated from diagnostic patterns
+- **Severity Analysis**: Issues grouped by Error, Warning, Info, and Suggestion levels
+- **File Rankings**: Identification of files requiring the most attention
+- **Actionable Recommendations**: Specific improvement suggestions based on analysis
+- **Dual Format Output**: Both technical JSON reports and user-friendly documentation
+
+**Roslynator Execution Rules:**
+- **NEVER** run `roslynator` commands directly in project root
+- **ALWAYS** use: `.\Workspaces\CodeQuality\run-roslynator.ps1`
+- **VS Code Integration**: Use tasks "run-roslynator-analysis" or "run-roslynator-analysis-and-open"
+- **Report Access**: Latest results always at `Workspaces/CodeQuality/Roslynator/Reports/latest-analysis.json`
+- **Documentation Access**: Latest user-friendly docs at `Workspaces/Documentation/ROSLYNATOR DOCS/latest-roslynator-documentation.md`
 - **No Root Pollution**: All analysis artifacts are contained in the organized structure
 
 **Enforcement:**
@@ -202,32 +202,59 @@ Workspaces/CodeQuality/
 - **Analysis**: `Workspaces/Copilot/_DOCS/analysis/`
 - **Config Documentation**: `Workspaces/Copilot/_DOCS/configs/`
 - **Migration Reports**: `Workspaces/Copilot/_DOCS/migrations/`
-- **Code Quality**: `Workspaces/CodeQuality/Analyzer/`
+- **Code Quality**: `Workspaces/CodeQuality/Roslynator/`
 - **Never use project root** for any temporary or analysis files
 
 ## Absolute Runtime Rules
 
-### For {{PROJECT_TYPE}} Application Development
-- Launch via designated scripts in `Workspaces/Global/` directory
-- Use appropriate build commands: `{{BUILD_COMMAND}}`
-- Use appropriate run commands: `{{RUN_COMMAND}}`
+### For .NET Application Development
+- **Never** launch with `dotnet run` or any variant.  
+- Launch only via PowerShell scripts:  
+  - `./Workspaces/Global/nc.ps1`  (launch only)  
+  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)  
 - If the agent initiates a stop/restart, **self-attribute** in logs and summaries.
 
 ### For Database Access Architecture
-- **CRITICAL RULE**: Database data MUST be accessed through proper architectural layers
-- **UI Layer**: Follow {{UI_FRAMEWORK}} best practices for data access
-- **API-First**: All database operations should go through properly designed API endpoints
-- **Direct Access**: Only permitted in designated service/repository layers
-- **Enforcement**: UI components must use proper HTTP clients for all data access
+- **CRITICAL RULE**: Database data MUST ONLY be accessed via HTTP APIs, NEVER directly through DbContext injection in UI components
+- **UI Layer Prohibition**: Razor pages and components must NOT inject `SimplifiedCanvasDbContext` or `KSessionsDbContext`
+- **Required Pattern**: UI → HTTP API → Controller → DbContext → Database
+- **API-First**: All database operations must go through properly designed API endpoints with DTOs
+- **No Direct Queries**: Never use Entity Framework queries directly in UI layer (Pages/, Components/)
+- **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
 
-### For Testing with {{TEST_FRAMEWORK}}
-**CRITICAL**: Testing framework has its own server management system - DO NOT manually start the app!
+### For Playwright Testing
+**CRITICAL**: Playwright has its own server management system - DO NOT manually start the app!
 
-- **Never** manually run application before tests
-- **Never** launch the app in a separate window/terminal for tests
-- Testing framework manages application lifecycle **automatically** via configuration
-- Use appropriate test commands: `{{TEST_COMMAND}}`
-- Tests run with framework managing the application as needed
+- **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for test execution
+- **Never** manually run `dotnet run` before Playwright tests
+- **Never** launch the app in a separate window/terminal for Playwright tests
+- Playwright manages application lifecycle **automatically** via `webServer` configuration in `config/testing/playwright.config.cjs`
+- Use `PW_MODE=standalone` to enable automatic app startup and shutdown
+- Tests run entirely in Node.js context with Playwright managing the .NET app as a subprocess (not in a separate window)
+- The app runs invisibly as a background process controlled by Playwright
+- Playwright will start the app, run tests, then stop the app automatically
+
+**When PW_MODE=standalone:**
+```bash
+# Playwright does ALL of this automatically:
+# 1. Starts: dotnet run (in background)
+# 2. Waits: for port 9091 to be ready
+# 3. Runs: all tests
+# 4. Stops: the dotnet process
+# 5. Cleans up: automatically
+```
+
+**Manual App Launch is ONLY for:**
+- Development: Use `nc.ps1` or `ncb.ps1` for manual testing in browser
+- Debugging: Use Visual Studio/VS Code debugger
+- **NEVER** for running Playwright tests
+
+#### ✅ Multi-Browser Isolation Success (Oct 1, 2025)
+**Proven Solution**: API-based participant identification eliminates "same name on multiple browsers" issue
+- **Working Tokens**: Session 212 - KJAHA99L (user) / PQ9N5YWW (host)
+- **Test Suite**: `PlayWright/tests/multi-browser-participant-isolation.spec.ts` (ALL TESTS PASS ✅)
+- **Key Pattern**: Direct `/session/canvas/{token}` navigation with API-based loading
+- **Reference**: See `Links/PlaywrightTestPaths.MD` for comprehensive API-based testing patterns
 
 ## Debug Logging Rules
 - All debug lines must use the consistent marker:  
@@ -239,31 +266,38 @@ Workspaces/CodeQuality/
   - **simple**: add logs only for critical checks, decision points, and lifecycle events.  
   - **trace**: log every step of the flow, including intermediate calculations, branching decisions, and results.  
 
-## Analyzer & Linter Enforcement
-All agents must enforce **{{ANALYZER_TOOLS}}** before declaring success.
+## Analyzer & Linter Enforcement (Post-Cleanup – Sept 27, 2025)
+All agents must enforce **industry-standard analyzers and linters** before declaring success.
 
-### Analyzer Integration
-- **Tools**: {{ANALYZER_TOOLS}}
-- **Configuration**: Centralized configuration ensures:  
-  - Latest analysis standards enabled
-  - Code style enforcement in build
-  - Warning treatment (project-specific)
-- **Suppressions**: Intentionally suppressed rules per project standards
+### .NET Analyzer Integration
+- **NuGet Packages**:
+  - Microsoft.CodeAnalysis.NetAnalyzers v8.0.0  
+  - StyleCop.Analyzers v1.2.0-beta.507  
+- **Configuration**: `Directory.Build.props` at repo root ensures:  
+  - `<AnalysisLevel>latest</AnalysisLevel>`  
+  - `<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>`  
+  - `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`  
+- **Suppressions**: 36 StyleCop rules intentionally suppressed (e.g., SA1200, SA1208, SA1633).  
 - **Invariant**: Do **not** attempt to reintroduce suppressed rules unless explicitly instructed.
 
-### Linting Integration
-- Main config: `{{LINT_CONFIG_PATH}}`
-- **Baseline Debt**: Accepted technical debt patterns documented
-- Agents must **not** attempt to eliminate accepted debts unless explicitly instructed.
+### ESLint Integration
+- Main config: `config/testing/eslint.config.js` (centralized configuration)  
+- Legacy configs in PlayWright/ (`.eslintrc.js`, `.eslintrc.cleanup.js`) for specific patterns like SignalR globals, Playwright contexts.  
+- **Baseline Debt (Accepted)**:  
+  - SignalR Browser Globals (20 errors) – acceptable.  
+  - Playwright Dynamic Contexts (10 errors) – acceptable.  
+  - Fixture Inheritance (6 errors) – acceptable.  
+  - Catch Block Patterns (3 errors) – acceptable.  
+- Agents must **not** attempt to eliminate these debts unless explicitly instructed.
 
-### Package Manager Scripts
-All agents must use the centralized scripts for linting, formatting, and testing:
+### npm Script Enforcement (Updated Sept 27, 2025)
+All agents must use the centralized npm scripts for linting, formatting, and testing:
 
-- **Linting**: `{{LINT_COMMAND}}`
-- **Formatting Check**: `{{FORMAT_CHECK_COMMAND}}`
-- **Formatting Fix**: `{{FORMAT_FIX_COMMAND}}`
-- **Type Check**: `{{TYPE_CHECK_COMMAND}}`
-- **Tests**: `{{TEST_COMMAND}}`
+- **Linting**: `npm run lint` (uses `config/testing/eslint.config.js`)
+- **Formatting Check**: `npm run format:check` (uses `config/testing/.prettierrc`)
+- **Formatting Fix**: `npm run format` (uses `config/testing/.prettierrc`)
+- **TypeScript Check**: `npm run build:tests` (uses `config/testing/tsconfig.json`)
+- **Playwright Tests**: All test commands use `config/testing/playwright.config.cjs`
 
 **Enforcement Rules:**
 - Run from repository root directory
@@ -272,29 +306,29 @@ All agents must use the centralized scripts for linting, formatting, and testing
 - **Error Interpretation**: Distinguish between config issues vs. actual code problems
 
 ## Modernization Guardrails
-- **Imports**: All new code must use modern import syntax per {{PROJECT_TYPE}} standards
-- **Typing**: Prefer explicit types over any/dynamic. If unavoidable, document why.  
-- **Error Handling**: Use proper error handling patterns for resilience.  
+- **Imports**: All new code must use ES6 `import` syntax. Never reintroduce `require()`.  
+- **Typing**: Prefer explicit types over `any`. If unavoidable, document why.  
+- **Error Handling**: Use null coalescing (`??`) and safe defaults for resilience.  
 - **Code Hygiene**: Delete unused functions/variables instead of prefixing with `_`.  
-- **Formatting**: Always format using project formatter configuration
+- **Formatting**: Always format with Prettier using `config/testing/.prettierrc`. Respect case sensitivity (`Tests` → `tests`).  
 
 ## Memory of Failures & Prohibited Retries
 Agents must **record and respect failed approaches**:  
-- Do not retry approaches that have been documented as failures
-- Do not force rewrites when patterns are established
-- Do not attempt to "fix" intentionally suppressed rules
+- Do not retry typing refactors of SignalR globals.  
+- Do not force Playwright fixture rewrites when context inheritance is involved.  
+- Do not attempt to "fix" suppressed StyleCop rules.  
 
 ## Test Strategy Rules
-- Always generate tests incrementally:  
-  1. Begin with simple checks
-  2. Progress to integration tests
-  3. Only at the final stage use full end-to-end scenarios
+- Always generate Playwright tests incrementally:  
+  1. Begin with simple hardcoded render checks.  
+  2. Progress to integration with fixtures.  
+  3. Only at the final stage use live browser contexts with SignalR.  
 - If a test hangs, agents must self-recover and retry with reduced scope.  
 
 ## Logging for Success/Failure Memory
 - On success: append `;SUCCESS_PATH` to debug logs.  
 - On failure: append `;FAIL_PATH:{reason}` and mark prohibited retries.  
-- Summaries must include both successes and failures so future generations don't repeat mistakes.
+- Summaries must include both successes and failures so future generations don’t repeat mistakes.
 
 ## Version Control Rules
 - Always operate within Git.  
@@ -303,98 +337,120 @@ Agents must **record and respect failed approaches**:
 
 ---
 
-## Key Infrastructure
+## Key Infrastructure (Migrated from IssueTracker)
 
-### Configuration File Organization
-All configuration files are centralized:
+### Configuration File Organization (Updated Sept 27, 2025)
+All JavaScript/JSON configuration files have been centralized for better organization:
 
 ```
-{{CONFIG_PATH}}/
-├── linting/                 # Linting configurations
-├── testing/                 # Test configurations
-├── formatting/              # Formatter configurations
-└── analysis/               # Code analysis configurations
+config/
+└── testing/
+    ├── eslint.config.js          # ESLint configuration for TypeScript/Playwright tests
+    ├── playwright.config.cjs     # Playwright test configuration (CommonJS format)
+    ├── tsconfig.json            # TypeScript configuration for tests
+    └── .prettierrc             # Prettier formatting configuration
 ```
 
 **Key Points:**
-- **Centralized Location**: All configs in designated directory
-- **Scripts**: All package.json/build scripts reference the centralized locations
-- **Path Updates**: All relative paths correctly updated for directory structure
+- **Centralized Location**: All configs in `config/testing/` directory
+- **npm Scripts**: All package.json scripts reference the centralized config locations
+- **Backward Compatibility**: Legacy configs in PlayWright/ maintained for specific use cases
+- **CommonJS Format**: Playwright config uses `.cjs` extension for ES module compatibility
+- **Path Updates**: All relative paths correctly updated for new directory structure
 
-### Application Launch & Port Management
+### Port Management & Launch
 
 ### Database Connectivity
 
-#### {{DATABASE_NAME}} Connection String
+#### {{DATABASE_NAME}} SQL Connection String
 ```
-{{CONNECTION_STRING_EXAMPLE}}
+Data Source=AHHOME;Initial Catalog={{DATABASE_NAME}};User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
 ```
 
-**Connection Requirements:**
-- Use specified database server and credentials
-- All agents and scripts must connect to specified instance
-- Connection string must be consistent across all applications
+**Never use localdb for any database operations.**
+All agents and scripts must connect only to the specified SQL Server instance above. LocalDB is strictly prohibited for development, testing, or production workflows.
 
-#### Application Server
-- Default app port: {{DEFAULT_PORT}}
-- Use proper launch scripts for port management
-- Always check for orphaned processes before launch
+#### IIS Express & Port Management
+- Default app port: 9091 (avoid system reserved)
+- **For Development**: Use nc.ps1/ncb.ps1 for port cleanup and dynamic assignment
+- **For Playwright Tests**: Use webServer configuration (`PW_MODE=standalone`) for automatic management
+- Always check for orphaned IIS Express processes before launch (development only)
 
-#### ORM/Data Access
-- Use {{DATABASE_TYPE}} for data access
-- Connection string must match configuration
-- Use retry logic for connection initialization
+#### Entity Framework
+- Use retry logic for DbContext initialization
+- Connection string must match above for all .NET apps
 
-#### Testing Infrastructure
-- Centralized under {{TEST_PATH}}
-- Main config: `{{TEST_CONFIG_PATH}}`
-- All scripts reference the centralized config location
+#### Playwright Test Infrastructure
+- Centralized under PlayWright/ (tests, reports, results, artifacts)
+- **Main config**: `config/testing/playwright.config.cjs` (centralized configuration)
+- **webServer Configuration**: Handles automatic .NET app startup/shutdown for tests
+- **Usage Context**:
+  - **Development/Implementation**: Use PowerShell scripts (nc.ps1/ncb.ps1)
+  - **Playwright Testing**: Use webServer (`PW_MODE=standalone`) - never PowerShell scripts
+- Legacy configs: PlayWright/config/ and root (for backward compatibility)
+- All npm scripts reference the centralized config location
 
-#### Real-Time Communication
-- Technology: {{REALTIME_TECH}}
-- Handle exceptions during message parsing
-- Use resilient serialization formats for updates
+#### SignalR
+- Handle InvalidDataException during message parsing
+- Use resilient serialization formats for real-time updates
 
 #### API Endpoints
-- Base URL: {{API_BASE_URL}}
-- **Connection String Standard**: Use identical connection strings across all applications
+- Token validation: `/api/host/token/{token}/validate` for friendly tokens
+- **Connection String Standard**: Always use identical connection strings across all applications
+- **Timeout Configuration**: Use Connection Timeout=3600 for long-running operations
 - **Route Conflicts**: Always check for ambiguous route patterns during development
+- **Token Validation**: Use correct API endpoints: `/api/host/token/{token}/validate` for friendly tokens
+- **SignalR Integration**: Handle InvalidDataException during data parsing; verify message serialization
 - **Authentication Flows**: Validate token formats match expected endpoint requirements
 
-## Key Requirements
+### Playwright Test Infrastructure
+- **Centralized Structure**: All test artifacts under PlayWright/ directory
+- **Artifact Management**: Organized into tests/, reports/, results/, artifacts/, config/
+- **Configuration**: Proxy config at root, main config in PlayWright/config/
+- **Path Resolution**: All paths relative to project root for consistency
+
+## Key Requirements (Migrated from IssueTracker)
 
 ### Authentication & Session Management
-- **Token Consistency**: Maintain token validation throughout workflows
-- **Multi-route Support**: Components must handle multiple route patterns
-- **Error Handling**: Show user-friendly messages, not technical errors
+- **Token Consistency**: Host-SessionOpener workflow must maintain token validation throughout
+- **Session Name Display**: Support both KSESSIONS database lookup and fallback display patterns
+- **Multi-route Support**: Components must handle multiple route patterns (/, /host, /host/{token})
+- **Error Handling**: Authentication failures must show user-friendly messages, not technical errors
 
 ### UI/UX Standards
-- **Responsive Design**: Proper layout and sizing across devices
-- **Visual Consistency**: Maintain theme and styling standards
-- **Component Structure**: Follow {{UI_FRAMEWORK}} best practices
+- **Responsive Design**: All authentication cards must be properly centered and sized
+- **Visual Consistency**: Maintain purple theme, Tailwind CSS, and consistent padding/spacing
+- **Logo Placement**: Large, prominent logo display in headers
+- **Animation Support**: Landing pages should support smooth transitions and animations
 
 ### API Integration Requirements
-- **Database Integration**: Support proper database contexts
-- **Validation Logic**: Implement comprehensive validation
-- **Real-time Updates**: {{REALTIME_TECH}} must handle updates without connection drops
+- **KSESSIONS Integration**: Support both {{DATABASE_NAME}} and production database contexts
+- **Host Provisioner**: Single GUID per session ID with proper foreign key constraints
+- **Validation Logic**: Implement comprehensive SessionTranscripts validation
+- **Real-time Updates**: SignalR must handle participant updates without connection drops
+- **UI-Database Mapping**: In UI layer, `albumID` corresponds to `GroupID` in SQL table `dbo.Sessions.Groups`
 
 ### Data Management
-- **Dynamic Loading**: Support loading from database
-- **Real-time Updates**: Proper real-time data synchronization
-- **Proper Validation**: Validate all data operations
+- **Album & Category Data**: Support dynamic loading from KSESSIONS database
+- **Session Transcripts**: Proper validation and storage with token-based access
+- **Participant Management**: Real-time participant list updates via SignalR
+- **Flag Display**: ISO2 country code mapping for participant countries
 
 ---
 
 **Version:** 2.8.0  
-**Last Updated:** Template Version for Portable System
+**Last Updated:** Documentation Organization & File Placement Rules – Sept 27, 2025  
+
+```
 
 ---
 
 ## Reference: System Index
 This instruction set references the central `SystemIndex.md`. Any structural changes must be reflected there.
 
+
 ## Git Backup & Rollback Discipline
-- Every operation must begin by creating a backup commit.
+- Every /workitem and /continue must begin by creating a backup commit.
 - Undo logs must store commit hashes for rollback.
 - Rollback uses `git reset --hard <hash>`.
-- On completion, squash backup commits into one final commit.
+- On /keylock, squash backup commits into one final commit.
