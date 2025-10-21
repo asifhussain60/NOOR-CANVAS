@@ -1,132 +1,132 @@
 {
-  "key": "canvas-receivers",
-  "github_branch": "development",
-  "created_date": "2025-10-21",
-  "status": "in_progress",
-  "current_phase": 1,
-  "user_request": "When SessionCanvas.razor and TranscriptCanvas.razor are viewed on mobile phones, if the phone is held in portrait mode, display a beautiful message requesting user to rotate the phone to landscape for better readability. Work ONLY in landscape mode on phones. Desktop and iPads should work as-is.",
-  "clarifications": {
-    "tablets_enforce_landscape": true,
-    "content_behavior_portrait": "Hide all canvas content, show only orientation message",
-    "overlay_dismissible": false
-  },
-  "scope": {
-    "files": [
-      "SPA/NoorCanvas/Pages/SessionCanvas.razor",
-      "SPA/NoorCanvas/Pages/TranscriptCanvas.razor"
+    "key": "canvas-receivers",
+    "github_branch": "development",
+    "created_date": "2025-10-21",
+    "status": "in_progress",
+    "current_phase": 1,
+    "user_request": "When SessionCanvas.razor and TranscriptCanvas.razor are viewed on mobile phones, if the phone is held in portrait mode, display a beautiful message requesting user to rotate the phone to landscape for better readability. Work ONLY in landscape mode on phones. Desktop and iPads should work as-is.",
+    "clarifications": {
+        "tablets_enforce_landscape": true,
+        "content_behavior_portrait": "Hide all canvas content, show only orientation message",
+        "overlay_dismissible": false
+    },
+    "scope": {
+        "files": [
+            "SPA/NoorCanvas/Pages/SessionCanvas.razor",
+            "SPA/NoorCanvas/Pages/TranscriptCanvas.razor"
+        ],
+        "target_devices": {
+            "phones": "≤767px width",
+            "tablets": "768-1024px width"
+        },
+        "orientation_enforcement": "portrait mode only (≤1024px)",
+        "styling_approach": "Component-scoped CSS (no external files)"
+    },
+    "phases": [
+        {
+            "phase": 1,
+            "name": "Portrait Overlay Styling",
+            "description": "Add CSS and HTML markup for portrait orientation overlay",
+            "status": "in_progress",
+            "tasks": [
+                {
+                    "task": "Add portrait overlay CSS to SessionCanvas.razor",
+                    "status": "pending"
+                },
+                {
+                    "task": "Add portrait overlay HTML to SessionCanvas.razor",
+                    "status": "pending"
+                },
+                {
+                    "task": "Add portrait overlay CSS to TranscriptCanvas.razor",
+                    "status": "pending"
+                },
+                {
+                    "task": "Add portrait overlay HTML to TranscriptCanvas.razor",
+                    "status": "pending"
+                },
+                {
+                    "task": "Build and verify compilation",
+                    "status": "pending"
+                }
+            ],
+            "duration_estimate": "45 minutes"
+        },
+        {
+            "phase": 2,
+            "name": "Testing & Validation",
+            "description": "Percy visual regression + manual device testing",
+            "status": "not_started",
+            "tasks": [
+                {
+                    "task": "Create Playwright test file",
+                    "status": "pending"
+                },
+                {
+                    "task": "Run Percy snapshots (portrait/landscape)",
+                    "status": "pending"
+                },
+                {
+                    "task": "Manual testing on physical devices",
+                    "status": "pending"
+                },
+                {
+                    "task": "Verify desktop unaffected",
+                    "status": "pending"
+                }
+            ],
+            "duration_estimate": "60 minutes"
+        }
     ],
-    "target_devices": {
-      "phones": "≤767px width",
-      "tablets": "768-1024px width"
+    "technology_stack": {
+        "framework": "ASP.NET Core 8.0 Blazor Server",
+        "ui_components": "Razor Components",
+        "styling": "Component-scoped CSS with @media queries",
+        "testing": "Playwright + Percy",
+        "device_detection": "@media (max-width: 1024px) and (orientation: portrait)"
     },
-    "orientation_enforcement": "portrait mode only (≤1024px)",
-    "styling_approach": "Component-scoped CSS (no external files)"
-  },
-  "phases": [
-    {
-      "phase": 1,
-      "name": "Portrait Overlay Styling",
-      "description": "Add CSS and HTML markup for portrait orientation overlay",
-      "status": "in_progress",
-      "tasks": [
-        {
-          "task": "Add portrait overlay CSS to SessionCanvas.razor",
-          "status": "pending"
-        },
-        {
-          "task": "Add portrait overlay HTML to SessionCanvas.razor",
-          "status": "pending"
-        },
-        {
-          "task": "Add portrait overlay CSS to TranscriptCanvas.razor",
-          "status": "pending"
-        },
-        {
-          "task": "Add portrait overlay HTML to TranscriptCanvas.razor",
-          "status": "pending"
-        },
-        {
-          "task": "Build and verify compilation",
-          "status": "pending"
+    "design_system": {
+        "background_color": "#F8F5F1",
+        "primary_color": "#006400",
+        "accent_color": "#D4AF37",
+        "white": "#FFFFFF",
+        "fonts": {
+            "heading": "Poppins",
+            "body": "Inter"
         }
-      ],
-      "duration_estimate": "45 minutes"
     },
-    {
-      "phase": 2,
-      "name": "Testing & Validation",
-      "description": "Percy visual regression + manual device testing",
-      "status": "not_started",
-      "tasks": [
+    "success_criteria": [
+        "Portrait mode on phones (≤767px) shows overlay, hides canvas",
+        "Portrait mode on tablets (768-1024px) shows overlay, hides canvas",
+        "Landscape mode shows normal canvas, hides overlay",
+        "Desktop (>1024px) never shows overlay",
+        "Follows NOOR Canvas design system",
+        "Pure CSS solution (no JavaScript)",
+        "Percy tests pass",
+        "Manual testing successful"
+    ],
+    "enhancements_selected": [],
+    "risks": [
         {
-          "task": "Create Playwright test file",
-          "status": "pending"
+            "risk": "Desktop layout regression",
+            "severity": "low",
+            "mitigation": "Media query targets ≤1024px + portrait only"
         },
         {
-          "task": "Run Percy snapshots (portrait/landscape)",
-          "status": "pending"
+            "risk": "Z-index conflicts",
+            "severity": "low",
+            "mitigation": "Z-index 9999 above all content"
         },
         {
-          "task": "Manual testing on physical devices",
-          "status": "pending"
-        },
-        {
-          "task": "Verify desktop unaffected",
-          "status": "pending"
+            "risk": "Tablet edge cases",
+            "severity": "medium",
+            "mitigation": "Test exact breakpoints (768×1024, 1024×768)"
         }
-      ],
-      "duration_estimate": "60 minutes"
-    }
-  ],
-  "technology_stack": {
-    "framework": "ASP.NET Core 8.0 Blazor Server",
-    "ui_components": "Razor Components",
-    "styling": "Component-scoped CSS with @media queries",
-    "testing": "Playwright + Percy",
-    "device_detection": "@media (max-width: 1024px) and (orientation: portrait)"
-  },
-  "design_system": {
-    "background_color": "#F8F5F1",
-    "primary_color": "#006400",
-    "accent_color": "#D4AF37",
-    "white": "#FFFFFF",
-    "fonts": {
-      "heading": "Poppins",
-      "body": "Inter"
-    }
-  },
-  "success_criteria": [
-    "Portrait mode on phones (≤767px) shows overlay, hides canvas",
-    "Portrait mode on tablets (768-1024px) shows overlay, hides canvas",
-    "Landscape mode shows normal canvas, hides overlay",
-    "Desktop (>1024px) never shows overlay",
-    "Follows NOOR Canvas design system",
-    "Pure CSS solution (no JavaScript)",
-    "Percy tests pass",
-    "Manual testing successful"
-  ],
-  "enhancements_selected": [],
-  "risks": [
-    {
-      "risk": "Desktop layout regression",
-      "severity": "low",
-      "mitigation": "Media query targets ≤1024px + portrait only"
-    },
-    {
-      "risk": "Z-index conflicts",
-      "severity": "low",
-      "mitigation": "Z-index 9999 above all content"
-    },
-    {
-      "risk": "Tablet edge cases",
-      "severity": "medium",
-      "mitigation": "Test exact breakpoints (768×1024, 1024×768)"
-    }
-  ],
-  "testing_devices": [
-    "iPhone SE (375×667 portrait, 667×375 landscape)",
-    "iPhone 14 Pro (390×844 portrait, 844×390 landscape)",
-    "iPad (768×1024 portrait, 1024×768 landscape)",
-    "Desktop (1280×720, 1920×1080)"
-  ]
+    ],
+    "testing_devices": [
+        "iPhone SE (375×667 portrait, 667×375 landscape)",
+        "iPhone 14 Pro (390×844 portrait, 844×390 landscape)",
+        "iPad (768×1024 portrait, 1024×768 landscape)",
+        "Desktop (1280×720, 1920×1080)"
+    ]
 }

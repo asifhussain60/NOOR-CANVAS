@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json
@@ -409,9 +410,9 @@
                                 <i class="fa-solid fa-user-lock user-landing-field-icon"></i>
                             </div>
                             @* DEBUG-WORKITEM:user-auth - Token input: maxlength=8, uppercase conversion, Enter key submit, autocomplete=off ;CLEANUP_OK *@
+                            @* [ISSUE:use-landing] Changed to onchange (blur event) to prevent excessive server roundtrips on every keypress ;CLEANUP_OK *@
                             <InputText id="token-input"
-                                      @bind-Value="Model!.TokenInput" 
-                                      @bind-Value:event="oninput"
+                                      @bind-Value="Model!.TokenInput"
                                       @onfocus="ClearError"
                                       @onkeydown="HandleTokenKeyDown"
                                       maxlength="8"
@@ -600,6 +601,9 @@
                 
             try
             {
+                // Add delay to ensure DOM is fully rendered before JSInterop
+                await Task.Delay(150);
+                
                 if (Model.ShowTokenPanel)
                 {
                     // Focus on token input if showing token panel
@@ -612,6 +616,14 @@
                     await JSRuntime.InvokeVoidAsync("setTimeout", "() => document.getElementById('name-input')?.focus()", 100);
                     Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Focus set to name-input", requestId);
                 }
+            }
+            catch (JSDisconnectedException jsDisconnected)
+            {
+                Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Circuit disconnected, cannot set focus: {Message}", requestId, jsDisconnected.Message);
+            }
+            catch (JSException jsEx)
+            {
+                Logger.LogWarning(jsEx, "COPILOT-DEBUG: [{RequestId}] JavaScript error setting focus", requestId);
             }
             catch (Exception ex)
             {
@@ -1186,7 +1198,7 @@
 
             // [DEBUG-WORKITEM:user-landing:storage-toggle] Check registration from environment-appropriate storage ;CLEANUP_OK
             var storageType = GetStorageType();
-            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("eval", $"{storageType}.getItem('noor_user_guid_{token}')");
+            var storedUserGuid = await GetStorageValueAsync(storageType, $"noor_user_guid_{token}");
             
             if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
             {
@@ -1459,6 +1471,22 @@
     private string GetStorageType()
     {
         return WebHostEnvironment.IsDevelopment() ? "sessionStorage" : "localStorage";
+    }
+
+    /// <summary>
+    /// [ISSUE:use-landing] Safe helper method to get storage values without using eval() ;CLEANUP_OK
+    /// </summary>
+    private async Task<string?> GetStorageValueAsync(string storageType, string key)
+    {
+        try
+        {
+            return await JSRuntime.InvokeAsync<string?>($"{storageType}.getItem", key);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "[ISSUE:use-landing] Error getting storage value for key: {Key}", key);
+            return null;
+        }
     }
 
     public class UserLandingViewModel
