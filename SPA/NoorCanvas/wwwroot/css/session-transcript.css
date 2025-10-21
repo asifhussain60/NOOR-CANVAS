@@ -265,7 +265,7 @@
 .islamic-content .inlineArabic {
     /* Use KashkoleTradArabic if available; fall back to widely available Arabic fonts */
     font-family: KashkoleTradArabic, "Traditional Arabic", "Scheherazade New", Amiri, serif !important;
-    font-size: 1.5em !important; /* Match ksessions.css inlineArabic sizing */
+    font-size: 1.1em !important; /* Keep inline Arabic slightly larger than surrounding text */
     word-spacing: 3px;
     letter-spacing: normal;
     padding-left: 2px;
@@ -1219,7 +1219,7 @@
 .islamic-content span.inlineArabic,
 .islamic-content p.inlineArabic {
     font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', serif !important;
-    font-size: 1.25em !important;
+    font-size: 1.1em !important;
     word-spacing: 3px;
     letter-spacing: normal;
     font-weight: 600;
@@ -1238,7 +1238,24 @@
 .session-transcript-content p.inlineArabic,
 .transcript-display p.inlineArabic,
 .islamic-content p.inlineArabic {
-    font-size: 1.1rem !important;
+    font-size: 1.1em !important;
+}
+
+/* Responsive: fine-tune inline Arabic size on smaller screens to match transcript text rhythm */
+@media (width <= 640px) {
+    [data-islamic-content] span.inlineArabic,
+    [data-islamic-content] p.inlineArabic,
+    .ks-transcript span.inlineArabic,
+    .ks-transcript p.inlineArabic,
+    .session-transcript-content span.inlineArabic,
+    .session-transcript-content p.inlineArabic,
+    .transcript-display span.inlineArabic,
+    .transcript-display p.inlineArabic,
+    .islamic-content span.inlineArabic,
+    .islamic-content p.inlineArabic {
+        /* Keep relative to parent text size but allow a touch of fluid scaling */
+        font-size: clamp(1.05em, 1em + 0.3vw, 1.1em) !important;
+    }
 }
 
 /* Esoteric Block */
