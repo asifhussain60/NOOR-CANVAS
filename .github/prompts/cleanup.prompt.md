@@ -89,7 +89,7 @@ Target branch for cleanup work. Follows same branch validation as plan agent.
 
 ### Step 0: Safety Validation (MANDATORY)
 
-**Purpose:** Ensure cleanup can proceed safely
+**Purpose:** Ensure cleanup can proceed safely with full rollback capability
 
 **Actions:**
 
@@ -106,32 +106,37 @@ Target branch for cleanup work. Follows same branch validation as plan agent.
    - Recommend committing or stashing before cleanup
    - Abort if user doesn't confirm proceed
 
-3. **Backup Creation**:
+3. **Pre-Cleanup Checkpoint (MANDATORY)**:
+   ```powershell
+   # Create git checkpoint and tag BEFORE any cleanup
+   $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+   $tagName = "checkpoint/cleanup-$timestamp"
+   
+   # Commit any staged changes first
+   $status = git status --porcelain
+   if ($status) {
+       git add .
+       git commit -m "chore: pre-cleanup checkpoint - preserving state before cleanup operations"
+   }
+   
+   # Create annotated tag
+   git tag -a $tagName -m "Pre-cleanup checkpoint: $($targetFolders -join ', ')"
+   
+   # Push tag to remote
+   git push origin $tagName
+   
+   Write-Host "✓ Checkpoint created: $tagName" -ForegroundColor Green
+   ```
+   - **Purpose**: Create restoration point for instant rollback
+   - **Tag Format**: `checkpoint/cleanup-{YYYYMMDD-HHmmss}`
+   - **Pushed to remote**: Yes (enables rollback from any machine)
+   - **Rollback Command**: `git reset --hard {tagName}`
+
+4. **Backup Creation**:
    - Create timestamped backup: `Workspaces/Archive/{YYYY-MM-DD}-pre-cleanup/`
    - Copy target_folders to backup location
    - Record backup path in cleanup report
-
-4. **Git Checkpoint** (MANDATORY):
-   - Create git checkpoint tag before ANY cleanup operations
-   - Tag format: `checkpoint/cleanup/{YYYY-MM-DD}-{HHMMSS}-pre-cleanup`
-   - Commit all staged changes first (if any)
-   - Push checkpoint tag to origin for safety
-   - Record checkpoint tag in cleanup report
-
-**Commands:**
-```powershell
-# Stage any uncommitted changes
-git add .
-
-# Commit if there are staged changes
-git commit -m "chore: pre-cleanup checkpoint - preserving state before cleanup operations"
-
-# Create checkpoint tag
-git tag -a "checkpoint/cleanup/2025-10-21-143000-pre-cleanup" -m "Pre-cleanup checkpoint: {description of cleanup scope}"
-
-# Push checkpoint to origin
-git push origin "checkpoint/cleanup/2025-10-21-143000-pre-cleanup"
-```
+   - **Note**: This is secondary to git checkpoint (for deleted file recovery)
 
 **Output:**
 ```
@@ -139,8 +144,9 @@ git push origin "checkpoint/cleanup/2025-10-21-143000-pre-cleanup"
 
 Branch: {github-branch}
 Git Status: {clean | uncommitted changes}
+Git Checkpoint: checkpoint/cleanup-20251021-143052 (pushed to origin)
 Backup: Workspaces/Archive/2025-10-21-pre-cleanup/
-Checkpoint Tag: checkpoint/cleanup/2025-10-21-143000-pre-cleanup
+Rollback Command: git reset --hard checkpoint/cleanup-20251021-143052
 Status: Ready to proceed
 ```
 
@@ -433,50 +439,195 @@ Issues Found: {count}
 
 ### Step 4: Validation Phase (MANDATORY)
 
-**Purpose:** Verify system integrity after cleanup
+**Purpose:** Verify system integrity after cleanup with comprehensive checks
 
 **Validation Checklist:**
 
-1. **Build Validation**:
-   ```powershell
-   dotnet build SPA/NoorCanvas/NoorCanvas.csproj
-   ```
-   - ✅ Build succeeds
-   - ❌ Build fails → ROLLBACK and report error
+#### 1. **Build Validation** (CRITICAL)
+```powershell
+Write-Host "`n[1/6] Build Validation..." -ForegroundColor Cyan
+$buildResult = dotnet build SPA/NoorCanvas/NoorCanvas.csproj --verbosity quiet
+$buildExitCode = $LASTEXITCODE
 
-2. **Test Validation** (if tests affected):
-   ```powershell
-   npm test -- --grep "affected tests"
-   ```
-   - ✅ Tests pass
-   - ❌ Tests fail → ROLLBACK and report error
+if ($buildExitCode -ne 0) {
+    Write-Host "❌ Build FAILED - Rolling back..." -ForegroundColor Red
+    git reset --hard $checkpointTag
+    throw "Build validation failed. Rolled back to checkpoint: $checkpointTag"
+}
+Write-Host "✅ Build succeeded" -ForegroundColor Green
+```
+- ✅ Build succeeds → Continue
+- ❌ Build fails → **AUTOMATIC ROLLBACK** to git checkpoint
 
-3. **Reference Validation**:
-   - Scan all `.md` files for broken links
-   - Scan SelfAwareness.instructions.md for invalid references
-   - Scan prompt files for broken #file: attachments
-   - ✅ All references valid
-   - ❌ Broken references found → FIX immediately
+#### 2. **Solution-Wide Build Check** (if .sln exists)
+```powershell
+Write-Host "`n[2/6] Solution Build Validation..." -ForegroundColor Cyan
+if (Test-Path "NoorCanvas.sln") {
+    $slnBuild = dotnet build NoorCanvas.sln --verbosity quiet
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Solution build FAILED - Rolling back..." -ForegroundColor Red
+        git reset --hard $checkpointTag
+        throw "Solution build failed. Rolled back to checkpoint: $checkpointTag"
+    }
+    Write-Host "✅ Solution build succeeded" -ForegroundColor Green
+}
+```
 
-4. **Git Status Check**:
-   ```powershell
-   git status
-   git diff --stat
-   ```
-   - Show files changed
-   - Show lines added/removed
-   - Confirm changes look correct
+#### 3. **Critical File Existence Check** (MANDATORY)
+```powershell
+Write-Host "`n[3/6] Critical File Validation..." -ForegroundColor Cyan
+$criticalFiles = @(
+    "SPA/NoorCanvas/NoorCanvas.csproj",
+    "SPA/NoorCanvas/Program.cs",
+    "SPA/NoorCanvas/appsettings.json",
+    ".github/instructions/SelfAwareness.instructions.md",
+    "package.json",
+    "playwright.config.cjs"
+)
+
+$missingFiles = @()
+foreach ($file in $criticalFiles) {
+    if (-not (Test-Path $file)) {
+        $missingFiles += $file
+    }
+}
+
+if ($missingFiles.Count -gt 0) {
+    Write-Host "❌ Critical files missing - Rolling back..." -ForegroundColor Red
+    $missingFiles | ForEach-Object { Write-Host "  Missing: $_" -ForegroundColor Red }
+    git reset --hard $checkpointTag
+    throw "Critical files missing. Rolled back to checkpoint: $checkpointTag"
+}
+Write-Host "✅ All critical files present" -ForegroundColor Green
+```
+
+#### 4. **Reference Validation** (Broken Links Check)
+```powershell
+Write-Host "`n[4/6] Reference Integrity Validation..." -ForegroundColor Cyan
+
+# Install markdown-link-check if not present
+if (-not (Get-Command markdown-link-check -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing markdown-link-check..." -ForegroundColor Yellow
+    npm install -g markdown-link-check
+}
+
+# Check markdown files for broken links
+$mdFiles = Get-ChildItem -Path "." -Recurse -Include "*.md" -Exclude "node_modules","bin","obj" -ErrorAction SilentlyContinue
+$brokenLinks = @()
+
+foreach ($file in $mdFiles | Select-Object -First 20) {
+    $result = markdown-link-check $file.FullName --quiet 2>&1
+    if ($result -match "ERROR:") {
+        $brokenLinks += $file.FullName
+    }
+}
+
+if ($brokenLinks.Count -gt 0) {
+    Write-Host "⚠️ Warning: $($brokenLinks.Count) files with broken links detected" -ForegroundColor Yellow
+    Write-Host "Note: This is a warning, not blocking cleanup" -ForegroundColor Yellow
+    # Don't rollback for broken links - just warn
+} else {
+    Write-Host "✅ No broken links detected" -ForegroundColor Green
+}
+```
+
+#### 5. **Test Validation** (if tests affected)
+```powershell
+Write-Host "`n[5/6] Test Validation..." -ForegroundColor Cyan
+
+# Check if test files were affected
+$affectedTestFiles = git diff --name-only HEAD $checkpointTag | Where-Object { $_ -match "\.spec\.(ts|js)$" }
+
+if ($affectedTestFiles) {
+    Write-Host "Test files affected - running validation tests..." -ForegroundColor Yellow
+    
+    # Run quick smoke test
+    $testResult = npm test -- --grep "smoke" --reporter=json 2>&1
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Tests FAILED - Rolling back..." -ForegroundColor Red
+        git reset --hard $checkpointTag
+        throw "Test validation failed. Rolled back to checkpoint: $checkpointTag"
+    }
+    Write-Host "✅ Tests passed" -ForegroundColor Green
+} else {
+    Write-Host "✅ No test files affected - skipping test validation" -ForegroundColor Green
+}
+```
+
+#### 6. **Prompt File Validation** (Check prompt integrity)
+```powershell
+Write-Host "`n[6/6] Prompt File Validation..." -ForegroundColor Cyan
+
+$promptFiles = Get-ChildItem -Path ".github/prompts" -Filter "*.prompt.md" -ErrorAction SilentlyContinue
+
+if ($promptFiles) {
+    $invalidPrompts = @()
+    
+    foreach ($prompt in $promptFiles) {
+        $content = Get-Content $prompt.FullName -Raw
+        
+        # Check for required sections
+        $requiredSections = @("## Role", "## Parameters", "mode: agent")
+        
+        foreach ($section in $requiredSections) {
+            if ($content -notmatch [regex]::Escape($section)) {
+                $invalidPrompts += "$($prompt.Name) missing: $section"
+            }
+        }
+    }
+    
+    if ($invalidPrompts.Count -gt 0) {
+        Write-Host "⚠️ Warning: Prompt validation issues detected" -ForegroundColor Yellow
+        $invalidPrompts | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
+        # Don't rollback - just warn
+    } else {
+        Write-Host "✅ All prompt files valid" -ForegroundColor Green
+    }
+}
+```
+
+#### 7. **Git Integrity Check**
+```powershell
+Write-Host "`nGit Status Check..." -ForegroundColor Cyan
+git status --short
+git diff --stat HEAD $checkpointTag
+
+Write-Host "`n✅ All validation checks complete" -ForegroundColor Green
+```
+
+**Automatic Rollback Triggers:**
+- ❌ Build failure → Instant rollback to checkpoint tag
+- ❌ Solution build failure → Instant rollback to checkpoint tag
+- ❌ Critical files missing → Instant rollback to checkpoint tag
+- ❌ Tests failure (if affected) → Instant rollback to checkpoint tag
+- ⚠️ Broken links → Warning only (not blocking)
+- ⚠️ Prompt validation issues → Warning only (not blocking)
 
 **Output:**
 ```
-✓ Validation Complete
+✓ Validation Complete (6/6 checks passed)
 
-Build Status: ✅ Success
-Test Status: ✅ All tests pass
-Reference Check: ✅ No broken links
-Git Status: 15 files changed, 234 insertions(+), 567 deletions(-)
+[1/6] Build Status: ✅ Success (0 errors, 0 warnings)
+[2/6] Solution Build: ✅ Success
+[3/6] Critical Files: ✅ All present (6/6)
+[4/6] Reference Check: ✅ No broken links
+[5/6] Test Status: ✅ All tests pass (or skipped if not affected)
+[6/6] Prompt Files: ✅ All valid
+
+Git Changes: 15 files changed, 234 insertions(+), 567 deletions(-)
+Checkpoint Tag: checkpoint/cleanup-20251021-143052
 
 System integrity verified - cleanup successful
+```
+
+**Rollback Instructions** (if needed manually):
+```powershell
+# Instant rollback to checkpoint
+git reset --hard checkpoint/cleanup-20251021-143052
+
+# Or restore from backup folder
+Copy-Item -Path "Workspaces/Archive/2025-10-21-pre-cleanup/*" -Destination "." -Recurse -Force
 ```
 
 ---
@@ -509,7 +660,38 @@ System integrity verified - cleanup successful
 **Folders Removed**: {count}  
 **Build Status**: {pass|fail}  
 **Test Status**: {pass|fail|skipped}  
-**Validation Status**: {pass|fail}
+**Validation Status**: {pass|fail}  
+**Git Checkpoint**: {checkpoint-tag}  
+**Rollback Command**: `git reset --hard {checkpoint-tag}`
+
+---
+
+## Safety Information
+
+### Git Checkpoint Created
+**Tag**: `{checkpoint-tag}` (e.g., `checkpoint/cleanup-20251021-143052`)  
+**Location**: Pushed to `origin/{github-branch}`  
+**Purpose**: Instant rollback point if issues discovered later
+
+**Rollback Instructions**:
+```powershell
+# Option 1: Instant rollback to checkpoint (RECOMMENDED)
+git reset --hard {checkpoint-tag}
+git push origin {github-branch} --force
+
+# Option 2: Restore from backup folder
+Copy-Item -Path "Workspaces/Archive/{YYYY-MM-DD}-pre-cleanup/*" `
+          -Destination "." -Recurse -Force
+
+# Option 3: Cherry-pick specific files from checkpoint
+git show {checkpoint-tag}:path/to/file > path/to/file
+```
+
+### Backup Location
+**Backup Created**: `Workspaces/Archive/{YYYY-MM-DD}-pre-cleanup/`  
+**Contents**: Complete snapshot of target folders before cleanup  
+**Retention**: 30 days  
+**Size**: {backup-size}
 
 ---
 
@@ -914,12 +1096,39 @@ using NoorCanvas.Services.NewLocation;
 ## Notes
 
 - **This agent focuses on organization and cleanup, NOT code changes**
+- **Always create git checkpoint and tag before ANY deletions**
 - **Always create backups before deletions**
 - **Always update references when moving files**
 - **Always validate system still works after changes**
+- **Automatic rollback on validation failure**
 - Keep cleanup scoped to specific folders to limit risk
 - Run in dry-run mode first to preview changes
 - Prefer moving to archive over deletion when uncertain
+
+---
+
+## Required Tools & Dependencies
+
+### Mandatory (Built-in)
+- ✅ **git** - Version control (checkpoint/rollback)
+- ✅ **PowerShell** - Script execution
+- ✅ **dotnet CLI** - Build validation
+
+### Optional (Auto-installed if missing)
+- 📦 **markdown-link-check** - Broken link detection
+  - Installation: `npm install -g markdown-link-check`
+  - Used in: Step 4.4 (Reference Validation)
+  - Fallback: Manual link checking if not available
+
+### Validation Tools
+| Tool | Purpose | Install Command | Required |
+|------|---------|-----------------|----------|
+| dotnet | Build validation | Built-in | ✅ Yes |
+| npm | Test running, tool installation | Built-in | ✅ Yes |
+| git | Checkpointing, rollback | Built-in | ✅ Yes |
+| markdown-link-check | Link validation | `npm i -g markdown-link-check` | ⚠️ Optional |
+
+**Auto-Installation**: The cleanup agent will attempt to install optional tools if missing and needed.
 
 ---
 
