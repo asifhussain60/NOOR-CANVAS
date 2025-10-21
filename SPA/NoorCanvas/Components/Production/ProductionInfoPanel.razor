@@ -1,8 +1,17 @@
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
 @inject ILogger<ProductionInfoPanel> Logger
+@inject NoorCanvas.Services.Development.IDevModeService DevModeService
 
-@* Production-safe information panel - shows database connection info WITHOUT debug controls *@
+@* 
+    SECURITY WARNING: This component displays sensitive database connection information.
+    It should NEVER be visible in production environments.
+    Only renders in DEBUG builds with DevModeService.ShowDevPanels enabled.
+*@
+
+@* Only render in development mode - compile-time and runtime guards *@
+@if (DevModeService.ShowDevPanels)
+{
 <div class="production-info-panel" 
      style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
     
@@ -96,6 +105,7 @@
         </div>
     }
 </div>
+}
 
 @code {
     private bool _isExpanded = false;
