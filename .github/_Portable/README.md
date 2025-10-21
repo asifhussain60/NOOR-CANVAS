@@ -4,12 +4,41 @@ A complete, self-contained AI agent infrastructure that can be deployed to any s
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Drop-In Setup)
 
-1. **Copy this folder** to your project root
-2. **Run setup**: `setup.bat` (Windows) or `./setup.ps1` (PowerShell/Linux/Mac)
-3. **Follow prompts** to configure for your project
-4. **Start using**: `@workspace /question What agents are available?`
+**3 Simple Steps:**
+
+1. **Copy** `.github/_Portable/` folder to your project → `.github/`
+2. **Run** `@workspace /total-recall` to scan and configure
+3. **Start using** `@workspace /question What agents are available?`
+
+**That's it!** No scripts, no manual configuration. total-recall intelligently detects your project and populates all templates automatically.
+
+### What Happens During Setup
+
+**Step 1: Copy**
+```bash
+# Copy the portable system to your project
+cp -r .github/_Portable/ /path/to/your/project/.github/
+```
+
+**Step 2: Run total-recall**
+```
+@workspace /total-recall
+```
+total-recall will:
+- 🔍 Scan your project structure (detects .NET, Node.js, Python, Java, etc.)
+- 📝 Extract configuration (database, ports, build commands)
+- 🎯 Populate all 35+ template variables
+- ✨ Remove `.template` extensions
+- ✅ Validate setup completeness
+
+**Step 3: Use agents**
+```
+@workspace /question What can you help me with?
+@workspace /task key=my-feature user_request="Add login feature"
+@workspace /refactor scope=services
+```
 
 ---
 
@@ -97,10 +126,11 @@ Regenerate the portable system with latest improvements
 
 ### Total Recall Agent (`/total-recall`) - Meta
 Analyze project and populate all templates with project data
-- Deep project analysis
-- Template population
+- Deep project analysis (detects .NET, Node.js, Python, Java, etc.)
+- Automatic template population (35+ variables)
+- Template processing (removes .template extensions)
 - Infrastructure documentation
-- **Use when:** After setup.bat to fully customize AI system
+- **Use when:** Immediately after copying _Portable to configure for your project
 
 ---
 
@@ -141,31 +171,34 @@ Analyze project and populate all templates with project data
 
 ## 📦 Installation
 
-### Automated Setup (Recommended)
+### Drop-In Setup (Recommended)
 
-**Windows:**
-```cmd
-setup.bat
-```
-
-**PowerShell/Linux/Mac:**
+**Single Command:**
 ```bash
-./setup.ps1
+# After copying .github/_Portable/ to your project
+@workspace /total-recall
 ```
 
-The setup script will:
-1. Detect your project type
-2. Prompt for configuration
-3. Generate customized files
-4. Create workspace structure
-5. Produce setup summary
+The total-recall agent will:
+1. 🔍 Detect your project type (.NET, Node.js, Python, Java, etc.)
+2. 📝 Extract configuration (solution files, package.json, requirements.txt, etc.)
+3. 🎯 Populate 35+ template variables automatically
+4. ✨ Process all .template files (replace variables, remove extensions)
+5. ✅ Validate completeness (no unpopulated variables remain)
 
-### Manual Setup
+**Complete in 30 seconds** - no manual input required!
+
+### Manual Setup (Not Recommended)
+
+If you cannot use total-recall for some reason:
 
 1. Copy all files from `.github/_Portable/` to your project's `.github/` folder
-2. Manually replace `{{VARIABLE}}` placeholders in template files
-3. Remove `.template` extensions
+2. Manually find and replace all 35+ `{{VARIABLE}}` placeholders in .template files
+3. Remove `.template` extensions from all files
 4. Create workspace folders (see structure below)
+5. Validate no {{VARIABLES}} remain
+
+⚠️ **Warning:** Manual setup is error-prone and time-consuming. Use total-recall instead.
 
 ---
 
@@ -245,34 +278,36 @@ Update documentation"
 
 ### Template Variables
 
-All template files use `{{VARIABLE}}` placeholders that setup.ps1 replaces:
+All template files use `{{VARIABLE}}` placeholders that total-recall automatically populates:
 
 **Project Identity:**
-- `{{PROJECT_NAME}}` - Your project name
-- `{{PROJECT_TYPE}}` - .NET, Node.js, Python, etc.
-- `{{LANGUAGES}}` - Programming languages
-- `{{FRAMEWORKS}}` - Framework names
+- `{{PROJECT_NAME}}` - Your project name (from .sln, package.json, etc.)
+- `{{PROJECT_TYPE}}` - .NET, Node.js, Python, etc. (auto-detected)
+- `{{LANGUAGES}}` - Programming languages (scanned from file extensions)
+- `{{FRAMEWORKS}}` - Framework names (detected from dependencies)
 
 **Build & Test:**
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
-- `{{RUN_COMMAND}}` - Run command
-- `{{LINT_COMMAND}}` - Linting command
+- `{{BUILD_COMMAND}}` - Build command (extracted from scripts)
+- `{{TEST_COMMAND}}` - Test command (detected from test frameworks)
+- `{{RUN_COMMAND}}` - Run command (from package.json, .csproj, etc.)
+- `{{LINT_COMMAND}}` - Linting command (if configured)
 
 **Database:**
-- `{{DATABASE_NAME}}` - Primary database
-- `{{DATABASE_SERVER}}` - Database server
-- `{{DATABASE_TYPE}}` - Database type
-- `{{SCHEMA_PRIMARY}}` - Writable schema
-- `{{SCHEMA_READONLY}}` - Read-only schemas
+- `{{DATABASE_NAME}}` - Primary database (from connection strings)
+- `{{DATABASE_SERVER}}` - Database server (from appsettings.json, .env, etc.)
+- `{{DATABASE_TYPE}}` - Database type (SQL Server, PostgreSQL, etc.)
+- `{{SCHEMA_PRIMARY}}` - Writable schema (dbo, public, etc.)
+- `{{SCHEMA_READONLY}}` - Read-only schemas (if configured)
 
 **Infrastructure:**
-- `{{API_BASE_URL}}` - API base URL
-- `{{APP_PORT}}` - Application port
-- `{{REALTIME_TECH}}` - Real-time technology
-- `{{UI_FRAMEWORK}}` - UI framework
+- `{{API_BASE_URL}}` - API base URL (from configuration files)
+- `{{APP_PORT}}` - Application port (from launch settings)
+- `{{REALTIME_TECH}}` - Real-time technology (SignalR, WebSocket, etc.)
+- `{{UI_FRAMEWORK}}` - UI framework (React, Blazor, Vue, etc.)
 
-See `QUICK-REFERENCE.md` for complete list.
+**35+ variables total** - All populated automatically by total-recall!
+
+See `QUICK-REFERENCE.md` for complete list with detection methods.
 
 ---
 
@@ -323,15 +358,20 @@ See `QUICK-REFERENCE.md` for complete list.
 
 ### Setup Issues
 
-**PowerShell execution policy error:**
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
-```
-
 **Template variables not replaced:**
-- Run setup.bat/setup.ps1 again
-- Check for .template extensions on files
-- Manually edit files if needed
+- Ensure you ran `@workspace /total-recall` after copying _Portable folder
+- Check for .template extensions still present (total-recall should remove these)
+- Manually run total-recall again if files weren't processed
+
+**total-recall not detecting project type:**
+- Verify project has standard files (.sln, package.json, requirements.txt, pom.xml)
+- Check if project structure is non-standard (may need manual configuration)
+- Run with verbose logging to see detection results
+
+**Variables still showing {{VARIABLE}} after total-recall:**
+- Some variables may require manual configuration if not auto-detectable
+- Check `QUICK-REFERENCE.md` for which variables support auto-detection
+- Edit files manually to replace remaining placeholders
 
 ### Agent Issues
 
@@ -349,12 +389,19 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
 
 ## 📊 Version History
 
+- **v2.0.0** (Drop-In Release)
+  - **Removed setup.bat/setup.ps1** - No more scripts!
+  - **Added total-recall agent** - AI-powered configuration
+  - **Auto-detection** - 35+ variables populated automatically
+  - **Drop-in workflow** - Copy folder, run one command, done
+  - **Faster setup** - 30 seconds vs 5+ minutes manual setup
+
 - **v1.0.0** (Initial Release)
   - Complete portable system
   - 8 specialized agents
   - Learning infrastructure
   - Multi-language support
-  - Automated setup
+  - Script-based setup (deprecated)
 
 ---
 
@@ -380,7 +427,8 @@ This AI agent infrastructure is provided as-is for use in software projects. Cus
 - **Documentation**: See `.github/instructions/Links/`
 - **Agent Prompts**: See `.github/prompts/`
 - **Learning System**: See `.github/learning/`
-- **Project Setup**: See `PROJECT-SETUP-SUMMARY.md` (generated after setup)
+- **Variable Reference**: See `QUICK-REFERENCE.md`
+- **Setup Guide**: See `START-HERE.md`
 
 ---
 
