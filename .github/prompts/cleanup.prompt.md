@@ -111,6 +111,28 @@ Target branch for cleanup work. Follows same branch validation as plan agent.
    - Copy target_folders to backup location
    - Record backup path in cleanup report
 
+4. **Git Checkpoint** (MANDATORY):
+   - Create git checkpoint tag before ANY cleanup operations
+   - Tag format: `checkpoint/cleanup/{YYYY-MM-DD}-{HHMMSS}-pre-cleanup`
+   - Commit all staged changes first (if any)
+   - Push checkpoint tag to origin for safety
+   - Record checkpoint tag in cleanup report
+
+**Commands:**
+```powershell
+# Stage any uncommitted changes
+git add .
+
+# Commit if there are staged changes
+git commit -m "chore: pre-cleanup checkpoint - preserving state before cleanup operations"
+
+# Create checkpoint tag
+git tag -a "checkpoint/cleanup/2025-10-21-143000-pre-cleanup" -m "Pre-cleanup checkpoint: {description of cleanup scope}"
+
+# Push checkpoint to origin
+git push origin "checkpoint/cleanup/2025-10-21-143000-pre-cleanup"
+```
+
 **Output:**
 ```
 ✓ Safety Validation Complete
@@ -118,6 +140,7 @@ Target branch for cleanup work. Follows same branch validation as plan agent.
 Branch: {github-branch}
 Git Status: {clean | uncommitted changes}
 Backup: Workspaces/Archive/2025-10-21-pre-cleanup/
+Checkpoint Tag: checkpoint/cleanup/2025-10-21-143000-pre-cleanup
 Status: Ready to proceed
 ```
 
