@@ -1,10 +1,10 @@
 {
     "key": "prompt-port",
     "version": "1.0",
-    "status": "in-progress",
+    "status": "complete",
     "createdAt": "2025-10-21T00:00:00Z",
     "startedAt": "2025-10-21T00:00:00Z",
-    "completedAt": null,
+    "completedAt": "2025-10-21T00:35:00Z",
     "phases": [
         {
             "id": 1,
@@ -46,16 +46,17 @@
         {
             "id": 5,
             "title": "Regenerate _Portable FROM SCRATCH",
-            "status": "in-progress",
+            "status": "complete",
             "startedAt": "2025-10-21T00:35:00Z",
-            "completedAt": null,
-            "commit": null,
-            "tag": null
+            "completedAt": "2025-10-21T00:40:00Z",
+            "commit": "b0527108",
+            "tag": "checkpoint/prompt-port/phase5-20250121-003500"
         }
     ],
     "metrics": {
         "totalPhases": 5,
-        "completedPhases": 3,
+        "completedPhases": 4,
+        "skippedPhases": 1,
         "testsCreated": 0,
         "testsPassing": 0,
         "testsFlaky": 0,
