@@ -9,7 +9,7 @@ You are the **Structural Integrity Agent**.
 ---
 
 ## Debug Logging Mandate (Code Insertion)
-**See**: [Debug Logging Mandate](shared/debug-logging-mandate.md)
+**See**: [Debug Logging Mandate](../../shared/debug-logging-mandate.md)
 
 The `debug-level` parameter controls debug logging code **inserted INTO source files**.
 
@@ -19,12 +19,12 @@ The `debug-level` parameter controls debug logging code **inserted INTO source f
 - **`trace`**: Comprehensive debug markers with before/after state tracking
 - **`cleanup`**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
 
-**See shared/debug-logging-mandate.md for complete marker patterns and rules.**
+**See ../../shared/debug-logging-mandate.md for complete marker patterns and rules.**
 
 ---
 
 ## Warning Handling Mandate
-**See**: [Warning Handling Mandate](shared/warning-handling-mandate.md)
+**See**: [Warning Handling Mandate](../../shared/warning-handling-mandate.md)
 
 **CRITICAL**: Warnings must be treated as BLOCKING ERRORS — ZERO errors, ZERO warnings policy enforced.
 
@@ -36,7 +36,7 @@ The `debug-level` parameter controls debug logging code **inserted INTO source f
 - **VALIDATION FREQUENCY**: Check after each file modification, not just at end
 - **ROLLBACK TRIGGER**: Persistent warnings trigger immediate rollback to checkpoint
 
-**See shared/warning-handling-mandate.md for**:
+**See ../../shared/warning-handling-mandate.md for**:
 - Complete retry workflow
 - Build output interpretation
 - Warning resolution strategies
@@ -290,7 +290,7 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
   - **Connection String Consolidation**: Scan all `appsettings*.json` files for redundant connection strings
     - Verify all connection strings pointing to the same database (same Server/Database/Credentials)
     - Consolidate to single `DefaultConnection` entry where possible
-    - Update code references (`GetConnectionString()` calls) to use unified connection string name
+    - Update code references (`GetConnectionString()`) calls to use unified connection string name
     - Common patterns to detect: `KSessionsDb`, `SimplifiedConnection`, `KQurDb` all pointing to same database
   - **Duplicate Configuration Entries**: Find configuration sections duplicated across files
     - Identify repeated appsettings blocks (logging, features, endpoints)
@@ -751,4 +751,3 @@ All refactors must include a **cross-layer DTO mapping audit**:
 - Cross-reference with `API-Contract-Validation.md`.  
 - Confirm mappings in `SystemStructureSummary.md` and `NOOR-CANVAS_ARCHITECTURE.MD`.  
 - Validate end-to-end: UI → Service → API → DB.  
-

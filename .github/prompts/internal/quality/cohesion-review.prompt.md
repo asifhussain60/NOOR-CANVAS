@@ -2,10 +2,7 @@
 
 ---
 mode: agent
-purpose: Audit prompts and instructions for redundancy, gaps, conflicts, and optimization opportunities.
-inputs: key, scope, depth
-outputs: Markdown report in .github/reports/ and suggested edits for prompts/shared
-lastUpdated: 2025-10-18
+description: Audit prompts and instructions for redundancy, gaps, conflicts, and optimization opportunities.
 ---
 
 ## Role
@@ -18,7 +15,7 @@ Always follow .github/instructions/SelfAwareness.instructions.md.
 ## Execution Workflow
 
 ### Step 0: Kill Running Kestrel Servers (Mandatory)
-**See**: [Step 0: Server Cleanup](shared/step-0-server-cleanup.md)
+**See**: [Step 0: Server Cleanup](../../shared/step-0-server-cleanup.md)
 
 Before beginning analysis, ensure clean server state:
 
@@ -36,7 +33,7 @@ Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object {
 ---
 
 ### Step 1: Checkpoint Commit
-**See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
+**See**: [Step 1: Checkpoint](../../shared/step-1-checkpoint.md)
 
 Create checkpoint before analysis begins:
 
@@ -250,7 +247,7 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 **Fast Analysis**:
 1. **Terminology**: Sample 10 random occurrences of "key", check consistency
 2. **Structure**: Check if all prompts have ## Agent Role, ## Execution
-3. **Formatting**: Check heading levels (# vs ## vs ###), consistent?
+3. **Formatting**: Check heading hierarchy (H1/H2/H3), consistent?
 
 **Heuristics**:
 - If first 100 lines match pattern → assume rest matches
@@ -363,7 +360,7 @@ Create report in `.github/reports/cohesion-review-YYYY-MM-DD.md`:
 **Quick Scores**:
 - Consistency: X/10 (Good | Acceptable | Needs Work)
 - Documentation: Y/10 (Good | Acceptable | Needs Work)
-- Integration: Z/10 (Good | Acceptable | Needs Work)
+- Integration: Z/10 (Good | Needs protocols | Poor)
 
 **Key Issues**: [List top 2-3 issues per dimension, skip if all good]
 

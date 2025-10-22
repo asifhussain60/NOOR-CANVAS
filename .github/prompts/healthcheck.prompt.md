@@ -21,6 +21,16 @@ This agent only performs validation and reporting. The `debug-level` parameter i
 
 ## Purpose
 
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
+- Use "📌 Summary for You" for user-facing bullets only.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, and Recommendations.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, and the attachments note.
+
+---
+
 ### What
 The **System Health Auditor Agent** performs comprehensive, read-only validation of project integrity and consistency across all layers (UI → API → Services → DTOs → Database), surfacing mismatches, drift, and violations without making changes. **NEW:** Also performs holistic prompt optimization analysis with automatic execution coordination.
 
@@ -195,7 +205,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 
 #### 3. Generate Optimization Report
 
-**Create detailed report in `Workspaces/TEMP/{prompt-name}-optimization-analysis.md`**
+**Create detailed report in `Workspaces/Copilot/_DOCS/temp/{prompt-name}-optimization-analysis.md`**
 
 **Report Structure:** Use template from `.github/prompts/shared/optimization-report-template.md`
 
@@ -240,7 +250,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Integration: {where to add in workflow}
 - Impact: {cross-functional effects}
 
-📋 Full report available in Workspaces/TEMP/{prompt-name}-optimization-analysis.md
+📋 Full report available in Workspaces/Copilot/_DOCS/temp/{prompt-name}-optimization-analysis.md
 
 Proceed with optimization? (y/n)
 ```
@@ -256,7 +266,7 @@ Proceed with optimization? (y/n)
 
 - Wait for explicit user approval before proceeding
 - If user approves: Continue to Step 6
-- If user declines: Save report to `Workspaces/TEMP/{prompt-name}-optimization-analysis.md` and exit
+- If user declines: Save report to `Workspaces/Copilot/_DOCS/temp/{prompt-name}-optimization-analysis.md` and exit
 - If user requests modifications: Adjust recommendations and re-present
 
 #### 6. Execute Optimization via Task Agent
@@ -266,7 +276,7 @@ Proceed with optimization? (y/n)
 ```
 @workspace /task key=prompt-optimization-{prompt-name} verbosity={current-verbosity} tasks="Optimize {prompt-name}.prompt.md
 
-Analysis Report: See Workspaces/TEMP/{prompt-name}-optimization-analysis.md
+Analysis Report: See Workspaces/Copilot/_DOCS/temp/{prompt-name}-optimization-analysis.md
 
 Phase 1: Fix Critical Conflicts ({time-estimate})
 {List specific actions from recommendations}
@@ -460,7 +470,7 @@ Final validation:
    - Generate optimization metrics and recommendations
 
 3. **Generate Optimization Report:**
-   - Create detailed report in `Workspaces/TEMP/{prompt-name}-optimization-analysis.md`
+  - Create detailed report in `Workspaces/Copilot/_DOCS/temp/{prompt-name}-optimization-analysis.md`
    - Include all findings, recommendations, priority actions, metrics
 
 4. **Present Report to User:**

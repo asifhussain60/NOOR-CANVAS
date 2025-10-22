@@ -2,15 +2,12 @@
 
 ---
 mode: agent
-purpose: Intelligent workspace reorganization and cleanup agent that systematically removes unneeded files, consolidates duplicates, reorganizes folder structures, and updates all references while preserving functionality.
-inputs: target_folders, scope, dry_run, auto_approve, github-branch
-outputs: Cleanup report, updated references, reorganized structure, archived obsolete files
-lastUpdated: 2025-10-21
+description: Intelligent workspace reorganization and cleanup agent that systematically removes unneeded files, consolidates duplicates, reorganizes folder structures, and updates all references while preserving functionality.
 ---
 
 ## 🔴 CRITICAL SAFETY PROTOCOLS
 
-### The #1 Rule: SAFETY FIRST - Never Break Working Code
+### The number one rule: SAFETY FIRST — Never break working code
 
 **❌ NEVER do these without explicit user approval:**
 - Delete files from production folders (`bin/`, `wwwroot/`, deployments)
@@ -81,7 +78,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
 
 **Default:** `development` (per SelfAwareness.instructions.md)
 
-**See:** feature.prompt.md Step 0.1 (Branch Parameter Validation)
+**See:** create-plan.prompt.md Step 0.1 (Branch Parameter Validation)
 
 ---
 
@@ -93,7 +90,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
 
 **Actions:**
 
-1. **Branch Validation** (same as feature.prompt.md Step 0.1):
+1. **Branch Validation** (same as create-plan.prompt.md Step 0.1):
    - Check github-branch parameter (defaults to `development`)
    - Warn if `master` branch specified
    - Document branch in cleanup report
@@ -262,7 +259,7 @@ Issues Found: {count}
    **Recommendation**: Flatten to Workspaces/Data/Analysis/2025-09/
 
 ### Reference Integrity ({count})
-1. ❌ Broken link in README.md: [link](Docs/missing-file.md)
+1. ❌ Broken link in README.md: link to Docs/missing-file.md (example)
    **Recommendation**: Fix or remove link
 
 2. ❌ Outdated reference in SelfAwareness.instructions.md: ReferenceIndex.md
@@ -308,8 +305,8 @@ Issues Found: {count}
 **Validation**: Compare file hashes before deletion
 
 ##### 2. Fix Broken References ({count})
-- 🔧 UPDATE: `README.md` line 45: [link](Docs/missing-file.md)
-  - **Fix**: Change to [link](Docs/deployment-notes.md)
+- 🔧 UPDATE: `README.md` line 45: link to Docs/missing-file.md (example)
+  - **Fix**: Change to link to Docs/deployment-notes.md (example)
 - 🔧 UPDATE: `SelfAwareness.instructions.md` line 23: ReferenceIndex.md
   - **Fix**: Change to SystemIndex.md
 
@@ -326,7 +323,7 @@ Issues Found: {count}
 - 📦 MOVE: `Scripts/deployment-notes.md` → `Docs/deployment-notes.md`
   - **References to Update**:
     - README.md link
-    - .github/prompts/feature.prompt.md
+    - .github/prompts/create-plan.prompt.md
 
 **Risk**: Medium (requires reference updates)  
 **Validation**: Run tests after move, verify links work
@@ -471,7 +468,7 @@ if (Test-Path "Workspaces/TEMP") {
 ✅ [1/15] DELETE Scripts/deploy-backup.ps1 (1.2 KB freed)
 ✅ [2/15] DELETE TEMP/deploy-old.ps1 (1.2 KB freed)
 ✅ [3/15] UPDATE README.md line 45 (reference fixed)
-✅ [4/15] UPDATE SelfAwareness.instructions.md line 23 (reference fixed)
+✅ [4/15] UPDATE SelfAwareness.instructions.md line 23 (reference updated)
 ✅ [5/15] MOVE Scripts/test-debug-panel.spec.ts → Tests/UI/ (3 references updated)
 ✅ [6/15] MOVE Scripts/deployment-notes.md → Docs/ (2 references updated)
 ...
@@ -763,7 +760,7 @@ git show {checkpoint-tag}:path/to/file > path/to/file
 - ✅ MOVED: `Scripts/test-debug-panel.spec.ts` → `Tests/UI/`
   - Updated references: package.json, test-generation.prompt.md
 - ✅ MOVED: `Scripts/deployment-notes.md` → `Docs/`
-  - Updated references: README.md, feature.prompt.md
+  - Updated references: README.md, create-plan.prompt.md
 
 **Result**: 2 files relocated, 4 references updated
 
@@ -798,24 +795,18 @@ git show {checkpoint-tag}:path/to/file > path/to/file
 ```
 dotnet build SPA/NoorCanvas/NoorCanvas.csproj
 Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-Time Elapsed 00:00:05.23
 ```
-**Status**: ✅ PASS
 
 ### Test Validation
 ```
 npm test -- --grep "debug-panel"
   5 passing (3.2s)
 ```
-**Status**: ✅ PASS
 
 ### Reference Validation
 - Scanned 127 markdown files
 - Checked 542 links
 - Found 0 broken references
-**Status**: ✅ PASS
 
 ### Git Status
 ```
@@ -830,7 +821,6 @@ Changes to be committed:
   renamed:    DEBUG-SESSION-final-v2.md → session-debug-notes.md
   ...
 ```
-**Status**: ✅ Clean (15 files changed)
 
 ---
 
@@ -924,7 +914,7 @@ git push origin {github-branch}
 
 ---
 
-## Integration with feature.prompt.md
+## Integration with create-plan.prompt.md
 
 **Cleanup is automatically invoked as final step after all phases complete.**
 
@@ -1013,7 +1003,7 @@ User can:
 - **Automated Reference Checker** (Medium effort)
   - Rationale: 8 broken references found - automate detection
   - Benefit: Catch broken links early in CI/CD
-  - Example: Add reference validation to build pipeline
+  - Example: Add markdown link checker to build pipeline
 
 ### 4. Inconsistent Naming Patterns
 **Threshold**: > 20 files with naming issues
@@ -1112,10 +1102,10 @@ Get-ChildItem -Recurse -File |
 **1. Markdown Links**:
 ```markdown
 # Before
-[link](../old-location/file.md)
+link: ../old-location/file.md (example)
 
 # After
-[link](../new-location/file.md)
+link: ../new-location/file.md (example)
 ```
 
 **2. Code Imports**:
@@ -1130,10 +1120,10 @@ using NoorCanvas.Services.NewLocation;
 **3. File Attachments**:
 ```markdown
 # Before
-#file:old-folder/reference.md
+example attachment path: old-folder/reference.md
 
 # After
-#file:new-folder/reference.md
+example attachment path: new-folder/reference.md
 ```
 
 ---
@@ -1187,7 +1177,7 @@ using NoorCanvas.Services.NewLocation;
 
 ## Related Files
 
-- **feature.prompt.md** - Invokes this prompt as final step after all phases complete
+- **create-plan.prompt.md** - Invokes this prompt as final step after all phases complete
 - **task.prompt.md** - Identifies affected folders and triggers cleanup
 - **SelfAwareness.instructions.md** - Global branch strategy and guidelines
 - **phase-breakdown-patterns.md** - Phase planning and enhancement recommendation patterns

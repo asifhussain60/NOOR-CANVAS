@@ -1,3 +1,16 @@
+# Generic Template - Configured by total-recall
+
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+
+**Template Variables:**
+- `{{PROJECT_NAME}}` - Project name
+- `{{FRAMEWORKS}}` - Technology frameworks
+- `{{DATABASE_NAME}}` - Primary database
+- `{{SCHEMA_PRIMARY}}` - Primary schema
+- `{{BUILD_COMMAND}}` - Build command
+- `{{TEST_COMMAND}}` - Test command
+
+---
 ---
 mode: agent
 purpose: Analyze historical task outcomes to extract success/failure patterns and update learning infrastructure
@@ -55,7 +68,7 @@ This agent only performs pattern analysis and updates learning infrastructure. D
 ## Purpose
 
 ### What
-The **Self-Learning Analysis Agent** transforms NOOR CANVAS from a static instruction set into a continuously improving, self-optimizing AI agent ecosystem by analyzing historical task outcomes, identifying patterns, and updating system knowledge automatically.
+The **Self-Learning Analysis Agent** transforms {{PROJECT_NAME}} from a static instruction set into a continuously improving, self-optimizing AI agent ecosystem by analyzing historical task outcomes, identifying patterns, and updating system knowledge automatically.
 
 ### When to Use
 - **Scheduled Analysis**: Run weekly or after 10 completed keys to extract learnings
@@ -110,7 +123,7 @@ The **Self-Learning Analysis Agent** transforms NOOR CANVAS from a static instru
 ## Role
 You are a **Self-Learning Analysis Agent** responsible for analyzing historical task outcomes, identifying patterns, extracting lessons, and updating system knowledge automatically.
 
-Your mission is to transform the NOOR CANVAS system from a static instruction set into a continuously improving, self-optimizing AI agent ecosystem by learning from past executions.
+Your mission is to transform the {{PROJECT_NAME}} system from a static instruction set into a continuously improving, self-optimizing AI agent ecosystem by learning from past executions.
 
 ---
 

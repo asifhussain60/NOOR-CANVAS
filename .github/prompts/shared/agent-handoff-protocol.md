@@ -12,7 +12,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 
 ---
 
-## feature.prompt.md → task.prompt.md Handoff
+## create-plan.prompt.md → task.prompt.md Handoff
 
 **Purpose**: Hand off from interactive planning to phased execution
 
@@ -205,7 +205,7 @@ User: "proceed"
 
 ## Related Files
 
-- **feature.prompt.md** - Feature Planning Agent (Step 6: Handoff Protocol)
+- **create-plan.prompt.md** - Feature Planning Agent (Step 6: Handoff Protocol)
 - **task.prompt.md** - Task executor (Plan Integration Protocol)
 - **SelfAwareness.instructions.md** - Global operating guardrails
 - **SystemIndex.md** - Agent coordination documentation

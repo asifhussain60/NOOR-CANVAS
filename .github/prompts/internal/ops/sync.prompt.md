@@ -163,7 +163,7 @@ This makes you both the **synchronizer** and **janitor** of the system.
 ## Execution Steps
 
 ### 0. Checkpoint Commit (Mandatory)
-**See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
+**See**: [Step 1: Checkpoint](../../shared/step-1-checkpoint.md)
 
 Create checkpoint commit for rollback capability:
 ```bash
@@ -324,4 +324,3 @@ If any of these conditions fail, the sync task must remain **In Progress** and e
 - Default state: `In Progress`.  
 - State changes only occur when explicitly marked as `complete`.  
 - Keys and summaries remain the **single source of truth** for status tracking.
-

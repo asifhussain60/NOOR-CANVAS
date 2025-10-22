@@ -1,4 +1,4 @@
-# Generic Template - Customized During Setup
+# Generic Template - Configured by total-recall
 
 **NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
@@ -87,6 +87,17 @@ Analyzes the entire `.github` folder structure (instructions, prompts, learning 
 - ✅ Meta-prompts (port-instructions, total-recall) always updated
 - ✅ Existing documentation and other prompts preserved
 - ✅ Faster execution (no full rebuild)
+
+---
+
+## Documentation Output Rules (NEW)
+- Do NOT create/save any Markdown under `.github/prompts/` or `.github/instructions/`.
+- All agent-generated Markdown must be saved under `Workspaces/Copilot/_DOCS/`:
+  - Analysis → `Workspaces/Copilot/_DOCS/analysis/`
+  - Summaries/Reports → `Workspaces/Copilot/_DOCS/summaries/`
+  - Temporary notes → `Workspaces/Copilot/_DOCS/temp/`
+  - Config/migration docs → `Workspaces/Copilot/_DOCS/{configs|migrations}/`
+  - Exception: `.github/prompts.keys/` remains for key data streams.
 
 ---
 
@@ -460,9 +471,9 @@ Files to template:
 
 **Template Header (add to every template file):**
 ```markdown
-# Generic Template - Customized During Setup
+# Generic Template - Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
 
 **Template Variables:**
 - `{{PROJECT_NAME}}` - Your project name
@@ -679,7 +690,7 @@ For EACH template file:
 
 #### Full Regeneration Mode Summary
 
-**Generate Report:**
+**Generate Report (save to `Workspaces/Copilot/_DOCS/summaries/port-instructions-execution-summary-{YYYYMMDD-HHMM}.md`):**
 
 ```markdown
 # Port Instructions Execution Summary
@@ -750,7 +761,7 @@ For EACH template file:
 
 **NOTE:** This summary is shown in Step 0.5.8, not Step 7 (which is skipped in selective mode).
 
-**Generate Report:**
+**Generate Report (save to `Workspaces/Copilot/_DOCS/summaries/port-instructions-selective-update-{YYYYMMDD-HHMM}.md`):**
 
 ```markdown
 # Port Instructions Execution Summary (Selective Update)

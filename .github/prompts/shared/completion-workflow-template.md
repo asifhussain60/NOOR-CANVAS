@@ -259,6 +259,10 @@ User specifies `tasks: mark complete` or `tasks: completed`
 
 ## Completion Summary Template
 
+Save completion summaries as Markdown files under:
+- `Workspaces/Copilot/_DOCS/summaries/{key}-work-log.md`
+Do NOT save any Markdown in `.github/prompts/` or `.github/instructions/`.
+
 ```markdown
 # {Feature Name} - Completion Summary
 
@@ -338,7 +342,7 @@ User specifies `tasks: mark complete` or `tasks: completed`
 🧹 Debug markers cleaned from {X} files
 ```
 
-### work-log.md Contains (Full Detail):
+### work-log.md Contains (Full Detail) (stored under Workspaces/Copilot/_DOCS/summaries/):
 - Complete cross-layer documentation (8 sections above)
 - Completion summary
 - Validation results

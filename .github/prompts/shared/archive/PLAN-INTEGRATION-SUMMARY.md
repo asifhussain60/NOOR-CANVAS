@@ -9,7 +9,7 @@
 ## Overview
 
 Successfully implemented a cohesive three-agent system where:
-- **feature.prompt.md** orchestrates (analyzes, recommends, prepares handoff)
+- **create-plan.prompt.md** orchestrates (analyzes, recommends, prepares handoff)
 - **task.prompt.md** executes (implements phases, updates tracking)
 - **test-generation.prompt.md** verifies (generates tests from specifications)
 
@@ -245,7 +245,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Location**: "Workflow Integration" section
 
 **Changed**:
-- Added `feature.prompt.md` as invoker
+- Added `create-plan.prompt.md` as invoker
 - Added `phase` parameter (from plan)
 - Added context sources (primary: plan, fallback: parameters)
 - Added test registry duplicate detection results to returns

@@ -5,6 +5,15 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 
 # Test Generation Agent
 
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
+- NEVER include code or pseudocode in user-facing content.
+- BEFORE implementation (planning for tests): include Work Requested (with key), Affected areas (files/infrastructure/db), phased Plan, and Recommendations.
+- AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), and the attachments note.
+
+
 ## Initial Validation (MANDATORY)
 
 ### Step 0: Key Folder Existence Validation
@@ -377,6 +386,17 @@ Receive from task.prompt.md or plan.prompt.md:
 - Theme changes (dark mode, Blazor themes)
 - Layout refactoring (grid systems, flexbox)
 - Animation/transition verification
+
+### Accessibility and Responsive Verification Addendum (for UI/UX redesign tasks)
+- Accessibility checks (basic, always include when UI changed):
+  - Verify keyboard navigation order and visible focus for interactive elements
+  - Assert presence of ARIA roles/landmarks on major regions (header, main, nav)
+  - Check accessible names for buttons/links and non-empty alt text for images
+  - If axe tooling is available in project context, include an optional axe scan; otherwise, skip silently
+- Responsive checks (always include when layout changes):
+  - Capture visual snapshots across at least three viewports: 375x812 (mobile), 768x1024 (tablet), 1280x800 (desktop)
+  - Validate critical UI elements remain visible and usable (no overflow clipping, no hidden primary actions)
+  - For Percy: submit snapshots per viewport and key component states (default, hover, focus, disabled)
 
 **When to recommend CSS Quality Checks (Stylelint):**
 - New CSS files or Blazor Razor component styles
