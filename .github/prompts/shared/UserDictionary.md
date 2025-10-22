@@ -9,7 +9,6 @@ How to use
 - If both a generic filename and a full path exist, prefer the generic #file: reference (the prompt system resolves it).
 
 Views (Blazor Components)
-- hc: Host Provisioner.exe 
 - hcp: Host Control Panel — view: #file:HostControlPanel.razor
 - scanv: Session Canvas — view: #file:SessionCanvas.razor
 - tcanv: Transcript Canvas — view: #file:TranscriptCanvas.razor
@@ -69,7 +68,8 @@ Migrations & Data
 - mig-rollback-canvastype: Rollback CanvasType — #file:Migrations/rollback-20251020-add-canvastype-column.sql
 
 Tools
-- hpapp: HostProvisioner app entry — #file:Tools/HostProvisioner/HostProvisioner/Program.cs
+- hp: Host Provisioner (WinForms .exe) — #file:Tools/HostProvisioner/HostProvisioner.WinForms/Program.cs
+- hpapp: HostProvisioner CLI entry — #file:Tools/HostProvisioner/HostProvisioner/Program.cs
 - hp-sst: HostProvisioner SecureSessionTokenService — #file:Tools/HostProvisioner/HostProvisioner/Services/SecureSessionTokenService.cs
 
 Documentation quick refs
