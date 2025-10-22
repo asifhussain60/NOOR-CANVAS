@@ -155,6 +155,9 @@ builder.Services.AddScoped<LoadingService>(); // Global loading state management
 builder.Services.AddScoped<NoorCanvas.Services.Development.IDevModeService, NoorCanvas.Services.Development.DevModeService>();
 builder.Services.AddScoped<NoorCanvas.Services.Development.ITestDataService, NoorCanvas.Services.Development.TestDataService>();
 
+// [SECURITY-GUARD:hp-db-guard] Database Environment Guard - Prevents production app from accessing dev database
+builder.Services.AddScoped<NoorCanvas.Services.Security.IDatabaseEnvironmentGuardService, NoorCanvas.Services.Security.DatabaseEnvironmentGuardService>();
+
 // Schema Migration Services - Simplified schema only
 builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service
 builder.Services.AddScoped<SessionStateService>(); // Session state persistence service

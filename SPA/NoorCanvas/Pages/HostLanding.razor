@@ -9,6 +9,7 @@
 @using System.Text.Json.Serialization
 @using NoorCanvas.Controllers
 @using NoorCanvas.Services.Development
+@using NoorCanvas.Services.Security
 @using Microsoft.Extensions.Configuration
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
@@ -17,6 +18,7 @@
 @inject LoadingService LoadingService
 @inject IDevModeService DevModeService
 @inject IConfiguration Configuration
+@inject IDatabaseEnvironmentGuardService DbGuard
 
 <PageTitle>NOOR Canvas - Host Authentication</PageTitle>
 
@@ -427,6 +429,29 @@
     }
 </style>
 
+<!-- [SECURITY-GUARD:hp-db-guard] Full-Screen Red Alert - Production + Dev Database Mismatch -->
+@if (environmentMismatch != null)
+{
+    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background-color:#DC2626;z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem;">
+        <div style="background-color:white;border-radius:1rem;padding:3rem;max-width:600px;box-shadow:0 25px 50px rgba(0,0,0,0.5);text-align:center;">
+            <div style="font-size:5rem;color:#DC2626;margin-bottom:1rem;">🚨</div>
+            <h1 style="font-family:'Poppins',sans-serif;font-size:2rem;color:#DC2626;margin:0 0 1rem 0;">SECURITY VIOLATION</h1>
+            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#374151;margin:0 0 1.5rem 0;">
+                Production application is connected to <strong>DEVELOPMENT DATABASE</strong>
+            </p>
+            <div style="background-color:#FEE2E2;border:2px solid #DC2626;border-radius:0.5rem;padding:1rem;text-align:left;margin-bottom:1.5rem;">
+                <p style="margin:0.5rem 0;font-family:monospace;font-size:0.875rem;"><strong>Hostname:</strong> @environmentMismatch.Hostname</p>
+                <p style="margin:0.5rem 0;font-family:monospace;font-size:0.875rem;"><strong>Expected Database:</strong> @environmentMismatch.ExpectedDatabase</p>
+                <p style="margin:0.5rem 0;font-family:monospace;font-size:0.875rem;"><strong>Actual Database:</strong> @environmentMismatch.ActualDatabase</p>
+            </div>
+            <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#6B7280;">
+                This page has been blocked for security. Contact system administrator immediately.
+            </p>
+        </div>
+    </div>
+}
+else
+{
 <!-- Root container from mock -->
 <div class="host-landing-root">
     
@@ -554,6 +579,7 @@
 
     </div>
 </div>
+} @* End of else block (normal page rendering) *@
 
 @* [DEBUG-WORKITEM:debug-panel:devmode:TRACE] Expose DevMode state to browser console ;CLEANUP_OK *@
 <script>
@@ -586,12 +612,32 @@
     private bool isLoading = false;
     private string errorMessage = "";
     
+    // [SECURITY-GUARD:hp-db-guard] Environment mismatch detection state
+    private EnvironmentMismatchInfo? environmentMismatch = null;
+    
     // User token for generating user landing URL
     private string? UserToken { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
+        
+        // [SECURITY-GUARD:hp-db-guard] FIRST CHECK - Before any other logic, verify environment safety
+        environmentMismatch = DbGuard.CheckEnvironmentMismatch(Navigation.Uri);
+        
+        if (environmentMismatch != null)
+        {
+            Logger.LogCritical(
+                "[SECURITY-GUARD:hp-db-guard] [{RequestId}] 🚨 SECURITY VIOLATION DETECTED - HostLanding blocked! " +
+                "Hostname: {Hostname}, Expected: {Expected}, Actual: {Actual}",
+                requestId, 
+                environmentMismatch.Hostname,
+                environmentMismatch.ExpectedDatabase,
+                environmentMismatch.ActualDatabase);
+            return; // STOP - do not load any data, UI is blocked by red alert
+        }
+        
+        // Normal initialization continues only if environment is safe...
         Logger.LogInformation("NOOR-HOST-ROUTE: [{RequestId}] HostLanding component initialized - Route: {CurrentUrl}, FriendlyToken: {FriendlyToken}", 
             requestId, Navigation.Uri, FriendlyToken ?? "null");
         
