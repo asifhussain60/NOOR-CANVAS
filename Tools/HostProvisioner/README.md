@@ -118,10 +118,35 @@ The provisioner performs automatic validation:
 
 ## Architecture
 
+
 - **SimplifiedCanvasDbContext**: Canvas schema access (4 tables)
 - **KSessionsDbContext**: KSESSIONS validation and reference data
 - **SimplifiedTokenService**: Secure token generation and persistence
 - **HostProvisionerConfig**: Centralized environment and service configuration
+
+## Security: Database Environment Guard
+
+**CRITICAL**: The NOOR Canvas application includes a security guard that prevents production from accessing the development database.
+
+### Protection Mechanism
+- **Service**: `DatabaseEnvironmentGuardService` (injected into all host pages)
+- **Detection**: Checks if hostname is "noorcanvas.servehttp.com" AND database is "KSESSIONS_DEV"
+- **Response**: Full-screen red alert blocks all UI interaction, prevents data loading
+- **Logging**: Critical security violation logged for audit trail
+
+### Protected Pages
+- HostControlPanel (`/host/control-panel/{hostToken}`)
+- Host-SessionOpener (`/host/session-opener/{token?}`)
+- HostLanding (`/host/{friendlyToken?}` and `/`)
+
+### Deployment Validation
+Before deploying Host Provisioner to production:
+1. ✅ Verify `appsettings.Production.json` points to **KSESSIONS** (not KSESSIONS_DEV)
+2. ✅ Run `ncdeploy.ps1` which transforms app.config to Production environment
+3. ✅ Navigate to production URL and verify NO red security alert appears
+4. ✅ If alert appears: **STOP**, fix configuration, redeploy
+
+For complete security documentation, see: [DatabaseEnvironmentGuard.md](../../.github/instructions/DatabaseEnvironmentGuard.md)
 
 ## Related Files
 
@@ -138,8 +163,10 @@ For issues or questions:
 - Verify Session ID exists in KSESSIONS
 - Ensure database connectivity
 - Validate environment configuration
+- **Security Violations**: See DatabaseEnvironmentGuard.md for troubleshooting
 
 ---
 
 **Last Updated**: October 22, 2025  
-**Version**: 2.0 (Canvas Cleanup Enhancement)
+**Version**: 2.1 (Canvas Cleanup + Database Environment Guard Security)
+
