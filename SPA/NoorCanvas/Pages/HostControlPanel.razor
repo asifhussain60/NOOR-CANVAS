@@ -88,12 +88,33 @@
         <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
         @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" || isBroadcastMode)
         {
+            @* [WORKITEM:hcp:ui:sticky-toggle] Sticky floating toggle button on the right with round icon only (no label). Designed to avoid obstructing readability. *@
+            <div style="position:sticky; top:1rem; display:flex; justify-content:flex-end; z-index:10;">
+                <button type="button"
+                        @onclick="ToggleQAPanel"
+                        @onkeydown="HandleToggleKeyDown"
+                        aria-expanded="@qaPanelOpen"
+                        aria-controls="hcp-qa-panel"
+                        aria-label="Toggle questions panel"
+                        style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
+                        onmouseover="this.style.backgroundColor='#004d00'; this.style.transform='scale(1.06)'"
+                        onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
+                    <i class="fa-solid fa-circle-question" style="font-size:1.5rem;"></i>
+                    @* Count badge (small) in top-right of circle *@
+                    <span aria-label="@GetQuestionCount() questions"
+                          style="position:absolute; top:-6px; right:-6px; min-width:22px; height:22px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; background-color:#D4AF37; color:#006400; border-radius:999px; font-size:0.75rem; font-weight:800; font-family:'Poppins',sans-serif; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+                        @GetQuestionCount()
+                    </span>
+                </button>
+            </div>
+            
             <HostControlPanelContent Model="@Model" 
                                      HostToken="@HostToken"
                                      IsLoading="@isLoading"
                                      IsBroadcastMode="@isBroadcastMode"
                                      SessionStartTime="@sessionStartTime"
                                      SelectedQuestionId="@selectedQuestionId"
+                                     QAPanelOpen="@qaPanelOpen"
                                      OnEndSession="@EndSession"
                                      OnBroadcastTranscript="@BroadcastFullTranscript"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
@@ -145,6 +166,9 @@
     private HubConnection? hubConnection;
     private ErrorDisplay? errorDisplay;
     private Guid? selectedQuestionId; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Track currently selected/shared question ;CLEANUP_OK
+
+    // [WORKITEM:hcp:impl:20251022-1836] Collapsible Q&A panel state ;CLEANUP_OK
+    private bool qaPanelOpen = false;
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
@@ -3906,13 +3930,35 @@
             }
             else
             {
-                // Capitalize first letter, keep rest as original case
                 properCaseWords.Add(char.ToUpper(word[0]) + word.Substring(1).ToLower());
             }
         }
         
         return string.Join(" ", properCaseWords);
     }
+    
+    // [WORKITEM:hcp:impl:20251022-1836] Toggle Q&A panel visibility ;CLEANUP_OK
+    private void ToggleQAPanel()
+    {
+        qaPanelOpen = !qaPanelOpen;
+    }
+    
+    // [WORKITEM:hcp:impl:20251022-1836] Handle keyboard events for toggle button ;CLEANUP_OK
+    private void HandleToggleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == " " || e.Key == "Spacebar" || e.Key == "Enter")
+        {
+            ToggleQAPanel();
+        }
+    }
+    
+    // [WORKITEM:hcp:impl:20251022-1836] Get current question count for badge ;CLEANUP_OK
+    private int GetQuestionCount()
+    {
+        return Model?.Questions?.Count() ?? 0;
+    }
+    
+    // [DEBUG-WORKITEM:hcp:impl:20251022-1836] phase_1_complete status=in-progress ;CLEANUP_OK
     
     // Format duration from string value (e.g., "60") to display format (e.g., "1 hour")
     private static string FormatDurationFromString(string? durationString)

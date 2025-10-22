@@ -22,7 +22,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - Use the two-section format: "🧠 Copilot Analysis" and "📌 Summary for You".
 - For planning/answers BEFORE implementation, include: Work Requested (with key), Affected areas (2a files, 2b architecture/infrastructure, 2c database), Plan (phases), Recommendations, and **Next Actions (2-4 clear options)**.
 - For AFTER implementation answers, include: Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), the attachments note, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ---
 

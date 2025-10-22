@@ -14,9 +14,9 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Provide two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
 - NEVER include code or pseudocode in user-facing content.
-- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options)**.
-- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ### Documentation Output Rules (NEW)
 - Do NOT create/save any Markdown under `.github/prompts/` or `.github/instructions/`.

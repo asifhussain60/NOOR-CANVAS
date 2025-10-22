@@ -38,14 +38,25 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
 - Use "📌 Summary for You" for user-facing bullets only.
-- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options)**.
-- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ---
 
 ### What
 The **System Health Auditor Agent** performs comprehensive, read-only validation of project integrity and consistency across all layers (UI → API → Services → DTOs → Database), surfacing mismatches, drift, and violations without making changes. **NEW:** Also performs holistic prompt optimization analysis with automatic execution coordination.
+
+**UNIVERSAL VALIDATION SCOPE:**
+- **Application Code:** Full-stack validation from UI to database
+  - Macro Level: Architecture, contracts, cross-layer consistency
+  - Micro Level: Code quality, patterns, error handling, edge cases
+- **Instruction & Prompt Files:** AI agent infrastructure health
+  - Syntax validation, reference integrity, competing instructions
+  - Execution flow consistency, parameter validation
+  - Cross-prompt dependencies and conflicts
+- **Documentation:** Accuracy, completeness, synchronization with code
+- **Configuration:** Environment-specific settings, secrets, infrastructure
 
 ### When to Use
 - **Pre-Deployment**: Verify system health before releases
@@ -56,15 +67,24 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 - **Troubleshooting**: Identify architectural inconsistencies causing issues
 - **Prompt Optimization**: Holistically analyze prompts for bloat, inefficiencies, conflicts (NEW)
 - **Prompt Maintenance**: Periodic optimization reviews to prevent prompt bloat (NEW)
+- **Post-Implementation**: After completing work to validate no regressions (NEW)
+- **Error Investigation**: Trace root cause of build/runtime errors across layers (NEW)
+- **Instruction Validation**: Verify prompt files have valid syntax and references (NEW)
 
 ### How to Invoke
 ```
-# Standard Healthcheck
+# Application Code Healthcheck (Full Stack)
 @workspace /healthcheck scope=all
+@workspace /healthcheck scope=all level=micro notes="deep code quality scan"
 @workspace /healthcheck scope=SessionCanvas.razor notes="verify SignalR integration"
 @workspace /healthcheck scope=HostSessionService notes="check API contracts"
 
-# Prompt Optimization Mode (NEW)
+# Instruction & Prompt Files Healthcheck (AI Infrastructure)
+@workspace /healthcheck scope=prompts notes="validate all prompt files"
+@workspace /healthcheck scope=instructions notes="check instruction file syntax"
+@workspace /healthcheck scope=.github notes="full AI infrastructure audit"
+
+# Prompt Optimization Mode (Holistic Analysis)
 @workspace /healthcheck scope=task notes="holistic analysis and optimization"
 @workspace /healthcheck scope=task.prompt.md notes="Add xyz functionality"
 @workspace /healthcheck scope=refactor.prompt.md verbosity=detailed
@@ -127,14 +147,21 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 
 ## Parameters
 - **scope** *(optional, default=`all`)*  
-  - `all` → run a full-system health audit.  
-  - Component or view name (e.g. `SessionCanvas.razor`, `HostSessionService`) → run healthcheck only for that scope.
+  - `all` → run a full-system health audit (application code + AI infrastructure).
+  - **Application component** (e.g. `SessionCanvas.razor`, `HostSessionService`) → scope to that component.
+  - **AI infrastructure** (e.g. `prompts`, `instructions`, `.github`) → validate prompt/instruction files.
   - **Prompt name** (e.g. `task`, `task.prompt.md`, `refactor`, `sync.prompt.md`) → **PROMPT OPTIMIZATION MODE**
     - Analyzes specified prompt file holistically
     - Identifies bloat, inefficiencies, conflicts, competing instructions
     - Provides recommendations for optimization
     - Automatically invokes task agent to execute approved optimizations
   - **See:** Prompt Optimization Mode section for complete workflow
+
+- **level** *(optional, default=`macro`)*  
+  - `macro` → High-level architecture, contracts, cross-layer consistency (default).
+  - `micro` → Deep code quality scan (patterns, error handling, edge cases, dead code).
+  - `both` → Comprehensive scan at both macro and micro levels.
+  - **Only applies to application code** (not prompt optimization mode).
 
 - **verbosity** *(optional, default=`concise`)*  
   - Controls detail level of agent output shown to user.
@@ -513,6 +540,7 @@ Final validation:
 #### 3b. Standard Audit Execution (Read-Only Mode)
 **If scope is `all` or component name:**
 
+**Application Code Validation:**
 - Cross-check consistency across layers:  
   - DTO field names/types (case-sensitive) are identical across UI → API → DB.  
   - API endpoints match controllers, services, and schemas.  
@@ -520,6 +548,24 @@ Final validation:
   - No retired/obsolete prompts referenced.  
 - Validate analyzer and lint rules are enforced.  
 - Run Playwright tests to confirm UI health.
+- **Micro-level validation** (if level=micro or level=both):
+  - Pattern compliance: Check for anti-patterns, dead code, missing error handling
+  - Edge case handling: Validate null checks, empty collections, boundary conditions
+  - Code quality: Cyclomatic complexity, maintainability index
+  - Security: Input validation, SQL injection risks, XSS vulnerabilities
+  - Performance: N+1 queries, inefficient loops, memory leaks
+
+**AI Infrastructure Validation:**
+- **If scope includes prompts, instructions, or .github:**
+  - **Prompt file syntax:** Validate markdown structure, code fences, parameter definitions
+  - **Reference integrity:** Verify all @workspace references resolve to existing files
+  - **Cross-prompt dependencies:** Check for circular dependencies or missing prerequisites
+  - **Parameter validation:** Ensure required parameters documented, optional parameters have defaults
+  - **Competing instructions:** Detect conflicting guidance across multiple prompts
+  - **Execution flow consistency:** Verify step numbers sequential, no missing phases
+  - **Shared library usage:** Check for duplicate content that should be extracted to shared/
+  - **Version tracking:** Ensure changelog entries present for modified prompts
+  - **Learning pattern references:** Validate references to `.github/learning/` exist
 
 ### 4. Validate
 

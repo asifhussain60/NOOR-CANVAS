@@ -11,6 +11,11 @@ Inputs (provided by user or caller)
 Key selection
 - If key is provided, keep it.
 - If key is not provided: attempt to map to an existing key by scanning an existing keys index (for example, a file named prompts.keys, if present). If no suitable key exists, generate a short, clear key (single token; no spaces) that captures the overall task.
+- **Multi-task key generation strategy:** When the work request affects multiple different subsystems/features/tasks, create a hierarchical key structure optimized for LLM efficiency:
+  - Use parent key for overall work stream (e.g., `ui-refresh`, `perf-opt`, `db-schema-v2`)
+  - Create scoped child keys for each distinct task (e.g., `ui-refresh-hcp`, `ui-refresh-scanv`, `ui-refresh-tcanv`)
+  - Benefits: Better context isolation, efficient token usage, clear work stream lineage
+  - Naming convention: `{parent}-{scope}` where scope is 3-8 chars, no nesting beyond 2 levels
 
 Shortcut dictionary evaluation (MANDATORY)
 - Before routing or scope detection, evaluate `.github/prompts/shared/UserDictionary.md` and expand any user-provided shortcuts (e.g., hcp, scanv, tcanv) into their canonical names and file references.
@@ -54,11 +59,14 @@ Primary composition ({key}.plan.md)
   - Ready-to-paste @test-generation prompt (subject, test_types, frameworks, coverage, retry_policy:3_attempts_max)
   - Exit criteria (build passes, tests pass, no regressions)
 - Include automatic execution model:
-  - User says "proceed" → Copilot executes all phases sequentially
+  - **AUTOMATIC EXECUTION:** After plan creation, execution begins IMMEDIATELY unless user explicitly says "review first" or "don't execute"
   - Per phase: implement → test → validate (max 3 fix attempts) → next phase
   - Stop and report failure after 3 failed test attempts
   - No user intervention required between phases
-- Final phase includes @healthcheck for comprehensive validation
+- Final phases include:
+  - Error collection and remediation phase (mandatory)
+  - Self-review and validation loop (mandatory)
+  - @healthcheck for comprehensive validation
 
 UI/UX-specific composition fields (include in {key}.plan.md when redesign/styling is in scope)
 - design_system_inspiration: ["Material", "Fluent", "Tailwind best practices"]
@@ -87,6 +95,40 @@ Conditional compositions (include in {key}.plan.md as needed)
 - port-instructions prompt if moving logic across stacks or platforms.
 - commit prompt to produce clean, conventional commit messages after all phases complete.
 
+Final mandatory phases (ALWAYS included)
+- **Phase N-2: Error Collection and Remediation**
+  - Collect all pre-existing build errors (unrelated to current work)
+  - Collect all new errors introduced during implementation
+  - Categorize by severity: critical (blocks functionality), high (degrades UX), medium (cosmetic), low (warnings)
+  - Create remediation plan with priority order
+  - Execute fixes for critical and high severity errors
+  - Document medium/low severity errors for future work
+  - Errors must NEVER be ignored or dismissed as "unrelated"
+
+- **Phase N-1: Self-Review and Validation Loop**
+  - After all implementation phases complete, perform comprehensive self-review:
+    - Design Review: Verify implementation matches requirements and architectural patterns
+    - Functionality Review: Validate all acceptance criteria met
+    - Code Quality Review: Check for anti-patterns, dead code, missing error handling
+    - Test Coverage Review: Ensure all critical paths have tests
+    - Documentation Review: Verify work-log and inline docs are complete
+  - **If any issues found:**
+    - Update plan with remediation tasks
+    - Re-execute affected phases with fixes
+    - Repeat self-review until all requirements met
+    - Maximum 3 self-review iterations (escalate to user after 3rd failure)
+  - **Pass criteria:**
+    - All acceptance criteria met
+    - All tests passing (zero failures)
+    - Build succeeds with zero errors and zero warnings
+    - Code quality meets repository standards (Roslynator compliance)
+    - Documentation complete and accurate
+
+- **Phase N: Final Healthcheck and Completion**
+  - Run @healthcheck scope=all to validate entire system
+  - Verify no regressions introduced
+  - Generate completion summary with metrics
+
 Output format (strict)
 Must follow `.github/prompts/shared/output-style-mandate.md`.
 
@@ -107,19 +149,20 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
   - Plan location: `Workspaces/Copilot/_DOCS/configs/{key}.plan.md`
   - Recommendations for enhancements
 
-3) User Command:
-  - Clear instruction: "To execute: Open `Workspaces/Copilot/_DOCS/configs/{key}.plan.md` and say 'proceed'"
-  - Brief explanation of automatic execution model (sequential phases, auto-testing, 3-attempt retry, stop on failure)
+3) Execution Notice:
+  - **AUTOMATIC EXECUTION ENABLED:** Implementation will begin immediately after this summary
+  - To review plan first: Say "review first" or "don't execute" within 5 seconds
+  - Otherwise, all phases will execute automatically with self-review loop
+  - Plan location: `Workspaces/Copilot/_DOCS/configs/{key}.plan.md`
+  - Execution model: Sequential phases → auto-testing → 3-attempt retry → self-review loop → final healthcheck
 
-4) Next Actions (MANDATORY - always provide clear options):
-  - Present 2-4 actionable options with clear outcomes
-  - Format: "What would you like to do next?"
-  - Options examples:
-    - [ ] Proceed with the plan (say "proceed")
-    - [ ] Review the plan file first (open {key}.plan.md)
-    - [ ] Modify scope/phases (specify changes)
-    - [ ] Ask questions about the approach
-  - Never leave user guessing what to do next
+4) Pre-Execution Options (5-second window):
+  - **Default:** Automatic execution begins in 5 seconds
+  - To pause execution, respond within 5 seconds with:
+    - **"review"** - Open plan file and pause execution
+    - **"modify"** - Adjust plan scope or phases
+    - **"cancel"** - Abort execution entirely
+  - After 5 seconds with no response: Execution begins automatically
 
 5) 📌 Summary for You — AFTER IMPLEMENTATION (when all phases complete):
   - Work Requested (with key)
@@ -130,12 +173,19 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 6) Next Actions (MANDATORY - always provide clear options):
   - Present 2-4 actionable next steps with outcomes
-  - Format: "What would you like to do next?"
-  - Options examples:
-    - [ ] Run healthcheck to validate deployment readiness
-    - [ ] Review implementation details (specify files)
-    - [ ] Generate commit message
-    - [ ] Deploy to staging environment
+  - Format: "**What would you like to do next?**"
+  - Use **letter-based selection (A, B, C, D)** for easy response
+  - User can respond with: single letter, multiple letters, or "all"
+  - Example format:
+    ```
+    **A.** Run healthcheck to validate deployment readiness
+    **B.** Review implementation details in [specific files]
+    **C.** Generate commit message
+    **D.** Deploy to staging environment
+    
+    → Reply with: A, B, C, D, or combinations (e.g., "A, C" or "all")
+    ```
+  - **Never use checkbox format [ ]** - not easily selectable
   - Never leave user guessing about post-implementation options
 
 7) 📊 FINAL SUMMARY (MANDATORY - always include at end):
@@ -168,3 +218,6 @@ Execution guidance
 - Each phase in the plan must include: implementation context, @task prompt, @test-generation prompt, exit criteria, and retry_policy:3_attempts_max.
 - Plan file must include automatic execution model and failure handling instructions.
 - Keep naming consistent and short; keep bullets tight; minimize verbosity in handoff output.
+- **NEVER ask user to "proceed" or wait for approval** - execution is automatic unless explicitly halted.
+- Always include error collection phase, self-review loop, and final healthcheck as last 3 phases.
+- Self-review loop continues until all requirements met or 3 iterations exhausted.

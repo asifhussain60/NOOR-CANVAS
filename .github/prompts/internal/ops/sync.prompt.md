@@ -48,7 +48,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - NEVER include code or pseudocode in user-facing content.
 - BEFORE sync/cleanup: include Work Requested (with key), Affected areas (2a/2b/2c), Planned operations, Recommendations, and **Next Actions (2-4 clear options)**.
 - AFTER sync/cleanup: include Work Requested (with key), Operations completed ([x]), Files updated/removed, the attachments note, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ---
 - **Post-Refactor**: Clean up temporary files and obsolete code artifacts

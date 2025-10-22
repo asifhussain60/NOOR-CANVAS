@@ -22,9 +22,19 @@ Under "📌 Summary for You", present:
 3. Plan (phased). For each phase, list 2–5 short tasks
 4. Recommendations for enhancements
 5. **Next Actions (MANDATORY)**: Present 2-4 clear actionable options
-   - Format: "What would you like to do next?"
-   - Use checkbox format: [ ] Option with clear outcome
-   - Examples: Proceed, Review details, Modify scope, Ask questions
+   - Format: "**What would you like to do next?**"
+   - Use **letter-based selection (A, B, C, D)** for easy response
+   - User can respond with: single letter ("A"), multiple ("A, C"), or "all"
+   - Example format:
+     ```
+     **A.** Execute the plan (all phases with auto-testing)
+     **B.** Review hcp.plan.md before execution  
+     **C.** Request scope changes or phase adjustments
+     **D.** Ask about approach or implementation details
+     
+     → Reply with: A, B, C, D, or combinations (e.g., "A, D" or "all")
+     ```
+   - **Never use checkbox format [ ]** - not easily selectable in chat
    - **Never leave user guessing** what their options are
 
 Rules:
@@ -39,9 +49,19 @@ Under "📌 Summary for You", present:
 3. Next step recommendations (clearly runnable individually, selectively, or all)
 4. Add this note verbatim: "(See <attachments> above for file contents. You may not need to search or read the file again.)"
 5. **Next Actions (MANDATORY)**: Present 2-4 clear actionable next steps
-   - Format: "What would you like to do next?"
-   - Use checkbox format: [ ] Option with clear outcome
-   - Examples: Run healthcheck, Review code, Deploy, Generate commit
+   - Format: "**What would you like to do next?**"
+   - Use **letter-based selection (A, B, C, D)** for easy response
+   - User can respond with: single letter ("A"), multiple ("A, C"), or "all"
+   - Example format:
+     ```
+     **A.** Run validation to verify deployment readiness
+     **B.** Review implementation details in specific files
+     **C.** Generate conventional commit message
+     **D.** Deploy to staging environment
+     
+     → Reply with: A, B, C, D, or combinations (e.g., "A, C" or "all")
+     ```
+   - **Never use checkbox format [ ]** - not easily selectable in chat
    - **Never leave user guessing** about post-implementation options
 
 After the detailed sections above, add:

@@ -45,7 +45,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - NEVER include code or pseudocode in user-facing content.
 - BEFORE cleanup: include Work Requested, Target folders, Cleanup scope, Proposed changes, Safety checks, and **Next Actions (2-4 clear options)**.
 - AFTER cleanup: include Work Requested, Cleanup completed ([x]), Files moved/deleted count, Validation results, the attachments note, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ---
 

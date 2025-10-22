@@ -102,7 +102,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - NEVER include code or pseudocode in user-facing content.
 - BEFORE refactoring: include Work Requested (with key), Target scope, Planned refactorings, Impact analysis, Recommendations, and **Next Actions (2-4 clear options)**.
 - AFTER refactoring: include Work Requested (with key), Refactorings completed ([x]), Validation results (build/tests/analyzers), the attachments note, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ---
 

@@ -50,7 +50,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - NEVER include code or pseudocode in user-facing content.
 - BEFORE commit validation: include Work Requested (with key), Validation steps planned, Expected changes.
 - AFTER commit completion: include Work Requested (with key), Validations completed ([x]), Commit details, and **Next Actions (2-4 clear options)**.
-- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ---
 
