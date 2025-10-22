@@ -1,16 +1,19 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{PROJECT_NAME}}`
+- `{{RUN_COMMAND}}`
+- `{{SOURCE_PATH}}`
+- `{{TEST_FRAMEWORK}}`
+- `{{TEST_PATH}}`
 
 ---
-# Playwright Test Paths — Canonical Test Data Reference
+# {{TEST_FRAMEWORK}} Test Paths — Canonical Test Data Reference
 
 ## Required Test Data (Proven Working Patterns)
 
@@ -181,10 +184,10 @@ for (const button of shareButtons) {
 **Command**: `$env:PW_MODE="standalone"` (PowerShell)
 
 #### Configuration File
-**Path**: `config/testing/playwright.config.cjs`
+**Path**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
 **webServer Settings**:
-- `command: 'dotnet run'`
-- `cwd: '../../SPA/{{PROJECT_NAME}}'`
+- `command: '{{RUN_COMMAND}}'`
+- `cwd: '../../{{SOURCE_PATH}}'`
 - `port: 9091`
 - `timeout: 60000`
 
@@ -208,11 +211,11 @@ for (const button of shareButtons) {
 ### Test File Organization
 
 #### Working Test Locations
-- `Tests/UI/assetlookup-database-detection.spec.ts` ✅ (Asset detection)
-- `Tests/UI/focused-assetshare-test.spec.ts` ✅ (Asset sharing)
-- `PlayWright/tests/assetlookup-api-test.spec.ts` ✅ (API integration)
-- `PlayWright/tests/multi-browser-participant-isolation.spec.ts` ✅ (API-based multi-browser isolation - ALL TESTS PASS)
-- `PlayWright/tests/simple-session-test.spec.ts` ✅ (Session canvas validation)
+- `{{TEST_PATH}}UI/assetlookup-database-detection.spec.ts` ✅ (Asset detection)
+- `{{TEST_PATH}}UI/focused-assetshare-test.spec.ts` ✅ (Asset sharing)
+- `{{TEST_FRAMEWORK}}/{{TEST_PATH}}assetlookup-api-test.spec.ts` ✅ (API integration)
+- `{{TEST_FRAMEWORK}}/{{TEST_PATH}}multi-browser-participant-isolation.spec.ts` ✅ (API-based multi-browser isolation - ALL TESTS PASS)
+- `{{TEST_FRAMEWORK}}/{{TEST_PATH}}simple-session-test.spec.ts` ✅ (Session canvas validation)
 
 #### Temporary Test Location
 - `Workspaces/TEMP/` (for development/debug tests)
@@ -270,4 +273,3 @@ This file consolidates **PROVEN working patterns** from successful test implemen
 - Remove obsolete or failing test approaches
 - Maintain Session 212 and PQ9N5YWW as canonical test data unless specified otherwise
 - All patterns must be validated against actual working code before inclusion
-

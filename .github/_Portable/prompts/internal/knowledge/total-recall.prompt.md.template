@@ -1,9 +1,19 @@
 # Generic Template — Configured by total-recall
 
-NOTE: This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version under `.github/_Portable/_Configured/`.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-—
+**Template Variables Used:**
+- `{{BUILD_COMMAND}}`
+- `{{CONFIG_PATH}}/appsettings.json`
+- `{{LINT_COMMAND}}`
+- `{{REALTIME_TECH}}`
+- `{{RUN_COMMAND}}`
+- `{{TEST_COMMAND}}`
 
+---
 # total-recall.prompt.md
 
 ---
@@ -20,8 +30,9 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Provide two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
 - NEVER include code or pseudocode in user-facing content.
-- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, and Recommendations.
-- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, and the attachments note.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options)**.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options)**.
+- - **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
 ### Documentation Output Rules (STRICT)
 - Do NOT create/save any Markdown under `.github/prompts/` or `.github/instructions/`.
@@ -110,7 +121,7 @@ Align with `port-instructions.prompt.md` standardized variables:
 - Derive `{{PROJECT_NAME}}` from root folder or primary manifest.
 
 2) Commands
-- .NET: parse `.csproj`/Directory.Build.props; common commands: `dotnet build`, `dotnet test`, `dotnet run`, `dotnet format`.
+- .NET: parse `.csproj`/Directory.Build.props; common commands: `{{BUILD_COMMAND}}`, `{{TEST_COMMAND}}`, `{{RUN_COMMAND}}`, `{{LINT_COMMAND}}`.
 - Node: parse `package.json` scripts for build/test/start/lint.
 - Python: detect `pytest`, `tox`, `flake8`, `black`, `uvicorn`, `gunicorn`.
 - Java: Maven/Gradle life-cycle goals.
@@ -118,13 +129,13 @@ Align with `port-instructions.prompt.md` standardized variables:
 - Populate `{{BUILD_COMMAND}}`, `{{TEST_COMMAND}}`, `{{RUN_COMMAND}}`, `{{LINT_COMMAND}}`.
 
 3) Database
-- Detect ORM/configs: EF Core (Migrations/, appsettings.json ConnectionStrings), Sequelize/Prisma, SQLAlchemy, Hibernate/JPA, ActiveRecord, etc.
+- Detect ORM/configs: EF Core (Migrations/, {{CONFIG_PATH}}/appsettings.json ConnectionStrings), Sequelize/Prisma, SQLAlchemy, Hibernate/JPA, ActiveRecord, etc.
 - Extract names/servers from config files where possible.
 - Populate `{{DATABASE_TYPE}}`, `{{DATABASE_NAME}}`, `{{DATABASE_SERVER}}`, `{{SCHEMA_PRIMARY}}`, `{{SCHEMA_READONLY}}`, `{{CONNECTION_STRING_KEY}}` (best-effort; leave blank if unknown).
 
 4) Infrastructure & UI
 - UI type: Razor/Blazor, React, Vue, Angular, server-side frameworks.
-- Realtime: SignalR, Socket.IO, WebSockets, ActionCable, etc.
+- Realtime: {{REALTIME_TECH}}, Socket.IO, WebSockets, ActionCable, etc.
 - Auth patterns: JWT/OAuth/Cookie.
 - API base URL: infer from configs/env or leave `{LOCALHOST}` placeholder.
 - Populate `{{UI_FRAMEWORK}}`, `{{REALTIME_TECH}}`, `{{AUTH_TYPE}}`, `{{API_BASE_URL}}`.

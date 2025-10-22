@@ -1,24 +1,29 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{PROJECT_NAME}}`
+- `{{PROJECT_TYPE}}`
+- `{{RUN_COMMAND}}`
+- `{{SOURCE_PATH}}`
+- `{{TEST_FRAMEWORK}}`
+- `{{TEST_PATH}}`
+- `{{UI_FRAMEWORK}}`
 
 ---
-# Playwright Configuration — Canonical Reference
+# {{TEST_FRAMEWORK}} Configuration — Canonical Reference
 
 ## Required Reading
-- **MANDATORY:** `.github/instructions/Links/PlaywrightTestPaths.MD` (canonical test data and proven patterns)
+- **MANDATORY:** `.github/instructions/Links/{{TEST_FRAMEWORK}}TestPaths.MD` (canonical test data and proven patterns)
 
-# Playwright Configuration — Canonical Reference
+# {{TEST_FRAMEWORK}} Configuration — Canonical Reference
 
 ## Primary Configuration
-**File:** `config/testing/playwright.config.cjs` (centralized, CommonJS format)
+**File:** `config/testing/{{TEST_FRAMEWORK}}.config.cjs` (centralized, CommonJS format)
 
 ### Core Settings
 ```javascript
@@ -26,7 +31,7 @@
     timeout: 30000,
     testDir: '../../',
     testMatch: [
-        '**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        '**/{{TEST_FRAMEWORK}}/{{TEST_PATH}}**/*.{test,spec}.{js,ts,jsx,tsx}',
         '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'
     ],
     retries: 0,
@@ -34,7 +39,7 @@
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        outputDir: 'Workspaces/TEMP/playwright-artifacts'
+        outputDir: 'Workspaces/TEMP/{{TEST_FRAMEWORK}}-artifacts'
     }
 }
 ```
@@ -44,15 +49,15 @@
 #### Standalone Mode (`PW_MODE=standalone`)
 **Purpose:** Automatic .NET app lifecycle management for testing
 - **webServer Configuration:**
-  - `command: 'dotnet run'`
-  - `cwd: '../../SPA/{{PROJECT_NAME}}'`
+  - `command: '{{RUN_COMMAND}}'`
+  - `cwd: '../../{{SOURCE_PATH}}'`
   - `port: 9091`
   - `reuseExistingServer: !process.env.CI`
   - `timeout: 60000`
 - **Settings:** `timeout: 120000`, `retries: 0`, `workers: 1`
 - **UI:** `headless: false`, `viewport: 1280x720`
 - **Artifacts:** `trace: 'retain-on-failure'`, `video: 'retain-on-failure'`
-- **Reporter:** HTML report to `Workspaces/TEMP/playwright-report/standalone-html`
+- **Reporter:** HTML report to `Workspaces/TEMP/{{TEST_FRAMEWORK}}-report/standalone-html`
 
 #### Temp Mode (`PW_MODE=temp`)
 **Purpose:** Enhanced artifact collection for debugging
@@ -64,7 +69,7 @@
 - `npm run test` - Basic test execution
 - `npm run test:headed` - Headed browser mode
 - `npm run test:debug` - Debug mode with DevTools
-- `npm run test:ui-mode` - Playwright UI mode
+- `npm run test:ui-mode` - {{TEST_FRAMEWORK}} UI mode
 - `npm run test:codegen` - Code generation tool
 - `npm run test:report` - View HTML reports
 - `npm run test:trace` - Trace viewer
@@ -75,19 +80,19 @@
 - **Command:** `node_modules/typescript/lib/tsc.js --noEmit --project config/testing/tsconfig.json`
 
 ### Artifact Organization
-**Base Directory:** `Workspaces/TEMP/playwright-artifacts/`
-- **Reports:** JSON format to `Workspaces/TEMP/playwright-report/report.json`
+**Base Directory:** `Workspaces/TEMP/{{TEST_FRAMEWORK}}-artifacts/`
+- **Reports:** JSON format to `Workspaces/TEMP/{{TEST_FRAMEWORK}}-report/report.json`
 - **HTML Reports:** Mode-specific subdirectories
 - **Traces/Screenshots:** Organized by test run and failure context
 
 ### Application Integration
-**Target Application:** ASP.NET Core 8.0 + {{UI_FRAMEWORK}} ({{PROJECT_NAME}})
+**Target Application:** {{PROJECT_TYPE}} 8.0 + {{UI_FRAMEWORK}} ({{PROJECT_NAME}})
 - **Base URL:** `https://localhost:9091` (auto-configured via webServer)
-- **Lifecycle:** Playwright manages app startup/shutdown in standalone mode
+- **Lifecycle:** {{TEST_FRAMEWORK}} manages app startup/shutdown in standalone mode
 - **Context:** Node.js test environment with .NET app as managed subprocess
 
 ### Legacy Compatibility
-**Locations:** `PlayWright/config/` and repository root
+**Locations:** `{{TEST_FRAMEWORK}}/config/` and repository root
 - **Purpose:** Backward compatibility for existing test structures
 - **Status:** Maintained alongside centralized configuration
 
@@ -98,5 +103,4 @@ This file must reflect the **REAL current state** of the project.
 - Obsolete data must be removed.  
 - Modified values must be updated to match source of truth in the repo.  
 - Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.
-- **Dependencies:** PlaywrightTestPaths.MD must be consulted for canonical test data.  
-
+- **Dependencies:** {{TEST_FRAMEWORK}}TestPaths.MD must be consulted for canonical test data.  

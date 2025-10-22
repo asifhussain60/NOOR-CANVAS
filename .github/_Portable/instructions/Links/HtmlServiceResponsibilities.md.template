@@ -1,13 +1,15 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{PROJECT_NAME}}`
+- `{{SOURCE_PATH}}`
+- `{{TEST_FRAMEWORK}}`
+- `{{TEST_PATH}}`
 
 ---
 # HTML Service Responsibilities
@@ -34,7 +36,7 @@ All services use **`HtmlTransformPatterns.cs`** as single source of truth for re
 
 ## 1. HtmlParsingService
 
-**Location**: `SPA/{{PROJECT_NAME}}/Services/HtmlParsingService.cs`  
+**Location**: `{{SOURCE_PATH}}/Services/HtmlParsingService.cs`  
 **Purpose**: Advanced HTML validation, sanitization, and safe rendering  
 **Context**: Replaces basic Blazor MarkupString with robust parsing
 
@@ -63,7 +65,7 @@ public SafeHtmlResult ParseHtml(string? htmlContent, ParseMode mode = ParseMode.
 
 ## 2. AssetHtmlProcessingService
 
-**Location**: `SPA/{{PROJECT_NAME}}/Services/AssetHtmlProcessingService.cs`  
+**Location**: `{{SOURCE_PATH}}/Services/AssetHtmlProcessingService.cs`  
 **Purpose**: Asset detection, extraction, and share button injection  
 **Context**: Host-to-participant asset sharing workflow
 
@@ -101,7 +103,7 @@ public bool ValidateHtmlForAssetProcessing(string htmlContent)
 
 ## 3. UnifiedHtmlTransformService
 
-**Location**: `SPA/{{PROJECT_NAME}}/Services/UnifiedHtmlTransformService.cs`  
+**Location**: `{{SOURCE_PATH}}/Services/UnifiedHtmlTransformService.cs`  
 **Purpose**: Role-based HTML transformations (host vs participant views)  
 **Context**: Unified transformation logic for both user roles
 
@@ -131,7 +133,7 @@ public string TransformForParticipant(string html)
 
 ## 4. AssetProcessingService (Legacy)
 
-**Location**: `SPA/{{PROJECT_NAME}}/Services/AssetProcessingService.cs`  
+**Location**: `{{SOURCE_PATH}}/Services/AssetProcessingService.cs`  
 **Purpose**: Transcript HTML transformations (deprecated pattern)  
 **Context**: Legacy service maintained for backward compatibility
 
@@ -161,7 +163,7 @@ public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, int?
 
 ## HtmlTransformPatterns.cs - Single Source of Truth ✅
 
-**Location**: `SPA/{{PROJECT_NAME}}/Services/HtmlTransformPatterns.cs`  
+**Location**: `{{SOURCE_PATH}}/Services/HtmlTransformPatterns.cs`  
 **Purpose**: Centralized regex patterns for all HTML transformations
 
 ### Consolidated Patterns:
@@ -214,7 +216,7 @@ public static readonly Regex DataIslamicContentPattern
 ## Testing Coverage
 
 ### Unit Tests:
-- ✅ `Tests/Unit/HtmlParsingServiceTests.cs` (8 test methods)
+- ✅ `{{TEST_PATH}}Unit/HtmlParsingServiceTests.cs` (8 test methods)
   - TransformHtml_ShouldRemoveHadeesSubjectTokens
   - TransformHtml_ShouldRemoveDeleteButtons
   - TransformHtml_ShouldAddDataIslamicContentAttribute
@@ -222,7 +224,7 @@ public static readonly Regex DataIslamicContentPattern
   - etc.
 
 ### Integration Tests:
-- ✅ Playwright visual regression tests for asset sharing
+- ✅ {{TEST_FRAMEWORK}} visual regression tests for asset sharing
 - ✅ Session transcript rendering tests
 
 ---
@@ -290,4 +292,3 @@ public static readonly Regex DataIslamicContentPattern
 ---
 
 **Refactor Phase 2 Status**: ✅ **COMPLETE** - Service responsibilities documented and validated
-

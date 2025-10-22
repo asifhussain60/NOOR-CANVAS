@@ -1,13 +1,13 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{ANALYZER_TOOLS}}`
+- `{{TEST_FRAMEWORK}}`
 
 ---
 # Analyzer Configuration — Canonical Reference
@@ -30,31 +30,31 @@ This file defines analyzer and linting tools Copilot must use for **refactor** a
   - Documentation: SA1633 (file header requirements)
   - Naming conventions: SA1309, SA1316
 
-### Roslynator Code Quality Analysis
-**Location:** `Workspaces/CodeQuality/Roslynator/`
-- **Execution Script:** `run-roslynator.ps1` with automated report generation
-- **Configuration:** `Config/roslynator.config`
+### {{ANALYZER_TOOLS}} Code Quality Analysis
+**Location:** `Workspaces/CodeQuality/{{ANALYZER_TOOLS}}/`
+- **Execution Script:** `run-{{ANALYZER_TOOLS}}.ps1` with automated report generation
+- **Configuration:** `Config/{{ANALYZER_TOOLS}}.config`
 - **Output Format:** GitLab Code Climate JSON for CI/CD integration
-- **Artifacts:** Timestamped reports in `Reports/`, logs in `Logs/`, documentation in `Workspaces/Documentation/ROSLYNATOR DOCS/`
-- **VS Code Tasks:** "run-roslynator-analysis" and "run-roslynator-analysis-and-open"
+- **Artifacts:** Timestamped reports in `Reports/`, logs in `Logs/`, documentation in `Workspaces/Documentation/{{ANALYZER_TOOLS}} DOCS/`
+- **VS Code Tasks:** "run-{{ANALYZER_TOOLS}}-analysis" and "run-{{ANALYZER_TOOLS}}-analysis-and-open"
 - **Health Metrics:** Quantitative scoring system with trend analysis
 
 ### JavaScript/TypeScript Linting
 **Primary Configuration:** `config/testing/eslint.config.js`
-- **Target:** `PlayWright/**/*.{ts,tsx}` files
+- **Target:** `{{TEST_FRAMEWORK}}/**/*.{ts,tsx}` files
 - **Parser:** `@typescript-eslint/parser`
-- **Plugins:** `@typescript-eslint/eslint-plugin`, `eslint-plugin-playwright`
+- **Plugins:** `@typescript-eslint/eslint-plugin`, `eslint-plugin-{{TEST_FRAMEWORK}}`
 - **Key Rules:**
   - `@typescript-eslint/no-unused-vars: warn`
   - `@typescript-eslint/no-explicit-any: warn`
   - `no-duplicate-imports: error`
-  - `playwright/no-skipped-test: warn`
+  - `{{TEST_FRAMEWORK}}/no-skipped-test: warn`
 - **npm Script:** `npm run lint` (zero-tolerance: `--max-warnings=0`)
 
 ### Formatting Standards
 **Configuration:** `config/testing/.prettierrc`
 - **npm Scripts:** `npm run format` (fix), `npm run format:check` (validate)
-- **Target:** `PlayWright/**/*.{ts,tsx}` files
+- **Target:** `{{TEST_FRAMEWORK}}/**/*.{ts,tsx}` files
 - **Integration:** Centralized configuration approach
 
 ---
@@ -64,7 +64,7 @@ This file defines analyzer and linting tools Copilot must use for **refactor** a
   - Read this file.  
   - Capture analyzer settings into the indexed context.  
 - On `/refactor`:  
-  - Run Roslynator and all analyzers listed here.  
+  - Run {{ANALYZER_TOOLS}} and all analyzers listed here.  
   - Summarize findings by diagnostic ID and severity.  
   - Propose a plan based on these findings.  
 - On `/sync`:  
@@ -88,4 +88,3 @@ This file must reflect the **REAL current state** of the project.
 - Obsolete data must be removed.  
 - Modified values must be updated to match source of truth in the repo.  
 - Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.  
-

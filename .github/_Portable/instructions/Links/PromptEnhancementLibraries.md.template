@@ -1,13 +1,14 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{LANGUAGES}}`
+- `{{PACKAGE_MANAGER}}`
+- `{{PROJECT_NAME}}`
 
 ---
 # Prompt Enhancement Libraries Reference
@@ -158,13 +159,13 @@ result = chain.run(key="user-auth", task="Add 2FA")
 
 ### Semantic Kernel (Microsoft)
 **Repository**: https://github.com/microsoft/semantic-kernel  
-**Language**: C#, Python, Java  
+**Language**: {{LANGUAGES}}, Python, Java  
 **License**: MIT  
 
 **Purpose**: Enterprise-grade SDK for integrating LLMs into applications with plugins and planners.
 
 **Key Features**:
-- **Native C# support** (aligns with {{PROJECT_NAME}} stack)
+- **Native {{LANGUAGES}} support** (aligns with {{PROJECT_NAME}} stack)
 - Plugin system for extending LLM capabilities
 - Planners for multi-step task decomposition
 - Memory stores (short-term, long-term, semantic)
@@ -195,7 +196,7 @@ var result = await function.InvokeAsync("MyCode.cs");
 ```
 
 **Integration Considerations**:
-- **HIGHEST COMPATIBILITY** - native C# integration
+- **HIGHEST COMPATIBILITY** - native {{LANGUAGES}} integration
 - Could replace current prompt parsing logic
 - Plugin system could modularize agent capabilities
 - Planner could handle task.prompt.md execution workflow
@@ -362,12 +363,12 @@ tests:
 
 ## 📊 Comparison Matrix
 
-| Library | Language | Primary Use Case | C# Support | Self-Hostable | License |
+| Library | Language | Primary Use Case | {{LANGUAGES}} Support | Self-Hostable | License |
 |---------|----------|-----------------|------------|---------------|---------|
 | **DSPy** | Python | Prompt Optimization | ❌ | ✅ | MIT |
 | **Guidance** | Python | Constrained Generation | ❌ | ✅ | MIT |
 | **LangChain** | Python/JS | Orchestration | ❌ | ✅ | MIT |
-| **Semantic Kernel** | **C#**/Python/Java | Enterprise Orchestration | ✅ | ✅ | MIT |
+| **Semantic Kernel** | **{{LANGUAGES}}**/Python/Java | Enterprise Orchestration | ✅ | ✅ | MIT |
 | **PromptTools** | Python | Testing & Evaluation | ❌ | ✅ | Apache 2.0 |
 | **PromptFoo** | TypeScript | CLI Testing | ❌ | ✅ | MIT |
 | **LangSmith** | Platform | Observability | ✅ (SDK) | ❌ | Commercial |
@@ -379,8 +380,8 @@ tests:
 
 ### Immediate Opportunities (High Value, Low Effort)
 
-1. **Semantic Kernel (C#)**
-   - **Why**: Native C# support, enterprise-grade, Microsoft-backed
+1. **Semantic Kernel ({{LANGUAGES}})**
+   - **Why**: Native {{LANGUAGES}} support, enterprise-grade, Microsoft-backed
    - **Use Case**: Replace custom prompt parsing, add plugin system for agents
    - **Effort**: 2-3 weeks integration
    - **Impact**: Standardized prompt management, better token handling
@@ -425,7 +426,7 @@ tests:
 
 ### Semantic Kernel (Recommended First Step)
 
-1. **Install NuGet Package**:
+1. **Install {{PACKAGE_MANAGER}} Package**:
    ```bash
    dotnet add package Microsoft.SemanticKernel --version 1.0.0
    ```
@@ -551,4 +552,3 @@ tests:
 
 **Version History**:
 - **1.0.0** (2025-10-13): Initial documentation with 8 libraries, comparison matrix, integration recommendations
-

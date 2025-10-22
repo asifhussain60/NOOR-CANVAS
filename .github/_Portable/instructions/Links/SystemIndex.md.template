@@ -1,13 +1,18 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{ANALYZER_TOOLS}}`
+- `{{CONNECTION_STRING_KEY}}`
+- `{{DATABASE_NAME}}`
+- `{{DATABASE_SERVER}}`
+- `{{REALTIME_TECH}}`
+- `{{TEST_FRAMEWORK}}`
+- `{{TEST_PATH}}`
 
 ---
 # System Index
@@ -26,11 +31,11 @@
 
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", they mean **{{DATABASE_NAME}}**
-- Server: AHHOME
-- Connection: `_configuration.GetConnectionString("DefaultConnection")`
+- Server: {{DATABASE_SERVER}}
+- Connection: `_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")`
 
 **SCHEMA ACCESS RULES**:
-- ✅ **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- ✅ **`canvas.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
 - ❌ **`dbo.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
 - ❌ **All other schemas** - **READ-ONLY**
 
@@ -40,17 +45,17 @@
 
 ## 🧪 Automated End-to-End Visual Regression Testing
 
-**When user mentions "Playwright test" or "pwtest":**
+**When user mentions "{{TEST_FRAMEWORK}} test" or "pwtest":**
 
-Create automated end-to-end visual regression tests using Playwright, Percy, and any other configured libraries to reproduce and fix the issue. Ensure that the application is launched in a separate PowerShell window (not a Terminal window) before executing any headed tests to maintain proper environment isolation and visual consistency.
+Create automated end-to-end visual regression tests using {{TEST_FRAMEWORK}}, Percy, and any other configured libraries to reproduce and fix the issue. Ensure that the application is launched in a separate PowerShell window (not a Terminal window) before executing any headed tests to maintain proper environment isolation and visual consistency.
 
-- Test Location: `PlayWright/tests/`, `Tests/UI/`, or `Workspaces/TEMP/` (temporary)
-- Configuration: `config/testing/playwright.config.cjs`
+- Test Location: `{{TEST_FRAMEWORK}}/{{TEST_PATH}}`, `{{TEST_PATH}}UI/`, or `Workspaces/TEMP/` (temporary)
+- Configuration: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
 - Test Data: Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
 - Base URL: `https://localhost:9091`
-- Execution: `npx playwright test` or `$env:PW_MODE='standalone'; npx playwright test`
+- Execution: `npx {{TEST_FRAMEWORK}} test` or `$env:PW_MODE='standalone'; npx {{TEST_FRAMEWORK}} test`
 
-**See**: `PlaywrightQuickRef.md` for complete testing documentation
+**See**: `{{TEST_FRAMEWORK}}QuickRef.md` for complete testing documentation
 
 ---
 
@@ -61,7 +66,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 - **shared/agent-handoff-protocol.md** - Agent-to-agent handoff specification (plan → task workflow)
 
 ### Architecture & Infrastructure
-- **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
+- **Architecture.md** - Full system design (controllers, services, {{REALTIME_TECH}} hubs, database schema)
 - **InfrastructureQuickRef.md** ⭐ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
 
 ### Validation & Quality
@@ -78,11 +83,11 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 
 **PRIMARY DATABASE: {{DATABASE_NAME}}**
 - When user mentions "database", they mean **{{DATABASE_NAME}}**
-- Server: AHHOME
-- Connection: `_configuration.GetConnectionString("DefaultConnection")`
+- Server: {{DATABASE_SERVER}}
+- Connection: `_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")`
 
 **SCHEMA ACCESS RULES**:
-- ✅ **`{{SCHEMA_PRIMARY}}.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- ✅ **`canvas.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
 - ❌ **`dbo.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
 - ❌ **All other schemas** - **READ-ONLY**
 
@@ -93,18 +98,18 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ## �📋 Quick Navigation
 
 ### Architecture & Infrastructure
-- **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
+- **Architecture.md** - Full system design (controllers, services, {{REALTIME_TECH}} hubs, database schema)
 - **InfrastructureQuickRef.md** ⭐ - DB connections ({{DATABASE_NAME}} rules), API endpoints, test data
 
 ### Validation & Quality
 - **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)
 - **API-Contract-Validation.md** - Cross-layer contract validation rules
-- **AnalyzerConfig.MD** - Code quality tool configurations (Roslynator, StyleCop, ESLint)
+- **AnalyzerConfig.MD** - Code quality tool configurations ({{ANALYZER_TOOLS}}, StyleCop, ESLint)
 
 ### Testing
-- **PlaywrightQuickRef.md** ⭐ - Complete Playwright testing guide (test creation, execution, patterns)
-- **PlaywrightConfig.MD** - Detailed configuration reference
-- **PlaywrightTestPaths.MD** - Canonical test patterns and test data
+- **{{TEST_FRAMEWORK}}QuickRef.md** ⭐ - Complete {{TEST_FRAMEWORK}} testing guide (test creation, execution, patterns)
+- **{{TEST_FRAMEWORK}}Config.MD** - Detailed configuration reference
+- **{{TEST_FRAMEWORK}}TestPaths.MD** - Canonical test patterns and test data
 
 ### Feature Tracking
 - **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
@@ -136,7 +141,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
     - Enhancement recommendations
     - Test specification generation
     - JSON tracking for programmatic progress queries
-    - System Context Pack (APIs, database schemas, SignalR hubs, test data)
+    - System Context Pack (APIs, database schemas, {{REALTIME_TECH}} hubs, test data)
   - **OUTPUTS**: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
   - **SIZE**: 3740 lines (largest prompt - module extraction planned)
 
@@ -144,10 +149,10 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
   - File auto-loading, checkpoint commits
   - 9-step workflow with validation gates
   - **Plan integration**: Loads `{key}.plan.md` and `{key}.plan.json` when available
-  - Automatic test generation using Playwright, Percy, and configured libraries (Step 6.1)
+  - Automatic test generation using {{TEST_FRAMEWORK}}, Percy, and configured libraries (Step 6.1)
   - Functionality registry validation (Step 8.2)
   - **MUST** consult InfrastructureQuickRef.md for database rules
-  - **MUST** consult PlaywrightQuickRef.md for test creation
+  - **MUST** consult {{TEST_FRAMEWORK}}QuickRef.md for test creation
   - **WHEN TO USE**: Simple tasks, quick fixes, or continuation of planned work
   - **HANDOFF**: Called by plan.prompt.md for phased execution
   - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
@@ -157,7 +162,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
   - Deep application analysis
   - Supports all agents with investigation
   - **MUST** reference InfrastructureQuickRef.md for infrastructure queries
-  - **MUST** reference PlaywrightQuickRef.md for test-related questions
+  - **MUST** reference {{TEST_FRAMEWORK}}QuickRef.md for test-related questions
 
 - **refactor.prompt.md** - Structural integrity agent
   - Checkpointed refactoring workflow
@@ -178,7 +183,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
   - Reports to sync for fixes
 
 - **test-generation.prompt.md** - Automated end-to-end visual regression test generator
-  - Creates tests using Playwright, Percy, and configured libraries
+  - Creates tests using {{TEST_FRAMEWORK}}, Percy, and configured libraries
   - Session 212 canonical patterns
   - Multi-browser testing support
   - API-based test approaches
@@ -339,7 +344,7 @@ Confirm all behaviors work correctly? (yes/no)
 - **Total Endpoints**: 52+
 - **Key Controllers**: Admin, Host, Participant, Question, Session, Annotations, Health, Token, HostProvisioner, Issue, Logs
 
-### SignalR Hubs
+### {{REALTIME_TECH}} Hubs
 - **Total Hubs**: 4
 - **Active Hubs**: SessionHub, QAHub, AnnotationHub, TestHub (dev only)
 
@@ -400,7 +405,7 @@ This file is automatically updated by the **sync** agent when:
 - Controllers, services, or hubs are created/modified
 - Database schema changes occur
 - New Razor components are added
-- SignalR hub functionality changes
+- {{REALTIME_TECH}} hub functionality changes
 - Prompt agents are created, modified, or retired
 - Learning infrastructure is enhanced
 
@@ -422,4 +427,3 @@ This file is automatically updated by the **sync** agent when:
 - 2025-10-12: Merged ReferenceIndex.md, SystemStructureSummary.md, FunctionalityRegistry-QuickRef.md into SystemIndex.md
 - 2025-01-11: Added InfrastructureQuickRef.md
 - 2025-01-11: Created FunctionalityRegistry-QuickRef.md
-

@@ -1,13 +1,22 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{CONFIG_PATH}}/appsettings.json`
+- `{{CONNECTION_STRING_KEY}}`
+- `{{DATABASE_NAME}}`
+- `{{DATABASE_SERVER}}`
+- `{{DATABASE_TYPE}}`
+- `{{FRAMEWORKS}}`
+- `{{PROJECT_NAME}}`
+- `{{REALTIME_TECH}}`
+- `{{SOURCE_PATH}}`
+- `{{TEST_FRAMEWORK}}`
+- `{{TEST_PATH}}`
 
 ---
 # Infrastructure Quick Reference
@@ -25,29 +34,29 @@
 
 **Connection Details**:
 - **Database Name**: `{{DATABASE_NAME}}`
-- **Server**: `AHHOME`
-- **Authentication**: SQL Server authentication (credentials in appsettings.json)
-- **Connection Key**: `"DefaultConnection"` or `"KSessionsDb"`
-- **Configuration Location**: `SPA/{{PROJECT_NAME}}/appsettings.json` → `ConnectionStrings` section
+- **Server**: `{{DATABASE_SERVER}}`
+- **Authentication**: {{DATABASE_TYPE}} authentication (credentials in {{CONFIG_PATH}}/appsettings.json)
+- **Connection Key**: `"{{CONNECTION_STRING_KEY}}"` or `"KSessionsDb"`
+- **Configuration Location**: `{{SOURCE_PATH}}/{{CONFIG_PATH}}/appsettings.json` → `ConnectionStrings` section
 
 ### ⚠️ CRITICAL DATABASE RULES
 
 **READ-ONLY RESTRICTION**:
-- ✅ **`{{SCHEMA_PRIMARY}}.*` schema**: READ-WRITE allowed (Session Canvas features)
+- ✅ **`canvas.*` schema**: READ-WRITE allowed (Session Canvas features)
 - ❌ **`dbo.*` schema**: **READ-ONLY** - NO modifications allowed
 - ❌ **All other schemas**: **READ-ONLY** - NO modifications allowed
 
 **Schema Usage**:
-- `{{SCHEMA_PRIMARY}}.*` - Session Canvas feature (questions, votes, participants, annotations)
-  - `{{SCHEMA_PRIMARY}}.Questions`
-  - `{{SCHEMA_PRIMARY}}.QuestionVotes`
-  - `{{SCHEMA_PRIMARY}}.Participants`
-  - `{{SCHEMA_PRIMARY}}.AssetLookup`
+- `canvas.*` - Session Canvas feature (questions, votes, participants, annotations)
+  - `canvas.Questions`
+  - `canvas.QuestionVotes`
+  - `canvas.Participants`
+  - `canvas.AssetLookup`
   
 - `dbo.*` - **READ-ONLY** (legacy Islamic content database)
   - `dbo.Groups` - Islamic content collections (Albums)
   - `dbo.Categories` - Subdivisions within Groups
-  - `dbo.Sessions` - Individual Islamic learning sessions (LEGACY - different from {{SCHEMA_PRIMARY}}.Sessions)
+  - `dbo.Sessions` - Individual Islamic learning sessions (LEGACY - different from canvas.Sessions)
   - `dbo.Speakers` - Session instructors/presenters
   - `dbo.SessionTranscripts` - Transcript content for annotation
   
@@ -56,11 +65,11 @@
   - `dbo.GetCategoriesForGroup` - Retrieves Categories for a specific Group
   
   > **NOTE**: Tables verified against {{DATABASE_NAME}} codebase on 2025-10-12.
-  > Only tables with Entity Framework models or direct SQL usage are listed.
+  > Only tables with {{FRAMEWORKS}} models or direct SQL usage are listed.
 
 ### Secondary Database: KQUR_DEV
 - **Database Name**: `KQUR_DEV`
-- **Server**: `AHHOME`
+- **Server**: `{{DATABASE_SERVER}}`
 - **Connection Key**: `"KQurDb"`
 - **Usage**: Quranic content (READ-ONLY)
 - **Access**: Via API endpoints only
@@ -69,12 +78,12 @@
 **NEVER hardcode connection strings in code. Always use:**
 ```csharp
 // Correct approach
-_configuration.GetConnectionString("DefaultConnection")
+_configuration.GetConnectionString("{{CONNECTION_STRING_KEY}}")
 _configuration.GetConnectionString("KSessionsDb")
 _configuration.GetConnectionString("KQurDb")
 
 // WRONG - Never do this
-var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
+var connString = "Server={{DATABASE_SERVER}};Database={{DATABASE_NAME}};..."
 ```
 
 ---
@@ -82,7 +91,7 @@ var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
 ## 🔌 External Dependencies
 
 ### Required Services
-1. **SQL Server** (AHHOME server)
+1. **{{DATABASE_TYPE}}** ({{DATABASE_SERVER}} server)
    - {{DATABASE_NAME}} database
    - KQUR_DEV database
    
@@ -90,20 +99,20 @@ var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
    - HTTPS Port: 9091
    - HTTP Port: 5000 (redirect to HTTPS)
 
-3. **SignalR Hubs** (Real-time communication)
+3. **{{REALTIME_TECH}} Hubs** (Real-time communication)
    - SessionHub: `/hub/session`
    - QAHub: `/hub/qa`
    - AnnotationHub: `/hub/annotation`
    - TestHub: `/hub/test` (dev only)
 
 ### Configuration Files
-- `appsettings.json` - Production settings
+- `{{CONFIG_PATH}}/appsettings.json` - Production settings
 - `appsettings.Development.json` - Development overrides
-- **Location**: `SPA/{{PROJECT_NAME}}/`
+- **Location**: `{{SOURCE_PATH}}/`
 
 ### Environment Variables (Optional)
 - `ASPNETCORE_ENVIRONMENT` - Development/Production
-- Connection strings can override appsettings.json values
+- Connection strings can override {{CONFIG_PATH}}/appsettings.json values
 
 ---
 
@@ -199,7 +208,7 @@ var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
 
 ---
 
-## SignalR Hubs (WebSocket)
+## {{REALTIME_TECH}} Hubs (WebSocket)
 
 ### Hub Endpoints
 
@@ -232,7 +241,7 @@ var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
 - `QuestionUpdated` - Question text changed
 
 #### TestHub (`/hub/test`) - DEVELOPMENT ONLY
-**Purpose**: Testing/debugging SignalR connections
+**Purpose**: Testing/debugging {{REALTIME_TECH}} connections
 
 **Client Methods**:
 - `ReceiveMessage` - Test message broadcast
@@ -257,7 +266,7 @@ var connString = "Server=AHHOME;Database={{DATABASE_NAME}};..."
 - Participants and questions already seeded
 - HTML content and assets available for testing
 
-**Test File Location**: `Tests/UI/*.spec.ts`
+**Test File Location**: `{{TEST_PATH}}UI/*.spec.ts`
 
 **Test Patterns**:
 ```typescript
@@ -267,12 +276,12 @@ const PARTICIPANT_TOKEN = 'KJAHA99L';
 const BASE_URL = 'https://localhost:9091';
 ```
 
-### Playwright Configuration
-**Config File**: `config/testing/playwright.config.cjs`
+### {{TEST_FRAMEWORK}} Configuration
+**Config File**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
 
 **Server Management**:
-- `PW_MODE=standalone` - Playwright does NOT start server (recommended)
-- `PW_MODE=managed` - Playwright starts/stops server automatically
+- `PW_MODE=standalone` - {{TEST_FRAMEWORK}} does NOT start server (recommended)
+- `PW_MODE=managed` - {{TEST_FRAMEWORK}} starts/stops server automatically
 - **Default**: `standalone` (assumes server already running)
 
 **Before Tests**: Execute `nckill` to terminate any running Kestrel servers
@@ -306,7 +315,7 @@ const BASE_URL = 'https://localhost:9091';
 - **ASPNETCORE_URLS**: `https://localhost:9091` (override)
 
 ### Testing
-- **PW_MODE**: `standalone` | `managed` (Playwright server management)
+- **PW_MODE**: `standalone` | `managed` ({{TEST_FRAMEWORK}} server management)
 
 ---
 
@@ -332,24 +341,24 @@ const BASE_URL = 'https://localhost:9091';
 ## File Locations
 
 ### Configuration
-- **appsettings.json**: `SPA/{{PROJECT_NAME}}/appsettings.json`
-- **Playwright Config**: `config/testing/playwright.config.cjs`
+- **{{CONFIG_PATH}}/appsettings.json**: `{{SOURCE_PATH}}/{{CONFIG_PATH}}/appsettings.json`
+- **{{TEST_FRAMEWORK}} Config**: `config/testing/{{TEST_FRAMEWORK}}.config.cjs`
 - **ESLint Config**: `config/testing/eslint.config.js`
 - **TypeScript Config**: `config/testing/tsconfig.json`
 
 ### Code
-- **Controllers**: `SPA/{{PROJECT_NAME}}/Controllers/*.cs`
-- **Services**: `SPA/{{PROJECT_NAME}}/Services/*.cs`
-- **Hubs**: `SPA/{{PROJECT_NAME}}/Hubs/*.cs`
-- **Components**: `SPA/{{PROJECT_NAME}}/Components/**/*.razor`
-- **Pages**: `SPA/{{PROJECT_NAME}}/Components/Pages/*.razor`
+- **Controllers**: `{{SOURCE_PATH}}/Controllers/*.cs`
+- **Services**: `{{SOURCE_PATH}}/Services/*.cs`
+- **Hubs**: `{{SOURCE_PATH}}/Hubs/*.cs`
+- **Components**: `{{SOURCE_PATH}}/Components/**/*.razor`
+- **Pages**: `{{SOURCE_PATH}}/Components/Pages/*.razor`
 
 ### Tests
-- **E2E (Playwright)**: `Tests/UI/*.spec.ts`
-- **Unit Tests**: `Tests/Unit/*.cs`
+- **E2E ({{TEST_FRAMEWORK}})**: `{{TEST_PATH}}UI/*.spec.ts`
+- **Unit Tests**: `{{TEST_PATH}}Unit/*.cs`
 
 ### Documentation
-- **Architecture**: `.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`
+- **Architecture**: `.github/instructions/Links/{{PROJECT_NAME}}_ARCHITECTURE.MD`
 - **API Contracts**: `.github/instructions/Links/API-Contract-Validation.md`
 - **Prompts**: `.github/prompts/*.prompt.md`
 - **Instructions**: `.github/instructions/*.instructions.md`
@@ -365,8 +374,8 @@ const BASE_URL = 'https://localhost:9091';
 
 ### ❌ DO NOT Reference Obsolete Features
 - **Annotation System** - DELETED in annotation removal commit (2025-01-11)
-  - No `{{SCHEMA_PRIMARY}}.Annotations` table
-  - No `AnnotationHub` SignalR hub
+  - No `canvas.Annotations` table
+  - No `AnnotationHub` {{REALTIME_TECH}} hub
   - No `/api/Annotations` controller
   - No annotation-related components or services
 
@@ -395,9 +404,8 @@ const BASE_URL = 'https://localhost:9091';
 ## Version History
 
 - **v1.0.0** (2025-01-11): Initial creation
-  - Extracted from live appsettings.json, Program.cs, Controllers
+  - Extracted from live {{CONFIG_PATH}}/appsettings.json, Program.cs, Controllers
   - Added Session 212 canonical test data
-  - Documented all API endpoints and SignalR hubs
+  - Documented all API endpoints and {{REALTIME_TECH}} hubs
   - Added anti-patterns section for hallucination prevention
   - Removed obsolete annotation system references
-

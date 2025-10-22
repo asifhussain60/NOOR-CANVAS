@@ -1,13 +1,18 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{ANALYZER_TOOLS}}`
+- `{{BUILD_COMMAND}}`
+- `{{LINT_COMMAND}}`
+- `{{PROJECT_NAME}}`
+- `{{REALTIME_TECH}}`
+- `{{SOURCE_PATH}}`
+- `{{TEST_FRAMEWORK}}`
 
 ---
 # Validation Framework - Canonical Reference
@@ -34,8 +39,8 @@ All agents must execute these validations in the order specified below. Each lev
 
 **Commands:**
 ```powershell
-dotnet build --configuration Release --verbosity normal
-dotnet build --configuration Debug --verbosity normal
+{{BUILD_COMMAND}} --configuration Release --verbosity normal
+{{BUILD_COMMAND}} --configuration Debug --verbosity normal
 ```
 
 **Requirements:**
@@ -54,12 +59,12 @@ dotnet build --configuration Debug --verbosity normal
 **Purpose:** Ensure code quality and architectural compliance
 
 **Tools:**
-- **Roslynator:** `.\Workspaces\CodeQuality\run-roslynator.ps1`
+- **{{ANALYZER_TOOLS}}:** `.\Workspaces\CodeQuality\run-{{ANALYZER_TOOLS}}.ps1`
 - **.NET Analyzers:** Verified via build output
 - **StyleCop:** Enforced with 36 intentional suppressions (see `AnalyzerConfig.MD`)
 
 **Requirements:**
-- ✅ ZERO Roslynator diagnostics (errors or warnings)
+- ✅ ZERO {{ANALYZER_TOOLS}} diagnostics (errors or warnings)
 - ✅ All .NET analyzers pass
 - ✅ StyleCop violations limited to approved suppressions only
 
@@ -88,7 +93,7 @@ npm run format:check  # Prettier formatting verification
 - ✅ Prettier formatting fully compliant
 
 **Accepted Baseline:**
-- 39 ESLint errors in SignalR globals, Playwright contexts, fixtures, and catch patterns
+- 39 ESLint errors in {{REALTIME_TECH}} globals, {{TEST_FRAMEWORK}} contexts, fixtures, and catch patterns
 - These are documented in `AnalyzerConfig.MD` and must not be "fixed"
 
 **Failure Action:**
@@ -106,10 +111,10 @@ npm run format:check  # Prettier formatting verification
 **Purpose:** Prevent API/frontend mismatches and DTO inconsistencies
 
 **Trigger:** Changes to any of the following:
-- Controllers (any file in `SPA/{{PROJECT_NAME}}/Controllers/`)
+- Controllers (any file in `{{SOURCE_PATH}}/Controllers/`)
 - DTOs (any DTO, request, or response model)
 - API endpoints (additions, modifications, or removals)
-- SignalR hubs (any file in `SPA/{{PROJECT_NAME}}/Hubs/`)
+- {{REALTIME_TECH}} hubs (any file in `{{SOURCE_PATH}}/Hubs/`)
 
 **Validation Steps:**
 
@@ -120,7 +125,7 @@ npm run format:check  # Prettier formatting verification
 2. **Cross-Layer Type Matching**
    - Verify API response types match frontend expectations
    - Confirm DTO property types align across layers
-   - Validate SignalR hub method signatures
+   - Validate {{REALTIME_TECH}} hub method signatures
 
 3. **Field Name Case Sensitivity**
    - Ensure JSON property names match exactly (case-sensitive)
@@ -161,24 +166,24 @@ npm run format:check  # Prettier formatting verification
    - Run tests that exercise modified endpoints
    - Validate service layer integration
 
-3. **Playwright Tests** (if UI changes)
+3. **{{TEST_FRAMEWORK}} Tests** (if UI changes)
    - Run tests for affected UI components
    - Use standalone mode (automatic app lifecycle management)
    - Multi-browser isolation (Chromium, Firefox, WebKit)
 
 **Commands:**
 ```bash
-# Playwright tests
-npx playwright test [test-file-pattern] --headed
-npx playwright test [test-file-pattern] --project=chromium
-npx playwright test [test-file-pattern] --project=firefox
-npx playwright test [test-file-pattern] --project=webkit
+# {{TEST_FRAMEWORK}} tests
+npx {{TEST_FRAMEWORK}} test [test-file-pattern] --headed
+npx {{TEST_FRAMEWORK}} test [test-file-pattern] --project=chromium
+npx {{TEST_FRAMEWORK}} test [test-file-pattern] --project=firefox
+npx {{TEST_FRAMEWORK}} test [test-file-pattern] --project=webkit
 ```
 
 **Requirements:**
 - ✅ All relevant unit tests pass
 - ✅ All relevant integration tests pass
-- ✅ All relevant Playwright tests pass across all browsers
+- ✅ All relevant {{TEST_FRAMEWORK}} tests pass across all browsers
 - ✅ No new test failures introduced
 
 **Failure Action:**
@@ -188,8 +193,8 @@ npx playwright test [test-file-pattern] --project=webkit
 - If persistent failures, escalate to user
 
 **Reference:** 
-- `.github/instructions/Links/PlaywrightConfig.MD`
-- `.github/instructions/Links/PlaywrightTestPaths.MD`
+- `.github/instructions/Links/{{TEST_FRAMEWORK}}Config.MD`
+- `.github/instructions/Links/{{TEST_FRAMEWORK}}TestPaths.MD`
 
 ---
 
@@ -210,15 +215,15 @@ npx playwright test [test-file-pattern] --project=webkit
    - Retired prompts documented
    - Agent coordination protocols current
 
-2. **NOOR-CANVAS_ARCHITECTURE.MD**
+2. **{{PROJECT_NAME}}_ARCHITECTURE.MD**
    - Controller count and names accurate
    - API endpoint inventory current
    - Service layer documentation updated
-   - SignalR hub documentation current
+   - {{REALTIME_TECH}} hub documentation current
 
 3. **Configuration Documentation**
    - `AnalyzerConfig.MD` reflects current analyzer settings
-   - `PlaywrightConfig.MD` reflects current test configuration
+   - `{{TEST_FRAMEWORK}}Config.MD` reflects current test configuration
    - Other config docs updated as needed
 
 **Requirements:**
@@ -254,7 +259,7 @@ Different agents have different validation requirements based on their scope and
 **Required Levels:** 1-6 (ALL)
 
 **Additional Requirements:**
-- `dotnet format --verify-no-changes` (formatting verification)
+- `{{LINT_COMMAND}} --verify-no-changes` (formatting verification)
 - Mandatory before/after comparison of all affected files
 - Iterative validation after each structural change
 
@@ -370,7 +375,7 @@ At the end of every operation, the validation pipeline guarantees:
 
 ✅ **Zero Errors:** Solution builds without compilation errors  
 ✅ **Zero Warnings:** Solution builds without warnings (except approved baseline)  
-✅ **Analyzer Clean:** All Roslynator and .NET analyzers pass  
+✅ **Analyzer Clean:** All {{ANALYZER_TOOLS}} and .NET analyzers pass  
 ✅ **Linter Clean:** ESLint and Prettier fully compliant (except baseline)  
 ✅ **Tests Pass:** All relevant automated tests pass  
 ✅ **Contracts Intact:** All API/DTO contracts remain consistent  
@@ -410,15 +415,14 @@ All agent prompts should reference this framework in their validation section:
 
 - [SelfAwareness.instructions.md](../SelfAwareness.instructions.md) - Global operating guardrails
 - [SystemStructureSummary.md](SystemStructureSummary.md) - Agent index and coordination
-- [InfrastructureQuickRef.md](InfrastructureQuickRef.md) - Database, API, SignalR, test infrastructure reference
-- [AnalyzerConfig.MD](AnalyzerConfig.MD) - Roslynator, StyleCop, ESLint configuration
+- [InfrastructureQuickRef.md](InfrastructureQuickRef.md) - Database, API, {{REALTIME_TECH}}, test infrastructure reference
+- [AnalyzerConfig.MD](AnalyzerConfig.MD) - {{ANALYZER_TOOLS}}, StyleCop, ESLint configuration
 - [API-Contract-Validation.md](API-Contract-Validation.md) - Contract validation guidelines
-- [PlaywrightConfig.MD](PlaywrightConfig.MD) - Playwright test configuration
-- [NOOR-CANVAS_ARCHITECTURE.MD](NOOR-CANVAS_ARCHITECTURE.MD) - System architecture
+- [{{TEST_FRAMEWORK}}Config.MD]({{TEST_FRAMEWORK}}Config.MD) - {{TEST_FRAMEWORK}} test configuration
+- [{{PROJECT_NAME}}_ARCHITECTURE.MD]({{PROJECT_NAME}}_ARCHITECTURE.MD) - System architecture
 
 ---
 
 **Maintained By:** GitHub Copilot (Task Agent)  
 **Last Updated:** 2025-01-11  
 **Next Review:** January 11, 2026
-

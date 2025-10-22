@@ -1,13 +1,14 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{SOURCE_PATH}}`
+- `{{TEST_FRAMEWORK}}`
+- `{{TEST_PATH}}`
 
 ---
 # Functionality Registry - Regression Prevention System
@@ -44,8 +45,8 @@ The registry tracks which files and methods control critical behaviors:
 ```markdown
 ### Breaking Change Detection
 - **File Watch**: 
-  - `SPA/{{PROJECT_NAME}}/Pages/UserLanding.razor`
-  - `SPA/{{PROJECT_NAME}}/Services/AuthService.cs`
+  - `{{SOURCE_PATH}}/Pages/UserLanding.razor`
+  - `{{SOURCE_PATH}}/Services/AuthService.cs`
 - **Method Watch**:
   - `OnInitializedAsync()` - Initialization logic
   - `ValidateToken()` - Token validation
@@ -64,7 +65,7 @@ Links behaviors to their validation tests (automated or manual):
 ```markdown
 ### Related Test Coverage
 - **Automated Tests**:
-  - `Tests/UI/user-auth-flow.spec.ts` - Covers behaviors 1, 2, 3
+  - `{{TEST_PATH}}UI/user-auth-flow.spec.ts` - Covers behaviors 1, 2, 3
 - **Manual Validation**:
   - Navigate to /session/canvas/{TOKEN}
   - Verify registration appears without flash
@@ -101,7 +102,7 @@ When a task modifies code under a key with Functionality Registry:
 #### Step 3: Execute Validation
 **Option A - Automated Tests Available:**
 ```bash
-npm test -- Tests/UI/user-auth-flow.spec.ts
+npm test -- {{TEST_PATH}}UI/user-auth-flow.spec.ts
 # All tests pass → Update Last Validation → Allow commit
 ```
 
@@ -171,8 +172,8 @@ Confirm all behaviors work? (yes/no)
 
 ### Related Test Coverage
 - **Automated Tests**:
-  - `Tests/UI/feature-workflow.spec.ts` - Covers behaviors 1, 2, 3
-  - `Tests/Unit/ServiceTests.cs` - Unit test coverage
+  - `{{TEST_PATH}}UI/feature-workflow.spec.ts` - Covers behaviors 1, 2, 3
+  - `{{TEST_PATH}}Unit/ServiceTests.cs` - Unit test coverage
 - **Manual Validation**:
   - Step-by-step validation instructions
   - Expected outcomes for each behavior
@@ -247,11 +248,11 @@ Confirm all behaviors work? (yes/no)
 
 ### 4. Test Coverage Strategy
 **Priority Order**:
-1. **Automated E2E Tests** (Playwright) - Best coverage, run automatically
+1. **Automated E2E Tests** ({{TEST_FRAMEWORK}}) - Best coverage, run automatically
 2. **Automated Unit Tests** - Fast, cover specific logic
 3. **Manual Validation Checklist** - Fallback when no automated tests exist
 
-**Recommendation**: Create Playwright tests for all core behaviors over time.
+**Recommendation**: Create {{TEST_FRAMEWORK}} tests for all core behaviors over time.
 
 ---
 
@@ -269,7 +270,7 @@ Confirm all behaviors work? (yes/no)
 - ✅ **Registration Access**: After token validation → Waiting room access enabled
 
 ### Related Test Coverage
-- **Automated Tests**: None (recommended: create Playwright test)
+- **Automated Tests**: None (recommended: create {{TEST_FRAMEWORK}} test)
 - **Manual Validation**:
   - Navigate to /session/canvas/KJAHA99L (valid)
   - Verify: Registration panel appears immediately
@@ -280,9 +281,9 @@ Confirm all behaviors work? (yes/no)
 
 ### Breaking Change Detection
 - **File Watch**:
-  - `SPA/{{PROJECT_NAME}}/Pages/UserLanding.razor` - Main UI component
-  - `SPA/{{PROJECT_NAME}}/Controllers/ParticipantController.cs` - Validation API
-  - `SPA/{{PROJECT_NAME}}/Services/SimplifiedTokenService.cs` - Token logic
+  - `{{SOURCE_PATH}}/Pages/UserLanding.razor` - Main UI component
+  - `{{SOURCE_PATH}}/Controllers/ParticipantController.cs` - Validation API
+  - `{{SOURCE_PATH}}/Services/SimplifiedTokenService.cs` - Token logic
 - **Method Watch**:
   - `UserLanding.OnInitializedAsync()` - Panel state initialization
   - `UserLanding.LoadSessionInfoAsync()` - Token validation & error handling
@@ -373,10 +374,10 @@ Run manual validation to ensure behaviors are testable and accurate.
 
 ### Breaking Change Detection
 - **File Watch**:
-  - `SPA/{{PROJECT_NAME}}/Pages/Session{{SCHEMA_PRIMARY}}.razor` - Canvas rendering
-  - `SPA/{{PROJECT_NAME}}/wwwroot/css/session-transcript.css` - Asset styling
+  - `{{SOURCE_PATH}}/Pages/SessionCanvas.razor` - Canvas rendering
+  - `{{SOURCE_PATH}}/wwwroot/css/session-transcript.css` - Asset styling
 - **Method Watch**:
-  - `Session{{SCHEMA_PRIMARY}}.RenderContent()` - Content display logic
+  - `SessionCanvas.RenderContent()` - Content display logic
 - **State Watch**:
   - `.canvas-asset-content` CSS class - Must have `display: flex; justify-content: center`
 
@@ -418,7 +419,7 @@ Run manual validation to ensure behaviors are testable and accurate.
 - Basic regression history tracking
 
 ### Phase 2 (Future)
-- Automated Playwright test execution when File Watch triggers
+- Automated {{TEST_FRAMEWORK}} test execution when File Watch triggers
 - Contract-based testing with JSON schema validation
 - Performance regression detection (load time, API response time)
 - Visual regression testing with screenshot comparison
@@ -445,4 +446,3 @@ The **Functionality Registry** is a lightweight, practical system that:
 **ROI**: Prevents silent regressions, improves code confidence, enables safer refactoring, reduces manual QA overhead.
 
 **Integration**: Seamlessly integrates with existing task workflow in Step 8.2 (no disruption to current process).
-

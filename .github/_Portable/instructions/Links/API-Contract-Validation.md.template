@@ -1,13 +1,12 @@
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version.
+> **NOTE**: This is a TEMPLATE file. To configure for your project:
+> 1. Run: `@workspace /total-recall`
+> 2. Review generated files in `.github/_Portable/_Configured/`
+> 3. Copy to `.github/` when satisfied
 
-**Template Variables:**
-- `{{PROJECT_NAME}}` - Project name
-- `{{FRAMEWORKS}}` - Technology frameworks  
-- `{{DATABASE_TYPE}}` - Database/ORM type
-- `{{BUILD_COMMAND}}` - Build command
-- `{{TEST_COMMAND}}` - Test command
+**Template Variables Used:**
+- `{{PROJECT_NAME}}`
 
 ---
 # API Contract Validation Guidelines
@@ -181,4 +180,3 @@ This file must reflect the **REAL current state** of the project.
 - Obsolete data must be removed.  
 - Modified values must be updated to match source of truth in the repo.  
 - Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.  
-
