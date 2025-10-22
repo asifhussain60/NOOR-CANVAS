@@ -10,6 +10,18 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 **Changelog:**
 - Add canonical references to shared/playwright-test-generation.md and shared/test-orchestration-patterns.md for centralized guidance
 
+---
+
+## Commit and Rollback Conventions (MANDATORY)
+Follow `.github/prompts/shared/commit-message-format.md` with added rollback metadata so test-related commits are meaningful and traceable:
+
+- Types: `ckpt`, `test` (use `test` for generated/updated tests and orchestration scripts)
+- Format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+  - Example: `test({key}): add scenario 'asset-card-visibility' [sha=abc1234] [parent=zz99yy1]`
+- Rollback Index: Append a row to `.github/prompts.keys/{key}/rollback-index.md` after generating tests
+
+When invoked standalone (not via task prompt), create a checkpoint before generating tests using the `ckpt` type and tag it (see task conventions). Otherwise, reuse the latest `ckpt` parent from the task flow.
+
 ## User-Facing Output Style (MANDATORY)
 Must follow `.github/prompts/shared/output-style-mandate.md`.
 
@@ -38,20 +50,31 @@ For detailed patterns, decision matrices, and examples, see:
 1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
    - If NOT exists → HALT immediately
    - Error message to user:
-     ```
-     ❌ ERROR: Key folder does not exist
-     
-     Key: {key}
-     Expected path: .github/prompts.keys/{key}/
-     
-     Test generation requires an initialized key data stream.
-     
-     REQUIRED ACTION:
-     1. Run feature planning agent first:
-        @workspace /feature key={key} user_request="{your requirements}"
-     
-     2. After planning, run task agent:
-        @workspace /task key={key} tasks="..."
+    ```powershell
+    # Commit generated tests and scripts
+    git add -A
+    git commit -m "test({key}): {short summary of scenario}"
+
+    # Update rollback index with lineage
+    $sha = (git rev-parse --short HEAD).Trim()
+    $dir = ".github/prompts.keys/{key}"
+    $idx = Join-Path $dir "rollback-index.md"
+    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+    if (-not (Test-Path $idx)) {
+      @(
+        "# Rollback Index for {key}",
+        "",
+        "| Date | Type | Summary | SHA | Parent |",
+        "|------|------|---------|-----|--------|"
+      ) | Set-Content -Path $idx -NoNewline:$false
+    }
+    $now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $parent = (git log --oneline --grep '^ckpt\(' -n 1 | ForEach-Object { ($_ -split ' ')[0] })
+    Add-Content $idx "| $now | test | {short summary of scenario} | $sha | $parent |"
+
+    git add $idx
+    git commit -m "meta({key}): update rollback-index [sha=$sha]"
+    ```
      
      3. Task agent will invoke test-generation automatically when needed
      
@@ -144,6 +167,29 @@ git checkout development
   
   Proceeding with test generation.
   ```
+
+---
+
+## Test Commit and Rollback Index Update (MANDATORY)
+
+After generating/placing tests and orchestration scripts, commit with lineage and update rollback index:
+
+```bash
+git add -A
+git commit -m "test({key}): {short summary of scenario}"
+for /f %i in ('git rev-parse --short HEAD') do set _TSHA=%i
+
+# Resolve latest checkpoint parent (short) from rollback-index (if present)
+powershell -NoProfile -Command "if (Test-Path '.github/prompts.keys/{key}/rollback-index.md') { (Get-Content '.github/prompts.keys/{key}/rollback-index.md' | Select-String -Pattern '\| .* \| ckpt \| .* \| ([0-9a-f]{7,8}) \|' -AllMatches | Select-Object -Last 1).Matches.Groups[1].Value }"
+
+# Append row
+powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); $parent=(git log --oneline -n 1 --grep '^ckpt\(' | ForEach-Object { ($_ -split ' ')[0] }); if (!(Test-Path '.github/prompts.keys/{key}/rollback-index.md')) { Add-Content '.github/prompts.keys/{key}/rollback-index.md' '# Rollback Index for {key}'; Add-Content '.github/prompts.keys/{key}/rollback-index.md' ''; Add-Content '.github/prompts.keys/{key}/rollback-index.md' '| Date | Type | Summary | SHA | Parent |'; Add-Content '.github/prompts.keys/{key}/rollback-index.md' '|------|------|---------|-----|--------|'; }; Add-Content '.github/prompts.keys/{key}/rollback-index.md' \"| $d | test | {short summary of scenario} | $sha | $parent |\""
+
+git add .github/prompts.keys/{key}/rollback-index.md
+git commit -m "meta({key}): update rollback-index [sha=%_TSHA%]"
+```
+
+This guarantees the last 10 commits show a clear sequence: checkpoint → test generation → meta update, each with short SHAs for quick rollback decisions.
 
 ---
 

@@ -1,26 +1,29 @@
 # task.prompt.md (Optimized v3.0)
+```powershell
+# Checkpoint commit
+git add -A
+git commit -m "ckpt({key}): pre-task checkpoint"
 
----
-mode: agent
-description: Execution engine that plans, executes, validates, and updates key data streams with audits
----
+# Capture SHA and update rollback index
+$sha = (git rev-parse --short HEAD).Trim()
+$dir = ".github/prompts.keys/{key}"
+$idx = Join-Path $dir "rollback-index.md"
+if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+if (-not (Test-Path $idx)) {
+   @(
+      "# Rollback Index for {key}",
+      "",
+      "| Date | Type | Summary | SHA | Parent |",
+      "|------|------|---------|-----|--------|"
+   ) | Set-Content -Path $idx -NoNewline:$false
+}
+$now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+Add-Content $idx "| $now | ckpt | pre-task checkpoint | $sha | - |"
 
-**Version:** 3.1.0  
-**Last Updated:** 2025-10-22  
-**Changelog:**
-- Add explicit references to shared/framework-validation-checklists.md (Step 2.5) and shared/ui-debugging-protocol.md (Step 2.7)
-- Align with shared context-gathering phases and consolidate protocol references
-
-## Role
-You are the **Task Executor Agent** - a disciplined and methodical execution engine that breaks down requests into structured steps, validates outcomes, and maintains living audit trails through progressive key data stream updates.
-
----
-
-## User-Facing Output Style (MANDATORY)
-Must follow `.github/prompts/shared/output-style-mandate.md`.
-
-- ALWAYS separate output into two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
-- NEVER include code or pseudocode in the user-facing section.
+# Tag the checkpoint for easy discovery
+$tag = "key-{key}-ckpt-$(Get-Date -Format 'yyyyMMdd-HHmm')-$sha"
+git tag $tag
+```
 - BEFORE implementation: include Work Requested (with key), Affected areas (2a files, 2b architecture/infrastructure, 2c database), phased Plan, and Recommendations.
 - AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), plus the attachments note.
 
@@ -203,6 +206,18 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 - **Always update key data stream AFTER execution** (maintain continuity)
 - Ensure analyzers, linters, tests remain clean after every operation
 - Build must complete with **zero errors and zero warnings**
+
+### Commit and Tagging Conventions (MANDATORY)
+Follow `.github/prompts/shared/commit-message-format.md`, extended with standardized types and rollback metadata so recent history is meaningful and rollbacks are easy:
+
+- Types: `ckpt`, `task`, `test`, `hc`, `doc`, `meta`
+- Format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+   - Example: `ckpt(user-landing): pre-task checkpoint [sha=abc1234]`
+   - Example: `task(user-landing): Phase 2 - API wiring [sha=def5678] [parent=abc1234]`
+- Git Tag (for checkpoints only): `key-{key}-ckpt-{yyyyMMdd-HHmm}-{short}`
+- Rollback Index: Update `.github/prompts.keys/{key}/rollback-index.md` on every checkpoint and major commit (task/test/hc)
+
+These conventions ensure `git log --oneline -10` is human-scannable and that every commit indicates its rollback lineage.
 
 ### UI/UX Execution Requirements (apply when redesign/layout/styling is in scope)
 - Preserve existing visual identity (theme, colors, typography) unless explicitly authorized to change
@@ -554,7 +569,25 @@ Executing remaining tasks...
 Create checkpoint commit for rollback capability:
 ```bash
 git add -A
-git commit -m "checkpoint: pre-task {key}"
+git commit -m "ckpt({key}): pre-task checkpoint"
+set "_SHA=" & for /f %i in ('git rev-parse --short HEAD') do set _SHA=%i
+
+# Create/update rollback index for this key
+if not exist .github\prompts.keys\{key} mkdir .github\prompts.keys\{key}
+"" >nul 2>&1
+echo | set /p="# Rollback Index for {key}\r\n" > .github\prompts.keys\{key}\rollback-index.md
+if not exist .github\prompts.keys\{key}\rollback-index.md (
+   echo # Rollback Index for {key}> .github\prompts.keys\{key}\rollback-index.md
+   echo >> .github\prompts.keys\{key}\rollback-index.md
+   echo | set /p="| Date | Type | Summary | SHA | Parent |\r\n" >> .github\prompts.keys\{key}\rollback-index.md
+   echo | set /p="|------|------|---------|-----|--------|\r\n" >> .github\prompts.keys\{key}\rollback-index.md
+)
+
+# Append current checkpoint row
+powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); Add-Content '.github/prompts.keys/{key}/rollback-index.md' \"| $d | ckpt | pre-task checkpoint | $sha | - |\""
+
+# Tag the checkpoint for easy discovery
+powershell -NoProfile -Command "$sha=(git rev-parse --short HEAD); $t=Get-Date -Format 'yyyyMMdd-HHmm'; git tag \"key-{key}-ckpt-$t-$sha\""
 ```
 
 This ensures rollback capability if the task introduces instability.
@@ -707,6 +740,18 @@ Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement 
 - [ ] High-priority constraints verified
 - [ ] Tests pass (if applicable)
 ```
+
+---
+
+### Step 3.5: Commit Message Planning and Parent Linkage (MANDATORY)
+
+Before implementation commits, prepare the commit subject to include rollback metadata and lineage:
+
+- Determine `parent` = latest checkpoint short SHA (from `rollback-index.md` last ckpt row)
+- Use format per conventions: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+- Types: `task` for implementation; `test` for generated tests; `hc` for healthcheck-driven doc updates
+
+This guarantees that later “show last 10 commits” queries present a clean, meaningful list with easy rollback anchors.
 
 **Output (based on verbosity):**
 - **Concise:** 3-5 line summary, subtask list, constraint count, approach
