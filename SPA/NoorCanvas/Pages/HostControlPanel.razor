@@ -106,25 +106,35 @@
                         @GetQuestionCount()
                     </span>
                 </button>
-            </div>
-            
-            <HostControlPanelContent Model="@Model" 
-                                     HostToken="@HostToken"
-                                     IsLoading="@isLoading"
-                                     IsBroadcastMode="@isBroadcastMode"
-                                     SessionStartTime="@sessionStartTime"
-                                     SelectedQuestionId="@selectedQuestionId"
-                                     QAPanelOpen="@qaPanelOpen"
-                                     OnEndSession="@EndSession"
-                                     OnBroadcastTranscript="@BroadcastFullTranscript"
-                                     OnMarkQuestionAnswered="@MarkQuestionAnswered"
-                                     OnShowDeleteModal="@ShowDeleteModal"
-                                     OnQuestionClick="@ShareQuestionAsset"
-                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
-                                     OnTranscriptRendered="@HandleTranscriptRendered" />
-        }
-    </div>
-    
+            {
+                @* [WORKITEM:hcp:ui:control-pod] Compact sticky control pod with Q&A toggle and session timer *@
+                <div style="position:sticky; top:1rem; display:flex; justify-content:flex-end; z-index:10;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.92); backdrop-filter:saturate(160%) blur(6px); border:1px solid #C5A84C; border-radius:999px; padding:0.4rem; box-shadow:0 8px 16px rgba(0,0,0,0.12);">
+                        <button type="button"
+                                @onclick="ToggleQAPanel"
+                                @onkeydown="HandleToggleKeyDown"
+                                aria-expanded="@qaPanelOpen"
+                                aria-controls="hcp-qa-panel"
+                                aria-label="Toggle questions panel"
+                                style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
+                                onmouseover="this.style.backgroundColor='#004d00'; this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'"><i class="fa-solid fa-circle-question" style="font-size:1.25rem;"></i>
+                            <span aria-label="@GetQuestionCount() questions"
+                                  style="position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; background-color:#D4AF37; color:#006400; border-radius:999px; font-size:0.7rem; font-weight:800; font-family:'Poppins',sans-serif; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+                                @GetQuestionCount()
+                            </span>
+                        </button>
+
+                        @if (Model?.SessionStatus == "Active" && sessionStartTime.HasValue)
+                        {
+                            <div aria-label="Session elapsed time"
+                                 style="display:flex; align-items:center; gap:0.35rem; background:linear-gradient(180deg, rgba(0,100,0,0.95), rgba(0,80,0,0.95)); color:#D4AF37; border-radius:999px; padding:0.25rem 0.6rem; border:1px solid rgba(197,168,76,0.4); box-shadow:inset 0 1px 2px rgba(255,255,255,0.06);">
+                                <i class="fa-solid fa-clock" style="font-size:0.9rem;color:#D4AF37;"></i>
+                                <span style="font-weight:700; font-family:'Poppins',sans-serif; font-size:1rem; letter-spacing:0.02em;">@GetSessionElapsedTime()</span>
+                            </div>
+                        }
+                    </div>
+                </div>
     <!-- Confirmation Modal - Refactored to use HostControlPanelModal component -->
     <HostControlPanelModal ShowDeleteModal="@showDeleteModal"
                            OnCancelDelete="@CancelDelete"
@@ -169,7 +179,8 @@
 
     // [WORKITEM:hcp:impl:20251022-1836] Collapsible Q&A panel state ;CLEANUP_OK
     private bool qaPanelOpen = false;
-
+    // UI update timer for the control pod's elapsed time display
+    private System.Timers.Timer? uiTimer;
     // User token for generating user landing URL
     private string? UserToken { get; set; }
     
@@ -2713,6 +2724,12 @@
 
     public async ValueTask DisposeAsync()
     {
+        if (uiTimer != null)
+        {
+            try { uiTimer.Stop(); } catch { }
+            uiTimer.Dispose();
+            uiTimer = null;
+        }
         messageTimer?.Dispose();
         
         if (hubConnection != null)
@@ -3956,6 +3973,45 @@
     private int GetQuestionCount()
     {
         return Model?.Questions?.Count() ?? 0;
+    }
+    
+    // [WORKITEM:hcp:ui:control-pod] Format elapsed time display for session (M:SS up to 60m, then H:MM)
+    private string GetSessionElapsedTime()
+    {
+        if (!sessionStartTime.HasValue)
+        {
+            return "0:00";
+        }
+        var elapsed = DateTime.UtcNow - sessionStartTime.Value;
+        var totalMinutes = (int)elapsed.TotalMinutes;
+        if (totalMinutes < 60)
+        {
+            return $"{totalMinutes}:{elapsed.Seconds:D2}";
+        }
+        else
+        {
+            return $"{(int)elapsed.TotalHours}:{elapsed.Minutes:D2}";
+        }
+    }
+
+    // Start/stop the UI timer based on session state and availability of start time
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (uiTimer == null)
+        {
+            uiTimer = new System.Timers.Timer(1000);
+            uiTimer.AutoReset = true;
+            uiTimer.Elapsed += async (s, e) => await InvokeAsync(StateHasChanged);
+        }
+        if (Model?.SessionStatus == "Active" && sessionStartTime.HasValue)
+        {
+            uiTimer.Start();
+        }
+        else
+        {
+            uiTimer.Stop();
+        }
     }
     
     // [DEBUG-WORKITEM:hcp:impl:20251022-1836] phase_1_complete status=in-progress ;CLEANUP_OK

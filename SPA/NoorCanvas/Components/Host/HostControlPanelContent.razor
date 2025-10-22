@@ -122,14 +122,7 @@
                 <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#006400;"></i>
                 <h3 style="font-size:2rem;font-weight:700;color:#006400;margin:0;letter-spacing:-0.02em;font-family:'Roboto',sans-serif;">Questions</h3>
             </div>
-            @* Timer component - inline, right-aligned *@
-            @if (Model?.SessionStatus == "Active" && SessionStartTime.HasValue)
-            {
-                <div style="display:flex;align-items:center;gap:0.5rem;">
-                    <i class="fa-solid fa-clock" style="font-size:1.25rem;color:#D4AF37;"></i>
-                    <span style="font-size:1.5rem;font-weight:700;color:#D4AF37;font-family:'Poppins',sans-serif;">@GetElapsedTime()</span>
-                </div>
-            }
+            @* Timer moved to compact control pod in HostControlPanel.razor *@
         </div>
         
         <!-- Questions List with Independent Scrolling - Vertical Only -->
