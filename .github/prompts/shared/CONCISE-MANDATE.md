@@ -43,6 +43,10 @@ User replies: "A", "A, C", or "all"
 All output → `Workspaces/Copilot/_DOCS/`
 NEVER → `.github/prompts/`
 
+## Commit Checkpoints (Execution Agents Only)
+handoff/task agents MUST commit after each phase.
+See: `commit-checkpoint-protocol.md`
+
 ## Enforcement
 Count bullets before responding.
 If > 15 → You're doing it wrong.

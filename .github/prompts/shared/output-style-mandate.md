@@ -48,3 +48,7 @@
 - Temp → `Workspaces/Copilot/_DOCS/temp/`
 - NEVER → `.github/prompts/` or `.github/instructions/`
 
+## Commit Checkpoints
+Execution agents (handoff/task) create git commits after each phase.
+See: `commit-checkpoint-protocol.md` for PowerShell snippet and format.
+

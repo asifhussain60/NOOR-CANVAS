@@ -27,6 +27,10 @@ Sequential subtasks. `"mark complete"` triggers Step 9.
 ### github-branch *(default=`development`)*
 Target branch per SelfAwareness.instructions.md
 
+### commit-checkpoints *(default=`true`)*
+Create git commit after each task completion (MANDATORY)
+See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+
 Proceed with task without image analysis? (not recommended for complex visual changes)
 ```
 

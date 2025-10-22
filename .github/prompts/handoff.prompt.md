@@ -73,6 +73,8 @@ Classify → include prompts:
 
 ## Execution
 - Auto-execute after 5s (unless "review"/"cancel")
-- Sequential phases → test → 3-attempt retry → next
+- Sequential phases → **CHECKPOINT COMMIT** → test → 3-attempt retry → next
 - NO approval needed between phases
+- **MANDATORY:** Create git commit after EVERY phase (see `commit-checkpoint-protocol.md`)
+- Commit format: `ckpt({key}): Phase {N} - {summary}`
 

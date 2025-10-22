@@ -27,6 +27,9 @@ lastUpdated: 2025-10-22
 - Step 4: Present command
 - Step 5: STOP
 
+**Note:** Execution agents (handoff/task) create git commits after each phase.
+See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+
 ## Key Rules
 - lowercase-with-dashes
 - Fix spelling
