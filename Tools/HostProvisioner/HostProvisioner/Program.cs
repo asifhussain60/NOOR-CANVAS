@@ -436,6 +436,31 @@ class Program
 
             Log.Information("PROVISIONER: Session has {TranscriptCount} transcripts available", transcriptCount);
 
+            // [WORKITEM:host-provisioner] Clear existing canvas data for fresh session state
+            try
+            {
+                Log.Information("PROVISIONER: Clearing existing canvas data for Session {SessionId}...", sessionId);
+                
+                // Clear Participants
+                var participantsDeleted = await context.Participants
+                    .Where(p => p.SessionId == sessionId)
+                    .ExecuteDeleteAsync();
+                
+                // Clear SessionData (questions, votes, etc.)
+                var sessionDataDeleted = await context.SessionData
+                    .Where(sd => sd.SessionId == sessionId)
+                    .ExecuteDeleteAsync();
+                
+                // Note: canvas.Annotations table is deprecated/non-functional and not cleared
+                
+                Log.Information("PROVISIONER: Cleared {ParticipantsCount} participants, {SessionDataCount} session data records for Session {SessionId}",
+                    participantsDeleted, sessionDataDeleted, sessionId);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "PROVISIONER-WARNING: Error clearing canvas data for Session {SessionId}. Continuing with token generation.", sessionId);
+            }
+
             // Create simplified canvas.Sessions record from KSESSIONS data if it doesn't exist
             var existingSession = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
             NoorCanvas.Models.Simplified.Session canvasSession;

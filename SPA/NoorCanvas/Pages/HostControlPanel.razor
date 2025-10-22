@@ -86,6 +86,7 @@
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
         <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
+        @* [WORKITEM:hcp-timer-v2] Removed standalone control pod - Q&A button now in session title header ;CLEANUP_OK *@
         @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" || isBroadcastMode)
         {
             <HostControlPanelContent Model="@Model" 
@@ -94,6 +95,11 @@
                                      IsBroadcastMode="@isBroadcastMode"
                                      SessionStartTime="@sessionStartTime"
                                      SelectedQuestionId="@selectedQuestionId"
+                                     QAPanelOpen="@qaPanelOpen"
+                                     SelectedCanvasType="@selectedCanvasType"
+                                     OnToggleQAPanel="@ToggleQAPanel"
+                                     OnToggleKeyDown="@HandleToggleKeyDown"
+                                     OnGetQuestionCount="@GetQuestionCount"
                                      OnEndSession="@EndSession"
                                      OnBroadcastTranscript="@BroadcastFullTranscript"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
@@ -102,8 +108,9 @@
                                      OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
                                      OnTranscriptRendered="@HandleTranscriptRendered" />
         }
+
     </div>
-    
+        
     <!-- Confirmation Modal - Refactored to use HostControlPanelModal component -->
     <HostControlPanelModal ShowDeleteModal="@showDeleteModal"
                            OnCancelDelete="@CancelDelete"
@@ -146,6 +153,10 @@
     private ErrorDisplay? errorDisplay;
     private Guid? selectedQuestionId; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Track currently selected/shared question ;CLEANUP_OK
 
+    // [WORKITEM:hcp:impl:20251022-1836] Collapsible Q&A panel state ;CLEANUP_OK
+    private bool qaPanelOpen = false;
+    // UI update timer for the control pod's elapsed time display
+    private System.Timers.Timer? uiTimer;
     // User token for generating user landing URL
     private string? UserToken { get; set; }
     
@@ -1372,8 +1383,9 @@
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons') ;CLEANUP_OK", requestId);
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container ID: transcript-content-container ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[WORKITEM:hcp-timer-v2] [{RequestId}] Canvas Type: {CanvasType} (buttons will be injected only for 'transcript') ;CLEANUP_OK", requestId, selectedCanvasType);
             
-            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef, selectedCanvasType);
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JavaScript injection call returned ;CLEANUP_OK", requestId);
             
@@ -2689,6 +2701,12 @@
 
     public async ValueTask DisposeAsync()
     {
+        if (uiTimer != null)
+        {
+            try { uiTimer.Stop(); } catch { }
+            uiTimer.Dispose();
+            uiTimer = null;
+        }
         messageTimer?.Dispose();
         
         if (hubConnection != null)
@@ -3906,13 +3924,74 @@
             }
             else
             {
-                // Capitalize first letter, keep rest as original case
                 properCaseWords.Add(char.ToUpper(word[0]) + word.Substring(1).ToLower());
             }
         }
         
         return string.Join(" ", properCaseWords);
     }
+    
+    // [WORKITEM:hcp:impl:20251022-1836] Toggle Q&A panel visibility ;CLEANUP_OK
+    private void ToggleQAPanel()
+    {
+        qaPanelOpen = !qaPanelOpen;
+    }
+    
+    // [WORKITEM:hcp:impl:20251022-1836] Handle keyboard events for toggle button ;CLEANUP_OK
+    private void HandleToggleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == " " || e.Key == "Spacebar" || e.Key == "Enter")
+        {
+            ToggleQAPanel();
+        }
+    }
+    
+    // [WORKITEM:hcp:impl:20251022-1836] Get current question count for badge ;CLEANUP_OK
+    private int GetQuestionCount()
+    {
+        return Model?.Questions?.Count() ?? 0;
+    }
+    
+    // [WORKITEM:hcp:ui:control-pod] Format elapsed time display for session (M:SS up to 60m, then H:MM)
+    private string GetSessionElapsedTime()
+    {
+        if (!sessionStartTime.HasValue)
+        {
+            return "0:00";
+        }
+        var elapsed = DateTime.UtcNow - sessionStartTime.Value;
+        var totalMinutes = (int)elapsed.TotalMinutes;
+        if (totalMinutes < 60)
+        {
+            return $"{totalMinutes}:{elapsed.Seconds:D2}";
+        }
+        else
+        {
+            return $"{(int)elapsed.TotalHours}:{elapsed.Minutes:D2}";
+        }
+    }
+
+    // Start/stop the UI timer based on session state and availability of start time
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (uiTimer == null)
+        {
+            uiTimer = new System.Timers.Timer(1000);
+            uiTimer.AutoReset = true;
+            uiTimer.Elapsed += async (s, e) => await InvokeAsync(StateHasChanged);
+        }
+        if (Model?.SessionStatus == "Active" && sessionStartTime.HasValue)
+        {
+            uiTimer.Start();
+        }
+        else
+        {
+            uiTimer.Stop();
+        }
+    }
+    
+    // [DEBUG-WORKITEM:hcp:impl:20251022-1836] phase_1_complete status=in-progress ;CLEANUP_OK
     
     // Format duration from string value (e.g., "60") to display format (e.g., "1 hour")
     private static string FormatDurationFromString(string? durationString)

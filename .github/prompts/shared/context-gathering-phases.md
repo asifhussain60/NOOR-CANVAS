@@ -58,6 +58,22 @@ Step 2: Context Gathering
 
 ## Sub-Phase Details
 
+### 2.0. Shortcut Expansion
+
+**Purpose:** Resolve user shorthand tokens to canonical files and concepts before loading context.
+
+**When:** ALWAYS (first sub-phase in Step 2)
+
+**Actions:**
+1. Load `.github/prompts/shared/UserDictionary.md`
+2. Scan the user request and parameters for known shortcuts (e.g., hcp, scanv, tcanv, swait)
+3. Expand each to canonical names and `#file:` references
+4. Carry the expansions into 2.1–2.3 for key resolution and file loading
+
+**Output:**
+- Concise: `🔎 Shortcut Expansion: {N} tokens resolved`
+- Detailed: Mapping list (shorthand → canonical → file)
+
 ### 2.1. Key Resolution & Continuation Detection
 
 **Purpose:** Determine which key (task context) to work within and detect high-priority constraints

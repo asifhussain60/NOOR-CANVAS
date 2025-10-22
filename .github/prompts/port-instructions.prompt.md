@@ -9,6 +9,30 @@ You are the **Portability Agent** - responsible for creating generic, reusable t
 
 ---
 
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Provide two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
+- NEVER include code or pseudocode in user-facing content.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
+
+### Documentation Output Rules (NEW)
+- Do NOT create/save any Markdown under `.github/prompts/` or `.github/instructions/`.
+- All agent-generated Markdown must be saved under `Workspaces/Copilot/_DOCS/`:
+  - Analysis → `Workspaces/Copilot/_DOCS/analysis/`
+  - Summaries/Reports → `Workspaces/Copilot/_DOCS/summaries/`
+  - Temporary notes → `Workspaces/Copilot/_DOCS/temp/`
+  - Config/migration docs → `Workspaces/Copilot/_DOCS/{configs|migrations}/`
+  - Exception: `.github/prompts.keys/` remains for key data streams.
+
+### Shortcut Dictionary Evaluation (MANDATORY)
+- During analysis, evaluate `.github/prompts/shared/UserDictionary.md` and expand any detected shortcuts (e.g., hcp, scanv, tcanv) to canonical names and file references.
+- Use the expanded mapping to load the correct source files before creating templates.
+
+---
+
 ## Parameters
 
 ### prompt *(optional)*
@@ -94,8 +118,8 @@ All templates MUST use these standardized variables:
 #### Project Identity
 - `{{PROJECT_NAME}}` - Project name (e.g., "NOOR CANVAS" → "MyProject")
 - `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, Ruby, Go, PHP)
-- `{{LANGUAGES}}` - Programming languages (e.g., "C#, JavaScript, TypeScript")
-- `{{FRAMEWORKS}}` - Frameworks/libraries (e.g., "ASP.NET Core, Blazor, SignalR")
+- `{{LANGUAGES}}` - Programming languages (e.g., "CSharp; JavaScript; TypeScript")
+- `{{FRAMEWORKS}}` - Frameworks/libraries (e.g., "ASP.NET Core; Blazor; SignalR")
 
 #### Build & Test
 - `{{BUILD_COMMAND}}` - Build command (e.g., `dotnet build`, `npm run build`, `mvn package`)
@@ -265,13 +289,13 @@ foreach ($learningFile in $learningFiles) {
 **Meta-prompts are always updated regardless of selective mode:**
 
 ```powershell
-# Update port-instructions.prompt.md
-Copy-Item ".github/_Portable/prompts/port-instructions.prompt.md" `
+# Update port-instructions.prompt.md (entry point)
+Copy-Item ".github/prompts/port-instructions.prompt.md" `
           ".github/_Portable/prompts/port-instructions.prompt.md" -Force
 
-# Update total-recall.prompt.md
-Copy-Item ".github/_Portable/prompts/total-recall.prompt.md" `
-          ".github/_Portable/prompts/total-recall.prompt.md" -Force
+# Update total-recall.prompt.md (internal knowledge)
+Copy-Item ".github/prompts/internal/knowledge/total-recall.prompt.md" `
+          ".github/_Portable/prompts/internal/knowledge/total-recall.prompt.md" -Force
 
 Write-Host "✅ Updated: Meta-prompts (port-instructions, total-recall)"
 ```
@@ -447,9 +471,9 @@ Files to template:
 
 **Template Header (add to every template file):**
 ```markdown
-# Generic Template - Customized During Setup
+# Generic Template — Configured by total-recall
 
-**NOTE:** This is a TEMPLATE file. Run `.github\_Portable\setup.bat` to generate a project-specific version.
+NOTE: This is a TEMPLATE file. To configure for your project, run the total-recall agent. It will write configured files under `.github/_Portable/_Configured/`. Review and then copy into `.github/`.
 
 **Template Variables:**
 - `{{PROJECT_NAME}}` - Your project name
@@ -470,15 +494,24 @@ Files to template:
 
 **Create:** `.github/_Portable/prompts/*.template`
 
-Files to template:
+Files to template (Entry Points):
+- `handoff.prompt.md` → `handoff.prompt.md.template`
 - `task.prompt.md` → `task.prompt.md.template`
-- `refactor.prompt.md` → `refactor.prompt.md.template`
-- `sync.prompt.md` → `sync.prompt.md.template`
-- `healthcheck.prompt.md` → `healthcheck.prompt.md.template`
-- `question.prompt.md` → `question.prompt.md.template`
+- `create-plan.prompt.md` → `create-plan.prompt.md.template`
 - `test-generation.prompt.md` → `test-generation.prompt.md.template`
-- `analyze-learning.prompt.md` → `analyze-learning.prompt.md.template`
-- `cohesion-review.prompt.md` → `cohesion-review.prompt.md.template`
+- `healthcheck.prompt.md` → `healthcheck.prompt.md.template`
+- `port-instructions.prompt.md` → `port-instructions.prompt.md.template`
+
+Files to template (Internal, do not call directly):
+- `internal/knowledge/analyze-learning.prompt.md` → `internal/knowledge/analyze-learning.prompt.md.template`
+- `internal/knowledge/total-recall.prompt.md` → `internal/knowledge/total-recall.prompt.md.template`
+- `internal/util/cleanup.prompt.md` → `internal/util/cleanup.prompt.md.template`
+- `internal/ops/sync.prompt.md` → `internal/ops/sync.prompt.md.template`
+- `internal/quality/cohesion-review.prompt.md` → `internal/quality/cohesion-review.prompt.md.template`
+- `internal/quality/refactor.prompt.md` → `internal/quality/refactor.prompt.md.template`
+- `internal/comm/commit.prompt.md` → `internal/comm/commit.prompt.md.template`
+- `internal/util/question.prompt.md` → `internal/util/question.prompt.md.template`
+- `internal/comm/ask.prompt.md` → `internal/comm/ask.prompt.md.template`
 
 **Template Structure:**
 - Add template header (same as instructions)
@@ -488,7 +521,7 @@ Files to template:
 
 **CRITICAL PROTOCOL ENFORCEMENT:**
 
-For `feature.prompt.md` template, **MUST ENFORCE** the correct handoff protocol in Step 6:
+For `create-plan.prompt.md` template, **MUST ENFORCE** the correct handoff protocol in Step 6:
 
 ```markdown
 ### Step 6: MANDATORY Handoff Protocol (CRITICAL)
@@ -522,7 +555,7 @@ For `feature.prompt.md` template, **MUST ENFORCE** the correct handoff protocol 
 - ❌ "You must actually SEND this message to trigger the task agent"
 - ❌ "Show handoff commands to user (handoff is automatic)"
 
-**This ensures feature.prompt.md templates NEVER execute directly - they only plan and present handoff commands.**
+**This ensures create-plan.prompt.md templates NEVER execute directly - they only plan and present handoff commands.**
 
 #### 3.3 Shared Documentation (Copy As-Is)
 
@@ -553,14 +586,14 @@ Files to copy WITHOUT templating (these are universal):
 
 **Create:** `.github/_Portable/learning/`
 
-**Copy these files AS-IS:**
+**Copy these files AS-IS (if present):**
 - `README.md` (already generic)
 - `PATTERN_SCHEMA.md` (already generic)
 
-**Create EMPTY template files with structure:**
+**Create EMPTY structure:**
 - `patterns/` folder → Create empty `.gitkeep`
-- `insights/` folder → Create empty `.gitkeep`
 - `recommendations/` folder → Create empty `.gitkeep`
+- If your source has an `insights/` folder, mirror it; otherwise skip
 
 **Create SAMPLE files:**
 - `error-patterns.json` → Empty array with schema comment
@@ -640,15 +673,13 @@ For EACH template file:
 5. ✅ Logic and workflows preserved
 6. ✅ Comments explain template usage
 
-**Verify Setup Scripts:**
+**Verify Configuration (total-recall):**
 
 1. ✅ Handles all supported project types
-2. ✅ Interactive prompts for required values
-3. ✅ Auto-detection works correctly
-4. ✅ Template replacement works
-5. ✅ Folder creation succeeds
-6. ✅ Tool installation optional
-7. ✅ Summary generated
+2. ✅ Auto-detection works correctly
+3. ✅ Template replacement works (writes to `_Configured`)
+4. ✅ Folder creation succeeds
+5. ✅ Summary generated
 
 **Verify Documentation:**
 
@@ -666,7 +697,7 @@ For EACH template file:
 
 #### Full Regeneration Mode Summary
 
-**Generate Report:**
+**Generate Report (save to `Workspaces/Copilot/_DOCS/summaries/port-instructions-execution-summary-{YYYYMMDD-HHMM}.md`):**
 
 ```markdown
 # Port Instructions Execution Summary
@@ -695,9 +726,8 @@ For EACH template file:
 **Learning:** Structure created with samples
 - [List folders and sample files]
 
-### 3. Setup Scripts
-- ✅ setup.bat created ([X] lines)
-- ✅ setup.ps1 created ([X] lines)
+### 3. Configuration
+- ✅ total-recall configuration flow verified
 - ✅ Supports project types: [list]
 
 ### 4. Documentation
@@ -720,14 +750,13 @@ For EACH template file:
 ## Usage Instructions
 
 **For New Projects:**
-1. Copy .github/_Portable/ to new project
-2. cd .github/_Portable
-3. Run setup.bat (Windows) or ./setup.ps1 (PowerShell)
-4. Follow interactive prompts
-5. Start using agents: @workspace /question "What agents are available?"
+1. Copy `.github/_Portable/` to the new project's `.github/_Portable/`
+2. Run the total-recall agent in the new project with `run_mode=apply`
+3. Review generated files under `.github/_Portable/_Configured/`
+4. Copy the configured files into `.github/`
+5. Start using agents (e.g., `@workspace /handoff ...`)
 
 ## Next Steps
-- Test setup.bat in fresh project
 - Verify all template variables populate correctly
 - Update version number in STATUS.md
 - Consider adding more sample patterns to learning/
@@ -737,7 +766,7 @@ For EACH template file:
 
 **NOTE:** This summary is shown in Step 0.5.8, not Step 7 (which is skipped in selective mode).
 
-**Generate Report:**
+**Generate Report (save to `Workspaces/Copilot/_DOCS/summaries/port-instructions-selective-update-{YYYYMMDD-HHMM}.md`):**
 
 ```markdown
 # Port Instructions Execution Summary (Selective Update)

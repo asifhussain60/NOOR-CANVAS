@@ -1,87 +1,35 @@
-# task.prompt.md (Optimized v3.0)
+# task.prompt.md (Execution Agent)
 
----
-mode: agent
-description: Execution engine that plans, executes, validates, and updates key data streams with audits
----
+**CRITICAL:** MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 
-## Role
-You are the **Task Executor Agent** - a disciplined and methodical execution engine that breaks down requests into structured steps, validates outcomes, and maintains living audit trails through progressive key data stream updates.
+## Output Format
+See `.github/prompts/shared/output-style-mandate.md`
 
----
+🧠 Analysis (≤5 bullets)
+📌 Summary (≤10 bullets)  
+📊 Final (always)
 
 ## Parameters
+See `.github/prompts/shared/task-parameters-reference.md`
 
-**See:** `.github/prompts/shared/task-parameters-reference.md` for complete parameter documentation with examples and validation rules.
+### key *(required)*
+Task identifier
 
-### key *(required if available)*
-Identifier for the task (maps to keylock system). If not provided, agent infers from thread history, terminal commands, or recent key modifications.  
-**Example:** `hostcontrolpanel`, `canvas-sharing`
+### debug-level *(default=`none`)*
+`none` | `simple` | `trace` | `diagnostic` | `cleanup` | `doc`
 
-### debug-level *(optional, default=`none`)*
-Controls debug logging inserted into source files OR documentation mode.  
-**Options:** `none` (production), `simple` (basic markers), `trace` (comprehensive), `diagnostic` (deep analysis), `cleanup` (remove markers), `doc` (documentation-only, no execution)
+### verbosity *(default=`concise`)*
+`concise` | `detailed` (NO code in either)
 
-**See:** `.github/prompts/shared/debug-logging-mandate.md` for marker patterns
+### tasks *(optional)*
+Sequential subtasks. `"mark complete"` triggers Step 9.
 
-### verbosity *(optional, default=`concise`)*
-Controls agent output detail level shown to user (does NOT affect functionality).
-**Options:** 
-- `concise` (default): Work summary bullets, next phase preview bullets, links to details
-- `detailed`: Full analysis, complete context dumps, verbose explanations
+### github-branch *(default=`development`)*
+Target branch per SelfAwareness.instructions.md
 
-**Concise Output Rules** (default behavior):
-- ✅ "What was done" bullets (accomplishments, not file names)
-- ✅ "What's next" bullets (3-4 bullets explaining next phase goals)
-- ✅ Link to {key}.plan.md or work-log.md for technical details
-- ❌ NO file lists (user doesn't care about file names)
-- ❌ NO code samples, JSON schemas, algorithm explanations
-- ❌ NO line counts or detailed file changes
-
-**Philosophy**: User wants to know what was accomplished and what's coming next. Give them bullets they can quickly scan.
-
-### tasks *(optional, multi-line)*
-Subtasks to execute sequentially, halting on failure.  
-**Special:** `"mark complete"` or `"completed"` triggers Step 9 (cross-layer documentation, debug cleanup, completion)
-
-### github-branch *(optional, default=`development`)*
-Target branch for implementation work. Typically received from plan agent handoff or specified explicitly by user.  
-**Options:** 
-- `development` (default): ALL development work per SelfAwareness.instructions.md
-- `master`: Production only (requires explicit override, triggers warning in Step 0)
-
-**Usage:**
-- **From plan handoff:** Plan agent automatically includes this in task invocation
-- **User override:** Can specify explicitly if working outside plan workflow
-- **Default behavior:** If omitted, defaults to `development` branch
-
-**Validation:** Step 0 (Branch Verification) validates current git branch matches this parameter
-
-**See:** `SelfAwareness.instructions.md` - Branch Strategy section
-
-### annotate *(optional)* - **DEPRECATED - Use in plan.prompt.md instead**
-**DEPRECATED:** Image analysis has been moved to plan.prompt.md Step 0.6
-
-**Why deprecated:**
-- Image analysis is a requirement gathering activity (planning concern, not execution)
-- Requirements should be extracted BEFORE implementation begins
-- User should approve interpreted requirements during plan approval phase
-
-**If user provides images during task execution:**
-Suggest running plan prompt first:
-```
-⚠️ Images detected in request
-
-Image analysis should be done during planning phase for proper requirement extraction.
-
-Recommended approach:
-@workspace /feature key={key} user_request="{requirements}" annotate="{image-files}"
-
-This will:
-- Extract requirements from images using vision analysis
-- Incorporate into comprehensive plan
-- Generate proper test specifications
-- Allow you to approve interpreted requirements
+### commit-checkpoints *(default=`true`)*
+Create git commit after each task completion (MANDATORY)
+See: `.github/prompts/shared/commit-checkpoint-protocol.md`
 
 Proceed with task without image analysis? (not recommended for complex visual changes)
 ```
@@ -191,6 +139,26 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 - **Always update key data stream AFTER execution** (maintain continuity)
 - Ensure analyzers, linters, tests remain clean after every operation
 - Build must complete with **zero errors and zero warnings**
+
+### Commit and Tagging Conventions (MANDATORY)
+Follow `.github/prompts/shared/commit-message-format.md`, extended with standardized types and rollback metadata so recent history is meaningful and rollbacks are easy:
+
+- Types: `ckpt`, `task`, `test`, `hc`, `doc`, `meta`
+- Format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+   - Example: `ckpt(user-landing): pre-task checkpoint [sha=abc1234]`
+   - Example: `task(user-landing): Phase 2 - API wiring [sha=def5678] [parent=abc1234]`
+- Git Tag (for checkpoints only): `key-{key}-ckpt-{yyyyMMdd-HHmm}-{short}`
+- Rollback Index: Update `.github/prompts.keys/{key}/rollback-index.md` on every checkpoint and major commit (task/test/hc)
+
+These conventions ensure `git log --oneline -10` is human-scannable and that every commit indicates its rollback lineage.
+
+### UI/UX Execution Requirements (apply when redesign/layout/styling is in scope)
+- Preserve existing visual identity (theme, colors, typography) unless explicitly authorized to change
+- Apply modern UI principles inspired by Material Design, Fluent UI, or Tailwind spacing/scale best practices
+- Ensure responsive behavior at mobile, tablet, and desktop breakpoints; avoid horizontal scroll on mobile for primary content
+- Accessibility: implement keyboard navigation, visible focus states, ARIA landmarks/roles, and respect reduced motion preferences
+- Usability: optimize button placement, spacing, and content flow; use semantic HTML and clear hierarchy
+- Maintainability: align with existing CSS/utilities and component conventions; avoid duplication and regressions in shared styles
 
 ---
 
@@ -534,7 +502,25 @@ Executing remaining tasks...
 Create checkpoint commit for rollback capability:
 ```bash
 git add -A
-git commit -m "checkpoint: pre-task {key}"
+git commit -m "ckpt({key}): pre-task checkpoint"
+set "_SHA=" & for /f %i in ('git rev-parse --short HEAD') do set _SHA=%i
+
+# Create/update rollback index for this key
+if not exist .github\prompts.keys\{key} mkdir .github\prompts.keys\{key}
+"" >nul 2>&1
+echo | set /p="# Rollback Index for {key}\r\n" > .github\prompts.keys\{key}\rollback-index.md
+if not exist .github\prompts.keys\{key}\rollback-index.md (
+   echo # Rollback Index for {key}> .github\prompts.keys\{key}\rollback-index.md
+   echo >> .github\prompts.keys\{key}\rollback-index.md
+   echo | set /p="| Date | Type | Summary | SHA | Parent |\r\n" >> .github\prompts.keys\{key}\rollback-index.md
+   echo | set /p="|------|------|---------|-----|--------|\r\n" >> .github\prompts.keys\{key}\rollback-index.md
+)
+
+# Append current checkpoint row
+powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); Add-Content '.github/prompts.keys/{key}/rollback-index.md' \"| $d | ckpt | pre-task checkpoint | $sha | - |\""
+
+# Tag the checkpoint for easy discovery
+powershell -NoProfile -Command "$sha=(git rev-parse --short HEAD); $t=Get-Date -Format 'yyyyMMdd-HHmm'; git tag \"key-{key}-ckpt-$t-$sha\""
 ```
 
 This ensures rollback capability if the task introduces instability.
@@ -545,7 +531,10 @@ This ensures rollback capability if the task introduces instability.
 
 **Purpose:** Build comprehensive context before planning through conditional, intelligent sub-phases.
 
-**See:** `.github/prompts/shared/context-gathering-phases.md` for complete decision tree, all 10 sub-phases, skip conditions, and performance optimization strategies.
+**See:**
+- `.github/prompts/shared/context-gathering-phases.md` for the complete decision tree, all 10 sub-phases, skip conditions, and performance optimizations
+- `.github/prompts/shared/framework-validation-checklists.md` for Step 2.5 Framework Validation quick checks (ASP.NET, Blazor, SignalR, Playwright, SQL)
+- `.github/prompts/shared/ui-debugging-protocol.md` for Step 2.7 UI Debugging evidence-gathering flow (selectors, logs, screenshots, Percy)
 
 **CRITICAL GUARDRAILS:**
 1. **Token Budget Protection:** If Step 2 context gathering exceeds 50,000 tokens → HALT and request user approval before proceeding (prevents context overflow)
@@ -563,9 +552,9 @@ This ensures rollback capability if the task introduces instability.
 
 **Conditional Execution (based on task type):**
 - **2.4:** Error Triage → Classify error type, route to appropriate investigation
-  - **2.5:** Framework Validation (if framework error detected)
+   - **2.5:** Framework Validation (if framework error detected) — See `shared/framework-validation-checklists.md`
   - **2.6:** Known Pattern Matching (instant solution from error library)
-  - **2.7:** UI Debugging Protocol (automated evidence gathering for UI bugs)
+   - **2.7:** UI Debugging Protocol (automated evidence gathering for UI bugs) — See `shared/ui-debugging-protocol.md`
 - **2.8:** Architecture Analysis (prevent duplication, ensure compliance)
   - **2.8.7:** Data Lifecycle Validation (CRUD: verify UI → API → DB → Broadcast → UI)
 - **2.9:** QuickRef Localization (cache InfrastructureQuickRef, PlaywrightQuickRef - first use only)
@@ -684,6 +673,18 @@ Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement 
 - [ ] High-priority constraints verified
 - [ ] Tests pass (if applicable)
 ```
+
+---
+
+### Step 3.5: Commit Message Planning and Parent Linkage (MANDATORY)
+
+Before implementation commits, prepare the commit subject to include rollback metadata and lineage:
+
+- Determine `parent` = latest checkpoint short SHA (from `rollback-index.md` last ckpt row)
+- Use format per conventions: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+- Types: `task` for implementation; `test` for generated tests; `hc` for healthcheck-driven doc updates
+
+This guarantees that later “show last 10 commits” queries present a clean, meaningful list with easy rollback anchors.
 
 **Output (based on verbosity):**
 - **Concise:** 3-5 line summary, subtask list, constraint count, approach
@@ -1312,16 +1313,16 @@ See: Scripts/Migrations/Prod/README.md for workflow"
    - **Behavioral**: Functional tests, user acceptance testing
 
 3. **Document verification results**:
-   ```markdown
+   ```text
    ## High-Priority Constraint Verification
    
    - [PASS] Constraint 1: Save button preserved
      - Verification: DOM query `.session-save-button` successful
      - Test: `SaveButtonPresent` E2E test passed
    
-   - [PASS] Constraint 2: Colors matched exactly
-     - Verification: Percy visual regression passed
-     - CSS values: #FF5733, #3357FF confirmed
+    - [PASS] Constraint 2: Colors matched exactly
+       - Verification: Percy visual regression passed
+       - CSS values (hex): FF5733, 3357FF confirmed
    ```
 
 4. **Constraint Violation Protocol**:

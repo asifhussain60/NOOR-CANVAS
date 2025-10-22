@@ -527,6 +527,9 @@ namespace HostProvisioner.WinForms
                 Clipboard.SetText(text);
                 lblStatus.Text = $"✓ {label} copied to clipboard!";
                 lblStatus.ForeColor = NoorGreen;
+                
+                // [WORKITEM:hp-autoclose] Close application after successful copy
+                this.Close();
             }
             catch (Exception ex)
             {
@@ -548,6 +551,9 @@ namespace HostProvisioner.WinForms
                 
                 lblStatus.Text = "✓ Browser opened!";
                 lblStatus.ForeColor = NoorGreen;
+                
+                // [WORKITEM:hp-autoclose] Close application after successful browser launch
+                this.Close();
             }
             catch (Exception ex)
             {

@@ -17,6 +17,7 @@ _DOCS/
 
 ### For AI Agents
 - **NEVER** create documentation files in the project root
+- **NEVER** create or save any Markdown files under `.github/prompts/` or `.github/instructions/`
 - **ALWAYS** place analysis and summary files in the appropriate subdirectory
 - Use descriptive filenames with dates when relevant
 - Follow the naming convention: `DESCRIPTION-SUMMARY.md` or `DESCRIPTION-ANALYSIS.md`
@@ -64,4 +65,4 @@ This directory should be cleaned periodically to remove outdated documentation. 
 ---
 
 **Created:** September 27, 2025  
-**Last Updated:** September 27, 2025
+**Last Updated:** October 22, 2025

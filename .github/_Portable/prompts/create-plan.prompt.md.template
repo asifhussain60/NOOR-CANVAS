@@ -1,0 +1,47 @@
+# Generic Template — Configured by total-recall
+
+NOTE: This is a TEMPLATE file. Run `@workspace /total-recall` to generate a project-specific version under `.github/_Portable/_Configured/`.
+
+—
+
+# create-plan.prompt.md (Feature Planning Agent v1.1)
+
+---
+mode: agent
+purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
+inputs: key, user_request, context, scope, constraints, include_suggestions
+outputs: Finalized plan recorded in .github/prompts.keys/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
+lastUpdated: 2025-10-22
+---
+
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
+- Use "📌 Summary for You" for user-facing bullets only.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, and Recommendations.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), and the attachments note.
+
+---
+
+## 🔴 READ THIS FIRST - Critical Protocol Violation Prevention
+
+### The No. 1 Rule: NEVER Dump Full Plans in Chat
+
+**❌ If you're about to paste 200+ lines in chat → STOP**
+
+**This is the PLANNING phase, not the DOCUMENTATION phase.**
+
+**Your job in Step 2 (Iterative Refinement):**
+- ✅ Show 30-50 line **concise draft** with bullets
+- ✅ Get user approval on approach
+- ✅ Collect enhancement selections
+- ✅ Answer open questions
+
+**Your job in Step 6 (After user says "proceed"):**
+- ✅ Write **complete technical details** to `.github/prompts.keys/{key}/{key}.plan.md`
+- ✅ Write JSON tracking to `{key}.plan.json`
+- ✅ Write execution log to `work-log.md`
+- ✅ Tell user: "Say 'proceed' to begin Phase 1"
+
+... (content identical to source prompt)

@@ -9,7 +9,7 @@
 ## Overview
 
 Successfully implemented a cohesive three-agent system where:
-- **feature.prompt.md** orchestrates (analyzes, recommends, prepares handoff)
+- **create-plan.prompt.md** orchestrates (analyzes, recommends, prepares handoff)
 - **task.prompt.md** executes (implements phases, updates tracking)
 - **test-generation.prompt.md** verifies (generates tests from specifications)
 

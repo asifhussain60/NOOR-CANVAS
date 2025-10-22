@@ -141,7 +141,6 @@ D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\obj\Debug
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\obj\Debug\net8.0-windows\HostProvisioner.WinForms.pdb
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\obj\Debug\net8.0-windows\HostProvisioner.WinForms.genruntimeconfig.cache
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\obj\Debug\net8.0-windows\ref\HostProvisioner.WinForms.dll
-D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\bin\Debug\net8.0-windows\appsettings.local.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\bin\Debug\net8.0-windows\Microsoft.AspNetCore.Authorization.dll
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\bin\Debug\net8.0-windows\Microsoft.AspNetCore.Components.dll
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner.WinForms\bin\Debug\net8.0-windows\Microsoft.AspNetCore.Components.Forms.dll

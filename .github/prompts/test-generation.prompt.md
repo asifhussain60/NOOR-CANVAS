@@ -5,6 +5,39 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 
 # Test Generation Agent
 
+**Version:** 1.1.0  
+**Last Updated:** 2025-10-22  
+**Changelog:**
+- Add canonical references to shared/playwright-test-generation.md and shared/test-orchestration-patterns.md for centralized guidance
+
+---
+
+## Commit and Rollback Conventions (MANDATORY)
+Follow `.github/prompts/shared/commit-message-format.md` with added rollback metadata so test-related commits are meaningful and traceable:
+
+- Types: `ckpt`, `test` (use `test` for generated/updated tests and orchestration scripts)
+- Format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+  - Example: `test({key}): add scenario 'asset-card-visibility' [sha=abc1234] [parent=zz99yy1]`
+- Rollback Index: Append a row to `.github/prompts.keys/{key}/rollback-index.md` after generating tests
+
+When invoked standalone (not via task prompt), create a checkpoint before generating tests using the `ckpt` type and tag it (see task conventions). Otherwise, reuse the latest `ckpt` parent from the task flow.
+
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
+- NEVER include code or pseudocode in user-facing content.
+- BEFORE implementation (planning for tests): include Work Requested (with key), Affected areas (files/infrastructure/db), phased Plan, Recommendations, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
+
+
+## Canonical Playwright Guidance
+For detailed patterns, decision matrices, and examples, see:
+- `.github/prompts/shared/playwright-test-generation.md` (selectors, wait strategies, Percy usage, multi-user flows)
+- `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management)
+
+
 ## Initial Validation (MANDATORY)
 
 ### Step 0: Key Folder Existence Validation
@@ -18,20 +51,31 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
    - If NOT exists → HALT immediately
    - Error message to user:
-     ```
-     ❌ ERROR: Key folder does not exist
-     
-     Key: {key}
-     Expected path: .github/prompts.keys/{key}/
-     
-     Test generation requires an initialized key data stream.
-     
-     REQUIRED ACTION:
-     1. Run feature planning agent first:
-        @workspace /feature key={key} user_request="{your requirements}"
-     
-     2. After planning, run task agent:
-        @workspace /task key={key} tasks="..."
+    ```powershell
+    # Commit generated tests and scripts
+    git add -A
+    git commit -m "test({key}): {short summary of scenario}"
+
+    # Update rollback index with lineage
+    $sha = (git rev-parse --short HEAD).Trim()
+    $dir = ".github/prompts.keys/{key}"
+    $idx = Join-Path $dir "rollback-index.md"
+    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+    if (-not (Test-Path $idx)) {
+      @(
+        "# Rollback Index for {key}",
+        "",
+        "| Date | Type | Summary | SHA | Parent |",
+        "|------|------|---------|-----|--------|"
+      ) | Set-Content -Path $idx -NoNewline:$false
+    }
+    $now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $parent = (git log --oneline --grep '^ckpt\(' -n 1 | ForEach-Object { ($_ -split ' ')[0] })
+    Add-Content $idx "| $now | test | {short summary of scenario} | $sha | $parent |"
+
+    git add $idx
+    git commit -m "meta({key}): update rollback-index [sha=$sha]"
+    ```
      
      3. Task agent will invoke test-generation automatically when needed
      
@@ -127,6 +171,29 @@ git checkout development
 
 ---
 
+## Test Commit and Rollback Index Update (MANDATORY)
+
+After generating/placing tests and orchestration scripts, commit with lineage and update rollback index:
+
+```bash
+git add -A
+git commit -m "test({key}): {short summary of scenario}"
+for /f %i in ('git rev-parse --short HEAD') do set _TSHA=%i
+
+# Resolve latest checkpoint parent (short) from rollback-index (if present)
+powershell -NoProfile -Command "if (Test-Path '.github/prompts.keys/{key}/rollback-index.md') { (Get-Content '.github/prompts.keys/{key}/rollback-index.md' | Select-String -Pattern '\| .* \| ckpt \| .* \| ([0-9a-f]{7,8}) \|' -AllMatches | Select-Object -Last 1).Matches.Groups[1].Value }"
+
+# Append row
+powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); $parent=(git log --oneline -n 1 --grep '^ckpt\(' | ForEach-Object { ($_ -split ' ')[0] }); if (!(Test-Path '.github/prompts.keys/{key}/rollback-index.md')) { Add-Content '.github/prompts.keys/{key}/rollback-index.md' '# Rollback Index for {key}'; Add-Content '.github/prompts.keys/{key}/rollback-index.md' ''; Add-Content '.github/prompts.keys/{key}/rollback-index.md' '| Date | Type | Summary | SHA | Parent |'; Add-Content '.github/prompts.keys/{key}/rollback-index.md' '|------|------|---------|-----|--------|'; }; Add-Content '.github/prompts.keys/{key}/rollback-index.md' \"| $d | test | {short summary of scenario} | $sha | $parent |\""
+
+git add .github/prompts.keys/{key}/rollback-index.md
+git commit -m "meta({key}): update rollback-index [sha=%_TSHA%]"
+```
+
+This guarantees the last 10 commits show a clear sequence: checkpoint → test generation → meta update, each with short SHAs for quick rollback decisions.
+
+---
+
 ## Plan Integration Protocol
 
 **WHEN invoked with `key` parameter:**
@@ -197,8 +264,50 @@ CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION
 
 **See `.github/prompts/shared/test-orchestration-patterns.md` for complete template with comments and error handling.**
 
+**BUILD TIMING AWARENESS (MANDATORY):**
+
+.NET builds can take significantly longer on first run due to:
+- Norton antivirus scanning (adds ~20 seconds on first build)
+- NuGet package restoration
+- Roslyn analyzer initialization
+- Cold start compilation
+
+**Intelligent timeout strategy:**
+- **First build detection:** Check if `obj/` and `bin/` directories exist
+  - If missing → First build: Use 90-second timeout
+  - If present → Subsequent build: Use 60-second timeout
+- **Build state tracking:** Store last build timestamp in temp file
+  - If last build >2 hours ago → Treat as first build (Norton re-scans)
+  - If last build <2 hours ago → Use reduced timeout
+
 ```powershell
 # Scripts/run-{feature}-test.ps1
+
+# STEP 0: Determine appropriate timeout based on build state
+$objPath = Join-Path "{{APP_WORKING_DIR}}" "obj"
+$binPath = Join-Path "{{APP_WORKING_DIR}}" "bin"
+$buildStatePath = Join-Path $env:TEMP "noorcanvas-last-build.txt"
+
+$isFirstBuild = $false
+if (-not (Test-Path $objPath) -or -not (Test-Path $binPath)) {
+    $isFirstBuild = $true
+    Write-Host "[INFO] First build detected (obj/bin missing) - using extended timeout (90s)"
+}
+elseif (Test-Path $buildStatePath) {
+    $lastBuild = [DateTime]::ParseExact((Get-Content $buildStatePath), 'yyyy-MM-dd HH:mm:ss', $null)
+    $hoursSinceLastBuild = ((Get-Date) - $lastBuild).TotalHours
+    if ($hoursSinceLastBuild -gt 2) {
+        $isFirstBuild = $true
+        Write-Host "[INFO] Cold build detected (>2h since last) - using extended timeout (90s)"
+    }
+}
+else {
+    $isFirstBuild = $true
+    Write-Host "[INFO] No build history found - using extended timeout (90s)"
+}
+
+$timeout = if ($isFirstBuild) { 90 } else { 60 }
+Write-Host "[INFO] Health check timeout: $timeout seconds"
 
 # STEP 1: Cleanup existing processes
 Get-Process -Name "{{APP_PROCESS_NAME}}" -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -210,8 +319,7 @@ $app = Start-Process "{{APP_LAUNCH_COMMAND}}" `
     -PassThru -WindowStyle Minimized
 
 try {
-    # STEP 3: Health check polling (NOT fixed delays)
-    $timeout = 60
+    # STEP 3: Health check polling (NOT fixed delays) with intelligent timeout
     $startTime = Get-Date
     $healthCheck = "{{APP_HEALTH_CHECK_URL}}"
     
@@ -220,7 +328,12 @@ try {
         try {
             $response = Invoke-WebRequest -Uri $healthCheck -TimeoutSec 2 -UseBasicParsing
             if ($response.StatusCode -eq 200) {
-                Write-Host "[OK] App ready"
+                $elapsed = ((Get-Date) - $startTime).TotalSeconds
+                Write-Host "[OK] App ready in $([math]::Round($elapsed, 1))s"
+                
+                # Update build state for next run
+                $now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                $now | Set-Content -Path $buildStatePath
                 break
             }
         }
@@ -228,7 +341,8 @@ try {
         
         $elapsed = ((Get-Date) - $startTime).TotalSeconds
         if ($elapsed -gt $timeout) {
-            Write-Host "[ERROR] Timeout waiting for app"
+            Write-Host "[ERROR] Timeout waiting for app (${timeout}s exceeded)"
+            Write-Host "[INFO] First build? Norton antivirus may be scanning (adds ~20s)"
             exit 1
         }
     } while ($true)
@@ -377,6 +491,17 @@ Receive from task.prompt.md or plan.prompt.md:
 - Theme changes (dark mode, Blazor themes)
 - Layout refactoring (grid systems, flexbox)
 - Animation/transition verification
+
+### Accessibility and Responsive Verification Addendum (for UI/UX redesign tasks)
+- Accessibility checks (basic, always include when UI changed):
+  - Verify keyboard navigation order and visible focus for interactive elements
+  - Assert presence of ARIA roles/landmarks on major regions (header, main, nav)
+  - Check accessible names for buttons/links and non-empty alt text for images
+  - If axe tooling is available in project context, include an optional axe scan; otherwise, skip silently
+- Responsive checks (always include when layout changes):
+  - Capture visual snapshots across at least three viewports: 375x812 (mobile), 768x1024 (tablet), 1280x800 (desktop)
+  - Validate critical UI elements remain visible and usable (no overflow clipping, no hidden primary actions)
+  - For Percy: submit snapshots per viewport and key component states (default, hover, focus, disabled)
 
 **When to recommend CSS Quality Checks (Stylelint):**
 - New CSS files or Blazor Razor component styles
@@ -1035,26 +1160,211 @@ expect(data.name).toBe("Peter Parker");
 expect(data.userGuid).toBe("b59e3dca-9330-40f5-9de8-9a5350fd2d6a");
 ```
 
-## Console Error Monitoring
+## Diagnostic Logging Standards (MANDATORY for ALL Implementation Code)
+
+**When generating or modifying implementation code (Blazor components, services, etc.), ALWAYS follow diagnostic logging standards from `.github/instructions/SelfAwareness.instructions.md`.**
+
+### Required Format
+
+All work-in-progress code comments MUST include the `;CLEANUP_OK` marker:
+
+```csharp
+// [WORKITEM:{key}:{layer}:{RUN_ID}] Description of change ;CLEANUP_OK
+@* [WORKITEM:{key}:{layer}:{RUN_ID}] Description of change ;CLEANUP_OK *@
+```
+
+**Format Components:**
+- `{key}`: Workitem key from plan (e.g., `hcp`, `issue-108`)
+- `{layer}`: Code layer - `ui`, `impl`, `data`, `test`, `infra`
+- `{RUN_ID}`: Timestamp in format `YYYYMMDD-HHMM` (e.g., `20251022-1836`)
+- `;CLEANUP_OK`: Marker indicating comment can be safely removed when feature is complete
+
+### Examples from Corrected Code
+
+**Blazor Component (C# code):**
+```csharp
+// [WORKITEM:hcp:impl:20251022-1836] Collapsible Q&A panel state ;CLEANUP_OK
+private bool qaPanelOpen = true;
+
+// [WORKITEM:hcp:impl:20251022-1836] Toggle Q&A panel visibility ;CLEANUP_OK
+private void ToggleQAPanel()
+{
+    qaPanelOpen = !qaPanelOpen;
+}
+```
+
+**Blazor Component (Razor markup):**
+```razor
+@* [WORKITEM:hcp:impl:20251022-1836] Toggle button for collapsible Q&A panel ;CLEANUP_OK *@
+<button @onclick="ToggleQAPanel" class="qa-toggle-btn">
+    Questions @if (GetQuestionCount() > 0) { <span class="badge">@GetQuestionCount()</span> }
+</button>
+```
+
+**Phase Completion Markers:**
+```csharp
+// [DEBUG-WORKITEM:hcp:impl:20251022-1836] phase_1_complete status=in-progress ;CLEANUP_OK
+// Phase 2 will add: CSS transitions, animation timing
+```
+
+### When to Add Diagnostic Logs
+
+**REQUIRED for:**
+- All new methods/functions implementing workitem features
+- New component state fields related to workitem
+- UI elements (buttons, panels, inputs) implementing workitem requirements
+- Event handlers for workitem-specific interactions
+- Parameter declarations for feature-related props
+- Phase completion markers (use `DEBUG-WORKITEM` prefix)
+
+**NOT required for:**
+- Existing code that isn't being modified
+- Standard framework code (e.g., `@code {`, `protected override`)
+- Using statements or standard boilerplate
+- Code in test files (tests have their own comment conventions)
+
+### Purpose
+
+These markers enable:
+1. **Traceability**: Link code changes to specific workitems and phases
+2. **Safe cleanup**: Grep for `;CLEANUP_OK` to find temporary diagnostic comments
+3. **Quality verification**: Ensure LLM follows standardized logging practices
+4. **Debugging**: Quickly identify recent changes when issues arise
+5. **Change tracking**: Document which files were touched by each phase
+
+**See `.github/instructions/SelfAwareness.instructions.md` lines 131, 264 for canonical format specifications.**
+
+---
+
+## Console Error Monitoring (MANDATORY for ALL Tests)
+
+**ALWAYS include browser console log monitoring in generated tests to capture JavaScript errors, warnings, and diagnostic output.**
+
+### Basic Console Log Capture
 
 ```typescript
 const consoleErrors: string[] = [];
+const consoleMessages: string[] = [];
 
 page.on('console', msg => {
-    if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
+    const text = msg.text();
+    const type = msg.type();
+    
+    // Capture all messages for diagnostics
+    consoleMessages.push(`[${type.toUpperCase()}] ${text}`);
+    console.log(`[BROWSER ${type.toUpperCase()}] ${text}`);
+    
+    // Track errors separately
+    if (type === 'error') {
+        consoleErrors.push(text);
     }
 });
+```
 
+### Filtering Critical Errors
+
+```typescript
 // After test actions
-const criticalErrors = consoleErrors.filter(err => 
-    err.includes('NotifyQuestionDeleted') ||
-    err.includes('appendChild') ||
-    err.includes('SignalR')
-);
+const criticalErrors = consoleErrors.filter(err => {
+    // Ignore expected test environment warnings
+    if (err.includes('SignalR') || err.includes('WebSocket')) return false;
+    if (err.includes('CORS') || err.includes('Access-Control')) return false;
+    
+    // Flag critical errors
+    if (err.includes('NotifyQuestionDeleted')) return true;
+    if (err.includes('appendChild')) return true;
+    if (err.includes('Uncaught')) return true;
+    
+    return false;
+});
 
+// Report but don't fail on non-critical warnings
+if (consoleErrors.length > 0) {
+    console.log('\n⚠️ Browser console errors detected:');
+    consoleErrors.forEach(err => console.log(`  - ${err}`));
+}
+
+// Fail only on critical errors
 expect(criticalErrors).toHaveLength(0);
 ```
+
+### Page Error Monitoring
+
+```typescript
+// Also capture page-level JavaScript errors
+page.on('pageerror', error => {
+    const errorMsg = `[PAGE ERROR] ${error.message}`;
+    consoleErrors.push(errorMsg);
+    console.error(errorMsg);
+});
+```
+
+### Full Diagnostic Pattern
+
+```typescript
+test.describe('Feature Test with Console Monitoring', () => {
+    let consoleMessages: string[] = [];
+    let consoleErrors: string[] = [];
+
+    test.beforeEach(async ({ page }) => {
+        // Reset for each test
+        consoleMessages = [];
+        consoleErrors = [];
+
+        // Monitor console logs
+        page.on('console', msg => {
+            const text = msg.text();
+            const type = msg.type();
+            consoleMessages.push(`[${type.toUpperCase()}] ${text}`);
+            
+            if (type === 'error' || type === 'warning') {
+                consoleErrors.push(text);
+            }
+        });
+
+        // Monitor page errors
+        page.on('pageerror', error => {
+            consoleErrors.push(`[PAGE ERROR] ${error.message}`);
+        });
+    });
+
+    test.afterEach(async () => {
+        // Report console activity
+        if (consoleErrors.length > 0) {
+            console.log('\n🔴 Browser Console Errors/Warnings:');
+            consoleErrors.forEach(err => console.log(`  ${err}`));
+        } else {
+            console.log('\n✅ No browser console errors detected');
+        }
+    });
+
+    test('should perform action without errors', async ({ page }) => {
+        // Test implementation...
+        
+        // At end: filter and assert
+        const criticalErrors = consoleErrors.filter(err => 
+            !err.includes('SignalR') && !err.includes('WebSocket')
+        );
+        expect(criticalErrors).toHaveLength(0);
+    });
+});
+```
+
+### When to Use Console Monitoring
+
+**ALWAYS include in:**
+- All E2E functional tests (to catch JavaScript errors)
+- Visual regression tests (to validate no console errors during rendering)
+- Component behavior tests (to verify clean execution)
+- Multi-user synchronization tests (to catch SignalR/WebSocket issues)
+- Migration validation tests (to detect client-side data issues)
+
+**Purpose:**
+- Early detection of JavaScript errors before production
+- Diagnostic information for test failures
+- Validation that features work without console warnings
+- Evidence for debugging flaky tests
+- Proof that refactorings don't introduce regressions
 
 ---
 

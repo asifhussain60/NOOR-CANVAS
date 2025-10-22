@@ -49,6 +49,7 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
+- **`.github/prompts/shared/UserDictionary.md`** - Canonical shortcut lookup; during analysis, ALWAYS load and expand user shorthand (e.g., hcp, scanv, tcanv) to concrete files and concepts
 - **`.github/instructions/Links/SystemIndex.md`** - Central navigation hub for all architectural references, agent coordination, and system snapshots
 - **`.github/instructions/Links/InfrastructureQuickRef.md`** - **MANDATORY** for database operations - contains KSESSIONS_DEV connection details and schema access rules
 - **`.github/instructions/Links/Architecture.md`** - Comprehensive application architecture documentation including:
@@ -61,6 +62,11 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
   - Integration patterns and common workflows
 
 **Purpose:** This prevents duplication of existing functionality and ensures new implementations follow established architectural patterns.
+
+### Shortcut Expansion Policy (MANDATORY)
+- During the analysis phase of ANY prompt, automatically evaluate `.github/prompts/shared/UserDictionary.md` and expand all detected shortcut tokens in the user request and context (e.g., "hcp" → Host Control Panel → file: HostControlPanel.razor).
+- Treat the dictionary as authoritative; if a shortcut is missing, prefer asking once or proceeding with a clearly stated assumption and then add it to the dictionary.
+- When generating summaries, preserve the user’s shorthand but include the resolved canonical names in parentheses on first mention.
 
 ## 🗄️ Database Access Rules (MANDATORY)
 
@@ -128,6 +134,16 @@ For each phase, agents must:
 
 ## File Organization Rules
 **CRITICAL**: Never create analysis, summary, or documentation files in the project root.
+
+### Markdown Output Placement (STRICT)
+- Do NOT create or save any Markdown files under `.github/prompts/` or `.github/instructions/`.
+- All agent-generated Markdown must be written only under `Workspaces/Copilot/_DOCS/`.
+  - Analysis reports → `Workspaces/Copilot/_DOCS/analysis/`
+  - Completion summaries/work logs → `Workspaces/Copilot/_DOCS/summaries/`
+  - Config/documentation → `Workspaces/Copilot/_DOCS/configs/`
+  - Migrations/reorg notes → `Workspaces/Copilot/_DOCS/migrations/`
+  - Temporary notes/drafts → `Workspaces/Copilot/_DOCS/temp/`
+  - Exception: Key data streams in `.github/prompts.keys/` remain as-is.
 
 ### Documentation & Analysis File Placement
 All agent-generated documentation must be placed in the designated directory structure:

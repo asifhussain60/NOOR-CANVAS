@@ -16,51 +16,45 @@ public static class HostProvisionerConfig
 {
     /// <summary>
     /// Detect environment from multiple sources with priority order:
-    /// 1. ASPNETCORE_ENVIRONMENT environment variable
-    /// 2. app.config file (modified by ncdeploy for production)
-    /// 3. Default to "Development"
+    /// 1. app.config file (modified by ncdeploy for production)
+    /// 2. Default to "Development" (NEVER use ASPNETCORE_ENVIRONMENT for Host Provisioner)
+    /// 
+    /// NOTE: Host Provisioner should ALWAYS run in Development mode unless explicitly deployed
+    /// via ncdeploy.ps1 which modifies app.config. The ASPNETCORE_ENVIRONMENT variable is 
+    /// used by the web app and should NOT affect Host Provisioner.
     /// </summary>
     public static (string environment, string baseUrl) DetectEnvironment(string appConfigFileName)
     {
         string? environment = null;
         string? baseUrl = null;
         
-        // Try environment variable first
-        environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        
-        // If not set, try reading from app.config
-        if (string.IsNullOrEmpty(environment))
+        // DO NOT check environment variable - it's for the web app, not Host Provisioner
+        // Only read from app.config file (modified by ncdeploy for production deployment)
+        try
         {
-            try
+            var appConfigPath = Path.Combine(Directory.GetCurrentDirectory(), appConfigFileName);
+            if (File.Exists(appConfigPath))
             {
-                var appConfigPath = Path.Combine(Directory.GetCurrentDirectory(), appConfigFileName);
-                if (File.Exists(appConfigPath))
-                {
-                    var configDoc = System.Xml.Linq.XDocument.Load(appConfigPath);
-                    var envSetting = configDoc.Descendants("add")
-                        .FirstOrDefault(x => x.Attribute("key")?.Value == "ASPNETCORE_ENVIRONMENT");
-                    environment = envSetting?.Attribute("value")?.Value;
-                    Console.WriteLine($"[TRACE] Environment from app.config: {environment}");
-                    
-                    // Read BaseUrl for the environment
-                    var baseUrlKey = $"BaseUrl_{environment}";
-                    var baseUrlSetting = configDoc.Descendants("add")
-                        .FirstOrDefault(x => x.Attribute("key")?.Value == baseUrlKey);
-                    baseUrl = baseUrlSetting?.Attribute("value")?.Value;
-                    Console.WriteLine($"[TRACE] BaseUrl from app.config: {baseUrl}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[TRACE] Could not read app.config: {ex.Message}");
+                var configDoc = System.Xml.Linq.XDocument.Load(appConfigPath);
+                var envSetting = configDoc.Descendants("add")
+                    .FirstOrDefault(x => x.Attribute("key")?.Value == "ASPNETCORE_ENVIRONMENT");
+                environment = envSetting?.Attribute("value")?.Value;
+                Console.WriteLine($"[TRACE] Environment from app.config: {environment}");
+                
+                // Read BaseUrl for the environment
+                var baseUrlKey = $"BaseUrl_{environment}";
+                var baseUrlSetting = configDoc.Descendants("add")
+                    .FirstOrDefault(x => x.Attribute("key")?.Value == baseUrlKey);
+                baseUrl = baseUrlSetting?.Attribute("value")?.Value;
+                Console.WriteLine($"[TRACE] BaseUrl from app.config: {baseUrl}");
             }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine($"[TRACE] Environment from environment variable: {environment}");
+            Console.WriteLine($"[TRACE] Could not read app.config: {ex.Message}");
         }
         
-        // Default to Development if still not set
+        // ALWAYS default to Development (Host Provisioner should only be Production when deployed via ncdeploy)
         environment ??= "Development";
         
         // Default BaseUrl if not set from config

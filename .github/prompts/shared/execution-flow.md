@@ -18,6 +18,7 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │ Step 2: Context Gathering (MANDATORY - Multi-Phase)                │
 │                                                                     │
+│ 2.0: Shortcut Expansion → Evaluate shared/UserDictionary.md         │
 │ 2.1: Key Resolution → Infer or use provided key                    │
 │ 2.2: Key Data Stream Query → Read existing work                    │
 │ 2.3: Auto-Load File Mappings → Load referenced files               │
