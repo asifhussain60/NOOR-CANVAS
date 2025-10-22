@@ -8,45 +8,32 @@ outputs: Finalized plan recorded in .github/prompts.keys/{key}/work-log.md and a
 lastUpdated: 2025-10-22
 ---
 
+# create-plan.prompt.md (Feature Planning)
+
+**Mode:** Agent | **Purpose:** Request → executable plan → handoff
+
+## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
+1. **MAX 15 bullets** per response
+2. **30-50 line draft** in chat for approval
+3. **Full plan** → `{key}.plan.md` AFTER approval
+4. **Present handoff command** (don't auto-invoke)
+5. **NO execution** - planning only
+
+## Process
+- Step 0: Validate (5 bullets)
+- Step 1: Draft (30-50 lines)
+- Step 2: User approval
+- Step 3: Write files
+- Step 4: Present command
+- Step 5: STOP
+
+## Key Rules
+- lowercase-with-dashes
+- Fix spelling
+- Preserve ALL-CAPS
+
 ## User-Facing Output Style (MANDATORY)
 Must follow `.github/prompts/shared/output-style-mandate.md`.
-
-- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
-- Use "📌 Summary for You" for user-facing bullets only.
-- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
-- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
-- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
-
----
-
-## 🔴 READ THIS FIRST - Critical Protocol Violation Prevention
-
-### The No. 1 Rule: NEVER Dump Full Plans in Chat
-
-**❌ If you're about to paste 200+ lines in chat → STOP**
-
-**This is the PLANNING phase, not the DOCUMENTATION phase.**
-
-**Your job in Step 2 (Iterative Refinement):**
-- ✅ Show 30-50 line **concise draft** with bullets
-- ✅ Get user approval on approach
-- ✅ Collect enhancement selections
-- ✅ Answer open questions
-
-**Your job in Step 6 (After user says "proceed"):**
-- ✅ Write **complete technical details** to `.github/prompts.keys/{key}/{key}.plan.md`
-- ✅ Write JSON tracking to `{key}.plan.json`
-- ✅ Write execution log to `work-log.md`
-- ✅ Tell user: "Say 'proceed' to begin Phase 1"
-
-**⚠️ WARNING: Common Mistake Pattern**
-```
-❌ User provides request
-❌ Agent pastes 2000+ lines of technical plan in chat
-❌ User is overwhelmed
-❌ Plan files are never created
-❌ Protocol violated
-```
 
 **✅ CORRECT Pattern**
 ```

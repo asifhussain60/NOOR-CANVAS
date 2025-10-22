@@ -47,8 +47,9 @@ This protocol defines how agents should analyze images (screenshots, mockups, de
 - Document highlighted areas and change markers
 - Capture color specifications from annotations
 - Extract dimension annotations (spacing, sizing)
+- **Map visual elements to code locations**
 
-**Output**: Structured requirements (visual + functional)
+**Output**: Structured requirements (visual + functional + code mapping)
 
 ### 2. Design Comps (Visual Specifications)
 
@@ -134,65 +135,227 @@ annotate parameter: "mockup-1.png, mockup-2.png, error.png"
    - Maintain logical grouping (visual vs functional requirements)
    - Separate "must have" from "nice to have" based on annotation emphasis
 
-### Step 3: Structured Conversion
+### Step 3: Code Mapping
 
-**Convert visual findings to structured requirements:**
+**Map visual elements to actual code locations:**
+
+1. **Identify visible elements from screenshots:**
+   - Component names (e.g., "Need For Messengers" header)
+   - UI controls (timer, Q&A button, Share Section button)
+   - Layout containers (session title div, transcript area)
+
+2. **Search codebase to locate implementations:**
+   ```
+   Use semantic_search or grep_search:
+   - Search for unique text content ("Need For Messengers", "Share Section")
+   - Search for CSS classes visible in browser DevTools
+   - Search for component file names inferred from context
+   ```
+
+3. **Map each annotated element to code:**
+   ```markdown
+   Annotation 1: "Make question button size of red circle"
+   → Visual Element: Green circular Q&A button
+   → Code Location: HostControlPanel.razor (lines 88-113)
+   → CSS Class: .control-button
+   → Current Implementation: font-size: 1.5rem
+   → Required Change: Resize to match annotation diameter
+   
+   Annotation 2: "Remove green background from timer"
+   → Visual Element: Timer display with green gradient
+   → Code Location: HostControlPanelContent.razor (lines 16-50)
+   → Inline Style: background: linear-gradient(green...)
+   → Required Change: Remove background, show as plain text
+   ```
+
+4. **Validate mappings:**
+   - Read actual code sections to confirm element location
+   - Verify current implementation matches screenshot
+   - Check for related files (CSS, JS, child components)
+
+### Step 4: Structured Conversion
+
+**Convert visual findings to structured requirements WITH code mappings:**
 
 ```markdown
 ## Requirements Extracted from Images
 
-### Image 1: {filename}
+### Image 1: host-control-panel-annotations.png
 **Type:** Annotated Mockup
 
-**Visual Requirements:**
-- Element X: Change color to #FF5733 (from annotation)
-- Element Y: Add "Submit" button (from callout)
-- Layout: Center-align question cards (from arrow indicator)
-- Spacing: 16px padding between cards (from dimension annotation)
+**Requirement 1: Resize Q&A Button**
+- Annotation: "Make question button size of the red circle"
+- Visual Element: Green circular button with question mark icon
+- Code Location: `HostControlPanel.razor` lines 88-113
+- Current Implementation:
+  ```
+  <button class="control-button">
+    <i class="fas fa-question-circle" style="font-size: 1.5rem"></i>
+  </button>
+  ```
+- Required Change: Increase icon size to match red circle diameter (~3x current)
+- Files to Modify: `HostControlPanel.razor`
+- Change Type: CSS inline style update
 
-**Functional Requirements:**
-- Clicking "Submit" should validate form (from annotation)
-- Display confirmation dialog before submit (from note)
-- Handle validation errors inline (from error callout)
+**Requirement 2: Timer Visual Redesign**
+- Annotation: "Remove green background. Show it as orange. Increase font size."
+- Visual Element: Timer display (clock icon + time)
+- Code Location: `HostControlPanelContent.razor` lines 16-50
+- Current Implementation:
+  ```
+  <div style="background: linear-gradient(to right, #006400, #228B22)">
+    <i class="fas fa-clock" style="font-size: 0.9rem; color: white"></i>
+    <span style="font-size: 1rem; color: white">0:31</span>
+  </div>
+  ```
+- Required Changes:
+  1. Remove green gradient background
+  2. Change colors to orange (#FF8C00)
+  3. Increase icon size: 0.9rem → 2.7rem (3x)
+  4. Increase text size: 1rem → 3rem (3x)
+- Files to Modify: `HostControlPanelContent.razor`
+- Change Type: Inline style updates (background, color, font-size)
 
-**Technical Constraints:**
-- Must work on mobile viewport (from viewport annotation)
-- Animation duration: 300ms fade-in (from timing note)
-- Support IE11 fallback (from compatibility note)
+**Requirement 3: Layout Adjustment**
+- Annotation: "Move timer to left of button" + "Remove white space"
+- Visual Elements: Timer display, Q&A button, session title container
+- Code Locations:
+  * Timer: `HostControlPanelContent.razor` lines 16-50
+  * Q&A Button: `HostControlPanel.razor` lines 88-113
+  * Container: `HostControlPanelContent.razor` header section
+- Current Implementation: Timer in separate sticky div, button standalone
+- Required Changes:
+  1. Move timer into session title header
+  2. Position timer left of Q&A button
+  3. Remove excess whitespace, maintain 30px margin
+- Files to Modify: Both component files
+- Change Type: Structural (move elements) + CSS (spacing)
 ```
 
-### Step 4: Incorporation into Plan
+### Step 5: Incorporation into Plan
 
-**Add extracted requirements to plan sections:**
+**Add extracted requirements WITH code mappings to {key}.plan.md:**
 
-1. **Goals and Success Criteria**: Include functional requirements
-2. **Phase Deliverables**: Include visual specifications as acceptance criteria
-3. **Test Plan**: Generate Percy visual regression tests for visual changes
-4. **Dependencies and References**: Link to source images
-5. **Technical Constraints**: Document any technical limitations from annotations
+```markdown
+# {key}.plan.md
 
-### Step 5: User Confirmation
+## Phase 1: Q&A Button Resize
 
-**Present findings to user for approval:**
+**Scope:**
+- File: `SPA/NoorCanvas/Pages/HostControlPanel.razor`
+- Lines: 88-113
+- Change: Icon font-size 1.5rem → 4.5rem (3x)
+
+**Acceptance:**
+- Q&A button matches red circle diameter from annotation
+- Button remains circular and centered
+- Icon scales proportionally
+
+**Implementation Notes:**
+- Current: `<i class="fas fa-question-circle" style="font-size: 1.5rem"></i>`
+- Target: `<i class="fas fa-question-circle" style="font-size: 4.5rem"></i>`
+- Verify responsive behavior on mobile
+
+---
+
+## Phase 2: Timer Visual Redesign
+
+**Scope:**
+- File: `SPA/NoorCanvas/Pages/HostControlPanelContent.razor`
+- Lines: 16-50 (timer display section)
+- Changes:
+  1. Remove green gradient background
+  2. Apply orange color (#FF8C00) to icon and text
+  3. Increase icon size 0.9rem → 2.7rem
+  4. Increase text size 1rem → 3rem
+
+**Acceptance:**
+- No green background visible
+- Timer displays in orange (#FF8C00)
+- Icon and text 3x larger
+- Timer remains readable and aligned
+
+**Implementation Notes:**
+- Remove: `background: linear-gradient(to right, #006400, #228B22)`
+- Update icon: `color: white` → `color: #FF8C00`, `font-size: 2.7rem`
+- Update text: `color: white` → `color: #FF8C00`, `font-size: 3rem`
+
+---
+
+## Phase 3: Layout Restructuring
+
+**Scope:**
+- Files:
+  * `SPA/NoorCanvas/Pages/HostControlPanelContent.razor` (session title header)
+  * `SPA/NoorCanvas/Pages/HostControlPanel.razor` (Q&A button)
+- Changes:
+  1. Move timer into session title header div
+  2. Position Q&A button to right of timer
+  3. Remove excess whitespace, maintain 30px margin
+
+**Acceptance:**
+- Timer appears in session title header
+- Timer positioned left of Q&A button
+- Vertical spacing = 30px margin
+- Layout responsive on all breakpoints
+
+**Implementation Notes:**
+- Move timer HTML from standalone div into `<div class="session-header">`
+- Apply flexbox: `display: flex; align-items: center; gap: 1rem`
+- Adjust margins to maintain 30px spacing
+- Test on mobile/tablet/desktop
+```
+
+**Benefits of Code Mapping in Plan:**
+1. **Precision:** Executor knows exactly which files and lines to modify
+2. **Validation:** Can verify current implementation before changing
+3. **Scope Control:** Clear boundaries prevent scope creep
+4. **Efficient Execution:** No searching/guessing needed
+5. **Rollback Ready:** Knows exact locations to revert if needed
+
+### Step 6: User Confirmation
+
+**Present findings WITH code mappings to user for approval:**
 
 ```markdown
 📸 Image Analysis Complete
 
-Analyzed {N} image(s):
-- mockup-annotated.png: Extracted 5 visual requirements, 3 functional requirements
-- error-screenshot.png: Identified console error in SessionCanvas.razor line 142
-- design-comp.png: Extracted color palette and layout specifications
+Analyzed 2 images with 5 annotations:
 
-Extracted Requirements Summary:
-1. Change submit button color to #FF5733
-2. Add confirmation dialog before form submission
-3. Center-align question cards in mobile view
-4. Fix console error: "Cannot read property 'userId'"
-5. Add 300ms fade-in animation
+**Code Mappings Identified:**
 
-These requirements will be incorporated into the implementation plan.
+1. **Q&A Button** (green circle icon)
+   - Location: `HostControlPanel.razor` lines 88-113
+   - Annotation: "Make button size of red circle"
+   - Change: Icon size 1.5rem → 4.5rem (3x)
 
-Are these interpretations correct? (yes to proceed, or provide corrections)
+2. **Timer Display** (clock icon + time)
+   - Location: `HostControlPanelContent.razor` lines 16-50
+   - Annotations:
+     * "Remove green background" → Delete gradient style
+     * "Show as orange color" → Apply #FF8C00
+     * "Increase font size" → Icon 2.7rem, text 3rem (3x)
+     * "Move to left of button" → Reposition in header
+
+3. **Session Title Header** (container div)
+   - Location: `HostControlPanelContent.razor` lines 16-50
+   - Annotation: "Remove white space, keep 30px margin"
+   - Change: Adjust padding/margin
+
+4. **Layout Structure** (multiple files)
+   - Files: Both HostControlPanel.razor & HostControlPanelContent.razor
+   - Annotation: "Move here" (arrow pointing left of button)
+   - Change: Move timer into header, position left of Q&A button
+
+**Plan Structure:**
+- Phase 1: Q&A button resize (1 file, 1 line change)
+- Phase 2: Timer visual redesign (1 file, 4 style changes)
+- Phase 3: Layout restructuring (2 files, structural move + spacing)
+
+All changes scoped to annotated elements only.
+Unmarked elements (logo, transcript, content) unchanged.
+
+Proceed with plan creation? (yes/corrections)
 ```
 
 **If user provides corrections:**

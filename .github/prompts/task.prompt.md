@@ -1,102 +1,31 @@
-# task.prompt.md (Optimized v3.0)
-```powershell
-# Checkpoint commit
-git add -A
-git commit -m "ckpt({key}): pre-task checkpoint"
+# task.prompt.md (Execution Agent)
 
-# Capture SHA and update rollback index
-$sha = (git rev-parse --short HEAD).Trim()
-$dir = ".github/prompts.keys/{key}"
-$idx = Join-Path $dir "rollback-index.md"
-if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
-if (-not (Test-Path $idx)) {
-   @(
-      "# Rollback Index for {key}",
-      "",
-      "| Date | Type | Summary | SHA | Parent |",
-      "|------|------|---------|-----|--------|"
-   ) | Set-Content -Path $idx -NoNewline:$false
-}
-$now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-Add-Content $idx "| $now | ckpt | pre-task checkpoint | $sha | - |"
+**CRITICAL:** MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 
-# Tag the checkpoint for easy discovery
-$tag = "key-{key}-ckpt-$(Get-Date -Format 'yyyyMMdd-HHmm')-$sha"
-git tag $tag
-```
-- BEFORE implementation: include Work Requested (with key), Affected areas (2a files, 2b architecture/infrastructure, 2c database), phased Plan, and Recommendations.
-- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), plus the attachments note.
+## Output Format
+See `.github/prompts/shared/output-style-mandate.md`
 
----
+🧠 Analysis (≤5 bullets)
+📌 Summary (≤10 bullets)  
+📊 Final (always)
 
 ## Parameters
+See `.github/prompts/shared/task-parameters-reference.md`
 
-**See:** `.github/prompts/shared/task-parameters-reference.md` for complete parameter documentation with examples and validation rules.
+### key *(required)*
+Task identifier
 
-### key *(required if available)*
-Identifier for the task (maps to keylock system). If not provided, agent infers from thread history, terminal commands, or recent key modifications.  
-**Example:** `hostcontrolpanel`, `canvas-sharing`
+### debug-level *(default=`none`)*
+`none` | `simple` | `trace` | `diagnostic` | `cleanup` | `doc`
 
-### debug-level *(optional, default=`none`)*
-Controls debug logging inserted into source files OR documentation mode.  
-**Options:** `none` (production), `simple` (basic markers), `trace` (comprehensive), `diagnostic` (deep analysis), `cleanup` (remove markers), `doc` (documentation-only, no execution)
+### verbosity *(default=`concise`)*
+`concise` | `detailed` (NO code in either)
 
-**See:** `.github/prompts/shared/debug-logging-mandate.md` for marker patterns
+### tasks *(optional)*
+Sequential subtasks. `"mark complete"` triggers Step 9.
 
-### verbosity *(optional, default=`concise`)*
-Controls agent output detail level shown to user (does NOT affect functionality).
-**Options:** 
-- `concise` (default): Work summary bullets, next phase preview bullets
-- `detailed`: More analysis bullets (still NO code/pseudocode)
-
-User-Facing Rules (apply to all verbosity levels):
-- ✅ Summarize accomplishments and next steps in bullets
-- ✅ Reference artifacts by name only (no diffs, no code)
-- ❌ NO code samples, JSON, or pseudocode
-- ❌ NO lengthy dumps; keep bullets tight
-
-### tasks *(optional, multi-line)*
-Subtasks to execute sequentially, halting on failure.  
-**Special:** `"mark complete"` or `"completed"` triggers Step 9 (cross-layer documentation, debug cleanup, completion)
-
-### github-branch *(optional, default=`development`)*
-Target branch for implementation work. Typically received from plan agent handoff or specified explicitly by user.  
-**Options:** 
-- `development` (default): ALL development work per SelfAwareness.instructions.md
-- `master`: Production only (requires explicit override, triggers warning in Step 0)
-
-**Usage:**
-- **From plan handoff:** Plan agent automatically includes this in task invocation
-- **User override:** Can specify explicitly if working outside plan workflow
-- **Default behavior:** If omitted, defaults to `development` branch
-
-**Validation:** Step 0 (Branch Verification) validates current git branch matches this parameter
-
-**See:** `SelfAwareness.instructions.md` - Branch Strategy section
-
-### annotate *(optional)* - **DEPRECATED - Use in plan.prompt.md instead**
-**DEPRECATED:** Image analysis has been moved to plan.prompt.md Step 0.6
-
-**Why deprecated:**
-- Image analysis is a requirement gathering activity (planning concern, not execution)
-- Requirements should be extracted BEFORE implementation begins
-- User should approve interpreted requirements during plan approval phase
-
-**If user provides images during task execution:**
-Suggest running plan prompt first:
-```
-⚠️ Images detected in request
-
-Image analysis should be done during planning phase for proper requirement extraction.
-
-Recommended approach:
-@workspace /feature key={key} user_request="{requirements}" annotate="{image-files}"
-
-This will:
-- Extract requirements from images using vision analysis
-- Incorporate into comprehensive plan
-- Generate proper test specifications
-- Allow you to approve interpreted requirements
+### github-branch *(default=`development`)*
+Target branch per SelfAwareness.instructions.md
 
 Proceed with task without image analysis? (not recommended for complex visual changes)
 ```
