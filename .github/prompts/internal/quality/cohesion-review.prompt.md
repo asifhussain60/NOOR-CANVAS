@@ -5,6 +5,13 @@ mode: agent
 description: Audit prompts and instructions for redundancy, gaps, conflicts, and optimization opportunities.
 ---
 
+**Version:** 1.2.0  
+**Last Updated:** 2025-10-22  
+**Changelog:**
+- 1.2.0: Add Prompt Enhancement Synthesis (Step 3.8) with shared-module recommendations and report hooks; clarify incremental hash-skip and Fast Pattern Extraction references
+- 1.1.x: Introduced incremental analysis mode and Fast Pattern Extraction (Step 2.1.5); streamlined reporting (Step 4)
+- 1.0.0: Initial cohesion review workflow
+
 ## Role
 You are a **Prompt Architecture Auditor** responsible for ensuring all prompts and instructions work together as a cohesive, efficient system. Your goal is to identify redundancies, gaps, conflicts, and optimization opportunities across the entire prompt ecosystem.
 
@@ -288,6 +295,27 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 **Output**: Integration score (good/needs protocols/poor)
 
 ---
+
+#### 3.8: Prompt Enhancement Synthesis (Shared-Module Extraction)
+
+**Goal:** Convert findings into concrete, low-risk enhancements to `.github/prompts` with maximum reuse of shared modules.
+
+**Synthesize Recommendations For Each Affected Prompt:**
+- Replace verbose inline protocols with references to shared docs:
+   - `shared/ui-debugging-protocol.md` (for Step 2.7 style UI debugging flows)
+   - `shared/framework-validation-checklists.md` (for Step 2.5 framework quick checks)
+   - `shared/playwright-test-generation.md` and `shared/test-orchestration-patterns.md` (for Step 6 test generation and orchestration)
+   - `shared/output-style-mandate.md` (for consistent user-facing output)
+   - `shared/execution-flow.md` and `shared/context-gathering-phases.md` (for step diagrams and decision trees)
+- Normalize front matter (mode, description) and add Version/Changelog sections
+- Verify linear step numbering and conditional triggers (e.g., Step 2.x sub-phases)
+- Ensure prompt links do not duplicate content already covered by `SelfAwareness.instructions.md`
+
+**Deliverables:**
+- For each prompt: a short diff plan (bullets) and target link insert positions
+- A consolidated “Prompt Enhancement Recommendations” section in the report (Step 4)
+
+**Note:** Prefer minimal edits that improve maintainability without changing behavior.
 
 **TOTAL ESTIMATED TIME**: 9-13 minutes (vs. 15-20 minutes full deep analysis)
 

@@ -3,6 +3,18 @@ mode: agent
 description: Read-only system health auditor and prompt optimization analyzer (no code changes)
 ---
 
+**Version:** 1.1.0  
+**Last Updated:** 2025-10-22  
+**Changelog:**
+- Add quick banner with Prompt Optimization Mode pointer and shared references
+- Align early output-style and execution-flow cross-links
+
+> Quick banner
+> - Prompt Optimization Mode is available for any prompt scope (see section: Prompt Optimization Mode)
+> - Shared references:
+>   - `.github/prompts/shared/execution-flow.md`
+>   - `.github/prompts/shared/output-style-mandate.md`
+
 ## Debug Logging Mandate (Code Insertion)
 **healthcheck is a read-only agent and does NOT insert debug logging into source files.**
 
@@ -121,7 +133,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
     - Identifies bloat, inefficiencies, conflicts, competing instructions
     - Provides recommendations for optimization
     - Automatically invokes task agent to execute approved optimizations
-    - **See:** [Prompt Optimization Mode](#prompt-optimization-mode) for complete workflow
+  - **See:** Prompt Optimization Mode section for complete workflow
 
 - **verbosity** *(optional, default=`concise`)*  
   - Controls detail level of agent output shown to user.
@@ -147,6 +159,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 
 ---
 
+<a id="prompt-optimization-mode"></a>
 ## Prompt Optimization Mode
 
 **Trigger:** When `scope` parameter is a prompt name (e.g., `task`, `refactor.prompt.md`, `sync`)
@@ -428,7 +441,7 @@ Final validation:
 - Parse `scope` and `notes`.
 - **Route based on scope type:**
   - **If scope is prompt name** (e.g., `task`, `refactor.prompt.md`):
-    - Enter **Prompt Optimization Mode** (see [Prompt Optimization Mode](#prompt-optimization-mode))
+  - Enter **Prompt Optimization Mode** (see Prompt Optimization Mode section)
     - Resolve prompt file path
     - Plan holistic analysis checklist
     - Skip standard healthcheck workflow (Steps 3-4 replaced by optimization workflow)
@@ -459,7 +472,7 @@ Final validation:
    - Read complete prompt file content
 
 2. **Perform Holistic Analysis:**
-   - Execute comprehensive analysis per [Prompt Optimization Mode](#prompt-optimization-mode) workflow
+  - Execute comprehensive analysis per Prompt Optimization Mode workflow
    - Identify competing instructions, bloat, inefficiencies, conflicts
    - **If notes provided:** Evaluate notes request holistically:
      - Analyze where request fits in complete prompt workflow

@@ -5,6 +5,11 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 
 # Test Generation Agent
 
+**Version:** 1.1.0  
+**Last Updated:** 2025-10-22  
+**Changelog:**
+- Add canonical references to shared/playwright-test-generation.md and shared/test-orchestration-patterns.md for centralized guidance
+
 ## User-Facing Output Style (MANDATORY)
 Must follow `.github/prompts/shared/output-style-mandate.md`.
 
@@ -12,6 +17,12 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - NEVER include code or pseudocode in user-facing content.
 - BEFORE implementation (planning for tests): include Work Requested (with key), Affected areas (files/infrastructure/db), phased Plan, and Recommendations.
 - AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), and the attachments note.
+
+
+## Canonical Playwright Guidance
+For detailed patterns, decision matrices, and examples, see:
+- `.github/prompts/shared/playwright-test-generation.md` (selectors, wait strategies, Percy usage, multi-user flows)
+- `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management)
 
 
 ## Initial Validation (MANDATORY)
