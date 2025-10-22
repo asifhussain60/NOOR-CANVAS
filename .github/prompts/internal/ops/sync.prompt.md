@@ -38,6 +38,19 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - **Documentation Sync**: Update SystemIndex.md, Architecture.md after architectural changes
 - **Configuration Updates**: Refresh AnalyzerConfig.MD, PlaywrightConfig.MD, ValidationFramework.md
 - **Cleanup Operations**: Remove unused files, eliminate duplicate code, normalize formatting
+
+---
+
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
+- NEVER include code or pseudocode in user-facing content.
+- BEFORE sync/cleanup: include Work Requested (with key), Affected areas (2a/2b/2c), Planned operations, Recommendations, and **Next Actions (2-4 clear options)**.
+- AFTER sync/cleanup: include Work Requested (with key), Operations completed ([x]), Files updated/removed, the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+
+---
 - **Post-Refactor**: Clean up temporary files and obsolete code artifacts
 - **Periodic Maintenance**: Regular system hygiene (weekly/monthly)
 - **Pre-Deployment**: Ensure documentation and configurations reflect current state

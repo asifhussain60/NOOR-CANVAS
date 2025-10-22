@@ -20,8 +20,9 @@ You are the Ask Router. Take a user's question plus optional parameters, invoke 
 Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Use the two-section format: "🧠 Copilot Analysis" and "📌 Summary for You".
-- For planning/answers BEFORE implementation, include: Work Requested (with key), Affected areas (2a files, 2b architecture/infrastructure, 2c database), Plan (phases), and Recommendations.
-- For AFTER implementation answers, include: Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), and the attachments note.
+- For planning/answers BEFORE implementation, include: Work Requested (with key), Affected areas (2a files, 2b architecture/infrastructure, 2c database), Plan (phases), Recommendations, and **Next Actions (2-4 clear options)**.
+- For AFTER implementation answers, include: Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
 
 ---
 

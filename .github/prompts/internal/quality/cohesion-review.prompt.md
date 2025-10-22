@@ -19,6 +19,17 @@ Always follow .github/instructions/SelfAwareness.instructions.md.
 
 ---
 
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
+- NEVER include code or pseudocode in user-facing content.
+- BEFORE review: include Work Requested, Analysis scope, Review categories planned, and **Next Actions (2-4 clear options)**.
+- AFTER review: include Work Requested, Review completed ([x]), Key findings summary, Report location, the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+
+---
+
 ## Execution Workflow
 
 ### Step 0: Kill Running Kestrel Servers (Mandatory)

@@ -13,8 +13,9 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
 - Use "📌 Summary for You" for user-facing bullets only.
-- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, and Recommendations.
-- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), and the attachments note.
+- BEFORE implementation: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options)**.
+- AFTER implementation: include Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
 
 ---
 

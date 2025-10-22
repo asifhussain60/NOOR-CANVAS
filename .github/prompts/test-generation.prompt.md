@@ -27,8 +27,9 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
 - NEVER include code or pseudocode in user-facing content.
-- BEFORE implementation (planning for tests): include Work Requested (with key), Affected areas (files/infrastructure/db), phased Plan, and Recommendations.
-- AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), and the attachments note.
+- BEFORE implementation (planning for tests): include Work Requested (with key), Affected areas (files/infrastructure/db), phased Plan, Recommendations, and **Next Actions (2-4 clear options)**.
+- AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
 
 
 ## Canonical Playwright Guidance

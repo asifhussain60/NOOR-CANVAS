@@ -13,8 +13,9 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 - Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
 - NEVER include code or pseudocode in user-facing content.
-- BEFORE implementation responses: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, and Recommendations.
-- AFTER implementation responses: include Work Requested (with key), Tasks completed ([x]), Next steps, and the attachments note.
+- BEFORE implementation responses: include Work Requested (with key), Affected areas (2a/2b/2c), phased Plan, Recommendations, and **Next Actions (2-4 clear options)**.
+- AFTER implementation responses: include Work Requested (with key), Tasks completed ([x]), Next steps, the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
 
 ---
 

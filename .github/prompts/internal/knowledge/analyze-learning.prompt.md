@@ -8,5 +8,14 @@ This internal prompt was moved under `internal/knowledge/` to keep the main prom
 How to use
 - Do not call directly. Use `handoff.prompt.md` or `task.prompt.md`; they will route to analyze-learning when appropriate.
 
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
+- NEVER include code or pseudocode in user-facing content.
+- BEFORE analysis: include Work Requested, Learning extraction scope, Patterns to analyze, and **Next Actions (2-4 clear options)**.
+- AFTER analysis: include Work Requested, Patterns extracted ([x]), Learning files updated, the attachments note, and **Next Actions (2-4 clear options)**.
+- **MANDATORY**: Always end with "What would you like to do next?" with checkbox options. Never leave user guessing.
+
 Notes
 - This minimalist stub exists to preserve internal structure without breaking references.
