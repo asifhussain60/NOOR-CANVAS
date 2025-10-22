@@ -86,55 +86,31 @@
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
         <!-- [DIAGNOSTIC:transcript-canvas:share:UI] Show transcript panel when session is Active/Ended OR when isBroadcastMode is true ;CLEANUP_OK -->
+        @* [WORKITEM:hcp-timer-v2] Removed standalone control pod - Q&A button now in session title header ;CLEANUP_OK *@
         @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended" || isBroadcastMode)
         {
-            @* [WORKITEM:hcp:ui:sticky-toggle] Sticky floating toggle button on the right with round icon only (no label). Designed to avoid obstructing readability. *@
-            <div style="position:sticky; top:1rem; display:flex; justify-content:flex-end; z-index:10;">
-                <button type="button"
-                        @onclick="ToggleQAPanel"
-                        @onkeydown="HandleToggleKeyDown"
-                        aria-expanded="@qaPanelOpen"
-                        aria-controls="hcp-qa-panel"
-                        aria-label="Toggle questions panel"
-                        style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
-                        onmouseover="this.style.backgroundColor='#004d00'; this.style.transform='scale(1.06)'"
-                        onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
-                    <i class="fa-solid fa-circle-question" style="font-size:1.5rem;"></i>
-                    @* Count badge (small) in top-right of circle *@
-                    <span aria-label="@GetQuestionCount() questions"
-                          style="position:absolute; top:-6px; right:-6px; min-width:22px; height:22px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; background-color:#D4AF37; color:#006400; border-radius:999px; font-size:0.75rem; font-weight:800; font-family:'Poppins',sans-serif; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
-                        @GetQuestionCount()
-                    </span>
-                </button>
-            {
-                @* [WORKITEM:hcp:ui:control-pod] Compact sticky control pod with Q&A toggle and session timer *@
-                <div style="position:sticky; top:1rem; display:flex; justify-content:flex-end; z-index:10;">
-                    <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.92); backdrop-filter:saturate(160%) blur(6px); border:1px solid #C5A84C; border-radius:999px; padding:0.4rem; box-shadow:0 8px 16px rgba(0,0,0,0.12);">
-                        <button type="button"
-                                @onclick="ToggleQAPanel"
-                                @onkeydown="HandleToggleKeyDown"
-                                aria-expanded="@qaPanelOpen"
-                                aria-controls="hcp-qa-panel"
-                                aria-label="Toggle questions panel"
-                                style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
-                                onmouseover="this.style.backgroundColor='#004d00'; this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'"><i class="fa-solid fa-circle-question" style="font-size:1.25rem;"></i>
-                            <span aria-label="@GetQuestionCount() questions"
-                                  style="position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; background-color:#D4AF37; color:#006400; border-radius:999px; font-size:0.7rem; font-weight:800; font-family:'Poppins',sans-serif; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
-                                @GetQuestionCount()
-                            </span>
-                        </button>
+            <HostControlPanelContent Model="@Model" 
+                                     HostToken="@HostToken"
+                                     IsLoading="@isLoading"
+                                     IsBroadcastMode="@isBroadcastMode"
+                                     SessionStartTime="@sessionStartTime"
+                                     SelectedQuestionId="@selectedQuestionId"
+                                     QAPanelOpen="@qaPanelOpen"
+                                     SelectedCanvasType="@selectedCanvasType"
+                                     OnToggleQAPanel="@ToggleQAPanel"
+                                     OnToggleKeyDown="@HandleToggleKeyDown"
+                                     OnGetQuestionCount="@GetQuestionCount"
+                                     OnEndSession="@EndSession"
+                                     OnBroadcastTranscript="@BroadcastFullTranscript"
+                                     OnMarkQuestionAnswered="@MarkQuestionAnswered"
+                                     OnShowDeleteModal="@ShowDeleteModal"
+                                     OnQuestionClick="@ShareQuestionAsset"
+                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))"
+                                     OnTranscriptRendered="@HandleTranscriptRendered" />
+        }
 
-                        @if (Model?.SessionStatus == "Active" && sessionStartTime.HasValue)
-                        {
-                            <div aria-label="Session elapsed time"
-                                 style="display:flex; align-items:center; gap:0.35rem; background:linear-gradient(180deg, rgba(0,100,0,0.95), rgba(0,80,0,0.95)); color:#D4AF37; border-radius:999px; padding:0.25rem 0.6rem; border:1px solid rgba(197,168,76,0.4); box-shadow:inset 0 1px 2px rgba(255,255,255,0.06);">
-                                <i class="fa-solid fa-clock" style="font-size:0.9rem;color:#D4AF37;"></i>
-                                <span style="font-weight:700; font-family:'Poppins',sans-serif; font-size:1rem; letter-spacing:0.02em;">@GetSessionElapsedTime()</span>
-                            </div>
-                        }
-                    </div>
-                </div>
+    </div>
+        
     <!-- Confirmation Modal - Refactored to use HostControlPanelModal component -->
     <HostControlPanelModal ShowDeleteModal="@showDeleteModal"
                            OnCancelDelete="@CancelDelete"
@@ -1407,8 +1383,9 @@
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons') ;CLEANUP_OK", requestId);
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container ID: transcript-content-container ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[WORKITEM:hcp-timer-v2] [{RequestId}] Canvas Type: {CanvasType} (buttons will be injected only for 'transcript') ;CLEANUP_OK", requestId, selectedCanvasType);
             
-            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef);
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef, selectedCanvasType);
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JavaScript injection call returned ;CLEANUP_OK", requestId);
             

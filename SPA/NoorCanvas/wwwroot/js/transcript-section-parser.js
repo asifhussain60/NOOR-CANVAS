@@ -39,14 +39,22 @@ window.TranscriptSectionParser = {
      * Parse transcript HTML and inject share buttons for each h2 section
      * @param {string} containerId - ID of the container element holding transcript HTML
      * @param {object} dotNetRef - DotNet object reference for C# method callbacks
+     * @param {string} canvasType - Canvas type ('asset' or 'transcript') - buttons only injected for 'transcript'
      * @returns {Promise<object>} Result with section count and success status
      */
-    injectShareButtons: async function (containerId, dotNetRef) {
+    injectShareButtons: async function (containerId, dotNetRef, canvasType = 'transcript') {
         console.log('%c[TRACE:hcp-tcanvas:inject] ════════ BUTTON INJECTION START ════════', 'background: #006400; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
         console.log('[TRACE:hcp-tcanvas:inject] Timestamp:', new Date().toISOString(), ';CLEANUP_OK');
         console.log('[TRACE:hcp-tcanvas:inject] ContainerId:', containerId, ';CLEANUP_OK');
         console.log('[TRACE:hcp-tcanvas:inject] DotNetRef provided:', !!dotNetRef, ';CLEANUP_OK');
+        console.log('[TRACE:hcp-tcanvas:inject] Canvas Type:', canvasType, ';CLEANUP_OK');
         console.log('[TRACE:hcp-tcanvas:inject] Document ready state:', document.readyState, ';CLEANUP_OK');
+
+        // [WORKITEM:hcp-timer-v2] Skip button injection for Asset Canvas
+        if (canvasType !== 'transcript') {
+            console.log('%c[TRACE:hcp-tcanvas:inject] ⏭️ SKIPPING button injection - Canvas type is not "transcript"', 'background: #F59E0B; color: white; font-weight: bold; padding: 4px;', ';CLEANUP_OK');
+            return { success: true, sections: 0, skipped: true, reason: 'Asset Canvas does not use Share Section buttons' };
+        }
 
         // Wait for container to exist with content
         console.log('%c[TRACE:hcp-tcanvas:inject] Waiting for container...', 'color: #D4AF37; font-weight: bold;', ';CLEANUP_OK');
