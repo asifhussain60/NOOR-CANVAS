@@ -14,7 +14,7 @@ public class DatabaseEnvironmentGuardService : IDatabaseEnvironmentGuardService
     private readonly ILogger<DatabaseEnvironmentGuardService> _logger;
     
     // Production hostname constant (domain only, no protocol/port)
-    private const string PRODUCTION_HOSTNAME = "noorcanvas.servehttp.com";
+    private const string PRODUCTION_HOSTNAME = "noorcanvas.kashkole.com";
     private const string PRODUCTION_DATABASE_NAME = "KSESSIONS";
     private const string DEVELOPMENT_DATABASE_NAME = "KSESSIONS_DEV";
     
@@ -30,7 +30,7 @@ public class DatabaseEnvironmentGuardService : IDatabaseEnvironmentGuardService
     /// [SECURITY-GUARD:hp-db-guard] Check if production app is connecting to development database.
     /// Detection logic:
     /// 1. Parse hostname from currentUrl
-    /// 2. Check if hostname contains "noorcanvas.servehttp.com" (production)
+    /// 2. Check if hostname contains "noorcanvas.kashkole.com" (production)
     /// 3. Extract database name from connection string
     /// 4. If production hostname AND database contains "KSESSIONS_DEV" → VIOLATION
     /// 5. Log all checks for security audit trail
