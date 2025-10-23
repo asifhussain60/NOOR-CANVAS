@@ -58,7 +58,7 @@ public static class HostProvisionerConfig
         environment ??= "Development";
         
         // Default BaseUrl if not set from config
-        baseUrl ??= (environment == "Production" ? "https://noorcanvas.servehttp.com" : "https://localhost:9091");
+        baseUrl ??= (environment == "Production" ? "https://noorcanvas.kashkole.com" : "https://localhost:9091");
         
         // Set the environment variable so appsettings loading works correctly
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);

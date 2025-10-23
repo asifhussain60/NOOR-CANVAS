@@ -51,7 +51,7 @@ Specify a single prompt file to port instead of regenerating the entire _Portabl
 ```
 
 **What Gets Updated (Selective Mode):**
-- The specified prompt file (`.github/_Portable/prompts/{prompt}.md` with {{VARIABLES}})
+- The specified prompt template (`.github/_Portable/prompts/{prompt}.template`)
 - All shared files referenced by the prompt
 - Related learning files (if prompt has dedicated lessons)
 - Meta-prompts (port-instructions, total-recall) are always updated
@@ -238,12 +238,12 @@ Dependencies Found:
 1. Read source: `.github/prompts/$promptFile`
 2. Extract project-specific values (same extraction logic as Step 2)
 3. Replace with template variables (same replacement logic as Step 3.2)
-4. Add template header with {{VARIABLES}} documentation
-5. Write to: `.github/_Portable/prompts/$promptFile`
+4. Add template header
+5. Write to: `.github/_Portable/prompts/$promptFile.template`
 
 **Output:**
 ```
-✅ Updated: prompts/$promptFile
+✅ Updated: prompts/$promptFile.template
 ```
 
 #### 0.5.5: Update Referenced Shared Files
@@ -310,8 +310,8 @@ Write-Host "✅ Updated: Meta-prompts (port-instructions, total-recall)"
 
 Updated Files:
 ==============
-📝 Prompt File:
-  - prompts/$promptFile
+📝 Prompt Template:
+  - prompts/$promptFile.template
 
 📁 Shared Files ($($sharedFiles.Count)):
   - prompts/shared/$sharedFile1
@@ -326,8 +326,8 @@ Updated Files:
 
 Skipped (Preserved):
 ===================
-- All other prompt files
-- Instructions files
+- All other prompt templates
+- Instructions templates
 - Documentation (README, START-HERE, etc.)
 
 Next Steps:
@@ -453,20 +453,20 @@ Template: "{{FRAMEWORKS}}"
 
 #### 3.1 Instructions Templates
 
-**Create:** `.github/_Portable/instructions/` (with {{VARIABLES}})
+**Create:** `.github/_Portable/instructions/*.template`
 
-Files to create:
-- `SelfAwareness.instructions.md` (with {{VARIABLES}})
-- `Architecture.md` (with {{VARIABLES}})
-- `InfrastructureQuickRef.md` (with {{VARIABLES}})
-- `SystemIndex.md` (with {{VARIABLES}})
-- `ValidationFramework.md` (with {{VARIABLES}})
-- `API-Contract-Validation.md` (with {{VARIABLES}})
-- `AnalyzerConfig.MD` (with {{VARIABLES}})
-- `PlaywrightQuickRef.md` (with {{VARIABLES}})
-- `PlaywrightConfig.MD` (with {{VARIABLES}})
-- `PlaywrightTestPaths.MD` (with {{VARIABLES}})
-- `FunctionalityRegistry.md` (with {{VARIABLES}})
+Files to template:
+- `SelfAwareness.instructions.md` → `SelfAwareness.instructions.md.template`
+- `Architecture.md` → `Architecture.md.template`
+- `InfrastructureQuickRef.md` → `InfrastructureQuickRef.md.template`
+- `SystemIndex.md` → `SystemIndex.md.template`
+- `ValidationFramework.md` → `ValidationFramework.md.template`
+- `API-Contract-Validation.md` → `API-Contract-Validation.md.template`
+- `AnalyzerConfig.MD` → `AnalyzerConfig.MD.template`
+- `PlaywrightQuickRef.md` → `PlaywrightQuickRef.md.template`
+- `PlaywrightConfig.MD` → `PlaywrightConfig.MD.template`
+- `PlaywrightTestPaths.MD` → `PlaywrightTestPaths.MD.template`
+- `FunctionalityRegistry.md` → `FunctionalityRegistry.md.template`
 - All other files in `Links/` folder
 
 **Template Header (add to every template file):**
@@ -492,33 +492,32 @@ NOTE: This is a TEMPLATE file. To configure for your project, run the total-reca
 
 #### 3.2 Prompts Templates
 
-**Create:** `.github/_Portable/prompts/` (with {{VARIABLES}})
+**Create:** `.github/_Portable/prompts/*.template`
 
-Files to create (Entry Points):
-- `handoff.prompt.md` (with {{VARIABLES}})
-- `task.prompt.md` (with {{VARIABLES}})
-- `create-plan.prompt.md` (with {{VARIABLES}})
-- `test-generation.prompt.md` (with {{VARIABLES}})
-- `healthcheck.prompt.md` (with {{VARIABLES}})
-- `port-instructions.prompt.md` (with {{VARIABLES}})
+Files to template (Entry Points):
+- `handoff.prompt.md` → `handoff.prompt.md.template`
+- `task.prompt.md` → `task.prompt.md.template`
+- `create-plan.prompt.md` → `create-plan.prompt.md.template`
+- `test-generation.prompt.md` → `test-generation.prompt.md.template`
+- `healthcheck.prompt.md` → `healthcheck.prompt.md.template`
+- `port-instructions.prompt.md` → `port-instructions.prompt.md.template`
 
 Files to template (Internal, do not call directly):
-- `internal/knowledge/analyze-learning.prompt.md` (with {{VARIABLES}})
-- `internal/knowledge/total-recall.prompt.md` (with {{VARIABLES}})
-- `internal/util/cleanup.prompt.md` (with {{VARIABLES}})
-- `internal/ops/sync.prompt.md` (with {{VARIABLES}})
-- `internal/quality/cohesion-review.prompt.md` (with {{VARIABLES}})
-- `internal/quality/refactor.prompt.md` (with {{VARIABLES}})
-- `internal/comm/commit.prompt.md` (with {{VARIABLES}})
-- `internal/util/question.prompt.md` (with {{VARIABLES}})
-- `internal/comm/ask.prompt.md` (with {{VARIABLES}})
+- `internal/knowledge/analyze-learning.prompt.md` → `internal/knowledge/analyze-learning.prompt.md.template`
+- `internal/knowledge/total-recall.prompt.md` → `internal/knowledge/total-recall.prompt.md.template`
+- `internal/util/cleanup.prompt.md` → `internal/util/cleanup.prompt.md.template`
+- `internal/ops/sync.prompt.md` → `internal/ops/sync.prompt.md.template`
+- `internal/quality/cohesion-review.prompt.md` → `internal/quality/cohesion-review.prompt.md.template`
+- `internal/quality/refactor.prompt.md` → `internal/quality/refactor.prompt.md.template`
+- `internal/comm/commit.prompt.md` → `internal/comm/commit.prompt.md.template`
+- `internal/util/question.prompt.md` → `internal/util/question.prompt.md.template`
+- `internal/comm/ask.prompt.md` → `internal/comm/ask.prompt.md.template`
 
-**File Structure:**
-- Add header documenting {{VARIABLES}} used in file
+**Template Structure:**
+- Add template header (same as instructions)
 - Replace ALL project-specific values with template variables
 - Preserve ALL logic, workflows, and structure
 - Keep examples generic or use `{{EXAMPLE_*}}` variables
-- Keep original `.md` extension (no `.template` suffix)
 
 **CRITICAL PROTOCOL ENFORCEMENT:**
 

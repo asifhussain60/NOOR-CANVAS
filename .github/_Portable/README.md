@@ -1,126 +1,123 @@
-# AI Agent System - Portable Template
+# Portable AI Agent System
 
-**Version:** 2.5.0  
-**Last Updated:** October 21, 2025  
-**Status:** Production Ready
-
----
-
-## Overview
-
-This is a **drop-in ready** AI agent system that provides intelligent coding assistance through specialized agents. The system uses GitHub Copilot with custom prompts to enable sophisticated workflows like feature planning, task execution, code refactoring, test generation, and more.
-
-### Key Features
-
-✅ **10+ Specialized Agents** - Each agent handles specific workflows  
-✅ **Automatic Configuration** - Run `@workspace /total-recall` to configure  
-✅ **Learning System** - Agents learn from patterns and improve over time  
-✅ **Cross-Agent Coordination** - Agents work together seamlessly  
-✅ **Technology Agnostic** - Supports .NET, Node.js, Python, Java, Ruby, Go, PHP  
-✅ **Production Tested** - Battle-tested in real-world projects
+**Version**: 1.0.0  
+**Last Updated**: October 22, 2025  
+**Source Project**: Generic Template
 
 ---
 
-## Quick Start (3 Steps)
+## 📋 Overview
+
+This is a **complete, drop-in ready AI agent infrastructure** for GitHub Copilot. It provides:
+
+- ✅ Specialized agents for tasks, refactoring, testing, analysis
+- ✅ Learning system that improves from project experience
+- ✅ Comprehensive prompt library with best practices
+- ✅ Project-aware configuration through total-recall agent
+- ✅ Database-aware operation with schema protection
+- ✅ Full testing integration (Playwright, unit tests)
+- ✅ Code quality enforcement (linting, analyzers)
+
+---
+
+## 🚀 Quick Start (3 Steps)
 
 ### 1. Copy to Your Project
-```powershell
-# Copy this entire folder to your project
-cp -r .github/_Portable/* your-project/.github/
+
+```bash
+# Copy this entire _Portable folder to your project's .github directory
+cp -r .github/_Portable your-project/.github/
 ```
 
-### 2. Run Configuration
-```powershell
-# In your project, invoke total-recall agent
+### 2. Run total-recall Configuration
+
+```bash
+# In VS Code, open your project and run:
 @workspace /total-recall
+
+# The agent will:
+# - Auto-detect your project type (.NET, Node.js, Python, etc.)
+# - Scan your codebase structure
+# - Populate all template variables
+# - Write configured files to .github/_Portable/_Configured/
 ```
 
-**What total-recall does:**
-- Scans your project structure (package.json, *.csproj, requirements.txt, etc.)
-- Detects technology stack, frameworks, build tools
-- Replaces all `{{TEMPLATE_VARIABLES}}` with project-specific values
-- Creates configured `.github/` folder ready to use
+### 3. Review and Deploy
 
-### 3. Start Using Agents
-```powershell
-# Ask what agents are available
-@workspace /question "What agents are available?"
+```bash
+# Review the configured files in .github/_Portable/_Configured/
+# When satisfied, copy them to your .github/ folder:
 
-# Or jump right in with feature planning
-@workspace /feature key=my-feature user_request="Add user authentication"
+# Windows PowerShell
+Copy-Item -Path ".github\_Portable\_Configured\*" -Destination ".github\" -Recurse -Force
+
+# macOS/Linux
+cp -r .github/_Portable/_Configured/* .github/
+```
+
+**That's it!** Your AI agent system is ready. Start with:
+```
+@workspace /handoff "Your task description"
 ```
 
 ---
 
-## Technology Compatibility
+## 🎯 What You Get
 
-| Technology | Status | Notes |
-|-----------|--------|-------|
-| **.NET** (C#, F#) | ✅ Full Support | ASP.NET Core, Blazor, Entity Framework |
-| **Node.js** (JavaScript, TypeScript) | ✅ Full Support | React, Vue, Express, NestJS |
-| **Python** | ✅ Full Support | Django, Flask, FastAPI, SQLAlchemy |
-| **Java** | ✅ Full Support | Spring Boot, Maven, Gradle |
-| **Ruby** | ✅ Full Support | Rails, Sinatra, Bundler |
-| **Go** | ✅ Full Support | Gin, Echo, go modules |
-| **PHP** | ✅ Full Support | Laravel, Symfony, Composer |
+### Entry Point Agents (Invoke Directly)
 
----
+| Agent | Command | Purpose |
+|-------|---------|---------|
+| **handoff** | `@workspace /handoff "task"` | Main entry point for all work requests |
+| **create-plan** | `@workspace /create-plan "goal"` | Creates multi-phase execution plan |
+| **test-generation** | `@workspace /test-generation ...` | Generate Playwright or unit tests |
+| **healthcheck** | `@workspace /healthcheck` | Validate system health |
+| **port-instructions** | `@workspace /port-instructions` | Update portable templates |
 
-## Agent Overview
+### Internal Agents (Called by Other Agents)
 
-### Planning & Coordination
-- **`/feature`** - Feature planning agent (creates implementation plans)
-- **`/question`** - Q&A agent (answers questions about codebase/agents)
-
-### Development
-- **`/task`** - Task execution agent (implements features phase-by-phase)
-- **`/refactor`** - Code refactoring agent (improves code quality)
-- **`/commit`** - Commit message generator (creates conventional commits)
-
-### Testing & Quality
-- **`/test-generation`** - Test generation agent (creates E2E/unit tests)
-- **`/healthcheck`** - System health validation (checks agent system integrity)
-- **`/sync`** - Documentation synchronization (keeps docs up-to-date)
-
-### Analysis & Learning
-- **`/analyze-learning`** - Learning extraction (analyzes patterns from work)
-- **`/cohesion-review`** - Prompt cohesion audit (validates agent consistency)
-
-### Maintenance
-- **`/cleanup`** - Workspace cleanup (removes temporary artifacts)
-- **`/port-instructions`** - Template generation (creates portable versions)
-- **`/total-recall`** - Configuration agent (THIS PROMPT - configures templates)
+| Category | Agent | Purpose |
+|----------|-------|---------|
+| **Knowledge** | analyze-learning | Analyze learning patterns |
+| | total-recall | Project configuration |
+| **Quality** | refactor | Code refactoring |
+| | cohesion-review | Architectural review |
+| **Ops** | sync | Keep files synchronized |
+| | commit | Git commit operations |
+| **Communication** | ask | Clarifying questions |
+| **Utility** | cleanup | Background process cleanup |
 
 ---
 
-## Template Variables
+## 📚 Template Variables
 
-The system uses standardized template variables that total-recall replaces:
+All template files use these standardized variables:
 
 ### Project Identity
-- `{{PROJECT_NAME}}` - Your project name
-- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, etc.)
-- `{{LANGUAGES}}` - Programming languages
-- `{{FRAMEWORKS}}` - Frameworks and libraries
+- `{{PROJECT_NAME}}` - Project name (e.g., "MyProject")
+- `{{PROJECT_TYPE}}` - Project type (.NET, Node.js, Python, Java, Ruby, Go, PHP)
+- `{{LANGUAGES}}` - Programming languages (e.g., "C#, JavaScript, TypeScript")
+- `{{FRAMEWORKS}}` - Frameworks/libraries (e.g., "ASP.NET Core, React, Entity Framework")
 
 ### Build & Test
-- `{{BUILD_COMMAND}}` - Build command (e.g., `npm run build`)
-- `{{TEST_COMMAND}}` - Test command (e.g., `npm test`)
-- `{{RUN_COMMAND}}` - Run command (e.g., `npm start`)
-- `{{LINT_COMMAND}}` - Linting command (e.g., `npm run lint`)
+- `{{BUILD_COMMAND}}` - Build command (e.g., `dotnet build`, `npm run build`)
+- `{{TEST_COMMAND}}` - Test command (e.g., `dotnet test`, `npm test`)
+- `{{RUN_COMMAND}}` - Run command (e.g., `dotnet run`, `npm start`)
+- `{{LINT_COMMAND}}` - Linting command (e.g., `dotnet format`, `npm run lint`)
 
 ### Database
-- `{{DATABASE_TYPE}}` - Database type and ORM
+- `{{DATABASE_TYPE}}` - Database type (e.g., "SQL Server + Entity Framework")
 - `{{DATABASE_NAME}}` - Primary database name
 - `{{DATABASE_SERVER}}` - Database server
 - `{{SCHEMA_PRIMARY}}` - Primary writable schema
-- `{{SCHEMA_READONLY}}` - Read-only schemas
+- `{{SCHEMA_READONLY}}` - Read-only schemas (comma-separated)
+- `{{CONNECTION_STRING_KEY}}` - Connection string config key
 
 ### Infrastructure
 - `{{API_BASE_URL}}` - API base URL
-- `{{UI_FRAMEWORK}}` - UI framework
-- `{{REALTIME_TECH}}` - Real-time technology (SignalR, Socket.IO, etc.)
-- `{{AUTH_TYPE}}` - Authentication type
+- `{{UI_FRAMEWORK}}` - UI framework (e.g., "Blazor", "React", "Vue.js")
+- `{{REALTIME_TECH}}` - Real-time technology (e.g., "SignalR", "WebSockets")
+- `{{AUTH_TYPE}}` - Authentication type (e.g., "JWT", "OAuth", "Cookie-based")
 
 ### Paths
 - `{{SOURCE_PATH}}` - Main source code path
@@ -129,78 +126,209 @@ The system uses standardized template variables that total-recall replaces:
 - `{{WORKSPACE_PATH}}` - Workspace folder path
 
 ### Tools & Quality
-- `{{ANALYZER_TOOLS}}` - Code analysis tools
-- `{{TEST_FRAMEWORK}}` - Testing framework
-- `{{PACKAGE_MANAGER}}` - Package manager
+- `{{ANALYZER_TOOLS}}` - Code analysis tools (e.g., "Roslynator, StyleCop")
+- `{{TEST_FRAMEWORK}}` - Testing framework (e.g., "Playwright, xUnit")
+- `{{PACKAGE_MANAGER}}` - Package manager (e.g., "NuGet", "npm", "pip")
 
 ---
 
-## Directory Structure
+## 🛠 Technology Compatibility
+
+| Project Type | Status | Notes |
+|--------------|--------|-------|
+| **.NET** (C#) | ✅ Fully Tested | ASP.NET Core, Blazor, Entity Framework |
+| **Node.js** | ✅ Supported | Express, React, Vue, Angular |
+| **Python** | ✅ Supported | Flask, Django, FastAPI |
+| **Java** | ✅ Supported | Spring Boot, Maven, Gradle |
+| **Ruby** | ✅ Supported | Rails, Sinatra |
+| **Go** | ✅ Supported | Standard library, popular frameworks |
+| **PHP** | ✅ Supported | Laravel, Symfony |
+
+**Database Support**: SQL Server, PostgreSQL, MySQL, SQLite, MongoDB
+
+**Testing Frameworks**: Playwright, Selenium, Jest, xUnit, pytest, JUnit
+
+---
+
+## 📖 Documentation Structure
+
+After configuration, your `.github` folder will contain:
 
 ```
 .github/
 ├── instructions/
-│   ├── SelfAwareness.instructions.md       - Global operating rules
+│   ├── SelfAwareness.instructions.md  # Global rules
 │   └── Links/
-│       ├── SystemIndex.md                   - System documentation index
-│       ├── Architecture.md                  - Architecture patterns
-│       ├── InfrastructureQuickRef.md       - Infrastructure reference
-│       ├── PlaywrightQuickRef.md           - Testing reference
-│       └── ... (other reference docs)
+│       ├── SystemIndex.md              # Navigation hub
+│       ├── Architecture.md             # System design
+│       ├── InfrastructureQuickRef.md   # DB and infrastructure
+│       └── ...                         # Other references
 ├── prompts/
-│   ├── feature.prompt.md                    - Feature planning agent
-│   ├── task.prompt.md                       - Task execution agent
-│   ├── refactor.prompt.md                   - Refactoring agent
-│   ├── test-generation.prompt.md           - Test generation agent
-│   ├── ... (other agent prompts)
-│   └── shared/
-│       ├── commit-message-format.md        - Commit conventions
-│       ├── execution-flow.md               - Agent workflows
-│       └── ... (shared guidelines)
+│   ├── handoff.prompt.md               # Entry point
+│   ├── task.prompt.md                  # Task execution
+│   ├── create-plan.prompt.md           # Planning
+│   ├── test-generation.prompt.md       # Test generation
+│   ├── internal/                       # Internal agents
+│   └── shared/                         # Shared documentation
 └── learning/
-    ├── README.md                            - Learning system docs
-    ├── PATTERN_SCHEMA.md                    - Pattern structure
-    ├── patterns/                            - Reusable patterns
-    ├── insights/                            - Technology insights
-    └── recommendations/                     - Active recommendations
+    ├── patterns/                       # Pattern library
+    └── recommendations/                # Improvement tracking
 ```
 
 ---
 
-## Troubleshooting
+## 🔧 Customization
 
-### "Template variables still present after running total-recall"
-- **Cause:** total-recall couldn't detect project type
-- **Solution:** Manually specify project type:
-  ```
-  @workspace /total-recall project-type=".NET"
-  ```
+### Modify Template Variables
 
-### "Agent not found" error
-- **Cause:** Prompt file not in `.github/prompts/`
-- **Solution:** Verify all `.template` files were copied and renamed
+If auto-detection doesn't fit your project, edit the configured files in `.github/_Portable/_Configured/` before copying to `.github/`.
 
-### "Agent behaving incorrectly"
-- **Cause:** Configuration may be incomplete
-- **Solution:** Re-run total-recall with explicit parameters:
-  ```
-  @workspace /total-recall project-type=".NET" frameworks="ASP.NET Core, Blazor"
-  ```
+### Add Custom Agents
 
-### Need help?
-- Run: `@workspace /question "How do I use the task agent?"`
-- Check: `START-HERE.md` for quick start examples
-- Review: `QUICK-REFERENCE.md` for agent syntax
+1. Create your prompt file: `.github/prompts/your-agent.prompt.md`
+2. Follow the structure of existing prompts
+3. Reference shared documentation: `.github/prompts/shared/`
+
+### Extend Learning System
+
+The learning system automatically tracks:
+- Successful patterns
+- Common errors
+- Performance optimizations
+- Recommendations
+
+Add custom patterns in `.github/learning/patterns/`.
 
 ---
 
-## What's Next?
+## 🐛 Troubleshooting
 
-1. ✅ Read **START-HERE.md** for detailed examples
-2. ✅ Check **QUICK-REFERENCE.md** for agent syntax
-3. ✅ Review **STATUS.md** for version info and limitations
-4. ✅ Try creating a feature: `@workspace /feature key=test user_request="Add hello world endpoint"`
+### "Database not found"
+- Check `{{DATABASE_NAME}}` in `InfrastructureQuickRef.md`
+- Verify connection string in your config file
+- Ensure database server is running
+
+### "Command not found" (build/test)
+- Verify `{{BUILD_COMMAND}}` and `{{TEST_COMMAND}}` match your project
+- Check paths in template variables
+- Run commands manually to confirm they work
+
+### "Agent not responding"
+- Check for syntax errors in prompt files
+- Verify all `{{VARIABLES}}` are replaced (no curly braces left)
+- Review agent invocation syntax in `QUICK-REFERENCE.md`
+
+### Configuration Issues
+- Re-run `@workspace /total-recall`
+- Check for error messages during configuration
+- Manually inspect generated files in `_Configured/`
 
 ---
 
-**Welcome to the AI Agent System!** 🚀
+## 📞 Support
+
+### Documentation
+- **START-HERE.md** - Quick start guide
+- **QUICK-REFERENCE.md** - Command reference
+- **STATUS.md** - Compatibility and version info
+- **COMPLETE.md** - Completion checklist
+
+### Common Questions
+
+**Q: Do I need to configure manually?**  
+A: No! The total-recall agent auto-detects your project and configures everything.
+
+**Q: Can I use this with multiple projects?**  
+A: Yes! Each project gets its own configured copy. The templates remain unchanged.
+
+**Q: What if my project uses multiple languages?**  
+A: total-recall detects all languages and frameworks. List them in `{{LANGUAGES}}` and `{{FRAMEWORKS}}`.
+
+**Q: How do I update the portable system?**  
+A: Pull updates from the source repository, re-run total-recall, and review changes.
+
+---
+
+## 🎓 Learning More
+
+### Example Workflows
+
+**1. Implement a Feature**
+```
+@workspace /handoff "Add user authentication to login page"
+```
+
+**2. Create a Plan First**
+```
+@workspace /create-plan "Implement JWT authentication with refresh tokens"
+# Review plan, then execute phases
+```
+
+**3. Generate Tests**
+```
+@workspace /test-generation feature="login" framework=playwright
+```
+
+**4. Refactor Code**
+```
+@workspace /refactor file="UserService.cs" focus="Extract common patterns"
+```
+
+**5. Health Check**
+```
+@workspace /healthcheck
+```
+
+### Best Practices
+
+1. **Start with handoff** - It routes to the right agent
+2. **Use create-plan for complex work** - Break down big tasks
+3. **Let agents commit** - They create checkpoint commits
+4. **Review learning** - Check `.github/learning/recommendations/`
+5. **Update templates** - Run `/port-instructions` after system improvements
+
+---
+
+## 📊 System Status
+
+- ✅ Ready for immediate use
+- ✅ Zero manual configuration required
+- ✅ Supports 7+ programming languages
+- ✅ Includes 10+ specialized agents
+- ✅ Learning system included
+- ✅ Testing framework integration
+- ✅ Database schema protection
+
+---
+
+## 🔄 Updates
+
+To update this system:
+
+1. **Source Repository**: Pull latest changes
+2. **Re-run Configuration**: `@workspace /total-recall`
+3. **Review Changes**: Check `_Configured/` folder
+4. **Deploy**: Copy to `.github/` when ready
+5. **Test**: Run `@workspace /healthcheck`
+
+---
+
+## 📝 License
+
+This portable system inherits the license of your project. The templates are provided as-is for use with GitHub Copilot.
+
+---
+
+## 🙏 Credits
+
+Generated from the NOOR CANVAS AI agent infrastructure.  
+Designed for drop-in portability across any project.
+
+---
+
+**Next Steps:**
+1. Read `START-HERE.md` for quick start
+2. Run `@workspace /total-recall` to configure
+3. Try `@workspace /handoff "your first task"`
+
+**Questions?** Check `QUICK-REFERENCE.md` for command syntax.

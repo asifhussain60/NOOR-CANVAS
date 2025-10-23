@@ -1,310 +1,382 @@
-# START HERE - AI Agent System Quick Start
+# START HERE - Portable AI Agent System
 
-**Welcome!** This guide gets you using AI agents in 5 minutes.
-
----
-
-## Step 1: Configuration (30 seconds)
-
-Copy this folder to your project, then run:
-
-```
-@workspace /total-recall
-```
-
-That's it! total-recall scans your project and configures everything automatically.
+**Quick setup in 3 steps. Then start working with AI agents.**
 
 ---
 
-## Step 2: Learn What's Available (1 minute)
+## ⚡ Super Quick Start
 
-Ask the question agent:
-
-```
-@workspace /question "What agents are available and what do they do?"
-```
-
----
-
-## Step 3: Try Your First Feature (3 minutes)
-
-Create a simple feature with the planning agent:
-
-```
-@workspace /feature key=hello-world user_request="Add a hello world endpoint that returns JSON"
+### Step 1: Copy Files
+```bash
+# Copy this folder to your project
+cp -r .github/_Portable your-project/.github/
 ```
 
-**What happens:**
-1. Feature agent creates a detailed plan
-2. Shows you 4-5 phases to implement
-3. Asks for your approval
-4. You say "proceed"
-5. Agent outputs handoff command
-6. **YOU run the command** to start implementation
-7. Task agent implements each phase
-
----
-
-## Common Workflows
-
-### Planning → Implementation → Testing
-
+### Step 2: Configure
 ```
-# Step 1: Plan the feature
-@workspace /feature key=user-auth user_request="Add JWT authentication"
-
-# Step 2: After reviewing plan, start implementation  
-# (Feature agent gives you this command)
-@workspace /task key=user-auth github-branch=development tasks="Phase 1: ...\n---\nPhase 2: ..."
-
-# Step 3: Generate tests
-@workspace /test-generation feature=authentication scenario="login with valid credentials"
+# In VS Code, open your project
+# Press Ctrl+Shift+P (Cmd+Shift+P on Mac)
+# Type: @workspace /total-recall
 ```
 
-### Quick Refactoring
+### Step 3: Deploy
+```bash
+# Windows
+Copy-Item -Path ".github\_Portable\_Configured\*" -Destination ".github\" -Recurse -Force
 
-```
-@workspace /refactor target="src/services/UserService.cs" focus="Extract validation logic to separate class"
-```
-
-### Generate Commit Message
-
-```
-# After making changes
-@workspace /commit
+# Mac/Linux
+cp -r .github/_Portable/_Configured/* .github/
 ```
 
-### Ask Questions
-
+**Done!** Now try your first task:
 ```
-@workspace /question "How does the session management work?"
-@workspace /question "What's the best practice for error handling in this codebase?"
-@workspace /question "Show me examples of using the database context"
+@workspace /handoff "Create a new API endpoint for user profiles"
 ```
 
 ---
 
-## Agent Descriptions
+## 🤖 Available Agents
 
-### 🎯 Feature Planning Agent (`/feature`)
+### Primary Agents (Use These)
 
-**Purpose:** Turns user requests into detailed, phased implementation plans
+#### `/handoff` - Your Main Entry Point
+**Use this for**: Any work request
 
-**When to use:**
-- Starting a new feature
-- Need structured approach to complex changes
-- Want validation before coding
-
-**Example:**
 ```
-@workspace /feature key=dark-mode user_request="Add dark mode toggle to UI"
+@workspace /handoff "Fix the login bug"
+@workspace /handoff "Add dark mode toggle"
+@workspace /handoff "Optimize database queries"
 ```
 
-**Output:**
-- Multi-phase implementation plan
-- Test requirements
-- Architecture analysis
-- Handoff command for task agent
-
-**CRITICAL:** Feature agent NEVER executes code directly. It only plans and presents handoff commands for your approval.
+**What it does:**
+- Analyzes your request
+- Routes to appropriate specialized agent
+- Manages workflow start-to-finish
 
 ---
 
-### ⚙️ Task Execution Agent (`/task`)
+#### `/create-plan` - Plan Before Executing
+**Use this for**: Complex, multi-step work
 
-**Purpose:** Implements features phase-by-phase based on plan
-
-**When to use:**
-- After feature agent creates a plan
-- Implementing from existing plan document
-
-**Example:**
 ```
-@workspace /task key=dark-mode github-branch=development debug-level=simple tasks="Phase 1: Add theme state\n---\nPhase 2: Wire UI toggle"
+@workspace /create-plan "Implement user authentication system"
+@workspace /create-plan "Migrate from REST to GraphQL"
 ```
 
-**Output:**
-- Implementation for each phase
-- Build validation after changes
-- Commit after each phase
-- Progress updates
+**What it does:**
+- Breaks work into phases
+- Identifies dependencies
+- Generates execution plan
+- Presents handoff commands for you to run
+
+**When to use**: 
+- Complex features (3+ steps)
+- Architectural changes
+- Migrations
+- When you want to review before executing
 
 ---
 
-### 🔄 Refactor Agent (`/refactor`)
+#### `/test-generation` - Generate Tests
+**Use this for**: Creating Playwright or unit tests
 
-**Purpose:** Improves code quality and structure
-
-**When to use:**
-- Code smells detected
-- Need to extract/simplify logic
-- Performance optimization
-
-**Example:**
 ```
-@workspace /refactor target="src/api/SessionController.cs" focus="Extract validation to middleware"
+@workspace /test-generation feature="login" framework=playwright
+@workspace /test-generation file="UserService.cs" framework=xunit
 ```
 
-**Output:**
-- Refactored code
-- Preserved functionality
-- Tests updated if needed
+**What it does:**
+- Generates test files
+- Follows project conventions
+- Includes assertions and scenarios
+- Validates test runs
 
 ---
 
-### 🧪 Test Generation Agent (`/test-generation`)
+#### `/healthcheck` - System Validation
+**Use this for**: Verifying everything works
 
-**Purpose:** Creates end-to-end and unit tests
-
-**When to use:**
-- After implementing a feature
-- Need test coverage
-- Visual regression testing (Percy)
-
-**Example:**
-```
-@workspace /test-generation feature=login scenario="user logs in with valid credentials" tokens="Host=ABC123,User=XYZ789"
-```
-
-**Output:**
-- Playwright E2E tests
-- Percy visual tests (if UI changes)
-- Test orchestration scripts
-
----
-
-### 💬 Question Agent (`/question`)
-
-**Purpose:** Answers questions about codebase, architecture, agents
-
-**When to use:**
-- Need to understand how something works
-- Looking for examples
-- Learning agent capabilities
-
-**Example:**
-```
-@workspace /question "How do I use SignalR hubs in this project?"
-@workspace /question "What's the database schema for sessions?"
-```
-
-**Output:**
-- Clear answers with code examples
-- Links to relevant files
-- Best practices
-
----
-
-### 📝 Commit Agent (`/commit`)
-
-**Purpose:** Generates conventional commit messages
-
-**When to use:**
-- After making changes
-- Need proper commit format
-
-**Example:**
-```
-@workspace /commit
-```
-
-**Output:**
-- Conventional commit message
-- Scope and description
-- Breaking change flags if applicable
-
----
-
-### 🏥 Health Check Agent (`/healthcheck`)
-
-**Purpose:** Validates agent system integrity
-
-**When to use:**
-- After configuration
-- Troubleshooting agent issues
-- Verifying setup
-
-**Example:**
 ```
 @workspace /healthcheck
 ```
 
-**Output:**
-- System health report
-- Missing files warnings
-- Configuration validation
+**What it does:**
+- Checks agent configuration
+- Validates file structure
+- Tests key system components
+- Reports issues
 
 ---
 
-### 🧹 Cleanup Agent (`/cleanup`)
+### When to Use Each Agent
 
-**Purpose:** Removes temporary files and artifacts
-
-**When to use:**
-- After completing work
-- Before committing
-- Workspace feeling cluttered
-
-**Example:**
-```
-@workspace /cleanup
-```
-
-**Output:**
-- Cleaned workspace
-- List of removed files
-- Disk space recovered
+| Scenario | Agent | Example |
+|----------|-------|---------|
+| Quick bug fix | `/handoff` | `@workspace /handoff "Fix null reference in login"` |
+| Feature addition | `/handoff` | `@workspace /handoff "Add export to CSV button"` |
+| Complex feature | `/create-plan` | `@workspace /create-plan "Add multi-tenant support"` |
+| Need to review first | `/create-plan` | `@workspace /create-plan "Refactor authentication"` |
+| Generate tests | `/test-generation` | `@workspace /test-generation feature="checkout"` |
+| Check system | `/healthcheck` | `@workspace /healthcheck` |
 
 ---
 
-## Tips & Tricks
+## 📋 Common Workflows
 
-### 1. Use Key Parameters Consistently
+### Workflow 1: Implement a Feature
+
 ```
-# Start with feature agent
-@workspace /feature key=user-profile user_request="..."
+# Option A: Direct execution
+@workspace /handoff "Add user profile page with avatar upload"
 
-# Continue with same key
-@workspace /task key=user-profile ...
-@workspace /test-generation key=user-profile ...
+# Option B: Plan first, then execute
+@workspace /create-plan "Add user profile page with avatar upload"
+# Review the plan
+# Copy and run the provided handoff command
 ```
-
-### 2. Break Large Features into Phases
-```
-# Instead of one huge request
-@workspace /feature key=big-feature user_request="Implement entire user management system"
-
-# Break it down
-@workspace /feature key=user-mgmt-phase1 user_request="Add user registration"
-@workspace /feature key=user-mgmt-phase2 user_request="Add user profile editing"
-```
-
-### 3. Use Question Agent for Exploration
-```
-# Before implementing
-@workspace /question "Show me existing authentication patterns in this codebase"
-
-# Then implement
-@workspace /feature key=new-auth ...
-```
-
-### 4. Review Plans Before Execution
-Feature agent creates plans → You review → You approve → You run handoff command
-
-Never skip the review step!
 
 ---
 
-## Next Steps
+### Workflow 2: Fix a Bug
 
-1. ✅ Run `@workspace /total-recall` to configure
-2. ✅ Try `@workspace /question "What agents are available?"`
-3. ✅ Create first feature with `/feature`
-4. ✅ Check `QUICK-REFERENCE.md` for syntax details
-5. ✅ Review `README.md` for deeper understanding
+```
+@workspace /handoff "Login button not working on mobile devices"
+```
+
+The agent will:
+1. Analyze the issue
+2. Locate relevant code
+3. Implement fix
+4. Update tests
+5. Create commit
 
 ---
 
-**You're ready to go!** 🚀
+### Workflow 3: Generate Tests
 
-Start with: `@workspace /question "What should I try first?"`
+```
+# For a specific feature
+@workspace /test-generation feature="shopping cart" framework=playwright
+
+# For a specific file
+@workspace /test-generation file="OrderService.cs" framework=xunit include_edge_cases=true
+```
+
+---
+
+### Workflow 4: Refactor Code
+
+```
+@workspace /handoff "Refactor UserController to use service pattern"
+```
+
+Or with a plan:
+```
+@workspace /create-plan "Refactor entire authentication system"
+```
+
+---
+
+### Workflow 5: Database Changes
+
+```
+@workspace /handoff "Add 'LastLoginDate' column to Users table with migration"
+```
+
+The agent will:
+- Check database schema rules
+- Respect READ-ONLY schemas
+- Create migration scripts
+- Update entity models
+
+---
+
+## 🎯 Tips for Success
+
+### 1. Be Specific
+❌ **Bad**: "Fix the bug"  
+✅ **Good**: "Fix null reference exception in LoginController.cs line 45"
+
+### 2. Use create-plan for Complex Work
+❌ **Bad**: Handoff with 10 different requirements  
+✅ **Good**: Use create-plan to break it into phases
+
+### 3. Let Agents Commit
+Agents create checkpoint commits automatically. Don't interrupt them.
+
+### 4. Review Learning
+Check `.github/learning/recommendations/active-recommendations.md` periodically for system insights.
+
+### 5. Trust the Routing
+Use `/handoff` - it knows which specialized agent to use.
+
+---
+
+## 🛡 Database Safety
+
+The system protects your database with schema rules:
+
+- ✅ **Writable schemas**: Defined in `{{SCHEMA_PRIMARY}}`
+- ❌ **Read-only schemas**: Defined in `{{SCHEMA_READONLY}}`
+
+Example configuration (from total-recall):
+```markdown
+## Database Access Rules
+
+**PRIMARY DATABASE: {{DATABASE_NAME}}**
+
+**SCHEMA ACCESS CONTROL**:
+- ✅ **`app.*` schema**: READ-WRITE allowed
+- ❌ **`legacy.*` schema**: READ-ONLY - NO modifications
+```
+
+---
+
+## ⚙ Configuration
+
+### Auto-Configuration (Recommended)
+
+Run `@workspace /total-recall` and let it detect:
+- Project type (.NET, Node.js, Python, etc.)
+- Languages and frameworks
+- Build commands
+- Database connections
+- File paths
+
+### Manual Override
+
+If auto-detection isn't perfect:
+1. Run `@workspace /total-recall`
+2. Edit files in `.github/_Portable/_Configured/`
+3. Fix any `{{VARIABLES}}` that weren't detected
+4. Copy to `.github/`
+
+---
+
+## 📖 Learn More
+
+### Documentation Files
+
+| File | Purpose |
+|------|---------|
+| **README.md** | Complete system overview |
+| **START-HERE.md** | This file - quick start |
+| **QUICK-REFERENCE.md** | Command reference |
+| **STATUS.md** | Compatibility info |
+| **COMPLETE.md** | Setup checklist |
+
+### Key Configuration Files (After Setup)
+
+| File | Purpose |
+|------|---------|
+| `.github/instructions/SelfAwareness.instructions.md` | Global agent rules |
+| `.github/instructions/Links/InfrastructureQuickRef.md` | Database and infrastructure |
+| `.github/instructions/Links/Architecture.md` | System architecture |
+| `.github/prompts/handoff.prompt.md` | Main entry agent |
+| `.github/prompts/task.prompt.md` | Task execution agent |
+
+---
+
+## 🐛 Troubleshooting
+
+### "Agent not found"
+- Verify files copied to `.github/` (not `_Portable/`)
+- Check file names match exactly (case-sensitive on Mac/Linux)
+
+### "Database connection failed"
+- Edit `InfrastructureQuickRef.md`
+- Check `{{DATABASE_NAME}}` and `{{DATABASE_SERVER}}`
+- Verify connection string in your app config
+
+### "Build command not found"
+- Edit `SelfAwareness.instructions.md`
+- Check `{{BUILD_COMMAND}}` and `{{TEST_COMMAND}}`
+- Test commands manually in terminal
+
+### "Template variables not replaced"
+- Re-run `@workspace /total-recall`
+- Check for errors in output
+- Manually fix remaining `{{VARIABLES}}` in configured files
+
+---
+
+## ✅ Quick Validation
+
+After setup, test each agent:
+
+```bash
+# 1. Health check
+@workspace /healthcheck
+
+# 2. Simple handoff
+@workspace /handoff "Add a comment to README.md"
+
+# 3. Create a plan
+@workspace /create-plan "Add a new utility function"
+
+# 4. Generate a test (if applicable)
+@workspace /test-generation feature="example" framework=playwright
+```
+
+If all work, you're ready! 🎉
+
+---
+
+## 🚀 Next Steps
+
+1. ✅ **Setup Complete** - If you followed steps 1-3
+2. 📖 **Read** - Check `QUICK-REFERENCE.md` for all commands
+3. 🎯 **Try It** - Run your first `@workspace /handoff` task
+4. 📚 **Learn** - Explore `.github/learning/recommendations/`
+5. 🔄 **Iterate** - Agents learn from your project over time
+
+---
+
+## 💡 Pro Tips
+
+### Shortcut: Skip create-plan
+If you're confident, go straight to handoff:
+```
+@workspace /handoff "Implement JWT refresh token rotation"
+```
+
+### Shortcut: Background Cleanup
+If terminals pile up, the system auto-cleans. But you can force:
+```
+# Cleanup agent runs automatically, but internally
+# Usually you don't need to invoke it manually
+```
+
+### Shortcut: Sync Files
+If you suspect files are out of sync:
+```
+# Sync agent also runs automatically
+# Invoked internally when needed
+```
+
+### Learning Review
+Periodically check:
+```
+@workspace /analyze-learning
+```
+This reviews patterns and generates recommendations.
+
+---
+
+## 📞 Need Help?
+
+1. **Check** `QUICK-REFERENCE.md` for syntax
+2. **Run** `@workspace /healthcheck` for diagnostics
+3. **Review** error messages in agent responses
+4. **Validate** template variables are all replaced
+5. **Re-run** `@workspace /total-recall` if needed
+
+---
+
+**Ready to go? Try this:**
+
+```
+@workspace /handoff "Add a test utility function that generates random user data"
+```
+
+The agent will handle the rest! 🚀

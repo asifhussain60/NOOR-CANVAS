@@ -1,18 +1,18 @@
 ﻿<#
 .SYNOPSIS
-    Deploy NoorCanvas application and HostProvisioner (Windows Forms) to production from master branch.
+    Deploy NoorCanvas application and HostProvisioner (Windows Forms) to production from development branch.
 
 .DESCRIPTION
     This script orchestrates a complete production deployment workflow:
-    1. Ensures starting on development branch
-    2. Merges development → master (with conflict detection)
-    3. Builds and publishes NoorCanvas from master in Release mode
-    4. Applies web.config transformations (KSESSIONS production database)
-    5. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
-    6. Builds and deploys HostProvisioner.WinForms to D:\Websites\NOOR-CANVAS\HostProvisioner
-    7. Configures HostProvisioner.WinForms for Production environment
-    8. Validates production configuration (environment + database)
-    9. Returns to development branch
+    1. Ensures on development branch (where all development work happens)
+    2. Builds and publishes NoorCanvas from development in Release mode
+    3. Applies web.config transformations (KSESSIONS production database)
+    4. Deploys NoorCanvas to D:\Websites\NOOR-CANVAS with IIS management
+    5. Builds and deploys HostProvisioner.WinForms to D:\Websites\NOOR-CANVAS\HostProvisioner
+    6. Configures HostProvisioner.WinForms for Production environment
+    7. Validates production configuration (environment + database)
+    8. After successful deployment, merges development → master (to record production state)
+    9. Remains on development branch for continued work
     
     Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
     connection strings point to KSESSIONS (production) database.
@@ -21,7 +21,7 @@
     Can be run from any directory - automatically uses correct workspace paths.
 
 .PARAMETER SkipMerge
-    Skip the git merge step. Use only if already on master with correct code.
+    Skip the post-deployment git merge step. Use only if you don't want to update master branch.
 
 .PARAMETER SkipBuild
     Skip the build step and deploy existing publish output.
@@ -33,8 +33,8 @@
     Name of the IIS Application Pool to restart. Default: "NoorCanvas"
 
 .PARAMETER AutoMerge
-    Automatically continue with merge even if there are changes to commit.
-    USE WITH CAUTION - only when you're certain changes should be merged.
+    Automatically continue with post-deployment merge even if there are uncommitted changes.
+    USE WITH CAUTION - only when you're certain the deployment state should be recorded.
 
 .PARAMETER DryRun
     Validate migrations and deployment readiness without executing.
@@ -43,11 +43,11 @@
 
 .EXAMPLE
     .\ncdeploy.ps1
-    Full deployment: merge development→master, build, deploy, return to development
+    Full deployment: build from development, deploy, merge development→master (record production)
 
 .EXAMPLE
     .\ncdeploy.ps1 -SkipMerge
-    Deploy from current master branch without merging development
+    Deploy from development branch without updating master branch afterward
 
 .EXAMPLE
     .\ncdeploy.ps1 -DryRun
@@ -59,7 +59,9 @@
 
 .NOTES
     Author: NOOR CANVAS Team
-    Always begins and ends on development branch (unless -SkipMerge is used)
+    IMPORTANT: Deploys FROM development branch (not master)
+    Master branch is only updated AFTER successful deployment to record production state
+    Always begins and ends on development branch
     Web.config transforms automatically set Production environment and KSESSIONS database
 #>
 
@@ -121,119 +123,71 @@ try {
     Write-Host "  Time: $Timestamp" -ForegroundColor Magenta
     Write-Host "========================================`n" -ForegroundColor Magenta
 
-    # Step 0: Git branch management (merge development → master)
-    # [DEBUG-WORKITEM:deploy:merge-feedback:SIMPLE]
-    if (-not $SkipMerge) {
-        Write-Step "Git: Preparing for deployment merge..."
-        Write-Info "→ Checking current branch and status"
+    # Step 0: Git branch management (ensure on development, merge AFTER deployment)
+    # [DEBUG-WORKITEM:deploy:branch-check:SIMPLE]
+    Write-Step "Git: Verifying development branch..."
+    Write-Info "→ Checking current branch and status"
+    
+    # Change to workspace root for git operations
+    Push-Location $WorkspaceRoot
+    
+    try {
+        # Get current branch
+        $OriginalBranch = git branch --show-current
+        Write-Info "Current branch: $OriginalBranch"
         
-        # Change to workspace root for git operations
-        Push-Location $WorkspaceRoot
-        
-        try {
-            # Get current branch
-            $OriginalBranch = git branch --show-current
-            Write-Info "Current branch: $OriginalBranch"
-            
-            # Ensure we're starting from development
-            if ($OriginalBranch -ne "development") {
-                Write-Warning "Not on development branch. Switching to development..."
-                $prevErrorAction = $ErrorActionPreference
-                $ErrorActionPreference = "Continue"
-                git checkout development 2>&1 | Out-Null
-                $ErrorActionPreference = $prevErrorAction
-                if ($LASTEXITCODE -ne 0) {
-                    throw "Failed to switch to development branch"
-                }
-                $OriginalBranch = "development"
-                Write-Success "Switched to development branch"
-            }
-            
-            # Check for uncommitted changes
-            Write-Info "→ Checking for uncommitted changes"
-            $gitStatus = git status --porcelain
-            if ($gitStatus) {
-                Write-Warning "Uncommitted changes detected:"
-                Write-Host $gitStatus -ForegroundColor Yellow
-                
-                if (-not $AutoMerge) {
-                    Write-Host "`nOptions:" -ForegroundColor Cyan
-                    Write-Host "  1. Commit your changes first, then re-run ncdeploy.ps1" -ForegroundColor Gray
-                    Write-Host "  2. Stash your changes: git stash" -ForegroundColor Gray
-                    Write-Host "  3. Use -AutoMerge flag to continue anyway (not recommended)" -ForegroundColor Gray
-                    throw "Please commit or stash changes before deploying"
-                } else {
-                    Write-Warning "Continuing with deployment despite uncommitted changes (AutoMerge enabled)"
-                }
-            } else {
-                Write-Success "No uncommitted changes"
-            }
-            
-            # Fetch latest changes
-            Write-Info "→ Fetching latest changes from origin"
-            git fetch origin
-            
-            # Switch to master
-            Write-Info "→ Switching to master branch"
+        # Ensure we're on development (where all work happens)
+        if ($OriginalBranch -ne "development") {
+            Write-Warning "Not on development branch. Switching to development..."
             $prevErrorAction = $ErrorActionPreference
             $ErrorActionPreference = "Continue"
-            git checkout master 2>&1 | Out-Null
+            git checkout development 2>&1 | Out-Null
             $ErrorActionPreference = $prevErrorAction
             if ($LASTEXITCODE -ne 0) {
-                throw "Failed to switch to master branch"
+                throw "Failed to switch to development branch"
             }
-            Write-Success "On master branch"
-            
-            # Pull latest master
-            Write-Info "→ Pulling latest master changes"
-            git pull origin master
-            if ($LASTEXITCODE -ne 0) {
-                Write-Warning "Failed to pull master (may not exist remotely). Continuing..."
-            }
-            
-            # Merge development into master
-            Write-Info "→ Merging development into master"
-            git merge development --no-ff -m "Deploy: Merge development to master ($Timestamp)"
-            
-            if ($LASTEXITCODE -ne 0) {
-                Write-Error "Merge conflicts detected!"
-                Write-Host "`nPlease resolve conflicts manually:" -ForegroundColor Yellow
-                Write-Host "  1. Run: git status" -ForegroundColor Gray
-                Write-Host "  2. Edit conflicting files" -ForegroundColor Gray
-                Write-Host "  3. Run: git add <resolved-files>" -ForegroundColor Gray
-                Write-Host "  4. Run: git commit" -ForegroundColor Gray
-                Write-Host "  5. Re-run: .\ncdeploy.ps1 -SkipMerge" -ForegroundColor Cyan
-                throw "Merge conflicts require manual resolution"
-            }
-            
-            Write-Success "Successfully merged development → master"
-            
-            # Show merge summary
-            $commitCount = git rev-list --count master..development
-            Write-Info "Merged changes from development to master"
-            
-        } finally {
-            Pop-Location
+            $OriginalBranch = "development"
+            Write-Success "Switched to development branch"
+        } else {
+            Write-Success "On development branch (correct for deployment)"
         }
-    } else {
-        Write-Warning "Skipping git merge (using current branch as-is)"
         
-        # Still need to verify we're on master
-        Push-Location $WorkspaceRoot
-        try {
-            $currentBranch = git branch --show-current
-            if ($currentBranch -ne "master") {
-                Write-Warning "Not on master branch (on: $currentBranch)"
-                Write-Host "Switching to master..." -ForegroundColor Yellow
-                git checkout master
-                if ($LASTEXITCODE -ne 0) {
-                    throw "Failed to switch to master branch"
-                }
+        # Check for uncommitted changes
+        Write-Info "→ Checking for uncommitted changes"
+        $gitStatus = git status --porcelain
+        if ($gitStatus) {
+            Write-Warning "Uncommitted changes detected:"
+            Write-Host $gitStatus -ForegroundColor Yellow
+            
+            if (-not $AutoMerge) {
+                Write-Host "`nOptions:" -ForegroundColor Cyan
+                Write-Host "  1. Commit your changes first, then re-run ncdeploy.ps1" -ForegroundColor Gray
+                Write-Host "  2. Stash your changes: git stash" -ForegroundColor Gray
+                Write-Host "  3. Use -AutoMerge flag to continue anyway (not recommended)" -ForegroundColor Gray
+                throw "Please commit or stash changes before deploying"
+            } else {
+                Write-Warning "Continuing with deployment despite uncommitted changes (AutoMerge enabled)"
             }
-            Write-Success "On master branch"
-        } finally {
-            Pop-Location
+        } else {
+            Write-Success "No uncommitted changes"
         }
+        
+        # Fetch latest changes
+        Write-Info "→ Fetching latest changes from origin"
+        git fetch origin
+        
+        # Pull latest development
+        Write-Info "→ Pulling latest development changes"
+        git pull origin development
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Failed to pull development (may not exist remotely). Continuing..."
+        }
+        
+        Write-Success "Ready to deploy from development branch"
+        Write-Info "Note: Master branch will be updated AFTER successful deployment"
+        
+    } finally {
+        Pop-Location
     }
 
     # Step 0.5: Database Migrations (NEW - Production Schema Changes)
@@ -1100,6 +1054,61 @@ try {
         Write-Info "Skipping automated validation. Please test manually."
     }
 
+    # Step FINAL: Post-deployment git merge (development → master to record production state)
+    # [DEBUG-WORKITEM:deploy:post-merge:SIMPLE]
+    if (-not $SkipMerge) {
+        Write-Step "Git: Recording deployment to master branch..."
+        Write-Info "→ Merging development → master (to record what's in production)"
+        
+        Push-Location $WorkspaceRoot
+        try {
+            # Switch to master
+            Write-Info "→ Switching to master branch"
+            $prevErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            git checkout master 2>&1 | Out-Null
+            $ErrorActionPreference = $prevErrorAction
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Master branch may not exist. Creating it..."
+                git checkout -b master 2>&1 | Out-Null
+            }
+            
+            # Pull latest master (if exists remotely)
+            Write-Info "→ Pulling latest master changes"
+            git pull origin master 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Failed to pull master (may not exist remotely). Continuing..."
+            }
+            
+            # Merge development into master
+            Write-Info "→ Merging development into master"
+            git merge development --no-ff -m "Deploy: Record production deployment ($Timestamp)" 2>&1 | Out-Null
+            
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Merge to master had conflicts or errors"
+                Write-Host "This is not critical - deployment succeeded, but master was not updated" -ForegroundColor Yellow
+                Write-Host "You can manually merge later if needed" -ForegroundColor Yellow
+            } else {
+                Write-Success "Master branch updated to match production deployment"
+            }
+            
+            # Return to development branch
+            Write-Info "→ Returning to development branch"
+            git checkout development 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Returned to development branch (ready for continued work)"
+            } else {
+                Write-Warning "Could not return to development branch"
+            }
+            
+        } finally {
+            Pop-Location
+        }
+    } else {
+        Write-Warning "Skipping post-deployment merge (master branch not updated)"
+        Write-Info "To update master manually: git checkout master && git merge development"
+    }
+
     # Final summary
     Write-Host "`n========================================" -ForegroundColor Green
     Write-Host "  DEPLOYMENT SUCCESSFUL!" -ForegroundColor Green
@@ -1112,7 +1121,8 @@ try {
     Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Gray
     Write-Host "  Environment: Production" -ForegroundColor Gray
     Write-Host "  Deployment Type: CLEAN (all files removed first)" -ForegroundColor Gray
-    Write-Host "  Branch: master" -ForegroundColor Gray
+    Write-Host "  Deployed From: development branch" -ForegroundColor Gray
+    Write-Host "  Master Updated: $(if ($SkipMerge) { 'No (use -SkipMerge)' } else { 'Yes (records production state)' })" -ForegroundColor Gray
     Write-Host "  Timestamp: $Timestamp" -ForegroundColor Gray
     
     if (Test-Path "$BackupPath\backup-$Timestamp") {
@@ -1127,7 +1137,7 @@ try {
     Write-Host "`n📋 VERIFICATION STEPS:" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  ☐ 1. Test NoorCanvas Application" -ForegroundColor White
-    Write-Host "      → Visit: https://noorcanvas.servehttp.com" -ForegroundColor Gray
+    Write-Host "      → Visit: https://noorcanvas.kashkole.com" -ForegroundColor Gray
     Write-Host "      → Verify application loads correctly" -ForegroundColor Gray
     Write-Host "      → Test core functionality (sessions, canvas)" -ForegroundColor Gray
     Write-Host ""
@@ -1188,26 +1198,28 @@ try {
         }
     }
     
-    # Try to return to original branch (leaving master clean)
-    if ($OriginalBranch -and -not $SkipMerge) {
-        Write-Host "`n→ Returning to $OriginalBranch branch (leaving master clean)..." -ForegroundColor Yellow
-        Push-Location $WorkspaceRoot
-        try {
+    # Try to return to development branch if needed
+    Write-Host "`n→ Ensuring on development branch..." -ForegroundColor Yellow
+    Push-Location $WorkspaceRoot
+    try {
+        $currentBranch = git branch --show-current 2>&1
+        if ($currentBranch -ne "development") {
             $prevErrorAction = $ErrorActionPreference
             $ErrorActionPreference = "Continue"
-            git checkout $OriginalBranch 2>&1 | Out-Null
+            git checkout development 2>&1 | Out-Null
             $ErrorActionPreference = $prevErrorAction
             if ($LASTEXITCODE -eq 0) {
-                Write-Success "Returned to $OriginalBranch branch"
-                Write-Info "Master branch state: Clean (deployment changes not committed)"
+                Write-Success "Returned to development branch"
             } else {
-                Write-Warning "Could not return to $OriginalBranch branch automatically"
+                Write-Warning "Could not return to development branch automatically"
             }
-        } catch {
-            Write-Warning "Error switching branches: $_"
-        } finally {
-            Pop-Location
+        } else {
+            Write-Success "Already on development branch"
         }
+    } catch {
+        Write-Warning "Error checking/switching branches: $_"
+    } finally {
+        Pop-Location
     }
     
     Write-Host "`nRecovery options:" -ForegroundColor Cyan

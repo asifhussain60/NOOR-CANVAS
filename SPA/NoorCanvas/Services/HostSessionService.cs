@@ -65,7 +65,7 @@ namespace NoorCanvas.Services
                 var environment = _configuration["ASPNETCORE_ENVIRONMENT"];
                 if (environment == "Production")
                 {
-                    return "https://noorcanvas.servehttp.com";
+                    return "https://noorcanvas.kashkole.com";
                 }
                 
                 // Development: Try to get Kestrel HTTPS URL from configuration
@@ -83,7 +83,7 @@ namespace NoorCanvas.Services
 
             // Use production URL in production, localhost in development
             var fallbackUrl = _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production" 
-                ? "https://noorcanvas.servehttp.com" 
+                ? "https://noorcanvas.kashkole.com" 
                 : "https://localhost:9091";
             _logger.LogInformation("Using environment-aware fallback URL: {Url} (Environment: {Env})", 
                 fallbackUrl, _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT"));

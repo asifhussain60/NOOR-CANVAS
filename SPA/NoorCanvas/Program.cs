@@ -119,7 +119,7 @@ builder.Services.AddHttpClient("default", client =>
     // In production (IIS): Use the public domain URL
     // In development (Kestrel): Use localhost with configured port
     var baseAddress = builder.Environment.IsProduction()
-        ? "https://noorcanvas.servehttp.com"  // Production IIS site
+        ? "https://noorcanvas.kashkole.com"  // Production IIS site
         : "https://localhost:9091";           // Development Kestrel
     
     client.BaseAddress = new Uri(baseAddress);
@@ -131,7 +131,7 @@ builder.Services.AddHttpClient("NoorCanvasApi", client =>
 {
     // [DEBUG-WORKITEM:session-opener:http-client] Configure base address for IIS vs Kestrel hosting ;CLEANUP_OK
     var baseAddress = builder.Environment.IsProduction()
-        ? "https://noorcanvas.servehttp.com"  // Production IIS site
+        ? "https://noorcanvas.kashkole.com"  // Production IIS site
         : "https://localhost:9091";           // Development Kestrel
     
     client.BaseAddress = new Uri(baseAddress);
@@ -236,6 +236,13 @@ app.MapGet("/testing/{**catchall}", async (HttpContext context) =>
 }).WithName("TestingSuite");
 
 app.MapControllers();
+
+// Root URL redirect to user landing page for production
+app.MapGet("/", (HttpContext context) =>
+{
+    return Results.Redirect("/user/landing");
+}).WithName("RootRedirect");
+
 app.MapFallbackToPage("/_Host");
 
 // Map SignalR Hubs with enhanced logging
