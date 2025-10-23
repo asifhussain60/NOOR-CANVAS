@@ -20,7 +20,7 @@ public interface IDatabaseEnvironmentGuardService
 public class EnvironmentMismatchInfo
 {
     /// <summary>
-    /// Hostname that triggered the violation (e.g., "noorcanvas.servehttp.com")
+    /// Hostname that triggered the violation (e.g., "noorcanvas.kashkole.com")
     /// </summary>
     public string Hostname { get; set; } = "";
     
