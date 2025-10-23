@@ -1137,7 +1137,7 @@ try {
     Write-Host "`n📋 VERIFICATION STEPS:" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  ☐ 1. Test NoorCanvas Application" -ForegroundColor White
-    Write-Host "      → Visit: https://noorcanvas.servehttp.com" -ForegroundColor Gray
+    Write-Host "      → Visit: https://noorcanvas.kashkole.com" -ForegroundColor Gray
     Write-Host "      → Verify application loads correctly" -ForegroundColor Gray
     Write-Host "      → Test core functionality (sessions, canvas)" -ForegroundColor Gray
     Write-Host ""

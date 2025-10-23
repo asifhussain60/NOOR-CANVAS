@@ -63,7 +63,7 @@ param(
 $ErrorActionPreference = "Continue"  # Continue on errors to collect all issues
 $DeployPath = "D:\Websites\NOOR-CANVAS"
 $LogPath = "$DeployPath\logs"
-$ProductionUrl = "https://noorcanvas.servehttp.com"
+$ProductionUrl = "https://noorcanvas.kashkole.com"
 $ValidationErrors = @()
 $ValidationWarnings = @()
 

@@ -236,6 +236,13 @@ app.MapGet("/testing/{**catchall}", async (HttpContext context) =>
 }).WithName("TestingSuite");
 
 app.MapControllers();
+
+// Root URL redirect to user landing page for production
+app.MapGet("/", (HttpContext context) =>
+{
+    return Results.Redirect("/user/landing");
+}).WithName("RootRedirect");
+
 app.MapFallbackToPage("/_Host");
 
 // Map SignalR Hubs with enhanced logging
