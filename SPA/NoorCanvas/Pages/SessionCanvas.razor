@@ -2067,12 +2067,16 @@
 
     private async Task RetrySignalRConnection()
     {
+        var diagId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("SIGNALR-DIAG: [SC-RetrySignalRConnection] START - DiagId={DiagId}", diagId);
+        
         try
         {
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Retrying SignalR connection...");
             
             if (hubConnection != null)
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SC-RetrySignalRConnection] Disposing existing connection - DiagId={DiagId}", diagId);
                 await hubConnection.DisposeAsync();
             }
             
@@ -2080,10 +2084,13 @@
             StateHasChanged();
             
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection retry completed");
+            Logger.LogInformation("SIGNALR-DIAG: [SC-RetrySignalRConnection] COMPLETE - DiagId={DiagId}", diagId);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Failed to retry SignalR connection");
+            Logger.LogError("SIGNALR-DIAG: [SC-RetrySignalRConnection] ERROR - Message={Message}, DiagId={DiagId}",
+                ex.Message, diagId);
         }
     }
 
@@ -2681,18 +2688,24 @@
     // SignalR Integration
     private async Task InitializeSignalRAsync()
     {
+        var diagId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] START - SessionId={SessionId}, UserGuid={UserGuid}, DiagId={DiagId}",
+            Model?.SessionId ?? 0, CurrentUserGuid, diagId);
+        
         try
         {
             // Dispose existing connection if any
             if (hubConnection != null)
             {
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Disposing existing SignalR connection");
+                Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] Disposing existing connection - DiagId={DiagId}", diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Disposing existing SignalR connection");
                 await hubConnection.DisposeAsync();
                 hubConnection = null;
             }
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔗 Creating SignalR hub connection to /hub/session");
+            Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] Creating HubConnection to /hub/session - DiagId={DiagId}", diagId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Creating SignalR hub connection to /hub/session");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ INITIALIZING SIGNALR ════════ SessionId={SessionId}, UserGuid={UserGuid} ;CLEANUP_OK",
                 Model?.SessionId ?? 0, CurrentUserGuid);
@@ -2703,11 +2716,14 @@
                 .Build();
 
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR connection created, State={State} ;CLEANUP_OK", hubConnection.State);
+            Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] HubConnection created with auto-reconnect, registering event handlers - DiagId={DiagId}", diagId);
 
             // Connection state change events
             hubConnection.Closed += async (error) =>
             {
                 Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ SignalR connection closed: {Error}", error?.Message ?? "No error");
+                Logger.LogError("SIGNALR-DIAG: [SC-Closed] Connection closed - Error={Error}, DiagId={DiagId}",
+                    error?.Message ?? "No error", diagId);
                 Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection closed: {Error}", error?.Message ?? "No error");
                 await InvokeAsync(StateHasChanged);
             };
@@ -2715,6 +2731,8 @@
             hubConnection.Reconnecting += async (error) =>
             {
                 Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 SignalR reconnecting: {Error}", error?.Message ?? "No error");
+                Logger.LogWarning("SIGNALR-DIAG: [SC-Reconnecting] Connection reconnecting - Error={Error}, DiagId={DiagId}",
+                    error?.Message ?? "No error", diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnecting: {Error}", error?.Message ?? "No error");
                 await InvokeAsync(StateHasChanged);
             };
@@ -2722,6 +2740,8 @@
             hubConnection.Reconnected += async (connectionId) =>
             {
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnected with ID: {ConnectionId}", connectionId ?? "unknown");
+                Logger.LogInformation("SIGNALR-DIAG: [SC-Reconnected] Connection re-established - ConnectionId={ConnectionId}, DiagId={DiagId}",
+                    connectionId ?? "unknown", diagId);
                 lastConnectionTime = DateTime.Now;
                 await InvokeAsync(StateHasChanged);
                 
@@ -2730,12 +2750,16 @@
                 {
                     await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
                     Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Re-joined session {SessionId} after reconnection", Model.SessionId);
+                    Logger.LogInformation("SIGNALR-DIAG: [SC-Reconnected] Re-joined session - SessionId={SessionId}, DiagId={DiagId}",
+                        Model.SessionId, diagId);
                 }
             };
 
             // Question events - Handle questions received from other participants
             hubConnection.On<object>("QuestionReceived", async (questionData) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SC-QuestionReceived] Event fired - DiagId={DiagId}", diagId);
+                
                 if (Model?.Questions != null && questionData != null)
                 {
                     try
@@ -2784,6 +2808,7 @@
             hubConnection.On<object>("QuestionUpdated", async (questionData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [SC-QuestionUpdated] Event fired - RequestId={RequestId}, DiagId={DiagId}", requestId, diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 📝 QuestionUpdated SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
@@ -3350,6 +3375,7 @@
             // [DEBUG-WORKITEM:hcp] Listen for canvas clear events to show default message ;CLEANUP_OK
             hubConnection.On("ClearCanvas", async () =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SC-ClearCanvas] Event fired - DiagId={DiagId}", diagId);
                 try
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:hcp] ClearCanvas event received, clearing SharedAssetContent ;CLEANUP_OK");
@@ -3370,6 +3396,7 @@
             // [DEBUG-WORKITEM:canvas-questions:session-status] Listen for session began events to enable Q&A ;CLEANUP_OK
             hubConnection.On<object>("SessionBegan", async (sessionData) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SC-SessionBegan] Event fired - DiagId={DiagId}", diagId);
                 try
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:session-status] SessionBegan event received, enabling Q&A input ;CLEANUP_OK");
@@ -3398,6 +3425,7 @@
             // [DEBUG-WORKITEM:session-ended:hub] Listen for session ended events ;CLEANUP_OK
             hubConnection.On<object>("SessionEnded", async (endData) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SC-SessionEnded] Event fired - DiagId={DiagId}", diagId);
                 try
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] SessionEnded event received ;CLEANUP_OK");
@@ -3427,6 +3455,7 @@
             });
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
+            Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] Starting connection - DiagId={DiagId}", diagId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Handlers registered: QuestionReceived, QuestionUpdated, QuestionVoteUpdated, QuestionVoteUpdate, QuestionDeleted, ParticipantJoined, ParticipantLeft, SessionEnded ;CLEANUP_OK");
@@ -3435,6 +3464,8 @@
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ SIGNALR CONNECTED - State={State}, ConnectionId={ConnectionId} ;CLEANUP_OK", 
                 hubConnection.State, hubConnection.ConnectionId ?? "NULL");
+            Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] Connection established - ConnectionId={ConnectionId}, State={State}, DiagId={DiagId}",
+                hubConnection.ConnectionId, hubConnection.State, diagId);
             
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ SignalR connected: State={State}, ConnectionId={ConnectionId}", hubConnection.State, hubConnection.ConnectionId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection started successfully, State: {State}", hubConnection.State);
@@ -3445,6 +3476,8 @@
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ JOINING SIGNALR GROUP ════════ SessionId={SessionId}, GroupName=Session_{SessionId}, Role=participant ;CLEANUP_OK",
                     Model.SessionId, Model.SessionId);
+                Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] Joining session group - SessionId={SessionId}, DiagId={DiagId}",
+                    Model.SessionId, diagId);
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Attempting to join session group: session_{SessionId}", Model.SessionId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 🔗 GROUP JOIN: Attempting to join session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
@@ -3452,6 +3485,8 @@
                 await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ JoinSession CALL COMPLETE - Waiting for server confirmation ;CLEANUP_OK");
+                Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] Joined session group - session_{SessionId}, DiagId={DiagId}",
+                    Model.SessionId, diagId);
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Joined SignalR group: session_{SessionId}", Model.SessionId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] ✅ GROUP SUCCESS: Joined session_{SessionId} as participant, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
@@ -3463,16 +3498,20 @@
             else
             {
                 Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] ⚠️ SessionId not available - cannot join SignalR group");
+                Logger.LogWarning("SIGNALR-DIAG: [SC-InitializeSignalRAsync] SKIP group join - SessionId not available, DiagId={DiagId}", diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 📊 Model state: SessionId={SessionId}, SessionName={SessionName}", Model?.SessionId, Model?.SessionName);
             }
             
             // Trigger UI update to show connected status
             lastConnectionTime = DateTime.Now;
             await InvokeAsync(StateHasChanged);
+            Logger.LogInformation("SIGNALR-DIAG: [SC-InitializeSignalRAsync] COMPLETE - All setup finished, DiagId={DiagId}", diagId);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Error initializing SignalR connection: {Error}", ex.Message);
+            Logger.LogError("SIGNALR-DIAG: [SC-InitializeSignalRAsync] ERROR - Message={Message}, DiagId={DiagId}",
+                ex.Message, diagId);
             // Trigger UI update to show disconnected status with retry button
             await InvokeAsync(StateHasChanged);
         }
