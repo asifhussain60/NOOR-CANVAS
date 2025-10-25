@@ -1,7 +1,8 @@
 # Questionnaire: zoom-integration
 
-**Status**: Awaiting Answers  
+**Status**: ✅ Completed  
 **Created**: 2025-10-25 10:45:00  
+**Answered**: 2025-10-25 11:00:00  
 **Plan Version**: 1.0
 
 ---
@@ -16,12 +17,16 @@
 
 ## Questions
 
-### Q1: Zoom SDK Credentials Availability
+*(All questions answered - see Answered Questions Archive below)*
+
+---
+
+## Drift Questions
 
 **Why we're asking**: We need to know if Zoom credentials exist to determine whether to include setup instructions in Phase 1 or defer integration until credentials are obtained. This affects the first commit and documentation structure.
 
 **Options** (mark ONE with X):
-- [ ] **A.** Yes, I have Zoom SDK credentials (ClientId/ClientSecret)
+- [X ] **A.** Yes, I have Zoom SDK credentials (ClientId/ClientSecret)
   - *Pros*: Can proceed immediately, no delays, full integration possible in this session
   - *Cons*: None
   - *Effort*: Low (just configuration in User Secrets/Environment Variables)
@@ -45,7 +50,7 @@
 **Why we're asking**: This determines the host workflow, database schema requirements (ZoomMeetingId storage), API integration complexity, and user experience. Auto-creation requires Zoom REST API integration; manual entry is simpler but less automated.
 
 **Options** (mark ONE with X):
-- [ ] **A.** Auto-create Zoom meetings when host starts session
+- [X ] **A.** Auto-create Zoom meetings when host starts session
   - *Pros*: Seamless UX, no manual steps, automatic meeting IDs, host can't make typos, meeting metadata available
   - *Cons*: Requires Zoom API integration, meeting cleanup needed, API rate limits, error handling complexity
   - *Effort*: High (Zoom REST API calls, OAuth flow, error handling, cleanup logic, testing)
@@ -69,7 +74,7 @@
 **Why we're asking**: This affects participant UX, URL structure, security model, and how Zoom access is communicated. Single token is simpler; separate links give more control; embedded button is most seamless.
 
 **Options** (mark ONE with X):
-- [ ] **A.** Single token URL with auto-detect (e.g., `/session/{token}` shows Zoom if available)
+- [X ] **A.** Single token URL with auto-detect (e.g., `/session/{token}` shows Zoom if available) - ZOOM should always be available as part of this implementation
   - *Pros*: Simplest for users, one link to share, automatic Zoom detection, no confusion
   - *Cons*: Less control over Zoom access, can't share session without Zoom separately
   - *Effort*: Low (conditional rendering in SessionCanvas.razor based on session data)
@@ -93,7 +98,7 @@
 **Why we're asking**: This determines infrastructure requirements, cost implications, storage capacity planning, and compliance considerations (GDPR, data residency). Zoom Cloud is easiest but costs money per recording; local requires server storage; external cloud needs integration.
 
 **Options** (mark ONE with X):
-- [ ] **A.** Zoom Cloud (default, requires Zoom subscription)
+- [ X] **A.** Zoom Cloud (default, requires Zoom subscription)
   - *Pros*: No infrastructure needed, automatic retention, Zoom manages storage, easy access via Zoom API
   - *Cons*: Monthly cost per recording, subject to Zoom's data policies, limited to Zoom's retention period
   - *Effort*: Low (no additional code, just enable in Zoom settings)
@@ -125,7 +130,37 @@
 
 ## Answered Questions Archive
 
-*(Empty - no questions answered yet)*
+<details open>
+<summary>Answered Questions (click to collapse)</summary>
+
+### ✅ Q1: Zoom SDK Credentials Availability (Answered: 2025-10-25 11:00:00)
+**Chosen**: A - Yes, I have Zoom SDK credentials (ClientId/ClientSecret)
+**Rationale**: Can proceed immediately, no delays, full integration possible in this session
+**Effort**: Low (just configuration in User Secrets/Environment Variables)
+**Incorporated**: Plan v1.0, Phase 1 (Configuration & Setup)
+
+### ✅ Q2: Zoom Meeting Creation Strategy (Answered: 2025-10-25 11:00:00)
+**Chosen**: A - Auto-create Zoom meetings when host starts session
+**Rationale**: Seamless UX, no manual steps, automatic meeting IDs, host can't make typos, meeting metadata available
+**Effort**: High (Zoom REST API calls, OAuth flow, error handling, cleanup logic, testing)
+**Incorporated**: Plan v1.0, Phase 2 (Zoom REST API Integration) + Phase 3 (Host Controls)
+**Note**: Requires Zoom API integration, meeting cleanup, API rate limits handling, error handling complexity
+
+### ✅ Q3: Link Sharing and Token Strategy (Answered: 2025-10-25 11:00:00)
+**Chosen**: A - Single token URL with auto-detect (Zoom always available as part of implementation)
+**Rationale**: Simplest for users, one link to share, automatic Zoom detection, no confusion
+**Effort**: Low (conditional rendering in SessionCanvas.razor based on session data)
+**Incorporated**: Plan v1.0, Phase 4 (Participant UI)
+**User Note**: "ZOOM should always be available as part of this implementation"
+
+### ✅ Q4: Recording Storage Location (Answered: 2025-10-25 11:00:00)
+**Chosen**: A - Zoom Cloud (default, requires Zoom subscription)
+**Rationale**: No infrastructure needed, automatic retention, Zoom manages storage, easy access via Zoom API
+**Effort**: Low (no additional code, just enable in Zoom settings)
+**Incorporated**: Plan v1.0, Phase 3 (Host Controls - recording permissions)
+**Note**: Monthly cost per recording, subject to Zoom's data policies
+
+</details>
 
 ---
 
