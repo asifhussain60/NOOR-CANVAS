@@ -142,11 +142,40 @@ END IF
 - **Key lineage** (parent-child relationships)
 - **Restoration rules** when switching contexts
 
-### 6. Completion Handling & Drift Summary
+### Completion Handling & Drift Summary
 When all drifts resolved and stack empty:
 - **Mark original key complete**
 - **Generate comprehensive drift summary** (see format below)
 - **Create completion checkpoint commit**
+
+### Drift Summary Format (3-Column Layout)
+
+```markdown
+## 🔍 Drift Summary for {parent-key}
+
+**Total Drifts**: {count} ({auto} auto-detected, {manual} manual)
+**Resolution Time**: {duration}
+
+### Resolved Drifts
+
+| Drift Key | Severity | Triggered By | Status |
+|-----------|----------|--------------|--------|
+| drift-spelling-fix | low | auto | ✅ Resolved |
+| drift-test-flakiness | high | auto | ✅ Resolved |  
+| drift-accessibility | medium | manual | ✅ Resolved |
+
+### Remaining Drifts (Deferred)
+
+| Drift Key | Severity | Reason | Defer Until |
+|-----------|----------|--------|-------------|
+| drift-refactor-db | medium | Out of scope | Post-v1.0 |
+
+### Impact Analysis
+
+**Files Modified**: {count}
+**Tests Added**: {count}
+**Commits Created**: {count}
+```
 
 **Drift Summary Format**:
 ```markdown

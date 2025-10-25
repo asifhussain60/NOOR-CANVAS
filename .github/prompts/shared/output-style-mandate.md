@@ -44,6 +44,15 @@
 
 **Current Key**: `{key}`
 
+**Run Tests:**
+```
+# All tests for this key
+.github/key-data-streams/{key}/tests/run-all-tests.ps1
+
+# Phase-specific tests
+.github/key-data-streams/{key}/tests/run-phase-{N}-tests.ps1
+```
+
 **Continue This Work:**
 ```
 @workspace /todo {additional-work-description}
@@ -65,6 +74,23 @@
 ```
 @workspace /plan key:{new-key} {new-work-description}
 ```
+
+## Test Registry Reference
+
+**Every key maintains test registry** at `.github/key-data-streams/{key}/tests/test-registry.md`
+
+**Test Registry Structure:**
+- Phase-organized test suites
+- Real-time test execution status
+- Pass/fail tracking with timestamps
+- Commands for selective test execution
+- Test coverage checklist
+
+**Integration Points:**
+- plan.prompt.md creates test registry structure
+- test-generation.prompt.md updates registry when creating tests
+- task.prompt.md reads registry for phase validation (auto-chain mode)
+- healthcheck.prompt.md uses registry for comprehensive test suites
 
 ## Rules
 - 15 bullets MAX total

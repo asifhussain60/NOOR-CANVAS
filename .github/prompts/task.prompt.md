@@ -31,6 +31,16 @@ Target branch per SelfAwareness.instructions.md
 Create git commit after each task completion (MANDATORY)
 See: `.github/prompts/shared/commit-checkpoint-protocol.md`
 
+### auto-chain *(default=`false`)*
+Enable automatic phase-to-phase execution without user intervention
+- `true` - Auto-invoke next phase after current completes
+- `false` - Wait for user approval between phases
+
+### phase *(optional)*
+Specific phase number to execute (used with auto-chain)
+- If specified, execute only that phase from plan
+- If omitted, execute all tasks sequentially
+
 Proceed with task without image analysis? (not recommended for complex visual changes)
 ```
 
@@ -1511,6 +1521,78 @@ SUMMARY: {key-name}
 **CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
 
 **GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/key-data-streams/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
+
+#### Step 8.0: Auto-Chain Protocol (if auto-chain=true)
+
+**Trigger:** `auto-chain` parameter = `true`
+
+**Purpose:** Enable unassisted end-to-end execution with automatic phase-to-phase transitions
+
+**Algorithm:**
+```
+IF auto-chain == true AND phase IS NOT NULL THEN
+  
+  // Verify current phase completed successfully
+  IF CurrentPhaseStatus != "complete" THEN
+    HALT("Phase {phase} incomplete - cannot auto-chain")
+  END IF
+  
+  // Load test registry and run phase tests
+  testRegistry = LoadTestRegistry(key)
+  phaseTests = GetTestsForPhase(testRegistry, phase)
+  
+  IF phaseTests.length > 0 THEN
+    Write-Host "🧪 Running {phaseTests.length} test(s) for Phase {phase}..." -ForegroundColor Cyan
+    
+    FOR EACH test IN phaseTests
+      result = ExecuteTest(test)
+      UpdateTestRegistry(test, result)
+      
+      IF result.status == "failed" THEN
+        HALT("Test '{test.name}' failed - cannot auto-chain")
+        SHOW_ROLLBACK_OPTIONS()
+      END IF
+    END FOR
+    
+    Write-Host "✅ All Phase {phase} tests passed" -ForegroundColor Green
+  END IF
+  
+  // Check if more phases exist
+  plan = LoadPlanJSON(key)
+  nextPhase = phase + 1
+  
+  IF nextPhase <= plan.totalPhases THEN
+    // Auto-invoke next phase
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host "📍 Auto-chaining to Phase {nextPhase}/{plan.totalPhases}" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host ""
+    
+    SELF_INVOKE: @workspace /task key:{key} phase:{nextPhase} auto-chain:true
+    
+  ELSE
+    // All phases complete
+    Write-Host "✅ All {plan.totalPhases} phases complete!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  @workspace /task key:{key} tasks='mark complete'" -ForegroundColor White
+    
+    STOP_AUTO_CHAIN()
+  END IF
+  
+END IF
+```
+
+**Test Registry Integration:**
+- **Before chaining:** Execute all tests registered for current phase
+- **Test failure:** Halt auto-chain, show rollback options
+- **Test success:** Update test registry, proceed to next phase
+- **No tests:** Skip test execution, proceed to next phase
+
+**User Break Points:**
+- Auto-chain runs continuously UNLESS user invoked with script (then 10s break)
+- User can Ctrl+C at any time to halt auto-chain
+- Errors halt auto-chain automatically with rollback options
 
 #### 8.1. Update JSON Tracking (if plan exists)
 
