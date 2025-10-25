@@ -123,6 +123,28 @@ Drift chain: {drift-1} → {drift-2} → {drift-3}
 📊 Final:
 - Status | Drift Key | Parent | Stack Depth | Next
 
+## 📋 NEXT STEPS (Drift Registration)
+
+**Current Drift Key**: `{drift-key}`  
+**Parent Key**: `{parent-key}`
+
+**Execute Drift:**
+```
+Say "proceed" to work on drift
+```
+
+**Defer Drift:**
+```
+Say "defer" to postpone resolution
+(Drift remains in stack for later)
+```
+
+**Resume Parent:**
+```
+Say "skip" to continue parent work
+(Drift remains registered in stack)
+```
+
 ### Drift Resolution
 🧠 Analysis (5 bullets):
 - Drift resolved, outcome, stack pop, parent resume, commit created
@@ -141,6 +163,27 @@ Drift chain: {drift-1} → {drift-2} → {drift-3}
 
 📊 Final:
 - Status | Resolved Drift | Parent Key | Stack State | Next
+
+## 📋 NEXT STEPS (Drift Resolution)
+
+**Resolved Drift**: `{drift-key}`  
+**Parent Key**: `{parent-key}`  
+**Remaining Drifts**: `{count}`
+
+**Resume Parent Work:**
+```
+Automatically resumes {parent-key} context
+```
+
+**Check Next Drift:**
+```
+If {count} > 0, next drift will be presented
+```
+
+**Complete Workflow:**
+```
+If {count} = 0, parent workflow marked complete
+```
 
 ## Stack Depth Enforcement
 

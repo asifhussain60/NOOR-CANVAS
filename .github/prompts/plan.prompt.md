@@ -260,8 +260,28 @@ END IF
 - `.github/prompts.keys/{key}/{key}.plan.json` (progress tracking)
 - `.github/prompts.keys/{key}/work-log.md` (execution log)
 
-**Next Steps:**
-Say "proceed" to begin Phase 1 implementation
+---
+
+## 📋 NEXT STEPS
+
+**Current Key**: `{key}`
+
+**Begin Implementation:**
+```
+Say "proceed" to begin Phase 1
+```
+
+**Modify Plan:**
+```
+@workspace /plan {modification-description}
+(Auto-detects {key}, updates plan version)
+```
+
+**Start Execution Manually:**
+```
+@workspace /task key:{key}
+(Loads plan and executes phases)
+```
 
 ---
 

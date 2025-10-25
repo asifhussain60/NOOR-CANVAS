@@ -40,6 +40,32 @@
 - Work: {one-liner}
 - Next: {primary action}
 
+## 📋 NEXT STEPS (always include after implementation)
+
+**Current Key**: `{key}`
+
+**Continue This Work:**
+```
+@workspace /continue {additional-work-description}
+(Auto-detects {key} from git history)
+```
+
+**Modify Plan:**
+```
+@workspace /plan {modification-description}
+(Auto-detects {key}, updates plan version)
+```
+
+**Mark Complete:**
+```
+@workspace /task key:{key} tasks="mark complete"
+```
+
+**Start New Work:**
+```
+@workspace /plan key:{new-key} {new-work-description}
+```
+
 ## Rules
 - 15 bullets MAX total
 - 1 line per bullet

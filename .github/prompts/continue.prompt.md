@@ -59,6 +59,32 @@ Update existing `{key}.plan.md` with:
 📊 Final:
 - Status | Key | Current Phase | Extension | Next
 
+## 📋 NEXT STEPS
+
+**Current Key**: `{current-key}`
+
+**Execute Extension:**
+```
+Say "proceed" or wait 5s for auto-execution
+```
+
+**Continue Without Extension:**
+```
+@workspace /continue {additional-work}
+(Auto-detects {key} from git history)
+```
+
+**Modify Plan:**
+```
+@workspace /plan {modification-description}
+(Auto-detects {key}, updates plan version)
+```
+
+**Cancel:**
+```
+Say "cancel" or "review" within 5s
+```
+
 ## Execution
 - **Preserve execution context** - Continue from current phase
 - **NO approval needed** between existing phases

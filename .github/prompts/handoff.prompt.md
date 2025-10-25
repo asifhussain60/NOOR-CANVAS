@@ -39,6 +39,26 @@ Classify → include prompts:
 
 📊 Final:
 - Status | Key | Work | Next
+
+## 📋 NEXT STEPS
+
+**Current Key**: `{key}`
+
+**Execute Plan:**
+```
+Say "proceed" or wait 5s for auto-execution
+```
+
+**Modify Plan:**
+```
+@workspace /plan {modification-description}
+(Auto-detects {key}, updates plan version)
+```
+
+**Cancel:**
+```
+Say "cancel" or "review" within 5s
+```
   - Collect all pre-existing build errors (unrelated to current work)
   - Collect all new errors introduced during implementation
   - Categorize by severity: critical (blocks functionality), high (degrades UX), medium (cosmetic), low (warnings)
