@@ -123,68 +123,18 @@ try {
     Write-Host "  Time: $Timestamp" -ForegroundColor Magenta
     Write-Host "========================================`n" -ForegroundColor Magenta
 
-    # Step 0: Git branch management (ensure on development, merge AFTER deployment)
-    # [DEBUG-WORKITEM:deploy:branch-check:SIMPLE]
-    Write-Step "Git: Verifying development branch..."
-    Write-Info "→ Checking current branch and status"
+    # Step 0: Git branch management (BRANCH SAFEGUARDS REMOVED)
+    # [DEBUG-WORKITEM:deploy:branch-check:DISABLED]
+    Write-Step "Git: Checking current branch..."
     
     # Change to workspace root for git operations
     Push-Location $WorkspaceRoot
     
     try {
-        # Get current branch
+        # Get current branch (informational only)
         $OriginalBranch = git branch --show-current
         Write-Info "Current branch: $OriginalBranch"
-        
-        # Ensure we're on development (where all work happens)
-        if ($OriginalBranch -ne "development") {
-            Write-Warning "Not on development branch. Switching to development..."
-            $prevErrorAction = $ErrorActionPreference
-            $ErrorActionPreference = "Continue"
-            git checkout development 2>&1 | Out-Null
-            $ErrorActionPreference = $prevErrorAction
-            if ($LASTEXITCODE -ne 0) {
-                throw "Failed to switch to development branch"
-            }
-            $OriginalBranch = "development"
-            Write-Success "Switched to development branch"
-        } else {
-            Write-Success "On development branch (correct for deployment)"
-        }
-        
-        # Check for uncommitted changes
-        Write-Info "→ Checking for uncommitted changes"
-        $gitStatus = git status --porcelain
-        if ($gitStatus) {
-            Write-Warning "Uncommitted changes detected:"
-            Write-Host $gitStatus -ForegroundColor Yellow
-            
-            if (-not $AutoMerge) {
-                Write-Host "`nOptions:" -ForegroundColor Cyan
-                Write-Host "  1. Commit your changes first, then re-run ncdeploy.ps1" -ForegroundColor Gray
-                Write-Host "  2. Stash your changes: git stash" -ForegroundColor Gray
-                Write-Host "  3. Use -AutoMerge flag to continue anyway (not recommended)" -ForegroundColor Gray
-                throw "Please commit or stash changes before deploying"
-            } else {
-                Write-Warning "Continuing with deployment despite uncommitted changes (AutoMerge enabled)"
-            }
-        } else {
-            Write-Success "No uncommitted changes"
-        }
-        
-        # Fetch latest changes
-        Write-Info "→ Fetching latest changes from origin"
-        git fetch origin
-        
-        # Pull latest development
-        Write-Info "→ Pulling latest development changes"
-        git pull origin development
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Failed to pull development (may not exist remotely). Continuing..."
-        }
-        
-        Write-Success "Ready to deploy from development branch"
-        Write-Info "Note: Master branch will be updated AFTER successful deployment"
+        Write-Info "Branch safeguards disabled - deploying from current branch"
         
     } finally {
         Pop-Location

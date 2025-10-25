@@ -192,7 +192,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// HTTPS redirection: Disabled in production due to Cloudflare SSL termination (prevents redirect loops)
+// In development (localhost), HTTPS redirection is enabled for proper SSL testing
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 app.UseRouting();
