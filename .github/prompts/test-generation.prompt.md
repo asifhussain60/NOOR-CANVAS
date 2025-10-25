@@ -1640,7 +1640,7 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 - {Brief bullet about test scenario 2}
 - {Brief bullet about test scenario 3}
 
-### Next Steps
+## 🎯 What Would You Like To Do Next?
 - Run test: `.\Scripts\{script-name}.ps1`
 - View details: `.github/prompts.keys/{key}/tests/test-registry.md`
 ```

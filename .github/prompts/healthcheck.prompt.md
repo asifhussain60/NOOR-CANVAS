@@ -581,7 +581,7 @@ Presents organized drift summary:
 3. Update documentation
 4. Apply optimizations
 
-What would you like to do next?
+## 🎯 What Would You Like To Do Next?
 A) Start resolving critical drifts
 B) Generate detailed drift resolution plan
 C) Export drift report for team review

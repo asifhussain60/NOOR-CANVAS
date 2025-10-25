@@ -760,7 +760,7 @@ For EACH template file:
    - `@workspace /todo {description}` - Quick work or extend existing key (auto-detects complexity)
    - `@workspace /task key:{key}` - Direct execution (for simple tasks with existing plan)
 
-## Next Steps
+## 🎯 What Would You Like To Do Next?
 - Verify all template variables populate correctly
 - Update version number in STATUS.md
 - Consider adding more sample patterns to learning/
@@ -830,7 +830,7 @@ For EACH template file:
 @workspace /port-instructions
 ```
 
-## Next Steps
+## 🎯 What Would You Like To Do Next?
 - Review changes in .github/_Portable/prompts/{promptFile}.template
 - Test with total-recall in a test project
 - Commit changes to repository

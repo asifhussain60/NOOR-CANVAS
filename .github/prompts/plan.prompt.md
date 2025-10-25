@@ -347,7 +347,7 @@ END IF
 
 ---
 
-## 📋 NEXT STEPS
+## 🎯 What Would You Like To Do Next?
 
 **Current Key**: `{key}`
 

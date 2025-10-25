@@ -350,7 +350,135 @@ Validates single file with full cross-reference checking
 
 **NOTE**: handoff.prompt.md has been deprecated and moved to archive. Its functionality has been merged into todo.prompt.md (lightweight mode) and plan.prompt.md (comprehensive mode). todo.prompt.md was renamed from continue.prompt.md on 2025-10-25 to better reflect todo-based workflow terminology.
 
-### 4. Mandatory Cross-References
+### 4. Drift Detection Compliance (MANDATORY)
+
+**Auto-Drift Detection Requirements** (all execution prompts):
+- ✅ plan.prompt.md includes auto-drift detection section
+- ✅ task.prompt.md includes auto-drift detection with critical blocking
+- ✅ test-generation.prompt.md includes auto-drift detection with infrastructure blocking
+- ✅ healthcheck.prompt.md includes auto-drift detection (non-blocking)
+- ✅ todo.prompt.md generates comprehensive drift summary at completion
+
+**Severity Classification Consistency**:
+- All prompts must use same 5 levels: critical, high, medium, low, informational
+- ✅ critical: Build-breaking errors, security vulnerabilities, null reference risks
+- ✅ high: Failing tests, broken integrations, performance degradation
+- ✅ medium: Code smells, documentation gaps, minor bugs
+- ✅ low: Formatting issues, unused code, minor optimizations
+- ✅ informational: Observations, suggestions, non-actionable notes
+
+**Drift Commit Format Validation**:
+```
+Required format for drift registration:
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | manual | user-critical | auto-deferred
+Severity: critical | high | medium | low | informational
+Triggered by: plan.prompt.md | task.prompt.md | test-generation.prompt.md | healthcheck.prompt.md | user
+Phase: {phase-name} (optional)
+
+Required format for drift resolution:
+ckpt({drift-key}): Resolved - {summary}
+Parent: {parent-key} | Remaining: {count} drifts
+Severity: {original-severity} | Mode: {original-mode}
+```
+
+**Queue Management Validation**:
+- ✅ Max 10 auto-detected drifts per parent key (enforced)
+- ✅ Manual drifts exempt from limit
+- ✅ Overflow handling: remove lowest priority or block
+- ✅ Queue status displayed in drift summary
+- ✅ Depth enforcement: max 3 levels (parent → drift → sub-drift → sub-sub-drift)
+
+**Drift Summary Format Validation**:
+- ✅ Severity-sorted presentation (critical → high → medium → low → informational)
+- ✅ Mode distinction (auto vs manual counts)
+- ✅ User choice handling (A: critical, B: all, C: specific, D: defer)
+- ✅ Recommended resolution order displayed
+- ✅ Silent logging (no chat interruption during work)
+
+**Detection Trigger Consistency**:
+
+**plan.prompt.md triggers**:
+- Missing files/dependencies unrelated to current plan
+- Architectural inconsistencies in existing code
+- Security/performance concerns in reviewed code paths
+- Documentation gaps discovered during validation
+- Broken references in unrelated parts
+
+**task.prompt.md triggers**:
+- File errors in Step 2 (context gathering)
+- Dead code/unused imports in Step 5 (execution)
+- Test failures in Step 6 (validation)
+- Configuration mismatches during validation
+
+**test-generation.prompt.md triggers**:
+- Missing test dependencies (infrastructure phase)
+- Test framework configuration errors
+- Unexpected test failures in unrelated suites
+- Broken test utilities or fixtures
+
+**healthcheck.prompt.md triggers**:
+- Architectural inconsistencies across layers
+- Contract mismatches (DTO/API/DB schema drift)
+- Conflicting instructions across prompts
+- Documentation drift vs actual code
+
+**Blocking Behavior Validation**:
+- ✅ task.prompt.md: HALT on severity=critical (user choice required)
+- ✅ test-generation.prompt.md: HALT on critical infrastructure issues
+- ✅ plan.prompt.md: NO blocking (defers all drifts)
+- ✅ healthcheck.prompt.md: NO blocking (read-only analysis)
+
+**Integration with todo.prompt.md**:
+- ✅ todo checks drift stack on work completion
+- ✅ Generates comprehensive drift summary with severity sorting
+- ✅ Presents user choices for resolution
+- ✅ Validates drift commit format
+- ✅ Enforces queue limits and depth
+
+**Drift Detection Validation Checklist**:
+```
+FUNCTION ValidateDriftDetectionCompliance(prompt)
+  
+  // Check auto-drift section exists
+  IF NOT HasSection(prompt, "Auto-Drift Detection") THEN
+    RETURN "FAIL: Missing auto-drift detection section"
+  END IF
+  
+  // Validate detection triggers documented
+  triggers = ExtractDetectionTriggers(prompt)
+  IF triggers.Count == 0 THEN
+    RETURN "FAIL: No detection triggers documented"
+  END IF
+  
+  // Validate auto-registration algorithm present
+  IF NOT HasAlgorithm(prompt, "DetectDrift|RegisterDrift") THEN
+    RETURN "FAIL: Missing auto-registration algorithm"
+  END IF
+  
+  // Validate severity classification used
+  severities = ExtractSeverityLevels(prompt)
+  validSeverities = ["critical", "high", "medium", "low", "informational"]
+  IF NOT severities.All(s => s IN validSeverities) THEN
+    RETURN "FAIL: Invalid severity levels used"
+  END IF
+  
+  // Validate commit format documented
+  IF NOT HasCommitFormatExample(prompt) THEN
+    RETURN "FAIL: Missing drift commit format documentation"
+  END IF
+  
+  // Validate blocking behavior appropriate for prompt type
+  IF IsExecutionPrompt(prompt) AND NOT HasBlockingStrategy(prompt) THEN
+    RETURN "FAIL: Execution prompt missing blocking strategy"
+  END IF
+  
+  RETURN "PASS: Drift detection compliance validated"
+  
+END FUNCTION
+```
+
+### 5. Mandatory Cross-References
 
 **All agents must reference**:
 - `.github/prompts/shared/CONCISE-MANDATE.md`

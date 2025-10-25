@@ -173,7 +173,7 @@ Update existing `{key}.plan.md` with:
 📊 Final:
 - Status | Key | Current Phase | Extension | Next
 
-## 📋 NEXT STEPS
+## 🎯 What Would You Like To Do Next?
 
 **Current Key**: `{current-key}`
 
