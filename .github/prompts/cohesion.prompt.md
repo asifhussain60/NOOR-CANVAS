@@ -54,7 +54,7 @@ lastUpdated: 2025-10-25
 - **task.prompt.md** → test-generation.prompt.md orchestration
 - **drift.prompt.md** → plan.prompt.md queue handling
 - **healthcheck.prompt.md** prompt optimization mode
-- **continue.prompt.md** key detection from git history
+- **todo.prompt.md** key detection from git history
 
 ## Validation Levels
 
@@ -245,7 +245,7 @@ END FUNCTION
 Validates all files in `.github/prompts/*.md`:
 - plan.prompt.md
 - task.prompt.md
-- continue.prompt.md
+- todo.prompt.md
 - drift.prompt.md
 - healthcheck.prompt.md
 - test-generation.prompt.md
@@ -284,11 +284,11 @@ Validates single file with full cross-reference checking
 - ✅ handoff command format matches task parameter schema
 - ❌ **Conflict**: If plan says "present command to user" but task expects auto-invoke
 
-**continue.prompt.md → task.prompt.md**
-- ✅ continue detects active key from git history
-- ✅ continue extends existing plan or creates lightweight plan
+**todo.prompt.md → task.prompt.md**
+- ✅ todo detects active key from git history
+- ✅ todo extends existing plan or creates lightweight plan
 - ✅ both use same key data stream structure
-- ❌ **Conflict**: If continue complexity detection fails
+- ❌ **Conflict**: If todo complexity detection fails
 
 **task.prompt.md → test-generation.prompt.md**
 - ✅ task includes test-generation in routing for test phases
@@ -348,7 +348,7 @@ Validates single file with full cross-reference checking
 - Full details → `{key}.plan.md`
 - Pseudocode preferred over executable code
 
-**NOTE**: handoff.prompt.md has been deprecated and moved to archive. Its functionality has been merged into continue.prompt.md (lightweight mode) and plan.prompt.md (comprehensive mode).
+**NOTE**: handoff.prompt.md has been deprecated and moved to archive. Its functionality has been merged into todo.prompt.md (lightweight mode) and plan.prompt.md (comprehensive mode). todo.prompt.md was renamed from continue.prompt.md on 2025-10-25 to better reflect todo-based workflow terminology.
 
 ### 4. Mandatory Cross-References
 

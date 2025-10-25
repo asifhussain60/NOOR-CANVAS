@@ -496,7 +496,7 @@ NOTE: This is a TEMPLATE file. To configure for your project, run the total-reca
 
 Files to create (Entry Points):
 - `plan.prompt.md` (with {{VARIABLES}})
-- `continue.prompt.md` (with {{VARIABLES}})
+- `todo.prompt.md` (with {{VARIABLES}})
 - `task.prompt.md` (with {{VARIABLES}})
 - `test-generation.prompt.md` (with {{VARIABLES}})
 - `healthcheck.prompt.md` (with {{VARIABLES}})
@@ -757,7 +757,7 @@ For EACH template file:
 4. Copy the configured files into `.github/`
 5. Start using agents:
    - `@workspace /plan key:{key} {description}` - Comprehensive planning (recommended for complex work)
-   - `@workspace /continue {description}` - Quick work or extend existing key (auto-detects complexity)
+   - `@workspace /todo {description}` - Quick work or extend existing key (auto-detects complexity)
    - `@workspace /task key:{key}` - Direct execution (for simple tasks with existing plan)
 
 ## Next Steps

@@ -1,7 +1,9 @@
-# Continue — Extend Current Work with Same Key
+# Todo — Extend Current Work with Same Key
 
-**Version**: 1.0.0  
-**Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow.
+**Version**: 2.0.0  
+**Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow. Renamed from continue.prompt.md to better reflect "todo item" workflow pattern.
+
+**Rename Note**: Previously `continue.prompt.md` (v1.0.0). Renamed to `todo.prompt.md` (v2.0.0) on 2025-10-25 to align with todo-based workflow terminology. All agent references updated accordingly.
 
 ---
 
@@ -30,7 +32,7 @@ Additional work requests + optional modifications to current plan
 When invoked, determine optimal workflow:
 
 ### If Active Key Detected
-- **EXTEND** existing work (primary continue.prompt.md behavior)
+- **EXTEND** existing work (primary todo.prompt.md behavior)
 - Load existing plan and context
 - Append new phases or modify existing ones
 - Preserve execution continuity
@@ -182,7 +184,7 @@ Say "proceed" or wait 5s for auto-execution
 
 **Continue Without Extension:**
 ```
-@workspace /continue {additional-work}
+@workspace /todo {additional-work}
 (Auto-detects {key} from git history)
 ```
 
@@ -281,7 +283,7 @@ git log --grep="ckpt({drift-key}): Resolved" --format="%h %s"
 ```
 
 ### Handoff Integration
-- **continue.prompt.md** → detects completion + checks drift stack
+- **todo.prompt.md** → detects completion + checks drift stack
 - **plan.prompt.md** → creates drift resolution plan
 - **task.prompt.md** → executes drift resolution
 - **drift.prompt.md** → manages stack, context, commits

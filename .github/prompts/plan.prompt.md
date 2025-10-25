@@ -85,8 +85,8 @@ Changes:
 - [Updated] {section}: {change-description}
 ```
 
-### Integration with Continue.prompt.md
-- Continue extends **execution** (adds work to active key)
+### Integration with todo.prompt.md
+- todo extends **execution** (adds work to active key)
 - Plan continuation **modifies planning** (refines plan before/during execution)
 - Both use same key detection pattern from git history
 

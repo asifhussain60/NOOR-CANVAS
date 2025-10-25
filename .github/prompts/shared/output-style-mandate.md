@@ -46,7 +46,7 @@
 
 **Continue This Work:**
 ```
-@workspace /continue {additional-work-description}
+@workspace /todo {additional-work-description}
 (Auto-detects {key} from git history)
 ```
 

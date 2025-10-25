@@ -26,7 +26,7 @@ lastUpdated: 2025-10-25
 - **Triggered by**: plan, task, test-generation, healthcheck prompts
 - **Behavior**: Silent registration, no user interruption
 - **Queue**: Up to 10 auto-detected drifts per parent key
-- **Resolution**: Queued for post-completion (via continue.prompt.md)
+- **Resolution**: Queued for post-completion (via todo.prompt.md)
 - **User Awareness**: Drift summary presented at completion
 
 ### User Manual Invocation Mode (Explicit, Interactive)
@@ -184,10 +184,10 @@ When all drifts resolved and stack empty:
 ...
 ```
 
-## Integration with Continue.prompt.md
+## Integration with todo.prompt.md
 
 ### Drift Queue Detection
-When `continue.prompt.md` completes current work:
+When `todo.prompt.md` completes current work:
 1. **Check drift stack** for pending drifts
 2. **If drifts exist** → hand off to `plan.prompt.md`
 3. **Plan creates** execution plan for oldest unresolved drift
