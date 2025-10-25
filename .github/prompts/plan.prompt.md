@@ -204,7 +204,73 @@ After presenting enhancements, user must choose:
 - **NEVER execute code or change files; this agent plans and prepares the handoff only.**
 - **NEVER act as a task executor - you are a PLANNING AGENT only.**
 - **When the user confirms plan approval, write plan files, generate auto-execution handoff script, then STOP.**
-- **DO NOT create branches, modify files, run builds, or perform any execution tasks.**
+- **DO NOT create branches, perform merges, run builds, or perform any execution tasks automatically without explicit user permission.**
+  - Planning agents may recommend branch workflows and provide exact git commands and a branch name to use, but must NOT execute them unless the user explicitly authorizes the agent to do so.
+  - When a planned change is classified as a "major change" (criteria below), the agent MUST instruct working on a new temporary branch and include clear commands and verification/checklist for maintaining work on that branch. The branch workflow must be proposed in the plan and requires explicit user confirmation before any merge into `development`.
+
+## Temporary Branch Workflow for Major Changes
+
+When a request is classified as a major change (for example: large refactor across many services, breaking API contract changes, database migrations that require deploy coordination, or changes touching production-critical services), the planning agent must require the work to be developed on a dedicated temporary git branch to avoid mixing incomplete or dangerous work into `development`.
+
+### Criteria for "Major Change"
+- Touches multiple projects or solutions in the repository
+- Involves database schema migrations or data-migration scripts
+- Requires breaking API/interface changes or contract changes
+- Changes that require coordinated deployment or ops steps
+- Any change where rolling back is complex or risky
+
+### Branch Naming and Minimum Metadata
+- Branch name pattern: `{key}/major-{short-timestamp}` or `{key}/wip-{short-description}-{short-timestamp}` (examples: `transcript-canvas/major-20251025-1`, `ui-refresh/wip-header-redesign-20251025`)
+- In the plan, include: the proposed branch name, a short rationale, the list of files to be added/modified, and a checklist of verification steps required before merge.
+
+### Recommended Developer Commands (Agent SHOULD NOT run these; present to user)
+Provide the following commands verbatim in the plan for the developer to execute or for an authorized operator to run:
+
+```powershell
+# Create and switch to the temporary branch
+git fetch origin
+git checkout -b {branch-name}
+
+# Work: create/update plan files and commit as usual
+git add .github/key-data-streams/{key}
+git commit -m "plan({key}): Draft plan and artifacts (work on {branch-name})"
+git push -u origin {branch-name}
+```
+
+### What the agent must include in the plan for branch-based work
+- Exact branch name and justification
+- A list of commits the agent will create (commit message examples) and checkpoints
+- A verification checklist for reviewers (tests to run, key files to inspect, environment to test in)
+- Clear instructions for how to merge once the user gives explicit approval (merge commands and verification steps)
+
+### Merge and Deletion Procedure (BUT ONLY AFTER USER CONFIRMATION)
+When the user explicitly instructs the agent to proceed with merging the temporary branch into `development`, the agent should present the exact merge commands and required verification steps. The agent itself must NOT run the merge unless it has been explicitly authorized by the user to perform git operations.
+
+Recommended merge commands to display to the user:
+
+```powershell
+# Ensure development is up to date
+git fetch origin
+git checkout development
+git pull --ff-only origin development
+
+# Merge the temp branch (fast-forward or no-ff per repo policy)
+git merge --no-ff {branch-name} -m "chore(merge): Merge {branch-name} into development — {short-description}"
+git push origin development
+
+# Optional: delete the temporary branch after verification
+git branch -d {branch-name}
+git push origin --delete {branch-name}
+```
+
+### Post-Merge Verification
+- After the merge completes, the plan must include verification steps the user or CI must run (smoke tests, integration tests, UI/visual tests, DB migration dry-run, etc.). Only when those steps pass should the temporary branch be deleted.
+
+### Safety Rules
+- The agent must always HALT and ASK for explicit, unambiguous confirmation (for example: user types "approve merge {branch-name}") before recommending or attempting any merge.
+- The agent must include a short summary of the change-set (files and commits) so reviewers can quickly validate what will enter `development`.
+- If the environment supports automatic branch creation and the user has granted explicit permission, the agent may optionally run the commands; otherwise, it must provide them and wait for the user or authorized operator to run them.
+
 
 ## Auto-Execution Handoff Protocol (Step 4)
 
