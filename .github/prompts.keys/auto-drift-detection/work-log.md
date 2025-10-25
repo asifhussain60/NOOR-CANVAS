@@ -69,6 +69,19 @@ Added comprehensive auto-drift detection to all execution prompts:
 ### Phase 4: Style "Next Steps" Headers
 **Status**: Not Started
 
+### Phase 5: Reorganize Key Data Streams Folder
+**Status**: Not Started
+
+**Added**: 2025-10-25 (Plan v1.2)
+
+**Objective**: Move `.github/prompts.keys/` → `.github/key-data-streams/` for better semantic clarity
+
+**Scope**:
+- Create migration script with git history preservation
+- Update 150+ path references across 17 files (prompts, shared, archive, index)
+- Review and standardize index file format
+- Validation: 0 prompts.keys references outside archive
+
 ---
 
 ## Issues/Blockers

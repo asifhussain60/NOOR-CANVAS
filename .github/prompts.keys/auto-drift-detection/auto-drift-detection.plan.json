@@ -1,8 +1,9 @@
 {
     "key": "auto-drift-detection",
     "status": "in-progress",
-    "version": "1.1",
+    "version": "1.2",
     "created": "2025-10-25",
+    "lastUpdated": "2025-10-25",
     "phases": [
         {
             "phaseNumber": 1,
@@ -31,6 +32,14 @@
         {
             "phaseNumber": 4,
             "title": "Style Next Steps Headers",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 5,
+            "title": "Reorganize Key Data Streams Folder",
             "status": "not-started",
             "commit": null,
             "startedAt": null,

@@ -1,9 +1,10 @@
 # Auto-Drift Detection Implementation Plan
 
-**Version**: 1.1  
+**Version**: 1.2  
 **Key**: `auto-drift-detection`  
 **Branch**: `development`  
 **Created**: 2025-10-25  
+**Last Updated**: 2025-10-25  
 **Status**: In Progress
 
 ---
@@ -417,6 +418,221 @@ END FUNCTION
 
 ---
 
+## Phase 5: Reorganize Key Data Streams Folder
+
+### 5.1 Folder Reorganization
+
+**Objective**: Move `.github/prompts.keys/` → `.github/key-data-streams/` for better semantic clarity
+
+**Rationale**:
+- Separates key data from prompts folder (clearer architecture)
+- Makes key data streams more discoverable
+- Better aligns with naming convention (key-data-streams vs prompts.keys)
+- Reduces nesting depth in `.github/` structure
+
+### 5.2 Create Migration Script
+
+**Script**: `.github/scripts/migrate-prompts-keys-to-key-data-streams.ps1`
+
+**Responsibilities**:
+1. Verify no git conflicts in target paths
+2. Move `.github/prompts.keys/` → `.github/key-data-streams/`
+3. Preserve all git history (use `git mv`)
+4. Create backup checkpoint before migration
+5. Validate all key folders migrated successfully
+6. Generate migration report
+
+**Migration Algorithm**:
+```
+FUNCTION MigrateKeyDataStreams()
+  
+  // Create checkpoint
+  CreateCheckpoint("pre-key-migration")
+  
+  // Verify target doesn't exist
+  IF DirectoryExists(".github/key-data-streams") THEN
+    HALT("Target directory already exists")
+  END IF
+  
+  // Use git mv to preserve history
+  ExecuteCommand("git mv .github/prompts.keys .github/key-data-streams")
+  
+  // Verify migration
+  keysCount = CountSubdirectories(".github/key-data-streams")
+  IF keysCount == 0 THEN
+    HALT("Migration failed - no keys found in target")
+  END IF
+  
+  // Create migration commit
+  CreateCommit("refactor: Move prompts.keys → key-data-streams")
+  
+  GenerateMigrationReport(keysCount)
+  
+END FUNCTION
+```
+
+### 5.3 Update All Path References
+
+**Categories of Files to Update**:
+
+**A. Prompt Files (8 files)**:
+1. plan.prompt.md
+2. task.prompt.md
+3. test-generation.prompt.md
+4. healthcheck.prompt.md
+5. todo.prompt.md
+6. drift.prompt.md
+7. cohesion.prompt.md
+8. port-instructions.prompt.md
+
+**B. Shared Reference Files (6 files)**:
+1. shared/context-gathering-phases.md
+2. shared/commit-checkpoint-protocol.md
+3. shared/task-parameters-reference.md
+4. shared/agent-handoff-protocol.md
+5. shared/test-orchestration-patterns.md
+6. shared/key-data-stream-analyze-learning-template.md
+
+**C. Archive Files (2 files)**:
+1. shared/archive/PLAN-INTEGRATION-SUMMARY.md
+2. shared/archive/analyze-learning.prompt.backup.md
+
+**D. Index File (1 file)**:
+1. prompts.keys → key-data-streams/index.md (rename and review format)
+
+**Path Replacement Pattern**:
+```
+OLD: .github/prompts.keys/{key}/
+NEW: .github/key-data-streams/{key}/
+
+OLD: prompts.keys
+NEW: key-data-streams
+```
+
+### 5.4 Review and Standardize Index File
+
+**Current File**: `.github/prompts/prompts.keys`
+
+**Issues to Address**:
+1. No file extension (add .md)
+2. Unclear format (lightweight mapping)
+3. Examples reference deprecated handoff.prompt.md
+4. No documentation of purpose/usage
+
+**Proposed New Format** (`.github/key-data-streams/index.md`):
+
+```markdown
+# Key Data Streams Index
+
+**Purpose**: Maps workflow keys to their orchestration patterns
+
+**Format**: `{key}: {prompt-sequence}`
+
+**Location**: Each key's data stream is stored in `.github/key-data-streams/{key}/`
+
+---
+
+## Active Keys
+
+### Canvas Maintenance
+canvas-maintenance: plan → todo → task → healthcheck
+
+### UI Components
+ui-debug-panel: plan → task → test-generation → healthcheck
+
+### Code Quality
+refactor-quality: plan → task → healthcheck
+
+### Documentation
+sync-docs: plan → task → healthcheck
+
+### Operations
+ops-cleanup: plan → task → healthcheck
+
+---
+
+## Key Data Stream Structure
+
+Each key folder contains:
+- `{key}.plan.md` - Complete technical plan
+- `{key}.plan.json` - Phase tracking metadata
+- `work-log.md` - Execution history
+- `rollback-index.md` - Checkpoint commit tracking
+- `tests/` - Key-specific test files (optional)
+- `scripts/` - Orchestration scripts (optional)
+
+---
+
+## Usage
+
+**Create New Key**:
+```
+@workspace /plan key:new-feature-name
+```
+
+**Continue Existing Key**:
+```
+@workspace /todo key:existing-feature
+```
+
+**List All Keys**:
+```powershell
+Get-ChildItem .github/key-data-streams -Directory
+```
+```
+
+### 5.5 Update Instructions Files
+
+**SelfAwareness.instructions.md**:
+- Update any references to prompts.keys
+- Document key-data-streams location
+
+**Other Instructions** (if applicable):
+- Search all `.github/instructions/*.md` for `prompts.keys`
+- Update path references
+
+### 5.6 Validation
+
+**Post-Migration Checks**:
+1. All prompt files reference `key-data-streams` (not `prompts.keys`)
+2. All shared files updated
+3. Git history preserved for migrated folders
+4. No broken paths in any prompt
+5. cohesion.prompt.md validation passes
+6. Sample workflow executes successfully (create test key, run task)
+
+**Validation Command**:
+```powershell
+# Search for any remaining prompts.keys references
+Get-ChildItem .github -Recurse -Include *.md | 
+  Select-String "prompts\.keys" | 
+  Where-Object { $_.Path -notmatch "archive" }
+```
+
+Should return 0 results (archive files excluded).
+
+### 5.7 Rollback Plan
+
+**If Migration Fails**:
+```powershell
+# Revert migration commit
+git revert HEAD
+
+# Restore original folder structure
+git mv .github/key-data-streams .github/prompts.keys
+
+# Verify restoration
+Test-Path .github/prompts.keys
+```
+
+**Rollback Trigger**: Any of these conditions:
+- Git history not preserved
+- Path references broken after update
+- cohesion validation fails
+- Test workflow fails
+
+---
+
 ## Exit Criteria
 
 **Phase 1**:
@@ -443,6 +659,17 @@ END FUNCTION
 - [ ] All 7 prompts use styled "Next Steps" header
 - [ ] Consistent formatting across all prompts
 - [ ] Visual separation from content
+
+**Phase 5**:
+- [ ] Migration script created and tested
+- [ ] Folder moved: .github/prompts.keys → .github/key-data-streams
+- [ ] Git history preserved for all key folders
+- [ ] 17 files updated with new path references (8 prompts + 6 shared + 2 archive + 1 index)
+- [ ] Index file reviewed and standardized (index.md format)
+- [ ] Instructions files updated (SelfAwareness.instructions.md)
+- [ ] Validation passes: 0 prompts.keys references outside archive
+- [ ] cohesion.prompt.md validation passes
+- [ ] Test workflow executes successfully with new paths
 
 ---
 
@@ -525,3 +752,4 @@ git revert <commit-sha>
 
 - **v1.0** (2025-10-25): Initial plan created
 - **v1.1** (2025-10-25): Added severity levels, queue limits, drift summary
+- **v1.2** (2025-10-25): Added Phase 5 - Reorganize Key Data Streams folder (prompts.keys → key-data-streams)
