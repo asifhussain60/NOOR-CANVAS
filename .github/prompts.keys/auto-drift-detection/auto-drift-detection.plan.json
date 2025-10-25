@@ -16,10 +16,10 @@
         {
             "phaseNumber": 2,
             "title": "Standardize Drift Registration",
-            "status": "not-started",
+            "status": "completed",
             "commit": null,
-            "startedAt": null,
-            "completedAt": null
+            "startedAt": "2025-10-25",
+            "completedAt": "2025-10-25"
         },
         {
             "phaseNumber": 3,

@@ -61,7 +61,49 @@ Added comprehensive auto-drift detection to all execution prompts:
 **Commit**: `ckpt(auto-drift-detection): Add auto-drift detection to all prompts (Phase 1 complete)` [16d7e9b9]
 
 ### Phase 2: Standardize Drift Registration
-**Status**: Not Started
+**Status**: Completed  
+**Started**: 2025-10-25  
+**Completed**: 2025-10-25
+
+**Tasks**:
+- [x] Add comprehensive drift summary to todo.prompt.md
+- [x] Implement unified commit format validation
+- [x] Add queue overflow protection (max 10 auto drifts)
+
+**Phase 2 Summary**:
+
+Updated `todo.prompt.md` with comprehensive drift management:
+
+1. **Drift Summary Generation**:
+   - Severity-sorted presentation (critical → high → medium → low → informational)
+   - Auto/manual mode distinction in summary
+   - Queue status display ({count}/10 drifts)
+   - User choice handling (A: critical only, B: all, C: specific, D: defer)
+
+2. **Unified Commit Format Validation**:
+   - Drift registration format: `drift({parent}): Register {drift-key}` with mode/severity/triggered-by
+   - Drift resolution format: `ckpt({drift-key}): Resolved` with parent/remaining/severity/mode
+   - Validation algorithm with format checking
+   - 4 valid modes: auto, manual, user-critical, auto-deferred
+   - 5 valid severity levels: critical, high, medium, low, informational
+
+3. **Queue Overflow Protection**:
+   - Max 10 auto-detected drifts per parent key
+   - Overflow handling: remove oldest low-priority drift or block if all medium/high/critical
+   - Manual drifts exempt from limit (user explicitly registered)
+   - Warning at 9/10 capacity
+
+4. **Enhanced Drift Resolution Workflow**:
+   - Selective resolution (critical only, all, specific drifts, or defer)
+   - Severity-based ordering
+   - Drift depth enforcement (max 3 levels)
+   - Comprehensive git query examples
+
+**Exit Criteria Met**:
+- ✅ Unified commit format documented and validated
+- ✅ Queue overflow protection implemented with pseudocode
+- ✅ Drift summary format defined with severity sorting
+- ✅ todo.prompt.md generates comprehensive drift summary at completion
 
 ### Phase 3: Update Cohesion Validation
 **Status**: Not Started

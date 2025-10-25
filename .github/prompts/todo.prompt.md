@@ -234,72 +234,294 @@ When current key's work is completed:
 
 1. **Check Drift Stack**
    - Query git history for drift registrations: `git log --grep="drift({current-key})"`
-   - Parse drift keys from commit messages
+   - Parse drift keys from commit messages (both auto and manual modes)
    - Identify unresolved drifts (no matching `ckpt({drift-key}): Resolved`)
+   - Extract severity levels from drift commit messages
 
 2. **If Drifts Exist**
    - **DO NOT PROCEED** with new work
-   - **PRESENT** drift resolution handoff to user
-   - **FORMAT**:
+   - **PRESENT** comprehensive drift summary to user
+   - **FORMAT** (severity-sorted):
      ```
      ✓ {current-key} completed
      
-     📋 Pending Drifts Detected:
-     1. {drift-key-1} - {description} (registered: {timestamp})
-     2. {drift-key-2} - {description} (registered: {timestamp})
+     ## � Drift Summary
      
-     **Next Steps:**
-     Say "proceed" to resolve drifts, or "defer" to skip
+     **Total Drifts Detected**: {count} ({auto-count} auto, {manual-count} manual)
      
-     **Handoff Command** (will auto-execute):
-     @workspace /plan key:{drift-key-1} parent:{current-key}
-     Resume drift: {drift-description}
+     ### Critical (Fix Immediately)
+     1. {drift-key-1} - {description}
+        Mode: auto | Severity: critical | Triggered by: task.prompt.md
+        Registered: {timestamp}
+     
+     ### High (Address Soon)
+     2. {drift-key-2} - {description}
+        Mode: manual | Severity: high | Triggered by: user
+        Registered: {timestamp}
+     
+     ### Medium (Plan Resolution)
+     3. {drift-key-3} - {description}
+        Mode: auto | Severity: medium | Triggered by: plan.prompt.md
+        Registered: {timestamp}
+     
+     ### Low / Informational
+     4. {drift-key-4} - {description}
+        Mode: auto | Severity: low | Triggered by: healthcheck.prompt.md
+        Registered: {timestamp}
+     
+     ---
+     
+     **Recommended Resolution Order**: Critical → High → Medium → Low
+     
+     **Queue Status**: {count}/10 drifts (queue limit enforced)
+     
+     **What would you like to do next?**
+     
+     **A.** Resolve critical drifts now (starts with {drift-key-1})
+     **B.** Resolve all drifts in order (critical → high → medium → low)
+     **C.** Select specific drifts to resolve (provide drift keys)
+     **D.** Defer all drifts (mark current key complete, save drift queue)
      ```
-   - **WAIT** for user approval before invoking plan.prompt.md
+   - **WAIT** for user choice before invoking drift resolution
 
 3. **Drift Resolution Workflow**
-   - User says "proceed" → invoke plan.prompt.md with drift key
-   - Plan creates execution plan for drift
-   - Execute drift work → auto-commit resolution
-   - Pop drift from stack → check for next drift
-   - Repeat until stack empty
+
+   **User selects "A" (Critical Only)**:
+   - Filter drifts by severity=critical
+   - Invoke plan.prompt.md for first critical drift
+   - Execute → auto-commit resolution
+   - Repeat for remaining critical drifts
+   - Return to drift summary (show remaining high/medium/low)
+   
+   **User selects "B" (All Drifts)**:
+   - Process in severity order: critical → high → medium → low
+   - For each drift:
+     * Invoke plan.prompt.md with drift key
+     * Execute drift work → auto-commit resolution
+     * Pop drift from stack → check for next drift
    - Final commit: `ckpt({original-key}): All drifts resolved`
+   
+   **User selects "C" (Specific Drifts)**:
+   - Parse user-provided drift keys (comma-separated)
+   - Validate keys exist in drift queue
+   - Process selected drifts in severity order
+   - Update drift queue (remove resolved drifts)
+   
+   **User selects "D" (Defer)**:
+   - Mark current key complete
+   - Preserve drift queue in work-log.md
+   - Add note: "Deferred {count} drifts - revisit later"
+   - User can manually invoke: `@workspace /drift key:{drift-key}`
 
 4. **If No Drifts**
    - Mark current key complete
    - Present normal completion summary
    - Ready for new work or extensions
 
+### Drift Summary Algorithm
+
+```
+FUNCTION GenerateDriftSummary(parentKey)
+  
+  // Query all drifts for parent key
+  drifts = GitLogGrep("drift({parentKey})")
+  
+  // Parse drift details from commit messages
+  FOR EACH driftCommit IN drifts
+    driftKey = ParseDriftKey(driftCommit)
+    severity = ParseSeverity(driftCommit)
+    mode = ParseMode(driftCommit)  // "auto" | "manual" | "user-critical" | "auto-deferred"
+    triggeredBy = ParseTriggeredBy(driftCommit)
+    description = ParseDescription(driftCommit)
+    timestamp = ParseTimestamp(driftCommit)
+    
+    // Check if resolved
+    isResolved = GitLogGrep("ckpt({driftKey}): Resolved").Count > 0
+    
+    IF NOT isResolved THEN
+      AddToQueue(driftKey, severity, mode, triggeredBy, description, timestamp)
+    END IF
+  END FOR
+  
+  // Sort by severity
+  SortBySeverity(queue)  // critical, high, medium, low, informational
+  
+  // Enforce queue limit (max 10)
+  IF queue.Count > 10 THEN
+    overflow = queue.Count - 10
+    WARN("Queue overflow: {overflow} drifts truncated (oldest low-priority removed)")
+    queue = queue.Take(10)
+  END IF
+  
+  // Generate summary by severity
+  summary = GroupBySeverity(queue)
+  
+  RETURN summary
+  
+END FUNCTION
+```
+
+### Unified Commit Format Validation
+
+**Drift Registration Commit**:
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | manual | user-critical | auto-deferred
+Severity: critical | high | medium | low | informational
+Triggered by: plan.prompt.md | task.prompt.md | test-generation.prompt.md | healthcheck.prompt.md | user
+Phase: {phase-name} (optional - for auto mode only)
+```
+
+**Drift Resolution Commit**:
+```
+ckpt({drift-key}): Resolved - {summary}
+Parent: {parent-key} | Remaining: {count} drifts
+```
+
+**Validation Rules**:
+1. Drift key must be kebab-case, lowercase
+2. Severity must be one of 5 valid levels
+3. Mode must be one of 4 valid modes
+4. Parent key must exist in git history
+5. Description required (max 100 chars)
+
+**Format Validation Pseudocode**:
+```
+FUNCTION ValidateDriftCommitFormat(commitMessage)
+  
+  // Extract components
+  IF NOT MatchesPattern(commitMessage, "drift({key}): Register {drift-key}") THEN
+    RETURN "Invalid commit format"
+  END IF
+  
+  mode = ExtractMode(commitMessage)
+  severity = ExtractSeverity(commitMessage)
+  triggeredBy = ExtractTriggeredBy(commitMessage)
+  
+  // Validate mode
+  validModes = ["auto", "manual", "user-critical", "auto-deferred"]
+  IF mode NOT IN validModes THEN
+    RETURN "Invalid mode: {mode}"
+  END IF
+  
+  // Validate severity
+  validSeverities = ["critical", "high", "medium", "low", "informational"]
+  IF severity NOT IN validSeverities THEN
+    RETURN "Invalid severity: {severity}"
+  END IF
+  
+  // Validate triggered by
+  validTriggers = ["plan.prompt.md", "task.prompt.md", "test-generation.prompt.md", "healthcheck.prompt.md", "user"]
+  IF triggeredBy NOT IN validTriggers THEN
+    RETURN "Invalid trigger: {triggeredBy}"
+  END IF
+  
+  RETURN "Valid"
+  
+END FUNCTION
+```
+
+### Queue Overflow Protection
+
+**Max Auto-Detected Drifts**: 10 per parent key
+
+**Overflow Handling**:
+```
+FUNCTION EnforceQueueLimit(parentKey, newDrift)
+  
+  currentDrifts = GetUnresolvedDrifts(parentKey)
+  autoDrifts = FilterByMode(currentDrifts, "auto")
+  
+  IF autoDrifts.Count >= 10 THEN
+    // Queue full - remove lowest priority auto drift
+    lowestPriority = autoDrifts
+      .Where(d => d.severity IN ["low", "informational"])
+      .OrderBy(d => d.timestamp)
+      .First()
+    
+    IF lowestPriority EXISTS THEN
+      RemoveFromQueue(lowestPriority)
+      LogWarning("Queue overflow: Removed {lowestPriority.key} to make room for {newDrift.key}")
+    ELSE
+      // All auto drifts are medium/high/critical - block new drift
+      HALT("Queue overflow: Cannot register {newDrift.key} - resolve existing drifts first")
+    END IF
+  END IF
+  
+  RegisterDrift(newDrift)
+  
+END FUNCTION
+```
+
+**Manual Drifts**: Not subject to 10 drift limit (user explicitly registered)
+
+**Queue Overflow Warning**:
+```
+⚠️ Drift Queue Near Capacity
+
+Current: 9/10 auto-detected drifts
+Recommendation: Resolve low-priority drifts before continuing work
+
+Low-priority drifts that can be deferred:
+- {drift-key-1} (severity: low, age: 3 days)
+- {drift-key-2} (severity: informational, age: 1 week)
+```
+
 ### Drift Stack Query
 ```bash
 # Find all drifts for current key
-git log --grep="drift({current-key})" --format="%h %s"
+git log --grep="drift({current-key})" --format="%h %s %b"
 
 # Check if drift resolved
 git log --grep="ckpt({drift-key}): Resolved" --format="%h %s"
 
-# Count remaining drifts
-(drift registrations) - (resolved commits)
+# Count remaining drifts by severity
+git log --grep="drift({current-key})" --grep="Severity: critical" --format="%h"
+
+# Get drift details (mode, severity, triggered by)
+git log --grep="drift({current-key})" --format="%h %s %b" | grep -E "Mode:|Severity:|Triggered by:"
 ```
 
 ### Handoff Integration
-- **todo.prompt.md** → detects completion + checks drift stack
+- **todo.prompt.md** → detects completion + generates comprehensive drift summary
 - **plan.prompt.md** → creates drift resolution plan
-- **task.prompt.md** → executes drift resolution
-- **drift.prompt.md** → manages stack, context, commits
+- **task.prompt.md** → executes drift resolution with auto-detection
+- **drift.prompt.md** → manages stack, context, commits, validation
 
 ### Auto-Commit on Drift Resolution
 **MANDATORY** commit after each drift resolved:
 ```
 ckpt({drift-key}): Resolved - {summary}
 Parent: {parent-key} | Remaining: {count} drifts
+Severity: {original-severity} | Mode: {original-mode}
 ```
 
 ### Stack Depth Enforcement
-- **Max depth: 3 levels**
+- **Max depth: 3 levels** (parent → drift → sub-drift → sub-sub-drift)
 - Block new drifts if depth > 3
 - Force resolution of deepest drift first
 - Present overflow warning to user
+
+**Depth Calculation**:
+```
+FUNCTION CalculateDriftDepth(driftKey)
+  
+  depth = 0
+  currentKey = driftKey
+  
+  WHILE parentKey = GetParentKey(currentKey) EXISTS
+    depth++
+    currentKey = parentKey
+    
+    IF depth > 3 THEN
+      HALT("Max drift depth exceeded - resolve {driftKey} before registering new drifts")
+    END IF
+  END WHILE
+  
+  RETURN depth
+  
+END FUNCTION
+```
 
 ## Success Criteria
 - Current key preserved and continued
@@ -307,7 +529,11 @@ Parent: {parent-key} | Remaining: {count} drifts
 - New work properly integrated into plan
 - Execution continues seamlessly
 - All phases properly numbered and sequenced
-- **Drift stack checked on completion**
+- **Comprehensive drift summary generated on completion**
+- **Severity-sorted presentation (critical → high → medium → low)**
+- **Queue overflow protection enforced (max 10 auto drifts)**
+- **Unified commit format validated**
+- **User choice handling for drift resolution**
 - **Pending drifts handed off to plan.prompt.md**
 - **Auto-commits created for drift resolutions**
 - **Stack depth enforced (max 3)**
