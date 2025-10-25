@@ -56,7 +56,41 @@
 - `.github/prompts/plan.prompt.md` (Plan Continuation Protocol section added)
 
 ### Commits
-- (pending) `plan(prompt-system-audit): Updated v1.1 - added plan continuation protocol`
+- ✓ `plan(prompt-system-audit): Updated v1.1 - added plan continuation protocol` (3451a920)
+
+---
+
+## Phase 7: Output Verbosity Adjustment ✓
+**Started**: 2025-10-25  
+**Completed**: 2025-10-25
+
+### Actions
+- Increased chat draft limit from 30-50 lines to maximum 100 lines
+- Allowed pseudocode/algorithmic descriptions (instead of executable code)
+- Updated output-style-mandate.md with new limits and pseudocode policy
+- Updated plan.prompt.md references throughout (8 locations)
+- Added pseudocode example to plan draft template
+
+### User Request Context
+> "Remove the limitation of concise verbiage limiting to 35 lines in chat. Raise this to 100 lines. Prefer pseudocode instead of code."
+
+### Rationale
+- Complex plans need more breathing room without dumping thousands of lines
+- Pseudocode clarifies logic without executable code blocks
+- Balance: Still concise vs full plan files, but realistic for multi-phase work
+
+### Files Modified
+- `.github/prompts/shared/output-style-mandate.md` (verbosity limits + pseudocode)
+- `.github/prompts/plan.prompt.md` (8 locations updated)
+
+### Changes Summary
+- ❌ OLD: 30-50 lines max, NO pseudocode
+- ✅ NEW: 100 lines max, pseudocode PREFERRED over executable code
+- Maintains: Full details always in `{key}.plan.md` files
+- Maintains: 15 bullets max for summaries
+
+### Commits
+- (pending) `plan(prompt-system-audit): Updated v1.2 - raised chat limit to 100 lines, allow pseudocode`
 
 ---
 

@@ -14,10 +14,11 @@ lastUpdated: 2025-10-22
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
-2. **30-50 line draft** in chat for approval
+2. **Maximum 100 line draft** in chat for approval (increased for complex plans)
 3. **Full plan** → `{key}.plan.md` AFTER approval
 4. **Present handoff command** (don't auto-invoke)
 5. **NO execution** - planning only
+6. **Pseudocode preferred** - Use algorithmic descriptions instead of executable code
 
 ## Process
 - Step 0: Validate (5 bullets)
@@ -100,7 +101,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 **✅ CORRECT Pattern**
 ```
 ✅ User provides request
-✅ Agent shows 30-50 line concise draft
+✅ Agent shows up to 100 line concise draft (pseudocode allowed)
 ✅ User approves or requests changes
 ✅ User says "proceed"
 ✅ Agent writes complete plan to {key}.plan.md (not chat)
@@ -109,7 +110,8 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 
 **Self-Check Every Time:**
 - Before responding, count your lines
-- If > 100 lines → You're doing it wrong
+- If > 100 lines in chat draft → Move details to plan file
+- Pseudocode OK for clarity, executable code NO
 - Concise draft in chat, full details in files
 
 ---
@@ -231,9 +233,21 @@ Handoff artifacts (to be written under `.github/prompts.keys/{key}/` once approv
 1. Does route `/transcript/canvas/{token}` exist?
 2. Default to "asset" or require explicit selection?
 
+### Algorithm (Pseudocode - Optional for complex logic)
+
+```
+IF user selects "Asset Canvas"
+  SET session.CanvasType = "asset"
+  REDIRECT to /asset/canvas/{token}
+ELSE IF user selects "Transcript Canvas"
+  SET session.CanvasType = "transcript"
+  REDIRECT to /transcript/canvas/{token}
+END IF
+```
+
 ---
 
-**CONCISE** - Maximum 30-40 lines in chat
+**CONCISE** - Maximum 100 lines in chat (pseudocode allowed)
 **COMPLETE DETAILS** - Will be written to `.github/prompts.keys/{key}/{key}.plan.md`
 ```
 
@@ -264,7 +278,7 @@ Say "proceed" to begin Phase 1 implementation
 - ❌ Violates the "concise draft → detailed files" pattern
 
 **Solution**: 
-- ✅ Show 20-40 line draft in chat for approval
+- ✅ Show up to 100 line draft in chat for approval (pseudocode allowed)
 - ✅ Write complete details to `.github/prompts.keys/{key}/{key}.plan.md`
 - ✅ User reviews files if needed, or just says "proceed"
 - ✅ Sequential execution reads from plan files, not chat history
@@ -273,15 +287,16 @@ Say "proceed" to begin Phase 1 implementation
 
 **Self-Check Before Responding:**
 1. Am I about to paste 200+ lines in chat? → **STOP**
-2. Am I showing phase specifications inline? → **STOP**
+2. Am I showing phase specifications inline? → **OK if < 100 lines**
 3. Is this the complete {key}.plan.md contents? → **STOP**
-4. Should this be in a file instead? → **YES**
+4. Should this be in a file instead? → **YES for full details**
+5. Am I using pseudocode for clarity? → **YES, preferred over executable code**
 
 **Correct Flow:**
 ```
 User: [Provides request]
   ↓
-Agent: [20-40 line concise draft - Step 2]
+Agent: [Up to 100 line concise draft with pseudocode - Step 2]
   ↓
 User: "Looks good, proceed"
   ↓
@@ -301,6 +316,7 @@ Agent: [Execute Phase 1 from {key}.plan.md]
 **Correct Examples:**
 - ✅ "Plan Draft v1.0 - 4 phases - Enhancements: A, B - Questions: 1, 2"
 - ✅ "✓ Plan written to {key}.plan.md. Say 'proceed' to begin Phase 1"
+- ✅ "Algorithm: IF condition THEN action (pseudocode for clarity)"
 
 ---
 

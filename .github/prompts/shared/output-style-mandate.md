@@ -3,10 +3,17 @@
 **CRITICAL:** Maximum 15 bullets total per response. Every word counts.
 
 ## Non-Negotiables
-- NO code/pseudocode/JSON
+- NO executable code blocks
+- Pseudocode/algorithmic descriptions ALLOWED (for clarity)
 - NO walls of text
 - MAX 15 bullets total
 - 1 line per bullet
+
+## Plan Drafts (Special Case)
+- **Chat drafts**: Maximum 100 lines (up from 30-50 for complex plans)
+- **Pseudocode preferred**: Use algorithmic/pseudocode style instead of full code
+- **Full details**: Always go to `{key}.plan.md` files, never dumped in chat
+- **Balance**: More detail allowed in drafts, but still concise vs 2000+ line dumps
 
 ## Headers
 - 🧠 Analysis (max 5 bullets)
