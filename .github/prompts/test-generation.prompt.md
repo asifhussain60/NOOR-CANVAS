@@ -194,6 +194,129 @@ This guarantees the last 10 commits show a clear sequence: checkpoint → test g
 
 ---
 
+## Auto-Drift Detection (MANDATORY)
+
+During test generation, automatically detect and register unrelated issues discovered while analyzing test infrastructure.
+
+### Detection Triggers
+
+**Test Infrastructure Analysis**:
+- Missing test dependencies (Playwright packages, config issues)
+- Test framework configuration errors (playwright.config.ts)
+- Percy integration issues (API key, snapshot setup)
+- Broken test utilities or fixtures
+
+**Test Execution Phase**:
+- Unexpected test failures in unrelated test suites
+- Server startup issues during orchestration
+- Browser automation errors (timeout/selector issues)
+- Visual regression failures outside current scope
+
+**Test Review**:
+- Duplicate test scenarios (overlap with existing tests)
+- Inconsistent selector patterns (not following canonical rules)
+- Missing accessibility validations
+- Performance issues in test execution
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION TestGenerationDetectDrift(currentKey, issue, phase, severity)
+  
+  // Check if issue relates to current test generation work
+  IF IsRelatedToCurrentTests(issue, currentKey) THEN
+    RETURN "NOT_DRIFT"  // Fix as part of current work
+  END IF
+  
+  // For infrastructure issues, may need immediate attention
+  IF severity == "critical" AND phase == "test-infrastructure" THEN
+    HALT_GENERATION()
+    PRESENT_USER_CHOICE(
+      options: [
+        "Fix infrastructure now (pause test generation)",
+        "Generate tests anyway (may fail)",
+        "Abort generation (rollback)"
+      ]
+    )
+    AWAIT_USER_DECISION()
+  END IF
+  
+  // For non-critical issues, register silently
+  driftKey = GenerateDriftKey(issue)
+  
+  RegisterDrift(
+    parentKey: currentKey,
+    driftKey: driftKey,
+    description: issue,
+    severity: severity,
+    mode: "auto",
+    triggeredBy: "test-generation.prompt.md",
+    phase: phase  // "test-infrastructure" | "test-execution" | "test-review"
+  )
+  
+  LogToWorkLog("🔍 Test drift detected: {driftKey} (severity: {severity}, phase: {phase})")
+  CONTINUE_TEST_GENERATION()
+  
+END FUNCTION
+```
+
+### Critical Infrastructure Blocking
+
+When `severity=critical` AND `phase=test-infrastructure`, execution **HALTS**:
+
+**Presentation Format**:
+```
+⚠️ CRITICAL TEST INFRASTRUCTURE ISSUE
+
+Issue: {description}
+Severity: CRITICAL
+Phase: Test Infrastructure Setup
+
+Generated tests may fail without fixing this. Choose one:
+1️⃣ Fix infrastructure now (pause test generation)
+2️⃣ Generate tests anyway (may fail during execution)
+3️⃣ Abort generation (rollback to checkpoint)
+
+Your choice (1/2/3):
+```
+
+**User Choice Handling**:
+- **Fix now**: Register drift with `mode: "user-critical"`, pause generation, fix infrastructure, resume
+- **Generate anyway**: Register drift with `mode: "auto-deferred"`, add warning comment in orchestration script
+- **Abort**: Rollback, present infrastructure issue as standalone work
+
+### Severity Classification
+
+- **critical**: Missing Playwright packages, broken config, server won't start (HALT for infrastructure)
+- **high**: Failing existing tests, broken utilities, Percy misconfigured
+- **medium**: Duplicate tests, selector inconsistencies, missing validations
+- **low**: Documentation gaps in tests, formatting issues
+- **informational**: Performance observations, optimization suggestions
+
+### Drift Commit Format
+
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | user-critical | auto-deferred
+Severity: {level}
+Triggered by: test-generation.prompt.md
+Phase: {test-infrastructure|test-execution|test-review}
+```
+
+### Silent Logging
+
+**During Test Generation** (no chat interruption):
+- Append to `{key}.plan.md`: "🔍 Test drift: {drift-key} (phase: {phase})"
+- Append to `work-log.md`: Full drift details
+- Add warning comment in orchestration script if infrastructure issue deferred
+
+**At Test Generation Completion**:
+- Present drift summary sorted by severity
+- Recommend fixing critical infrastructure drifts before running tests
+- User decides resolution order
+
+---
+
 ## Plan Integration Protocol
 
 **WHEN invoked with `key` parameter:**

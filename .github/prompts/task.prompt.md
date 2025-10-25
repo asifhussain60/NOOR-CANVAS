@@ -527,6 +527,123 @@ This ensures rollback capability if the task introduces instability.
 
 ---
 
+## Auto-Drift Detection (MANDATORY)
+
+During task execution, automatically detect and register unrelated issues for post-completion resolution.
+
+### Detection Triggers
+
+**Context Gathering (Step 2)**:
+- File errors unrelated to current task (missing imports, broken references)
+- Test failures in unrelated test suites
+- Configuration mismatches discovered during validation
+- Architecture violations found during Step 2.8 analysis
+
+**Execution Phase (Step 5)**:
+- Dead code or unused imports in modified files
+- Security vulnerabilities in code paths
+- Performance bottlenecks unrelated to current work
+- Documentation inconsistencies discovered during implementation
+
+**Validation Phase (Step 6)**:
+- Unexpected test failures in unrelated tests
+- Build warnings in other modules
+- Integration issues outside current scope
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION TaskDetectDrift(currentKey, issue, phase, severity)
+  
+  // Check if issue blocks current task
+  IF severity == "critical" THEN
+    HALT_TASK()
+    PRESENT_USER_CHOICE(
+      options: [
+        "Fix now (switches to drift key)",
+        "Continue anyway (risky)",
+        "Abort task (rollback to checkpoint)"
+      ]
+    )
+    AWAIT_USER_DECISION()
+  END IF
+  
+  // For non-critical issues, register silently
+  IF IsUnrelatedToCurrentTask(issue, currentKey) THEN
+    driftKey = GenerateDriftKey(issue)
+    
+    RegisterDrift(
+      parentKey: currentKey,
+      driftKey: driftKey,
+      description: issue,
+      severity: severity,
+      mode: "auto",
+      triggeredBy: "task.prompt.md",
+      phase: phase  // "context-gathering" | "execution" | "validation"
+    )
+    
+    LogToWorkLog("🔍 Drift detected: {driftKey} (severity: {severity}, phase: {phase})")
+    CONTINUE_TASK()
+  END IF
+  
+END FUNCTION
+```
+
+### Critical Drift Blocking
+
+When `severity=critical`, execution **MUST HALT** until user decides:
+
+**Presentation Format**:
+```
+⚠️ CRITICAL ISSUE DETECTED (blocks task execution)
+
+Issue: {description}
+Severity: CRITICAL
+Detected in: {phase}
+
+This issue may affect task success. Choose one:
+1️⃣ Fix now (pause current task, switch to drift resolution)
+2️⃣ Continue anyway (risky - may cause failures)
+3️⃣ Abort task (rollback to checkpoint from Step 1)
+
+Your choice (1/2/3):
+```
+
+**User Choice Handling**:
+- **Fix now**: Register drift with `mode: "user-critical"`, pause task, switch to drift key, resume parent after resolution
+- **Continue anyway**: Register drift with `mode: "auto-deferred"`, log warning, proceed with task (add note in Step 8 work-log)
+- **Abort task**: Rollback using checkpoint from Step 1, present drift as standalone work item
+
+### Severity Classification
+
+- **critical**: Build-breaking errors, null reference risks, security holes (HALT required)
+- **high**: Failing tests, broken integrations, performance degradation
+- **medium**: Code smells, documentation gaps, minor bugs
+- **low**: Formatting issues, unused code
+- **informational**: Suggestions, observations
+
+### Drift Commit Format
+
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | user-critical | auto-deferred
+Severity: {level}
+Triggered by: task.prompt.md
+Phase: {context-gathering|execution|validation}
+```
+
+### Silent Logging
+
+**During Task** (no chat interruption):
+- Append to `{key}.plan.md`: "🔍 Drift detected: {drift-key} (phase: {phase})"
+- Append to `work-log.md`: Full drift details with context
+
+**At Step 9 Completion**:
+- Present drift summary with severity-sorted list
+- User decides resolution order or defers all
+
+---
+
 ### Step 2: Context Gathering (MANDATORY - Multi-Phase)
 
 **Purpose:** Build comprehensive context before planning through conditional, intelligent sub-phases.

@@ -149,6 +149,91 @@ You are the Feature Planning Agent. You turn an initial user request into a prec
   - "transacript-canvas" → "transcript-canvas"
   - Final key format example: `{key}` → `assessment-flow-phase-1` when appropriate.
 
+## Auto-Drift Detection (MANDATORY)
+
+During planning, if unrelated issues are discovered, automatically register them as drifts for post-completion resolution.
+
+### Detection Triggers
+
+**Evidence Gathering Phase**:
+- Missing files/dependencies unrelated to current plan scope
+- Architectural inconsistencies in existing code
+- Security/performance concerns in reviewed code paths
+- Documentation gaps discovered during validation
+- Broken references in unrelated parts of codebase
+
+**Planning Phase**:
+- Conflicting patterns across layers (not part of current work)
+- Dead code or unused imports in files being reviewed
+- Test failures in unrelated test suites
+- Configuration issues discovered but outside scope
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION PlanDetectDrift(currentKey, issue, context)
+  
+  // Check if issue is related to current plan
+  IF IsRelatedToCurrentPlan(issue, currentKey) THEN
+    RETURN "NOT_DRIFT"  // Include in current plan
+  END IF
+  
+  // Classify severity
+  severity = ClassifyIssueSeverity(issue)
+  
+  // Generate drift key
+  driftKey = GenerateDriftKey(issue)
+  
+  // Register drift silently (no user interruption)
+  RegisterDrift(
+    parentKey: currentKey,
+    driftKey: driftKey,
+    description: issue,
+    severity: severity,
+    mode: "auto",
+    triggeredBy: "plan.prompt.md",
+    context: context
+  )
+  
+  // Log to work-log.md (non-blocking)
+  LogToWorkLog("🔍 Drift detected: {driftKey} (severity: {severity})")
+  
+  // Continue planning without interruption
+  CONTINUE_PLANNING()
+  
+END FUNCTION
+```
+
+### Severity Classification
+
+Uses drift.prompt.md severity levels:
+- **critical**: Build-breaking issues, security vulnerabilities
+- **high**: Significant problems affecting functionality
+- **medium**: Code quality issues, minor bugs
+- **low**: Documentation gaps, formatting issues
+- **informational**: Observations, suggestions
+
+### Drift Commit Format
+
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | Severity: {level}
+Triggered by: plan.prompt.md
+Phase: Planning
+```
+
+### User Notification
+
+**Silent Logging**:
+- Add to `{key}.plan.md`: "🔍 Detected drift: {drift-key}"
+- Add to `work-log.md`: Full drift details
+- NO chat interruption during planning
+
+**Drift Summary** (at plan completion):
+- List all detected drifts with severity
+- Recommend resolution order (critical first)
+- User decides: resolve now, defer, or ignore
+
 ## UI/UX Redesign Planning Addendum (apply when request involves layout, styling, accessibility, or component/page polish)
 
 Planning objectives
