@@ -1,346 +1,67 @@
-asifhussain60: Follow instructions in [handoff.prompt.md](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/handoff.prompt.md).
-key:hcp
-For hcp make the question and partcipant panel collapsable to the right. On the button that expands it, show a badge showing the total number of questions asked. Clicking on this button should expand the panel rtl and the session transcript panel should reduce in width to handle it. Add animation to it. The goal of this change is to maximize screen width for the session transcript.
-
-GitHub Copilot: I'm going to gather the shared dictionary and output style rules to correctly expand shortcuts (like "hcp") and format the final prompt as required, then produce the orchestrated Copilot prompt.
-
-Created 5 todos
-
-Searched for files matching `**/.github/prompts/shared/**`, 20 matches
-
-Searched for files matching `**/.github/prompts/shared/UserDictionary.md`, 2 matches
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/shared/UserDictionary.md)
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts/shared/output-style-mandate.md)
-
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/instructions/SelfAwareness.instructions.md#1-1), lines 1 to 300
-
-Starting (2/5) *Map key and expand shortcuts*
-
-Starting (4/5) *Compose final Copilot prompt*
-
-I’m assembling a complete, ready-to-paste Copilot prompt that routes this UI/UX request through the right prompts (task, create-plan, test-generation, healthcheck), using your shared dictionary and output style.
-
-## 🧠 Copilot Analysis
-
-- Key detected: hcp (Host Control Panel — view: #file:HostControlPanel.razor). Expanded via .github/prompts/shared/UserDictionary.md.
-- Routing decisions:
-  - Include: task (always), create-plan (UI/UX design work), test-generation (Playwright + Percy + basic a11y), healthcheck (pre/post validation)
-  - Consider: refactor (CSS/component structure if needed) — optional
-- Assumptions:
-  - The questions/participants side panel defaults to collapsed to maximize transcript width.
-  - “Expand RTL” means slide in from the right edge toward the left, not full RTL localization.
-- Qualifying questions: None essential; proceeding with the assumptions above.
-
-## 📌 Summary for You — BEFORE IMPLEMENTATION
-
-1) Work Requested (key: hcp)
-- Make the Questions + Participants panel collapsible on the right in Host Control Panel (hcp → HostControlPanel.razor).
-- Add a toggle button with a badge showing the total count of questions asked.
-- Clicking the button expands the panel from right to left; the transcript area shrinks accordingly, with smooth animation.
-- Goal: maximize screen width for the session transcript; preserve theme and accessibility.
-
-2) Affected areas:
-- 2a Files that will be impacted:
-  - #file:HostControlPanel.razor (primary)
-  - Related shared layout/CSS assets (site or component CSS/SCSS)
-  - Possibly #file:TranscriptCanvas.razor (layout sizing/containment only, if needed)
-- 2b Architecture or infrastructure changes:
-  - None; UI-only, data via existing APIs/SignalR patterns
-- 2c Database changes:
-  - None
-
-3) Plan (phased):
-- Phase 1: UI/State basics
-  - Add collapsible right-side panel container for Questions + Participants
-  - Add toggle button with live-updating badge (questions count)
-  - Default panel state to collapsed; maintain state on navigation updates
-- Phase 2: Layout and animation
-  - Implement responsive layout (mobile/tablet/desktop) with CSS transitions
-  - Ensure transcript region resizes smoothly when panel toggles
-  - Confirm RTL-style slide-in from the right with a11y-friendly transitions
-- Phase 3: Data and a11y
-  - Wire badge to total questions count (live updates via existing APIs/SignalR)
-  - Add keyboard navigation and ARIA attributes for toggle and collapsible region
-  - Ensure focus management and reduced motion support
-- Phase 4: Tests and health
-  - Add Playwright e2e tests, Percy visual snapshots, basic a11y checks
-  - Pre/post healthcheck: build, lint/typecheck, tests
-
-4) Recommendations for enhancements
-- Add a small hover/focus micro-interaction on the toggle button (consistent with theme)
-- Provide a subtle shadow or divider for the panel edge when open for depth
-- Persist panel state per session in front-end state to respect user preference
-
-— Final Copilot Prompt (for orchestration) —
-
-- task
-  - key: hcp
-  - title: Make Questions + Participants panel collapsible on the right in Host Control Panel
-  - intent: Maximize transcript viewing width by collapsing the side panel by default and providing an animated, accessible toggle with a live questions-count badge.
-  - scope:
-    - Files/areas: #file:HostControlPanel.razor, shared layout/CSS; optionally #file:TranscriptCanvas.razor for container sizing
-    - Non-goals: Database changes; new API endpoints; changes to theme/colors/typography
-  - acceptance_criteria:
-    - Collapsible right-side panel containing Questions and Participants
-    - Toggle button shows a badge with total questions count; badge updates live
-    - Default state collapsed; transcript width expands to fill available space
-    - On toggle, panel slides in from the right; transcript resizes smoothly (200–300ms)
-    - Keyboard accessible (Space/Enter), ARIA attributes for button and region
-    - Respects prefers-reduced-motion; no blocking layout shifts (CLS-friendly)
-    - Responsive at mobile, tablet, and desktop
-    - No regressions to existing Host Control Panel functionality
-  - requirements:
-    - Functional: Collapsible UI, live count badge, state management, responsive layout
-    - Non-functional: Accessible, performant, consistent with theme, no layout jank
-    - Performance/SLOs: Animation smooth at 60fps target on typical dev machine; count updates within 1s of new question
-    - Security: No direct DB access from UI; use existing API/SignalR flows
-  - constraints:
-    - Branch: development
-    - Keep existing theme, colors, typography
-    - UI layer must not use DbContext directly; use HTTP APIs/SignalR patterns
-  - risks_and_mitigations:
-    - Risk: Layout regression on small screens → Mitigation: Percy snapshots across breakpoints
-    - Risk: Live count delays → Mitigation: Wire to existing event stream; fallback to periodic refresh
-    - Risk: A11y gaps → Mitigation: Add ARIA roles, focus control, keyboard tests
-  - deliverables:
-    - Updated Razor/CSS with collapsible panel and badge
-    - Playwright tests with Percy visual coverage and basic accessibility checks
-    - Brief README/notes capturing toggling behavior and a11y roles
-  - implementation_notes:
-    - Follow UI → HTTP API → Controller pattern (no DbContext in UI)
-    - Use CSS transitions for width/transform; respect prefers-reduced-motion
-    - Badge value from total questions; subscribe to existing question events
-    - Maintain local state for panel open/closed; default collapsed
-  - test_plan:
-    - Happy path: Toggle opens/closes; counts update on new question; transcript resizes
-    - Edge: No questions (badge=0); mobile viewport; reduced motion enabled
-    - Tools: Playwright, Percy, basic a11y assertions
-    - Coverage focus: Layout transitions, badge updates, keyboard accessibility
-  - rollout_plan:
-    - Ship as default behavior; visually backward compatible when collapsed
-    - No DB changes; no feature flags required
-    - Optionally log basic telemetry for toggle usage (if existing hooks available)
-  - validation_plan:
-    - Build: dotnet build for SPA/NoorCanvas project
-    - Lint/Typecheck: existing pipeline; ensure no new warnings/errors
-    - Tests: Playwright + Percy suite pass
-    - Quick smoke: Manual toggle on desktop and mobile widths
-  - next_actions:
-    - Implement layout and state in #file:HostControlPanel.razor
-    - Wire badge to live question count source
-    - Add transitions and responsive rules
-    - Add Playwright and Percy tests; run healthcheck
-
-- create-plan
-  - Reason: UI/UX layout and animation work benefits from staged, verifiable steps and visual acceptance anchors.
-  - Inputs: The task scope and acceptance criteria above.
-
-- test-generation
-  - subject_under_test: Host Control Panel (Questions/Participants toggle, transcript resizing)
-  - test_types: e2e + visual + basic a11y
-  - frameworks_and_tools: Playwright, Percy
-  - coverage_focus: Toggle accessibility and animation; badge updates; responsive layouts
-  - environments_and_data: Use standard fixtures; simulate question creation to bump count
-  - outputs: Place tests under existing UI tests structure; align naming conventions
-
-- healthcheck
-  - Pre-flight: Build + lint/typecheck baseline
-  - Post-change: Build + lint/typecheck + Playwright + Percy; summarize PASS/FAIL
-
-- UI/UX-specific fields
-  - design_system_inspiration: ["Material", "Fluent", "Tailwind best practices"]
-  - preserve_visual_identity: { theme: true, colors: true, typography: true }
-  - accessibility_targets: { wcag_level: "2.1 AA", keyboard_navigation: true, aria_roles_landmarks: true }
-  - responsive_breakpoints: ["mobile", "tablet", "desktop"]
-  - micro_interactions: { focus_states: true, hover_states: true, pressed_disabled: true, motion_reduced_support: true }
-  - layout_hierarchy_notes: Tighten spacing and alignment; keep transcript as primary visual weight; clear edge separation for the panel; minimize visual noise when panel is closed.
-  - ui_non_goals: Brand palette and typography remain unchanged
-
-Completion summary to be provided under AFTER IMPLEMENTATION once changes and tests are done.
-
-asifhussain60: Proceed
-
-GitHub Copilot: Completed (4/5) *Compose final Copilot prompt*
-
-I’ll deliver the orchestrated, ready-to-paste Copilot prompt now, with shortcut expansion (hcp → Host Control Panel) and the mandated output style.
-
-## 🧠 Copilot Analysis
-
-- Key detected: hcp → Host Control Panel (view: #file:HostControlPanel.razor)
-- Routing decisions:
-  - Include: task (always), create-plan (UI/UX layout/animation), test-generation (Playwright + Percy + basic a11y), healthcheck (pre/post)
-  - Optional: refactor (CSS/component organization) if needed during implementation
-- Assumptions:
-  - “Expand RTL” means panel slides in from the right edge toward the left; no full RTL localization changes
-  - Default state collapsed to maximize transcript width
-- Qualifying questions: None required; proceeding with assumptions
-
-## 📌 Summary for You — BEFORE IMPLEMENTATION
-
-1) Work Requested (key: hcp)
-- Make the Questions + Participants panel collapsible on the right in Host Control Panel, with a toggle button showing a live badge of total questions; opening the panel slides in from right to left, and the transcript region shrinks smoothly with animation to preserve reading width.
-
-2) Affected areas:
-- 2a Files that will be impacted:
-  - #file:HostControlPanel.razor (primary)
-  - Shared layout/CSS stylesheets as needed
-  - Optionally #file:TranscriptCanvas.razor (container sizing only, if required)
-- 2b Architecture or infrastructure changes:
-  - None; UI-only; reuse existing API/SignalR flows
-- 2c Database changes:
-  - None
-
-3) Plan (phased):
-- Phase 1: UI/State basics
-  - Add collapsible right-side panel for Questions + Participants
-  - Add toggle button with live-updating questions-count badge
-  - Default collapsed; keep state predictable across updates
-- Phase 2: Layout and animation
-  - Responsive layout (mobile/tablet/desktop) with smooth CSS transitions
-  - Transcript region resizes without layout jank
-  - Panel slides in from right with accessible transitions
-- Phase 3: Data and a11y
-  - Badge wired to total questions count (live updates)
-  - Keyboard navigation (Space/Enter), ARIA attributes, focus management
-  - Respect prefers-reduced-motion
-- Phase 4: Tests and health
-  - Playwright e2e with Percy visual snapshots and basic accessibility checks
-  - Healthcheck: build, lint/typecheck, tests
-
-4) Recommendations for enhancements
-- Subtle edge divider/shadow for open panel
-- Micro-interactions on the toggle (hover/focus) aligned with theme
-- Optionally persist panel state per session in client state
-
-— Final Copilot Prompt (ready to paste) —
-
-task:
-  key: hcp
-  title: Make Questions + Participants panel collapsible on the right in Host Control Panel
-  intent: Maximize transcript viewing width by collapsing the side panel by default and providing an animated, accessible toggle with a live questions-count badge.
-  scope:
-    files_areas:
-      - #file:HostControlPanel.razor
-      - Shared layout/CSS stylesheets
-      - (optional) #file:TranscriptCanvas.razor for container sizing only
-    non_goals:
-      - No database changes
-      - No new API endpoints
-      - No changes to theme/colors/typography
-  acceptance_criteria:
-    - Collapsible right-side panel containing Questions and Participants
-    - Toggle button shows a badge with total questions count; live updates
-    - Default collapsed; transcript expands to fill space
-    - On toggle, panel slides in from the right; transcript resizes smoothly (200–300ms)
-    - Keyboard accessible (Space/Enter) with ARIA attributes for the toggle/region
-    - Respects prefers-reduced-motion; no layout shift regressions
-    - Responsive for mobile, tablet, desktop
-    - No regressions to existing Host Control Panel functionality
-  requirements:
-    functional:
-      - Collapsible UI and state management
-      - Live badge wired to total questions count (existing data/events)
-      - Responsive layout with smooth transitions
-    non_functional:
-      - Accessibility (WCAG 2.1 AA intent)
-      - Performance: smooth animations (60fps target on typical dev machine)
-      - Consistent with existing theme/color/typography
-    security:
-      - UI may not access DbContext directly; use existing API/SignalR flows
-  constraints:
-    - Branch: development
-    - UI → HTTP API/SignalR → Controller → DbContext (no direct DB usage in UI)
-  risks_and_mitigations:
-    - Layout regression on small screens → Percy snapshots across breakpoints
-    - Live count delays → Subscribe to existing events; fallback periodic refresh
-    - A11y gaps → Add ARIA roles, focus management, keyboard tests
-  deliverables:
-    - Updated Razor/CSS implementing collapsible panel and badge
-    - Playwright tests with Percy visual coverage and basic a11y checks
-    - Minimal notes/README on toggle behavior and ARIA roles
-  implementation_notes:
-    - Use CSS transitions for width/transform; avoid layout jank; respect reduced motion
-    - Badge value derives from total questions; subscribe to existing event stream
-    - Maintain local component state for open/closed; default collapsed
-  test_plan:
-    happy_path:
-      - Toggle opens/closes; transcript resizes smoothly; badge shows expected count
-    edge_cases:
-      - No questions (badge=0)
-      - Mobile viewport
-      - Reduced motion preference
-    frameworks_tools:
-      - Playwright, Percy, basic a11y assertions
-    coverage_focus:
-      - Layout transitions, badge updates, keyboard accessibility
-  rollout_plan:
-    - Ship as default behavior; visually consistent when collapsed
-    - No DB changes, no feature flags required
-    - Optional telemetry for toggle usage if existing hooks support it
-  validation_plan:
-    - Build SPA/NoorCanvas; ensure analyzers pass with no new warnings/errors
-    - Run Playwright + Percy tests; verify snapshots pass
-    - Quick manual smoke: toggle and resize across desktop/mobile widths
-  next_actions:
-    - Implement layout/state in #file:HostControlPanel.razor
-    - Wire badge to live question count source
-    - Add transitions and responsive rules
-    - Add Playwright + Percy tests; run healthcheck
-
-create-plan:
-  reason: UI/UX layout/animation needs staged, verifiable steps and visual acceptance anchors
-  inputs:
-    - task.scope, acceptance_criteria, test_plan
-
-test-generation:
-  subject_under_test:
-    - Host Control Panel (Questions/Participants toggle, transcript resizing, badge)
-  test_types:
-    - e2e, visual (Percy), basic accessibility checks
-  frameworks_and_tools:
-    - Playwright, Percy
-  coverage_focus:
-    - Toggle accessibility and animation smoothness
-    - Badge live updates (including no-questions case)
-    - Responsive layouts across breakpoints
-  environments_and_data:
-    - Use existing fixtures and events; simulate new question to change badge
-  outputs:
-    - Place under existing UI tests structure; follow repo naming conventions
-
-healthcheck:
-  pre_flight:
-    - Build, lint/typecheck baseline
-  post_change:
-    - Build, lint/typecheck, Playwright + Percy; summarize PASS/FAIL
-
-refactor (optional):
-  when_to_include:
-    - If component/CSS organization needs cleanup during implementation
-  focus:
-    - Keep styles consistent with existing utilities; improve maintainability without behavior change
-
-ui_ux_specific:
-  design_system_inspiration: ["Material", "Fluent", "Tailwind best practices"]
-  preserve_visual_identity: { theme: true, colors: true, typography: true }
-  accessibility_targets: { wcag_level: "2.1 AA", keyboard_navigation: true, aria_roles_landmarks: true }
-  responsive_breakpoints: ["mobile", "tablet", "desktop"]
-  micro_interactions: { focus_states: true, hover_states: true, pressed_disabled: true, motion_reduced_support: true }
-  layout_hierarchy_notes:
-    - Keep transcript as primary visual weight
-    - Tighten spacing and alignment
-    - Clear divider/shadow at panel edge when open
-    - Minimize visual noise when panel is closed
-  ui_non_goals:
-    - No brand palette or typography changes
-
-3) 📌 Summary for You — AFTER IMPLEMENTATION
-- Will be provided after code and tests are completed:
-  - Work Requested (with key)
-  - [x] Tasks completed checklist
-  - Next step recommendations (runnable individually/collectively)
-  - Note: (See <attachments> above for file contents. You may not need to search or read the file again.)
-
-Completion summary will follow once implementation and tests pass.
+DRIFT PROMPT (GPT)
+# 🧠 Copilot Drift Management Prompt (Enhanced and Structured)
+## Objective
+Enable Copilot to manage dynamic, multi-threaded workflows using a **key-linked drift system**.  
+This system maintains continuity and context across all tasks while allowing new issues (“drifts”) to be explored and resolved in isolation, without losing progress on the main workstream.
+---
+## Core Behavior Rules
+### 1. Primary Key Context
+- Every active workflow is tracked under a unique **key** (e.g., `key-main` or `key-session42`).
+- All reasoning, output, and context must be bound to this active key.
+- The key acts as the **anchor** for all subsequent drifts and stack operations.
+---
+### 2. Drift Creation
+When a new issue, tangent, or subtask arises during a workflow:
+- Copilot must **initiate a drift** by creating or switching to a **drift key**.  
+- **Naming rules:**
+  - If a key is **not provided**, automatically generate one as:  
+    `drift-{topic-or-timestamp}`
+  - If a key **is provided but does not already start with “drift-”**, automatically prefix it:  
+    `drift-{providedKey}`
+  - If a key **already includes “drift-”**, keep it as is.  
+- Before switching context, **push the current active key** onto the drift stack to preserve workflow state.  
+- Then, **set the new drift key as active** and continue working in that context.
+---
+### 3. Drift Stack Management
+- Maintain a **stack or linked list** of all keys to manage nested drift contexts.  
+- Each drift key should know its **parent key** (the one that initiated it).  
+- When a drift is resolved:
+  - **Pop the previous key** from the stack.
+  - Resume work on that key with full context continuity.
+- Continue this **pop-and-resume** cycle until all drift issues are resolved and the stack is empty.
+---
+### 4. Automatic Drift Detection
+- If Copilot identifies an **unrelated issue or anomaly** during any task:
+  - Automatically **trigger a drift**, using the naming rule above.  
+  - Track this new issue in its own drift key context.  
+  - Proceed with the main workflow after registering the drift task in the stack for later resolution.  
+This ensures Copilot can multitask intelligently without losing coherence or skipping dependency chains.
+---
+### 5. Context Integrity
+At all times, Copilot must be aware of:
+- The **active key** (the current context).  
+- The **drift stack state** (which keys are pending above/below).  
+- The **key lineage** (parent-child relationships between drifts).  
+- Context restoration rules when switching between keys or resolving issues.
+---
+### 6. Completion Handling
+- When all drift keys are resolved and the stack is empty:
+  - Mark the original key as **complete**.  
+  - Optionally generate a **drift summary report** that includes:
+    - The chain of drift keys and their resolutions.
+    - Any automatically detected issues and how they were handled.
+    - Key lineage and resolution order.
+---
+## Recommended Enhancements
+- **Priority levels:** Assign severity to drifts (e.g., critical, blocking, informational).  
+- **Timestamps:** Log creation and resolution times for each drift key.  
+- **Context memory limits:** Define how many drift layers can be active before summarizing or archiving old ones.  
+- **Trace reports:** Generate human-readable summaries for debugging or review.  
+---
+## Example Workflow
+1. Copilot starts under `key-main`.  
+2. Encounters a schema issue → creates `drift-database-schema`, pushes `key-main` to stack.  
+3. While fixing schema, detects a bug → auto-triggers `drift-bugfix-1`, pushes current drift to stack.  
+4. Resolves bug → pops back to `drift-database-schema`, finishes → pops back to `key-main`.  
+5. Main workflow resumes seamlessly; final report shows full drift lineage and outcomes.  
+---

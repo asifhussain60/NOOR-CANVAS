@@ -495,9 +495,9 @@ NOTE: This is a TEMPLATE file. To configure for your project, run the total-reca
 **Create:** `.github/_Portable/prompts/` (with {{VARIABLES}})
 
 Files to create (Entry Points):
-- `handoff.prompt.md` (with {{VARIABLES}})
-- `task.prompt.md` (with {{VARIABLES}})
 - `plan.prompt.md` (with {{VARIABLES}})
+- `continue.prompt.md` (with {{VARIABLES}})
+- `task.prompt.md` (with {{VARIABLES}})
 - `test-generation.prompt.md` (with {{VARIABLES}})
 - `healthcheck.prompt.md` (with {{VARIABLES}})
 - `port-instructions.prompt.md` (with {{VARIABLES}})
@@ -755,7 +755,10 @@ For EACH template file:
 2. Run the total-recall agent in the new project with `run_mode=apply`
 3. Review generated files under `.github/_Portable/_Configured/`
 4. Copy the configured files into `.github/`
-5. Start using agents (e.g., `@workspace /handoff ...`)
+5. Start using agents:
+   - `@workspace /plan key:{key} {description}` - Comprehensive planning (recommended for complex work)
+   - `@workspace /continue {description}` - Quick work or extend existing key (auto-detects complexity)
+   - `@workspace /task key:{key}` - Direct execution (for simple tasks with existing plan)
 
 ## Next Steps
 - Verify all template variables populate correctly

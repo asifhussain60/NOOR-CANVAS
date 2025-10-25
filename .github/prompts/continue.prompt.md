@@ -21,17 +21,96 @@ Additional work requests + optional modifications to current plan
 
 ## Context Detection
 1. **Find current key** from recent git commits (ckpt messages)
-2. **Load current plan** from `Workspaces/Copilot/_DOCS/summaries/{key}.plan.md`
+2. **Load current plan** from `.github/prompts.keys/{key}/{key}.plan.md` OR `Workspaces/Copilot/_DOCS/summaries/{key}.plan.md`
 3. **Check execution status** from recent commits and file changes
 4. **Identify completion state** of current phases
 
-## Routing (Same as Handoff)
-Classify → include prompts:
-- Always: task
-- Tests: test-generation  
-- Architecture: create-plan, sync
-- Quality: refactor, cohesion-review
-- Validation: healthcheck
+## Mode Detection (Auto-Select Best Workflow)
+
+When invoked, determine optimal workflow:
+
+### If Active Key Detected
+- **EXTEND** existing work (primary continue.prompt.md behavior)
+- Load existing plan and context
+- Append new phases or modify existing ones
+- Preserve execution continuity
+
+### If NO Active Key Detected
+Classify work complexity:
+
+**Simple Work** (1-2 phases, clear scope, single layer):
+- Create lightweight plan in continue
+- Auto-execute after 5s
+- Examples: button resize, text change, single config update
+
+**Complex Work** (multi-phase, multi-layer, architectural):
+- **RECOMMEND** comprehensive planning:
+  ```
+  @workspace /plan key:{suggested-key} {work-description}
+  ```
+- Examples: UI redesign, new features, database migrations, SignalR changes
+- User can override with "proceed anyway" to use lightweight mode
+
+## Routing Classification
+
+Classify work type → include specialized prompts:
+
+**Always Include:**
+- `task.prompt.md` - Core execution engine
+
+**Conditional Includes:**
+- **Tests Required** → `test-generation.prompt.md`
+  - New features, UI changes, API endpoints, database schema
+  - Triggers: keywords (test, e2e, Percy, Playwright, visual regression)
+  
+- **Architecture Changes** → `plan.prompt.md` (recommend upgrade)
+  - Multi-layer changes, new services, SignalR hubs
+  - Triggers: keywords (architecture, refactor, redesign, migration)
+  
+- **Quality Focus** → `healthcheck.prompt.md`
+  - Code quality, prompt optimization, system validation
+  - Triggers: keywords (quality, lint, optimize, validate, audit)
+  
+- **Drift Detected** → `drift.prompt.md`
+  - Unrelated issues discovered during work
+  - Auto-trigger when tangent/blocker found
+
+## Complexity Classification Algorithm
+
+```
+FUNCTION ClassifyWorkComplexity(request)
+  
+  // Parse request for complexity indicators
+  layers = DetectAffectedLayers(request)  // UI, API, Services, Database
+  phases = EstimatePhaseCount(request)
+  hasTests = RequiresTestGeneration(request)
+  hasArchChange = AffectsArchitecture(request)
+  
+  // Simple work criteria
+  IF layers.count <= 1 AND phases <= 2 AND NOT hasArchChange THEN
+    RETURN "SIMPLE"
+  END IF
+  
+  // Complex work indicators
+  IF layers.count >= 2 OR phases >= 3 OR hasArchChange THEN
+    RETURN "COMPLEX"
+  END IF
+  
+  // UI/UX redesign always complex
+  IF Contains(request, "redesign|modernize|responsive|accessibility") THEN
+    RETURN "COMPLEX"
+  END IF
+  
+  // Database changes always complex
+  IF Contains(request, "migration|schema|database|SQL") THEN
+    RETURN "COMPLEX"
+  END IF
+  
+  // Default to simple if ambiguous
+  RETURN "SIMPLE"
+  
+END FUNCTION
+```
 
 ## Plan Extension Structure
 Update existing `{key}.plan.md` with:
@@ -41,8 +120,41 @@ Update existing `{key}.plan.md` with:
 - **Error remediation** plan updated
 
 ## Output (STRICT)
-🧠 Analysis (5 bullets):
-- Current key detected, current phase, extension scope, routing
+
+### For Simple Work (No Active Key)
+🧠 Analysis (≤5 bullets):
+- Complexity: SIMPLE (lightweight mode)
+- Key: {generated-key}
+- Routing: task + {conditional-prompts}
+- Phases: {1-2}
+
+📌 Summary (≤10 bullets):
+1. Key: {key} | Work: {one-liner}
+2. Mode: Lightweight (quick execution)
+3. Phases: {phase-list}
+4. Files: {count}
+5. Tests: {yes/no}
+6. Next: **A.** Execute | **B.** Upgrade to /plan | **C.** Modify | **D.** Cancel
+
+### For Complex Work (Recommendation)
+🧠 Analysis (≤5 bullets):
+- Complexity: COMPLEX (recommend /plan)
+- Reason: {multi-layer|phases>2|architecture|UI-redesign}
+- Suggested key: {key}
+
+📌 Summary (≤10 bullets):
+1. Work: {one-liner}
+2. Complexity: {reason}
+3. Recommendation: Use @workspace /plan for comprehensive planning
+4. Override: Say "proceed anyway" for lightweight mode
+5. Next: **A.** Use /plan (recommended) | **B.** Proceed anyway | **C.** Cancel
+
+### For Extension (Active Key)
+🧠 Analysis (≤5 bullets):
+- Current key detected: {key}
+- Current phase: {N} of {total}
+- Extension scope: {description}
+- Routing: {prompts}
 
 📌 Summary (10 bullets):
 1. Key: {current-key} | Extension: {description}

@@ -90,12 +90,55 @@
 - Maintains: 15 bullets max for summaries
 
 ### Commits
-- (pending) `plan(prompt-system-audit): Updated v1.2 - raised chat limit to 100 lines, allow pseudocode`
+- ✓ `plan(prompt-system-audit): Updated v1.2 - raised chat limit to 100 lines, allow pseudocode` (8cc3e099)
+
+---
+
+## Phase 8: Next Steps Display Standardization ✓
+**Started**: 2025-10-25  
+**Completed**: 2025-10-25
+
+### Actions
+- Added 📋 NEXT STEPS section to output-style-mandate.md
+- Standardized format: Large header + icon, key display, continuation commands
+- Updated all 5 agent prompts (plan, handoff, continue, drift x2, task via mandate)
+- Always show current key with instructions on continuing work
+- Visual hierarchy matches 📌 Summary format
+
+### User Request Context
+> "Next steps at the end of the prompt (all) should be displayed with icon and large header similar to Summary (10 bullets) in the chat. The key should ALWAYS be displayed under next steps with instructions on how to continue using the same key."
+
+### Implementation
+- output-style-mandate.md: Added 📋 NEXT STEPS template
+- plan.prompt.md: After approval step shows key + continuation commands
+- handoff.prompt.md: Execute/modify/cancel with key display
+- continue.prompt.md: Extension execution + key-based continuation
+- drift.prompt.md: Drift registration + resolution next steps (2 sections)
+
+### Format Pattern
+```markdown
+## 📋 NEXT STEPS
+
+**Current Key**: `{key}`
+
+**Action Options:**
+[Command blocks with explanations]
+```
+
+### Files Modified
+- `.github/prompts/shared/output-style-mandate.md` (Next Steps template)
+- `.github/prompts/plan.prompt.md` (After approval section)
+- `.github/prompts/handoff.prompt.md` (Output section)
+- `.github/prompts/continue.prompt.md` (Output section)
+- `.github/prompts/drift.prompt.md` (2 sections: registration + resolution)
+
+### Commits
+- (pending) `plan(prompt-system-audit): Updated v1.3 - standardized Next Steps display`
 
 ---
 
 ## Next Steps
-1. Create git commit for Phase 6 completion
+1. Create git commit for Phases 6, 7, 8 completion
 2. Resolve remaining conflicts (storage, continue scope, commits)
 3. Test plan continuation: @workspace /plan → modify → @workspace /plan again
 4. Update other agents to use unified patterns
