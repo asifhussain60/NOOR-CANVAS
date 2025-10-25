@@ -29,15 +29,36 @@
 ## Execution Log
 
 ### Phase 1: Dual-Mode Drift Detection
-**Status**: In Progress  
-**Started**: 2025-10-25
+**Status**: Completed  
+**Started**: 2025-10-25  
+**Completed**: 2025-01-20  
+**Commit**: 16d7e9b9
 
 **Tasks**:
-- [ ] Update drift.prompt.md with dual-mode support, severity levels, queue limits
-- [ ] Update plan.prompt.md with auto-drift detection section
-- [ ] Update task.prompt.md with auto-drift detection + critical blocking
-- [ ] Update test-generation.prompt.md with auto-drift detection
-- [ ] Update healthcheck.prompt.md with auto-drift detection
+- [x] Update drift.prompt.md with dual-mode support, severity levels, queue limits
+- [x] Update plan.prompt.md with auto-drift detection section
+- [x] Update task.prompt.md with auto-drift detection + critical blocking
+- [x] Update test-generation.prompt.md with auto-drift detection
+- [x] Update healthcheck.prompt.md with auto-drift detection
+
+**Phase 1 Summary**:
+
+Added comprehensive auto-drift detection to all execution prompts:
+
+1. **plan.prompt.md**: Detection during evidence gathering/planning, silent logging, drift summary at completion
+2. **task.prompt.md**: Context/execution/validation detection, **critical blocking** (HALT on severity=critical), user choice handling
+3. **test-generation.prompt.md**: Test infrastructure detection, **infrastructure blocking** (HALT on critical infrastructure issues)
+4. **healthcheck.prompt.md**: System-wide analysis, **non-blocking** (read-only), organized drift queues
+
+**Key Features**:
+- ✅ Shared severity classification (critical/high/medium/low/informational)
+- ✅ Blocking strategy: task/test-generation block on critical, plan/healthcheck defer
+- ✅ User choice handling for critical issues (fix now / continue / abort)
+- ✅ Silent logging to work-log.md (no chat interruption)
+- ✅ Comprehensive drift summary at completion
+- ✅ Standardized drift commit format with mode/severity/phase
+
+**Commit**: `ckpt(auto-drift-detection): Add auto-drift detection to all prompts (Phase 1 complete)` [16d7e9b9]
 
 ### Phase 2: Standardize Drift Registration
 **Status**: Not Started

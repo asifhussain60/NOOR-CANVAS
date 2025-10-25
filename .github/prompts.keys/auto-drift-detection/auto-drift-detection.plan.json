@@ -7,10 +7,10 @@
         {
             "phaseNumber": 1,
             "title": "Dual-Mode Drift Detection",
-            "status": "in-progress",
-            "commit": null,
+            "status": "completed",
+            "commit": "16d7e9b9",
             "startedAt": "2025-10-25",
-            "completedAt": null
+            "completedAt": "2025-01-20"
         },
         {
             "phaseNumber": 2,
