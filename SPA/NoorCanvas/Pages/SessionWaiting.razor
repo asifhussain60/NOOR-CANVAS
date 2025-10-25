@@ -1434,15 +1434,21 @@ background-color: #effff9;
 
     private async Task InitializeSignalRConnection(string requestId)
     {
+        var diagId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] START - SessionId={SessionId}, SessionToken={SessionToken}, DiagId={DiagId}",
+            _sessionId, SessionToken, diagId);
+        
         try
         {
             if (_sessionId == null)
             {
                 // Cannot initialize SignalR - session ID is null
+                Logger.LogWarning("SIGNALR-DIAG: [SW-InitializeSignalRConnection] SKIP - SessionId is null, DiagId={DiagId}", diagId);
                 return;
             }
 
             // Initializing SignalR connection
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] Creating HubConnection to /hub/session, DiagId={DiagId}", diagId);
 
             // Create SignalR connection to SessionHub
             _hubConnection = new HubConnectionBuilder()
@@ -1450,10 +1456,13 @@ background-color: #effff9;
                 .WithAutomaticReconnect()
                 .Build();
 
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] HubConnection created with automatic reconnect, registering event handlers, DiagId={DiagId}", diagId);
+
             // Handle real-time participant events
             _hubConnection.On<object>("UserJoined", async (eventData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [SW-UserJoined] Event fired - RequestId={RequestId}, DiagId={DiagId}", logRequestId, diagId);
                 // UserJoined event received
                 
                 // Refresh participants immediately when someone joins
@@ -1461,12 +1470,14 @@ background-color: #effff9;
                 {
                     await LoadParticipantsAsync(logRequestId);
                     StateHasChanged();
+                    Logger.LogInformation("SIGNALR-DIAG: [SW-UserJoined] Participants refreshed - DiagId={DiagId}", diagId);
                 });
             });
 
             _hubConnection.On<object>("UserLeft", async (eventData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [SW-UserLeft] Event fired - RequestId={RequestId}, DiagId={DiagId}", logRequestId, diagId);
                 // UserLeft event received
                 
                 // Refresh participants immediately when someone leaves
@@ -1474,12 +1485,14 @@ background-color: #effff9;
                 {
                     await LoadParticipantsAsync(logRequestId);
                     StateHasChanged();
+                    Logger.LogInformation("SIGNALR-DIAG: [SW-UserLeft] Participants refreshed - DiagId={DiagId}", diagId);
                 });
             });
 
             _hubConnection.On<object>("ParticipantJoined", async (participantData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [SW-ParticipantJoined] Event fired - RequestId={RequestId}, DiagId={DiagId}", logRequestId, diagId);
                 // ParticipantJoined event received
                 
                 // Refresh participants immediately when someone registers
@@ -1487,6 +1500,7 @@ background-color: #effff9;
                 {
                     await LoadParticipantsAsync(logRequestId);
                     StateHasChanged();
+                    Logger.LogInformation("SIGNALR-DIAG: [SW-ParticipantJoined] Participants refreshed - DiagId={DiagId}", diagId);
                 });
             });
 
@@ -1495,6 +1509,7 @@ background-color: #effff9;
             _hubConnection.On<object>("SessionBegan", async (sessionData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [SW-SessionBegan] Event fired - RequestId={RequestId}, DiagId={DiagId}", logRequestId, diagId);
                 // SessionBegan event received - navigating to canvas based on host selection
                 
                 try
@@ -1553,6 +1568,7 @@ background-color: #effff9;
             // [DEBUG-WORKITEM:transcript-canvas:broadcast] Listen for transcript shared events to navigate to transcript canvas ;CLEANUP_OK
             _hubConnection.On<object>("TranscriptShared", async (transcriptData) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SW-TranscriptShared] Event fired - DiagId={DiagId}", diagId);
                 try
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:transcript-canvas:broadcast] TranscriptShared event received in waiting room ;CLEANUP_OK");
@@ -1592,6 +1608,7 @@ background-color: #effff9;
             // [DEBUG-WORKITEM:session-ended:hub] Listen for session ended events ;CLEANUP_OK
             _hubConnection.On<object>("SessionEnded", async (endData) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [SW-SessionEnded] Event fired - DiagId={DiagId}", diagId);
                 try
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] SessionEnded event received in waiting room ;CLEANUP_OK");
@@ -1623,19 +1640,30 @@ background-color: #effff9;
 
 
             // Start the connection
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] Starting connection - DiagId={DiagId}", diagId);
             await _hubConnection.StartAsync();
             // SignalR connection started successfully
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] Connection established - ConnectionId={ConnectionId}, State={State}, DiagId={DiagId}",
+                _hubConnection.ConnectionId, _hubConnection.State, diagId);
 
             // Join token-based group for real-time participant sync
             var tokenGroup = $"usertoken_{SessionToken}";
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] Joining token group - Group={Group}, DiagId={DiagId}",
+                tokenGroup, diagId);
             await _hubConnection.SendAsync("JoinGroup", tokenGroup);
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] Joined token group - {Group}, DiagId={DiagId}", tokenGroup, diagId);
             
             // Also join session group for backward compatibility with other events
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] Joining session group - SessionId={SessionId}, DiagId={DiagId}",
+                _sessionId, diagId);
             await _hubConnection.SendAsync("JoinSession", _sessionId, "participant");
+            Logger.LogInformation("SIGNALR-DIAG: [SW-InitializeSignalRConnection] COMPLETE - All groups joined, DiagId={DiagId}", diagId);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to initialize SignalR connection");
+            Logger.LogError("SIGNALR-DIAG: [SW-InitializeSignalRConnection] ERROR - Message={Message}, DiagId={DiagId}",
+                ex.Message, diagId);
             // SignalR failure shouldn't break the component - we'll fallback to polling
         }
     }
