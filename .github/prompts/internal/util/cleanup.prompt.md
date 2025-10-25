@@ -89,7 +89,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
 
 **Default:** `development` (per SelfAwareness.instructions.md)
 
-**See:** create-plan.prompt.md Step 0.1 (Branch Parameter Validation)
+**See:** plan.prompt.md Step 0.1 (Branch Parameter Validation)
 
 ---
 
@@ -101,7 +101,7 @@ Target branch for cleanup work. Follows same branch validation as feature planni
 
 **Actions:**
 
-1. **Branch Validation** (same as create-plan.prompt.md Step 0.1):
+1. **Branch Validation** (same as plan.prompt.md Step 0.1):
    - Check github-branch parameter (defaults to `development`)
    - Warn if `master` branch specified
    - Document branch in cleanup report
@@ -334,7 +334,7 @@ Issues Found: {count}
 - 📦 MOVE: `Scripts/deployment-notes.md` → `Docs/deployment-notes.md`
   - **References to Update**:
     - README.md link
-    - .github/prompts/create-plan.prompt.md
+    - .github/prompts/plan.prompt.md
 
 **Risk**: Medium (requires reference updates)  
 **Validation**: Run tests after move, verify links work
@@ -771,7 +771,7 @@ git show {checkpoint-tag}:path/to/file > path/to/file
 - ✅ MOVED: `Scripts/test-debug-panel.spec.ts` → `Tests/UI/`
   - Updated references: package.json, test-generation.prompt.md
 - ✅ MOVED: `Scripts/deployment-notes.md` → `Docs/`
-  - Updated references: README.md, create-plan.prompt.md
+  - Updated references: README.md, plan.prompt.md
 
 **Result**: 2 files relocated, 4 references updated
 
@@ -925,7 +925,7 @@ git push origin {github-branch}
 
 ---
 
-## Integration with create-plan.prompt.md
+## Integration with plan.prompt.md
 
 **Cleanup is automatically invoked as final step after all phases complete.**
 
@@ -1188,7 +1188,7 @@ example attachment path: new-folder/reference.md
 
 ## Related Files
 
-- **create-plan.prompt.md** - Invokes this prompt as final step after all phases complete
+- **plan.prompt.md** - Invokes this prompt as final step after all phases complete
 - **task.prompt.md** - Identifies affected folders and triggers cleanup
 - **SelfAwareness.instructions.md** - Global branch strategy and guidelines
 - **phase-breakdown-patterns.md** - Phase planning and enhancement recommendation patterns

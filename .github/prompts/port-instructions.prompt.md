@@ -497,7 +497,7 @@ NOTE: This is a TEMPLATE file. To configure for your project, run the total-reca
 Files to create (Entry Points):
 - `handoff.prompt.md` (with {{VARIABLES}})
 - `task.prompt.md` (with {{VARIABLES}})
-- `create-plan.prompt.md` (with {{VARIABLES}})
+- `plan.prompt.md` (with {{VARIABLES}})
 - `test-generation.prompt.md` (with {{VARIABLES}})
 - `healthcheck.prompt.md` (with {{VARIABLES}})
 - `port-instructions.prompt.md` (with {{VARIABLES}})
@@ -522,7 +522,7 @@ Files to template (Internal, do not call directly):
 
 **CRITICAL PROTOCOL ENFORCEMENT:**
 
-For `create-plan.prompt.md` template, **MUST ENFORCE** the correct handoff protocol in Step 6:
+For `plan.prompt.md` template, **MUST ENFORCE** the correct handoff protocol in Step 6:
 
 ```markdown
 ### Step 6: MANDATORY Handoff Protocol (CRITICAL)
@@ -556,7 +556,7 @@ For `create-plan.prompt.md` template, **MUST ENFORCE** the correct handoff proto
 - ❌ "You must actually SEND this message to trigger the task agent"
 - ❌ "Show handoff commands to user (handoff is automatic)"
 
-**This ensures create-plan.prompt.md templates NEVER execute directly - they only plan and present handoff commands.**
+**This ensures plan.prompt.md templates NEVER execute directly - they only plan and present handoff commands.**
 
 #### 3.3 Shared Documentation (Copy As-Is)
 

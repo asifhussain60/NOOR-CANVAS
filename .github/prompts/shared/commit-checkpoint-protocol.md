@@ -78,7 +78,7 @@ Maintain in `.github/prompts.keys/{key}/rollback-index.md`:
 - Checkpoint before "mark complete"
 - Checkpoint after remediation
 
-### create-plan.prompt.md  
+### plan.prompt.md  
 - Checkpoint after plan file creation
 - No execution, so fewer checkpoints
 

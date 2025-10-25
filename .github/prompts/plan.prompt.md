@@ -1,4 +1,4 @@
-# create-plan.prompt.md (Feature Planning Agent v1.1)
+# plan.prompt.md (Feature Planning Agent v1.1)
 
 ---
 mode: agent
@@ -8,7 +8,7 @@ outputs: Finalized plan recorded in .github/prompts.keys/{key}/work-log.md and a
 lastUpdated: 2025-10-22
 ---
 
-# create-plan.prompt.md (Feature Planning)
+# plan.prompt.md (Feature Planning)
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
 
@@ -199,7 +199,7 @@ Say "proceed" to begin Phase 1 implementation
 
 **Problem**: Dumping 2000+ lines of technical details in chat is:
 - ❌ Overwhelming for the user
-- ❌ Not the intended protocol per create-plan.prompt.md
+- ❌ Not the intended protocol per plan.prompt.md
 - ❌ Defeats the purpose of having separate plan files
 - ❌ Makes it impossible to track progress programmatically
 - ❌ Violates the "concise draft → detailed files" pattern
