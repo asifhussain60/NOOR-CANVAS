@@ -25,8 +25,10 @@ lastUpdated: 2025-10-22
   - **Step 0.1: Key Spelling** - Validate and correct spelling mistakes in key
   - **Step 0.5: Key Detection** - If no key provided, auto-detect active plan key from git history
 - Step 1: Draft (30-50 lines with MANDATORY enhancements)
-- Step 2: User approval OR clarification (HALT if open questions exist)
-- Step 3: Write files (including test registry structure)
+- **Step 1.5: Questionnaire Generation** - If open questions exist, generate `.github/key-data-streams/{key}/questionnaire.md`
+- Step 2: User approval OR clarification (HALT if open questions exist in questionnaire)
+- **Step 2.5: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
+- Step 3: Write files (including test registry structure, incorporate questionnaire answers)
 - Step 4: Generate auto-execution handoff (task-to-task chaining)
 - Step 5: STOP
 
@@ -90,6 +92,381 @@ Changes:
 - todo extends **execution** (adds work to active key)
 - Plan continuation **modifies planning** (refines plan before/during execution)
 - Both use same key detection pattern from git history
+
+## Questionnaire Protocol (Step 1.5 & 2.5)
+
+### Purpose
+Simplify user question-answering with dedicated markdown files featuring multi-choice format, clear explanations, and automatic cleanup.
+
+### When to Generate Questionnaire
+Generate `.github/key-data-streams/{key}/questionnaire.md` when:
+- Plan has **open questions** requiring user input
+- Technical decisions need user choice
+- Multiple valid approaches exist
+- Drift questions accumulated from multiple plans
+
+### Questionnaire File Structure
+
+**Template: `.github/key-data-streams/{key}/questionnaire.md`**
+
+```markdown
+# Questionnaire: {key}
+
+**Status**: Awaiting Answers  
+**Created**: {timestamp}  
+**Plan Version**: {version}
+
+---
+
+## Instructions
+
+1. **Mark your choice** with an `X` between the brackets: `[X]`
+2. **Save the file** after marking answers
+3. **Tell agent** "questionnaire complete" to continue planning
+
+---
+
+## Questions
+
+### Q1: {Question Title}
+
+**Why we're asking**: {1-2 sentence explanation of context and impact}
+
+**Options** (mark ONE with X):
+- [ ] **A.** {Option A description}
+  - *Pros*: {benefit 1}, {benefit 2}
+  - *Cons*: {drawback 1}, {drawback 2}
+  - *Effort*: {Low|Medium|High}
+
+- [ ] **B.** {Option B description}
+  - *Pros*: {benefit 1}, {benefit 2}
+  - *Cons*: {drawback 1}, {drawback 2}
+  - *Effort*: {Low|Medium|High}
+
+- [ ] **C.** {Option C description}
+  - *Pros*: {benefit 1}, {benefit 2}
+  - *Cons*: {drawback 1}, {drawback 2}
+  - *Effort*: {Low|Medium|High}
+
+**Your Answer**: *(will be extracted after you mark X)*
+
+---
+
+### Q2: {Question Title}
+
+...
+
+---
+
+## Drift Questions (if applicable)
+
+*These questions surfaced from other plans/drifts. Most frequently asked appear first.*
+
+### DQ1: {Drift Question} (asked {count} times across {keys})
+
+**Origin**: Detected in {key-1}, {key-2}, {key-3}  
+**Why we're asking**: {explanation}
+
+**Options** (mark ONE with X):
+- [ ] **A.** {Option A}
+- [ ] **B.** {Option B}
+- [ ] **C.** {Option C}
+
+---
+
+## Answered Questions Archive
+
+*(Questions moved here after being answered and incorporated into plan)*
+
+<details>
+<summary>Previously Answered (click to expand)</summary>
+
+### ✅ Q{N}: {Question} (Answered: {timestamp})
+**Chosen**: {Option Letter} - {Option Description}
+**Incorporated**: Plan v{version}, Phase {N}
+
+</details>
+```
+
+### Generation Algorithm
+
+```
+FUNCTION GenerateQuestionnaire(key, openQuestions, driftQuestions)
+  
+  // 1. Create questionnaire file path
+  filePath = ".github/key-data-streams/{key}/questionnaire.md"
+  
+  // 2. Build question list
+  questionList = []
+  
+  // Add plan-specific questions first
+  FOR EACH question IN openQuestions
+    questionList.APPEND({
+      type: "plan",
+      title: question.title,
+      context: question.context,
+      options: question.options,
+      impact: question.impact
+    })
+  END FOR
+  
+  // 3. Add drift questions (sorted by frequency, descending)
+  driftQuestions = SortByFrequency(driftQuestions, descending=true)
+  
+  FOR EACH driftQ IN driftQuestions
+    questionList.APPEND({
+      type: "drift",
+      title: driftQ.title,
+      context: driftQ.context,
+      options: driftQ.options,
+      origins: driftQ.parentKeys,
+      frequency: driftQ.count
+    })
+  END FOR
+  
+  // 4. Generate markdown content
+  content = BuildQuestionnaireMarkdown(questionList)
+  
+  // 5. Write file
+  WriteFile(filePath, content)
+  
+  // 6. Notify user
+  PRINT("📋 Questionnaire created: {filePath}")
+  PRINT("Please mark your answers with X and say 'questionnaire complete'")
+  
+  RETURN filePath
+  
+END FUNCTION
+```
+
+### Reading Answers Algorithm
+
+```
+FUNCTION ReadQuestionnaireAnswers(key)
+  
+  // 1. Load questionnaire file
+  filePath = ".github/key-data-streams/{key}/questionnaire.md"
+  content = ReadFile(filePath)
+  
+  // 2. Parse marked answers
+  answers = []
+  
+  FOR EACH question IN content.questions
+    markedOption = FindMarkedOption(question)  // Find [X]
+    
+    IF markedOption IS NULL THEN
+      PRINT("⚠️ Question {question.id} not answered")
+      CONTINUE
+    END IF
+    
+    answers.APPEND({
+      questionId: question.id,
+      questionTitle: question.title,
+      chosenOption: markedOption.letter,
+      chosenDescription: markedOption.description,
+      chosenPros: markedOption.pros,
+      chosenCons: markedOption.cons,
+      effort: markedOption.effort
+    })
+  END FOR
+  
+  // 3. Archive answered questions
+  MoveQuestionsToArchive(content, answers)
+  
+  // 4. Clear main questions section (only drift questions remain if any)
+  UpdateQuestionnaire(filePath, clearAnswered=true)
+  
+  // 5. Return answers for plan integration
+  RETURN answers
+  
+END FUNCTION
+```
+
+### Answer Integration Protocol
+
+After reading answers from questionnaire:
+
+1. **Update plan draft** - Incorporate chosen options into appropriate phases
+2. **Note decisions** - Add "User Decisions" section to `{key}.plan.md`:
+   ```markdown
+   ## User Decisions (from questionnaire)
+   
+   **Q1: {Question Title}**
+   - **Chosen**: Option {Letter} - {Description}
+   - **Rationale**: {Pros from chosen option}
+   - **Implementation**: Phase {N}, {specific-task}
+   
+   **Q2: {Question Title}**
+   - **Chosen**: Option {Letter} - {Description}
+   - **Rationale**: {Pros from chosen option}
+   - **Implementation**: Phase {N}, {specific-task}
+   ```
+
+3. **Clear questionnaire** - Move answered questions to archive
+4. **Regenerate plan** - If answers change plan structure significantly
+5. **Commit with answers** - `plan({key}): Incorporated questionnaire answers v{version}`
+
+### Drift Question Tracking
+
+**Drift Question Registry**: `.github/key-data-streams/drift-question-registry.json`
+
+```json
+{
+  "questions": [
+    {
+      "id": "dq-zoom-credentials",
+      "title": "Do you have Zoom SDK credentials?",
+      "origins": ["zoom-integration", "video-chat-feature"],
+      "frequency": 2,
+      "lastAsked": "2025-10-25T10:30:00Z",
+      "commonAnswers": {
+        "yes": 0,
+        "no": 2
+      }
+    }
+  ]
+}
+```
+
+**Update on each questionnaire generation**:
+- Increment frequency for repeated questions
+- Add new origin key to list
+- Track common answer patterns
+- Sort by frequency for prioritization
+
+### Questionnaire Lifecycle
+
+```
+1. Plan detects open questions
+   ↓
+2. Generate questionnaire.md
+   ↓
+3. User marks answers with X
+   ↓
+4. User says "questionnaire complete"
+   ↓
+5. Agent reads marked answers
+   ↓
+6. Move answered Q's to archive
+   ↓
+7. Update plan with decisions
+   ↓
+8. Clear questionnaire (drift Q's remain if any)
+   ↓
+9. Continue planning with answers
+```
+
+### User Commands
+
+**To mark questionnaire complete**:
+- "questionnaire complete"
+- "answers ready"
+- "done with questions"
+- "proceed" (if questionnaire exists)
+
+**To modify questionnaire**:
+- "add question about {topic}"
+- "remove question {N}"
+- "change options for question {N}"
+
+### Example Questionnaire Output
+
+```markdown
+# Questionnaire: zoom-integration
+
+**Status**: Awaiting Answers  
+**Created**: 2025-10-25 10:30:00  
+**Plan Version**: 1.0
+
+---
+
+## Instructions
+
+1. **Mark your choice** with an `X`: `[X]`
+2. **Save the file**
+3. **Tell agent** "questionnaire complete"
+
+---
+
+## Questions
+
+### Q1: Zoom SDK Credentials Availability
+
+**Why we're asking**: We need to know if Zoom credentials exist to determine whether to include setup instructions in Phase 1 or defer integration until credentials are obtained.
+
+**Options** (mark ONE with X):
+- [ ] **A.** Yes, I have Zoom SDK credentials (ClientId/ClientSecret)
+  - *Pros*: Can proceed immediately, no delays, full integration possible
+  - *Cons*: None
+  - *Effort*: Low (just configuration)
+
+- [ ] **B.** No, need to create Zoom Marketplace app first
+  - *Pros*: Proper setup from start, follows Zoom best practices
+  - *Cons*: Additional setup time (30-60 min), delays integration
+  - *Effort*: Medium (Zoom Marketplace setup + credential generation)
+
+- [ ] **C.** Have test credentials, need production credentials later
+  - *Pros*: Can start development now, production setup deferred
+  - *Cons*: Two-phase credential management, potential config differences
+  - *Effort*: Low now, Medium later
+
+**Your Answer**: *(extracted after marking)*
+
+---
+
+### Q2: Zoom Meeting Creation Strategy
+
+**Why we're asking**: This determines the host workflow and database schema requirements.
+
+**Options** (mark ONE with X):
+- [ ] **A.** Auto-create Zoom meetings when host starts session
+  - *Pros*: Seamless UX, no manual steps, automatic meeting IDs
+  - *Cons*: Requires Zoom API integration, meeting cleanup needed
+  - *Effort*: High (Zoom API calls, error handling, cleanup logic)
+
+- [ ] **B.** Host manually enters existing Zoom meeting IDs
+  - *Pros*: Simple implementation, no Zoom API needed, full host control
+  - *Cons*: Extra host step, potential typos, no meeting metadata
+  - *Effort*: Low (just input field + validation)
+
+- [ ] **C.** Hybrid: Auto-create with manual override option
+  - *Pros*: Best of both worlds, flexibility, graceful degradation
+  - *Cons*: More complex UI, both code paths needed
+  - *Effort*: High (combines A + B)
+
+**Your Answer**: *(extracted after marking)*
+
+---
+
+## Drift Questions
+
+### DQ1: Recording Storage Location (asked 2 times: zoom-integration, video-archive)
+
+**Origin**: Detected in zoom-integration, video-archive  
+**Why we're asking**: Determines infrastructure requirements and cost implications.
+
+**Options** (mark ONE with X):
+- [ ] **A.** Zoom Cloud (default)
+- [ ] **B.** Local server download
+- [ ] **C.** External cloud (S3/Azure)
+
+---
+
+## Answered Questions Archive
+
+*(Empty - no questions answered yet)*
+```
+
+### Benefits
+
+✅ **Simplified UX** - User marks X instead of typing answers in chat  
+✅ **Clear explanations** - Context provided for every question  
+✅ **Pros/cons visible** - Informed decision-making  
+✅ **Effort estimates** - User knows implementation cost  
+✅ **Auto-cleanup** - Answered questions archived automatically  
+✅ **Drift prioritization** - Most common questions appear first  
+✅ **Audit trail** - All decisions documented in archive  
+✅ **Version tracking** - Know which plan version each answer applies to
 
 ## Key Spelling Validation (MANDATORY - Step 0.1)
 
@@ -624,7 +1001,15 @@ npx playwright test .github/key-data-streams/{key}/tests/verify-{scenario}.spec.
 1. Does route `/transcript/canvas/{token}` exist?
 2. Default to "asset" or require explicit selection?
 
-**⚠️ PLAN APPROVAL BLOCKED**: Open questions must be answered before proceeding.
+**⚠️ PLAN APPROVAL BLOCKED**: Open questions exist.
+
+**📋 Questionnaire Generated**: `.github/key-data-streams/{key}/questionnaire.md`
+
+Please:
+1. Open the questionnaire file
+2. Mark your answers with `X`
+3. Save the file
+4. Say "questionnaire complete" to continue
 
 ### Algorithm (Pseudocode - Optional for complex logic)
 
@@ -644,14 +1029,20 @@ END IF
 **COMPLETE DETAILS** - Will be written to `.github/key-data-streams/{key}/{key}.plan.md`
 ```
 
-**After User Approves (Step 6 - User says "proceed"):**
+**After User Approves (Step 6 - User says "proceed" or "questionnaire complete"):**
 ```markdown
+✓ Questionnaire answers incorporated into plan
 ✓ Plan finalized and written to disk
 
 **Files Created:**
-- `.github/key-data-streams/{key}/{key}.plan.md` (comprehensive technical plan)
+- `.github/key-data-streams/{key}/{key}.plan.md` (comprehensive technical plan with user decisions)
 - `.github/key-data-streams/{key}/{key}.plan.json` (progress tracking)
 - `.github/key-data-streams/{key}/work-log.md` (execution log)
+- `.github/key-data-streams/{key}/questionnaire.md` (answered questions archived)
+
+**User Decisions Incorporated**:
+- Q1: {Question} → Chosen: {Answer}
+- Q2: {Question} → Chosen: {Answer}
 
 ---
 
