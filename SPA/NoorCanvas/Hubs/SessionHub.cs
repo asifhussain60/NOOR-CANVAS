@@ -34,35 +34,55 @@ public class SessionHub : Hub
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        // SIGNALR-FIX: Extract connection info outside lock to avoid holding lock during async I/O
+        (int sessionId, string role, DateTime joinedAt) connectionInfo = default;
+        bool hasConnectionInfo = false;
+
         lock (_connectionsLock)
         {
-            if (_connections.TryGetValue(Context.ConnectionId, out var connectionInfo))
+            if (_connections.TryGetValue(Context.ConnectionId, out var info))
             {
+                connectionInfo = info;
+                hasConnectionInfo = true;
                 _connections.Remove(Context.ConnectionId);
 
                 _logger.LogInformation("NOOR-HUB-LIFECYCLE: Connection {ConnectionId} removed from session {SessionId} (role: {Role}) - Duration: {Duration}ms",
                     Context.ConnectionId, connectionInfo.sessionId, connectionInfo.role,
                     (DateTime.UtcNow - connectionInfo.joinedAt).TotalMilliseconds);
+            }
+        }
 
-                // Notify session group of user departure
-                _ = Task.Run(async () =>
+        // SIGNALR-FIX: CRITICAL FIX - Notify group BEFORE hub disposal (synchronous await instead of fire-and-forget Task.Run)
+        // This prevents ObjectDisposedException when accessing Clients property after hub disposal
+        if (hasConnectionInfo)
+        {
+            try
+            {
+                var groupName = $"session_{connectionInfo.sessionId}";
+                _logger.LogDebug("NOOR-HUB-LIFECYCLE: Notifying group {GroupName} of user departure (ConnectionId: {ConnectionId})",
+                    groupName, Context.ConnectionId);
+                
+                await Clients.Group(groupName).SendAsync("UserLeft", new
                 {
-                    try
-                    {
-                        var groupName = $"session_{connectionInfo.sessionId}";
-                        await Clients.Group(groupName).SendAsync("UserLeft", new
-                        {
-                            connectionId = Context.ConnectionId,
-                            role = connectionInfo.role,
-                            timestamp = DateTime.UtcNow,
-                            reason = exception?.Message ?? "disconnected"
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "NOOR-HUB-LIFECYCLE: Failed to notify group of user departure");
-                    }
+                    connectionId = Context.ConnectionId,
+                    role = connectionInfo.role,
+                    timestamp = DateTime.UtcNow,
+                    reason = exception?.Message ?? "disconnected",
+                    duration = (DateTime.UtcNow - connectionInfo.joinedAt).TotalMilliseconds
                 });
+                
+                _logger.LogDebug("NOOR-HUB-LIFECYCLE: Successfully notified group {GroupName} of departure", groupName);
+            }
+            catch (ObjectDisposedException)
+            {
+                // SIGNALR-FIX: Graceful handling for rare case where hub is disposed before notification completes
+                _logger.LogDebug("NOOR-HUB-LIFECYCLE: Hub disposed before UserLeft notification - graceful shutdown (ConnectionId: {ConnectionId})",
+                    Context.ConnectionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-HUB-LIFECYCLE: Failed to notify group of user departure (ConnectionId: {ConnectionId})",
+                    Context.ConnectionId);
             }
         }
 
@@ -81,6 +101,7 @@ public class SessionHub : Hub
 
     public async Task JoinSession(int sessionId, string role = "user")
     {
+        var joinedAt = DateTime.UtcNow;
         var groupName = $"session_{sessionId}";
 
         _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ CLIENT JOINING SESSION ════════ ConnectionId={ConnectionId}, SessionId={SessionId}, GroupName={GroupName}, Role={Role} ;CLEANUP_OK",
@@ -89,13 +110,19 @@ public class SessionHub : Hub
         _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}",
             Context.ConnectionId, groupName);
 
-        // Track connection with thread safety
+        // SIGNALR-FIX: Enhanced connection tracking with timestamp for duration calculations
         lock (_connectionsLock)
         {
-            _connections[Context.ConnectionId] = (sessionId, role, DateTime.UtcNow);
+            _connections[Context.ConnectionId] = (sessionId, role, joinedAt);
+            _logger.LogInformation("NOOR-HUB-LIFECYCLE: Connection {ConnectionId} joined session {SessionId} as {Role} at {JoinedAt:yyyy-MM-dd HH:mm:ss.fff}",
+                Context.ConnectionId, sessionId, role, joinedAt);
         }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+        // SIGNALR-FIX: Log group membership confirmation
+        _logger.LogInformation("NOOR-HUB-LIFECYCLE: Connection {ConnectionId} added to group {GroupName} (Session {SessionId}, Role: {Role})",
+            Context.ConnectionId, groupName, sessionId, role);
 
         _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ CLIENT ADDED TO GROUP - ConnectionId={ConnectionId}, GroupName={GroupName}, TotalConnections={Total} ;CLEANUP_OK",
             Context.ConnectionId, groupName, _connections.Count);
@@ -107,8 +134,17 @@ public class SessionHub : Hub
         {
             connectionId = Context.ConnectionId,
             role = role,
-            timestamp = DateTime.UtcNow
+            timestamp = joinedAt
         });
+
+        // SIGNALR-FIX: Log current connection count for session monitoring
+        int connectionCount;
+        lock (_connectionsLock)
+        {
+            connectionCount = _connections.Count(c => c.Value.sessionId == sessionId);
+        }
+        _logger.LogInformation("NOOR-HUB-LIFECYCLE: Session {SessionId} now has {ConnectionCount} active connections",
+            sessionId, connectionCount);
 
         _logger.LogDebug("NOOR-HUB-JOIN: Sent UserJoined notification to group {GroupName}", groupName);
     }
