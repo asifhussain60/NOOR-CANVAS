@@ -21,6 +21,7 @@ lastUpdated: 2025-10-22
 
 ## Process
 - Step 0: Validate (5 bullets)
+  - **Step 0.5: Key Detection** - If no key provided, auto-detect active plan key from git history
 - Step 1: Draft (30-50 lines)
 - Step 2: User approval
 - Step 3: Write files
@@ -29,6 +30,64 @@ lastUpdated: 2025-10-22
 
 **Note:** Execution agents (handoff/task) create git commits after each phase.
 See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+
+## Plan Continuation Protocol (Plan → Plan Same Key)
+
+### Auto-Detection Behavior
+When user invokes plan.prompt.md **without specifying a key**:
+
+1. **Detect Active Plan Key**
+   ```bash
+   # Find most recent plan-related commit
+   git log --grep="plan(" --format="%h %s" -1
+   git log --grep="ckpt.*plan" --format="%h %s" -1
+   ```
+   - Parse key from commit message pattern: `plan({key}):` or `ckpt({key}): Plan`
+   - Verify plan files exist: `.github/prompts.keys/{key}/{key}.plan.md`
+
+2. **Plan Modification Mode**
+   - Load existing plan from `.github/prompts.keys/{key}/{key}.plan.md`
+   - Present current plan summary (phases, status, completion state)
+   - Apply user's modification request to existing plan
+   - Update plan files with revisions
+   - Create update commit: `plan({key}): Updated - {modification-summary}`
+
+3. **If No Active Plan Detected**
+   - Prompt user to provide key or create new plan
+   - List recent plan keys from git history as options
+
+### Use Cases
+
+**Iterative Plan Refinement:**
+```
+User: @workspace /plan key:ui-refresh create modernized dashboard
+Agent: [Creates plan v1.0, writes files]
+
+User: @workspace /plan add accessibility phase
+Agent: [Auto-detects ui-refresh key, updates plan to v1.1]
+
+User: @workspace /plan change phase 2 to use Percy tests
+Agent: [Auto-detects ui-refresh key, modifies Phase 2, updates to v1.2]
+```
+
+**Plan Version Tracking:**
+- Each modification increments plan version (v1.0 → v1.1 → v1.2)
+- Git commits track evolution: `plan(ui-refresh): Updated v1.1 - added accessibility`
+- `{key}.plan.md` maintains version history header
+
+### Commit Format for Plan Updates
+```
+plan({key}): Updated v{version} - {modification-summary}
+
+Changes:
+- [Added/Modified/Removed] Phase {N}: {description}
+- [Updated] {section}: {change-description}
+```
+
+### Integration with Continue.prompt.md
+- Continue extends **execution** (adds work to active key)
+- Plan continuation **modifies planning** (refines plan before/during execution)
+- Both use same key detection pattern from git history
 
 ## Key Rules
 - lowercase-with-dashes
