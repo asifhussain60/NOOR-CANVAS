@@ -45,7 +45,7 @@
 - Easy rollback: Can revert `master` without losing development work
 
 ## Scope
-Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
+Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
@@ -453,7 +453,7 @@ This instruction set references the central `SystemIndex.md`. Any structural cha
 
 
 ## Git Backup & Rollback Discipline
-- Every /workitem and /continue must begin by creating a backup commit.
+- Every /workitem and /todo must begin by creating a backup commit.
 - Undo logs must store commit hashes for rollback.
 - Rollback uses `git reset --hard <hash>`.
 - On /keylock, squash backup commits into one final commit.
