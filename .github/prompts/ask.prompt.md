@@ -38,6 +38,62 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 1) Parse parameters (question, context, depth, verbosity).
 2) Invoke the internal question agent with the same parameters.
 3) Return the internal agent's response without additional wrapping.
+4) **After answering**, present handoff option to plan.prompt.md.
+
+---
+
+## Post-Answer Handoff Protocol (MANDATORY)
+
+**After every answer**, include this in "What would you like to do next?" section:
+
+```markdown
+## What would you like to do next?
+
+**A.** Turn this into a plan of action  
+**B.** Ask a follow-up question  
+**C.** Implement immediately (skip planning)  
+**D.** Nothing, I'm all set
+```
+
+### Handoff Flow
+
+**If user selects A (Turn into plan):**
+```
+1. Extract actionable work from the answer
+2. Generate suggested key from question context
+3. Invoke plan.prompt.md with:
+   - key: {suggested-key}
+   - user_request: {extracted-actionable-work}
+   - context: {original-question-context}
+```
+
+**Example Handoff:**
+```
+User: /ask "Why is the share button missing?" context="SessionCanvas.razor"
+Agent: [Provides detailed answer about missing component]
+
+User: A (Turn into plan)
+Agent: Invoking plan agent...
+       @workspace /plan key:session-canvas-share-button 
+                  user_request="Add share button to SessionCanvas component"
+                  context="SessionCanvas.razor - missing ShareButton component reference"
+```
+
+### Key Generation Rules
+- Extract key from question context (file name, component, feature)
+- Apply spelling validation (per plan.prompt.md Step 0.1)
+- Default format: `{component}-{action}-{target}`
+- Examples:
+  - "Why is share button missing?" → `session-canvas-share-button`
+  - "How to add Percy tests?" → `percy-visual-testing`
+  - "Fix user registration flow?" → `user-registration-fix`
+
+### Context Preservation
+When handing off to plan.prompt.md, preserve:
+- **Original question** - Include in plan context
+- **Answer summary** - Key findings from question agent
+- **Relevant files** - From context parameter or discovered during answer
+- **Assumptions** - Any assumptions made during answer
 
 ---
 
