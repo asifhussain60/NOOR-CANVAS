@@ -25,6 +25,8 @@ public class SessionHub : Hub
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation("NOOR-HUB-LIFECYCLE: Client {ConnectionId} connected", Context.ConnectionId);
+        _logger.LogInformation("SIGNALR-DIAG: [OnConnectedAsync] ConnectionId={ConnectionId}, Timestamp={Timestamp:yyyy-MM-dd HH:mm:ss.fff}",
+            Context.ConnectionId, DateTime.UtcNow);
         await base.OnConnectedAsync();
     }
 
@@ -106,6 +108,8 @@ public class SessionHub : Hub
 
         _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ CLIENT JOINING SESSION ════════ ConnectionId={ConnectionId}, SessionId={SessionId}, GroupName={GroupName}, Role={Role} ;CLEANUP_OK",
             Context.ConnectionId, sessionId, groupName, role);
+        _logger.LogInformation("SIGNALR-DIAG: [JoinSession] START - ConnectionId={ConnectionId}, SessionId={SessionId}, GroupName={GroupName}, Role={Role}, Timestamp={Timestamp:yyyy-MM-dd HH:mm:ss.fff}",
+            Context.ConnectionId, sessionId, groupName, role, joinedAt);
 
         _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}",
             Context.ConnectionId, groupName);
@@ -147,11 +151,16 @@ public class SessionHub : Hub
             sessionId, connectionCount);
 
         _logger.LogDebug("NOOR-HUB-JOIN: Sent UserJoined notification to group {GroupName}", groupName);
+        _logger.LogInformation("SIGNALR-DIAG: [JoinSession] COMPLETE - ConnectionId={ConnectionId}, SessionId={SessionId}, GroupName={GroupName}, ConnectionCount={ConnectionCount}",
+            Context.ConnectionId, sessionId, groupName, connectionCount);
     }
 
     public async Task LeaveSession(int sessionId)
     {
         var groupName = $"session_{sessionId}";
+        _logger.LogInformation("SIGNALR-DIAG: [LeaveSession] START - ConnectionId={ConnectionId}, SessionId={SessionId}, GroupName={GroupName}",
+            Context.ConnectionId, sessionId, groupName);
+        
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
         _logger.LogInformation("NOOR-HUB: User {ConnectionId} left session {SessionId}",
@@ -162,6 +171,9 @@ public class SessionHub : Hub
             connectionId = Context.ConnectionId,
             timestamp = DateTime.UtcNow
         });
+        
+        _logger.LogInformation("SIGNALR-DIAG: [LeaveSession] COMPLETE - ConnectionId={ConnectionId}, SessionId={SessionId}",
+            Context.ConnectionId, sessionId);
     }
 
     public async Task ShareAsset(int sessionId, object assetData)
@@ -350,6 +362,8 @@ public class SessionHub : Hub
 
         _logger.LogInformation("COPILOT-DEBUG: BroadcastQuestion called - SessionId: {SessionId}, ConnectionId: {ConnectionId}",
             sessionId, Context.ConnectionId);
+        _logger.LogInformation("SIGNALR-DIAG: [BroadcastQuestion] START - SessionId={SessionId}, ConnectionId={ConnectionId}, SessionGroup={SessionGroup}, HostGroup={HostGroup}",
+            sessionId, Context.ConnectionId, sessionGroupName, hostGroupName);
         _logger.LogInformation("COPILOT-DEBUG: Target groups - SessionGroup: {SessionGroup}, HostGroup: {HostGroup}",
             sessionGroupName, hostGroupName);
 
@@ -370,10 +384,14 @@ public class SessionHub : Hub
 
             _logger.LogInformation("NOOR-QA-HUB: Broadcasting question to session {SessionId} completed successfully - groups: {SessionGroup}, {HostGroup}",
                 sessionId, sessionGroupName, hostGroupName);
+            _logger.LogInformation("SIGNALR-DIAG: [BroadcastQuestion] COMPLETE - SessionId={SessionId}, Sent to groups: {SessionGroup}, {HostGroup}",
+                sessionId, sessionGroupName, hostGroupName);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "COPILOT-DEBUG: Error broadcasting question to session {SessionId}", sessionId);
+            _logger.LogError("SIGNALR-DIAG: [BroadcastQuestion] ERROR - SessionId={SessionId}, Error={Error}",
+                sessionId, ex.Message);
             throw;
         }
     }
@@ -458,6 +476,9 @@ public class SessionHub : Hub
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
 
+        _logger.LogInformation("SIGNALR-DIAG: [JoinGroup] START - ConnectionId={ConnectionId}, GroupName={GroupName}, RequestId={RequestId}",
+            Context.ConnectionId, groupName, requestId);
+        
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Connection {ConnectionId} joined group {GroupName}",
             requestId, Context.ConnectionId, groupName);
@@ -502,12 +523,22 @@ public class SessionHub : Hub
                     _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX COMPLETED - Synced {Count} existing participants to connection {ConnectionId}",
                         requestId, existingParticipants.Count, Context.ConnectionId);
                 }
+                
+                _logger.LogInformation("SIGNALR-DIAG: [JoinGroup] COMPLETE - ConnectionId={ConnectionId}, GroupName={GroupName}, SyncedCount={Count}",
+                    Context.ConnectionId, groupName, existingParticipants.Count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX ERROR - Failed to sync existing participants for token '{UserToken}'",
                     requestId, userToken);
+                _logger.LogError("SIGNALR-DIAG: [JoinGroup] ERROR - ConnectionId={ConnectionId}, GroupName={GroupName}, Error={Error}",
+                    Context.ConnectionId, groupName, ex.Message);
             }
+        }
+        else
+        {
+            _logger.LogInformation("SIGNALR-DIAG: [JoinGroup] COMPLETE - ConnectionId={ConnectionId}, GroupName={GroupName}",
+                Context.ConnectionId, groupName);
         }
     }
 

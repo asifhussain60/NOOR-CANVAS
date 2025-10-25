@@ -285,11 +285,18 @@ else
 
     private async Task InitializeSignalRAsync()
     {
+        var diagId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] START - DiagId={DiagId}", diagId);
+        
         try
         {
+            Logger.LogInformation("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] Creating HubConnection to /hub/session - DiagId={DiagId}", diagId);
+            
             hubConnection = new HubConnectionBuilder()
                 .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
                 .Build();
+
+            Logger.LogInformation("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] HubConnection created, registering event handlers - DiagId={DiagId}", diagId);
 
             // [DEBUG-WORKITEM:hcp-questions:duplication-fix] Register event handlers for real-time updates ;CLEANUP_OK
             // [FIX-ISSUE-1] Removed HostQuestionAlert handler to prevent duplicate questions
@@ -300,6 +307,7 @@ else
             hubConnection.On<object>("QuestionReceived", async (questionData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-QuestionReceived] Event fired - RequestId={RequestId}, DiagId={DiagId}", requestId, diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 📨 QuestionReceived SIGNALR EVENT RECEIVED (HostControlPanel) ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
@@ -412,16 +420,23 @@ else
 
             hubConnection.On<string>("TranscriptUpdated", async (transcript) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-TranscriptUpdated] Event fired - TranscriptLength={Length}, DiagId={DiagId}",
+                    transcript?.Length ?? 0, diagId);
+                
                 if (Model != null)
                 {
                     Model.SessionTranscript = transcript;
                     Model.TransformedTranscript = await TransformTranscriptHtmlAsync(transcript);
                     await InvokeAsync(StateHasChanged);
+                    Logger.LogInformation("SIGNALR-DIAG: [HCP-TranscriptUpdated] Model updated - DiagId={DiagId}", diagId);
                 }
             });
 
             hubConnection.On<string, int>("VoteUpdateReceived", async (questionText, voteCount) =>
             {
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-VoteUpdateReceived] Event fired - QuestionText={Text}, VoteCount={Count}, DiagId={DiagId}",
+                    questionText?.Substring(0, Math.Min(50, questionText?.Length ?? 0)), voteCount, diagId);
+                
                 // Show toast notification to host about vote update
                 await JSRuntime.InvokeVoidAsync("showVoteUpdateToast", questionText, voteCount);
                 
@@ -441,6 +456,7 @@ else
             hubConnection.On<object>("HostQuestionUpdated", async (questionData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-HostQuestionUpdated] Event fired - RequestId={RequestId}, DiagId={DiagId}", requestId, diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 📝 HostQuestionUpdated SIGNALR EVENT RECEIVED (HostControlPanel) ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
@@ -527,6 +543,7 @@ else
             hubConnection.On<object>("HostQuestionDeleted", async (deleteData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-HostQuestionDeleted] Event fired - RequestId={RequestId}, DiagId={DiagId}", requestId, diagId);
                 try
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
@@ -602,9 +619,12 @@ else
             });
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 🔗 Starting SignalR connection to /hub/session");
+            Logger.LogInformation("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] Starting connection - DiagId={DiagId}", diagId);
             Logger.LogInformation("COPILOT-DEBUG: Starting SignalR connection to /hub/session");
             await hubConnection.StartAsync();
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ SignalR connected: ConnectionId={ConnectionId}, State={State}", hubConnection.ConnectionId, hubConnection.State);
+            Logger.LogInformation("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] Connection established - ConnectionId={ConnectionId}, State={State}, DiagId={DiagId}",
+                hubConnection.ConnectionId, hubConnection.State, diagId);
             Logger.LogInformation("COPILOT-DEBUG: SignalR connection established - ConnectionId: {ConnectionId}, State: {State}", 
                 hubConnection.ConnectionId, hubConnection.State);
             
@@ -614,32 +634,45 @@ else
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to initialize SignalR connection");
+            Logger.LogError("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] ERROR - Message={Message}, DiagId={DiagId}",
+                ex.Message, diagId);
         }
     }
 
     private async Task JoinSignalRGroupsAsync()
     {
+        var diagId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] START - SessionId={SessionId}, HubState={HubState}, DiagId={DiagId}",
+            SessionId, hubConnection?.State.ToString() ?? "NULL", diagId);
+        
         if (hubConnection?.State == HubConnectionState.Connected && SessionId.HasValue)
         {
             try
             {
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ JOINING SIGNALR GROUPS ════════ SessionId={SessionId} ;CLEANUP_OK", SessionId.Value);
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] Joining session group - SessionId={SessionId}, DiagId={DiagId}",
+                    SessionId.Value, diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 👥 Joining SignalR groups for SessionId: {SessionId}", SessionId.Value);
                 Logger.LogInformation("COPILOT-DEBUG: Joining SignalR groups for SessionId: {SessionId}", SessionId.Value);
                 
                 // Join general session group (for asset sharing, etc.)
                 await hubConnection.InvokeAsync("JoinSession", SessionId.Value, "host");
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ Joined session_{SessionId} as host ;CLEANUP_OK", SessionId.Value);
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] Joined session group - session_{SessionId}, DiagId={DiagId}",
+                    SessionId.Value, diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Joined session group: session_{SessionId} as host", SessionId.Value);
                 Logger.LogInformation("COPILOT-DEBUG: Joined session group session_{SessionId} as host", SessionId.Value);
                 
                 // Join host-specific group (for question notifications)
                 await hubConnection.InvokeAsync("JoinHostGroup", SessionId.Value.ToString());
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ Joined Host_{SessionId} group ;CLEANUP_OK", SessionId.Value);
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] Joined host group - Host_{SessionId}, DiagId={DiagId}",
+                    SessionId.Value, diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Joined host group: Host_{SessionId}", SessionId.Value);
                 Logger.LogInformation("COPILOT-DEBUG: Joined host group Host_{SessionId}", SessionId.Value);
                 
                 Logger.LogInformation("NOOR-SIGNALR: Host joined session {SessionId} and host group successfully", SessionId.Value);
+                Logger.LogInformation("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] COMPLETE - All groups joined, DiagId={DiagId}", diagId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ All SignalR groups joined successfully, ready to receive HostQuestionUpdated events ;CLEANUP_OK");
                 
                 // JavaScript interop moved to OnAfterRenderAsync to fix prerendering error
@@ -648,6 +681,8 @@ else
             catch (Exception ex)
             {
                 Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:host-update] ❌ FAILED to join SignalR groups: {Message} ;CLEANUP_OK", ex.Message);
+                Logger.LogError("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] ERROR - Message={Message}, DiagId={DiagId}",
+                    ex.Message, diagId);
                 Logger.LogError(ex, "COPILOT-DEBUG: Failed to join SignalR groups for SessionId: {SessionId}", SessionId.Value);
             }
         }
@@ -655,6 +690,8 @@ else
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ Cannot join groups - HubState={HubState}, SessionId={SessionId} ;CLEANUP_OK",
                 hubConnection?.State.ToString() ?? "NULL", SessionId?.ToString() ?? "NULL");
+            Logger.LogWarning("SIGNALR-DIAG: [HCP-JoinSignalRGroupsAsync] SKIP - Preconditions not met - HubState={HubState}, SessionId={SessionId}, DiagId={DiagId}",
+                hubConnection?.State.ToString() ?? "NULL", SessionId?.ToString() ?? "NULL", diagId);
             Logger.LogWarning("COPILOT-DEBUG: Cannot join SignalR groups - Connection: {ConnectionState}, SessionId: {SessionId}", 
                 hubConnection?.State.ToString() ?? "null", SessionId?.ToString() ?? "null");
         }
