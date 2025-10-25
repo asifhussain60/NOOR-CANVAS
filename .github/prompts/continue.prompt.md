@@ -87,9 +87,87 @@ Update existing `{key}.plan.md` with:
 
 ---
 
+## Drift Detection and Handoff (MANDATORY)
+
+### On Work Completion
+When current key's work is completed:
+
+1. **Check Drift Stack**
+   - Query git history for drift registrations: `git log --grep="drift({current-key})"`
+   - Parse drift keys from commit messages
+   - Identify unresolved drifts (no matching `ckpt({drift-key}): Resolved`)
+
+2. **If Drifts Exist**
+   - **DO NOT PROCEED** with new work
+   - **PRESENT** drift resolution handoff to user
+   - **FORMAT**:
+     ```
+     ✓ {current-key} completed
+     
+     📋 Pending Drifts Detected:
+     1. {drift-key-1} - {description} (registered: {timestamp})
+     2. {drift-key-2} - {description} (registered: {timestamp})
+     
+     **Next Steps:**
+     Say "proceed" to resolve drifts, or "defer" to skip
+     
+     **Handoff Command** (will auto-execute):
+     @workspace /plan key:{drift-key-1} parent:{current-key}
+     Resume drift: {drift-description}
+     ```
+   - **WAIT** for user approval before invoking plan.prompt.md
+
+3. **Drift Resolution Workflow**
+   - User says "proceed" → invoke plan.prompt.md with drift key
+   - Plan creates execution plan for drift
+   - Execute drift work → auto-commit resolution
+   - Pop drift from stack → check for next drift
+   - Repeat until stack empty
+   - Final commit: `ckpt({original-key}): All drifts resolved`
+
+4. **If No Drifts**
+   - Mark current key complete
+   - Present normal completion summary
+   - Ready for new work or extensions
+
+### Drift Stack Query
+```bash
+# Find all drifts for current key
+git log --grep="drift({current-key})" --format="%h %s"
+
+# Check if drift resolved
+git log --grep="ckpt({drift-key}): Resolved" --format="%h %s"
+
+# Count remaining drifts
+(drift registrations) - (resolved commits)
+```
+
+### Handoff Integration
+- **continue.prompt.md** → detects completion + checks drift stack
+- **plan.prompt.md** → creates drift resolution plan
+- **task.prompt.md** → executes drift resolution
+- **drift.prompt.md** → manages stack, context, commits
+
+### Auto-Commit on Drift Resolution
+**MANDATORY** commit after each drift resolved:
+```
+ckpt({drift-key}): Resolved - {summary}
+Parent: {parent-key} | Remaining: {count} drifts
+```
+
+### Stack Depth Enforcement
+- **Max depth: 3 levels**
+- Block new drifts if depth > 3
+- Force resolution of deepest drift first
+- Present overflow warning to user
+
 ## Success Criteria
 - Current key preserved and continued
 - Existing work context maintained
 - New work properly integrated into plan
 - Execution continues seamlessly
 - All phases properly numbered and sequenced
+- **Drift stack checked on completion**
+- **Pending drifts handed off to plan.prompt.md**
+- **Auto-commits created for drift resolutions**
+- **Stack depth enforced (max 3)**
