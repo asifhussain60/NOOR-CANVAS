@@ -1,23 +1,63 @@
-# drift.prompt.md (Drift Management Agent v1.0)
+# drift.prompt.md (Drift Management Agent v1.1)
 
 ---
 mode: agent
-purpose: Manage dynamic, multi-threaded workflows using key-linked drift system for issue isolation and resolution
-inputs: parent_key, drift_trigger, drift_description, stack_state
-outputs: Drift key registration, stack management, context preservation, auto-commit checkpoints
+purpose: Manage dynamic, multi-threaded workflows using key-linked drift system for issue isolation and resolution (supports dual-mode: agent auto-detection + user manual invocation)
+inputs: parent_key, drift_trigger, drift_description, stack_state, mode (auto|manual), severity (critical|high|medium|low|informational)
+outputs: Drift key registration, stack management, context preservation, auto-commit checkpoints, drift summary at completion
 lastUpdated: 2025-10-25
 ---
 
 # drift.prompt.md (Drift Management)
 
-**Mode:** Agent | **Purpose:** Multi-threaded workflow management via drift stack
+**Mode:** Agent | **Purpose:** Multi-threaded workflow management via drift stack (dual-mode support)
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
 2. **Auto-commit** at each drift resolution
 3. **Max stack depth: 3** levels
-4. **Priority levels: DEFERRED** (future enhancement)
-5. **Always preserve parent key context**
+4. **Severity levels**: critical, high, medium, low, informational
+5. **Queue limit**: Max 10 auto-detected drifts per parent key
+6. **Always preserve parent key context**
+
+## Dual-Mode Operation
+
+### Agent Auto-Detection Mode (Silent, Non-Blocking)
+- **Triggered by**: plan, task, test-generation, healthcheck prompts
+- **Behavior**: Silent registration, no user interruption
+- **Queue**: Up to 10 auto-detected drifts per parent key
+- **Resolution**: Queued for post-completion (via continue.prompt.md)
+- **User Awareness**: Drift summary presented at completion
+
+### User Manual Invocation Mode (Explicit, Interactive)
+- **Triggered by**: User executes `@workspace /drift key:{parent} description:{issue}`
+- **Behavior**: Interactive confirmation, user chooses: work now or defer
+- **Queue**: No limit for manual drifts
+- **Resolution**: Immediate or queued per user choice
+- **User Awareness**: Full prompt interaction
+
+## Severity Levels
+
+**critical** - Blocks parent workflow completion (e.g., build-breaking bug, data corruption risk)
+**high** - Significant issue, should resolve before parent completion
+**medium** - Notable issue, can defer to post-completion queue
+**low** - Minor issue, optional resolution
+**informational** - Observation only, no action required
+
+**Auto-Classification Rules**:
+```
+IF issue contains "build error|compilation failed|syntax error" THEN
+  severity = "critical"
+ELSE IF issue contains "test failure|regression|breaking change" THEN
+  severity = "high"
+ELSE IF issue contains "deprecated|code smell|refactor needed" THEN
+  severity = "medium"
+ELSE IF issue contains "typo|formatting|minor bug" THEN
+  severity = "low"
+ELSE
+  severity = "informational"
+END IF
+```
 
 ## Core Behavior
 
@@ -26,46 +66,123 @@ lastUpdated: 2025-10-25
 - All reasoning/output/context bound to active key
 - Key acts as **anchor** for all drifts and stack operations
 
-### 2. Drift Creation (Automatic Naming)
-When new issue/tangent/subtask arises:
-- **Create drift key** with automatic naming:
-  - If NO key provided → `drift-{topic-or-timestamp}`
-  - If key provided WITHOUT "drift-" prefix → `drift-{providedKey}`
-  - If key ALREADY has "drift-" → keep as-is
-- **Push current active key** onto drift stack
-- **Set new drift key as active**
-- **Record parent key** for lineage tracking
+### 2. Drift Creation (Dual-Mode)
+
+**Agent Auto-Detection** (silent, non-blocking):
+When agent detects unrelated issue during work:
+- **Create drift key** with automatic naming: `drift-{topic-or-timestamp}`
+- **Classify severity** using auto-classification rules
+- **Register silently** via commit (no user interruption)
+- **Queue for resolution** after parent completion
+- **Log to work-log.md**: "🔍 Drift detected: {drift-key} (severity: {level})"
+- **Continue parent work** without blocking
+
+**User Manual Invocation** (interactive):
+User executes: `@workspace /drift key:{parent} description:{issue} [severity:{level}]`
+- **Create drift key** from description or user-provided
+- **Classify severity** (user-specified or auto-classified)
+- **Present confirmation**:
+  ```
+  Drift: {drift-key}
+  Parent: {parent-key}
+  Severity: {level}
+  
+  A. Work on drift now
+  B. Queue for post-completion
+  C. Cancel
+  ```
+- **Register based on user choice**
+
+**Naming Rules** (both modes):
+- If NO key provided → `drift-{topic-or-timestamp}`
+- If key provided WITHOUT "drift-" prefix → `drift-{providedKey}`
+- If key ALREADY has "drift-" → keep as-is
 
 ### 3. Drift Stack Management
 - Maintain **stack of max 3 levels**
 - Each drift knows its **parent key**
+- Track **drift count per parent** (max 10 auto-detected)
 - Resolution workflow:
   - **Auto-commit** drift resolution
   - **Pop previous key** from stack
   - **Resume parent context** with full continuity
   - **Repeat** until stack empty
 
-### 4. Automatic Drift Detection
-When identifying unrelated issue/anomaly:
-- **Auto-trigger drift** using naming rules above
-- **Register in stack** for later resolution
-- **Continue main workflow** without blocking
-- **Track dependency chain** for execution order
+### 4. Queue Overflow Protection
+
+**Max Auto-Detected Drifts**: 10 per parent key
+
+**Overflow Detection**:
+```
+autoDriftCount = CountAutoDrifts(parentKey)
+
+IF autoDriftCount >= 10 THEN
+  LogWarning("⚠️ Drift queue full for {parentKey}")
+  
+  PRESENT_USER_CHOICE:
+    A. Pause work and review drift queue now
+    B. Increase limit to 20 (one-time override)
+    C. Stop auto-detection for this key
+    D. Continue (ignore new drifts, risk accepted)
+  
+  BASED_ON_CHOICE:
+    IF choice == A THEN PauseWork(), ShowDriftQueue()
+    IF choice == B THEN IncreaseLimitOnce()
+    IF choice == C THEN DisableAutoDrift(parentKey)
+    IF choice == D THEN ContinueWork(), IgnoreNewDrifts()
+END IF
+```
+
+**Manual Drifts**: No limit (user explicitly invokes)
 
 ### 5. Context Integrity (Always Aware Of)
 - **Active key** (current context)
 - **Drift stack state** (pending keys above/below)
+- **Drift count per parent** (track auto-detected vs manual)
 - **Key lineage** (parent-child relationships)
 - **Restoration rules** when switching contexts
 
-### 6. Completion Handling
+### 6. Completion Handling & Drift Summary
 When all drifts resolved and stack empty:
 - **Mark original key complete**
-- **Generate drift summary**:
-  - Chain of drift keys + resolutions
-  - Auto-detected issues + handling
-  - Key lineage + resolution order
+- **Generate comprehensive drift summary** (see format below)
 - **Create completion checkpoint commit**
+
+**Drift Summary Format**:
+```markdown
+## 📋 Drift Summary for {parent-key}
+
+**Total Drifts Detected**: {count}
+
+**By Severity**:
+- Critical: {count}
+- High: {count}
+- Medium: {count}
+- Low: {count}
+- Informational: {count}
+
+**By Source**:
+- plan.prompt.md: {count}
+- task.prompt.md: {count}
+- test-generation.prompt.md: {count}
+- healthcheck.prompt.md: {count}
+- user (manual): {count}
+
+**By Status**:
+- Resolved: {count}
+- Queued: {count}
+- Deferred: {count}
+
+**Unresolved Drifts** (if any):
+1. {drift-key-1} (severity: {level}, source: {agent}) - {description}
+2. {drift-key-2} (severity: {level}, source: {agent}) - {description}
+...
+
+**Resolved Drifts**:
+1. {drift-key-1} (severity: {level}) - {description} ✅
+2. {drift-key-2} (severity: {level}) - {description} ✅
+...
+```
 
 ## Integration with Continue.prompt.md
 
@@ -85,15 +202,27 @@ Resume drift: {drift-description}
 
 ## Commit Protocol (MANDATORY)
 
-### Drift Registration Commit
+### Drift Registration Commit (Auto-Detection)
 ```
 drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | Severity: {critical|high|medium|low|informational}
+Triggered by: {plan|task|test-generation|healthcheck}.prompt.md
+Phase: {current-phase-if-applicable}
+```
+
+### Drift Registration Commit (Manual Invocation)
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: manual | Severity: {user-specified or auto-classified}
+Triggered by: user
+Context: {user-provided-context}
 ```
 
 ### Drift Resolution Commit
 ```
 ckpt({drift-key}): Resolved - {one-line-summary}
-Parent: {parent-key} | Stack: {remaining-count}
+Parent: {parent-key} | Remaining: {count} drifts
+Severity: {level} | Mode: {auto|manual}
 ```
 
 ### Stack Empty Commit
@@ -105,85 +234,63 @@ Drift chain: {drift-1} → {drift-2} → {drift-3}
 ## Output Format (STRICT)
 
 ### Drift Registration
-🧠 Analysis (5 bullets):
-- Parent key, drift trigger, auto-naming result, stack depth, routing
+🧠 Analysis (≤5 bullets):
+- Parent key, drift trigger, severity, mode (auto/manual), stack depth
 
-📌 Summary (10 bullets):
+📌 Summary (≤10 bullets):
 1. Drift: {drift-key} | Parent: {parent-key}
-2. Trigger: {what-caused-drift}
-3. Stack: {current-depth}/{max-depth}
-4. Context: Preserved via {mechanism}
-5. Auto-commit: {yes/no}
-6. Lineage: {parent} → {current-drift}
-7. Resolution: {planned-approach}
-8. Impact: {how-affects-parent}
-9. Timeline: {estimated-effort}
-10. Next: **A.** Execute Drift | **B.** Defer | **C.** Cancel
+2. Mode: {auto|manual} | Severity: {level}
+3. Triggered by: {agent|user}
+4. Stack: {current-depth}/{max-depth} | Queue: {count}/{limit}
+5. Context: Preserved via {mechanism}
+6. Auto-commit: {yes/no}
+7. Lineage: {parent} → {current-drift}
+8. Resolution: {planned-approach}
+9. Impact: {how-affects-parent}
+10. Timeline: {estimated-effort}
 
 📊 Final:
-- Status | Drift Key | Parent | Stack Depth | Next
+- Status | Drift Key | Parent | Severity | Mode | Next
 
-## 📋 NEXT STEPS (Drift Registration)
+## 🎯 What Would You Like To Do Next?
 
 **Current Drift Key**: `{drift-key}`  
 **Parent Key**: `{parent-key}`
 
-**Execute Drift:**
-```
-Say "proceed" to work on drift
-```
-
-**Defer Drift:**
-```
-Say "defer" to postpone resolution
-(Drift remains in stack for later)
-```
-
-**Resume Parent:**
-```
-Say "skip" to continue parent work
-(Drift remains registered in stack)
-```
+**A.** Execute Drift Now  
+**B.** Queue for Post-Completion  
+**C.** Review Drift Queue  
+**D.** Cancel Drift Registration
 
 ### Drift Resolution
-🧠 Analysis (5 bullets):
-- Drift resolved, outcome, stack pop, parent resume, commit created
+🧠 Analysis (≤5 bullets):
+- Drift resolved, outcome, severity addressed, stack pop, parent resume
 
-📌 Summary (10 bullets):
-1. Resolved: {drift-key}
+📌 Summary (≤10 bullets):
+1. Resolved: {drift-key} (severity: {level}, mode: {auto|manual})
 2. Outcome: {what-was-fixed}
-3. Commit: {commit-hash-or-message}
+3. Commit: {commit-hash}
 4. Stack: Popped to {parent-key}
-5. Remaining: {count} drifts in stack
+5. Remaining: {count} drifts in queue
 6. Next Drift: {next-drift-key or "none"}
 7. Context: Restored to {parent-context}
 8. Files: {count} modified
 9. Tests: {passed/failed}
-10. Next: **A.** Resume Parent | **B.** Review | **C.** Continue Stack
+10. Impact: {how-resolution-helps-parent}
 
 📊 Final:
-- Status | Resolved Drift | Parent Key | Stack State | Next
+- Status | Resolved Drift | Parent Key | Remaining | Next
 
-## 📋 NEXT STEPS (Drift Resolution)
+## 🎯 What Would You Like To Do Next?
 
 **Resolved Drift**: `{drift-key}`  
 **Parent Key**: `{parent-key}`  
 **Remaining Drifts**: `{count}`
 
-**Resume Parent Work:**
-```
-Automatically resumes {parent-key} context
-```
-
-**Check Next Drift:**
-```
-If {count} > 0, next drift will be presented
-```
-
-**Complete Workflow:**
-```
-If {count} = 0, parent workflow marked complete
-```
+**A.** Resume Parent Work (auto-resumes {parent-key})  
+**B.** Review Drift Queue ({count} remaining)  
+**C.** Resolve Next Drift  
+**D.** Mark Parent Complete (accept drift risk)
 
 ## Stack Depth Enforcement
 

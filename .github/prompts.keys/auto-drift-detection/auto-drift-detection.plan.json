@@ -1,0 +1,40 @@
+{
+  "key": "auto-drift-detection",
+  "status": "in-progress",
+  "version": "1.1",
+  "created": "2025-10-25",
+  "phases": [
+    {
+      "phaseNumber": 1,
+      "title": "Dual-Mode Drift Detection",
+      "status": "in-progress",
+      "commit": null,
+      "startedAt": "2025-10-25",
+      "completedAt": null
+    },
+    {
+      "phaseNumber": 2,
+      "title": "Standardize Drift Registration",
+      "status": "not-started",
+      "commit": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "phaseNumber": 3,
+      "title": "Update Cohesion Validation",
+      "status": "not-started",
+      "commit": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "phaseNumber": 4,
+      "title": "Style Next Steps Headers",
+      "status": "not-started",
+      "commit": null,
+      "startedAt": null,
+      "completedAt": null
+    }
+  ]
+}
