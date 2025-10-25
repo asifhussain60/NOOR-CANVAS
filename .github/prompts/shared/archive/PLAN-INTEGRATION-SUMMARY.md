@@ -24,7 +24,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Location**: After "Workflow Requirements", before "Execution Steps"
 
 **Added**:
-- Mandatory check for `.github/prompts.keys/{key}/{key}.plan.md`
+- Mandatory check for `.github/key-data-streams/{key}/{key}.plan.md`
 - Load comprehensive plan when exists
 - Load JSON tracking from `{key}.plan.json`
 - Use plan's pre-gathered context (technology stack, architecture, System Context Pack)
@@ -97,7 +97,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Location**: Step 8 (Update Key Data Stream) - new first sub-step
 
 **Added**:
-- Check for `.github/prompts.keys/{key}/{key}.plan.json`
+- Check for `.github/key-data-streams/{key}/{key}.plan.json`
 - Update phase status (`in-progress` → `complete`)
 - Record validation results (build, lint, tests)
 - Record commit info (SHA, message, timestamp)
@@ -142,7 +142,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Location**: Before "Role" section
 
 **Added**:
-- Check for test specification in `.github/prompts.keys/{key}/{key}.plan.md`
+- Check for test specification in `.github/key-data-streams/{key}/{key}.plan.md`
 - Load current phase's "Playwright Test Specification" section
 - Use plan's test scenarios, logging behavior, selector strategy
 - Use plan's mode (headed/headless), Percy requirements
@@ -183,7 +183,7 @@ All agents now work from shared, synchronized artifacts with bidirectional refer
 **Added**:
 - Load orchestration script specification from plan (if exists)
 - Use plan's customized PowerShell template
-- Generate at `.github/prompts.keys/{key}/scripts/run-{feature}-phase{N}-test.ps1`
+- Generate at `.github/key-data-streams/{key}/scripts/run-{feature}-phase{N}-test.ps1`
 - Fallback to canonical template when no plan
 - Different naming convention: plan-driven vs parameter-driven
 - Update test registry with script location

@@ -611,7 +611,7 @@ When duplicate rules found:
 ## Report Structure
 
 Generates comprehensive report at:
-`.github/prompts.keys/cohesion-{timestamp}/cohesion-report.md`
+`.github/key-data-streams/cohesion-{timestamp}/cohesion-report.md`
 
 ### Report Sections
 

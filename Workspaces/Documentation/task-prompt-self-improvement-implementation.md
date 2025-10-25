@@ -67,7 +67,7 @@ Continue normal workflow under identified key
 - **Sources**: 
   - `Workspaces/Documentation/*-summary.md`
   - `Workspaces/Copilot/_DOCS/summaries/*`
-  - `.github/prompts.keys/*/work-log.md`
+  - `.github/key-data-streams/*/work-log.md`
   - `TEMP/*-summary.md`
 
 **Workflow**:

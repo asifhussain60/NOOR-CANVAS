@@ -85,7 +85,7 @@ Step 2: Context Gathering
 2. If key NOT provided OR user says "continue":
    - Check thread history for recent key usage
    - Infer from `#terminalLastCommand`, `#getTerminalOutput`
-   - Query `.github/prompts.keys/` for recently modified files
+   - Query `.github/key-data-streams/` for recently modified files
    - If uncertain → Request clarification from user
 3. **2.1.5: High-Priority Constraint Detection** (NEW):
    - Scan user request for ALL CAPS emphasis patterns
@@ -109,7 +109,7 @@ Step 2: Context Gathering
 **When:** ALWAYS (after key resolution)
 
 **Actions:**
-1. Search for key file: `.github/prompts.keys/**/{key}.md`
+1. Search for key file: `.github/key-data-streams/**/{key}.md`
 2. If found:
    - Read key metadata (status, files-affected, changes-made)
    - Build context from work log entries

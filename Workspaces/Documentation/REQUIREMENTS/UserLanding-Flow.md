@@ -1596,9 +1596,9 @@ Generate the implementation command to execute all phases?
 
 GitHub Copilot: I'll generate the implementation command to execute all 7 phases of the User Landing local storage feature. 
 
-Searched for files matching `**/.github/prompts.keys/**/userlanding*`, 1 match
+Searched for files matching `**/.github/key-data-streams/**/userlanding*`, 1 match
 
-Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/prompts.keys/userlanding/work-log.md#1-1), lines 1 to 50
+Read [](file:///d%3A/PROJECTS/NOOR%20CANVAS/.github/key-data-streams/userlanding/work-log.md#1-1), lines 1 to 50
 
 Perfect! I can see there's already a key data stream for `userlanding` with the registration guard work. Now I'll create the implementation command for the **localStorage** feature based on the plan we just created.
 

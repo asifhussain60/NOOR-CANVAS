@@ -43,7 +43,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 ### Context Carried
 
 **Plan Files** (automatically loaded by task agent):
-1. `.github/prompts.keys/{key}/{key}.plan.md` - Complete plan specification
+1. `.github/key-data-streams/{key}/{key}.plan.md` - Complete plan specification
    - Technology stack analysis
    - Architecture layers affected
    - Phase specifications with objectives, deliverables, tests
@@ -51,7 +51,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
    - Risk assessments
    - System Context Pack (APIs, database schemas, SignalR hubs, test data)
 
-2. `.github/prompts.keys/{key}/{key}.plan.json` - Structured plan metadata (JSON tracking)
+2. `.github/key-data-streams/{key}/{key}.plan.json` - Structured plan metadata (JSON tracking)
    ```json
    {
      "key": "user-landing",
@@ -69,7 +69,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
    }
    ```
 
-3. `.github/prompts.keys/{key}/work-log.md` - Execution history
+3. `.github/key-data-streams/{key}/work-log.md` - Execution history
    - Key data stream entry
    - User request summary
    - Plan approval record
@@ -120,7 +120,7 @@ feature planning agent: @workspace /task key=user-landing github-branch=developm
 [Task agent takes over]
 
 Task Agent: [Loads plan from {key}.plan.md]
-Task Agent: "✅ Loaded comprehensive plan from .github/prompts.keys/user-landing/user-landing.plan.md"
+Task Agent: "✅ Loaded comprehensive plan from .github/key-data-streams/user-landing/user-landing.plan.md"
 Task Agent: "Phase 1: Database Schema - {objectives}"
 Task Agent: [Executes Phase 1]
 Task Agent: "✅ Phase 1 complete. What's next: Phase 2 will implement ..."

@@ -143,7 +143,7 @@ For each phase, agents must:
   - Config/documentation → `Workspaces/Copilot/_DOCS/configs/`
   - Migrations/reorg notes → `Workspaces/Copilot/_DOCS/migrations/`
   - Temporary notes/drafts → `Workspaces/Copilot/_DOCS/temp/`
-  - Exception: Key data streams in `.github/prompts.keys/` remain as-is.
+  - Exception: Key data streams in `.github/key-data-streams/` remain as-is.
 
 ### Documentation & Analysis File Placement
 All agent-generated documentation must be placed in the designated directory structure:
@@ -157,7 +157,7 @@ Workspaces/Copilot/
 │   └── migrations/          # Migration and reorganization docs
 ├── artifacts/               # Build and test artifacts
 ├── config/                  # Agent configurations
-└── prompts.keys/           # Key-based prompt storage
+└── key-data-streams/           # Key-based prompt storage
 ```
 
 ### Code Quality Analysis - Roslynator Organization

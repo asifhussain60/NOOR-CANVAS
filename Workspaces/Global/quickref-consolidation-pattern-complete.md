@@ -44,7 +44,7 @@ User requested three related improvements to the prompt system architecture:
                ↓
 ┌─────────────────────────────────────────┐
 │  Key Metadata (Individual Keys)         │
-│  Workspaces/Copilot/prompts.keys/{key}/ │
+│  Workspaces/Copilot/key-data-streams/{key}/ │
 │  - QuickRef Localization section        │
 │  - Cached relevant data                 │
 └──────────────┬──────────────────────────┘

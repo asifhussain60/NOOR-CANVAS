@@ -25,7 +25,7 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
   - Summaries/Reports → `Workspaces/Copilot/_DOCS/summaries/`
   - Temporary notes → `Workspaces/Copilot/_DOCS/temp/`
   - Config/migration docs → `Workspaces/Copilot/_DOCS/{configs|migrations}/`
-  - Exception: `.github/prompts.keys/` remains for key data streams.
+  - Exception: `.github/key-data-streams/` remains for key data streams.
 
 ### Shortcut Dictionary Evaluation (MANDATORY)
 - During analysis, evaluate `.github/prompts/shared/UserDictionary.md` and expand any detected shortcuts (e.g., hcp, scanv, tcanv) to canonical names and file references.

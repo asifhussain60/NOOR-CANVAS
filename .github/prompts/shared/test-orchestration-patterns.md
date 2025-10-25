@@ -573,4 +573,4 @@ These variables should be populated by `total-recall.prompt.md` and defined in `
 
 **Last Updated**: 2025-10-18  
 **Source**: Lessons learned from hcptcanvas Playwright test resolution  
-**See Also**: `.github/prompts.keys/hcp-tcanvas/PLAYWRIGHT-TEST-RESOLUTION.md`
+**See Also**: `.github/key-data-streams/hcp-tcanvas/PLAYWRIGHT-TEST-RESOLUTION.md`

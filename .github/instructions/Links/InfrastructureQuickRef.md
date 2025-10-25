@@ -343,9 +343,9 @@ const BASE_URL = 'https://localhost:9091';
 - **Instructions**: `.github/instructions/*.instructions.md`
 
 ### Keys (Work Items)
-- **Key Metadata**: `.github/prompts.keys/{key}/{key}.md`
-- **Work Logs**: `.github/prompts.keys/{key}/work-log.md`
-- **Template**: `.github/prompts.keys/_template/key-template.md`
+- **Key Metadata**: `.github/key-data-streams/{key}/{key}.md`
+- **Work Logs**: `.github/key-data-streams/{key}/work-log.md`
+- **Template**: `.github/key-data-streams/_template/key-template.md`
 
 ---
 

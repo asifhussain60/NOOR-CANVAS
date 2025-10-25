@@ -4,7 +4,7 @@
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions
-outputs: Finalized plan recorded in .github/prompts.keys/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
+outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
 lastUpdated: 2025-10-22
 ---
 
@@ -44,10 +44,10 @@ When user invokes plan.prompt.md **without specifying a key**:
    git log --grep="ckpt.*plan" --format="%h %s" -1
    ```
    - Parse key from commit message pattern: `plan({key}):` or `ckpt({key}): Plan`
-   - Verify plan files exist: `.github/prompts.keys/{key}/{key}.plan.md`
+   - Verify plan files exist: `.github/key-data-streams/{key}/{key}.plan.md`
 
 2. **Plan Modification Mode**
-   - Load existing plan from `.github/prompts.keys/{key}/{key}.plan.md`
+   - Load existing plan from `.github/key-data-streams/{key}/{key}.plan.md`
    - Present current plan summary (phases, status, completion state)
    - Apply user's modification request to existing plan
    - Update plan files with revisions
@@ -266,7 +266,7 @@ Plan structure (concise in chat; full details written to {key}.plan.md after app
   - Basic accessibility checks (roles/landmarks/focus order; optional axe scan if available)
   - Functional smoke tests for critical flows impacted by layout changes
 
-Handoff artifacts (to be written under `.github/prompts.keys/{key}/` once approved)
+Handoff artifacts (to be written under `.github/key-data-streams/{key}/` once approved)
 - `{key}.plan.md`: Complete technical plan with design audit, phase specs, and test specifications
 - `{key}.plan.json`: Tracking for phases and completion state
 - `work-log.md`: Execution log; include links to any Figma/Storybook references when provided
@@ -333,7 +333,7 @@ END IF
 ---
 
 **CONCISE** - Maximum 100 lines in chat (pseudocode allowed)
-**COMPLETE DETAILS** - Will be written to `.github/prompts.keys/{key}/{key}.plan.md`
+**COMPLETE DETAILS** - Will be written to `.github/key-data-streams/{key}/{key}.plan.md`
 ```
 
 **After User Approves (Step 6 - User says "proceed"):**
@@ -341,9 +341,9 @@ END IF
 ✓ Plan finalized and written to disk
 
 **Files Created:**
-- `.github/prompts.keys/{key}/{key}.plan.md` (comprehensive technical plan)
-- `.github/prompts.keys/{key}/{key}.plan.json` (progress tracking)
-- `.github/prompts.keys/{key}/work-log.md` (execution log)
+- `.github/key-data-streams/{key}/{key}.plan.md` (comprehensive technical plan)
+- `.github/key-data-streams/{key}/{key}.plan.json` (progress tracking)
+- `.github/key-data-streams/{key}/work-log.md` (execution log)
 
 ---
 
@@ -384,7 +384,7 @@ Say "proceed" to begin Phase 1
 
 **Solution**: 
 - ✅ Show up to 100 line draft in chat for approval (pseudocode allowed)
-- ✅ Write complete details to `.github/prompts.keys/{key}/{key}.plan.md`
+- ✅ Write complete details to `.github/key-data-streams/{key}/{key}.plan.md`
 - ✅ User reviews files if needed, or just says "proceed"
 - ✅ Sequential execution reads from plan files, not chat history
 

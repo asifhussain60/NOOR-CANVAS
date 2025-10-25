@@ -396,7 +396,7 @@ Final validation:
    ```
 
 4. **Update Key Data Stream:**
-   - Document optimization in `.github/prompts.keys/healthcheck-audits/work-log.md`
+   - Document optimization in `.github/key-data-streams/healthcheck-audits/work-log.md`
    - Record metrics for trend analysis
    - Update validation patterns library
 
@@ -779,7 +779,7 @@ After completing healthcheck (either mode):
 1. **Document Findings**: Create or update key data stream entry for audit trail
 2. **Update Learning Patterns**: Contribute discovered validation patterns to `.github/learning/validation-patterns.json`
 
-**Key Data Stream Path**: `.github/prompts.keys/healthcheck-audits/work-log.md`
+**Key Data Stream Path**: `.github/key-data-streams/healthcheck-audits/work-log.md`
 
 **Entry Format (Standard Healthcheck):**
 ```markdown

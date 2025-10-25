@@ -60,7 +60,7 @@ Phase: 1/4
 ```
 
 ## Rollback Index (Optional)
-Maintain in `.github/prompts.keys/{key}/rollback-index.md`:
+Maintain in `.github/key-data-streams/{key}/rollback-index.md`:
 
 | Date | Phase | SHA | Summary |
 |------|-------|-----|---------|

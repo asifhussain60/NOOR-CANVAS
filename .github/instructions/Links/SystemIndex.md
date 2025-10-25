@@ -235,7 +235,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ℹ️ No Functionality Registry found for key 'user-auth'
 Consider adding one to track core behaviors and prevent regressions.
 
-Template: .github/prompts.keys/_template/key-template.md
+Template: .github/key-data-streams/_template/key-template.md
 Guide: .github/instructions/Links/FunctionalityRegistry.md
 ```
 
@@ -353,7 +353,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ## 🔧 Key Management
 
-- **Location**: `.github/prompts.keys`
+- **Location**: `.github/key-data-streams`
 - **States**: `new`, `In Progress`, `complete`
 - **Sorting**: Always alphabetically sorted
 - **Template**: `_template/key-template.md`

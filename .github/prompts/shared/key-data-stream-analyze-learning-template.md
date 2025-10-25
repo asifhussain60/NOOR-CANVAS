@@ -51,4 +51,4 @@
 Referenced by: analyze-learning.prompt.md (Step 6: Summary + Key Data Stream Update)
 
 ## Key Data Stream Path
-`.github/prompts.keys/learning-analysis/work-log.md`
+`.github/key-data-streams/learning-analysis/work-log.md`
