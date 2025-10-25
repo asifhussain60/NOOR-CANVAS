@@ -42,7 +42,11 @@ builder.Services.AddServerSideBlazor(options =>
     // Configure Blazor Server options to prevent protocol conflicts
     options.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(10);
     options.DisconnectedCircuitMaxRetained = 100;
-    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(180);
+    
+    // SIGNALR-FIX: Extend circuit retention to 30 minutes for production sessions
+    // Prevents premature circuit disposal during temporary network interruptions
+    // Previous: 180s (3 min) - too short for sessions lasting 30+ minutes
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(30); // 30 minutes (was 180s)
 });
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -86,17 +90,24 @@ builder.Services.AddDbContext<KSessionsDbContext>(options =>
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = builder.Environment.IsDevelopment();
-    options.HandshakeTimeout = TimeSpan.FromSeconds(15);
-    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
-    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-    options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB max message size
-
-    // Enhanced logging for hostcanvas debugging
-    if (builder.Environment.IsDevelopment())
-    {
-        Log.Information("NOOR-SIGNALR-CONFIG: SignalR configured with detailed errors, timeouts: handshake={HandshakeTimeout}s, keepalive={KeepAliveInterval}s, client={ClientTimeoutInterval}s",
-            options.HandshakeTimeout?.TotalSeconds ?? 0, options.KeepAliveInterval?.TotalSeconds ?? 0, options.ClientTimeoutInterval?.TotalSeconds ?? 0);
-    }
+    
+    // SIGNALR-FIX: Optimized timeouts for production stability
+    options.HandshakeTimeout = TimeSpan.FromSeconds(20);              // Increased from 15s → 20s (slower network connections)
+    options.KeepAliveInterval = TimeSpan.FromSeconds(10);             // Decreased from 15s → 10s (more frequent pings)
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);         // Increased from 30s → 60s (longer grace period)
+    options.MaximumReceiveMessageSize = 1024 * 1024;                  // 1MB max message size
+    
+    // SIGNALR-FIX: Add connection lifecycle logging for both dev and prod
+    var keepAlive = options.KeepAliveInterval?.TotalSeconds ?? 0;
+    var clientTimeout = options.ClientTimeoutInterval?.TotalSeconds ?? 0;
+    var handshake = options.HandshakeTimeout?.TotalSeconds ?? 0;
+    
+    Log.Information("NOOR-SIGNALR-CONFIG: SignalR configured - Environment={Environment}, DetailedErrors={DetailedErrors}",
+        builder.Environment.EnvironmentName, options.EnableDetailedErrors);
+    Log.Information("NOOR-SIGNALR-CONFIG: Timeouts - Handshake={Handshake}s, KeepAlive={KeepAlive}s, ClientTimeout={ClientTimeout}s",
+        handshake, keepAlive, clientTimeout);
+    Log.Information("NOOR-SIGNALR-CONFIG: Connection health - KeepAlive interval ensures server pings every {KeepAlive}s, client timeout after {ClientTimeout}s silence",
+        keepAlive, clientTimeout);
 })
 .AddJsonProtocol(); // Force JSON protocol only
 
