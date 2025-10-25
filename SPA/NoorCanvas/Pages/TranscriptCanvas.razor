@@ -2753,12 +2753,18 @@
             // Dispose existing connection if any
             if (hubConnection != null)
             {
+                // SIGNALR-FIX: Enhanced disposal logging with connection state
+                Logger.LogInformation("[SIGNALR-FIX:CLIENT] 🔄 Disposing existing SignalR connection - State: {State}, ConnectionId: {ConnectionId}",
+                    hubConnection.State, hubConnection.ConnectionId ?? "null");
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Disposing existing SignalR connection");
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Disposing existing SignalR connection");
                 await hubConnection.DisposeAsync();
                 hubConnection = null;
             }
 
+            // SIGNALR-FIX: Enhanced initialization logging with session context
+            Logger.LogInformation("[SIGNALR-FIX:CLIENT] 🔗 Creating new SignalR hub connection to /hub/session - SessionId: {SessionId}, UserGuid: {UserGuid}",
+                Model?.SessionId ?? 0, CurrentUserGuid ?? "null");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔗 Creating SignalR hub connection to /hub/session");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Creating SignalR hub connection to /hub/session");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ INITIALIZING SIGNALR ════════ SessionId={SessionId}, UserGuid={UserGuid} ;CLEANUP_OK",
@@ -2769,33 +2775,64 @@
                 .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) })
                 .Build();
 
+            // SIGNALR-FIX: Log initial connection state
+            Logger.LogInformation("[SIGNALR-FIX:CLIENT] SignalR connection created - Initial State: {State}", hubConnection.State);
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR connection created, State={State} ;CLEANUP_OK", hubConnection.State);
 
-            // Connection state change events
+            // SIGNALR-FIX: Connection state change events with enhanced logging
             hubConnection.Closed += async (error) =>
             {
-                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ SignalR connection closed: {Error}", error?.Message ?? "No error");
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection closed: {Error}", error?.Message ?? "No error");
+                var errorMsg = error?.Message ?? "No error";
+                var errorType = error?.GetType().Name ?? "None";
+                
+                // SIGNALR-FIX: Enhanced closure logging with error details
+                Logger.LogWarning("[SIGNALR-FIX:CLIENT] ❌ SignalR connection CLOSED - Error: {Error}, Type: {ErrorType}, SessionId: {SessionId}",
+                    errorMsg, errorType, Model?.SessionId ?? 0);
+                
+                // SIGNALR-FIX: Log stack trace for unexpected closures
+                if (error != null)
+                {
+                    Logger.LogDebug("[SIGNALR-FIX:CLIENT] Connection closure stack trace: {StackTrace}", error.StackTrace);
+                }
+                
+                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ SignalR connection closed: {Error}", errorMsg);
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection closed: {Error}", errorMsg);
                 await InvokeAsync(StateHasChanged);
             };
 
             hubConnection.Reconnecting += async (error) =>
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 SignalR reconnecting: {Error}", error?.Message ?? "No error");
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnecting: {Error}", error?.Message ?? "No error");
+                var errorMsg = error?.Message ?? "No error";
+                var attemptTime = DateTime.UtcNow;
+                
+                // SIGNALR-FIX: Enhanced reconnecting logging with timestamp
+                Logger.LogWarning("[SIGNALR-FIX:CLIENT] 🔄 SignalR RECONNECTING - Attempt at {AttemptTime:HH:mm:ss.fff}, Error: {Error}, SessionId: {SessionId}",
+                    attemptTime, errorMsg, Model?.SessionId ?? 0);
+                
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 SignalR reconnecting: {Error}", errorMsg);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnecting: {Error}", errorMsg);
                 await InvokeAsync(StateHasChanged);
             };
 
             hubConnection.Reconnected += async (connectionId) =>
             {
+                var reconnectTime = DateTime.UtcNow;
+                var connectionDuration = lastConnectionTime.HasValue ? (reconnectTime - lastConnectionTime.Value).TotalSeconds : 0;
+                
+                // SIGNALR-FIX: Enhanced reconnected logging with downtime metrics
+                Logger.LogInformation("[SIGNALR-FIX:CLIENT] ✅ SignalR RECONNECTED - New ConnectionId: {ConnectionId}, SessionId: {SessionId}, Downtime: {Downtime}s",
+                    connectionId ?? "unknown", Model?.SessionId ?? 0, connectionDuration);
+                
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnected with ID: {ConnectionId}", connectionId ?? "unknown");
-                lastConnectionTime = DateTime.Now;
+                lastConnectionTime = reconnectTime;
                 await InvokeAsync(StateHasChanged);
                 
                 // Re-join session after reconnection
                 if (Model?.SessionId > 0)
                 {
+                    Logger.LogInformation("[SIGNALR-FIX:CLIENT] Re-joining session {SessionId} after reconnection", Model.SessionId);
                     await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
+                    Logger.LogInformation("[SIGNALR-FIX:CLIENT] Successfully re-joined session {SessionId}", Model.SessionId);
                     Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Re-joined session {SessionId} after reconnection", Model.SessionId);
                 }
             };
@@ -3651,7 +3688,14 @@
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Handlers registered: QuestionReceived, QuestionUpdated, QuestionVoteUpdated, QuestionVoteUpdate, QuestionDeleted, ParticipantJoined, ParticipantLeft, SessionEnded ;CLEANUP_OK");
             
+            // SIGNALR-FIX: Enhanced connection start logging
+            Logger.LogInformation("[SIGNALR-FIX:CLIENT] Starting SignalR connection - SessionId: {SessionId}", Model?.SessionId ?? 0);
             await hubConnection.StartAsync();
+            lastConnectionTime = DateTime.UtcNow;
+            
+            // SIGNALR-FIX: Enhanced connected logging with timestamp
+            Logger.LogInformation("[SIGNALR-FIX:CLIENT] ✅ SignalR connection STARTED - State: {State}, ConnectionId: {ConnectionId}, SessionId: {SessionId}",
+                hubConnection.State, hubConnection.ConnectionId ?? "null", Model?.SessionId ?? 0);
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ SIGNALR CONNECTED - State={State}, ConnectionId={ConnectionId} ;CLEANUP_OK", 
                 hubConnection.State, hubConnection.ConnectionId ?? "NULL");
@@ -3669,7 +3713,11 @@
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Attempting to join session group: session_{SessionId}", Model.SessionId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 🔗 GROUP JOIN: Attempting to join session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
                 
+                // SIGNALR-FIX: Enhanced join session logging
+                Logger.LogInformation("[SIGNALR-FIX:CLIENT] Joining session group - SessionId: {SessionId}, Role: participant", Model.SessionId);
                 await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
+                Logger.LogInformation("[SIGNALR-FIX:CLIENT] ✅ Successfully joined session {SessionId} - ConnectionId: {ConnectionId}",
+                    Model.SessionId, hubConnection.ConnectionId ?? "null");
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ JoinSession CALL COMPLETE - Waiting for server confirmation ;CLEANUP_OK");
                 
@@ -3687,11 +3735,13 @@
             }
             
             // Trigger UI update to show connected status
-            lastConnectionTime = DateTime.Now;
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
+            // SIGNALR-FIX: Enhanced error logging with session context
+            Logger.LogError(ex, "[SIGNALR-FIX:CLIENT] ❌ CRITICAL ERROR during SignalR initialization - SessionId: {SessionId}, Error: {Error}",
+                Model?.SessionId ?? 0, ex.Message);
             Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Error initializing SignalR connection: {Error}", ex.Message);
             // Trigger UI update to show disconnected status with retry button
             await InvokeAsync(StateHasChanged);
