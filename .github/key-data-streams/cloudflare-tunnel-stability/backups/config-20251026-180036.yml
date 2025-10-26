@@ -1,0 +1,17 @@
+tunnel: 93650d38-60af-4dc7-a5ec-f8347fc57514
+credentials-file: C:\Users\asifh\.cloudflared\93650d38-60af-4dc7-a5ec-f8347fc57514.json
+
+ingress:
+  - hostname: resources.kashkole.com
+    service: https://127.0.0.1:443
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: resources.kashkole.com
+  - hostname: noorcanvas.kashkole.com
+    service: http://127.0.0.1:80
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: noorcanvas.kashkole.com
+  - hostname: session.kashkole.com
+    service: http://127.0.0.1:8080
+  - service: http_status:404
