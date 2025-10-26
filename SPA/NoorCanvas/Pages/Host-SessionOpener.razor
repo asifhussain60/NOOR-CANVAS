@@ -481,12 +481,17 @@ else
                                    class="host-opener-input">
                         </div>
                         
-                        <!-- Time Input -->
+                        <!-- Time Dropdown -->
                         <div class="host-opener-field">
                             <label for="session-time" class="host-opener-label">Start Time (EST)</label>
-                            <input type="text" id="session-time" @bind="SessionTime" @oninput="OnTimeInput" @bind:after="OnFormFieldChanged" required autocomplete="off"
-                                   placeholder="HH:MM AM/PM" 
-                                   class="host-opener-input">
+                            <select id="session-time" @bind="SessionTime" @bind:after="OnFormFieldChanged" required 
+                                    class="host-opener-input"
+                                    aria-label="Select session start time in Eastern Standard Time">
+                                @foreach (var time in GenerateTimeOptions())
+                                {
+                                    <option value="@time">@time</option>
+                                }
+                            </select>
                         </div>
                         
                         <!-- Duration Input -->
@@ -610,6 +615,86 @@ else
         }
     }
 
+    /// <summary>
+    /// Generates time options in 30-minute intervals from 5:00 AM to 11:30 PM.
+    /// </summary>
+    /// <returns>List of time strings in "h:mm AM/PM" format</returns>
+    private List<string> GenerateTimeOptions()
+    {
+        var times = new List<string>();
+        
+        // Generate times from 5:00 AM to 11:30 PM in 30-minute intervals
+        for (int hour = 5; hour <= 23; hour++)
+        {
+            for (int minute = 0; minute <= 30; minute += 30)
+            {
+                var displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+                var amPm = hour >= 12 ? "PM" : "AM";
+                var timeString = $"{displayHour}:{minute:D2} {amPm}";
+                times.Add(timeString);
+                
+                // Stop at 11:30 PM
+                if (hour == 23 && minute == 30)
+                    break;
+            }
+        }
+        
+        return times;
+    }
+
+    /// <summary>
+    /// Selects the time option nearest to the current time.
+    /// </summary>
+    /// <returns>Time string in "h:mm AM/PM" format</returns>
+    private string SelectNearestTime()
+    {
+        var now = DateTime.Now;
+        var currentMinutes = now.Hour * 60 + now.Minute;
+        
+        var timeOptions = GenerateTimeOptions();
+        string nearestTime = "6:00 AM"; // Default fallback
+        int minDifference = int.MaxValue;
+        
+        foreach (var timeOption in timeOptions)
+        {
+            // Parse time option to minutes since midnight
+            var optionMinutes = ParseTimeToMinutes(timeOption);
+            var difference = Math.Abs(currentMinutes - optionMinutes);
+            
+            if (difference < minDifference)
+            {
+                minDifference = difference;
+                nearestTime = timeOption;
+            }
+        }
+        
+        return nearestTime;
+    }
+
+    /// <summary>
+    /// Converts time string to total minutes since midnight.
+    /// </summary>
+    /// <param name="timeString">Time in "h:mm AM/PM" format</param>
+    /// <returns>Total minutes since midnight (0-1439)</returns>
+    private int ParseTimeToMinutes(string timeString)
+    {
+        // Parse format: "5:00 AM" or "11:30 PM"
+        var parts = timeString.Split(' ');
+        var timeParts = parts[0].Split(':');
+        var amPm = parts[1];
+        
+        int hour = int.Parse(timeParts[0]);
+        int minute = int.Parse(timeParts[1]);
+        
+        // Convert to 24-hour format
+        if (amPm == "PM" && hour != 12)
+            hour += 12;
+        else if (amPm == "AM" && hour == 12)
+            hour = 0;
+        
+        return hour * 60 + minute;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         // [SECURITY-GUARD:hp-db-guard] FIRST CHECK - Before any other logic, verify environment safety
@@ -631,6 +716,12 @@ else
         if (!string.IsNullOrEmpty(Token))
         {
             Model.HostFriendlyToken = Token;
+        }
+
+        // Auto-select nearest time if not already set
+        if (string.IsNullOrEmpty(Model.SessionTime) || Model.SessionTime == "6:00 AM")
+        {
+            Model.SessionTime = SelectNearestTime();
         }
 
         // Load initial data
@@ -920,13 +1011,6 @@ else
         }
     }
 
-    private void OnTimeInput(ChangeEventArgs e)
-    {
-        var input = e.Value?.ToString() ?? "";
-        Model.SessionTime = HostService.FormatTimeInput(input);
-        ValidateForm();
-    }
-
     private void ValidateForm()
     {
         // Reset form state flags
@@ -935,13 +1019,8 @@ else
         // Validate required fields
         Model.IsFormValid = Model.ValidateRequiredFields();
         
-        // Validate time format if form is otherwise valid
-        if (Model.IsFormValid && !HostService.ValidateTimeFormat(Model.SessionTime))
-        {
-            Model.IsFormValid = false;
-            Model.ErrorMessage = "<strong>Invalid Time Format</strong><br/>Please enter time in HH:MM AM/PM format (e.g., 9:30 AM or 2:15 PM).";
-        }
-        else if (!Model.IsFormValid && Model.HasAttemptedSubmit)
+        // Time format validation removed - dropdown guarantees valid format
+        if (!Model.IsFormValid && Model.HasAttemptedSubmit)
         {
             // Provide detailed guidance on what's missing
             var missingFields = new List<string>();

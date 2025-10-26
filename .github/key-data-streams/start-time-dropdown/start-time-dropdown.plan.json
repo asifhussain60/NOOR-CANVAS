@@ -1,0 +1,60 @@
+{
+    "key": "start-time-dropdown",
+    "version": "1.0",
+    "status": "complete",
+    "created": "2025-10-26T00:00:00Z",
+    "completed": "2025-10-26T00:00:00Z",
+    "phases": [
+        {
+            "id": 1,
+            "name": "Generate Time Options Method",
+            "status": "complete",
+            "estimatedHours": 0.5
+        },
+        {
+            "id": 2,
+            "name": "Auto-Select Nearest Time",
+            "status": "complete",
+            "estimatedHours": 0.75
+        },
+        {
+            "id": 3,
+            "name": "Replace UI Component",
+            "status": "complete",
+            "estimatedHours": 0.5
+        },
+        {
+            "id": 4,
+            "name": "Remove Legacy Validation Code",
+            "status": "complete",
+            "estimatedHours": 0.25
+        },
+        {
+            "id": 5,
+            "name": "Testing & Validation",
+            "status": "complete",
+            "estimatedHours": 2
+        }
+    ],
+    "totalPhases": 5,
+    "estimatedTotalHours": 4,
+    "filesAffected": [
+        "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\Host-SessionOpener.razor",
+        "d:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\start-time-dropdown.spec.ts",
+        "d:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\start-time-dropdown-visual.spec.ts"
+    ],
+    "enhancements": {
+        "high": [
+            "Percy visual tests",
+            "E2E nearest-time tests"
+        ],
+        "medium": [
+            "ARIA attributes",
+            "Timezone tooltip"
+        ],
+        "low": [
+            "Refactor to service",
+            "Configurable time range"
+        ]
+    }
+}
