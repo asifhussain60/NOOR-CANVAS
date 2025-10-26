@@ -51,6 +51,42 @@
 - User requested: Commit all changes, create Windows service, add scripts
 - Created plan for cloudflare-tunnel-stability v2.0
 - Outlined 5 phases for production-ready setup
+- Committed configuration to git (12cab782, 2d94beb5)
+
+### Session 2: 2025-10-26 (Service Installation - Phase 3)
+
+**23:19 - 23:22: Service Installation Attempts**
+- Attempted cloudflared's built-in service installation
+- Issue: `cloudflared service install` returns exit code 1 due to event logger warning
+- Service not appearing in Windows Services list
+- Investigation revealed service registration issue on this system
+
+**23:22 - 23:23: Manual Service Creation**
+- Created alternative installation script: `install-tunnel-service-nssm.ps1`
+- Uses PowerShell `sc.exe` for direct service creation
+- Bypasses cloudflared's built-in service installer
+
+**23:23 - 23:24: Service Installation Success**
+- Service created: `CloudflaredTunnel`
+- Display Name: "Cloudflare Tunnel - NoorCanvas"
+- Start Type: Automatic
+- Failure Recovery: Restart after 60 seconds (3 attempts)
+- Service started successfully
+- Tunnel verified responding HTTP 200
+
+**23:24: Service Resilience Testing**
+- Tested stop/start cycle
+- Service stopped cleanly
+- Service restarted successfully
+- Tunnel recovered and responding
+- ✅ All resilience tests passed
+
+**23:25: Phase 3 Complete**
+- Windows service installed and running
+- Auto-start configured (boots with Windows)
+- Failure recovery configured
+- Tunnel accessible at https://noorcanvas.kashkole.com
+- Service management commands documented
 
 ### Key Decisions
 
