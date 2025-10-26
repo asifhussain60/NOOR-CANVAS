@@ -218,16 +218,11 @@ namespace NoorCanvas.Services
         
         private string BuildEnvironmentUrl(string relativePath)
         {
-            if (_environment.IsProduction())
-            {
-                var cdnUrl = _configuration["Resources:Production:BaseUrl"] ?? "https://resources.kashkole.com";
-                return $"{cdnUrl}/{relativePath}";
-            }
-            else
-            {
-                var devPath = _configuration["Resources:Development:BaseUrl"] ?? "file:///D:/Websites/KSESSIONS/Resources";
-                return $"{devPath}/{relativePath}";
-            }
+            // Always prefer CDN (production-ready architecture)
+            // CDN is accessible in all environments with CORS configured for localhost
+            // See: .github/instructions/CDN-Architecture.md for rationale
+            var cdnUrl = _configuration["Resources:Production:BaseUrl"] ?? "https://resources.kashkole.com";
+            return $"{cdnUrl}/{relativePath}";
         }
         
         private string ExtractRelativePathFromFileUrl(string fileUrl)

@@ -6,7 +6,8 @@
     },
     "Resources": {
         "Development": {
-            "BaseUrl": "file:///D:/Websites/KSESSIONS/Resources"
+            "BaseUrl": "https://resources.kashkole.com",
+            "_Comment": "CDN is accessible in all environments. CORS configured for localhost. Fallback to file:// only if CDN unreachable (not implemented)."
         },
         "Production": {
             "BaseUrl": "https://resources.kashkole.com"
