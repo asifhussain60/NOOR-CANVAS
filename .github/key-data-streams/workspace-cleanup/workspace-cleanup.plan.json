@@ -1,0 +1,78 @@
+{
+    "key": "workspace-cleanup",
+    "version": "1.0",
+    "status": "planning",
+    "created": "2025-10-26T19:45:00Z",
+    "updated": "2025-10-26T19:45:00Z",
+    "description": "Comprehensive workspace cleanup with default and aggressive modes",
+    "phases": [
+        {
+            "id": 1,
+            "name": "Analysis and Inventory",
+            "status": "pending",
+            "description": "Scan workspace and generate cleanup report"
+        },
+        {
+            "id": 2,
+            "name": "Safe Cleanup (Default Mode)",
+            "status": "pending",
+            "description": "Remove obvious temporary and build artifacts"
+        },
+        {
+            "id": 3,
+            "name": "Documentation Organization",
+            "status": "pending",
+            "description": "Organize scattered MD files into proper structure"
+        },
+        {
+            "id": 4,
+            "name": ".github Cleanup",
+            "status": "pending",
+            "description": "Enforce .github folder standards"
+        },
+        {
+            "id": 5,
+            "name": "Aggressive Cleanup",
+            "status": "pending",
+            "description": "Deep clean for maximum space recovery (optional)"
+        },
+        {
+            "id": 6,
+            "name": "Validation and Reporting",
+            "status": "pending",
+            "description": "Verify cleanup success and document results"
+        }
+    ],
+    "configuration": {
+        "modes": [
+            "default",
+            "aggressive",
+            "custom"
+        ],
+        "defaultMode": "default",
+        "dryRunSupported": true,
+        "backupSupported": true
+    },
+    "targets": {
+        "buildArtifacts": [
+            "bin",
+            "obj",
+            ".vs",
+            "node_modules/.cache"
+        ],
+        "testResults": [
+            "test-results",
+            "playwright-report",
+            "PlayWright/results"
+        ],
+        "tempFiles": [
+            "*.tmp",
+            "*.temp",
+            "*.bak",
+            "*.log"
+        ],
+        "documentation": "scattered MD files"
+    },
+    "testRegistry": "tests/test-registry.md",
+    "executionScript": "execute-plan.ps1"
+}
