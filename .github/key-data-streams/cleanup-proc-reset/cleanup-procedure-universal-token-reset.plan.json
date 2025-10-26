@@ -2,7 +2,7 @@
     "key": "cleanup-proc-reset",
     "oldKey": "cleanup-procedure-universal-token-reset",
     "version": "1.1",
-    "status": "in-progress",
+    "status": "complete",
     "createdAt": "2025-10-26T00:00:00Z",
     "phases": [
         {
@@ -15,16 +15,16 @@
         {
             "phaseNumber": 2,
             "name": "Testing & Validation",
-            "status": "pending",
+            "status": "complete",
             "estimatedMinutes": 20,
-            "completedAt": null
+            "completedAt": "2025-10-26T00:35:00Z"
         },
         {
             "phaseNumber": 3,
             "name": "Key Cleanup & Workspace Organization",
-            "status": "in-progress",
+            "status": "complete",
             "estimatedMinutes": 15,
-            "completedAt": null
+            "completedAt": "2025-10-26T00:30:00Z"
         }
     ],
     "totalPhases": 3,
