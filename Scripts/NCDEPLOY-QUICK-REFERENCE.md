@@ -23,6 +23,37 @@
 
 ---
 
+## Quick Host Provisioning (NEW) ⚡
+
+**Fastest way to reset a session and get host URLs:**
+
+```powershell
+.\Scripts\Quick-Provision.ps1 -SessionId 212
+```
+
+**What it does:**
+- ✅ Clears canvas.Participants and canvas.SessionData
+- ✅ Generates fresh host and user tokens
+- ✅ Displays clickable URLs for immediate access
+- ✅ ~2 seconds vs 10+ seconds for GUI
+
+**Examples:**
+```powershell
+# Basic usage
+.\Scripts\Quick-Provision.ps1 -SessionId 212
+
+# Production environment
+.\Scripts\Quick-Provision.ps1 -SessionId 215 -Environment Production
+
+# Auto-open in browser
+.\Scripts\Quick-Provision.ps1 -SessionId 212 -OpenBrowser
+
+# With audit tracking
+.\Scripts\Quick-Provision.ps1 -SessionId 212 -CreatedBy "John Doe"
+```
+
+---
+
 ## Common Scenarios
 
 ### 1. Standard Deployment (Most Common)
