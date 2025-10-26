@@ -1,59 +1,59 @@
 {
-  "key": "cdn-dev-cors-extension",
-  "version": "1.0",
-  "created": "2025-10-26T00:00:00Z",
-  "status": "ready",
-  "phases": [
-    {
-      "phase": 1,
-      "name": "Update IIS Configuration Script",
-      "status": "pending",
-      "tasks": [
-        "Add -IncludeDevelopment parameter to setup-resources-cdn.ps1",
-        "Create conditional CORS origins array",
-        "Update web.config generation logic",
-        "Test script with and without flag"
-      ],
-      "estimatedMinutes": 10,
-      "completedAt": null
-    },
-    {
-      "phase": 2,
-      "name": "Apply Development CORS Configuration",
-      "status": "pending",
-      "tasks": [
-        "Backup current web.config",
-        "Capture file integrity baseline",
-        "Run setup-resources-cdn.ps1 -IncludeDevelopment",
-        "Verify file integrity post-change",
-        "Inspect web.config changes"
-      ],
-      "estimatedMinutes": 10,
-      "completedAt": null
-    },
-    {
-      "phase": 3,
-      "name": "Validation and Testing",
-      "status": "pending",
-      "tasks": [
-        "Test production CORS still works",
-        "Test development CORS now works",
-        "Verify cache headers preserved",
-        "Test CORS preflight (OPTIONS)",
-        "Final file integrity check"
-      ],
-      "estimatedMinutes": 10,
-      "completedAt": null
-    }
-  ],
-  "totalPhases": 3,
-  "totalEstimatedMinutes": 30,
-  "filesModified": [
-    "Scripts/Resources-CDN/setup-resources-cdn.ps1",
-    "D:\\Websites\\KSESSIONS\\Resources\\web.config",
-    "Scripts/Resources-CDN/README.md"
-  ],
-  "testSpecs": [
-    "verify-dual-mode-cors.ps1"
-  ]
+    "key": "cdn-dev-cors-extension",
+    "version": "1.0",
+    "created": "2025-10-26T00:00:00Z",
+    "status": "ready",
+    "phases": [
+        {
+            "phase": 1,
+            "name": "Update IIS Configuration Script",
+            "status": "pending",
+            "tasks": [
+                "Add -IncludeDevelopment parameter to setup-resources-cdn.ps1",
+                "Create conditional CORS origins array",
+                "Update web.config generation logic",
+                "Test script with and without flag"
+            ],
+            "estimatedMinutes": 10,
+            "completedAt": null
+        },
+        {
+            "phase": 2,
+            "name": "Apply Development CORS Configuration",
+            "status": "pending",
+            "tasks": [
+                "Backup current web.config",
+                "Capture file integrity baseline",
+                "Run setup-resources-cdn.ps1 -IncludeDevelopment",
+                "Verify file integrity post-change",
+                "Inspect web.config changes"
+            ],
+            "estimatedMinutes": 10,
+            "completedAt": null
+        },
+        {
+            "phase": 3,
+            "name": "Validation and Testing",
+            "status": "pending",
+            "tasks": [
+                "Test production CORS still works",
+                "Test development CORS now works",
+                "Verify cache headers preserved",
+                "Test CORS preflight (OPTIONS)",
+                "Final file integrity check"
+            ],
+            "estimatedMinutes": 10,
+            "completedAt": null
+        }
+    ],
+    "totalPhases": 3,
+    "totalEstimatedMinutes": 30,
+    "filesModified": [
+        "Scripts/Resources-CDN/setup-resources-cdn.ps1",
+        "D:\\Websites\\KSESSIONS\\Resources\\web.config",
+        "Scripts/Resources-CDN/README.md"
+    ],
+    "testSpecs": [
+        "verify-dual-mode-cors.ps1"
+    ]
 }
