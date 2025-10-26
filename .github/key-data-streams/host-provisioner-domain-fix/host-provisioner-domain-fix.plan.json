@@ -1,0 +1,92 @@
+{
+  "key": "host-provisioner-domain-fix",
+  "version": "1.0",
+  "created": "2025-10-26T00:00:00Z",
+  "status": "planning-complete",
+  "currentPhase": 0,
+  "totalPhases": 6,
+  "phases": [
+    {
+      "id": 1,
+      "name": "Fix Production App.Config Files",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "duration": "5 minutes",
+      "risk": "low"
+    },
+    {
+      "id": 2,
+      "name": "Add Clipboard Error Handling Enhancement",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "duration": "15 minutes",
+      "risk": "low"
+    },
+    {
+      "id": 3,
+      "name": "Add Environment Indicator Badge to GUI",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "duration": "20 minutes",
+      "risk": "low"
+    },
+    {
+      "id": 4,
+      "name": "Update Documentation Files",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "duration": "10 minutes",
+      "risk": "low"
+    },
+    {
+      "id": 5,
+      "name": "Create URL Validation Test",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "duration": "25 minutes",
+      "risk": "low"
+    },
+    {
+      "id": 6,
+      "name": "Rebuild and Verify",
+      "status": "not-started",
+      "startedAt": null,
+      "completedAt": null,
+      "duration": "10 minutes",
+      "risk": "low"
+    }
+  ],
+  "enhancements": [
+    {
+      "id": "A",
+      "name": "Add URL validation test to prevent future domain drift",
+      "priority": "high",
+      "effort": "low",
+      "selected": true,
+      "phase": 5
+    },
+    {
+      "id": "B",
+      "name": "Add clipboard error handling with user-friendly message",
+      "priority": "high",
+      "effort": "low",
+      "selected": true,
+      "phase": 2
+    },
+    {
+      "id": "C",
+      "name": "Add environment indicator badge to GUI",
+      "priority": "medium",
+      "effort": "medium",
+      "selected": true,
+      "phase": 3
+    }
+  ],
+  "drifts": [],
+  "branch": "zoom-integration/major-20251025"
+}
