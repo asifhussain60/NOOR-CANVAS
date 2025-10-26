@@ -167,10 +167,20 @@ namespace NoorCanvas.Services
         
         private string TransformUrl(string originalUrl, string mediaType)
         {
-            // Pattern 1: Relative paths (/IMAGES/..., /MP3/..., /MEDIA/...)
+            // Pattern 1: Relative paths with leading slash (/IMAGES/..., /MP3/..., /MEDIA/...)
             if (originalUrl.StartsWith("/IMAGES/") || originalUrl.StartsWith("/MP3/") || originalUrl.StartsWith("/MEDIA/"))
             {
                 return BuildEnvironmentUrl(originalUrl.TrimStart('/'));
+            }
+            
+            // Pattern 1b: Relative paths starting with Resources/ (Resources/IMAGES/..., Resources/MP3/..., Resources/MEDIA/...)
+            if (originalUrl.StartsWith("Resources/IMAGES/", StringComparison.OrdinalIgnoreCase) || 
+                originalUrl.StartsWith("Resources/MP3/", StringComparison.OrdinalIgnoreCase) || 
+                originalUrl.StartsWith("Resources/MEDIA/", StringComparison.OrdinalIgnoreCase))
+            {
+                // Extract everything after "Resources/"
+                var relativePath = originalUrl.Substring("Resources/".Length);
+                return BuildEnvironmentUrl(relativePath);
             }
             
             // Pattern 2: File protocol (file:///D:/Websites/...)
