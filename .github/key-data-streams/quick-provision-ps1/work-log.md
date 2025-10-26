@@ -1,5 +1,99 @@
 # Quick-Provision-ps1 Work Log
 
+## 2025-10-26 - Global Command Setup
+
+**Status:** ✅ Completed  
+**Agent:** GitHub Copilot  
+
+### User Request
+Make `hct` a global command like `nct` that works from any directory.
+
+### Changes Made
+
+#### New Global Wrapper
+Created `Workspaces/Global/hct.ps1` - Global wrapper script that:
+- Accepts all parameters (SessionId, Environment, CreatedBy, OpenBrowser, Help)
+- Validates SessionId is provided
+- Locates and executes `Scripts/hct.ps1`
+- Provides comprehensive help with `-Help` flag
+- Works from any directory in the terminal
+
+#### Usage Patterns
+
+**Before** (required full path):
+```powershell
+.\Scripts\hct.ps1 -SessionId 212
+```
+
+**After** (global command):
+```powershell
+hct 212
+```
+
+#### Documentation Updates
+- Updated `Scripts/NCDEPLOY-QUICK-REFERENCE.md` to show global command usage
+- Updated `Scripts/hct.README.md` to document both global and direct usage
+- Added help examples and cross-reference to `nct` command
+
+### How It Works
+
+The global command is possible because `Workspaces/Global/` is in the system PATH:
+1. User runs: `hct 212`
+2. PowerShell finds: `Workspaces/Global/hct.ps1`
+3. Wrapper validates parameters and locates: `Scripts/hct.ps1`
+4. Main script executes with all parameters passed through
+5. Exit code propagates back to user
+
+### Testing Results
+
+**Test 1: Help Display**
+```powershell
+> hct -Help
+✅ Displays comprehensive help with examples
+```
+
+**Test 2: Development Environment**
+```powershell
+> hct 212
+✅ Provisions session 212 in KSESSIONS_DEV
+✅ Generates tokens successfully
+✅ Displays formatted output
+```
+
+**Test 3: Session 2343**
+```powershell
+> hct 2343
+✅ Provisions session 2343 successfully
+✅ Cleared 1 participant
+✅ Generated tokens: UBGCFPVR (host), 8UG4ZS3G (user)
+```
+
+**Test 4: Parameter Validation**
+```powershell
+> hct
+❌ Error: SessionId is required
+✅ Shows usage hint
+```
+
+### Benefits
+
+1. **Convenience**: Works from any directory
+2. **Consistency**: Matches `nct` command pattern
+3. **Discoverability**: Users can find it with `Get-Command hct`
+4. **Help Built-in**: `hct -Help` provides full documentation
+5. **Fast**: ~2 seconds to provision a session
+
+### Git Commit
+
+**Branch:** development  
+**Files:**
+- `Workspaces/Global/hct.ps1` (new)
+- `Scripts/NCDEPLOY-QUICK-REFERENCE.md` (updated)
+- `Scripts/hct.README.md` (updated)
+- `.github/key-data-streams/quick-provision-ps1/work-log.md` (updated)
+
+---
+
 ## 2025-10-26 - Renamed to hct.ps1 with Environment Support
 
 **Status:** ✅ Completed  

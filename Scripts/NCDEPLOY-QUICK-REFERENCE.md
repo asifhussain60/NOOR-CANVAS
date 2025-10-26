@@ -28,7 +28,7 @@
 **Fastest way to reset a session and get host URLs:**
 
 ```powershell
-.\Scripts\hct.ps1 -SessionId 212
+hct 212
 ```
 
 **What it does:**
@@ -36,21 +36,27 @@
 - ✅ Generates fresh host and user tokens
 - ✅ Displays clickable URLs for immediate access
 - ✅ ~2 seconds vs 10+ seconds for GUI
+- ✅ Works from any directory (global command)
 
 **Examples:**
 ```powershell
-# Basic usage
-.\Scripts\hct.ps1 -SessionId 212
+# Basic usage (Development environment)
+hct 212
 
 # Production environment
-.\Scripts\hct.ps1 -SessionId 215 -Environment Production
+hct 215 -Environment Production
 
 # Auto-open in browser
-.\Scripts\hct.ps1 -SessionId 212 -OpenBrowser
+hct 212 -OpenBrowser
 
 # With audit tracking
-.\Scripts\hct.ps1 -SessionId 212 -CreatedBy "John Doe"
+hct 212 -CreatedBy "John Doe"
+
+# Show help
+hct -Help
 ```
+
+**See also:** `nct` command for interactive provisioning
 
 ---
 

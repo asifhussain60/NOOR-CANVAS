@@ -11,6 +11,12 @@ Replaces the Host Provisioner GUI with a fast command-line tool that:
 
 ## Quick Start
 
+**Global command** (works from any directory):
+```powershell
+hct 212
+```
+
+**Direct script execution**:
 ```powershell
 .\Scripts\hct.ps1 -SessionId 212
 ```
@@ -31,22 +37,31 @@ Replaces the Host Provisioner GUI with a fast command-line tool that:
 
 ### Basic Provisioning
 ```powershell
+# Global command (recommended)
+hct 212
+
+# Or direct script
 .\Scripts\hct.ps1 -SessionId 212
 ```
 
 ### Production Environment
 ```powershell
-.\Scripts\hct.ps1 -SessionId 215 -Environment Production
+hct 215 -Environment Production
 ```
 
 ### With Audit Tracking
 ```powershell
-.\Scripts\hct.ps1 -SessionId 212 -CreatedBy "John Doe"
+hct 212 -CreatedBy "John Doe"
 ```
 
 ### Auto-Open in Browser
 ```powershell
-.\Scripts\hct.ps1 -SessionId 212 -OpenBrowser
+hct 212 -OpenBrowser
+```
+
+### Show Help
+```powershell
+hct -Help
 ```
 
 ## Output Example
