@@ -1,243 +1,348 @@
-# KSESSIONS Resources CDN - Implementation Plan v1.1
+# KSESSIONS Resources CDN - Production Quickstart Plan v1.2
 
 **Plan Key**: `ksessions-resources-cdn`  
 **Created**: 2025-10-26  
-**Updated**: 2025-10-26 (v1.1 - Integrated with existing ResourceCatalog table)  
+**Updated**: 2025-10-26 (v1.2 - Production-only quickstart, IIS site already exists)  
 **Status**: Ready for Execution  
-**Complexity**: Medium (6 phases, ~8-10 hours)
+**Complexity**: Low (3 phases, ~2-3 hours)
 
 ---
 
 ## Executive Summary
 
-**Goal**: Serve `D:\Websites\KSESSIONS\Resources` (IMAGES/MP3) via public URL for NoorCanvas and other applications with token-based security.
+**Goal**: Serve `D:\Websites\KSESSIONS\Resources` via `https://resources.kashkole.com` for KSESSIONS and NoorCanvas production apps.
 
-**Architecture Selected**: IIS Static Site with Cloudflare subdomain
-- **Dev**: Direct file system access (`file:///D:/Websites/KSESSIONS/Resources/`)
-- **Prod**: IIS static site on port 9092 → `https://resources.kashkole.com` via Cloudflare tunnel
+**Architecture**: Existing IIS Static Site + Cloudflare tunnel
+- **Prod**: IIS site "KashkoleResources" (port 80) → `https://resources.kashkole.com` via Cloudflare tunnel
+- **Dev**: Not in scope (production-only setup)
 
-**Key Features**:
-- GUID-based flat URL structure (`/images/{guid}.jpg`)
-- Token-based signed URLs for security (prevent hotlinking)
-- Leverages existing `ResourceCatalog` table (966 images, 218 audio files)
-- Aggressive caching (1 year) for performance
-- Streaming support for MP3 (range requests)
-- CORS enabled for session.kashkole.com and localhost:8080
+**Quickest Path Features**:
+- ✅ Use existing IIS site (already created by user)
+- ✅ Leverage existing ResourceCatalog table (1,184 resources)
+- ✅ Simple static file serving (no token-based security initially)
+- ✅ Basic CORS for session.kashkole.com
+- ✅ Aggressive caching (1 year)
+- ⏳ Token security deferred (Phase 4 - optional enhancement)
+
+**Time Savings**: Reduced from 8-10 hours → **2-3 hours**
 
 ---
 
 ## Version History
 
-- **v1.0** (2025-10-26): Initial plan with new SessionAssets table
+- **v1.0** (2025-10-26): Initial plan with SessionAssets table
 - **v1.1** (2025-10-26): Revised to use existing ResourceCatalog table
+- **v1.2** (2025-10-26): Production-only quickstart (IIS site already exists)
 
 ---
 
 ## Current State Analysis
 
+### Existing IIS Site (User Already Created)
+- **Site Name**: KashkoleResources
+- **Physical Path**: `D:\Websites\KSESSIONS\Resources`
+- **Binding**: HTTP on port 80, hostname `resources.kashkole.com`
+- **Status**: Running
+- **Missing**: web.config, URL rewrites, CORS configuration
+
 ### Existing Database: ResourceCatalog Table
 ```sql
--- KSESSIONS_DEV.dbo.ResourceCatalog
-CREATE TABLE ResourceCatalog (
-    ResourceID INT IDENTITY(1,1) PRIMARY KEY,
-    ID INT NOT NULL,                    -- Session ID
-    ResourceName VARCHAR(255) NOT NULL, -- Format: "{sessionId}/{guid}.{ext}"
-    ResourceType INT NOT NULL,          -- 1 = Image, 2 = Audio/MP3
-    CreatedDate DATETIME NOT NULL
-);
-
--- Example data:
--- ResourceID=79, ID=117, ResourceName="17/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg", ResourceType=1
--- ResourceID=1,  ID=1,   ResourceName="df661c2c-b6e1-47e6-9d38-5fdf719ffc36.mp3", ResourceType=2
+-- KSESSIONS.dbo.ResourceCatalog (production database)
+ResourceID INT IDENTITY(1,1) PRIMARY KEY
+ID INT NOT NULL                    -- Session ID
+ResourceName VARCHAR(255) NOT NULL -- "{sessionId}/{guid}.{ext}" or "{guid}.{ext}"
+ResourceType INT NOT NULL          -- 1 = Image, 2 = Audio
+CreatedDate DATETIME NOT NULL
 ```
 
-**Current Data**:
-- **Total Resources**: 1,184
-  - Images (ResourceType=1): 966 files
-  - Audio/MP3 (ResourceType=2): 218 files
-- **File Naming**: `{sessionId}/{guid}.{ext}` (images) or `{guid}.{ext}` (audio)
+**Production Data**:
+- **Total Resources**: 1,184 (966 images, 218 audio)
 - **Physical Paths**: 
   - Images: `D:\Websites\KSESSIONS\Resources\IMAGES\{sessionId}\{guid}.jpg`
   - Audio: `D:\Websites\KSESSIONS\Resources\MP3\{guid}.mp3`
 
-### Resources Folder Structure
+### Target State (Production Only)
 ```
-D:\Websites\KSESSIONS\Resources\
-├── IMAGES\
-│   ├── 1\        (session-based subdirectories)
-│   ├── 10\
-│   ├── 100\
-│   ├── 117\     (contains accac701-28e9-42c9-a55c-c386e8a6edb4.jpg)
-│   └── ...
-├── MEDIA\        (unused - no records in ResourceCatalog)
-└── MP3\          (flat structure with GUID filenames)
+https://resources.kashkole.com/IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg
+https://resources.kashkole.com/MP3/df661c2c-b6e1-47e6-9d38-5fdf719ffc36.mp3
 ```
 
-### Existing Infrastructure
-- **NoorCanvas Dev**: Kestrel (localhost:9091), IIS (localhost:9090)
-- **NoorCanvas Prod**: IIS → `noorcanvas.kashkole.com` (Cloudflare tunnel)
-- **Additional Domain**: `session.kashkole.com` (Cloudflare tunnel active)
-- **Database**: KSESSIONS_DEV (development), KSESSIONS (production)
-
-### Target State
-```
-Development:
-  file:///D:/Websites/KSESSIONS/Resources/IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg
-
-Production:
-  https://resources.kashkole.com/images/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg?token=SIGNED_TOKEN
-  (Internal rewrite: /IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg)
-```
-
-Production:
-  https://resources.kashkole.com/images/dd004eb0-fd39-4207-b1da-32b3e3c48269.jpg?token=SIGNED_TOKEN
-```
+**Simple, direct static file access** - No URL rewrites initially (keep paths as-is)
 
 ---
 
-## Implementation Phases
+## Implementation Phases (Production-Only Quickstart)
 
-### Phase 1: Database Optimization (Leverage Existing ResourceCatalog)
-**Goal**: Optimize ResourceCatalog table for GUID-based lookups and add helper views
-
-**Existing Table** (No changes to schema):
-```sql
--- KSESSIONS_DEV.dbo.ResourceCatalog (already exists)
--- ResourceID INT IDENTITY(1,1) PRIMARY KEY
--- ID INT NOT NULL                    -- Session ID
--- ResourceName VARCHAR(255) NOT NULL -- Format: "{sessionId}/{guid}.{ext}" or "{guid}.{ext}"
--- ResourceType INT NOT NULL          -- 1 = Image, 2 = Audio
--- CreatedDate DATETIME NOT NULL
-```
+### Phase 0: Validate Existing IIS Site
+**Goal**: Confirm IIS site configuration and test basic static file serving
+**Time**: 15 minutes
 
 **Tasks**:
 
-1. **Add performance indexes**:
-   ```sql
-   -- Migrations/optimize-resourcecatalog-indexes.sql
-   
-   -- Index for GUID extraction and lookup (covers most queries)
-   CREATE INDEX IX_ResourceCatalog_ResourceName_Type 
-       ON dbo.ResourceCatalog(ResourceName, ResourceType) 
-       INCLUDE (ID, ResourceID);
-   
-   -- Index for session-based queries
-   CREATE INDEX IX_ResourceCatalog_SessionId_Type 
-       ON dbo.ResourceCatalog(ID, ResourceType) 
-       INCLUDE (ResourceName);
+1. **Verify site status**:
+   ```powershell
+   Get-Website -Name "KashkoleResources"
+   Get-WebBinding -Name "KashkoleResources"
    ```
 
-2. **Create helper view for GUID extraction**:
-   ```sql
-   -- Migrations/create-resourcecatalog-views.sql
+2. **Test local static file access**:
+   ```powershell
+   # Test image
+   Invoke-WebRequest "http://localhost/IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg" -UseBasicParsing
    
-   CREATE VIEW vw_ResourceCatalogWithGuids AS
-   SELECT 
-       ResourceID,
-       ID AS SessionId,
-       ResourceName,
-       ResourceType,
-       CreatedDate,
-       -- Extract GUID from ResourceName
-       CASE 
-           WHEN ResourceName LIKE '%/%' THEN 
-               SUBSTRING(ResourceName, CHARINDEX('/', ResourceName) + 1, 
-                        CHARINDEX('.', ResourceName) - CHARINDEX('/', ResourceName) - 1)
-           ELSE
-               SUBSTRING(ResourceName, 1, CHARINDEX('.', ResourceName) - 1)
-       END AS ResourceGuid,
-       -- Extract file extension
-       RIGHT(ResourceName, LEN(ResourceName) - CHARINDEX('.', REVERSE(ResourceName)) + 1) AS FileExtension,
-       -- Determine full physical path
-       CASE ResourceType
-           WHEN 1 THEN 'D:\Websites\KSESSIONS\Resources\IMAGES\' + ResourceName
-           WHEN 2 THEN 'D:\Websites\KSESSIONS\Resources\MP3\' + ResourceName
-           ELSE 'D:\Websites\KSESSIONS\Resources\MEDIA\' + ResourceName
-       END AS PhysicalPath,
-       -- MIME type mapping
-       CASE 
-           WHEN ResourceName LIKE '%.jpg' OR ResourceName LIKE '%.jpeg' THEN 'image/jpeg'
-           WHEN ResourceName LIKE '%.png' THEN 'image/png'
-           WHEN ResourceName LIKE '%.gif' THEN 'image/gif'
-           WHEN ResourceName LIKE '%.mp3' THEN 'audio/mpeg'
-           WHEN ResourceName LIKE '%.mp4' THEN 'video/mp4'
-           WHEN ResourceName LIKE '%.webm' THEN 'video/webm'
-           ELSE 'application/octet-stream'
-       END AS MimeType
-   FROM dbo.ResourceCatalog;
+   # Test audio
+   Invoke-WebRequest "http://localhost/MP3/df661c2c-b6e1-47e6-9d38-5fdf719ffc36.mp3" -UseBasicParsing
    ```
 
-3. **Create stored procedure for GUID lookups**:
-   ```sql
-   -- Migrations/create-resource-lookup-procedures.sql
-   
-   CREATE PROCEDURE usp_GetResourceByGuid
-       @Guid VARCHAR(255),
-       @ResourceType INT = NULL  -- Optional filter: 1=Image, 2=Audio
-   AS
-   BEGIN
-       SELECT TOP 1
-           ResourceID,
-           SessionId,
-           ResourceName,
-           ResourceType,
-           ResourceGuid,
-           FileExtension,
-           PhysicalPath,
-           MimeType,
-           CreatedDate
-       FROM vw_ResourceCatalogWithGuids
-       WHERE ResourceGuid = @Guid
-         AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
-       ORDER BY CreatedDate DESC;  -- In case of duplicates, use most recent
-   END;
-   
-   CREATE PROCEDURE usp_GetResourcesBySession
-       @SessionId INT,
-       @ResourceType INT = NULL
-   AS
-   BEGIN
-       SELECT 
-           ResourceID,
-           SessionId,
-           ResourceName,
-           ResourceType,
-           ResourceGuid,
-           FileExtension,
-           PhysicalPath,
-           MimeType,
-           CreatedDate
-       FROM vw_ResourceCatalogWithGuids
-       WHERE SessionId = @SessionId
-         AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
-       ORDER BY CreatedDate ASC;
-   END;
-   ```
-
-4. **Validate data integrity**:
-   ```sql
-   -- Scripts/validate-resourcecatalog-data.sql
-   
-   -- Check for malformed ResourceName entries
-   SELECT ResourceID, ResourceName, ResourceType
-   FROM dbo.ResourceCatalog
-   WHERE ResourceName NOT LIKE '%.jpg'
-     AND ResourceName NOT LIKE '%.jpeg'
-     AND ResourceName NOT LIKE '%.png'
-     AND ResourceName NOT LIKE '%.gif'
-     AND ResourceName NOT LIKE '%.mp3'
-     AND ResourceName NOT LIKE '%.mp4';
-   
-   -- Check for missing files in physical location
-   -- (Run via PowerShell script with database query + file system validation)
+3. **Verify application pool settings**:
+   ```powershell
+   $pool = Get-Item "IIS:\AppPools\KashkoleResources" -ErrorAction SilentlyContinue
+   if ($null -eq $pool) {
+       Write-Host "⚠️  Application pool not found - creating..."
+       # Create if missing (covered in Phase 1)
+   }
    ```
 
 **Deliverables**:
-- `Migrations/optimize-resourcecatalog-indexes.sql`
-- `Migrations/create-resourcecatalog-views.sql`
-- `Migrations/create-resource-lookup-procedures.sql`
-- `Scripts/validate-resourcecatalog-data.sql`
-- Migration README documenting changes
+- Confirmation that IIS site serves files locally
+- Baseline performance test results
+
+**Estimated Time**: 15 minutes
+
+---
+
+### Phase 1: Configure web.config for Production
+**Goal**: Add CORS, caching, and MIME types to existing IIS site
+**Time**: 30 minutes
+
+**Tasks**:
+
+1. **Create web.config** in `D:\Websites\KSESSIONS\Resources\`:
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <configuration>
+     <system.webServer>
+       <!-- Static content configuration -->
+       <staticContent>
+         <mimeMap fileExtension=".mp3" mimeType="audio/mpeg" />
+         <mimeMap fileExtension=".mp4" mimeType="video/mp4" />
+         <mimeMap fileExtension=".webm" mimeType="video/webm" />
+         <mimeMap fileExtension=".wav" mimeType="audio/wav" />
+         <mimeMap fileExtension=".jpg" mimeType="image/jpeg" />
+         <mimeMap fileExtension=".jpeg" mimeType="image/jpeg" />
+         <mimeMap fileExtension=".png" mimeType="image/png" />
+         <mimeMap fileExtension=".gif" mimeType="image/gif" />
+         <!-- 1 year caching -->
+         <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+       </staticContent>
+       
+       <!-- CORS headers for session.kashkole.com and noorcanvas.kashkole.com -->
+       <httpProtocol>
+         <customHeaders>
+           <add name="Access-Control-Allow-Origin" value="https://noorcanvas.kashkole.com,https://session.kashkole.com" />
+           <add name="Access-Control-Allow-Methods" value="GET,HEAD,OPTIONS" />
+           <add name="Access-Control-Allow-Headers" value="Content-Type,Range" />
+           <add name="Cache-Control" value="public, max-age=31536000, immutable" />
+           <add name="Accept-Ranges" value="bytes" />
+         </customHeaders>
+       </httpProtocol>
+       
+       <!-- Disable compression to support range requests (streaming) -->
+       <httpCompression>
+         <dynamicTypes>
+           <clear />
+         </dynamicTypes>
+         <staticTypes>
+           <clear />
+         </staticTypes>
+       </httpCompression>
+       
+       <!-- Default handler for static files -->
+       <handlers>
+         <clear />
+         <add name="StaticFile" path="*" verb="*" modules="StaticFileModule" 
+              resourceType="Either" requireAccess="Read" />
+       </handlers>
+     </system.webServer>
+   </configuration>
+   ```
+
+2. **Apply web.config to IIS site**:
+   ```powershell
+   # Copy web.config to Resources folder
+   $webConfigPath = "D:\Websites\KSESSIONS\Resources\web.config"
+   # (File created in step 1)
+   
+   # Restart IIS site to apply changes
+   Restart-WebAppPool -Name "KashkoleResources"
+   Stop-Website -Name "KashkoleResources"
+   Start-Sleep -Seconds 2
+   Start-Website -Name "KashkoleResources"
+   ```
+
+3. **Test configuration**:
+   ```powershell
+   # Test CORS headers
+   $response = Invoke-WebRequest "http://localhost/IMAGES/117/test.jpg" `
+       -Headers @{"Origin"="https://session.kashkole.com"} `
+       -Method OPTIONS `
+       -UseBasicParsing
+   
+   # Verify Access-Control-Allow-Origin header
+   $response.Headers["Access-Control-Allow-Origin"]
+   
+   # Test caching headers
+   $response = Invoke-WebRequest "http://localhost/MP3/test.mp3" -UseBasicParsing
+   $response.Headers["Cache-Control"]  # Should be "public, max-age=31536000, immutable"
+   ```
+
+**Deliverables**:
+- `D:\Websites\KSESSIONS\Resources\web.config`
+- CORS headers validated
+- Caching headers configured
+
+**Estimated Time**: 30 minutes
+
+---
+
+### Phase 2: Cloudflare Tunnel Configuration
+**Goal**: Expose `resources.kashkole.com` via Cloudflare tunnel pointing to existing IIS site
+**Time**: 1-1.5 hours
+
+**Tasks**:
+
+1. **Create Cloudflare DNS Record** (if not exists):
+   - Type: `CNAME`
+   - Name: `resources`
+   - Target: Your existing Cloudflare tunnel (same as noorcanvas/session)
+   - Proxied: Yes (orange cloud)
+
+2. **Update Cloudflare Tunnel Config** to add resources.kashkole.com ingress:
+   ```yaml
+   # Locate your existing tunnel config file
+   # (Usually in C:\Program Files\cloudflared\ or similar)
+   
+   ingress:
+     # ADD THIS - Resources subdomain → IIS static site on port 80
+     - hostname: resources.kashkole.com
+       service: http://localhost:80
+       originRequest:
+         noTLSVerify: true
+     
+     # Existing entries (keep these)
+     - hostname: noorcanvas.kashkole.com
+       service: http://localhost:9090
+       originRequest:
+         noTLSVerify: true
+     
+     - hostname: session.kashkole.com
+       service: http://localhost:80  # Or wherever session site is
+       originRequest:
+         noTLSVerify: true
+     
+     # Catch-all
+     - service: http_status:404
+   ```
+
+3. **Restart Cloudflare Tunnel**:
+   ```powershell
+   # Option 1: If running as Windows Service
+   Restart-Service cloudflared
+   
+   # Option 2: If running via command line, restart the tunnel process
+   # Stop existing process and restart
+   ```
+
+4. **Validate DNS and HTTPS access**:
+   ```powershell
+   # Check DNS resolution
+   nslookup resources.kashkole.com
+   
+   # Test HTTPS access (after tunnel restart and DNS propagation)
+   Invoke-WebRequest "https://resources.kashkole.com/IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg" -UseBasicParsing
+   
+   # Test from external location (browser or curl)
+   # https://resources.kashkole.com/MP3/df661c2c-b6e1-47e6-9d38-5fdf719ffc36.mp3
+   ```
+
+**Deliverables**:
+- Cloudflare DNS record created
+- Tunnel configuration updated
+- Production URL accessible: `https://resources.kashkole.com`
+
+**Estimated Time**: 1-1.5 hours (includes DNS propagation wait time)
+
+---
+
+### Phase 3: Production Smoke Tests and Validation
+**Goal**: Verify resources are accessible from KSESSIONS and NoorCanvas production apps
+**Time**: 30 minutes
+
+**Tasks**:
+
+1. **Test static file access**:
+   ```powershell
+   # Test image loading
+   $imageUrl = "https://resources.kashkole.com/IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg"
+   $response = Invoke-WebRequest $imageUrl -UseBasicParsing
+   Write-Host "Image Status: $($response.StatusCode)"
+   Write-Host "Content-Type: $($response.Headers['Content-Type'])"
+   Write-Host "Cache-Control: $($response.Headers['Cache-Control'])"
+   
+   # Test audio loading
+   $audioUrl = "https://resources.kashkole.com/MP3/df661c2c-b6e1-47e6-9d38-5fdf719ffc36.mp3"
+   $response = Invoke-WebRequest $audioUrl -UseBasicParsing
+   Write-Host "Audio Status: $($response.StatusCode)"
+   Write-Host "Accept-Ranges: $($response.Headers['Accept-Ranges'])"
+   ```
+
+2. **Test CORS from production applications**:
+   ```javascript
+   // Test from browser console on https://session.kashkole.com
+   fetch('https://resources.kashkole.com/IMAGES/117/test.jpg')
+     .then(response => {
+       console.log('CORS Success:', response.status);
+       console.log('Headers:', response.headers);
+     })
+     .catch(error => console.error('CORS Error:', error));
+   ```
+
+3. **Test range requests (streaming)**:
+   ```powershell
+   # Test partial content request for MP3 streaming
+   $headers = @{
+       "Range" = "bytes=0-1024"
+   }
+   $response = Invoke-WebRequest "https://resources.kashkole.com/MP3/test.mp3" `
+       -Headers $headers `
+       -UseBasicParsing
+   
+   if ($response.StatusCode -eq 206) {
+       Write-Host "✅ Partial content (streaming) supported"
+       Write-Host "Content-Range: $($response.Headers['Content-Range'])"
+   }
+   ```
+
+4. **Performance baseline**:
+   ```powershell
+   # Measure response time for sample resources
+   Measure-Command {
+       Invoke-WebRequest "https://resources.kashkole.com/IMAGES/1/sample.jpg" -UseBasicParsing
+   } | Select-Object TotalMilliseconds
+   ```
+
+5. **Update application references** (if needed):
+   - Update KSESSIONS app to use `https://resources.kashkole.com/...`
+   - Update NoorCanvas app to use `https://resources.kashkole.com/...`
+   - Test image/audio loading in both applications
+
+**Deliverables**:
+- Smoke test results documented
+- CORS validation confirmed
+- Streaming support verified
+- Applications updated and tested
+
+**Estimated Time**: 30 minutes
 
 **Estimated Time**: 2 hours
 
@@ -1188,55 +1293,74 @@ Stop-Website -Name "KSessionsResources"
 
 ---
 
-## Success Criteria
+## Success Criteria (Production Quickstart)
 
-- [ ] IIS Resources site accessible at `http://localhost:9092`
+- [ ] IIS site "KashkoleResources" running on port 80
+- [ ] web.config deployed with CORS and caching headers
 - [ ] Production URL `https://resources.kashkole.com` resolves via Cloudflare
-- [ ] CORS headers present for session.kashkole.com and localhost:8080
-- [ ] Image URLs work: `/images/{guid}.jpg`
-- [ ] Audio streaming works with range requests
-- [ ] Token-based URLs prevent unauthorized access
-- [ ] Cache headers set to 1 year (`max-age=31536000`)
-- [ ] Development uses file:/// URLs without network overhead
-- [ ] SessionAssets table populated with existing resources
-- [ ] Integration tests pass in CI/CD pipeline
+- [ ] CORS headers present for session.kashkole.com and noorcanvas.kashkole.com
+- [ ] Image URLs work: `https://resources.kashkole.com/IMAGES/117/{guid}.jpg`
+- [ ] Audio URLs work: `https://resources.kashkole.com/MP3/{guid}.mp3`
+- [ ] Streaming works with range requests (206 Partial Content)
+- [ ] Cache headers set to 1 year (`max-age=31536000, immutable`)
+- [ ] KSESSIONS and NoorCanvas apps can load resources from production URL
 
 ---
 
-## Estimated Timeline
+## Estimated Timeline (Production Quickstart)
 
 | Phase | Duration | Dependencies |
 |-------|----------|--------------|
-| Phase 1: Database Schema | 2 hours | None |
-| Phase 2: IIS Configuration | 2 hours | None |
-| Phase 3: Cloudflare Tunnel | 1 hour | Phase 2 |
-| Phase 4: Token Security | 3 hours | Phase 1 |
-| Phase 5: Integration | 2 hours | Phases 1-4 |
-| Phase 6: Testing & Deployment | 2 hours | All phases |
+| Phase 0: Validate IIS Site | 15 min | None (IIS already created) |
+| Phase 1: Configure web.config | 30 min | Phase 0 |
+| Phase 2: Cloudflare Tunnel | 1-1.5 hours | Phase 1 |
+| Phase 3: Smoke Tests | 30 min | Phase 2 |
+| **Total** | **2-3 hours** | Sequential execution |
+
+**Time Savings**: 6-7 hours compared to v1.1 (removed dev setup, database optimization, token security)
+
+---
+
+## Deferred Features (Optional Enhancements)
+
+The following features from v1.1 are **deferred** for quickest production deployment:
+
+### Not Included in Quickstart:
+- ❌ Development environment setup (file:/// URLs)
+- ❌ Token-based signed URLs (security enhancement)
+- ❌ Database indexes and views for ResourceCatalog
+- ❌ GUID-based flat URLs (using existing session-based paths)
+- ❌ ResourceUrlBuilder service in NoorCanvas
+- ❌ ResourceCatalogRepository for database queries
+
+### Can Be Added Later (Phase 4+):
+If needed, these enhancements can be implemented after production is live:
+- Token-based security (prevent hotlinking) - 3 hours
+- Database optimization for fast GUID lookups - 2 hours  
+- NoorCanvas/KSESSIONS service integration - 2 hours
+- URL rewrites for flat GUID structure - 1 hour
+
+**Current Focus**: Get `https://resources.kashkole.com` serving static files ASAP
 | **Total** | **12 hours** | Sequential execution |
 
 ---
 
-## Risk Assessment
+## Risk Assessment (Production Quickstart)
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
 | Cloudflare DNS propagation delay | Medium | Low | Use Cloudflare's "orange cloud" proxy for instant routing |
-| GUID lookup performance | Low | Medium | Index SessionAssets.AssetGuid, cache lookups |
-| Token validation overhead | Low | Low | Use fast HMAC-SHA256, cache valid tokens |
 | CORS misconfiguration | Medium | High | Thorough testing with actual origins, OPTIONS preflight |
-| URL rewrite complexity | Medium | Medium | Fallback to session-based paths if GUID lookup fails |
 | File system permissions | Low | High | Ensure IIS_IUSRS has Read access to Resources folder |
+| Missing MIME types | Low | Medium | Add explicit MIME types for .jpg, .mp3 in web.config |
 
 ---
 
-## Dependencies
+## Dependencies (Production Quickstart)
 
-- **IIS 10+** with URL Rewrite Module
-- **Cloudflare account** with tunnel access
-- **SQL Server** (KSESSIONS database)
-- **.NET 8** (for NoorCanvas services)
-- **PowerShell 7+** (for deployment scripts)
+- **IIS 10+** (already installed, site already created)
+- **Cloudflare account** with tunnel access (tunnel already active)
+- **PowerShell 7+** (for validation scripts)
 
 ---
 
@@ -1245,17 +1369,16 @@ Stop-Website -Name "KSessionsResources"
 ### Monitoring
 - Track 404 errors for missing resources
 - Monitor Cloudflare analytics for bandwidth usage
-- Alert on high token validation failures (possible attack)
+- Check IIS logs for CORS errors
 
-### Optimization
-- Consider CDN caching layer (Cloudflare's edge caching)
-- Implement lazy loading for images in NoorCanvas
-- Compress images on upload (reduce file sizes)
+### Optimization (Deferred)
+- Token-based security to prevent hotlinking
+- Database indexes for faster GUID lookups
+- Flat URL structure (`/images/{guid}.jpg`)
 
 ### Documentation
-- Update NoorCanvas developer guide with resource URL patterns
-- Document token generation for third-party integrations
-- Create quickref for common resource operations
+- Update KSESSIONS/NoorCanvas to use `https://resources.kashkole.com`
+- Create quickref for common resource URL patterns
 
 ---
 
@@ -1264,13 +1387,19 @@ Stop-Website -Name "KSessionsResources"
 After plan approval, execute tasks via:
 
 ```bash
-# Task agent for implementation
-@task key:ksessions-resources-cdn work="Implement Phase 1: Database schema for SessionAssets"
+# Validate IIS site (Phase 0)
+@task key:ksessions-resources-cdn work="Validate existing IIS KashkoleResources site configuration"
 
-# Test generation
-@test key:ksessions-resources-cdn generate-tests
+# Configure web.config (Phase 1)
+@task key:ksessions-resources-cdn work="Deploy web.config with CORS and caching to D:\Websites\KSESSIONS\Resources"
+
+# Cloudflare tunnel (Phase 2)
+@task key:ksessions-resources-cdn work="Add resources.kashkole.com ingress rule to Cloudflare tunnel"
+
+# Smoke tests (Phase 3)
+@task key:ksessions-resources-cdn work="Run production smoke tests for resources.kashkole.com"
 ```
 
-**Plan Version**: 1.0  
+**Plan Version**: 1.2 (Production Quickstart)  
 **Last Updated**: 2025-10-26  
 **Status**: Ready for execution (awaiting user approval)
