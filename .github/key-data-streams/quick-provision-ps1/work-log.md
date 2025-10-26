@@ -1,5 +1,100 @@
 # Quick-Provision-ps1 Work Log
 
+## 2025-10-26 - Renamed to hct.ps1 with Environment Support
+
+**Status:** ✅ Completed  
+**Agent:** GitHub Copilot  
+
+### User Request
+1. Rename Quick-Provision.ps1 to hct.ps1 (Host Canvas Tool)
+2. Add proper support for Development and Production environments with correct database connections
+
+### Changes Made
+
+#### File Renames
+- `Scripts/Quick-Provision.ps1` → `Scripts/hct.ps1`
+- `Scripts/Quick-Provision.README.md` → `Scripts/hct.README.md`
+
+#### Script Updates
+1. **Updated banner and synopsis**: Changed from "Quick Host Provisioner" to "HCT - Host Canvas Tool"
+2. **Enhanced environment configuration**:
+   - Added environment-specific config hash table with Database and BaseUrl mappings
+   - Development: KSESSIONS_DEV + https://localhost:9091
+   - Production: KSESSIONS + https://noorcanvas.kashkole.com
+3. **Improved display output**:
+   - Shows database name in banner
+   - Shows base URL in banner
+   - Displays environment configuration during setup
+4. **Added validation**: Checks for environment-specific appsettings files
+
+#### Documentation Updates
+1. **hct.README.md**:
+   - Updated all script references from Quick-Provision.ps1 to hct.ps1
+   - Added environment configuration section explaining Dev vs Prod
+   - Documented database differences (KSESSIONS_DEV vs KSESSIONS)
+   - Updated example output to show new banner format
+2. **NCDEPLOY-QUICK-REFERENCE.md**:
+   - Updated section title to "Quick Host Provisioning (HCT)"
+   - Changed all command examples to use hct.ps1
+
+### Environment Support
+
+The script now properly supports both environments through the existing HostProvisioner infrastructure:
+
+**Development** (default):
+```powershell
+.\Scripts\hct.ps1 -SessionId 212
+```
+- Uses: KSESSIONS_DEV database
+- URLs: https://localhost:9091/host/{token}
+- Config: appsettings.json
+
+**Production**:
+```powershell
+.\Scripts\hct.ps1 -SessionId 215 -Environment Production
+```
+- Uses: KSESSIONS database
+- URLs: https://noorcanvas.kashkole.com/host/{token}
+- Config: appsettings.Production.json
+
+### Technical Details
+
+The environment switching works through:
+1. PowerShell sets `$env:ASPNETCORE_ENVIRONMENT = $Environment`
+2. HostProvisioner reads this and loads appropriate appsettings file
+3. appsettings.json → KSESSIONS_DEV connection string
+4. appsettings.Production.json → KSESSIONS connection string
+5. HostProvisionerConfig.cs detects environment and sets correct base URL
+
+### Testing Results
+
+**Test: Development Environment (Session 212)**
+```
+SessionId:   212
+Environment: Development
+Database:    KSESSIONS_DEV
+Base URL:    https://localhost:9091
+
+✅ Session Provisioned Successfully
+Host Token:  LB3L2GME
+Host URL:    https://localhost:9091/host/LB3L2GME
+```
+
+**Validation:**
+- ✅ Correct database targeted (KSESSIONS_DEV)
+- ✅ Correct base URL (localhost:9091)
+- ✅ Enhanced banner showing environment details
+- ✅ Tokens generated successfully
+
+### Git Commits
+
+**Branch:** development  
+**Commits:**
+1. Renamed files using git mv (preserves history)
+2. Updated script content and documentation
+
+---
+
 ## 2025-10-26 - Initial Implementation
 
 **Status:** ✅ Completed  

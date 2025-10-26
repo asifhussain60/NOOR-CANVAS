@@ -23,12 +23,12 @@
 
 ---
 
-## Quick Host Provisioning (NEW) ⚡
+## Quick Host Provisioning (HCT) ⚡
 
 **Fastest way to reset a session and get host URLs:**
 
 ```powershell
-.\Scripts\Quick-Provision.ps1 -SessionId 212
+.\Scripts\hct.ps1 -SessionId 212
 ```
 
 **What it does:**
@@ -40,16 +40,16 @@
 **Examples:**
 ```powershell
 # Basic usage
-.\Scripts\Quick-Provision.ps1 -SessionId 212
+.\Scripts\hct.ps1 -SessionId 212
 
 # Production environment
-.\Scripts\Quick-Provision.ps1 -SessionId 215 -Environment Production
+.\Scripts\hct.ps1 -SessionId 215 -Environment Production
 
 # Auto-open in browser
-.\Scripts\Quick-Provision.ps1 -SessionId 212 -OpenBrowser
+.\Scripts\hct.ps1 -SessionId 212 -OpenBrowser
 
 # With audit tracking
-.\Scripts\Quick-Provision.ps1 -SessionId 212 -CreatedBy "John Doe"
+.\Scripts\hct.ps1 -SessionId 212 -CreatedBy "John Doe"
 ```
 
 ---

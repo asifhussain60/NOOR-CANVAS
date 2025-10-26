@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Quick Host Provisioner - Reset canvas session and generate tokens from PowerShell
+    HCT (Host Canvas Tool) - Reset canvas session and generate tokens from PowerShell
 
 .DESCRIPTION
     Lightweight PowerShell wrapper for Host Provisioner functionality.
@@ -25,17 +25,17 @@
     Optional: Launch host URL in default browser after provisioning
 
 .EXAMPLE
-    .\Quick-Provision.ps1 -SessionId 212
+    .\hct.ps1 -SessionId 212
     
     Provisions session 212 in Development environment
 
 .EXAMPLE
-    .\Quick-Provision.ps1 -SessionId 215 -Environment Production -CreatedBy "John Doe"
+    .\hct.ps1 -SessionId 215 -Environment Production -CreatedBy "John Doe"
     
     Provisions session 215 in Production with audit tracking
 
 .EXAMPLE
-    .\Quick-Provision.ps1 -SessionId 212 -OpenBrowser
+    .\hct.ps1 -SessionId 212 -OpenBrowser
     
     Provisions session 212 and opens host URL in browser
 
@@ -65,13 +65,31 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $HostProvisionerPath = Join-Path $ProjectRoot "Tools\HostProvisioner\HostProvisioner"
 
+# Environment-specific configuration
+$envConfig = @{
+    "Development" = @{
+        Database = "KSESSIONS_DEV"
+        BaseUrl = "https://localhost:9091"
+        Description = "Development environment (local testing)"
+    }
+    "Production" = @{
+        Database = "KSESSIONS"
+        BaseUrl = "https://noorcanvas.kashkole.com"
+        Description = "Production environment (live sessions)"
+    }
+}
+
+$currentEnvConfig = $envConfig[$Environment]
+
 # Display banner
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host " Quick Host Provisioner" -ForegroundColor Cyan
+Write-Host " HCT - Host Canvas Tool" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SessionId:   $SessionId" -ForegroundColor White
 Write-Host "Environment: $Environment" -ForegroundColor White
+Write-Host "Database:    $($currentEnvConfig.Database)" -ForegroundColor White
+Write-Host "Base URL:    $($currentEnvConfig.BaseUrl)" -ForegroundColor White
 Write-Host "Created By:  $CreatedBy" -ForegroundColor White
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
@@ -82,9 +100,23 @@ if (-not (Test-Path $HostProvisionerPath)) {
     exit 1
 }
 
+# Validate appsettings file exists for environment
+$appsettingsFile = if ($Environment -eq "Production") {
+    Join-Path $HostProvisionerPath "appsettings.Production.json"
+} else {
+    Join-Path $HostProvisionerPath "appsettings.json"
+}
+
+if (-not (Test-Path $appsettingsFile)) {
+    Write-Host "⚠️  Warning: $appsettingsFile not found" -ForegroundColor Yellow
+}
+
 # Set environment variable for HostProvisioner
 $env:ASPNETCORE_ENVIRONMENT = $Environment
-Write-Host "🔧 Setting environment: $Environment" -ForegroundColor Yellow
+Write-Host "🔧 Configuring $Environment environment..." -ForegroundColor Yellow
+Write-Host "   → Database: $($currentEnvConfig.Database)" -ForegroundColor Gray
+Write-Host "   → Base URL: $($currentEnvConfig.BaseUrl)" -ForegroundColor Gray
+Write-Host ""
 
 # Build HostProvisioner command
 $dotnetArgs = @(

@@ -1,4 +1,4 @@
-# Quick-Provision.ps1
+# hct.ps1 (Host Canvas Tool)
 
 PowerShell script for rapid NOOR Canvas session provisioning from the command line.
 
@@ -12,7 +12,7 @@ Replaces the Host Provisioner GUI with a fast command-line tool that:
 ## Quick Start
 
 ```powershell
-.\Scripts\Quick-Provision.ps1 -SessionId 212
+.\Scripts\hct.ps1 -SessionId 212
 ```
 
 ## Parameters
@@ -22,6 +22,8 @@ Replaces the Host Provisioner GUI with a fast command-line tool that:
 
 ### Optional
 - **`-Environment`** (string): Target environment - "Development" or "Production" (default: Development)
+  - **Development**: Uses KSESSIONS_DEV database and https://localhost:9091
+  - **Production**: Uses KSESSIONS database and https://noorcanvas.kashkole.com
 - **`-CreatedBy`** (string): Person provisioning (for audit tracking, defaults to current Windows user)
 - **`-OpenBrowser`** (switch): Automatically open host URL in default browser
 
@@ -29,36 +31,41 @@ Replaces the Host Provisioner GUI with a fast command-line tool that:
 
 ### Basic Provisioning
 ```powershell
-.\Scripts\Quick-Provision.ps1 -SessionId 212
+.\Scripts\hct.ps1 -SessionId 212
 ```
 
 ### Production Environment
 ```powershell
-.\Scripts\Quick-Provision.ps1 -SessionId 215 -Environment Production
+.\Scripts\hct.ps1 -SessionId 215 -Environment Production
 ```
 
 ### With Audit Tracking
 ```powershell
-.\Scripts\Quick-Provision.ps1 -SessionId 212 -CreatedBy "John Doe"
+.\Scripts\hct.ps1 -SessionId 212 -CreatedBy "John Doe"
 ```
 
 ### Auto-Open in Browser
 ```powershell
-.\Scripts\Quick-Provision.ps1 -SessionId 212 -OpenBrowser
+.\Scripts\hct.ps1 -SessionId 212 -OpenBrowser
 ```
 
 ## Output Example
 
 ```
 ========================================
- Quick Host Provisioner
+ HCT - Host Canvas Tool
 ========================================
 SessionId:   212
 Environment: Development
+Database:    KSESSIONS_DEV
+Base URL:    https://localhost:9091
 Created By:  asifh
 ========================================
 
-🔧 Setting environment: Development
+🔧 Configuring Development environment...
+   → Database: KSESSIONS_DEV
+   → Base URL: https://localhost:9091
+
 🚀 Invoking HostProvisioner...
 
 ========================================
@@ -85,7 +92,7 @@ Created By:  asifh
 ## What It Does
 
 1. **Validates Session**
-   - Checks session exists in KSESSIONS database
+   - Checks session exists in KSESSIONS (Production) or KSESSIONS_DEV (Development) database
    - Verifies session has transcripts (required for annotations)
 
 2. **Clears Canvas Data**
@@ -101,7 +108,9 @@ Created By:  asifh
 
 4. **Displays Results**
    - Shows cleanup statistics (participants/data cleared)
-   - Shows formatted tokens with clickable URLs
+   - Shows formatted tokens with environment-appropriate URLs
+   - **Development**: https://localhost:9091/host/{token}
+   - **Production**: https://noorcanvas.kashkole.com/host/{token}
    - Color-coded output (green=success, yellow=tokens, blue=URLs)
 
 ## Error Handling
@@ -137,9 +146,26 @@ Tables affected:
 - `canvas.SessionData` - Cleared for session
 - `canvas.Sessions` - Updated with new tokens and metadata
 
-Tables queried:
-- `dbo.Sessions` (KSESSIONS) - Validate SessionId exists
-- `dbo.SessionTranscripts` (KSESSIONS) - Verify transcripts available
+Tables queried (environment-dependent):
+- **Development**: `KSESSIONS_DEV.dbo.Sessions` - Validate SessionId exists
+- **Development**: `KSESSIONS_DEV.dbo.SessionTranscripts` - Verify transcripts available
+- **Production**: `KSESSIONS.dbo.Sessions` - Validate SessionId exists
+- **Production**: `KSESSIONS.dbo.SessionTranscripts` - Verify transcripts available
+
+### Environment Configuration
+The script automatically configures the HostProvisioner based on the `-Environment` parameter:
+
+**Development** (default):
+- Database: KSESSIONS_DEV
+- Base URL: https://localhost:9091
+- appsettings: appsettings.json
+- Use Case: Local testing, development sessions
+
+**Production**:
+- Database: KSESSIONS
+- Base URL: https://noorcanvas.kashkole.com
+- appsettings: appsettings.Production.json
+- Use Case: Live Islamic learning sessions
 
 ## Requirements
 
@@ -178,7 +204,7 @@ Tables queried:
 ```powershell
 # Ensure you're in the project root
 cd "D:\PROJECTS\NOOR CANVAS"
-.\Scripts\Quick-Provision.ps1 -SessionId 212
+.\Scripts\hct.ps1 -SessionId 212
 ```
 
 ### HostProvisioner Errors
