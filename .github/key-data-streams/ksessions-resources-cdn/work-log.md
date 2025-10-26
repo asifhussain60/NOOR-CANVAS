@@ -35,3 +35,24 @@
 ### Next Steps
 - Execute via task agent: `@task key:ksessions-resources-cdn work="Phase 1: Database Schema"`
 - Generate tests: `@test key:ksessions-resources-cdn generate-tests`
+
+### Session 2: 2025-10-26 - Plan Revision (v1.1)
+**Critical Discovery**: ResourceCatalog table already exists in KSESSIONS_DEV
+
+**ResourceCatalog Schema**:
+- `ResourceID` (int, PK) - Auto-incrementing ID
+- `ID` (int) - Session ID reference
+- `ResourceName` (varchar(255)) - GUID-based filename with session path (e.g., "17/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg")
+- `ResourceType` (int) - 1 = Images, 2 = Audio/MP3
+- `CreatedDate` (datetime) - Timestamp
+
+**Data Analysis**:
+- Total resources: 1,184 (966 images, 218 audio files)
+- File naming pattern: `{sessionId}/{guid}.{ext}`
+- Physical path mapping: `D:\Websites\KSESSIONS\Resources\IMAGES\{sessionId}\{guid}.jpg`
+
+**Plan Updates Required**:
+1. ✅ Remove SessionAssets table creation (use existing ResourceCatalog)
+2. ✅ Update URL builder to query ResourceCatalog for GUID → file path mapping
+3. ✅ Simplify Phase 1: Add indexes and views instead of new table
+4. ✅ Update token service to use ResourceID for lookups

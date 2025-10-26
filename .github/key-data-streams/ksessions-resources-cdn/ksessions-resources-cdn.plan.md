@@ -1,15 +1,16 @@
-# KSESSIONS Resources CDN - Implementation Plan v1.0
+# KSESSIONS Resources CDN - Implementation Plan v1.1
 
 **Plan Key**: `ksessions-resources-cdn`  
 **Created**: 2025-10-26  
+**Updated**: 2025-10-26 (v1.1 - Integrated with existing ResourceCatalog table)  
 **Status**: Ready for Execution  
-**Complexity**: Medium (5 phases, ~8-12 hours)
+**Complexity**: Medium (6 phases, ~8-10 hours)
 
 ---
 
 ## Executive Summary
 
-**Goal**: Serve `D:\Websites\KSESSIONS\Resources` (IMAGES/MEDIA/MP3) via public URL for NoorCanvas and other applications with token-based security.
+**Goal**: Serve `D:\Websites\KSESSIONS\Resources` (IMAGES/MP3) via public URL for NoorCanvas and other applications with token-based security.
 
 **Architecture Selected**: IIS Static Site with Cloudflare subdomain
 - **Dev**: Direct file system access (`file:///D:/Websites/KSESSIONS/Resources/`)
@@ -18,13 +19,46 @@
 **Key Features**:
 - GUID-based flat URL structure (`/images/{guid}.jpg`)
 - Token-based signed URLs for security (prevent hotlinking)
+- Leverages existing `ResourceCatalog` table (966 images, 218 audio files)
 - Aggressive caching (1 year) for performance
-- Streaming support for MP3/MEDIA (range requests)
+- Streaming support for MP3 (range requests)
 - CORS enabled for session.kashkole.com and localhost:8080
 
 ---
 
+## Version History
+
+- **v1.0** (2025-10-26): Initial plan with new SessionAssets table
+- **v1.1** (2025-10-26): Revised to use existing ResourceCatalog table
+
+---
+
 ## Current State Analysis
+
+### Existing Database: ResourceCatalog Table
+```sql
+-- KSESSIONS_DEV.dbo.ResourceCatalog
+CREATE TABLE ResourceCatalog (
+    ResourceID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT NOT NULL,                    -- Session ID
+    ResourceName VARCHAR(255) NOT NULL, -- Format: "{sessionId}/{guid}.{ext}"
+    ResourceType INT NOT NULL,          -- 1 = Image, 2 = Audio/MP3
+    CreatedDate DATETIME NOT NULL
+);
+
+-- Example data:
+-- ResourceID=79, ID=117, ResourceName="17/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg", ResourceType=1
+-- ResourceID=1,  ID=1,   ResourceName="df661c2c-b6e1-47e6-9d38-5fdf719ffc36.mp3", ResourceType=2
+```
+
+**Current Data**:
+- **Total Resources**: 1,184
+  - Images (ResourceType=1): 966 files
+  - Audio/MP3 (ResourceType=2): 218 files
+- **File Naming**: `{sessionId}/{guid}.{ext}` (images) or `{guid}.{ext}` (audio)
+- **Physical Paths**: 
+  - Images: `D:\Websites\KSESSIONS\Resources\IMAGES\{sessionId}\{guid}.jpg`
+  - Audio: `D:\Websites\KSESSIONS\Resources\MP3\{guid}.mp3`
 
 ### Resources Folder Structure
 ```
@@ -33,21 +67,27 @@ D:\Websites\KSESSIONS\Resources\
 │   ├── 1\        (session-based subdirectories)
 │   ├── 10\
 │   ├── 100\
+│   ├── 117\     (contains accac701-28e9-42c9-a55c-c386e8a6edb4.jpg)
 │   └── ...
-├── MEDIA\
-└── MP3\
+├── MEDIA\        (unused - no records in ResourceCatalog)
+└── MP3\          (flat structure with GUID filenames)
 ```
 
 ### Existing Infrastructure
 - **NoorCanvas Dev**: Kestrel (localhost:9091), IIS (localhost:9090)
 - **NoorCanvas Prod**: IIS → `noorcanvas.kashkole.com` (Cloudflare tunnel)
 - **Additional Domain**: `session.kashkole.com` (Cloudflare tunnel active)
-- **Database**: KSESSIONS (contains session-to-asset mappings)
+- **Database**: KSESSIONS_DEV (development), KSESSIONS (production)
 
 ### Target State
 ```
 Development:
-  file:///D:/Websites/KSESSIONS/Resources/IMAGES/1/dd004eb0-fd39-4207-b1da-32b3e3c48269.jpg
+  file:///D:/Websites/KSESSIONS/Resources/IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg
+
+Production:
+  https://resources.kashkole.com/images/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg?token=SIGNED_TOKEN
+  (Internal rewrite: /IMAGES/117/accac701-28e9-42c9-a55c-c386e8a6edb4.jpg)
+```
 
 Production:
   https://resources.kashkole.com/images/dd004eb0-fd39-4207-b1da-32b3e3c48269.jpg?token=SIGNED_TOKEN
@@ -57,75 +97,149 @@ Production:
 
 ## Implementation Phases
 
-### Phase 1: Database Schema Enhancement
-**Goal**: Add asset tracking table to map GUIDs to physical files
+### Phase 1: Database Optimization (Leverage Existing ResourceCatalog)
+**Goal**: Optimize ResourceCatalog table for GUID-based lookups and add helper views
+
+**Existing Table** (No changes to schema):
+```sql
+-- KSESSIONS_DEV.dbo.ResourceCatalog (already exists)
+-- ResourceID INT IDENTITY(1,1) PRIMARY KEY
+-- ID INT NOT NULL                    -- Session ID
+-- ResourceName VARCHAR(255) NOT NULL -- Format: "{sessionId}/{guid}.{ext}" or "{guid}.{ext}"
+-- ResourceType INT NOT NULL          -- 1 = Image, 2 = Audio
+-- CreatedDate DATETIME NOT NULL
+```
 
 **Tasks**:
-1. Create `SessionAssets` table (if not exists):
+
+1. **Add performance indexes**:
    ```sql
-   CREATE TABLE SessionAssets (
-       AssetId BIGINT IDENTITY(1,1) PRIMARY KEY,
-       SessionId INT NOT NULL,
-       AssetGuid UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-       AssetType NVARCHAR(20) NOT NULL, -- 'image', 'audio', 'video'
-       FileName NVARCHAR(255) NOT NULL,
-       PhysicalPath NVARCHAR(500) NOT NULL,
-       RelativePath NVARCHAR(500) NOT NULL,
-       FileSize BIGINT NULL,
-       MimeType NVARCHAR(100) NULL,
-       CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
-       CONSTRAINT UQ_AssetGuid UNIQUE (AssetGuid),
-       CONSTRAINT FK_SessionAssets_Sessions FOREIGN KEY (SessionId) 
-           REFERENCES CanvasSessions(Id) ON DELETE CASCADE
-   );
+   -- Migrations/optimize-resourcecatalog-indexes.sql
    
-   CREATE INDEX IX_SessionAssets_SessionId ON SessionAssets(SessionId);
-   CREATE INDEX IX_SessionAssets_AssetType ON SessionAssets(AssetType);
+   -- Index for GUID extraction and lookup (covers most queries)
+   CREATE INDEX IX_ResourceCatalog_ResourceName_Type 
+       ON dbo.ResourceCatalog(ResourceName, ResourceType) 
+       INCLUDE (ID, ResourceID);
+   
+   -- Index for session-based queries
+   CREATE INDEX IX_ResourceCatalog_SessionId_Type 
+       ON dbo.ResourceCatalog(ID, ResourceType) 
+       INCLUDE (ResourceName);
    ```
 
-2. Create stored procedure to register assets:
+2. **Create helper view for GUID extraction**:
    ```sql
-   CREATE PROCEDURE usp_RegisterSessionAsset
-       @SessionId INT,
-       @AssetType NVARCHAR(20),
-       @FileName NVARCHAR(255),
-       @PhysicalPath NVARCHAR(500)
+   -- Migrations/create-resourcecatalog-views.sql
+   
+   CREATE VIEW vw_ResourceCatalogWithGuids AS
+   SELECT 
+       ResourceID,
+       ID AS SessionId,
+       ResourceName,
+       ResourceType,
+       CreatedDate,
+       -- Extract GUID from ResourceName
+       CASE 
+           WHEN ResourceName LIKE '%/%' THEN 
+               SUBSTRING(ResourceName, CHARINDEX('/', ResourceName) + 1, 
+                        CHARINDEX('.', ResourceName) - CHARINDEX('/', ResourceName) - 1)
+           ELSE
+               SUBSTRING(ResourceName, 1, CHARINDEX('.', ResourceName) - 1)
+       END AS ResourceGuid,
+       -- Extract file extension
+       RIGHT(ResourceName, LEN(ResourceName) - CHARINDEX('.', REVERSE(ResourceName)) + 1) AS FileExtension,
+       -- Determine full physical path
+       CASE ResourceType
+           WHEN 1 THEN 'D:\Websites\KSESSIONS\Resources\IMAGES\' + ResourceName
+           WHEN 2 THEN 'D:\Websites\KSESSIONS\Resources\MP3\' + ResourceName
+           ELSE 'D:\Websites\KSESSIONS\Resources\MEDIA\' + ResourceName
+       END AS PhysicalPath,
+       -- MIME type mapping
+       CASE 
+           WHEN ResourceName LIKE '%.jpg' OR ResourceName LIKE '%.jpeg' THEN 'image/jpeg'
+           WHEN ResourceName LIKE '%.png' THEN 'image/png'
+           WHEN ResourceName LIKE '%.gif' THEN 'image/gif'
+           WHEN ResourceName LIKE '%.mp3' THEN 'audio/mpeg'
+           WHEN ResourceName LIKE '%.mp4' THEN 'video/mp4'
+           WHEN ResourceName LIKE '%.webm' THEN 'video/webm'
+           ELSE 'application/octet-stream'
+       END AS MimeType
+   FROM dbo.ResourceCatalog;
+   ```
+
+3. **Create stored procedure for GUID lookups**:
+   ```sql
+   -- Migrations/create-resource-lookup-procedures.sql
+   
+   CREATE PROCEDURE usp_GetResourceByGuid
+       @Guid VARCHAR(255),
+       @ResourceType INT = NULL  -- Optional filter: 1=Image, 2=Audio
    AS
    BEGIN
-       DECLARE @AssetGuid UNIQUEIDENTIFIER = NEWID();
-       DECLARE @FileSize BIGINT;
-       DECLARE @MimeType NVARCHAR(100);
-       
-       -- Determine MIME type based on extension
-       SET @MimeType = CASE 
-           WHEN @FileName LIKE '%.jpg' OR @FileName LIKE '%.jpeg' THEN 'image/jpeg'
-           WHEN @FileName LIKE '%.png' THEN 'image/png'
-           WHEN @FileName LIKE '%.gif' THEN 'image/gif'
-           WHEN @FileName LIKE '%.mp3' THEN 'audio/mpeg'
-           WHEN @FileName LIKE '%.mp4' THEN 'video/mp4'
-           WHEN @FileName LIKE '%.webm' THEN 'video/webm'
-           ELSE 'application/octet-stream'
-       END;
-       
-       INSERT INTO SessionAssets (SessionId, AssetGuid, AssetType, FileName, PhysicalPath, RelativePath, MimeType)
-       VALUES (@SessionId, @AssetGuid, @AssetType, @FileName, @PhysicalPath, 
-               CONCAT(@AssetType, 's/', @AssetGuid, RIGHT(@FileName, CHARINDEX('.', REVERSE(@FileName)))), 
-               @MimeType);
-       
-       SELECT @AssetGuid AS AssetGuid, @MimeType AS MimeType;
-   END
+       SELECT TOP 1
+           ResourceID,
+           SessionId,
+           ResourceName,
+           ResourceType,
+           ResourceGuid,
+           FileExtension,
+           PhysicalPath,
+           MimeType,
+           CreatedDate
+       FROM vw_ResourceCatalogWithGuids
+       WHERE ResourceGuid = @Guid
+         AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
+       ORDER BY CreatedDate DESC;  -- In case of duplicates, use most recent
+   END;
+   
+   CREATE PROCEDURE usp_GetResourcesBySession
+       @SessionId INT,
+       @ResourceType INT = NULL
+   AS
+   BEGIN
+       SELECT 
+           ResourceID,
+           SessionId,
+           ResourceName,
+           ResourceType,
+           ResourceGuid,
+           FileExtension,
+           PhysicalPath,
+           MimeType,
+           CreatedDate
+       FROM vw_ResourceCatalogWithGuids
+       WHERE SessionId = @SessionId
+         AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
+       ORDER BY CreatedDate ASC;
+   END;
    ```
 
-3. Create data migration script to populate existing assets:
+4. **Validate data integrity**:
    ```sql
-   -- Script: Scripts/populate-session-assets.sql
-   -- Scan Resources folder and register existing files
+   -- Scripts/validate-resourcecatalog-data.sql
+   
+   -- Check for malformed ResourceName entries
+   SELECT ResourceID, ResourceName, ResourceType
+   FROM dbo.ResourceCatalog
+   WHERE ResourceName NOT LIKE '%.jpg'
+     AND ResourceName NOT LIKE '%.jpeg'
+     AND ResourceName NOT LIKE '%.png'
+     AND ResourceName NOT LIKE '%.gif'
+     AND ResourceName NOT LIKE '%.mp3'
+     AND ResourceName NOT LIKE '%.mp4';
+   
+   -- Check for missing files in physical location
+   -- (Run via PowerShell script with database query + file system validation)
    ```
 
 **Deliverables**:
-- `Migrations/create-sessionassets-table.sql`
-- `Scripts/populate-session-assets.sql`
-- Database migration documented in migration README
+- `Migrations/optimize-resourcecatalog-indexes.sql`
+- `Migrations/create-resourcecatalog-views.sql`
+- `Migrations/create-resource-lookup-procedures.sql`
+- `Scripts/validate-resourcecatalog-data.sql`
+- Migration README documenting changes
+
+**Estimated Time**: 2 hours
 
 ---
 
@@ -290,8 +404,8 @@ Production:
    // Services/ResourceTokenService.cs
    public interface IResourceTokenService
    {
-       string GenerateSignedUrl(Guid assetGuid, string assetType, int expiryMinutes = 60);
-       bool ValidateToken(string token, Guid assetGuid);
+       string GenerateSignedUrl(string resourceGuid, string fileExtension = null, int expiryMinutes = 60);
+       bool ValidateToken(string token, string resourceGuid, long expiry);
    }
    
    public class ResourceTokenService : IResourceTokenService
@@ -305,34 +419,43 @@ Production:
            _secretKey = _configuration["Resources:SigningKey"] ?? GenerateDefaultKey();
        }
        
-       public string GenerateSignedUrl(Guid assetGuid, string assetType, int expiryMinutes = 60)
+       public string GenerateSignedUrl(string resourceGuid, string fileExtension = null, int expiryMinutes = 60)
        {
            var baseUrl = _configuration["Resources:BaseUrl"] ?? "https://resources.kashkole.com";
            var expiry = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes).ToUnixTimeSeconds();
            
-           // Create signature: HMAC-SHA256(assetGuid + expiry + secretKey)
-           var payload = $"{assetGuid}|{expiry}";
+           // Create signature: HMAC-SHA256(resourceGuid + expiry + secretKey)
+           var payload = $"{resourceGuid}|{expiry}";
            var signature = ComputeHmacSha256(payload, _secretKey);
            
-           // Determine file extension based on asset type
-           var extension = assetType.ToLower() switch
-           {
-               "image" => ".jpg",  // Default, can be overridden
-               "audio" => ".mp3",
-               "video" => ".mp4",
-               _ => ""
-           };
+           // Build URL with extension (if provided)
+           var urlPath = string.IsNullOrEmpty(fileExtension)
+               ? $"/resource/{resourceGuid}"
+               : $"/resource/{resourceGuid}{fileExtension}";
            
-           var resourceType = assetType.ToLower() + "s";
-           return $"{baseUrl}/{resourceType}/{assetGuid}{extension}?token={signature}&exp={expiry}";
+           return $"{baseUrl}{urlPath}?token={signature}&exp={expiry}";
        }
        
-       public bool ValidateToken(string token, Guid assetGuid)
+       public bool ValidateToken(string token, string resourceGuid, long expiry)
        {
-           // Parse token and expiry from query string
-           // Recompute signature and compare
-           // Check expiry
-           return true; // Implement validation logic
+           try
+           {
+               // Check if token has expired
+               var expiryTime = DateTimeOffset.FromUnixTimeSeconds(expiry);
+               if (DateTimeOffset.UtcNow > expiryTime)
+                   return false;
+               
+               // Recompute signature
+               var payload = $"{resourceGuid}|{expiry}";
+               var expectedSignature = ComputeHmacSha256(payload, _secretKey);
+               
+               // Constant-time comparison to prevent timing attacks
+               return CryptographicEquals(token, expectedSignature);
+           }
+           catch
+           {
+               return false;
+           }
        }
        
        private string ComputeHmacSha256(string data, string key)
@@ -340,6 +463,15 @@ Production:
            using var hmac = new System.Security.Cryptography.HMACSHA256(Encoding.UTF8.GetBytes(key));
            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
            return Convert.ToBase64String(hash).Replace("+", "-").Replace("/", "_").TrimEnd('=');
+       }
+       
+       private bool CryptographicEquals(string a, string b)
+       {
+           if (a.Length != b.Length) return false;
+           var result = 0;
+           for (int i = 0; i < a.Length; i++)
+               result |= a[i] ^ b[i];
+           return result == 0;
        }
        
        private string GenerateDefaultKey()
@@ -350,11 +482,62 @@ Production:
    }
    ```
 
-2. **Add IIS URL Rewrite Module** for token validation:
-   ```xml
-   <!-- Option 1: Use IIS URL Rewrite to validate tokens (requires custom module) -->
-   <!-- Option 2: Use reverse proxy to ASP.NET Core middleware for validation -->
-   <!-- Option 3: Accept tokens at application level (recommended) -->
+2. **Create ResourceCatalogRepository** (Data access layer):
+   ```csharp
+   // Data/ResourceCatalogRepository.cs
+   public interface IResourceCatalogRepository
+   {
+       Task<ResourceCatalogEntry> GetByGuidAsync(string guid);
+       Task<IEnumerable<ResourceCatalogEntry>> GetBySessionIdAsync(int sessionId);
+   }
+   
+   public class ResourceCatalogRepository : IResourceCatalogRepository
+   {
+       private readonly KSessionsDbContext _context;
+       
+       public ResourceCatalogRepository(KSessionsDbContext context)
+       {
+           _context = context;
+       }
+       
+       public async Task<ResourceCatalogEntry> GetByGuidAsync(string guid)
+       {
+           // Query vw_ResourceCatalogWithGuids view
+           var entry = await _context.Database
+               .SqlQueryRaw<ResourceCatalogEntry>(
+                   @"SELECT TOP 1 * FROM vw_ResourceCatalogWithGuids 
+                     WHERE ResourceGuid = @p0 
+                     ORDER BY CreatedDate DESC",
+                   guid)
+               .FirstOrDefaultAsync();
+           
+           return entry;
+       }
+       
+       public async Task<IEnumerable<ResourceCatalogEntry>> GetBySessionIdAsync(int sessionId)
+       {
+           return await _context.Database
+               .SqlQueryRaw<ResourceCatalogEntry>(
+                   @"SELECT * FROM vw_ResourceCatalogWithGuids 
+                     WHERE SessionId = @p0 
+                     ORDER BY CreatedDate ASC",
+                   sessionId)
+               .ToListAsync();
+       }
+   }
+   
+   public class ResourceCatalogEntry
+   {
+       public int ResourceID { get; set; }
+       public int SessionId { get; set; }
+       public string ResourceName { get; set; }
+       public int ResourceType { get; set; }
+       public DateTime CreatedDate { get; set; }
+       public string ResourceGuid { get; set; }
+       public string FileExtension { get; set; }
+       public string PhysicalPath { get; set; }
+       public string MimeType { get; set; }
+   }
    ```
 
 3. **Configure appsettings.json**:
@@ -373,17 +556,28 @@ Production:
    ```csharp
    // Example usage in Blazor component
    @inject IResourceTokenService ResourceTokenService
+   @inject IResourceCatalogRepository ResourceCatalog
    
-   private string GetAssetUrl(Guid assetGuid, string assetType)
+   private async Task<string> GetAssetUrlAsync(string resourceGuid)
    {
-       return ResourceTokenService.GenerateSignedUrl(assetGuid, assetType, expiryMinutes: 120);
+       // Fetch resource details from database
+       var resource = await ResourceCatalog.GetByGuidAsync(resourceGuid);
+       if (resource == null) return null;
+       
+       // Generate signed URL
+       return ResourceTokenService.GenerateSignedUrl(
+           resourceGuid, 
+           resource.FileExtension, 
+           expiryMinutes: 120
+       );
    }
    ```
 
 **Deliverables**:
 - `Services/ResourceTokenService.cs`
+- `Data/ResourceCatalogRepository.cs`
+- `Models/ResourceCatalogEntry.cs`
 - `appsettings.json` with Resources section
-- Token validation middleware (if using ASP.NET Core validation)
 
 ---
 
@@ -416,44 +610,127 @@ Production:
    ```csharp
    public interface IResourceUrlBuilder
    {
-       string BuildImageUrl(Guid assetGuid, string fileName = null);
-       string BuildAudioUrl(Guid assetGuid, string fileName = null);
-       string BuildVideoUrl(Guid assetGuid, string fileName = null);
+       Task<string> BuildResourceUrlAsync(string resourceGuid);
+       Task<string> BuildResourceUrlByIdAsync(int resourceId);
+       Task<List<string>> BuildSessionResourceUrlsAsync(int sessionId);
    }
    
    public class ResourceUrlBuilder : IResourceUrlBuilder
    {
        private readonly IConfiguration _configuration;
        private readonly IResourceTokenService _tokenService;
+       private readonly IResourceCatalogRepository _catalogRepo;
        private readonly IWebHostEnvironment _environment;
        
        public ResourceUrlBuilder(
            IConfiguration configuration,
            IResourceTokenService tokenService,
+           IResourceCatalogRepository catalogRepo,
            IWebHostEnvironment environment)
        {
            _configuration = configuration;
            _tokenService = tokenService;
+           _catalogRepo = catalogRepo;
            _environment = environment;
        }
        
-       public string BuildImageUrl(Guid assetGuid, string fileName = null)
+       public async Task<string> BuildResourceUrlAsync(string resourceGuid)
        {
+           // Fetch resource metadata from ResourceCatalog
+           var resource = await _catalogRepo.GetByGuidAsync(resourceGuid);
+           if (resource == null)
+               return null;
+           
            var baseUrl = GetBaseUrl();
-           var extension = fileName != null ? Path.GetExtension(fileName) : ".jpg";
            
            if (_environment.IsDevelopment())
            {
                // Direct file system access
-               return $"{baseUrl}/IMAGES/{assetGuid}{extension}";
+               return $"{baseUrl}/{GetResourceFolder(resource.ResourceType)}/{resource.ResourceName}";
            }
            else
            {
                // Production: Signed URL
-               return _tokenService.GenerateSignedUrl(assetGuid, "image");
+               return _tokenService.GenerateSignedUrl(
+                   resourceGuid, 
+                   resource.FileExtension, 
+                   expiryMinutes: GetTokenExpiry()
+               );
            }
        }
        
+       public async Task<string> BuildResourceUrlByIdAsync(int resourceId)
+       {
+           // Query by ResourceID (primary key)
+           var resource = await _catalogRepo.GetByIdAsync(resourceId);
+           if (resource == null)
+               return null;
+           
+           return await BuildResourceUrlAsync(resource.ResourceGuid);
+       }
+       
+       public async Task<List<string>> BuildSessionResourceUrlsAsync(int sessionId)
+       {
+           var resources = await _catalogRepo.GetBySessionIdAsync(sessionId);
+           var urls = new List<string>();
+           
+           foreach (var resource in resources)
+           {
+               var url = await BuildResourceUrlAsync(resource.ResourceGuid);
+               if (url != null)
+                   urls.Add(url);
+           }
+           
+           return urls;
+       }
+       
+       private string GetBaseUrl()
+       {
+           var section = _environment.IsDevelopment() ? "Development" : "Production";
+           return _configuration[$"Resources:{section}:BaseUrl"];
+       }
+       
+       private int GetTokenExpiry()
+       {
+           return _configuration.GetValue<int>("Resources:TokenExpiryMinutes", 60);
+       }
+       
+       private string GetResourceFolder(int resourceType)
+       {
+           return resourceType switch
+           {
+               1 => "IMAGES",
+               2 => "MP3",
+               _ => "MEDIA"
+           };
+       }
+   }
+   ```
+
+3. **Register services in Program.cs**:
+   ```csharp
+   // Add Resource services
+   builder.Services.AddScoped<IResourceTokenService, ResourceTokenService>();
+   builder.Services.AddScoped<IResourceCatalogRepository, ResourceCatalogRepository>();
+   builder.Services.AddScoped<IResourceUrlBuilder, ResourceUrlBuilder>();
+   ```
+
+4. **Update existing components** that reference Resources:
+   ```csharp
+   // Before (hardcoded path):
+   var imagePath = $"D:\\Websites\\KSESSIONS\\Resources\\IMAGES\\{sessionId}\\{filename}";
+   
+   // After (using ResourceUrlBuilder):
+   @inject IResourceUrlBuilder ResourceUrlBuilder
+   
+   var imageUrl = await ResourceUrlBuilder.BuildResourceUrlAsync(resourceGuid);
+   ```
+
+**Deliverables**:
+- `Services/ResourceUrlBuilder.cs`
+- Updated `sharedsettings.json`
+- Updated components using new URL builder
+- Service registration in `Program.cs`
        public string BuildAudioUrl(Guid assetGuid, string fileName = null)
        {
            var baseUrl = GetBaseUrl();
