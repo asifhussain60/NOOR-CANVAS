@@ -38,17 +38,17 @@ namespace NoorCanvas.Services
         }
         
         /// <inheritdoc/>
-        public async Task<string> TransformMediaUrlsAsync(string html, int? sessionId)
+        public Task<string> TransformMediaUrlsAsync(string html, int? sessionId)
         {
             if (string.IsNullOrEmpty(html))
-                return html ?? string.Empty;
+                return Task.FromResult(html ?? string.Empty);
             
             // Check cache first
             var cacheKey = $"{CACHE_KEY_PREFIX}{sessionId}:{html.GetHashCode()}";
             if (_cache.TryGetValue<string>(cacheKey, out var cachedResult))
             {
                 _logger.LogDebug("[MediaUrlTransform] Cache hit for session {SessionId}", sessionId);
-                return cachedResult!;
+                return Task.FromResult(cachedResult!);
             }
             
             _logger.LogInformation("[MediaUrlTransform] Transforming media URLs for session {SessionId}, environment: {Environment}",
@@ -81,12 +81,12 @@ namespace NoorCanvas.Services
                 // Cache result
                 _cache.Set(cacheKey, transformedHtml, CacheExpiry);
                 
-                return transformedHtml;
+                return Task.FromResult(transformedHtml);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[MediaUrlTransform] Error transforming media URLs for session {SessionId}", sessionId);
-                return html; // Return original on error
+                return Task.FromResult(html); // Return original on error
             }
         }
         
