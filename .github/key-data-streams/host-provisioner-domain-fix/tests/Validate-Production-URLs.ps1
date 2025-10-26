@@ -19,7 +19,8 @@ $expectedDevUrl = "https://localhost:9091"
 $configFiles = Get-ChildItem -Path "$PSScriptRoot\..\..\..\..\Tools\HostProvisioner" -Filter "app.config" -Recurse -File
 
 foreach ($file in $configFiles) {
-    Write-Host "Checking: $($file.FullName.Replace((Get-Location).Path, '.'))" -ForegroundColor Gray
+    $relativePath = $file.FullName -replace [regex]::Escape($PSScriptRoot), '.'
+    Write-Host "Checking: $relativePath" -ForegroundColor Gray
     
     try {
         [xml]$xml = Get-Content $file.FullName
