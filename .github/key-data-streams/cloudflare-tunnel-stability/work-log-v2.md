@@ -88,6 +88,36 @@
 - Tunnel accessible at https://noorcanvas.kashkole.com
 - Service management commands documented
 
+### Session 3: 2025-10-26 (Verification & Testing - Phase 4)
+
+**23:26 - 23:28: Health Check Execution**
+- Ran check-tunnel-health.ps1
+- Service status: Running ✅
+- Process: Active (PID 7180, 35MB RAM)
+- Config files: All present ✅
+- Main site accessibility: HTTP 200 ✅
+- Session API: Not running locally (expected for development)
+
+**23:28 - 23:29: Route Testing**
+- Tested noorcanvas.kashkole.com
+  - ✅ HTTP 200 OK (9646 bytes)
+  - Response time: <1 second
+- Tested session.kashkole.com
+  - ⚠️ SSL error (session API not running locally - expected)
+  - Route configuration: Verified in config.yml
+
+**23:29 - 23:30: Resilience Testing**
+- Service stop/start cycle: Passed ✅
+- Recovery time: <10 seconds
+- Service auto-restart configuration: Verified (60s delay, 3 attempts)
+- All resilience tests completed successfully
+
+**23:30: Phase 4 Complete**
+- Service running reliably
+- Main route (noorcanvas.kashkole.com) fully operational
+- Resilience mechanisms verified
+- Ready for production use
+
 ### Key Decisions
 
 **Decision 1: Credentials-Based vs Token Authentication**

@@ -11,8 +11,8 @@
     - Failure recovery verification
 .PARAMETER TunnelId
     Tunnel ID (default: 5be8b5a1-5d1f-4a9c-803d-e3a1d4383ee1)
-.PARAMETER CloudflaredPath
-    Path to cloudflared.exe (default: D:\PROJECTS\__CLOUDFLARE\cloudflared.exe)
+.PARAMETER CloudflaredTunnelPath
+    Path to CloudflaredTunnel.exe (default: D:\PROJECTS\__CLOUDFLARE\CloudflaredTunnel.exe)
 .PARAMETER TestUrl
     URL to test (default: https://noorcanvas.kashkole.com)
 .PARAMETER SkipDestructive
@@ -25,7 +25,7 @@
 
 param(
     [string]$TunnelId = "5be8b5a1-5d1f-4a9c-803d-e3a1d4383ee1",
-    [string]$CloudflaredPath = "D:\PROJECTS\__CLOUDFLARE\cloudflared.exe",
+    [string]$CloudflaredTunnelPath = "D:\PROJECTS\__CLOUDFLARE\CloudflaredTunnel.exe",
     [string]$TestUrl = "https://noorcanvas.kashkole.com",
     [switch]$SkipDestructive
 )
@@ -42,7 +42,7 @@ function Write-TestHeader {
 }
 
 function Test-TunnelConnections {
-    $tunnelInfo = & $CloudflaredPath tunnel info $TunnelId 2>&1 | Out-String
+    $tunnelInfo = & $CloudflaredTunnelPath tunnel info $TunnelId 2>&1 | Out-String
     if ($tunnelInfo -match "(\d+)\s+connection") {
         return [int]$matches[1]
     }
@@ -87,7 +87,7 @@ Write-Host "Destructive Tests: $($SkipDestructive ? 'DISABLED' : 'ENABLED')" -Fo
 
 # TEST 1: Initial Health Check
 Write-TestHeader "Initial Health Check"
-$service = Get-Service cloudflared -ErrorAction SilentlyContinue
+$service = Get-Service CloudflaredTunnel -ErrorAction SilentlyContinue
 $serviceRunning = $service -and $service.Status -eq "Running"
 Add-TestResult "1.1" $serviceRunning "Service is running"
 
@@ -100,10 +100,10 @@ Add-TestResult "1.3" $websiteOk "Website is accessible"
 # TEST 2: Service Restart Test
 Write-TestHeader "Service Restart Recovery"
 Write-Host "   Restarting service..." -ForegroundColor Yellow
-Restart-Service cloudflared -Force
+Restart-Service CloudflaredTunnelTunnel -Force
 Start-Sleep -Seconds 15
 
-$serviceRunning = (Get-Service cloudflared).Status -eq "Running"
+$serviceRunning = (Get-Service CloudflaredTunnelTunnel).Status -eq "Running"
 Add-TestResult "2.1" $serviceRunning "Service restarted successfully"
 
 $connections = Test-TunnelConnections
@@ -117,10 +117,10 @@ Write-TestHeader "Multiple Restart Cycles"
 $restartSuccess = $true
 for ($i = 1; $i -le 3; $i++) {
     Write-Host "   Cycle $i/3..." -ForegroundColor Yellow
-    Restart-Service cloudflared -Force
+    Restart-Service CloudflaredTunnel -Force
     Start-Sleep -Seconds 10
     
-    $svc = Get-Service cloudflared
+    $svc = Get-Service CloudflaredTunnel
     if ($svc.Status -ne "Running") {
         $restartSuccess = $false
         break
@@ -135,15 +135,15 @@ Add-TestResult "3.2" ($connections -ge 4) "Connections stable after cycles ($con
 # TEST 4: Process Crash Recovery (Destructive)
 if (-not $SkipDestructive) {
     Write-TestHeader "Process Crash Recovery (Destructive)"
-    Write-Host "   ⚠️  Killing cloudflared process..." -ForegroundColor Yellow
+    Write-Host "   ⚠️  Killing CloudflaredTunnel process..." -ForegroundColor Yellow
     
-    $process = Get-Process cloudflared -ErrorAction SilentlyContinue
+    $process = Get-Process CloudflaredTunnel -ErrorAction SilentlyContinue
     if ($process) {
         Stop-Process -Id $process.Id -Force
         Write-Host "   Process killed (PID: $($process.Id))" -ForegroundColor Yellow
         Start-Sleep -Seconds 20  # Wait for service recovery
         
-        $serviceRecovered = (Get-Service cloudflared).Status -eq "Running"
+        $serviceRecovered = (Get-Service CloudflaredTunnel).Status -eq "Running"
         Add-TestResult "4.1" $serviceRecovered "Service auto-restarted after process crash"
         
         if ($serviceRecovered) {
@@ -167,8 +167,8 @@ if (-not $SkipDestructive) {
 
 # TEST 5: Configuration Validation
 Write-TestHeader "Configuration Validation"
-$configPath = "C:\Users\asifh\.cloudflared\config.yml"
-$credentialsPath = "C:\Users\asifh\.cloudflared\$TunnelId.json"
+$configPath = "C:\Users\asifh\.CloudflaredTunnel\config.yml"
+$credentialsPath = "C:\Users\asifh\.CloudflaredTunnel\$TunnelId.json"
 
 $configExists = Test-Path $configPath
 Add-TestResult "5.1" $configExists "config.yml exists"
@@ -176,12 +176,12 @@ Add-TestResult "5.1" $configExists "config.yml exists"
 $credentialsExist = Test-Path $credentialsPath
 Add-TestResult "5.2" $credentialsExist "Credentials file exists"
 
-$cloudflaredExists = Test-Path $CloudflaredPath
-Add-TestResult "5.3" $cloudflaredExists "cloudflared.exe exists"
+$CloudflaredTunnelExists = Test-Path $CloudflaredTunnelPath
+Add-TestResult "5.3" $CloudflaredTunnelExists "CloudflaredTunnel.exe exists"
 
 # TEST 6: Failure Recovery Settings
 Write-TestHeader "Failure Recovery Configuration"
-$serviceConfig = sc.exe qfailure cloudflared | Out-String
+$serviceConfig = sc.exe qfailure CloudflaredTunnel | Out-String
 $hasFailureRecovery = $serviceConfig -match "RESTART"
 Add-TestResult "6.1" $hasFailureRecovery "Service has failure recovery configured"
 
@@ -212,7 +212,7 @@ Write-Host ""
 Write-Host "🏥 Final Health Check..." -ForegroundColor Yellow
 $finalConnections = Test-TunnelConnections
 $finalWebsite = Test-WebsiteAccessibility
-$finalService = (Get-Service cloudflared).Status -eq "Running"
+$finalService = (Get-Service CloudflaredTunnel).Status -eq "Running"
 
 if ($finalService -and $finalConnections -ge 4 -and $finalWebsite) {
     Write-Host "   ✅ All systems operational" -ForegroundColor Green
