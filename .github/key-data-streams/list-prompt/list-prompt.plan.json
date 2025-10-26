@@ -14,9 +14,9 @@
     {
       "id": 2,
       "name": "Enhanced Search & Filtering",
-      "status": "pending",
-      "started": null,
-      "completed": null
+      "status": "completed",
+      "started": "2025-10-26T11:15:00Z",
+      "completed": "2025-10-26T11:30:00Z"
     },
     {
       "id": 3,

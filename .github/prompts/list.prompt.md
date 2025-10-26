@@ -489,6 +489,337 @@ END FUNCTION
 
 ---
 
+## Phase 2: Enhanced Search & Filtering
+
+### Fuzzy Matching with Levenshtein Distance
+
+Implement fuzzy matching to find items with up to 2 character differences:
+
+```
+FUNCTION FuzzyFilter(items, searchTerm)
+  
+  matches = []
+  searchLower = ToLower(searchTerm)
+  
+  FOR EACH item IN items
+    itemLower = ToLower(item)
+    
+    // Calculate Levenshtein distance
+    distance = LevenshteinDistance(itemLower, searchLower)
+    
+    // Exact match (highest priority)
+    IF itemLower == searchLower THEN
+      matches.APPEND({
+        item: item,
+        score: 0,
+        type: "exact",
+        matchQuality: 100
+      })
+      
+    // Fuzzy match (within threshold)
+    ELSE IF distance <= 2 THEN
+      matchQuality = CalculateMatchQuality(distance, Length(searchTerm))
+      matches.APPEND({
+        item: item,
+        score: distance,
+        type: "fuzzy",
+        matchQuality: matchQuality
+      })
+      
+    // Partial match (contains search term)
+    ELSE IF Contains(itemLower, searchLower) THEN
+      // Calculate position-based score (earlier = better)
+      position = IndexOf(itemLower, searchLower)
+      positionScore = position / Length(itemLower)
+      
+      matches.APPEND({
+        item: item,
+        score: positionScore,
+        type: "partial",
+        matchQuality: CalculatePartialMatchQuality(searchLower, itemLower)
+      })
+      
+    // Word boundary match (word starts with search term)
+    ELSE IF HasWordBoundaryMatch(itemLower, searchLower) THEN
+      matches.APPEND({
+        item: item,
+        score: 0.5,
+        type: "word-boundary",
+        matchQuality: 70
+      })
+    END IF
+  END FOR
+  
+  // Sort by match quality (descending), then by score (ascending)
+  sortedMatches = Sort(matches, comparator = CompareMatchQuality)
+  
+  // Extract items
+  result = ExtractItems(sortedMatches)
+  
+  RETURN result
+  
+END FUNCTION
+
+FUNCTION CalculateMatchQuality(distance, searchLength)
+  
+  // Quality decreases with distance
+  // Longer search terms tolerate distance better
+  
+  IF searchLength <= 3 THEN
+    // Short searches: strict matching
+    IF distance == 0 THEN RETURN 100
+    IF distance == 1 THEN RETURN 70
+    IF distance == 2 THEN RETURN 40
+  ELSE IF searchLength <= 6 THEN
+    // Medium searches: moderate tolerance
+    IF distance == 0 THEN RETURN 100
+    IF distance == 1 THEN RETURN 85
+    IF distance == 2 THEN RETURN 60
+  ELSE
+    // Long searches: higher tolerance
+    IF distance == 0 THEN RETURN 100
+    IF distance == 1 THEN RETURN 90
+    IF distance == 2 THEN RETURN 75
+  END IF
+  
+  RETURN 0
+  
+END FUNCTION
+
+FUNCTION CalculatePartialMatchQuality(searchTerm, item)
+  
+  // Higher quality if search term is significant portion of item
+  searchLen = Length(searchTerm)
+  itemLen = Length(item)
+  
+  ratio = searchLen / itemLen
+  
+  IF ratio >= 0.8 THEN RETURN 95  // Search term is 80%+ of item
+  IF ratio >= 0.6 THEN RETURN 85  // 60-79%
+  IF ratio >= 0.4 THEN RETURN 70  // 40-59%
+  IF ratio >= 0.2 THEN RETURN 55  // 20-39%
+  
+  RETURN 40  // Less than 20%
+  
+END FUNCTION
+
+FUNCTION CompareMatchQuality(a, b)
+  
+  // First: Compare by type priority (exact > fuzzy > partial > word-boundary)
+  typePriority = {
+    "exact": 4,
+    "fuzzy": 3,
+    "partial": 2,
+    "word-boundary": 1
+  }
+  
+  aPriority = typePriority[a.type]
+  bPriority = typePriority[b.type]
+  
+  IF aPriority != bPriority THEN
+    RETURN bPriority - aPriority  // Higher priority first
+  END IF
+  
+  // Second: Compare by match quality
+  IF a.matchQuality != b.matchQuality THEN
+    RETURN b.matchQuality - a.matchQuality  // Higher quality first
+  END IF
+  
+  // Third: Compare by score (lower is better for fuzzy/partial)
+  IF a.score != b.score THEN
+    RETURN a.score - b.score  // Lower score first
+  END IF
+  
+  // Finally: Alphabetical
+  RETURN CompareText(a.item, b.item)
+  
+END FUNCTION
+
+FUNCTION HasWordBoundaryMatch(text, searchTerm)
+  
+  // Check if any word in text starts with searchTerm
+  words = SplitByWordBoundaries(text)
+  
+  FOR EACH word IN words
+    IF StartsWith(word, searchTerm) THEN
+      RETURN true
+    END IF
+  END FOR
+  
+  RETURN false
+  
+END FUNCTION
+
+FUNCTION SplitByWordBoundaries(text)
+  
+  // Split on common separators: space, dash, underscore, dot
+  separators = [" ", "-", "_", "."]
+  words = [text]
+  
+  FOR EACH separator IN separators
+    newWords = []
+    FOR EACH word IN words
+      splitWords = Split(word, separator)
+      newWords.APPEND_ALL(splitWords)
+    END FOR
+    words = newWords
+  END FOR
+  
+  // Filter out empty strings
+  words = Filter(words, w => Length(w) > 0)
+  
+  RETURN words
+  
+END FUNCTION
+```
+
+### Levenshtein Distance Implementation
+
+Calculate edit distance between two strings:
+
+```
+FUNCTION LevenshteinDistance(str1, str2)
+  
+  m = Length(str1)
+  n = Length(str2)
+  
+  // Handle edge cases
+  IF m == 0 THEN RETURN n
+  IF n == 0 THEN RETURN m
+  
+  // Create distance matrix [m+1][n+1]
+  matrix = CreateMatrix(m + 1, n + 1)
+  
+  // Initialize first column (deletions from str1)
+  FOR i = 0 TO m
+    matrix[i][0] = i
+  END FOR
+  
+  // Initialize first row (insertions to str1)
+  FOR j = 0 TO n
+    matrix[0][j] = j
+  END FOR
+  
+  // Fill matrix using dynamic programming
+  FOR i = 1 TO m
+    FOR j = 1 TO n
+      
+      // Cost is 0 if characters match, 1 if they don't
+      IF str1[i-1] == str2[j-1] THEN
+        cost = 0
+      ELSE
+        cost = 1
+      END IF
+      
+      // Minimum of:
+      // - Deletion: matrix[i-1][j] + 1
+      // - Insertion: matrix[i][j-1] + 1
+      // - Substitution: matrix[i-1][j-1] + cost
+      matrix[i][j] = Min(
+        matrix[i-1][j] + 1,      // deletion
+        matrix[i][j-1] + 1,      // insertion
+        matrix[i-1][j-1] + cost  // substitution
+      )
+      
+    END FOR
+  END FOR
+  
+  // Return bottom-right cell (final distance)
+  RETURN matrix[m][n]
+  
+END FUNCTION
+```
+
+### Enhanced Dictionary Search
+
+Search dictionary entries across all fields with ranking:
+
+```
+FUNCTION SearchDictionaryEntries(entries, searchTerm)
+  
+  matchedEntries = []
+  searchLower = ToLower(searchTerm)
+  
+  FOR EACH entry IN entries
+    matchScore = 0
+    matchType = null
+    
+    // Check shortcut (highest priority)
+    shortcutLower = ToLower(entry.shortcut)
+    shortcutDistance = LevenshteinDistance(shortcutLower, searchLower)
+    
+    IF shortcutLower == searchLower THEN
+      matchScore = 100
+      matchType = "shortcut-exact"
+      
+    ELSE IF shortcutDistance <= 2 THEN
+      matchScore = 90 - (shortcutDistance * 10)
+      matchType = "shortcut-fuzzy"
+      
+    ELSE IF Contains(shortcutLower, searchLower) THEN
+      matchScore = 80
+      matchType = "shortcut-partial"
+      
+    // Check description (medium priority)
+    ELSE IF Contains(ToLower(entry.description), searchLower) THEN
+      matchScore = 60
+      matchType = "description"
+      
+    // Check reference path (lower priority)
+    ELSE IF Contains(ToLower(entry.referencePath), searchLower) THEN
+      matchScore = 40
+      matchType = "reference"
+      
+    END IF
+    
+    // Add to results if matched
+    IF matchScore > 0 THEN
+      matchedEntries.APPEND({
+        entry: entry,
+        score: matchScore,
+        type: matchType
+      })
+    END IF
+  END FOR
+  
+  // Sort by score (descending)
+  sortedEntries = Sort(matchedEntries, comparator = (a, b) => b.score - a.score)
+  
+  // Extract entries
+  result = ExtractEntries(sortedEntries)
+  
+  RETURN result
+  
+END FUNCTION
+
+FUNCTION ExtractEntries(matchedEntries)
+  
+  result = []
+  
+  FOR EACH matched IN matchedEntries
+    result.APPEND(matched.entry)
+  END FOR
+  
+  RETURN result
+  
+END FUNCTION
+```
+
+### Updated Filter Functions
+
+Update existing filter functions to use fuzzy matching:
+
+```
+FUNCTION FilterByName(items, searchTerm)
+  
+  // Use FuzzyFilter for better matching
+  RETURN FuzzyFilter(items, searchTerm)
+  
+END FUNCTION
+```
+
+---
+
 ## Parameter Parsing
 
 Parse command-line style parameters from user input:
