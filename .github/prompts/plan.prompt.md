@@ -5,12 +5,22 @@ mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-22
+lastUpdated: 2025-10-26
 ---
 
 # plan.prompt.md (Feature Planning)
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
+
+## ⚠️ MANDATORY READING BEFORE EVERY RESPONSE
+
+**OUTPUT LIMIT**: Maximum 100 lines in chat for plan drafts
+**TECHNICAL DETAILS**: Written to `{key}.plan.md` files AFTER user approval
+**NEVER**: Show full phase specifications, test details, or implementation steps in chat
+
+If you're about to paste 200+ lines in chat → **STOP** → Write to files instead
+
+---
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
@@ -20,12 +30,44 @@ lastUpdated: 2025-10-22
 5. **NO execution** - planning only
 6. **Pseudocode preferred** - Use algorithmic descriptions instead of executable code
 
+## 🚨 OUTPUT ENFORCEMENT CHECKPOINT (READ BEFORE EVERY RESPONSE)
+
+**BEFORE generating ANY plan content, verify:**
+
+1. ✅ **Step 2 (Draft Phase)**: Maximum 100 lines in chat
+   - Concise phase bullets only (no full specifications)
+   - Pseudocode allowed for complex logic
+   - Assumptions validated (3-7 bullets)
+   - Enhancement recommendations (organized by priority)
+   - Open questions (if any)
+   
+2. ❌ **NEVER in chat before user approval**:
+   - Full technical specifications
+   - Complete test specifications
+   - Detailed implementation steps
+   - File structure details
+   - Commit message templates
+   - Execution scripts
+   
+3. ✅ **Step 3 (After user says "proceed")**:
+   - Write ALL technical details to `.github/key-data-streams/{key}/{key}.plan.md`
+   - Write tracking to `{key}.plan.json`
+   - Write log to `work-log.md`
+   - Write test registry to `tests/test-registry.md`
+   - Generate execution script to `execute-plan.ps1`
+   - Show file creation confirmation ONLY (no content preview)
+
+**Self-Check**: Count lines before sending. If > 100 in chat → STOP and move to files.
+
+---
+
 ## Process
 - Step 0: Validate (5 bullets)
   - **Step 0.1: Key Spelling** - Validate and correct spelling mistakes in key
   - **Step 0.5: Key Detection** - If no key provided, auto-detect active plan key from git history
 - Step 1: Draft (30-50 lines with MANDATORY enhancements)
 - **Step 1.5: Questionnaire Generation** - If open questions exist, generate `.github/key-data-streams/{key}/questionnaire.md`
+- **Step 1.75: OUTPUT CHECKPOINT** - Verify draft ≤ 100 lines before showing to user
 - Step 2: User approval OR clarification (HALT if open questions exist in questionnaire)
 - **Step 2.5: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
 - Step 3: Write files (including test registry structure, incorporate questionnaire answers)
