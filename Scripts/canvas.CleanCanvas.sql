@@ -6,7 +6,7 @@
 --              Randomized tokens for security (no hardcoded values).
 -- =============================================
 
-CREATE PROCEDURE [canvas].[CleanCanvas]
+ALTER PROCEDURE [canvas].[CleanCanvas]
 AS
 BEGIN
     SET NOCOUNT ON;
