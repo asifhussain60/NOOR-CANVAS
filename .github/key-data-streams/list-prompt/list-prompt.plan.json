@@ -7,9 +7,9 @@
     {
       "id": 1,
       "name": "Core List Infrastructure",
-      "status": "pending",
-      "started": null,
-      "completed": null
+      "status": "completed",
+      "started": "2025-10-26T11:00:00Z",
+      "completed": "2025-10-26T11:15:00Z"
     },
     {
       "id": 2,
