@@ -71,11 +71,99 @@ If you're about to paste 200+ lines in chat → **STOP** → Write to files inst
 - Step 2: User approval OR clarification (HALT if open questions exist in questionnaire)
 - **Step 2.5: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
 - Step 3: Write files (including test registry structure, incorporate questionnaire answers)
-- Step 4: Generate auto-execution handoff (task-to-task chaining)
+- Step 4: Generate auto-execution handoff (task-to-task chaining) **[MANDATORY - BLOCKING CHECKPOINT]**
 - Step 5: STOP
 
 **Note:** Execution agents (handoff/task) create git commits after each phase.
 See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+
+---
+
+## 🔒 STEP 4: AUTO-EXECUTION HANDOFF ENFORCEMENT (MANDATORY)
+
+**⚠️ BLOCKING CHECKPOINT**: You MUST NOT proceed to Step 5 (STOP) until execute-plan.ps1 is created.
+
+### When to Execute Step 4
+- **Trigger**: After Step 3 completes (all plan files written)
+- **Condition**: User said "proceed", "begin", "start", "implement", or similar approval phrase
+- **Enforcement**: If execute-plan.ps1 does NOT exist after Step 3 → HALT and create it
+
+### Step 4 Execution Algorithm
+
+```
+FUNCTION ExecuteStep4(key, totalPhases)
+  
+  // Define script path
+  scriptPath = `.github/key-data-streams/{key}/execute-plan.ps1`
+  
+  // Check if script already exists (idempotent)
+  IF FileExists(scriptPath) THEN
+    SKIP_WITH_LOG("execute-plan.ps1 already exists")
+    RETURN
+  END IF
+  
+  // Generate script content from template (see Auto-Execution Handoff Protocol section)
+  scriptContent = GenerateExecutePlanScript(key, totalPhases)
+  
+  // Write script to file
+  WriteFile(scriptPath, scriptContent)
+  
+  // Verify creation
+  IF NOT FileExists(scriptPath) THEN
+    HALT_WITH_ERROR("Failed to create execute-plan.ps1 - cannot proceed to STOP")
+  END IF
+  
+  // Confirm to user
+  OUTPUT: "✅ Created execute-plan.ps1 with {totalPhases} phases"
+  OUTPUT: "Run: .github/key-data-streams/{key}/execute-plan.ps1"
+  
+  // Proceed to Step 5
+  CONTINUE_TO_STEP_5()
+  
+END FUNCTION
+```
+
+### Self-Check Before STOP
+
+**Before outputting final "STOP" message, verify:**
+
+1. ✅ `.github/key-data-streams/{key}/{key}.plan.md` exists
+2. ✅ `.github/key-data-streams/{key}/{key}.plan.json` exists
+3. ✅ `.github/key-data-streams/{key}/work-log.md` exists
+4. ✅ `.github/key-data-streams/{key}/tests/test-registry.md` exists
+5. ✅ **`.github/key-data-streams/{key}/execute-plan.ps1` exists** ← CRITICAL
+
+**If any file missing → HALT and create it before STOP**
+
+### Output Format After Step 4
+
+```
+✅ Plan files created:
+   - {key}.plan.md (1245 lines)
+   - {key}.plan.json (tracking)
+   - work-log.md (timeline)
+   - tests/test-registry.md (test tracking)
+   - execute-plan.ps1 (auto-execution) ← MUST BE PRESENT
+
+🚀 Ready for execution:
+   .\.github\key-data-streams\{key}\execute-plan.ps1
+
+   Or manually:
+   @workspace /task key:{key} phase:1 auto-chain:true
+```
+
+### Failure to Create execute-plan.ps1 = INCOMPLETE PLAN
+
+**If execute-plan.ps1 is missing:**
+- Plan is considered INCOMPLETE
+- User must manually trigger each phase with "continue" 
+- Agent failed to follow Step 4 enforcement
+
+**Holistic fix:**
+- plan.prompt.md: MANDATORY execute-plan.ps1 creation (Step 4)
+- task.prompt.md: Support `auto-chain:true` parameter (see next section)
+- todo.prompt.md: Support `auto-chain:true` parameter (see next section)
+- test-generation.prompt.md: Support `auto-chain:true` parameter (see next section)
 
 ## Plan Continuation Protocol (Plan → Plan Same Key)
 

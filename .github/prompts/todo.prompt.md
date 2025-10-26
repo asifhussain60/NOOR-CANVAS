@@ -13,6 +13,22 @@
 3. **Extend, don't replace** - Add to existing plan, don't restart
 4. Auto-execute after 5s unless "review"/"cancel"
 
+## Parameters
+
+### key *(auto-detected from git history)*
+Current active work key. Auto-detected from recent commits.
+
+### auto-chain *(default=`false`)*
+Enable automatic task-to-task execution without user intervention
+- `true` - Auto-invoke next task after current completes
+- `false` - Wait for user approval between tasks
+
+### task-id *(optional)*
+Specific task ID to execute from plan
+- If specified, execute only that task
+- If omitted, execute all tasks sequentially
+- Used with auto-chain for unassisted execution
+
 ## Input
 Additional work requests + optional modifications to current plan
 
@@ -522,6 +538,52 @@ FUNCTION CalculateDriftDepth(driftKey)
   
 END FUNCTION
 ```
+
+## Auto-Chain Protocol (if auto-chain=true)
+
+**Trigger:** `auto-chain` parameter = `true`
+
+**Purpose:** Enable unassisted task-to-task execution without manual approval between tasks
+
+**Algorithm:**
+```
+IF auto-chain == true AND task-id IS NOT NULL THEN
+  
+  // Verify current task completed successfully
+  IF CurrentTaskStatus != "complete" THEN
+    HALT("Task {task-id} incomplete - cannot auto-chain")
+  END IF
+  
+  // Load task list from current key
+  taskList = LoadTaskList(key)
+  nextTaskId = task-id + 1
+  
+  IF nextTaskId <= taskList.totalTasks THEN
+    // Auto-invoke next task
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host "📍 Auto-chaining to Task {nextTaskId}/{taskList.totalTasks}" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host ""
+    
+    SELF_INVOKE: @workspace /todo task-id:{nextTaskId} auto-chain:true
+    
+  ELSE
+    // All tasks complete
+    Write-Host "✅ All {taskList.totalTasks} tasks complete!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  @workspace /task key:{key} tasks='mark complete'" -ForegroundColor White
+    
+    STOP_AUTO_CHAIN()
+  END IF
+  
+END IF
+```
+
+**Integration with execute-plan.ps1:**
+- When todo.prompt.md invoked via execute-plan.ps1, auto-chain is enabled by default
+- User can Ctrl+C at any time to halt auto-chain
+- Errors halt auto-chain automatically with rollback options
 
 ## Success Criteria
 - Current key preserved and continued

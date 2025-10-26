@@ -31,6 +31,31 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
 - **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
+## Parameters
+
+### key *(required)*
+Test generation key identifier. Must match existing key data stream.
+
+### scenario *(optional)*
+Specific test scenario to generate (e.g., "asset-card-visibility", "participant-registration-flow")
+- If specified, generate only that scenario's tests
+- If omitted, generate all tests for the key based on plan
+
+### phase *(optional)*
+Specific phase number from plan to generate tests for
+- Used in conjunction with auto-chain for phase-based test generation
+- If omitted, generate tests based on scenario or key
+
+### auto-chain *(default=`false`)*
+Enable automatic test generation → execution → validation without user intervention
+- `true` - Auto-execute generated tests and update test registry
+- `false` - Wait for user approval to execute tests
+
+### auto-execute *(default=`false`)*
+Automatically run generated tests after creation
+- `true` - Execute tests immediately and report results
+- `false` - Only generate tests, do not execute
+
 
 ## Canonical Playwright Guidance
 For detailed patterns, decision matrices, and examples, see:
@@ -1803,6 +1828,78 @@ finally {
 - **What**: Delete test files from `.github/key-data-streams/{key}/tests/`
 - **Why**: Prevent folder bloat, maintain single source of truth (production)
 - **Preserve**: Test registry entries (archived section for history)
+
+---
+
+## Auto-Chain Protocol (if auto-chain=true)
+
+**Trigger:** `auto-chain` parameter = `true`
+
+**Purpose:** Enable unassisted test generation → execution → validation → next scenario without user intervention
+
+**Algorithm:**
+```
+IF auto-chain == true THEN
+  
+  // Step 1: Generate tests for current scenario
+  GenerateTests(key, scenario, phase)
+  
+  // Step 2: Auto-execute if auto-execute=true
+  IF auto-execute == true THEN
+    Write-Host "🧪 Executing generated tests..." -ForegroundColor Cyan
+    
+    orchestrationScript = `.github/key-data-streams/{key}/scripts/run-{scenario}-test.ps1`
+    result = ExecuteScript(orchestrationScript)
+    
+    // Update test registry with results
+    UpdateTestRegistry(key, scenario, result)
+    
+    IF result.status == "failed" THEN
+      HALT("Tests failed - cannot auto-chain")
+      SHOW_ROLLBACK_OPTIONS()
+      EXIT
+    END IF
+    
+    Write-Host "✅ Tests passed for scenario: {scenario}" -ForegroundColor Green
+  END IF
+  
+  // Step 3: Check if more scenarios exist for this phase
+  plan = LoadPlanJSON(key)
+  scenarioList = GetScenariosForPhase(plan, phase)
+  currentIndex = FindScenarioIndex(scenarioList, scenario)
+  nextScenario = scenarioList[currentIndex + 1]
+  
+  IF nextScenario EXISTS THEN
+    // Auto-invoke next scenario
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host "📍 Auto-chaining to next scenario: {nextScenario}" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host ""
+    
+    SELF_INVOKE: @workspace /test-gen key:{key} scenario:{nextScenario} phase:{phase} auto-chain:true auto-execute:true
+    
+  ELSE
+    // All scenarios complete for this phase
+    Write-Host "✅ All test scenarios complete for Phase {phase}!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Returning to task agent for phase completion..." -ForegroundColor Cyan
+    
+    STOP_AUTO_CHAIN()
+  END IF
+  
+END IF
+```
+
+**Integration with execute-plan.ps1:**
+- When test-generation.prompt.md invoked via task.prompt.md with auto-chain=true
+- Auto-executes generated tests and validates results
+- Automatically chains to next test scenario if multiple scenarios exist
+- Halts on test failure with rollback options
+
+**User Break Points:**
+- User can Ctrl+C at any time to halt auto-chain
+- Test failures halt auto-chain automatically
+- Errors halt auto-chain with rollback options
 
 ---
 
