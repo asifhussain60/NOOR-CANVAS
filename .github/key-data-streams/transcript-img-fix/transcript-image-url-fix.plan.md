@@ -1,9 +1,107 @@
-# Transcript Image URL Fix - Comprehensive Plan v1.0
+# Transcript Image URL Fix - Comprehensive Plan v1.1 ✅ COMPLETE
 
 **Key**: `transcript-image-url-fix`  
 **Created**: 2025-10-26  
-**Status**: Planning Complete  
-**Total Phases**: 3
+**Updated**: 2025-10-26 (Session 2 - CDN HTTPS fix)  
+**Status**: ✅ **COMPLETE & DEPLOYED** (Phases 1-2 done, CDN working over HTTPS)  
+**Total Phases**: 3 (Phase 3 testing optional - service already working in production)
+
+---
+
+## 🎉 WORKING SOLUTION SUMMARY (2025-10-26)
+
+### ✅ What's Working
+- **MediaUrlTransformService**: Transforms all media URLs in transcript HTML to CDN format
+- **CDN Endpoint**: `https://resources.kashkole.com` serving over HTTPS (mixed content issue fixed)
+- **IIS Configuration**: KashkoleResources site with HTTPS binding on port 443
+- **SSL Certificate**: Cloudflare Origin Certificate bound to resources.kashkole.com:443
+- **Cloudflare Tunnel**: Routing HTTPS traffic from CDN to IIS (updated config)
+- **Service Integration**: Injected into UnifiedHtmlTransformService pipeline
+
+### 🔧 Infrastructure Configuration (COMPLETE)
+
+**IIS Site: KashkoleResources**
+- **Physical Path**: `D:\Websites\KSESSIONS\Resources`
+- **HTTP Binding**: `*:80` (all hostnames) + `*:80:resources.kashkole.com`
+- **HTTPS Binding**: `*:443:resources.kashkole.com` ← **CRITICAL for mixed content fix**
+- **SSL Certificate**: Cloudflare Origin Certificate
+  - Thumbprint: `b78ce1da4f4f1a93bca408fcd1976780be0e7834`
+  - Store: `WebHosting`
+  - Bound via: `netsh http add sslcert hostnameport=resources.kashkole.com:443`
+- **Persistence**: All bindings saved in IIS applicationHost.config (survives reboots)
+
+**Cloudflare Tunnel Configuration**
+- **Config File**: `C:\Users\asifh\.cloudflared\config.yml`
+- **Tunnel ID**: `4e2266b5-48ed-429d-b9d3-e235186e9dca`
+- **Service**: Windows Service `cloudflared` (StartType: Automatic)
+- **Ingress Rule for Resources**:
+  ```yaml
+  - hostname: resources.kashkole.com
+    service: https://127.0.0.1:443  # ← Changed from http://127.0.0.1:80
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: resources.kashkole.com
+  ```
+- **Persistence**: Config file read on service start, survives reboots
+
+**Database: ResourceCatalog**
+- **Table**: `KSESSIONS_DEV.dbo.ResourceCatalog`
+- **Schema**:
+  - `ResourceID` INT (Primary Key)
+  - `ID` INT (SessionID - Foreign Key to Sessions table)
+  - `ResourceName` VARCHAR(255) (Relative path like "1278/02.jpg")
+  - `ResourceType` INT (1=Images, 2=MP3, 3=MEDIA)
+- **Physical Files**: `D:\Websites\KSESSIONS\Resources\IMAGES\{ResourceName}`
+  - Example: ResourceName="1278/83ede67d-dd24-4d7e-bfc8-b4b76d6bd1a6.jpg"
+  - Actual Path: `D:\Websites\KSESSIONS\Resources\IMAGES\1278\83ede67d-dd24-4d7e-bfc8-b4b76d6bd1a6.jpg`
+
+**URL Flow**:
+```
+Transcript HTML: <img src="/IMAGES/1278/file.jpg" />
+    ↓
+MediaUrlTransformService: Transforms to CDN URL
+    ↓
+Browser Request: https://resources.kashkole.com/IMAGES/1278/file.jpg
+    ↓
+Cloudflare Tunnel: Routes to https://127.0.0.1:443
+    ↓
+IIS (HTTPS): Serves from D:\Websites\KSESSIONS\Resources\IMAGES\1278\file.jpg
+    ↓
+✅ Image Loads (No mixed content warning)
+```
+
+### 📝 Configuration Reference Files
+
+All configuration details documented in:
+- **`.github/instructions/IIS-Configuration.md`**: Complete IIS setup, bindings, SSL certs
+- **`.github/instructions/CDN-Architecture.md`**: CDN architecture and configuration
+- **`C:\Users\asifh\.cloudflared\config.yml`**: Cloudflare tunnel ingress rules
+
+### 🔍 Verification Commands
+
+**Test CDN Image Loading**:
+```powershell
+# Test HTTPS CDN endpoint
+curl.exe -I -k https://resources.kashkole.com/IMAGES/1278/83ede67d-dd24-4d7e-bfc8-b4b76d6bd1a6.jpg
+# Should return: HTTP/1.1 200 OK
+
+# Check IIS bindings
+powershell.exe -Command "Import-Module WebAdministration; Get-WebBinding -Name 'KashkoleResources'"
+
+# Check SSL certificate binding
+netsh http show sslcert hostnameport=resources.kashkole.com:443
+
+# Check Cloudflare service status
+Get-Service cloudflared
+```
+
+**Test MediaUrlTransformService**:
+```powershell
+# Navigate to any session transcript page in NOOR CANVAS
+# Open browser DevTools → Network tab
+# Verify all images load from https://resources.kashkole.com
+# No mixed content warnings should appear
+```
 
 ---
 

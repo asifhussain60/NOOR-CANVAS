@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare CDN Image Load Demonstration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .status-panel {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .status-value {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .image-container {
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .image-wrapper {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        #cdn-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        #cdn-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        
+        .info-box h3 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #004085;
+            line-height: 1.6;
+        }
+        
+        .url-display {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Cloudflare CDN Live Demonstration</h1>
+        <p class="subtitle">Real-time image loading through resources.kashkole.com</p>
+        
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">CDN Status:</span>
+                <span id="cdn-status" class="status-badge badge-loading">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Tunnel URL:</span>
+                <span class="status-value">https://resources.kashkole.com</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Backend:</span>
+                <span class="status-value">IIS localhost:80</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Service:</span>
+                <span class="status-value">Cloudflare Tunnel (cloudflared)</span>
+            </div>
+        </div>
+        
+        <div class="image-container">
+            <h2 style="margin-bottom: 15px; color: #2c3e50;">Live CDN Image Test</h2>
+            <div class="url-display" id="image-url">Loading image URL...</div>
+            
+            <div class="image-wrapper">
+                <div id="loading" class="loading-spinner"></div>
+                <img id="cdn-image" style="display: none;" alt="CDN Test Image">
+            </div>
+            
+            <button onclick="loadNewImage()" style="margin-top: 20px;">
+                🔄 Load Different Image
+            </button>
+        </div>
+        
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="load-time">--</div>
+                <div class="metric-label">Load Time (ms)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="image-size">--</div>
+                <div class="metric-label">Image Size (KB)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="status-code">--</div>
+                <div class="metric-label">HTTP Status</div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>ℹ️ How This Works</h3>
+            <p>
+                This page loads images directly from <strong>resources.kashkole.com</strong>, 
+                which is a Cloudflare tunnel pointing to your local IIS server on port 80. 
+                The cloudflared process running on your machine creates a secure tunnel to 
+                Cloudflare's edge network, making your local resources publicly accessible 
+                without opening firewall ports.
+            </p>
+        </div>
+        
+        <div class="info-box" style="margin-top: 15px;">
+            <h3>🔧 Technical Details</h3>
+            <p>
+                <strong>Path:</strong> Browser → Cloudflare Edge → Cloudflared Tunnel → IIS (localhost:80) → Static Files
+                <br><strong>Protocol:</strong> HTTPS (Cloudflare SSL) → HTTP (local)
+                <br><strong>Session ID:</strong> <span id="session-info">Detecting...</span>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Test image URLs from the production CDN
+        const testImages = [
+            'https://resources.kashkole.com/IMAGES/1/dd004eb0-fd39-4207-b1da-32b3e3c48269.jpg',
+            'https://resources.kashkole.com/IMAGES/1/e8e6c8d0-8b8c-4a5e-9f3a-1a2b3c4d5e6f.jpg',
+            'https://resources.kashkole.com/IMAGES/1/a1b2c3d4-e5f6-7890-abcd-ef1234567890.jpg'
+        ];
+        
+        let currentImageIndex = 0;
+        let startTime;
+        
+        function loadNewImage() {
+            currentImageIndex = (currentImageIndex + 1) % testImages.length;
+            loadImage(testImages[currentImageIndex]);
+        }
+        
+        function loadImage(imageUrl) {
+            const img = document.getElementById('cdn-image');
+            const loading = document.getElementById('loading');
+            const urlDisplay = document.getElementById('image-url');
+            
+            // Reset metrics
+            document.getElementById('load-time').textContent = '--';
+            document.getElementById('image-size').textContent = '--';
+            document.getElementById('status-code').textContent = '--';
+            
+            // Show loading state
+            img.style.display = 'none';
+            loading.style.display = 'block';
+            urlDisplay.textContent = imageUrl;
+            
+            startTime = performance.now();
+            
+            // Create new image to track load
+            const testImg = new Image();
+            
+            testImg.onload = function() {
+                const loadTime = Math.round(performance.now() - startTime);
+                
+                // Update image
+                img.src = imageUrl;
+                img.style.display = 'block';
+                loading.style.display = 'none';
+                
+                // Update metrics
+                document.getElementById('load-time').textContent = loadTime;
+                document.getElementById('status-code').textContent = '200';
+                
+                // Update CDN status
+                document.getElementById('cdn-status').textContent = 'Online';
+                document.getElementById('cdn-status').className = 'status-badge badge-success';
+                
+                // Fetch size info
+                fetch(imageUrl, { method: 'HEAD' })
+                    .then(response => {
+                        const size = response.headers.get('content-length');
+                        if (size) {
+                            const sizeKB = Math.round(size / 1024);
+                            document.getElementById('image-size').textContent = sizeKB;
+                        }
+                    });
+            };
+            
+            testImg.onerror = function() {
+                loading.style.display = 'none';
+                urlDisplay.textContent = 'Error loading image: ' + imageUrl;
+                document.getElementById('cdn-status').textContent = 'Offline';
+                document.getElementById('cdn-status').className = 'status-badge badge-error';
+                document.getElementById('status-code').textContent = 'Error';
+            };
+            
+            testImg.src = imageUrl;
+        }
+        
+        // Check CDN availability
+        function checkCDN() {
+            fetch('https://resources.kashkole.com', { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('cdn-status').textContent = 'Online';
+                        document.getElementById('cdn-status').className = 'status-badge badge-success';
+                    } else {
+                        document.getElementById('cdn-status').textContent = 'Issue Detected';
+                        document.getElementById('cdn-status').className = 'status-badge badge-error';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('cdn-status').textContent = 'Offline';
+                    document.getElementById('cdn-status').className = 'status-badge badge-error';
+                });
+        }
+        
+        // Detect session ID from URL or use default
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session') || '1';
+        document.getElementById('session-info').textContent = sessionId;
+        
+        // Load first image on page load
+        window.addEventListener('load', () => {
+            checkCDN();
+            loadImage(testImages[0]);
+        });
+    </script>
+</body>
+</html>

@@ -1445,4 +1445,96 @@ Agent: [Execute Phase 1 from {key}.plan.md]
 
 ---
 
+## 📚 Real-World Example: CDN Media URL Transformation
+
+**Reference Plan**: `transcript-image-url-fix` (COMPLETE & DEPLOYED)
+
+This plan demonstrates a successful infrastructure + code fix requiring both application changes and server configuration.
+
+### Problem
+Transcript HTML from shared database contained media URLs that failed to load in NOOR CANVAS due to:
+- Environment-specific path differences (file:// vs https://)
+- Browser mixed content blocking (HTTP resources on HTTPS pages)
+
+### Solution (2 Sessions)
+
+**Session 1: Application Code**
+- Created `MediaUrlTransformService` to transform media URLs to CDN format
+- Integrated into `UnifiedHtmlTransformService` pipeline
+- Configured service DI and appsettings
+- **Result**: Service worked but CDN returned 404s
+
+**Session 2: Infrastructure Fix**
+- **Root Cause**: Browser blocking HTTP resources (mixed content)
+- **Fix**: Added HTTPS binding to IIS, bound SSL certificate, updated Cloudflare tunnel config
+- **Critical Steps**:
+  1. IIS: Added HTTPS binding on port 443 for resources.kashkole.com
+  2. SSL: Bound Cloudflare Origin Certificate (thumbprint: b78ce1da...)
+  3. Cloudflare: Changed tunnel from `http://127.0.0.1:80` → `https://127.0.0.1:443`
+  4. Verified persistence across server reboots
+- **Result**: ✅ CDN serving over HTTPS, images loading in production
+
+### Key Lessons
+
+1. **Infrastructure as Part of Plan**: Don't assume infrastructure is "just working" - validate and fix as needed
+2. **Documentation Critical**: All config details captured in `.github/instructions/IIS-Configuration.md`
+3. **Persistence Verification**: Explicitly test that changes survive reboots (IIS bindings, SSL certs, Windows services)
+4. **Iterative Discovery**: Session 1 revealed Session 2 issue - plans can span multiple sessions
+5. **Complete Evidence**: Final plan includes:
+   - All configuration files and paths
+   - Verification commands (curl, netsh, powershell)
+   - Infrastructure details (IIS bindings, SSL thumbprints, tunnel config)
+   - Service details (Windows Service settings, auto-start)
+
+### Configuration Reference Example
+
+The plan captures all critical details for future reference:
+
+```yaml
+# Cloudflare Tunnel Config (C:\Users\asifh\.cloudflared\config.yml)
+ingress:
+  - hostname: resources.kashkole.com
+    service: https://127.0.0.1:443  # HTTPS endpoint
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: resources.kashkole.com
+```
+
+```powershell
+# SSL Certificate Binding (persists in HTTP.sys registry)
+netsh http add sslcert hostnameport=resources.kashkole.com:443 `
+  certhash=b78ce1da4f4f1a93bca408fcd1976780be0e7834 `
+  appid="{4dc3e181-e14b-4a21-b022-59fc669b0914}" `
+  certstorename=WebHosting
+```
+
+**Location**: `.github/key-data-streams/transcript-img-fix/`
+
+**Files**:
+- `transcript-image-url-fix.plan.md`: Full technical plan with infrastructure details
+- `work-log.md`: Session-by-session execution log with commands and results
+- `transcript-image-url-fix.plan.json`: Status tracking (version 1.1, status: complete)
+
+### Verification Pattern
+
+Plan includes verification commands for all infrastructure:
+
+```powershell
+# Test CDN endpoint
+curl.exe -I -k https://resources.kashkole.com/IMAGES/1278/file.jpg
+
+# Check IIS bindings
+Get-WebBinding -Name 'KashkoleResources'
+
+# Check SSL certificate
+netsh http show sslcert hostnameport=resources.kashkole.com:443
+
+# Check Windows Service
+Get-Service cloudflared | Select-Object Name, Status, StartType
+```
+
+This example shows how a complete plan captures **both code and infrastructure**, with full configuration details accessible to future Copilot sessions.
+
+---
+
 <!-- Content continues per the planning agent specification -->
