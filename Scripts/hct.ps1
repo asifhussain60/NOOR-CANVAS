@@ -57,13 +57,97 @@ param(
     [string]$CreatedBy = $env:USERNAME,
     
     [Parameter(Mandatory=$false)]
-    [switch]$OpenBrowser
+    [switch]$OpenBrowser,
+    
+    [Parameter(Mandatory=$false)]
+    [int]$StartupTimeout = 30
 )
 
 # Script configuration
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $HostProvisionerPath = Join-Path $ProjectRoot "Tools\HostProvisioner\HostProvisioner"
+$NoorCanvasPath = Join-Path $ProjectRoot "SPA\NoorCanvas"
+$LogsPath = Join-Path $ProjectRoot ".github\key-data-streams\hct-auto-start-app\logs"
+
+# Helper functions
+function Test-NoorCanvasRunning {
+    param([string]$Url)
+    
+    try {
+        $response = Invoke-WebRequest -Uri $Url -Method HEAD -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
+        return $response.StatusCode -eq 200
+    }
+    catch {
+        return $false
+    }
+}
+
+function Stop-ProcessesOnPorts {
+    param([int[]]$Ports)
+    
+    $killedAny = $false
+    foreach ($port in $Ports) {
+        try {
+            $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
+            foreach ($conn in $connections) {
+                $process = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
+                if ($process) {
+                    Write-Host "   Killing process: $($process.ProcessName) (PID: $($process.Id)) on port $port" -ForegroundColor Yellow
+                    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+                    $killedAny = $true
+                }
+            }
+        }
+        catch {
+            # Port not in use or no permission, continue
+        }
+    }
+    
+    if ($killedAny) {
+        Start-Sleep -Seconds 2  # Give processes time to release ports
+    }
+}
+
+function Wait-AppReady {
+    param(
+        [string]$Url,
+        [int]$MaxWaitSeconds
+    )
+    
+    $elapsed = 0
+    Write-Host "⏳ Waiting for app to be ready..." -ForegroundColor Yellow
+    
+    while ($elapsed -lt $MaxWaitSeconds) {
+        $elapsed++
+        Write-Host "`r   Progress: $elapsed/$MaxWaitSeconds seconds..." -NoNewline -ForegroundColor Gray
+        
+        if (Test-NoorCanvasRunning -Url $Url) {
+            Write-Host ""
+            return $true
+        }
+        
+        Start-Sleep -Seconds 1
+    }
+    
+    Write-Host ""
+    return $false
+}
+
+function Start-NoorCanvasApp {
+    param(
+        [string]$Environment,
+        [string]$WorkingDirectory
+    )
+    
+    # Start app in separate PowerShell window
+    $processInfo = Start-Process -FilePath "pwsh.exe" `
+        -ArgumentList "-NoExit", "-Command", "cd '$WorkingDirectory'; `$env:ASPNETCORE_ENVIRONMENT='$Environment'; dotnet run" `
+        -PassThru `
+        -WindowStyle Normal
+    
+    return $processInfo
+}
 
 # Environment-specific configuration
 $envConfig = @{
@@ -117,6 +201,53 @@ Write-Host "🔧 Configuring $Environment environment..." -ForegroundColor Yello
 Write-Host "   → Database: $($currentEnvConfig.Database)" -ForegroundColor Gray
 Write-Host "   → Base URL: $($currentEnvConfig.BaseUrl)" -ForegroundColor Gray
 Write-Host ""
+
+# Auto-start app logic (Development only)
+$appJob = $null
+$appWasRunning = $false
+$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$logFile = Join-Path $LogsPath "app-startup-$timestamp.log"
+
+if ($Environment -eq "Development") {
+    $appUrl = $currentEnvConfig.BaseUrl
+    $appWasRunning = Test-NoorCanvasRunning -Url $appUrl
+    
+    if ($appWasRunning) {
+        Write-Host "✅ NoorCanvas app already running at $appUrl" -ForegroundColor Green
+        Write-Host ""
+    }
+    else {
+        Write-Host "🔍 NoorCanvas app not detected, starting..." -ForegroundColor Yellow
+        
+        # Kill any processes occupying ports 9091 or 9090
+        Write-Host "🧹 Cleaning up ports 9091 and 9090..." -ForegroundColor Yellow
+        Stop-ProcessesOnPorts -Ports @(9091, 9090)
+        
+        # Start app
+        Write-Host "🚀 Starting NoorCanvas app in separate window..." -ForegroundColor Yellow
+        
+        try {
+            $appJob = Start-NoorCanvasApp -Environment $Environment -WorkingDirectory $NoorCanvasPath
+            
+            # Wait for app readiness
+            $ready = Wait-AppReady -Url $appUrl -MaxWaitSeconds $StartupTimeout
+            
+            if (-not $ready) {
+                Write-Host "❌ App failed to start within $StartupTimeout seconds" -ForegroundColor Red
+                Write-Host "   Check the app window for error details" -ForegroundColor Yellow
+                exit 1
+            }
+            
+            Write-Host "✅ App ready at $appUrl" -ForegroundColor Green
+            Write-Host "ℹ️  App is running in separate window (will stay open)" -ForegroundColor Cyan
+            Write-Host ""
+        }
+        catch {
+            Write-Host "❌ Failed to start app: $_" -ForegroundColor Red
+            exit 1
+        }
+    }
+}
 
 # Build HostProvisioner command
 $dotnetArgs = @(
@@ -202,13 +333,6 @@ try {
     Write-Host $hostUrl -ForegroundColor Blue
     Write-Host ""
     
-    Write-Host "👥 Participant Access:" -ForegroundColor Cyan
-    Write-Host "   Token: " -NoNewline -ForegroundColor White
-    Write-Host $userToken -ForegroundColor Yellow
-    Write-Host "   URL:   " -NoNewline -ForegroundColor White
-    Write-Host $participantUrl -ForegroundColor Blue
-    Write-Host ""
-    
     Write-Host "========================================" -ForegroundColor Green
     Write-Host "💡 Tip: Ctrl+Click URLs to open in browser" -ForegroundColor Gray
     Write-Host "========================================" -ForegroundColor Green
@@ -228,5 +352,6 @@ catch {
     Write-Host "❌ Error executing HostProvisioner:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     Write-Host ""
+    
     exit 1
 }
