@@ -1,0 +1,37 @@
+{
+    "key": "cleanup-proc-reset",
+    "oldKey": "cleanup-procedure-universal-token-reset",
+    "version": "1.1",
+    "status": "in-progress",
+    "createdAt": "2025-10-26T00:00:00Z",
+    "phases": [
+        {
+            "phaseNumber": 1,
+            "name": "Update Stored Procedure Logic",
+            "status": "complete",
+            "estimatedMinutes": 15,
+            "completedAt": "2025-10-26T00:15:00Z"
+        },
+        {
+            "phaseNumber": 2,
+            "name": "Testing & Validation",
+            "status": "pending",
+            "estimatedMinutes": 20,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 3,
+            "name": "Key Cleanup & Workspace Organization",
+            "status": "in-progress",
+            "estimatedMinutes": 15,
+            "completedAt": null
+        }
+    ],
+    "totalPhases": 3,
+    "estimatedTotalMinutes": 50,
+    "filesModified": [
+        "Scripts/canvas.CleanCanvas.sql"
+    ],
+    "testStrategy": "Database",
+    "riskLevel": "low"
+}

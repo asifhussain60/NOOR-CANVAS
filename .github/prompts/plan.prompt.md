@@ -72,7 +72,14 @@ If you're about to paste 200+ lines in chat → **STOP** → Write to files inst
 - **Step 2.5: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
 - Step 3: Write files (including test registry structure, incorporate questionnaire answers)
 - Step 4: Generate auto-execution handoff (task-to-task chaining) **[MANDATORY - BLOCKING CHECKPOINT]**
-- Step 5: STOP
+- Step 5: STOP and present key prominently - **DO NOT auto-execute, DO NOT suggest moving to new chat, DO NOT continue to implementation** - Planning agent's work is COMPLETE
+
+**⚠️ CRITICAL: Planning Agent Must STOP at Step 5**
+- After creating all files, planning agent **HALTS** and shows final message with prominent key display
+- Planning agent **NEVER** auto-executes implementation phases
+- Planning agent **NEVER** tells user to "move to new chat" or "continue in fresh session"
+- User decides next action: proceed with implementation OR modify plan OR execute manually
+- Implementation happens in SAME chat session unless user chooses otherwise
 
 **Note:** Execution agents (handoff/task) create git commits after each phase.
 See: `.github/prompts/shared/commit-checkpoint-protocol.md`
@@ -893,6 +900,172 @@ END IF
   - "transacript-canvas" → "transcript-canvas"
   - Final key format example: `{key}` → `assessment-flow-phase-1` when appropriate.
 
+## Intelligent Test Creation Guidelines (MANDATORY)
+
+When user request mentions "test", "testing", "tests", or test-related keywords, apply these guidelines:
+
+### Test Scope Analysis
+
+**BEFORE creating tests, determine the appropriate testing layer:**
+
+1. **Database/Data Layer Testing** - PREFERRED when possible
+   - Direct SQL queries validation
+   - Stored procedure testing
+   - Schema changes verification
+   - Data integrity checks
+   - **Tools**: SQL unit tests, database integration tests
+   - **When to use**: Schema changes, stored procedures, data migrations, database logic
+
+2. **API/Backend Testing** - PREFERRED for business logic
+   - Controller endpoint testing
+   - Service layer validation
+   - API contract verification
+   - Integration tests between layers
+   - **Tools**: xUnit, NUnit, API integration tests
+   - **When to use**: Business logic, API endpoints, service methods, backend workflows
+
+3. **UI/E2E Testing** - ONLY when ABSOLUTELY necessary
+   - Full user journey validation
+   - Visual regression testing
+   - Cross-browser compatibility
+   - Accessibility testing
+   - **Tools**: Playwright, Percy
+   - **When to use**: Critical user flows, visual changes, UI-specific functionality that CANNOT be tested at lower layers
+
+### Decision Algorithm
+
+```
+FUNCTION DetermineTestStrategy(userRequest, affectedComponents)
+  
+  // Analyze what layers are affected
+  layersAffected = AnalyzeAffectedLayers(affectedComponents)
+  testPlan = []
+  
+  // Database layer tests (highest priority for DB changes)
+  IF layersAffected.includes("Database") THEN
+    testPlan.ADD({
+      type: "Database",
+      priority: "High",
+      reason: "Direct SQL validation - fastest and most reliable",
+      tests: ["Schema validation", "Stored procedure unit tests", "Data integrity checks"]
+    })
+  END IF
+  
+  // API/Backend tests (preferred for business logic)
+  IF layersAffected.includes("API") OR layersAffected.includes("Backend") THEN
+    testPlan.ADD({
+      type: "API/Backend",
+      priority: "High",
+      reason: "Test business logic independently from UI",
+      tests: ["Controller tests", "Service layer tests", "Integration tests"]
+    })
+  END IF
+  
+  // UI tests (only when necessary)
+  IF layersAffected.includes("UI") AND NOT CanTestAtLowerLayer(affectedComponents) THEN
+    testPlan.ADD({
+      type: "UI/E2E",
+      priority: "Medium",
+      reason: "UI-specific functionality requires visual validation",
+      tests: ["Critical user flows", "Visual regression (Percy)"],
+      warning: "UI tests are slowest and most fragile - minimize when possible"
+    })
+  END IF
+  
+  // If UI changes CAN be tested at API layer, prefer that
+  IF layersAffected.includes("UI") AND CanTestAtLowerLayer(affectedComponents) THEN
+    testPlan.ADD({
+      type: "API/Backend",
+      priority: "High",
+      reason: "UI changes driven by API - test the API directly",
+      tests: ["API endpoint validation", "Response structure tests"],
+      note: "Skip UI tests - API coverage sufficient"
+    })
+  END IF
+  
+  RETURN testPlan
+  
+END FUNCTION
+```
+
+### Test Independence Rule
+
+**ALWAYS prefer testing layers independently:**
+- ✅ Database tests run WITHOUT backend
+- ✅ API tests run WITHOUT UI
+- ✅ UI tests ONLY when lower-layer testing insufficient
+
+### Examples
+
+**User Request: "Update stored procedure to reset tokens"**
+```
+✅ Database Tests:
+   - Execute stored procedure with test data
+   - Verify token values reset correctly
+   - Validate expiration dates updated
+   - Check row counts and data integrity
+
+❌ UI Tests: NOT NEEDED - database change testable via SQL
+```
+
+**User Request: "Add API endpoint for user registration"**
+```
+✅ API Tests:
+   - POST request validation
+   - Response status codes
+   - Error handling
+   - Data persistence verification
+
+⚠️ UI Tests: ONLY if visual registration form has specific UI requirements
+```
+
+**User Request: "Fix button alignment on dashboard"**
+```
+✅ Visual Regression (Percy):
+   - Screenshot comparison for button position
+   - Responsive layout validation
+
+✅ Accessibility Tests:
+   - Keyboard navigation
+   - ARIA attributes
+
+❌ Database Tests: NOT NEEDED - pure UI change
+❌ API Tests: NOT NEEDED - no backend logic affected
+```
+
+### Enforcement in Plans
+
+**When generating test phases:**
+1. Start with lowest-layer tests (Database → API → UI)
+2. Justify ANY UI/E2E tests with "Why lower-layer testing insufficient"
+3. Estimate test execution time (DB: seconds, API: seconds-minutes, UI: minutes-hours)
+4. Prefer fast, reliable tests over comprehensive but slow UI coverage
+
+**Test Phase Template:**
+```markdown
+### Phase {N}: Testing
+
+**Test Strategy**: {DB|API|UI} - {Justification}
+
+**Database Tests** (if applicable):
+- [ ] {Test scenario 1}
+- [ ] {Test scenario 2}
+- Execution time: ~{X} seconds
+
+**API Tests** (if applicable):
+- [ ] {Test scenario 1}
+- [ ] {Test scenario 2}
+- Execution time: ~{X} seconds
+
+**UI Tests** (ONLY if necessary):
+- [ ] {Critical flow 1}
+- [ ] {Visual regression}
+- Justification: {Why lower-layer testing insufficient}
+- Execution time: ~{X} minutes
+
+**⚠️ Test Independence**: Each layer tested separately
+```
+
 ## Auto-Drift Detection (MANDATORY)
 
 During planning, if unrelated issues are discovered, automatically register them as drifts for post-completion resolution.
@@ -1178,24 +1351,42 @@ END IF
 
 ## 🎯 What Would You Like To Do Next?
 
-**Current Key**: `{key}`
+### 📌 **Current Key**
 
-**Begin Implementation:**
+```diff
+! ╔════════════════════════════════════════════╗
+! ║                                            ║
+! ║         🔑 KEY: {key}                     ║
+! ║                                            ║
+! ╚════════════════════════════════════════════╝
+```
+
+**⚡ Begin Implementation:**
 ```
 Say "proceed" to begin Phase 1
 ```
 
-**Modify Plan:**
+**🔧 Modify Plan:**
 ```
 @workspace /plan {modification-description}
 (Auto-detects {key}, updates plan version)
 ```
 
-**Start Execution Manually:**
+**▶️ Start Execution Manually:**
 ```
 @workspace /task key:{key}
 (Loads plan and executes phases)
 ```
+
+---
+
+### 📌 **Remember Your Key**
+
+```diff
+! 🔑 {key}
+```
+
+Use this key for all future commands related to this plan.
 
 ---
 

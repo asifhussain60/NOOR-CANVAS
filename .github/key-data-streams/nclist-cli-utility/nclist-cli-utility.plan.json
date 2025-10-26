@@ -1,0 +1,108 @@
+{
+  "key": "nclist-cli-utility",
+  "version": "1.0",
+  "created": "2025-10-26",
+  "status": "ready",
+  "branch": "development",
+  "phases": [
+    {
+      "number": 1,
+      "name": "Core CLI Framework",
+      "status": "not-started",
+      "estimatedHours": 6,
+      "tasks": [
+        "Create .NET 8 console project structure",
+        "Install System.CommandLine and dependencies",
+        "Build configuration system with JSON support",
+        "Set up dependency injection",
+        "Implement ColorConsole utility"
+      ]
+    },
+    {
+      "number": 2,
+      "name": "List Operations",
+      "status": "not-started",
+      "estimatedHours": 8,
+      "tasks": [
+        "Implement ListingService core",
+        "Build NaturalSortComparer",
+        "Create ListKeysCommand",
+        "Create ListPromptsCommand",
+        "Create ListInstructionsCommand",
+        "Create ListDictionaryCommand"
+      ]
+    },
+    {
+      "number": 3,
+      "name": "Filtering & Search",
+      "status": "not-started",
+      "estimatedHours": 10,
+      "tasks": [
+        "Implement GlobMatcher utility",
+        "Implement LevenshteinDistance utility",
+        "Build FilteringService with match prioritization",
+        "Integrate filtering into all list commands"
+      ]
+    },
+    {
+      "number": 4,
+      "name": "Git Integration",
+      "status": "not-started",
+      "estimatedHours": 6,
+      "tasks": [
+        "Implement GitService with LibGit2Sharp",
+        "Build commit message parser",
+        "Create GitCommitsCommand",
+        "Create WorkspaceStatsCommand"
+      ]
+    },
+    {
+      "number": 5,
+      "name": "Output Formatters",
+      "status": "not-started",
+      "estimatedHours": 6,
+      "tasks": [
+        "Define IOutputFormatter interface",
+        "Implement DefaultFormatter with colors",
+        "Implement JsonFormatter",
+        "Implement TableFormatter",
+        "Implement CompactFormatter"
+      ]
+    },
+    {
+      "number": 6,
+      "name": "Caching System",
+      "status": "not-started",
+      "estimatedHours": 8,
+      "tasks": [
+        "Implement CacheService with file-based storage",
+        "Build TTL expiration logic",
+        "Integrate cache into ListingService",
+        "Create ClearCacheCommand",
+        "Add --fresh bypass option"
+      ]
+    },
+    {
+      "number": 7,
+      "name": "Testing & Documentation",
+      "status": "not-started",
+      "estimatedHours": 10,
+      "tasks": [
+        "Create unit test suite",
+        "Create integration tests",
+        "Build performance benchmarks",
+        "Create single-file publish script",
+        "Write comprehensive README",
+        "Add VS Code build tasks"
+      ]
+    }
+  ],
+  "enhancements": {
+    "selected": ["A", "B", "C"],
+    "A": "Single-file executable publish",
+    "B": "Colorized console output",
+    "C": "Performance benchmarking tests"
+  },
+  "totalEstimatedHours": 54,
+  "fileCount": 35
+}
