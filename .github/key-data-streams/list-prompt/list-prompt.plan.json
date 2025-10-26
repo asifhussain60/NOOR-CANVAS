@@ -1,0 +1,60 @@
+{
+  "key": "list-prompt",
+  "version": "1.1",
+  "status": "ready",
+  "created": "2025-10-26",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Core List Infrastructure",
+      "status": "pending",
+      "started": null,
+      "completed": null
+    },
+    {
+      "id": 2,
+      "name": "Enhanced Search & Filtering",
+      "status": "pending",
+      "started": null,
+      "completed": null
+    },
+    {
+      "id": 3,
+      "name": "Git Integration & Key-Specific Queries",
+      "status": "pending",
+      "started": null,
+      "completed": null
+    },
+    {
+      "id": 4,
+      "name": "Workspace Intelligence & Output Formats",
+      "status": "pending",
+      "started": null,
+      "completed": null
+    },
+    {
+      "id": 5,
+      "name": "Testing & Documentation",
+      "status": "pending",
+      "started": null,
+      "completed": null
+    }
+  ],
+  "enhancements": [
+    "A. Filter keys by search term",
+    "B. Show commits for specific key",
+    "C. Workspace stats",
+    "D. Output formatting (JSON/table/compact)",
+    "E. Recent chat context",
+    "F. Result caching"
+  ],
+  "estimatedEffort": "3.5 hours",
+  "dependencies": [],
+  "drifts": [
+    {
+      "key": "drift-plan-output-fix",
+      "status": "resolved",
+      "severity": "high"
+    }
+  ]
+}
