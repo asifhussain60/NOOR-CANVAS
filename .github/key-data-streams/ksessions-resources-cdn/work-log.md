@@ -143,6 +143,12 @@
 
 **Total Time**: ~2.5 hours (including troubleshooting)
 
+**Drift Registered**: `cloudflared-windows-service`
+- **Severity**: Medium
+- **Issue**: Service install command completes but doesn't register
+- **Workaround**: Manual startup via START-CLOUDFLARED-TUNNEL.bat
+- **Scripts**: INSTALL-SERVICE.bat, UNINSTALL-SERVICE.bat created in D:\PROJECTS\__CLOUDFLARE\
+
 ---
 
 ## Next Steps
