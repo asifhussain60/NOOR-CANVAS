@@ -3,5 +3,13 @@
     "ConnectionStrings": {
         "Development": "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;",
         "Production": "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"
+    },
+    "Resources": {
+        "Development": {
+            "BaseUrl": "file:///D:/Websites/KSESSIONS/Resources"
+        },
+        "Production": {
+            "BaseUrl": "https://resources.kashkole.com"
+        }
     }
 }

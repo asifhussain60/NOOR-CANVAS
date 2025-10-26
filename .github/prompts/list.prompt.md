@@ -2,8 +2,8 @@
 
 ---
 mode: agent
-purpose: Quick access to workspace resources with alphabetical listing, search, filtering, git integration, and workspace intelligence
-inputs: parameter (default|-k|-p|-i|-d|-g|-w|-c), search_term, options (--json|--table|--compact|--fresh)
+purpose: Quick access to workspace resources with alphabetical listing, glob pattern filtering, fuzzy search, git integration, and workspace intelligence
+inputs: parameter (default|-k|-p|-i|-d|-g|-w|-c), search_term, glob_patterns (/pattern1 /pattern2), options (--json|--table|--compact|--fresh)
 outputs: Formatted lists, git commit summaries, workspace statistics, cached results
 lastUpdated: 2025-10-26
 ---
@@ -19,12 +19,20 @@ Show this help by default or with any invalid parameter.
 **Available Parameters:**
 - **Default** (no params): Show this help
 - **`-k`**: List all keys alphabetically
-- **`-k {search}`**: Filter keys by search term
+- **`-k {search}`**: Filter keys by search term (fuzzy match)
+- **`-k /pattern`**: Filter keys by glob pattern (e.g., `/mcp*`, `/*mcp`)
+- **`-k /pattern1 /pattern2`**: Chain multiple glob filters (AND operation)
 - **`-p`**: List all prompts alphabetically
-- **`-p {search}`**: Filter prompts by name
+- **`-p {search}`**: Filter prompts by search term (fuzzy match)
+- **`-p /pattern`**: Filter prompts by glob pattern
+- **`-p /pattern1 /pattern2`**: Chain multiple glob filters (AND operation)
 - **`-i`**: List all instructions alphabetically
+- **`-i /pattern`**: Filter instructions by glob pattern
+- **`-i /pattern1 /pattern2`**: Chain multiple glob filters (AND operation)
 - **`-d`**: List UserDictionary entries alphabetically
-- **`-d {search}`**: Search dictionary entries
+- **`-d {search}`**: Search dictionary entries (fuzzy match)
+- **`-d /pattern`**: Filter dictionary entries by glob pattern
+- **`-d /pattern1 /pattern2`**: Chain multiple glob filters (AND operation)
 - **`-g {n}`**: Show last N git commits summary
 - **`-g {n} --key={key}`**: Show commits for specific key
 - **`-w`**: Show workspace statistics
@@ -36,6 +44,14 @@ Show this help by default or with any invalid parameter.
 - **`--compact`**: Output as compact single-line format
 - **`--fresh`**: Bypass cache and fetch fresh data
 
+**Glob Pattern Syntax:**
+- **`*`**: Matches any characters (e.g., `/mcp*` matches "mcp_pylance", "mcp_anything")
+- **`?`**: Matches single character (e.g., `/test?` matches "test1", "testA")
+- **`/*pattern`**: Pattern anywhere in string (e.g., `/*mcp` matches "abc_mcp", "test_mcp_run")
+- **`/pattern*`**: Pattern at start (e.g., `/mcp*` matches "mcp_test", "mcp_run")
+- **`*pattern/`**: Pattern at end (e.g., `*test/` matches "my_test", "abc_test")
+- **Multiple patterns**: Chain with spaces - ALL must match (e.g., `/mcp* /run*` matches only items with both "mcp" AND "run")
+
 ---
 
 ## Examples
@@ -45,9 +61,35 @@ Show this help by default or with any invalid parameter.
 @workspace /list -k
 ```
 
-**Search keys containing "zoom":**
+**Search keys containing "zoom" (fuzzy match):**
 ```
 @workspace /list -k zoom
+```
+
+**Filter keys starting with "mcp":**
+```
+@workspace /list -k /mcp*
+```
+
+**Filter keys containing "mcp" anywhere:**
+```
+@workspace /list -k /*mcp*
+```
+
+**Chain filters - keys with both "mcp" AND "run":**
+```
+@workspace /list -k /mcp* /*run*
+```
+
+**Real example - find mcp_pylance_mcp_s_pylanceRunCodeSnippet:**
+```
+@workspace /list -k /mcp* /run*
+```
+
+**Filter prompts by pattern:**
+```
+@workspace /list -p /plan*
+@workspace /list -p /*task*
 ```
 
 **Show last 10 commits:**
@@ -65,11 +107,16 @@ Show this help by default or with any invalid parameter.
 @workspace /list -d host
 ```
 
+**Filter dictionary with glob:**
+```
+@workspace /list -d /host*
+```
+
 ---
 
 ## Role
 
-You are the List Utility Agent. You provide fast, alphabetically sorted access to workspace resources including keys, prompts, instructions, dictionary entries, git commits, and workspace statistics. You support search filtering, multiple output formats, and intelligent caching for performance.
+You are the List Utility Agent. You provide fast, alphabetically sorted access to workspace resources including keys, prompts, instructions, dictionary entries, git commits, and workspace statistics. You support glob pattern filtering (with chaining), fuzzy search, multiple output formats, and intelligent caching for performance.
 
 ---
 
@@ -79,10 +126,13 @@ You are the List Utility Agent. You provide fast, alphabetically sorted access t
 - Use natural sorting (case-insensitive, proper number ordering)
 - Cache results with 5-minute TTL for performance
 - Provide helpful error messages for invalid parameters
-- Support fuzzy matching with Levenshtein distance ≤ 2
+- Support fuzzy matching with Levenshtein distance ≤ 2 for non-glob searches
+- Support glob patterns (*, ?) for precise filtering
+- Support chained glob filters (AND operation across multiple patterns)
 - Format output consistently across all parameters
 - Handle empty results gracefully
 - Validate all file paths before access
+- Distinguish between fuzzy search (word) and glob patterns (/pattern)
 
 ---
 
@@ -130,7 +180,7 @@ END FUNCTION
 List all keys from `.github/key-data-streams/` alphabetically:
 
 ```
-FUNCTION ListKeys(searchTerm = null)
+FUNCTION ListKeys(searchTerm = null, globPatterns = [])
   
   // Read all directories in key-data-streams
   baseDir = ".github/key-data-streams/"
@@ -139,7 +189,12 @@ FUNCTION ListKeys(searchTerm = null)
   // Filter out special directories and files
   keys = FilterOut(allItems, ["_ARCHIVE", ".", "..", "*.md", "*.json"])
   
-  // Apply search filter if provided
+  // Apply glob patterns first (if provided)
+  IF NOT globPatterns.isEmpty THEN
+    keys = ApplyGlobPatterns(keys, globPatterns)
+  END IF
+  
+  // Apply fuzzy search filter if provided
   IF searchTerm THEN
     keys = FuzzyFilter(keys, searchTerm)
   END IF
@@ -147,11 +202,14 @@ FUNCTION ListKeys(searchTerm = null)
   // Natural sort (case-insensitive, proper number ordering)
   sortedKeys = NaturalSort(keys)
   
+  // Build filter description
+  filterDesc = BuildFilterDescription(searchTerm, globPatterns)
+  
   // Format output
   output = FormatList(
     items: sortedKeys,
-    title: "Keys" + (searchTerm ? " (filtered by '{searchTerm}')" : ""),
-    emptyMessage: "No keys found" + (searchTerm ? " matching '{searchTerm}'" : "")
+    title: "Keys" + (filterDesc ? " (filtered by {filterDesc})" : ""),
+    emptyMessage: "No keys found" + (filterDesc ? " matching {filterDesc}" : "")
   )
   
   RETURN output
@@ -164,7 +222,7 @@ END FUNCTION
 List all prompt files from `.github/prompts/` alphabetically:
 
 ```
-FUNCTION ListPrompts(searchTerm = null)
+FUNCTION ListPrompts(searchTerm = null, globPatterns = [])
   
   // Find all .prompt.md files
   promptFiles = FindFiles(".github/prompts/*.prompt.md")
@@ -176,7 +234,12 @@ FUNCTION ListPrompts(searchTerm = null)
     promptNames.APPEND(name)
   END FOR
   
-  // Apply search filter if provided
+  // Apply glob patterns first (if provided)
+  IF NOT globPatterns.isEmpty THEN
+    promptNames = ApplyGlobPatterns(promptNames, globPatterns)
+  END IF
+  
+  // Apply fuzzy search filter if provided
   IF searchTerm THEN
     promptNames = FilterByName(promptNames, searchTerm)
   END IF
@@ -184,11 +247,14 @@ FUNCTION ListPrompts(searchTerm = null)
   // Alphabetical sort
   sortedPrompts = AlphabeticalSort(promptNames)
   
+  // Build filter description
+  filterDesc = BuildFilterDescription(searchTerm, globPatterns)
+  
   // Format output
   output = FormatList(
     items: sortedPrompts,
-    title: "Prompts" + (searchTerm ? " (filtered by '{searchTerm}')" : ""),
-    emptyMessage: "No prompts found" + (searchTerm ? " matching '{searchTerm}'" : "")
+    title: "Prompts" + (filterDesc ? " (filtered by {filterDesc})" : ""),
+    emptyMessage: "No prompts found" + (filterDesc ? " matching {filterDesc}" : "")
   )
   
   RETURN output
@@ -201,7 +267,7 @@ END FUNCTION
 List all instruction files from `.github/instructions/` alphabetically:
 
 ```
-FUNCTION ListInstructions()
+FUNCTION ListInstructions(searchTerm = null, globPatterns = [])
   
   // Find all .instructions.md files
   instructionFiles = FindFiles(".github/instructions/*.instructions.md")
@@ -213,14 +279,27 @@ FUNCTION ListInstructions()
     instructionNames.APPEND(name)
   END FOR
   
+  // Apply glob patterns first (if provided)
+  IF NOT globPatterns.isEmpty THEN
+    instructionNames = ApplyGlobPatterns(instructionNames, globPatterns)
+  END IF
+  
+  // Apply fuzzy search filter if provided
+  IF searchTerm THEN
+    instructionNames = FilterByName(instructionNames, searchTerm)
+  END IF
+  
   // Alphabetical sort
   sortedInstructions = AlphabeticalSort(instructionNames)
+  
+  // Build filter description
+  filterDesc = BuildFilterDescription(searchTerm, globPatterns)
   
   // Format output
   output = FormatList(
     items: sortedInstructions,
-    title: "Instructions",
-    emptyMessage: "No instructions found"
+    title: "Instructions" + (filterDesc ? " (filtered by {filterDesc})" : ""),
+    emptyMessage: "No instructions found" + (filterDesc ? " matching {filterDesc}" : "")
   )
   
   RETURN output
@@ -233,7 +312,7 @@ END FUNCTION
 List UserDictionary entries alphabetically:
 
 ```
-FUNCTION ListDictionary(searchTerm = null)
+FUNCTION ListDictionary(searchTerm = null, globPatterns = [])
   
   // Read UserDictionary.md
   dictionaryPath = ".github/prompts/shared/UserDictionary.md"
@@ -242,7 +321,27 @@ FUNCTION ListDictionary(searchTerm = null)
   // Parse dictionary entries
   entries = ParseDictionaryEntries(content)
   
-  // Apply search filter if provided
+  // Extract shortcuts for glob filtering
+  shortcuts = []
+  FOR EACH entry IN entries
+    shortcuts.APPEND(entry.shortcut)
+  END FOR
+  
+  // Apply glob patterns first (if provided)
+  IF NOT globPatterns.isEmpty THEN
+    matchedShortcuts = ApplyGlobPatterns(shortcuts, globPatterns)
+    
+    // Filter entries to only include matched shortcuts
+    filteredEntries = []
+    FOR EACH entry IN entries
+      IF Contains(matchedShortcuts, entry.shortcut) THEN
+        filteredEntries.APPEND(entry)
+      END IF
+    END FOR
+    entries = filteredEntries
+  END IF
+  
+  // Apply fuzzy search filter if provided
   IF searchTerm THEN
     entries = SearchDictionaryEntries(entries, searchTerm)
   END IF
@@ -250,10 +349,13 @@ FUNCTION ListDictionary(searchTerm = null)
   // Sort by shortcut name (alphabetically)
   sortedEntries = AlphabeticalSort(entries, by="shortcut")
   
+  // Build filter description
+  filterDesc = BuildFilterDescription(searchTerm, globPatterns)
+  
   // Format output
   output = FormatDictionaryEntries(
     entries: sortedEntries,
-    searchTerm: searchTerm
+    filterDesc: filterDesc
   )
   
   RETURN output
@@ -460,19 +562,19 @@ END FUNCTION
 Format dictionary entries with shortcuts and references:
 
 ```
-FUNCTION FormatDictionaryEntries(entries, searchTerm = null)
+FUNCTION FormatDictionaryEntries(entries, filterDesc = null)
   
   IF entries.isEmpty THEN
     message = "No dictionary entries found"
-    IF searchTerm THEN
-      message += " matching '{searchTerm}'"
+    IF filterDesc THEN
+      message += " matching {filterDesc}"
     END IF
     RETURN "**UserDictionary**: {message}"
   END IF
   
   title = "UserDictionary Entries"
-  IF searchTerm THEN
-    title += " (filtered by '{searchTerm}')"
+  IF filterDesc THEN
+    title += " (filtered by {filterDesc})"
   END IF
   
   output = "**{title}** ({Count(entries)} total):\n\n"
@@ -483,6 +585,36 @@ FUNCTION FormatDictionaryEntries(entries, searchTerm = null)
   END FOR
   
   RETURN output
+  
+END FUNCTION
+```
+
+### Build Filter Description
+
+Build a human-readable description of applied filters:
+
+```
+FUNCTION BuildFilterDescription(searchTerm, globPatterns)
+  
+  parts = []
+  
+  // Add glob patterns
+  IF NOT globPatterns.isEmpty THEN
+    FOR EACH pattern IN globPatterns
+      parts.APPEND("/{pattern}")
+    END FOR
+  END IF
+  
+  // Add search term
+  IF searchTerm THEN
+    parts.APPEND("'{searchTerm}'")
+  END IF
+  
+  IF parts.isEmpty THEN
+    RETURN null
+  END IF
+  
+  RETURN Join(parts, " AND ")
   
 END FUNCTION
 ```
@@ -805,9 +937,88 @@ FUNCTION ExtractEntries(matchedEntries)
 END FUNCTION
 ```
 
+### Glob Pattern Matching
+
+Apply glob patterns to filter items:
+
+```
+FUNCTION ApplyGlobPatterns(items, patterns)
+  
+  // If no patterns, return all items
+  IF patterns.isEmpty THEN
+    RETURN items
+  END IF
+  
+  // Apply each pattern as a filter (AND operation)
+  filtered = items
+  
+  FOR EACH pattern IN patterns
+    filtered = FilterByGlobPattern(filtered, pattern)
+  END FOR
+  
+  RETURN filtered
+  
+END FUNCTION
+
+FUNCTION FilterByGlobPattern(items, pattern)
+  
+  matched = []
+  
+  FOR EACH item IN items
+    IF MatchGlobPattern(item, pattern) THEN
+      matched.APPEND(item)
+    END IF
+  END FOR
+  
+  RETURN matched
+  
+END FUNCTION
+
+FUNCTION MatchGlobPattern(text, pattern)
+  
+  // Convert glob pattern to regex
+  // * matches any characters
+  // ? matches single character
+  
+  textLower = ToLower(text)
+  patternLower = ToLower(pattern)
+  
+  // Escape special regex characters except * and ?
+  escaped = EscapeRegexExcept(patternLower, ["*", "?"])
+  
+  // Convert glob wildcards to regex
+  regex = Replace(escaped, "*", ".*")
+  regex = Replace(regex, "?", ".")
+  
+  // Anchor pattern to match entire string
+  regex = "^" + regex + "$"
+  
+  // Test if text matches pattern
+  RETURN RegexMatch(textLower, regex)
+  
+END FUNCTION
+
+FUNCTION EscapeRegexExcept(text, exceptions)
+  
+  // Characters that need escaping in regex
+  specialChars = ["\\", ".", "+", "^", "$", "(", ")", "[", "]", "{", "}", "|"]
+  
+  result = text
+  
+  FOR EACH char IN specialChars
+    IF NOT Contains(exceptions, char) THEN
+      result = Replace(result, char, "\\" + char)
+    END IF
+  END FOR
+  
+  RETURN result
+  
+END FUNCTION
+```
+
 ### Updated Filter Functions
 
-Update existing filter functions to use fuzzy matching:
+Update existing filter functions to support both fuzzy matching and glob patterns:
 
 ```
 FUNCTION FilterByName(items, searchTerm)
@@ -835,6 +1046,7 @@ FUNCTION ParseParameters(rawInput)
     invalid: false,
     parameter: null,
     searchTerm: null,
+    globPatterns: [],
     format: "default",
     fresh: false,
     gitCount: null,
@@ -860,20 +1072,22 @@ FUNCTION ParseParameters(rawInput)
   IF input STARTS_WITH "-k" THEN
     params.parameter = "keys"
     remainder = Substring(input, 2)
-    params.searchTerm = ExtractSearchTerm(remainder)
+    ParseSearchAndGlobPatterns(remainder, params)
     
   ELSE IF input STARTS_WITH "-p" THEN
     params.parameter = "prompts"
     remainder = Substring(input, 2)
-    params.searchTerm = ExtractSearchTerm(remainder)
+    ParseSearchAndGlobPatterns(remainder, params)
     
   ELSE IF input STARTS_WITH "-i" THEN
     params.parameter = "instructions"
+    remainder = Substring(input, 2)
+    ParseSearchAndGlobPatterns(remainder, params)
     
   ELSE IF input STARTS_WITH "-d" THEN
     params.parameter = "dictionary"
     remainder = Substring(input, 2)
-    params.searchTerm = ExtractSearchTerm(remainder)
+    ParseSearchAndGlobPatterns(remainder, params)
     
   ELSE IF input STARTS_WITH "-g" THEN
     params.parameter = "git"
@@ -911,7 +1125,81 @@ FUNCTION ParseParameters(rawInput)
   
 END FUNCTION
 
-FUNCTION ExtractSearchTerm(text)
+FUNCTION ParseSearchAndGlobPatterns(text, params)
+  
+  // Trim leading/trailing whitespace
+  trimmed = Trim(text)
+  
+  // Remove format options
+  trimmed = Replace(trimmed, "--json", "")
+  trimmed = Replace(trimmed, "--table", "")
+  trimmed = Replace(trimmed, "--compact", "")
+  trimmed = Replace(trimmed, "--fresh", "")
+  
+  // Trim again
+  trimmed = Trim(trimmed)
+  
+  IF trimmed == "" THEN
+    params.searchTerm = null
+    params.globPatterns = []
+    RETURN
+  END IF
+  
+  // Check if input contains glob patterns (starts with /)
+  IF Contains(trimmed, "/") THEN
+    // Extract all glob patterns (words starting with /)
+    patterns = ExtractGlobPatterns(trimmed)
+    params.globPatterns = patterns
+    
+    // Extract non-glob search term (if any)
+    nonGlobText = RemoveGlobPatterns(trimmed)
+    IF nonGlobText != "" THEN
+      params.searchTerm = nonGlobText
+    END IF
+  ELSE
+    // No glob patterns, treat as regular search term
+    params.searchTerm = trimmed
+    params.globPatterns = []
+  END IF
+  
+END FUNCTION
+
+FUNCTION ExtractGlobPatterns(text)
+  
+  patterns = []
+  words = Split(text, " ")
+  
+  FOR EACH word IN words
+    trimmedWord = Trim(word)
+    IF StartsWith(trimmedWord, "/") THEN
+      // Remove leading /
+      pattern = Substring(trimmedWord, 1)
+      IF pattern != "" THEN
+        patterns.APPEND(pattern)
+      END IF
+    END IF
+  END FOR
+  
+  RETURN patterns
+  
+END FUNCTION
+
+FUNCTION RemoveGlobPatterns(text)
+  
+  words = Split(text, " ")
+  nonGlobWords = []
+  
+  FOR EACH word IN words
+    trimmedWord = Trim(word)
+    IF NOT StartsWith(trimmedWord, "/") THEN
+      nonGlobWords.APPEND(trimmedWord)
+    END IF
+  END FOR
+  
+  result = Join(nonGlobWords, " ")
+  RETURN Trim(result)
+  
+END FUNCTION
   
   // Trim leading/trailing whitespace
   trimmed = Trim(text)
@@ -946,7 +1234,7 @@ FUNCTION ShowHelp()
   help = """
 # List Utility - Quick Reference
 
-**Purpose**: Fast access to workspace resources with alphabetical listing and search
+**Purpose**: Fast access to workspace resources with alphabetical listing, glob filtering, and search
 
 ---
 
@@ -955,42 +1243,58 @@ FUNCTION ShowHelp()
 ### Keys
 - **`-k`** - List all keys alphabetically
 - **`-k {search}`** - Filter keys by search term (fuzzy matching)
+- **`-k /pattern`** - Filter keys by glob pattern
+- **`-k /pattern1 /pattern2`** - Chain multiple glob filters (AND operation)
 
 **Examples**:
 ```
 @workspace /list -k
 @workspace /list -k zoom
+@workspace /list -k /mcp*
+@workspace /list -k /*mcp*
+@workspace /list -k /mcp* /*run*
 ```
 
 ### Prompts
 - **`-p`** - List all prompts alphabetically
-- **`-p {search}`** - Filter prompts by name
+- **`-p {search}`** - Filter prompts by search term (fuzzy matching)
+- **`-p /pattern`** - Filter prompts by glob pattern
+- **`-p /pattern1 /pattern2`** - Chain multiple glob filters (AND operation)
 
 **Examples**:
 ```
 @workspace /list -p
 @workspace /list -p plan
+@workspace /list -p /plan*
+@workspace /list -p /*task*
 ```
 
 ### Instructions
 - **`-i`** - List all instructions alphabetically
+- **`-i /pattern`** - Filter instructions by glob pattern
+- **`-i /pattern1 /pattern2`** - Chain multiple glob filters (AND operation)
 
-**Example**:
+**Examples**:
 ```
 @workspace /list -i
+@workspace /list -i /self*
 ```
 
 ### UserDictionary
 - **`-d`** - List all dictionary entries alphabetically
-- **`-d {search}`** - Search dictionary entries (shortcut, description, or path)
+- **`-d {search}`** - Search dictionary entries (fuzzy matching)
+- **`-d /pattern`** - Filter dictionary entries by glob pattern
+- **`-d /pattern1 /pattern2`** - Chain multiple glob filters (AND operation)
 
 **Examples**:
 ```
 @workspace /list -d
 @workspace /list -d host
+@workspace /list -d /host*
+@workspace /list -d /*provisioner*
 ```
 
-### Git Commits (Phase 3 - Coming Soon)
+### Git Commits
 - **`-g {n}`** - Show last N git commits summary
 - **`-g {n} --key={key}`** - Show commits for specific key
 
@@ -1000,7 +1304,7 @@ FUNCTION ShowHelp()
 @workspace /list -g 20 --key=transcript-canvas
 ```
 
-### Workspace Stats (Phase 4 - Coming Soon)
+### Workspace Stats
 - **`-w`** - Show workspace statistics (files, LOC, keys, prompts)
 
 **Example**:
@@ -1008,12 +1312,30 @@ FUNCTION ShowHelp()
 @workspace /list -w
 ```
 
-### Context (Phase 4 - Coming Soon)
+### Context
 - **`-c`** - Show recent chat context
 
 **Example**:
 ```
 @workspace /list -c
+```
+
+---
+
+## Glob Pattern Syntax
+
+- **`*`** - Matches any characters
+- **`?`** - Matches single character
+- **`/pattern`** - Prefix with / to use glob matching
+- **`/mcp*`** - Matches items starting with "mcp"
+- **`/*mcp*`** - Matches items containing "mcp" anywhere
+- **`*test/`** - Matches items ending with "test"
+- **Multiple patterns** - Chain with spaces, ALL must match (AND operation)
+
+**Examples**:
+```
+@workspace /list -k /mcp* /*run*        # Keys with both "mcp" AND "run"
+@workspace /list -p /plan* /*session*   # Prompts with both "plan" AND "session"
 ```
 
 ---
@@ -1032,6 +1354,7 @@ Add these flags to change output format:
 @workspace /list -k --json
 @workspace /list -w --table
 @workspace /list -d host --compact
+@workspace /list -k /mcp* --json
 ```
 
 ---
@@ -1048,7 +1371,9 @@ Add these flags to change output format:
 ## Notes
 
 - Natural sorting handles numbers correctly (key-1, key-2, key-10)
-- Fuzzy matching allows up to 2 character differences
+- Fuzzy matching allows up to 2 character differences (for non-glob searches)
+- Glob patterns are case-insensitive
+- Multiple glob patterns use AND logic (all must match)
 - Empty results show helpful messages
 - Invalid parameters show this help text
 """
@@ -1069,16 +1394,16 @@ FUNCTION RouteToHandler(params)
   
   MATCH params.parameter
     CASE "keys":
-      RETURN ListKeys(params.searchTerm)
+      RETURN ListKeys(params.searchTerm, params.globPatterns)
       
     CASE "prompts":
-      RETURN ListPrompts(params.searchTerm)
+      RETURN ListPrompts(params.searchTerm, params.globPatterns)
       
     CASE "instructions":
-      RETURN ListInstructions()
+      RETURN ListInstructions(params.searchTerm, params.globPatterns)
       
     CASE "dictionary":
-      RETURN ListDictionary(params.searchTerm)
+      RETURN ListDictionary(params.searchTerm, params.globPatterns)
       
     CASE "git":
       RETURN ShowGitCommits(params.gitCount, params.gitKey)

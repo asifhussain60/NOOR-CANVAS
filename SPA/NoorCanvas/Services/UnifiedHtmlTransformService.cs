@@ -11,15 +11,18 @@ namespace NoorCanvas.Services
     {
         private readonly HtmlParsingService _htmlParsingService;
         private readonly AssetProcessingService _assetProcessingService;
+        private readonly IMediaUrlTransformService _mediaUrlTransformService;
         private readonly ILogger<UnifiedHtmlTransformService> _logger;
 
         public UnifiedHtmlTransformService(
             HtmlParsingService htmlParsingService,
             AssetProcessingService assetProcessingService,
+            IMediaUrlTransformService mediaUrlTransformService,
             ILogger<UnifiedHtmlTransformService> logger)
         {
             _htmlParsingService = htmlParsingService;
             _assetProcessingService = assetProcessingService;
+            _mediaUrlTransformService = mediaUrlTransformService;
             _logger = logger;
         }
 
@@ -58,6 +61,11 @@ namespace NoorCanvas.Services
                 }
 
                 var cleanedHtml = parseResult.Content ?? string.Empty;
+
+                // Step 1.5: Transform media URLs for environment
+                // Convert KSESSIONS-specific paths to NOOR CANVAS environment-appropriate URLs
+                _logger.LogDebug("UnifiedHtmlTransformService: Applying media URL transformations for session {SessionId}", sessionId);
+                cleanedHtml = await _mediaUrlTransformService.TransformMediaUrlsAsync(cleanedHtml, sessionId);
 
                 // Step 2: Apply host-specific transformations (share button injection)
                 // Only inject buttons if session is Active or Waiting
