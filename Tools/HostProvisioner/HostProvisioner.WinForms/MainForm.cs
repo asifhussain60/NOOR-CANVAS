@@ -533,8 +533,101 @@ namespace HostProvisioner.WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to copy to clipboard:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // [ENHANCEMENT:host-provisioner-domain-fix] Robust clipboard error handling with fallback
+                lblStatus.Text = "⚠️ Clipboard unavailable - showing manual copy dialog";
+                lblStatus.ForeColor = Color.DarkOrange;
+                
+                ShowManualCopyFallback(text, label, ex.Message);
             }
+        }
+
+        // [ENHANCEMENT:host-provisioner-domain-fix] Fallback dialog for manual copy when clipboard fails
+        private void ShowManualCopyFallback(string text, string label, string errorDetails)
+        {
+            // Create fallback dialog
+            var fallbackForm = new Form
+            {
+                Text = "Manual Copy Required",
+                Size = new Size(600, 300),
+                StartPosition = FormStartPosition.CenterParent,
+                BackColor = NoorBeige,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                Font = new Font("Segoe UI", 9F)
+            };
+
+            // Instructions label
+            var lblInstructions = new Label
+            {
+                Text = "⚠️ Clipboard is unavailable. Please copy the URL manually:",
+                Location = new Point(20, 20),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                ForeColor = Color.DarkOrange
+            };
+
+            // URL textbox (read-only, auto-select)
+            var txtUrl = new TextBox
+            {
+                Text = text,
+                Location = new Point(20, 60),
+                Size = new Size(540, 60),
+                ReadOnly = true,
+                Multiline = true,
+                Font = new Font("Consolas", 10F),
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            // Auto-select text for easy Ctrl+C
+            txtUrl.Enter += (s, e) => txtUrl.SelectAll();
+            txtUrl.SelectAll();
+            txtUrl.Focus();
+
+            // Copy instructions
+            var lblCopyInstructions = new Label
+            {
+                Text = "📋 Steps:\n1. Press Ctrl+C to copy the URL above\n2. Paste it in your browser address bar\n3. Press Enter to open the page",
+                Location = new Point(20, 130),
+                Size = new Size(540, 80),
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = NoorBrown
+            };
+
+            // Error details (collapsible)
+            var lblErrorDetails = new Label
+            {
+                Text = $"Technical details: {errorDetails}",
+                Location = new Point(20, 220),
+                Size = new Size(540, 20),
+                Font = new Font("Segoe UI", 8F),
+                ForeColor = Color.Gray
+            };
+
+            // Close button
+            var btnClose = new Button
+            {
+                Text = "Close",
+                Location = new Point(480, 225),
+                Size = new Size(80, 30),
+                BackColor = NoorGreen,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.Click += (s, e) => { fallbackForm.Close(); this.Close(); };
+
+            // Add controls
+            fallbackForm.Controls.Add(lblInstructions);
+            fallbackForm.Controls.Add(txtUrl);
+            fallbackForm.Controls.Add(lblCopyInstructions);
+            fallbackForm.Controls.Add(lblErrorDetails);
+            fallbackForm.Controls.Add(btnClose);
+
+            // Show modal
+            fallbackForm.ShowDialog(this);
         }
 
         // [DEBUG-WORKITEM:host-provisioner-form:browser] Open URL in default browser ;CLEANUP_OK
