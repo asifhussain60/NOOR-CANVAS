@@ -89,13 +89,20 @@ function Stop-ProcessesOnPorts {
     $killedAny = $false
     foreach ($port in $Ports) {
         try {
+            # Get all TCP connections on this port
             $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
             foreach ($conn in $connections) {
-                $process = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
-                if ($process) {
-                    Write-Host "   Killing process: $($process.ProcessName) (PID: $($process.Id)) on port $port" -ForegroundColor Yellow
-                    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-                    $killedAny = $true
+                try {
+                    $process = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
+                    if ($process) {
+                        Write-Host "   → Killing process: $($process.ProcessName) (PID: $($process.Id)) on port $port" -ForegroundColor Yellow
+                        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+                        $killedAny = $true
+                    }
+                }
+                catch {
+                    # Process may have already exited
+                    Write-Host "   → Process on port $port already gone" -ForegroundColor Gray
                 }
             }
         }
@@ -104,8 +111,27 @@ function Stop-ProcessesOnPorts {
         }
     }
     
+    # Also kill any NoorCanvas.exe or dotnet processes running NoorCanvas
+    try {
+        $noorCanvasProcesses = Get-Process | Where-Object {
+            ($_.ProcessName -eq "NoorCanvas") -or 
+            ($_.ProcessName -eq "dotnet" -and $_.Path -like "*NoorCanvas*") -or
+            ($_.MainModule.FileName -like "*NoorCanvas.exe*")
+        }
+        
+        foreach ($proc in $noorCanvasProcesses) {
+            Write-Host "   → Killing NoorCanvas process: $($proc.ProcessName) (PID: $($proc.Id))" -ForegroundColor Yellow
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            $killedAny = $true
+        }
+    }
+    catch {
+        # No NoorCanvas processes found or access denied
+    }
+    
     if ($killedAny) {
-        Start-Sleep -Seconds 2  # Give processes time to release ports
+        Write-Host "   ⏳ Waiting for processes to release resources..." -ForegroundColor Gray
+        Start-Sleep -Seconds 3  # Give processes time to release ports and files
     }
 }
 
@@ -213,39 +239,39 @@ if ($Environment -eq "Development") {
     $appWasRunning = Test-NoorCanvasRunning -Url $appUrl
     
     if ($appWasRunning) {
-        Write-Host "✅ NoorCanvas app already running at $appUrl" -ForegroundColor Green
-        Write-Host ""
+        Write-Host "🔍 NoorCanvas app detected running at $appUrl" -ForegroundColor Yellow
+        Write-Host "🧹 Stopping old instance for clean rebuild..." -ForegroundColor Yellow
     }
     else {
         Write-Host "🔍 NoorCanvas app not detected, starting..." -ForegroundColor Yellow
+    }
+    
+    # Always kill processes to ensure clean build (HostProvisioner needs to rebuild)
+    Write-Host "🧹 Cleaning up ports 9091 and 9090..." -ForegroundColor Yellow
+    Stop-ProcessesOnPorts -Ports @(9091, 9090)
+    
+    # Start app
+    Write-Host "🚀 Starting NoorCanvas app in separate window..." -ForegroundColor Yellow
+    
+    try {
+        $appJob = Start-NoorCanvasApp -Environment $Environment -WorkingDirectory $NoorCanvasPath
         
-        # Kill any processes occupying ports 9091 or 9090
-        Write-Host "🧹 Cleaning up ports 9091 and 9090..." -ForegroundColor Yellow
-        Stop-ProcessesOnPorts -Ports @(9091, 9090)
+        # Wait for app readiness
+        $ready = Wait-AppReady -Url $appUrl -MaxWaitSeconds $StartupTimeout
         
-        # Start app
-        Write-Host "🚀 Starting NoorCanvas app in separate window..." -ForegroundColor Yellow
-        
-        try {
-            $appJob = Start-NoorCanvasApp -Environment $Environment -WorkingDirectory $NoorCanvasPath
-            
-            # Wait for app readiness
-            $ready = Wait-AppReady -Url $appUrl -MaxWaitSeconds $StartupTimeout
-            
-            if (-not $ready) {
-                Write-Host "❌ App failed to start within $StartupTimeout seconds" -ForegroundColor Red
-                Write-Host "   Check the app window for error details" -ForegroundColor Yellow
-                exit 1
-            }
-            
-            Write-Host "✅ App ready at $appUrl" -ForegroundColor Green
-            Write-Host "ℹ️  App is running in separate window (will stay open)" -ForegroundColor Cyan
-            Write-Host ""
-        }
-        catch {
-            Write-Host "❌ Failed to start app: $_" -ForegroundColor Red
+        if (-not $ready) {
+            Write-Host "❌ App failed to start within $StartupTimeout seconds" -ForegroundColor Red
+            Write-Host "   Check the app window for error details" -ForegroundColor Yellow
             exit 1
         }
+        
+        Write-Host "✅ App ready at $appUrl" -ForegroundColor Green
+        Write-Host "ℹ️  App is running in separate window (will stay open)" -ForegroundColor Cyan
+        Write-Host ""
+    }
+    catch {
+        Write-Host "❌ Failed to start app: $_" -ForegroundColor Red
+        exit 1
     }
 }
 
