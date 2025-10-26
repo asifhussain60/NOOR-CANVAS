@@ -104,6 +104,9 @@ namespace HostProvisioner.WinForms
             btnClose.FlatAppearance.MouseOverBackColor = Color.FromArgb(180, 0, 0);
             btnClose.Click += (s, e) => this.Close();
 
+            // [ENHANCEMENT:host-provisioner-domain-fix] Environment indicator badge
+            var pnlEnvBadge = CreateEnvironmentBadge();
+
             // [TRACE:host-provisioner:drag-support] Wire up drag events for header and title ;CLEANUP_OK
             pnlHeader.MouseDown += Header_MouseDown;
             pnlHeader.MouseMove += Header_MouseMove;
@@ -113,6 +116,7 @@ namespace HostProvisioner.WinForms
             lblHeaderTitle.MouseUp += Header_MouseUp;
 
             pnlHeader.Controls.Add(lblHeaderTitle);
+            pnlHeader.Controls.Add(pnlEnvBadge);
             pnlHeader.Controls.Add(btnClose);
             this.Controls.Add(pnlHeader);
 
@@ -406,6 +410,69 @@ namespace HostProvisioner.WinForms
             lblEnvironment.Text = $"Environment: {environment}";
             lblBaseUrl.Text = $"Base URL: {_baseUrl}";
             lblDatabase.Text = $"Database: {dbName}";
+        }
+
+        // [ENHANCEMENT:host-provisioner-domain-fix] Create environment indicator badge
+        private Panel CreateEnvironmentBadge()
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            
+            // Determine badge color and tooltip based on environment
+            Color badgeColor;
+            string tooltipText;
+            
+            if (environment == "Production")
+            {
+                badgeColor = ColorTranslator.FromHtml("#DC143C"); // Crimson red
+                tooltipText = "🔴 PRODUCTION\n⚠️ Changes affect live system";
+            }
+            else if (environment == "Development")
+            {
+                badgeColor = NoorGreen; // #006400
+                tooltipText = "🟢 DEVELOPMENT\nSafe to experiment";
+            }
+            else
+            {
+                badgeColor = NoorGold; // #C5B358
+                tooltipText = $"⚪ {environment.ToUpper()}\nVerify environment";
+            }
+
+            // Create circular badge panel
+            var badge = new Panel
+            {
+                Size = new Size(40, 40),
+                Location = new Point(this.ClientSize.Width - 100, 5),
+                BackColor = badgeColor,
+                Cursor = Cursors.Help
+            };
+
+            // Make it circular with Paint event
+            badge.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                using (var brush = new SolidBrush(badgeColor))
+                {
+                    e.Graphics.FillEllipse(brush, 0, 0, badge.Width - 1, badge.Height - 1);
+                }
+                
+                // Add border for better visibility
+                using (var pen = new Pen(Color.White, 2))
+                {
+                    e.Graphics.DrawEllipse(pen, 1, 1, badge.Width - 3, badge.Height - 3);
+                }
+            };
+
+            // Add tooltip
+            var tooltip = new ToolTip
+            {
+                InitialDelay = 500,
+                ReshowDelay = 100,
+                AutoPopDelay = 5000,
+                IsBalloon = true
+            };
+            tooltip.SetToolTip(badge, tooltipText);
+
+            return badge;
         }
 
         private async void BtnGenerate_Click(object? sender, EventArgs e)
