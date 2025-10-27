@@ -20,6 +20,55 @@ See `.github/prompts/shared/task-parameters-reference.md`
 ### key *(required)*
 Task identifier
 
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute task workflow normally (implement features, create files, commit checkpoints)
+2. After completion, run validation checks specific to task.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations (especially critical like database access rules): auto-generate improvement plan and handoff to plan.prompt.md
+5. Present findings and actionable next steps to user
+
+**Example:**
+```bash
+@workspace /task key=my-task -test tasks="Phase 1: Implement UI\n---\nPhase 2: Add tests"
+@workspace /task key=hcp -test tasks="Fix button alignment"
+```
+
+**Task-Specific Validation Checks:**
+- ✓ Commit checkpoints created after phase completion (ckpt: messages in git log)
+- ✓ Work log updated during execution
+- ✓ Database access rules enforced (canvas.* READ-WRITE, dbo.* READ-ONLY)
+- ✓ Branch compliance (development branch only)
+- ✓ Test generation for UI/API changes (.spec.ts files created)
+- ✓ Required reading consultation (Architecture.md, InfrastructureQuickRef.md for architectural changes)
+- ✓ No code in user-facing output (CONCISE-MANDATE compliance)
+- ✓ Output format compliance (🧠/📌/📊 structure)
+- ✓ Max 15 bullets per response
+
+**Critical Violations Detected:**
+```markdown
+🚨 VALIDATION FAILED - Critical Violation
+
+Quality Score: 35/100 (Critical Issues)
+
+❌ Database Access Rule Violation:
+   File: AdminService.cs, Line 42
+   Issue: INSERT INTO dbo.Users (READ-ONLY schema)
+   
+🔄 Auto-generating improvement plan...
+Handing off to plan.prompt.md for remediation
+
+What would you like to do next?
+A. Review improvement plan and apply fixes
+B. Rollback changes (restore to last checkpoint)
+C. Manual fix with guidance
+D. Cancel validation (NOT RECOMMENDED)
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
 ### debug-level *(default=`none`)*
 `none` | `simple` | `trace` | `diagnostic` | `cleanup` | `doc`
 

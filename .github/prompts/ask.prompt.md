@@ -47,6 +47,33 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - context (optional): File paths, error messages, or specific scenario hints.
 - depth (optional, default=standard): quick | standard | comprehensive | diagnostic.
 - verbosity (optional, default=concise): concise | detailed (include code only when user requests).
+- -test (flag, optional): Enable post-execution validation.
+
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute ask workflow normally (route to question.prompt.md, generate answer)
+2. After completion, run validation checks specific to ask.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or missed requirements: generate recommendations
+5. Present findings to user
+
+**Example:**
+```bash
+@workspace /ask -test "How does SignalR broadcasting work?" context="SessionCanvas.razor"
+@workspace /ask -test question="Why is the share button missing?"
+```
+
+**Ask-Specific Validation Checks:**
+- ✓ Routed to internal/comm/question.prompt.md
+- ✓ Next actions presented (What would you like to do next?)
+- ✓ Letter-based action options (A, B, C, D) included
+- ✓ Handoff option to plan.prompt.md offered
+- ✓ Answer is concise and bulleted (no code unless requested)
+- ✓ Output format compliance (🧠/📌 structure)
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
 ---
 

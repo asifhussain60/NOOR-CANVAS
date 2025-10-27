@@ -157,6 +157,49 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
     - Automatically invokes task agent to execute approved optimizations
   - **See:** Prompt Optimization Mode section for complete workflow
 
+- **-test** *(flag, optional)*  
+  Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+  
+  **Behavior:**
+  1. Execute healthcheck workflow normally (validate scope, generate report)
+  2. After completion, run validation checks specific to healthcheck.prompt.md
+  3. Generate validation report with quality score (0-100)
+  4. If violations (especially read-only enforcement): generate critical alerts
+  5. Present findings to user
+  
+  **Example:**
+  ```bash
+  @workspace /healthcheck scope=prompts -test
+  @workspace /healthcheck scope=all -test level=micro
+  ```
+  
+  **Healthcheck-Specific Validation Checks:**
+  - ✓ Read-only enforcement (NO files modified or created)
+  - ✓ Validation report generated
+  - ✓ Scope coverage complete (all requested files validated)
+  - ✓ Cross-reference validation performed
+  - ✓ Conflict detection executed (for prompt optimization mode)
+  - ✓ No code in user-facing output
+  
+  **Critical Violation Example:**
+  ```markdown
+  🚨 HEALTHCHECK VALIDATION FAILED
+  
+  Quality Score: 0/100 (Critical Issues)
+  
+  ❌ Critical Violation: READ-ONLY AGENT MODIFIED FILES
+     Files Created: healthcheck-fix.cs
+     
+  Healthcheck is a read-only agent and must NOT modify any files.
+  
+  What would you like to do next?
+  A. Rollback changes immediately
+  B. Review violation details
+  C. Report bug in healthcheck implementation
+  ```
+  
+  **See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
 - **level** *(optional, default=`macro`)*  
   - `macro` → High-level architecture, contracts, cross-layer consistency (default).
   - `micro` → Deep code quality scan (patterns, error handling, edge cases, dead code).

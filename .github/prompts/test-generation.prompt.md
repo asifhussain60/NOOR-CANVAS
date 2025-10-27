@@ -36,6 +36,51 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 ### key *(required)*
 Test generation key identifier. Must match existing key data stream.
 
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute test-generation workflow normally (create .spec.ts files, update test registry)
+2. After completion, run validation checks specific to test-generation.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or quality issues: generate improvement recommendations
+5. Present findings to user
+
+**Example:**
+```bash
+@workspace /test key=my-feature -test scenario="user-login"
+@workspace /test key=ui-refresh -test
+```
+
+**Test-Generation-Specific Validation Checks:**
+- ✓ Test files created (.spec.ts in Tests/UI/ directory)
+- ✓ Test registry updated (`.github/key-data-streams/{key}/tests/test-registry.md`)
+- ✓ Test coverage types appropriate (Percy for UI changes, functional for API)
+- ✓ Valid test structure (test() or it() blocks present)
+- ✓ Browser-log guards implemented where needed
+- ✓ Orchestration scripts created for complex scenarios
+- ✓ Commit message format followed (test(key): description)
+
+**Validation Report Example:**
+```markdown
+📊 Test Generation Validation Report
+
+Quality Score: 90/100 (Excellent)
+
+✅ Critical: 0 violations
+✅ High: 0 issues
+📋 Medium: 1 missed requirement
+  - Percy snapshots not included for UI component test
+
+What would you like to do next?
+A. Accept tests (quality excellent)
+B. Add Percy snapshots for visual regression
+C. Review detailed test coverage analysis
+D. Execute generated tests
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
 ### scenario *(optional)*
 Specific test scenario to generate (e.g., "asset-card-visibility", "participant-registration-flow")
 - If specified, generate only that scenario's tests

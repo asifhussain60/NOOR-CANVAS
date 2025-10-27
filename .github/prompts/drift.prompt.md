@@ -1,16 +1,66 @@
-# drift.prompt.md (Drift Management Agent v1.1)
+# drift.prompt.md (Drift Management Agent v1.2)
 
 ---
 mode: agent
 purpose: Manage dynamic, multi-threaded workflows using key-linked drift system for issue isolation and resolution (supports dual-mode: agent auto-detection + user manual invocation)
-inputs: parent_key, drift_trigger, drift_description, stack_state, mode (auto|manual), severity (critical|high|medium|low|informational)
+inputs: parent_key, drift_trigger, drift_description, stack_state, mode (auto|manual), severity (critical|high|medium|low|informational), -test
 outputs: Drift key registration, stack management, context preservation, auto-commit checkpoints, drift summary at completion
-lastUpdated: 2025-10-25
+lastUpdated: 2025-10-27
 ---
 
 # drift.prompt.md (Drift Management)
 
 **Mode:** Agent | **Purpose:** Multi-threaded workflow management via drift stack (dual-mode support)
+
+## Parameters
+
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute drift workflow normally (create drift key, manage stack, resolve issue)
+2. After completion, run validation checks specific to drift.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or stack issues: generate recommendations
+5. Present findings to user
+
+**Example:**
+```bash
+@workspace /drift key=main-task -test description="Fix database connection timeout"
+@workspace /drift key=ui-refresh -test severity=high "Button alignment issue"
+```
+
+**Drift-Specific Validation Checks:**
+- ✓ Drift key created with "drift-" prefix
+- ✓ Parent key preserved and referenced
+- ✓ Stack depth within limit (max 3 levels)
+- ✓ Severity classification documented
+- ✓ Commit checkpoints for drift resolution
+- ✓ Drift summary generated at completion
+- ✓ Parent key context restored after drift resolution
+
+**Validation Report Example:**
+```markdown
+📊 Drift Validation Report
+
+Quality Score: 80/100 (Good)
+
+✅ Critical: 0 violations
+⚠️ Medium: 1 issue
+  - Stack depth at 3 (limit reached, no more drifts allowed)
+  
+🔍 Recommendations:
+  - Resolve current drift before creating new ones
+  - Consider simplifying parent task to reduce drift frequency
+
+What would you like to do next?
+A. Continue with drift resolution
+B. Review stack depth and simplify workflow
+C. Return to parent key
+D. Accept findings and proceed
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response

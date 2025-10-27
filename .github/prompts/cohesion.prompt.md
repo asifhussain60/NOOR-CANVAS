@@ -1,16 +1,71 @@
-# cohesion.prompt.md (System Cohesion Agent v1.0)
+# cohesion.prompt.md (System Cohesion Agent v1.1)
 
 ---
 mode: agent
 purpose: Meta-agent that validates and harmonizes all prompts and instructions for unified system operation
-inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full)
+inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full), -test
 outputs: Cohesion report with violations, conflicts, and auto-fix recommendations
-lastUpdated: 2025-10-25
+lastUpdated: 2025-10-27
 ---
 
 # cohesion.prompt.md (System Cohesion)
 
 **Mode:** Agent | **Purpose:** Ensure all prompts/instructions work as unified, conflict-free system
+
+## Parameters
+
+### scope *(required)*
+What to validate:
+- `prompts` - All prompt files in .github/prompts/
+- `instructions` - All instruction files in .github/instructions/
+- `all` - Complete AI infrastructure (prompts + instructions)
+- `{filename}` - Specific file to validate
+
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute cohesion workflow normally (validate scope, detect conflicts, generate report)
+2. After completion, run validation checks specific to cohesion.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or incomplete validation: generate recommendations
+5. Present findings to user
+
+**Example:**
+```bash
+@workspace /cohesion scope=prompts -test validation-level=full
+@workspace /cohesion scope=all -test
+```
+
+**Cohesion-Specific Validation Checks:**
+- ✓ Cohesion report generated
+- ✓ Validation level executed completely
+- ✓ Conflict analysis performed (for conflicts/full level)
+- ✓ Cross-reference validation complete
+- ✓ No files modified (read-only validation)
+- ✓ Recommendations provided for detected issues
+
+**Validation Report Example:**
+```markdown
+📊 Cohesion Validation Report
+
+Quality Score: 95/100 (Excellent)
+
+✅ Critical: 0 violations
+✅ High: 0 issues
+📋 Low: 1 missed requirement
+  - Cross-reference validation incomplete for internal prompts
+
+What would you like to do next?
+A. Accept results (excellent quality)
+B. Run detailed cross-reference scan
+C. Review detected conflicts in detail
+D. Generate improvement plan
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
+### validation-level *(optional, default=syntax)*
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response

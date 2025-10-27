@@ -23,6 +23,32 @@ description: Extend or modify current active work while preserving context, key,
 ### key *(auto-detected from git history)*
 Current active work key. Auto-detected from recent commits.
 
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute todo workflow normally (preserve key, extend plan, execute tasks)
+2. After completion, run validation checks specific to todo.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or missed requirements: generate recommendations
+5. Present findings to user
+
+**Example:**
+```bash
+@workspace /todo -test "Add share button to SessionCanvas"
+@workspace /todo -test key=my-feature "Enhance validation logic"
+```
+
+**Todo-Specific Validation Checks:**
+- ✓ Key preserved from recent work (not creating new key unnecessarily)
+- ✓ Context extended (not replaced) - plan file version incremented
+- ✓ Routing classification correct (recommend /plan for complex work)
+- ✓ Commit checkpoints maintained (ckpt: messages in git log)
+- ✓ Work log updated with extension
+- ✓ Auto-chain execution if enabled
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
 ### auto-chain *(default=`false`)*
 Enable automatic task-to-task execution without user intervention
 - `true` - Auto-invoke next task after current completes

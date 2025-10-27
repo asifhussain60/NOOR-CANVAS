@@ -1,9 +1,9 @@
-# plan.prompt.md (Feature Planning Agent v1.2)
+# plan.prompt.md (Feature Planning Agent v1.3)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
-inputs: key, user_request, context, scope, constraints, include_suggestions
+inputs: key, user_request, context, scope, constraints, include_suggestions, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
 lastUpdated: 2025-10-27
 ---
@@ -11,6 +11,57 @@ lastUpdated: 2025-10-27
 # plan.prompt.md (Feature Planning)
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
+
+## Parameters
+
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute planning workflow normally (key data stream creation, plan generation, handoff preparation)
+2. After completion, run validation checks specific to plan.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or quality score < 60: auto-generate improvement plan and handoff to self for enhancement
+5. Present findings and actionable next steps to user
+
+**Example:**
+```bash
+@workspace /plan key=my-feature -test "Add user dashboard with profile and settings"
+@workspace /plan -test "Implement search functionality"
+```
+
+**Plan-Specific Validation Checks:**
+- ✓ Key data stream created in `.github/key-data-streams/{key}/`
+- ✓ Plan file (`{key}.plan.md`) generated with phased breakdown
+- ✓ Work log (`work-log.md`) initialized
+- ✓ Questionnaire used for complex features
+- ✓ Key spelling validated per `.github/prompts/shared/key-spelling-validator.md`
+- ✓ Test strategy included for UI/API changes
+- ✓ Required reading references (Architecture.md, InfrastructureQuickRef.md) consulted
+- ✓ Handoff protocol followed (task.prompt.md, test-generation.prompt.md)
+- ✓ Index files updated (`.github/key-data-streams/index.md`)
+
+**Validation Report Output:**
+```markdown
+📊 Plan Validation Report
+
+Quality Score: 85/100 (Good)
+
+✅ Critical: 0 violations
+⚠️ Medium: 2 missed requirements
+  - Test strategy not explicitly documented
+  - Key spelling validation not logged
+
+🔍 Drift: 0 issues
+
+What would you like to do next?
+A. Accept plan (quality acceptable)
+B. Review improvement suggestions
+C. Enhance plan based on findings
+D. Continue without validation fixes
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
 ## 🔍 MANDATORY: KEY DATA STREAM CONSULTATION (EXECUTE FIRST - ALWAYS)
 

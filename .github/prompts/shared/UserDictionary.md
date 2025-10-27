@@ -9,6 +9,8 @@ How to use
 - If both a generic filename and a full path exist, prefer the generic #file: reference (the prompt system resolves it).
 
 Views (Blazor Components)
+- nc: NoorCanvas application
+- hp: Host Proivisioner Avalonia -  Tools\HostProvisioner\HostProvisioner.Avalonia"
 - hcp: Host Control Panel — view: #file:HostControlPanel.razor
 - scanv: Session Canvas — view: #file:SessionCanvas.razor
 - tcanv: Transcript Canvas — view: #file:TranscriptCanvas.razor
