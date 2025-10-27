@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Button Redesign Proposals - Visual Samples</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .intro {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+
+        .intro strong {
+            color: #92400e;
+        }
+
+        .sample-section {
+            margin-bottom: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .sample-section:last-child {
+            border-bottom: none;
+        }
+
+        .sample-header {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .sample-header h2 {
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .sample-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .sample-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-recommended {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-mobile {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* CURRENT IMPLEMENTATION (for comparison) */
+        .current-wrapper {
+            background: white;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .current-share-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 200px;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+        }
+
+        .current-share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* OPTION 1: FAB */
+        .fab-example {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .share-btn-fab {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            transition: opacity 0.2s, background 0.2s, transform 0.2s;
+            cursor: pointer;
+            color: #3b82f6;
+        }
+
+        .share-btn-fab:hover {
+            opacity: 1;
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* OPTION 2: INLINE LINK */
+        .inline-example {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+
+        .inline-heading {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        .inline-example h2 {
+            display: inline;
+            margin-right: 0;
+        }
+
+        .share-btn-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            border: none;
+            background: none;
+            padding: 0.25rem 0.5rem;
+            margin-left: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-weight: 400;
+        }
+
+        .share-btn-inline:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+
+        /* OPTION 3: TOOLBAR */
+        .toolbar-example {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .toolbar-example:hover .section-toolbar {
+            opacity: 1;
+        }
+
+        .section-toolbar {
+            position: absolute;
+            top: -2.5rem;
+            right: 0;
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        /* OPTION 4: DROPDOWN */
+        .dropdown-example {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .section-menu-trigger {
+            position: absolute;
+            right: 0.5rem;
+            top: 0.5rem;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            border-radius: 4px;
+            padding: 0;
+            cursor: pointer;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .section-menu-trigger:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .section-menu-dropdown {
+            position: absolute;
+            right: 0.5rem;
+            top: 2.5rem;
+            min-width: 160px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 0.25rem 0;
+            display: none;
+        }
+
+        .dropdown-example:hover .section-menu-dropdown {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #374151;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #f3f4f6;
+        }
+
+        /* OPTION 5: SIDE GUTTER */
+        .gutter-example {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            position: relative;
+            padding-left: 4rem;
+            min-height: 150px;
+        }
+
+        .gutter-example:hover .share-btn-gutter {
+            opacity: 1;
+        }
+
+        .share-btn-gutter {
+            position: absolute;
+            left: 1rem;
+            top: 2rem;
+            width: 2rem;
+            height: 2rem;
+            border: none;
+            background: none;
+            color: #d1d5db;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .share-btn-gutter:hover {
+            color: #3b82f6;
+        }
+
+        /* CONTENT STYLING */
+        .sample-content {
+            margin-top: 1rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+
+        .sample-content h2, .sample-content h3 {
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+
+        .sample-table {
+            width: 100%;
+            margin-top: 1rem;
+            border-collapse: collapse;
+        }
+
+        .sample-table th {
+            background: #10b981;
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .sample-table td {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .sample-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        /* Icons (using Unicode) */
+        .icon-share::before {
+            content: "⤴";
+            font-size: 1.1em;
+        }
+
+        .icon-bookmark::before {
+            content: "🔖";
+        }
+
+        .icon-more::before {
+            content: "⋯";
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .comparison-card h4 {
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .hover-hint {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Share Button Redesign Proposals - Visual Samples</h1>
+        
+        <div class="intro">
+            <strong>Purpose:</strong> This document provides interactive visual samples of proposed share button redesigns for the TranscriptCanvas component. Hover over elements to see interactive states.
+        </div>
+
+        <!-- CURRENT IMPLEMENTATION -->
+        <div class="sample-section">
+            <div class="sample-header">
+                <h2>🔴 Current Implementation (For Comparison)</h2>
+                <div class="sample-meta">
+                    <span><strong>Status:</strong> Too Obtrusive</span>
+                    <span><strong>Visual Weight:</strong> High</span>
+                    <span><strong>Width:</strong> 200px fixed</span>
+                </div>
+            </div>
+
+            <div class="current-wrapper">
+                <h3 style="color: #7c2d12; margin-bottom: 0.5rem;">Obligatory Acts of Ablution (فَرَائِضُ الْوُضُوءِ)</h3>
+                
+                <button class="current-share-btn">
+                    <span class="icon-share"></span>
+                    Share Table
+                </button>
+
+                <div class="sample-content">
+                    <table class="sample-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Obligation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Pure water</td></tr>
+                            <tr><td>2</td><td>Intention (نِيَّة)</td></tr>
+                            <tr><td>3</td><td>Washing the face</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPTION 1: FAB -->
+        <div class="sample-section">
+            <div class="sample-header">
+                <h2>Option 1: Floating Action Button (FAB) <span class="badge badge-mobile">Mobile First</span></h2>
+                <div class="sample-meta">
+                    <span><strong>Industry Standard:</strong> Material Design, Medium.com</span>
+                    <span><strong>Visual Weight:</strong> Low</span>
+                    <span><strong>Best For:</strong> Mobile/Touch Devices</span>
+                </div>
+            </div>
+
+            <div class="fab-example">
+                <button class="share-btn-fab" title="Share this section">
+                    <span class="icon-share"></span>
+                </button>
+
+                <h3 style="color: #7c2d12; margin-bottom: 0.5rem;">Obligatory Acts of Ablution (فَرَائِضُ الْوُضُوءِ)</h3>
+                
+                <div class="sample-content">
+                    <table class="sample-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Obligation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Pure water</td></tr>
+                            <tr><td>2</td><td>Intention (نِيَّة)</td></tr>
+                            <tr><td>3</td><td>Washing the face</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <span class="hover-hint">💡 Hover over the button in top-right</span>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Pros</h4>
+                    <p>• Minimal footprint<br>• Touch-friendly<br>• Modern aesthetic<br>• No hover required</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>⚠️ Cons</h4>
+                    <p>• Less discoverable<br>• Requires tooltip<br>• Icon-only (no text)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPTION 2: INLINE LINK -->
+        <div class="sample-section">
+            <div class="sample-header">
+                <h2>Option 2: Inline Text Link <span class="badge badge-recommended">⭐ Recommended</span></h2>
+                <div class="sample-meta">
+                    <span><strong>Industry Standard:</strong> Wikipedia, Documentation Sites</span>
+                    <span><strong>Visual Weight:</strong> Very Low</span>
+                    <span><strong>Best For:</strong> Desktop Reading Experience</span>
+                </div>
+            </div>
+
+            <div class="inline-example">
+                <div class="inline-heading">
+                    <h3 style="color: #7c2d12; margin-bottom: 0.5rem; display: inline;">Obligatory Acts of Ablution (فَرَائِضُ الْوُضُوءِ)</h3>
+                    <button class="share-btn-inline">
+                        <span class="icon-share"></span>
+                        Share
+                    </button>
+                </div>
+                
+                <div class="sample-content">
+                    <table class="sample-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Obligation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Pure water</td></tr>
+                            <tr><td>2</td><td>Intention (نِيَّة)</td></tr>
+                            <tr><td>3</td><td>Washing the face</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <span class="hover-hint">💡 Hover over "Share" link next to heading</span>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Pros</h4>
+                    <p>• Least intrusive<br>• Familiar pattern<br>• Accessible<br>• Maintains flow</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>⚠️ Cons</h4>
+                    <p>• Requires precise placement<br>• Less prominent</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPTION 3: TOOLBAR -->
+        <div class="sample-section">
+            <div class="sample-header">
+                <h2>Option 3: Contextual Toolbar</h2>
+                <div class="sample-meta">
+                    <span><strong>Industry Standard:</strong> Google Docs, Notion</span>
+                    <span><strong>Visual Weight:</strong> Medium (on hover)</span>
+                    <span><strong>Best For:</strong> Multiple Actions</span>
+                </div>
+            </div>
+
+            <div class="toolbar-example">
+                <div class="section-toolbar">
+                    <button class="toolbar-btn" title="Share section">
+                        <span class="icon-share"></span>
+                    </button>
+                    <button class="toolbar-btn" title="Bookmark">
+                        <span class="icon-bookmark"></span>
+                    </button>
+                    <button class="toolbar-btn" title="Copy link">📋</button>
+                </div>
+
+                <h3 style="color: #7c2d12; margin-bottom: 0.5rem;">Obligatory Acts of Ablution (فَرَائِضُ الْوُضُوءِ)</h3>
+                
+                <div class="sample-content">
+                    <table class="sample-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Obligation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Pure water</td></tr>
+                            <tr><td>2</td><td>Intention (نِيَّة)</td></tr>
+                            <tr><td>3</td><td>Washing the face</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <span class="hover-hint">💡 Hover over this entire section to reveal toolbar</span>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Pros</h4>
+                    <p>• Scalable for features<br>• Professional look<br>• Clear grouping<br>• Hidden until needed</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>⚠️ Cons</h4>
+                    <p>• Requires hover<br>• More complex<br>• Takes vertical space</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPTION 4: DROPDOWN -->
+        <div class="sample-section">
+            <div class="sample-header">
+                <h2>Option 4: Dropdown Menu (Kebab)</h2>
+                <div class="sample-meta">
+                    <span><strong>Industry Standard:</strong> GitHub, Slack</span>
+                    <span><strong>Visual Weight:</strong> Very Low</span>
+                    <span><strong>Best For:</strong> Hiding Complexity</span>
+                </div>
+            </div>
+
+            <div class="dropdown-example">
+                <button class="section-menu-trigger">⋯</button>
+                
+                <div class="section-menu-dropdown">
+                    <button class="menu-item">
+                        <span class="icon-share"></span>
+                        Share section
+                    </button>
+                    <button class="menu-item">
+                        <span class="icon-bookmark"></span>
+                        Bookmark
+                    </button>
+                    <button class="menu-item">📋 Copy link</button>
+                </div>
+
+                <h3 style="color: #7c2d12; margin-bottom: 0.5rem;">Obligatory Acts of Ablution (فَرَائِضُ الْوُضُوءِ)</h3>
+                
+                <div class="sample-content">
+                    <table class="sample-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Obligation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Pure water</td></tr>
+                            <tr><td>2</td><td>Intention (نِيَّة)</td></tr>
+                            <tr><td>3</td><td>Washing the face</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <span class="hover-hint">💡 Hover over the ⋯ button in top-right to reveal menu</span>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Pros</h4>
+                    <p>• Minimal footprint<br>• Extensible<br>• Familiar pattern<br>• Clean interface</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>⚠️ Cons</h4>
+                    <p>• Low discoverability<br>• Extra click needed<br>• Requires good UX</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPTION 5: SIDE GUTTER -->
+        <div class="sample-section">
+            <div class="sample-header">
+                <h2>Option 5: Side Gutter</h2>
+                <div class="sample-meta">
+                    <span><strong>Industry Standard:</strong> Notion, Linear</span>
+                    <span><strong>Visual Weight:</strong> Very Low</span>
+                    <span><strong>Best For:</strong> Clean Content Area</span>
+                </div>
+            </div>
+
+            <div class="gutter-example">
+                <button class="share-btn-gutter" title="Share section">
+                    <span class="icon-share"></span>
+                </button>
+
+                <h3 style="color: #7c2d12; margin-bottom: 0.5rem;">Obligatory Acts of Ablution (فَرَائِضُ الْوُضُوءِ)</h3>
+                
+                <div class="sample-content">
+                    <table class="sample-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Obligation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Pure water</td></tr>
+                            <tr><td>2</td><td>Intention (نِيَّة)</td></tr>
+                            <tr><td>3</td><td>Washing the face</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <span class="hover-hint">💡 Hover over this section - button appears in left margin</span>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>✅ Pros</h4>
+                    <p>• Out of content flow<br>• Modern aesthetic<br>• Clean separation<br>• Scalable</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>⚠️ Cons</h4>
+                    <p>• Poor mobile UX<br>• Requires padding<br>• Low discoverability</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINAL RECOMMENDATION -->
+        <div style="background: #d1fae5; border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 6px; margin-top: 2rem;">
+            <h3 style="color: #065f46; margin-bottom: 0.5rem;">🎯 Final Recommendation: Hybrid Approach</h3>
+            <p style="color: #047857; margin-bottom: 1rem;">
+                <strong>Desktop (≥768px):</strong> Option 2 (Inline Link) - Minimal, familiar, accessible<br>
+                <strong>Mobile/Tablet (&lt;768px):</strong> Option 1 (FAB) - Touch-friendly, no hover needed
+            </p>
+            <p style="color: #047857; font-size: 0.875rem;">
+                This approach provides the best user experience across all devices while maintaining a clean, professional appearance.
+            </p>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 6px; font-size: 0.875rem; color: #6b7280;">
+            <strong>Documentation:</strong> See <code>Workspaces/UI-UX/share-button-redesign-proposal.md</code> for full technical details and implementation guidance.
+        </div>
+    </div>
+</body>
+</html>

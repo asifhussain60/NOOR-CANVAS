@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Inline Share Buttons</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            color: #333;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+        }
+
+        .test-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+
+        /* Import the actual CSS from noor-canvas.css */
+        .ks-share-inline-asset,
+        .ks-share-inline-section,
+        button.ks-share-inline-asset,
+        button.ks-share-inline-section {
+            background-color: transparent !important;
+            color: #64748b !important;
+            padding: 0.25rem 0.5rem !important;
+            border: none !important;
+            border-radius: 0 !important;
+            font-weight: 500 !important;
+            font-size: 0.875rem !important;
+            box-shadow: none !important;
+            transform: none !important;
+            width: auto !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.25rem !important;
+            margin-left: 1rem !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            transition: color 0.2s ease, text-decoration 0.2s ease !important;
+            white-space: nowrap;
+            vertical-align: baseline;
+        }
+
+        .ks-share-inline-asset:hover,
+        .ks-share-inline-section:hover,
+        button.ks-share-inline-asset:hover,
+        button.ks-share-inline-section:hover {
+            color: #3b82f6 !important;
+            text-decoration: underline !important;
+            background-color: transparent !important;
+            transform: none !important;
+        }
+
+        .ks-share-inline-asset:active,
+        .ks-share-inline-section:active {
+            color: #2563eb !important;
+            background-color: transparent !important;
+        }
+
+        /* Legacy button for comparison */
+        .legacy-button {
+            background-color: #FFD700;
+            border: 1px solid #e0c242;
+            color: #555;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        .legacy-button:hover {
+            background-color: #e0c242;
+        }
+
+        /* Asset styles */
+        .inserted-hadees {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .hadees-header h4 {
+            color: #1f2937;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .hadees-arabic {
+            text-align: right;
+            font-size: 1.3rem;
+            direction: rtl;
+            color: #059669;
+            margin: 1rem 0;
+        }
+
+        .hadees-english {
+            color: #4b5563;
+            font-style: italic;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-item {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .comparison-item h4 {
+            margin-top: 0;
+            color: #059669;
+        }
+
+        .before {
+            border-color: #dc2626;
+        }
+
+        .before h4 {
+            color: #dc2626;
+        }
+
+        .after {
+            border-color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <h1>✅ Inline Share Button Test</h1>
+
+    <div class="test-section">
+        <h3>🎯 Goal: Subtle Inline Buttons</h3>
+        <p>Buttons should be:</p>
+        <ul>
+            <li>Inline with headings (not centered blocks)</li>
+            <li>Transparent background</li>
+            <li>Subtle gray color → blue on hover</li>
+            <li>Small font size (14px)</li>
+            <li>Underline on hover</li>
+        </ul>
+    </div>
+
+    <div class="comparison">
+        <div class="comparison-item before">
+            <h4>❌ Before (Obtrusive)</h4>
+            <h2>Impurity and Purification</h2>
+            <button class="legacy-button">Share Section</button>
+            <p>Legacy golden button with heavy styling, 200px wide, disrupts flow.</p>
+        </div>
+
+        <div class="comparison-item after">
+            <h4>✅ After (Subtle)</h4>
+            <h2>
+                Impurity and Purification
+                <button class="ks-share-inline-section" type="button">📄 Share Section</button>
+            </h2>
+            <p>Inline button, transparent, subtle colors, maintains flow. Hover to see effect!</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📄 Section Share Button Test</h3>
+        
+        <h2 style="display: inline-flex; align-items: baseline; flex-wrap: wrap; width: 100%;">
+            The Symbolism of Ablution (وضوء)
+            <button class="ks-share-inline-section" data-section-id="test-1" data-share-button="section" type="button">📄 Share Section</button>
+        </h2>
+        
+        <p>Among these four obligations, the perfection of Ablution (وضوء) is the first and most vital. Its perfection lies in repeating each act three times.</p>
+
+        <h2 style="display: inline-flex; align-items: baseline; flex-wrap: wrap; width: 100%;">
+            The Seven Acts of Purification
+            <button class="ks-share-inline-section" data-section-id="test-2" data-share-button="section" type="button">📄 Share Section</button>
+        </h2>
+        
+        <p>Purification (طہارت) relates to the cleansing of seven bodily members. Of these, four are obligatory (فرض) and three are recommended (سنت).</p>
+    </div>
+
+    <div class="test-section">
+        <h3>📤 Asset Share Button Test</h3>
+        
+        <div class="inserted-hadees">
+            <div class="hadees-header">
+                <h4>
+                    Muhammad Ibn Abdullah (SWS) - Purification
+                    <button class="ks-share-inline-asset" data-share-button="asset" data-asset-type="Hadees" type="button">📤 Share HADEES</button>
+                </h4>
+            </div>
+            <div class="hadees-arabic">لَا صَلَاةَ إِلَّا بِالطَّهَارَةِ</div>
+            <div class="hadees-english">There is no prayer without purification.</div>
+        </div>
+
+        <div class="inserted-hadees">
+            <div class="hadees-header">
+                <h4>
+                    Muhammad Ibn Abdullah (SWS) - Faith and Purification
+                    <button class="ks-share-inline-asset" data-share-button="asset" data-asset-type="Hadees" type="button">📤 Share HADEES</button>
+                </h4>
+            </div>
+            <div class="hadees-arabic">الطَّهَارَةُ نِصْفُ الْإِيمَانِ</div>
+            <div class="hadees-english">Purification is half of faith.</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>✅ Expected Behavior</h3>
+        <ol>
+            <li><strong>Inline Position</strong>: Buttons appear next to headings, not on separate lines</li>
+            <li><strong>Transparent</strong>: No background color visible</li>
+            <li><strong>Gray Text</strong>: Default color is subtle gray (#64748b)</li>
+            <li><strong>Hover Effect</strong>: Text turns blue (#3b82f6) with underline</li>
+            <li><strong>Small Size</strong>: Font size 0.875rem (14px)</li>
+            <li><strong>Different Icons</strong>: 📄 for sections, 📤 for assets</li>
+        </ol>
+    </div>
+
+    <script>
+        // Add click handlers to test
+        document.querySelectorAll('.ks-share-inline-section, .ks-share-inline-asset').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const type = this.classList.contains('ks-share-inline-section') ? 'Section' : 'Asset';
+                const icon = this.classList.contains('ks-share-inline-section') ? '📄' : '📤';
+                alert(`${icon} ${type} Share Button Clicked!\n\nButton is working correctly!`);
+            });
+        });
+
+        console.log('✅ Inline share button test loaded');
+        console.log('📄 Section buttons:', document.querySelectorAll('.ks-share-inline-section').length);
+        console.log('📤 Asset buttons:', document.querySelectorAll('.ks-share-inline-asset').length);
+    </script>
+</body>
+</html>
