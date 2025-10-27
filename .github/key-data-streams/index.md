@@ -34,6 +34,9 @@ ops-cleanup: plan → task → healthcheck
 ### Meta
 meta-enhancements: plan → cohesion(auto-fix preview) → enhance-prompts (apply, optional) → cohesion(rules) → healthcheck
 
+### Asset System
+table-asset-enhancement: plan → task → test-generation → healthcheck
+
 ---
 
 ## Key Data Stream Structure

@@ -11,6 +11,12 @@
 
 ## Version History
 
+**v1.3** (2025-10-27):
+- **Extension**: Added Phase 2.5 (Database Validation) + Phase 2.6 (E2E Test Suite)
+- Focus: Retrieve session 212 transcript from dbo.SessionTranscripts, validate AssetProcessingService detection
+- Create comprehensive Playwright tests for ALL asset types (table, ayah-card, hadees, imgResponsive, esotericBlock)
+- Headless test execution with Percy snapshots
+
 **v1.2** (2025-10-27):
 - **Phases 1-2 COMPLETE**: Database verification + CSS selector update
 - Revised plan to focus on remaining verification phases
@@ -40,11 +46,13 @@
 - ✅ Phase 2: CSS selector update (now matches ALL tables)
 
 **Remaining Work**: 
+- 🔄 Phase 2.5: Database validation (retrieve session 212 transcript, verify AssetProcessingService detection)
+- 🔄 Phase 2.6: E2E automated test suite (Playwright + Percy for all asset types)
 - 🔄 Phase 3: E2E manual verification (HostControlPanel → SessionCanvas)
-- 🔄 Phase 4: Playwright automated test creation
+- 🔄 Phase 4: Playwright automated test creation (DEPRECATED - merged into Phase 2.6)
 - 🔄 Phase 5: Documentation updates
 
-**Estimated Remaining Effort**: 2-3 hours (testing + documentation)
+**Estimated Remaining Effort**: 3-4 hours (database validation + automated tests + manual verification + documentation)
 
 **Key Achievement**: Tables already supported in asset pipeline - only needed selector simplification to enable sharing of ALL table types (not just those with specific inline styles).
 
@@ -254,6 +262,111 @@ WHERE AssetIdentifier = 'table'
 **Impact**:
 - ALL `<table>` elements now detected (previously only styled tables)
 - Share buttons will appear for all table types in transcripts
+
+---
+
+### 🔄 Phase 2.5: Database Validation with Session 212 Transcript (NEW)
+
+**Objective**: Retrieve actual session transcript from database, validate AssetProcessingService correctly identifies ALL asset types (tables, ayah-cards, hadees, images, etc.) with updated CSS selectors.
+
+**Tasks**:
+
+1. **Database Query Script**
+   - File: `Scripts/validate-asset-detection-session-212.ps1`
+   - Query: `SELECT TranscriptHtml FROM dbo.SessionTranscripts WHERE SessionId = 212`
+   - Save to: `Tests/Fixtures/session-212-transcript.html`
+
+2. **Asset Detection Validation**
+   - Create C# console app or script to test `AssetProcessingService.InjectAssetShareButtonsAsync()`
+   - Load session 212 transcript HTML from fixture file
+   - Call asset processing methods with current AssetLookup data
+   - Verify detection counts:
+     - Tables: Expected 10 (asset-table-1 through asset-table-10)
+     - Ayah-cards: Expected ~4
+     - Hadees: Expected ~3
+     - Images (imgResponsive): Expected ~4
+     - EsotericBlocks: Expected ~1
+
+3. **Output Analysis**
+   - Log all detected assets with data-share-id, data-asset-type, data-instance-number
+   - Compare against CopilotContext.md findings (10 table buttons confirmed)
+   - Identify any missing assets or incorrect CSS selector matches
+
+**Success Criteria**:
+- ✅ Session 212 transcript retrieved and saved to fixture file
+- ✅ Validation script created and executed
+- ✅ ALL asset types detected correctly (tables + existing assets)
+- ✅ Detection counts match expected values from HTML analysis
+- ✅ Share button injection produces well-formed HTML
+
+**Files Created**:
+- `Scripts/validate-asset-detection-session-212.ps1`
+- `Tests/Fixtures/session-212-transcript.html`
+- `Scripts/AssetDetectionValidator/Program.cs` (optional C# console app)
+
+**Estimated Time**: 45 minutes
+
+**Debug Markers**:
+- `[DEBUG-WORKITEM:table-asset-enhancement:phase2.5:database-query]`
+- `[DEBUG-WORKITEM:table-asset-enhancement:phase2.5:asset-detection]`
+
+---
+
+### 🔄 Phase 2.6: Comprehensive E2E Test Suite (Playwright + Percy) (NEW)
+
+**Objective**: Create headless automated tests for ALL asset types (table, ayah-card, inserted-hadees, imgResponsive, esotericBlock) using session 212 transcript. Tests must verify share button injection, click handling, and SignalR broadcast.
+
+**Tasks**:
+
+1. **Test Specification File**
+   - File: `Tests/UI/comprehensive-asset-share-validation.spec.ts`
+   - Structure:
+     - Setup: Load HostControlPanel with session 212
+     - Test 1: Verify share buttons for ALL asset types (count + attributes)
+     - Test 2: Click table share button → verify SignalR broadcast
+     - Test 3: Click ayah-card button → verify broadcast
+     - Test 4: Click hadees button → verify broadcast
+     - Test 5: Click imgResponsive button → verify broadcast
+     - Test 6: Verify receiver (SessionCanvas) displays shared assets
+     - Test 7: Percy snapshots at each stage
+
+2. **Fixture Data**
+   - Use `Tests/Fixtures/session-212-transcript.html` from Phase 2.5
+   - Mock AssetLookup API response with all 10 asset types
+   - Mock SessionHub SignalR connection (if needed)
+
+3. **Test Execution**
+   - Run headless (no UI)
+   - Capture console logs for share system diagnostics
+   - Verify `[NOOR-SHARE] 🎯 Share button clicked:` messages
+   - Assert SignalR `ShareAsset` method called with correct parameters
+   - Percy snapshots: Share buttons visible, asset broadcast received
+
+**Percy Snapshot Points**:
+1. Initial load (all share buttons visible)
+2. After clicking table share button
+3. After clicking ayah-card share button
+4. Receiver view showing table asset
+5. Receiver view showing ayah-card asset
+
+**Success Criteria**:
+- ✅ Test spec created with 7+ test scenarios
+- ✅ All tests pass in headless mode
+- ✅ Share buttons detected for ALL asset types
+- ✅ SignalR broadcasts verified for each asset type
+- ✅ Percy snapshots captured and uploaded
+- ✅ Console logs show proper click handling and DotNetRef initialization
+
+**Files Created**:
+- `Tests/UI/comprehensive-asset-share-validation.spec.ts`
+- `Tests/Fixtures/session-212-transcript.html` (from Phase 2.5)
+- `Tests/Fixtures/mock-asset-lookup.json` (optional - AssetLookup API mock)
+
+**Estimated Time**: 1.5 hours
+
+**Debug Markers**:
+- `[DEBUG-WORKITEM:table-asset-enhancement:phase2.6:test-creation]`
+- `[DEBUG-WORKITEM:table-asset-enhancement:phase2.6:headless-execution]`
 
 ---
 

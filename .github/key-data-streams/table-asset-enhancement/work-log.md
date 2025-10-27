@@ -4,11 +4,54 @@
 **Key**: table-asset-enhancement  
 **Branch**: development  
 **Created**: 2025-10-27  
-**Last Updated**: 2025-10-27  
-**Status**: ✅ Database Complete - Ready for Phase 3 (E2E Testing)
+**Last Updated**: 2025-10-27 23:00  
+**Status**: ✅ **BUGS FIXED** - Ready for Testing
+---
+
+## LATEST UPDATE - Phase 3: Bug Fixes (2025-10-27 23:00)
+
+### 🐛 Two Critical Bugs Fixed
+
+**Session**: User reported "Share AYAT" button instead of "Share Table" and clicking didn't broadcast
+
+**Root Cause Analysis**:
+
+1. **Bug #1**: `AssetProcessingService.cs` line 319 hardcoded "Share Asset" instead of using `{encodedDisplayName}`
+   - **Impact**: ALL share buttons showed generic "SHARE ASSET" text
+   - **Fix**: Changed to `Share {encodedDisplayName}`
+
+2. **Bug #2**: `HostControlPanel.razor` line 2684 used hardcoded XPath `//table[@style='width: 100%;']`
+   - **Impact**: Table extraction failed because database uses selector `table` (without style filter)
+   - **Fix**: Changed to `//table` to match all table elements
+
+**Files Modified**:
+- `SPA/NoorCanvas/Services/AssetProcessingService.cs` (line 319)
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (line 2684)
+
+**Documentation Created**:
+- `.github/key-data-streams/table-asset-enhancement/SOLUTION-SUMMARY.md` (comprehensive analysis)
+
+**Status**: ✅ Code fixes complete, ready for manual testing
+
 ---
 
 ## Version History
+
+### v1.3 - Extension: Database Validation + E2E Test Suite (2025-10-27)
+**Status**: Phases 1-2 COMPLETE, Extension added (Phases 2.5-2.6)
+
+**Extension Objective**: 
+- Retrieve session 212 transcript from database
+- Validate AssetProcessingService detection for ALL asset types
+- Create comprehensive Playwright test suite (headless + Percy)
+
+**New Phases**:
+- 🔄 Phase 2.5: Database validation (retrieve transcript, test asset detection)
+- 🔄 Phase 2.6: Comprehensive E2E test suite (all asset types, headless, Percy snapshots)
+
+**Estimated Additional Effort**: 2.25 hours (45min + 1.5hr)
+
+---
 
 ### v1.2 - Plan Revised for Remaining Phases (2025-10-27)
 **Status**: Phases 1-2 COMPLETE, Plan revised for testing phases
