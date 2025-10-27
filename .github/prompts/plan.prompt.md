@@ -451,68 +451,339 @@ If you're about to paste 200+ lines in chat → **STOP** → Write to files inst
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
-2. **Maximum 100 line draft** in chat for approval (increased for complex plans)
-3. **Full plan** → `{key}.plan.md` AFTER approval
-4. **Present handoff command** (don't auto-invoke)
-5. **NO execution** - planning only
-6. **Pseudocode preferred** - Use algorithmic descriptions instead of executable code
+2. **WRITE {key}.plan.md v1.0 FIRST** - Document plan BEFORE showing to user
+3. **Show concise summary** in chat (max 100 lines) - NOT full plan content
+4. **Update {key}.plan.md continuously** - Increment version (v1.1, v1.2) on each modification
+5. **Present handoff command** (don't auto-invoke)
+6. **NO execution** - planning only
+7. **Pseudocode preferred** - Use algorithmic descriptions instead of executable code
+8. **Enable resume in new chat** - User can say "continue with {key}" to reload plan context
 
 ## 🚨 OUTPUT ENFORCEMENT CHECKPOINT (READ BEFORE EVERY RESPONSE)
 
+**⚠️ PARADIGM SHIFT: Write plan files FIRST, then show summary to user**
+
 **BEFORE generating ANY plan content, verify:**
 
-1. ✅ **Step 2 (Draft Phase)**: Maximum 100 lines in chat
-   - Concise phase bullets only (no full specifications)
-   - Pseudocode allowed for complex logic
-   - Assumptions validated (3-7 bullets)
+1. ✅ **Step 1 (Generate Plan Content)**:
+   - Generate complete plan internally (phases, tasks, tests, success criteria)
+   - Include enhancement recommendations (high/medium/low priority)
+   - Validate assumptions (3-7 bullets with evidence)
+   - Identify open questions (if any)
+   
+2. ✅ **Step 1.5 (Write Initial Plan Files - BEFORE user sees anything)**:
+   - Write `.github/key-data-streams/{key}/{key}.plan.md` v1.0 (FULL technical details)
+   - Write `.github/key-data-streams/{key}/{key}.plan.json` (tracking metadata)
+   - Write `.github/key-data-streams/{key}/work-log.md` (initialization entry)
+   - Write `.github/key-data-streams/{key}/tests/test-registry.md` (test structure)
+   - **Version Header**: Every {key}.plan.md starts with:
+     ```markdown
+     # Plan: {key}
+     **Version**: 1.0
+     **Status**: Draft
+     **Created**: {timestamp}
+     **Last Updated**: {timestamp}
+     ```
+   
+3. ✅ **Step 1.75 (Show Concise Summary to User - MAX 100 lines)**:
+   - Present high-level summary ONLY in chat
+   - Phase titles and one-liner descriptions
    - Enhancement recommendations (organized by priority)
    - Open questions (if any)
+   - Assumptions validated (3-7 bullets)
+   - File creation confirmation: "📄 Plan documented in `.github/key-data-streams/{key}/{key}.plan.md` v1.0"
    
-2. ❌ **NEVER in chat before user approval**:
-   - Full technical specifications
-   - Complete test specifications
-   - Detailed implementation steps
-   - File structure details
-   - Commit message templates
-   - Execution scripts
+4. ✅ **Step 2 (User Review/Modification Loop)**:
+   - User approves → proceed to Step 3
+   - User requests changes → UPDATE {key}.plan.md to v1.1, v1.2, etc.
+   - User asks questions → answer + update plan if needed
+   - **Every modification increments version number** in plan file
    
-3. ✅ **Step 3 (After user says "proceed")**:
-   - Write ALL technical details to `.github/key-data-streams/{key}/{key}.plan.md`
-   - Write tracking to `{key}.plan.json`
-   - Write log to `work-log.md`
-   - Write test registry to `tests/test-registry.md`
+5. ✅ **Step 2.5 (Continuous Plan Updates)**:
+   - When user says "add X", "change Y", "remove Z":
+     * Update `.github/key-data-streams/{key}/{key}.plan.md` to next version (v1.1 → v1.2)
+     * Update version header timestamp
+     * Append change note to work-log.md: "v1.2 - Added accessibility phase per user request"
+     * Show concise summary of changes (≤20 lines in chat)
+   
+6. ✅ **Step 3 (Final Approval - After user says "proceed")**:
+   - Update plan status from "Draft" to "Approved" in {key}.plan.md
    - Generate execution script to `execute-plan.ps1`
-   - Show file creation confirmation ONLY (no content preview)
+   - Update indexes (Step 4.5)
+   - Show handoff command
 
-**Self-Check**: Count lines before sending. If > 100 in chat → STOP and move to files.
+**Self-Check**: Files written BEFORE user interaction? Version tracked? Summary ≤100 lines?
 
 ---
 
 ## Process
 - **Step 0.0: Key Data Stream Consultation** - **[MANDATORY - ALWAYS FIRST]** Search for related keys, load context, present options
-- Step 0.1: Validate (5 bullets)
+- **Step 0.1: Validate** (5 bullets)
   - **Key Spelling** - Validate and correct spelling mistakes in key
   - **Key Detection** - If no key provided, auto-detect active plan key from git history
-- Step 1: Draft (30-50 lines with MANDATORY enhancements)
-- **Step 1.5: Questionnaire Generation** - If open questions exist, generate `.github/key-data-streams/{key}/questionnaire.md`
-- **Step 1.75: OUTPUT CHECKPOINT** - Verify draft ≤ 100 lines before showing to user
-- Step 2: User approval OR clarification (HALT if open questions exist in questionnaire)
-- **Step 2.5: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
-- Step 3: Write files (including test registry structure, incorporate questionnaire answers)
-- Step 4: Generate auto-execution handoff (task-to-task chaining) **[MANDATORY - BLOCKING CHECKPOINT]**
+- **Step 1: Generate Plan Content** (internal - not shown to user yet)
+  - Generate complete plan structure (phases, tasks, tests, success criteria)
+  - Validate assumptions with evidence
+  - Identify enhancement recommendations (high/medium/low priority)
+  - Detect open questions requiring user input
+- **Step 1.5: Write Initial Plan Files** - **[MANDATORY - BEFORE user interaction]**
+  - Create `.github/key-data-streams/{key}/{key}.plan.md` v1.0 with FULL technical details
+  - Create `{key}.plan.json` with tracking metadata
+  - Create `work-log.md` with initialization entry
+  - Create `tests/test-registry.md` with test structure
+  - **Include version header in {key}.plan.md**:
+    ```markdown
+    # Plan: {key}
+    **Version**: 1.0
+    **Status**: Draft
+    **Created**: {timestamp}
+    **Last Updated**: {timestamp}
+    ```
+- **Step 1.6: Questionnaire Generation** - If open questions exist, generate `.github/key-data-streams/{key}/questionnaire.md`
+- **Step 1.75: Show Concise Summary to User** - **[MAX 100 lines in chat]**
+  - Phase titles and one-liner descriptions (NOT full specs)
+  - Enhancement recommendations organized by priority
+  - Open questions (if any)
+  - Assumptions validated (3-7 bullets)
+  - File creation notice: "📄 Plan documented in {key}.plan.md v1.0"
+- **Step 2: User Review/Modification Loop**
+  - User approves → proceed to Step 3
+  - User requests changes → go to Step 2.5
+  - User asks questions → answer and update plan if needed
+  - **HALT if questionnaire exists** - wait for user to mark answers
+- **Step 2.5: Continuous Plan Updates** - **[On EVERY user modification]**
+  - Update `.github/key-data-streams/{key}/{key}.plan.md` to next version (v1.1, v1.2, v1.3, etc.)
+  - Increment version number in plan header
+  - Update "Last Updated" timestamp
+  - Append change summary to work-log.md: "v{version} - {modification-description}"
+  - Show concise summary of changes (≤20 lines in chat)
+  - Return to Step 2 (user review loop)
+- **Step 2.75: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
+- **Step 3: Finalize Approved Plan** - **[After user says "proceed"]**
+  - Update plan status from "Draft" to "Approved" in {key}.plan.md header
+  - Incorporate questionnaire answers (if applicable)
+  - Final version increment (e.g., v1.3 → v2.0 "Approved")
+- **Step 4: Generate Auto-Execution Handoff** - **[MANDATORY - BLOCKING CHECKPOINT]**
+  - Create `execute-plan.ps1` script for unassisted execution
+  - Verify script creation before proceeding
 - **Step 4.5: Update Indexes** - Add/update key in global and specialized indexes
 - **Step 6: Cleanup Phase (if applicable)** - For completed keys, offer cleanup/flattening phase
-- Step 7: STOP and present key prominently - **DO NOT auto-execute, DO NOT suggest moving to new chat, DO NOT continue to implementation** - Planning agent's work is COMPLETE
+- **Step 7: STOP and Present Key** - **[FINAL]**
+  - Show handoff command with prominent key display
+  - **DO NOT auto-execute, DO NOT suggest moving to new chat**
+  - User decides next action in SAME chat session
 
-**⚠️ CRITICAL: Planning Agent Must STOP at Step 7**
-- After creating all files and updating indexes, planning agent **HALTS** and shows final message with prominent key display
-- Planning agent **NEVER** auto-executes implementation phases
-- Planning agent **NEVER** tells user to "move to new chat" or "continue in fresh session"
-- User decides next action: proceed with implementation OR modify plan OR execute manually OR trigger cleanup phase
-- Implementation happens in SAME chat session unless user chooses otherwise
+**⚠️ CRITICAL WORKFLOW CHANGES:**
+- Plan files written in **Step 1.5** (BEFORE user sees anything)
+- User sees only concise summary in **Step 1.75** (≤100 lines)
+- **Every user modification** triggers plan file update (**Step 2.5**)
+- Version tracking ensures iterative refinement is documented
+- User can resume in new chat: "continue with {key}" (auto-loads {key}.plan.md)
 
-**Note:** Execution agents (handoff/task) create git commits after each phase.
-See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+**⚠️ MANDATORY GIT COMMIT PROTOCOL:**
+- **EVERY phase completion MUST create a git commit** with detailed changes
+- **EVERY commit MUST be pushed to origin immediately**
+- **Commit messages MUST include cleanup notes and changes done**
+- **NO phase can be marked complete without a commit**
+- **Final work completion requires ZERO uncommitted changes**
+- See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+
+---
+
+## 🔒 STEP 2.5: CONTINUOUS PLAN UPDATE ALGORITHM (MANDATORY)
+
+**⚠️ TRIGGER**: Every time user modifies plan during review loop (Step 2)
+
+**Purpose**: Keep {key}.plan.md synchronized with user's iterative refinements
+
+### When to Execute Step 2.5
+- User says "add {X}" → append new phase/task/test
+- User says "change {Y}" → modify existing phase/task/test
+- User says "remove {Z}" → delete phase/task/test
+- User says "make it {description}" → restructure plan
+- User asks clarifying questions → may trigger plan update after answer
+
+### Update Algorithm
+
+```
+FUNCTION UpdatePlanFile(key, modificationType, modificationDetails)
+  
+  // 1. Load current plan
+  planPath = ".github/key-data-streams/{key}/{key}.plan.md"
+  currentPlan = ReadFile(planPath)
+  currentVersion = ExtractVersion(currentPlan)  // e.g., "1.0", "1.1", "1.2"
+  
+  // 2. Calculate next version
+  nextVersion = IncrementVersion(currentVersion)  // "1.0" → "1.1", "1.2" → "1.3"
+  
+  // 3. Apply modification to plan content
+  SWITCH modificationType
+    CASE "add":
+      newPlan = AppendToSection(currentPlan, modificationDetails.section, modificationDetails.content)
+      changeSummary = "Added {modificationDetails.summary}"
+    CASE "change":
+      newPlan = ModifySection(currentPlan, modificationDetails.section, modificationDetails.newContent)
+      changeSummary = "Modified {modificationDetails.summary}"
+    CASE "remove":
+      newPlan = RemoveFromSection(currentPlan, modificationDetails.section, modificationDetails.target)
+      changeSummary = "Removed {modificationDetails.summary}"
+    CASE "restructure":
+      newPlan = RestructurePlan(currentPlan, modificationDetails.newStructure)
+      changeSummary = "Restructured {modificationDetails.summary}"
+  END SWITCH
+  
+  // 4. Update version header in plan
+  newPlan = UpdateVersionHeader(newPlan, nextVersion, currentTimestamp)
+  /*
+  Example version header update:
+  # Plan: zoom-integration
+  **Version**: 1.2 ← incremented from 1.1
+  **Status**: Draft
+  **Created**: 2025-10-27 10:30:00
+  **Last Updated**: 2025-10-27 14:15:00 ← updated timestamp
+  */
+  
+  // 5. Write updated plan to file
+  WriteFile(planPath, newPlan)
+  
+  // 6. Append change entry to work-log.md
+  workLogPath = ".github/key-data-streams/{key}/work-log.md"
+  workLogEntry = "
+## v{nextVersion} - {changeSummary}
+**Timestamp**: {currentTimestamp}
+**Requested by**: User (during plan review)
+**Changes**: {modificationDetails.detailedDescription}
+"
+  AppendToFile(workLogPath, workLogEntry)
+  
+  // 7. Update tracking JSON
+  trackingPath = ".github/key-data-streams/{key}/{key}.plan.json"
+  tracking = ReadJSON(trackingPath)
+  tracking.version = nextVersion
+  tracking.lastUpdated = currentTimestamp
+  tracking.modifications.Append({
+    version: nextVersion,
+    type: modificationType,
+    summary: changeSummary,
+    timestamp: currentTimestamp
+  })
+  WriteJSON(trackingPath, tracking)
+  
+  // 8. Show concise summary to user (≤20 lines in chat)
+  OUTPUT: "📝 Updated plan to v{nextVersion}"
+  OUTPUT: "Change: {changeSummary}"
+  OUTPUT: ""
+  
+  // Show affected sections (concise)
+  IF modificationType == "add" THEN
+    OUTPUT: "➕ Added to {modificationDetails.section}:"
+    OUTPUT: "   {modificationDetails.content.summary}"
+  ELSE IF modificationType == "change" THEN
+    OUTPUT: "✏️ Modified {modificationDetails.section}:"
+    OUTPUT: "   Before: {modificationDetails.oldContent.summary}"
+    OUTPUT: "   After: {modificationDetails.newContent.summary}"
+  ELSE IF modificationType == "remove" THEN
+    OUTPUT: "➖ Removed from {modificationDetails.section}:"
+    OUTPUT: "   {modificationDetails.target.summary}"
+  END IF
+  
+  OUTPUT: ""
+  OUTPUT: "📄 Updated: .github/key-data-streams/{key}/{key}.plan.md v{nextVersion}"
+  OUTPUT: ""
+  OUTPUT: "Review changes? (yes/no) or continue modifying?"
+  
+  // 9. Return to Step 2 (User Review Loop)
+  RETURN_TO_STEP_2()
+  
+END FUNCTION
+```
+
+### Version Increment Rules
+
+**Minor Changes** (incremental: 1.0 → 1.1 → 1.2):
+- Add single phase/task
+- Modify phase description
+- Update test specification
+- Change enhancement recommendation
+- Add/remove file from phase
+
+**Major Changes** (full increment: 1.5 → 2.0):
+- User approval (Draft → Approved status change)
+- Complete plan restructure
+- Change from multi-phase to single-phase (or vice versa)
+- Pivot to different approach
+
+**Version Format**: `{major}.{minor}`
+- Initial draft: `1.0`
+- Iterative refinements: `1.1`, `1.2`, `1.3`, ...
+- Approved plan: `2.0` (or next major version)
+
+### Change Summary Examples
+
+**Adding Enhancement Phase**:
+```
+User: add accessibility phase after UI implementation
+
+Agent: 📝 Updated plan to v1.2
+       Change: Added Phase 4 - Accessibility Validation
+       
+       ➕ Added to Phases:
+          Phase 4: Accessibility Validation
+          - Run axe-core tests
+          - Validate ARIA labels
+          - Test keyboard navigation
+       
+       📄 Updated: .github/key-data-streams/ui-refresh/ui-refresh.plan.md v1.2
+       
+       Review changes? (yes/no) or continue modifying?
+```
+
+**Modifying Test Approach**:
+```
+User: change phase 2 to use Percy instead of Playwright screenshots
+
+Agent: 📝 Updated plan to v1.3
+       Change: Modified Phase 2 - Testing strategy
+       
+       ✏️ Modified Phase 2: Visual Regression Testing:
+          Before: Playwright screenshot comparison
+          After: Percy visual regression tests with baseline snapshots
+       
+       📄 Updated: .github/key-data-streams/ui-refresh/ui-refresh.plan.md v1.3
+       
+       Review changes? (yes/no) or continue modifying?
+```
+
+**Removing Unnecessary Phase**:
+```
+User: remove database migration phase, we don't need it
+
+Agent: 📝 Updated plan to v1.4
+       Change: Removed Phase 3 - Database Migration
+       
+       ➖ Removed from Phases:
+          Phase 3: Database Migration (no longer needed per user)
+       
+       📄 Updated: .github/key-data-streams/ui-refresh/ui-refresh.plan.md v1.4
+       
+       Review changes? (yes/no) or continue modifying?
+```
+
+### Integration with Step 3 (Final Approval)
+
+When user says "proceed" or "approved":
+1. Execute Step 2.5 one final time
+2. Change status from "Draft" to "Approved"
+3. Increment to next major version (e.g., v1.4 → v2.0)
+4. Proceed to Step 4 (execution handoff)
+
+### Benefits
+
+✅ **Complete audit trail** - Every modification tracked in work-log.md  
+✅ **Version history** - Know exactly when each change was made  
+✅ **Resume-friendly** - {key}.plan.md always reflects latest state  
+✅ **Transparent iteration** - User sees updates immediately  
+✅ **Git-friendly** - Can commit plan evolution if desired
 
 ---
 
@@ -777,7 +1048,151 @@ Changes:
 - Plan continuation **modifies planning** (refines plan before/during execution)
 - Both use same key detection pattern from git history
 
-## Questionnaire Protocol (Step 1.5 & 2.5)
+## Resume Work in New Chat Session
+
+### User Command: "continue with {key}"
+
+**Purpose**: Enable seamless work resumption in fresh chat session by loading complete plan context from {key}.plan.md
+
+**Trigger Patterns**:
+- "continue with {key}"
+- "resume {key}"
+- "load plan {key}"
+- "@workspace /plan key:{key}" (without additional request)
+
+**Behavior Algorithm**:
+```
+FUNCTION ResumeWorkWithKey(key)
+  
+  // 1. Validate key exists
+  planPath = ".github/key-data-streams/{key}/{key}.plan.md"
+  IF NOT FileExists(planPath) THEN
+    HALT("Plan not found for key: {key}")
+    SUGGEST_ALTERNATIVES(SearchSimilarKeys(key))
+  END IF
+  
+  // 2. Load complete plan context
+  plan = ReadFile(planPath)
+  workLog = ReadFile(".github/key-data-streams/{key}/work-log.md")
+  tracking = ReadJSON(".github/key-data-streams/{key}/{key}.plan.json")
+  
+  // 3. Parse current state
+  currentVersion = ExtractVersion(plan)
+  planStatus = ExtractStatus(plan)  // Draft | Approved | In Progress | Complete
+  currentPhase = DetermineCurrentPhase(workLog, tracking)
+  completedPhases = GetCompletedPhases(workLog)
+  remainingPhases = GetRemainingPhases(plan, completedPhases)
+  
+  // 4. Present context summary to user (≤20 lines)
+  PRINT("📄 Loaded plan: {key} v{currentVersion}")
+  PRINT("Status: {planStatus}")
+  PRINT("Progress: Phase {currentPhase.number}/{total} - {currentPhase.title}")
+  PRINT("")
+  PRINT("✅ Completed: {completedPhases.count} phases")
+  FOR EACH phase IN completedPhases.Take(3)
+    PRINT("   ✓ Phase {phase.number}: {phase.title}")
+  END FOR
+  PRINT("")
+  PRINT("⏭️ Remaining: {remainingPhases.count} phases")
+  FOR EACH phase IN remainingPhases.Take(3)
+    PRINT("   ○ Phase {phase.number}: {phase.title}")
+  END FOR
+  PRINT("")
+  PRINT("📊 Files: {tracking.filesModified.count} | Tests: {tracking.tests.count}")
+  PRINT("")
+  PRINT("What would you like to do?")
+  PRINT("  A. Continue execution (next phase: {nextPhase.title})")
+  PRINT("  B. Modify plan (add/change/remove phases)")
+  PRINT("  C. Review plan details (show full plan)")
+  PRINT("  D. Mark complete (if all work done)")
+  
+  // 5. Wait for user choice
+  HALT_AND_WAIT()
+  
+END FUNCTION
+```
+
+**Context Loaded from {key}.plan.md**:
+- Plan version and status
+- All phases (completed and remaining)
+- Success criteria and exit conditions
+- Test specifications and coverage
+- Files to be modified
+- Dependencies and prerequisites
+- Enhancement recommendations (if applicable)
+
+**Context Loaded from work-log.md**:
+- Execution history (which phases completed, when, by whom)
+- Checkpoint commits
+- Modifications made during iteration
+- Drift registrations (if any)
+
+**Context Loaded from {key}.plan.json**:
+- Metadata (created, updated, completed timestamps)
+- Current phase number
+- Test execution results
+- File modification tracking
+- Success criteria checklist
+
+**Integration with todo.prompt.md**:
+- When user says "continue with {key}" in todo.prompt.md context:
+  * Load plan from {key}.plan.md
+  * Determine if work is in planning phase or execution phase
+  * Route to appropriate agent:
+    - Planning phase (status=Draft/Approved, no phases started) → plan.prompt.md
+    - Execution phase (status=In Progress, phases started) → task.prompt.md via todo.prompt.md
+    - Completion phase (status=Complete) → Offer cleanup or new work
+
+**Resume Workflow Example**:
+```
+User: continue with zoom-integration
+
+Agent: 📄 Loaded plan: zoom-integration v2.1
+       Status: In Progress
+       Progress: Phase 3/5 - Implement Zoom Meeting Creation API
+       
+       ✅ Completed: 2 phases
+          ✓ Phase 1: Database Schema Updates
+          ✓ Phase 2: Configuration Setup
+       
+       ⏭️ Remaining: 3 phases
+          ○ Phase 3: Implement Zoom Meeting Creation API
+          ○ Phase 4: Update UI for Zoom Integration
+          ○ Phase 5: Testing and Validation
+       
+       📊 Files: 8 modified | Tests: 12 pending
+       
+       What would you like to do?
+         A. Continue execution (next phase: Implement Zoom Meeting Creation API)
+         B. Modify plan (add/change/remove phases)
+         C. Review plan details (show full plan)
+         D. Mark complete (if all work done)
+
+User: A
+
+Agent: [Invokes task.prompt.md with key:zoom-integration phase:3]
+```
+
+**Benefits**:
+✅ **Zero context loss** - Complete plan loaded from {key}.plan.md  
+✅ **Session-independent** - Work seamlessly across multiple chat sessions  
+✅ **Progress tracking** - Know exactly where you left off  
+✅ **Flexible resume** - Continue execution, modify plan, or review details  
+✅ **Drift aware** - Loads registered drifts from work-log.md
+
+**File Requirements for Resume**:
+- **MINIMUM**: `.github/key-data-streams/{key}/{key}.plan.md` (required)
+- **RECOMMENDED**: `work-log.md` (tracks execution history)
+- **OPTIONAL**: `{key}.plan.json` (metadata, faster parsing)
+
+**Error Handling**:
+- Key not found → suggest similar keys from index
+- Plan file corrupted → attempt recovery from git history
+- Ambiguous state → present options for resolution
+
+---
+
+## Questionnaire Protocol (Step 1.6 & 2.75)
 
 ### Purpose
 Simplify user question-answering with dedicated markdown files featuring multi-choice format, clear explanations, and automatic cleanup.
@@ -1378,10 +1793,68 @@ FOR ($phase = 1; $phase -le $totalPhases; $phase++) {
     Write-Host ""
     
     Read-Host "Press ENTER when phase $phase completes (or Ctrl+C to abort)"
+    
+    # MANDATORY: Verify git commit was created
+    Write-Host ""
+    Write-Host "🔍 Verifying phase $phase commit..." -ForegroundColor Cyan
+    
+    # Check for uncommitted changes
+    $uncommittedCount = (git status --porcelain | Measure-Object).Count
+    IF ($uncommittedCount -gt 0) {
+        Write-Host "❌ ERROR: Phase $phase has $uncommittedCount uncommitted changes!" -ForegroundColor Red
+        Write-Host "   All phase work MUST be committed before proceeding." -ForegroundColor Red
+        Write-Host ""
+        git status --short
+        Write-Host ""
+        Write-Host "Options:" -ForegroundColor Yellow
+        Write-Host "  1. Commit changes manually: git add -A && git commit -m 'ckpt($key): Phase $phase - <description>'" -ForegroundColor White
+        Write-Host "  2. Abort execution: Ctrl+C" -ForegroundColor White
+        Read-Host "Press ENTER after committing changes"
+    }
+    
+    # Verify recent commit exists for this phase
+    $recentCommit = git log -1 --oneline --grep="ckpt($key): Phase $phase"
+    IF ($recentCommit) {
+        Write-Host "✅ Phase $phase commit verified: $recentCommit" -ForegroundColor Green
+    } ELSE {
+        Write-Host "⚠️  WARNING: No commit found for Phase $phase" -ForegroundColor Yellow
+        Write-Host "   Expected commit format: ckpt($key): Phase $phase - <description>" -ForegroundColor Yellow
+    }
+    
+    # MANDATORY: Push to origin
+    Write-Host ""
+    Write-Host "📤 Pushing phase $phase to origin..." -ForegroundColor Cyan
+    git push origin development
+    
+    IF ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ Phase $phase pushed to origin successfully" -ForegroundColor Green
+    } ELSE {
+        Write-Host "❌ ERROR: Failed to push phase $phase to origin!" -ForegroundColor Red
+        Read-Host "Press ENTER after resolving push issues (or Ctrl+C to abort)"
+    }
+    
+    Write-Host ""
 }
 
 Write-Host ""
-Write-Host "✅ All phases complete!" -ForegroundColor Green
+Write-Host "✅ All $totalPhases phases complete!" -ForegroundColor Green
+Write-Host ""
+
+# FINAL VERIFICATION: Ensure no uncommitted changes remain
+Write-Host "🔍 Final verification: Checking for uncommitted changes..." -ForegroundColor Cyan
+$finalUncommittedCount = (git status --porcelain | Measure-Object).Count
+
+IF ($finalUncommittedCount -gt 0) {
+    Write-Host "❌ ERROR: $finalUncommittedCount uncommitted changes detected!" -ForegroundColor Red
+    Write-Host "   Work cannot be marked complete with uncommitted changes." -ForegroundColor Red
+    Write-Host ""
+    git status --short
+    Write-Host ""
+    EXIT 1
+} ELSE {
+    Write-Host "✅ No uncommitted changes - work is clean!" -ForegroundColor Green
+}
+
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  @workspace /task key:$key tasks='mark complete'" -ForegroundColor White

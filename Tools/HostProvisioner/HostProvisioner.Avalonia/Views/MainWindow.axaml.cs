@@ -10,6 +10,15 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        
+        // Set window reference in ViewModel for clipboard access
+        this.DataContextChanged += (sender, args) =>
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SetWindow(this);
+            }
+        };
     }
 
     private void CloseButton_Click(object? sender, RoutedEventArgs e)

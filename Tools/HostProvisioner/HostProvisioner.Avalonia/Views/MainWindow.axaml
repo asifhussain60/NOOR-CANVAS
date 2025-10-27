@@ -217,7 +217,7 @@
                                 
                                 <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                                     <Button Classes="secondary" 
-                                            Content="📋 Copy Token" 
+                                            Content="📋 Copy Link" 
                                             Command="{Binding CopyHostTokenCommand}"/>
                                     <Button Classes="secondary" 
                                             Content="🚀 Open in Browser" 
