@@ -5,10 +5,10 @@ description: Meta-prompt builder that analyzes user requests and context to cons
 
 # build.prompt.md (Prompt Builder Agent)
 
-**Version:** 1.2.1  
+**Version:** 1.2.0  
 **Purpose:** Analyze user requests + context → build optimized prompt → **ACTUALLY HANDOFF** to specialized agent
 
-**New in v1.2.1:** All routing now requires user approval by default. Build agent displays 🧠 Analysis + 📌 Summary with A/B/C/D options before handoff. Intelligent routing detects single vs multiple tasks but always shows plan and awaits approval unless `auto-execute=true` is explicitly set.
+**New in v1.2.0:** Intelligent routing - automatically detects single vs multiple unrelated tasks and routes to `todo` (auto-approved) or `plan` (requires approval) accordingly.
 
 ---
 
@@ -18,9 +18,8 @@ description: Meta-prompt builder that analyzes user requests and context to cons
 ```bash
 @workspace /build-prompt "your request here"
 @workspace /build "your request here"
-# Single task → routes to 'todo' (shows plan and awaits approval)
-# Multiple tasks → routes to 'plan' (shows plan and awaits approval)
-# Override: add auto-execute=true to bypass approval gate
+# Single task → routes to 'todo' (auto-approved)
+# Multiple tasks → routes to 'plan' (requires approval)
 ```
 
 **With explicit target (simplified format):**
@@ -52,35 +51,31 @@ description: Meta-prompt builder that analyzes user requests and context to cons
 1. **Searches existing key data streams** before creating new ones (prevents duplication)
 2. **Analyzes all context** (text, images, videos, files, errors) to extract requirements
 3. **Intelligently routes based on task complexity:**
-   - **Single task** → `todo` prompt (shows plan and awaits approval)
-   - **Multiple unrelated tasks** → `plan` prompt (shows plan and awaits approval)
+   - **Single task** → `todo` prompt (auto-approved, immediate execution)
+   - **Multiple unrelated tasks** → `plan` prompt (requires user approval)
 4. **Classifies work type** and determines optimal target agent
 5. **Generates or reuses keys** following naming conventions
 6. **Constructs optimized prompts** with proper parameters for target agent
-7. **Displays 🧠 Analysis + 📌 Summary** with A/B/C/D options before handoff
-8. **Provides clear handoff messaging** stating which prompt receives the work and approval behavior
+7. **Provides clear handoff messaging** stating which prompt receives the work and approval behavior
 8. **Actually performs handoff** by loading and executing the target prompt file
 
-### Intelligent Routing (New in v1.2.1)
+### Intelligent Routing (New in v1.2.0)
 
 **When no target is specified**, the build prompt automatically analyzes the request:
 
 - **Single focused task** → Routes to `todo` prompt
-  - Shows plan and awaits approval before execution
+  - Auto-approved for immediate execution
   - Example: "Fix the button layout in Header.razor"
   
 - **Multiple unrelated tasks** → Routes to `plan` prompt  
-  - Shows plan and awaits approval before execution
+  - Requires user approval before execution
   - Example: "Fix button layout and also update the database schema"
 
 **Approval Behavior:**
-- **All routing:** Always displays 🧠 Analysis + 📌 Summary + A/B/C/D approval options
-- **Plan prompt:** Requires user approval (multi-phase coordination)
-- **Todo prompt:** Requires user approval (single-task execution)
+- **Plan prompt:** Always stops for user approval (multi-phase coordination)
+- **Todo prompt:** Auto-approved (single-task execution)
 
-**Auto-Execute Override:** Users can explicitly add `auto-execute=true` parameter to bypass approval for trusted operations.
-
-This ensures appropriate oversight for all work while maintaining user control.
+This ensures appropriate oversight for complex multi-task work while streamlining single-task execution.
 
 ### Critical: This is NOT a Simulation
 
@@ -127,9 +122,8 @@ Examples:
 @workspace /build-prompt "request"
 ```
 Analyzes request and intelligently routes to:
-- `todo` for single tasks (shows plan and awaits approval)
-- `plan` for multiple unrelated tasks (shows plan and awaits approval)
-- Override with `auto-execute=true` to bypass approval gate
+- `todo` for single tasks (auto-approved)
+- `plan` for multiple unrelated tasks (requires approval)
 
 ### target *(default=intelligent routing)*
 The specialized prompt to route to. Valid values:
@@ -147,12 +141,11 @@ The specialized prompt to route to. Valid values:
 - If first token matches a valid target name, it's extracted as the target
 - If not recognized, entire string is treated as request with intelligent routing
 
-**Default Behavior (v1.2.1):** If target is not specified, the agent uses intelligent routing:
+**Default Behavior (v1.2.0):** If target is not specified, the agent uses intelligent routing:
 - Analyzes request to detect single vs multiple unrelated tasks
-- **Single task** → routes to `todo` (displays plan and awaits approval)
-- **Multiple tasks** → routes to `plan` (displays plan and awaits approval)
-- All routing displays 🧠 Analysis + 📌 Summary + A/B/C/D options before execution
-- Users can override with explicit `auto-execute=true` parameter for trusted operations
+- **Single task** → routes to `todo` (auto-approved, immediate execution)
+- **Multiple tasks** → routes to `plan` (requires user approval, multi-phase coordination)
+- This ensures appropriate oversight while streamlining single-task execution
 
 ### -test *(flag, optional)*
 Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
@@ -542,15 +535,15 @@ FUNCTION DetermineIntelligentRouting(analysis, providedTarget)
     PRINT("")
     RETURN "plan"
   ELSE
-    // Single focused task → TODO (shows plan first)
+    // Single focused task → TODO (auto-approve)
     PRINT("---")
     PRINT("✅ **Intelligent Routing: Single Task Detected**")
     PRINT("")
     PRINT("Your request appears to be a single focused task:")
     PRINT("  • {analysis.textContent.Truncate(80)}")
     PRINT("")
-    PRINT("⚡ **Routing to: `todo` prompt** (will show plan and await approval)")
-    PRINT("   � Will display analysis before execution")
+    PRINT("⚡ **Routing to: `todo` prompt** (immediate execution)")
+    PRINT("   🚀 Auto-approving for direct execution")
     PRINT("")
     RETURN "todo"
   END IF
@@ -576,15 +569,15 @@ END FUNCTION
   - 3 distinct tasks in numbered list
   - **Action:** Route to `plan`, pause for user approval
 
-**Single task → TODO (shows plan first):**
+**Single task → TODO (auto-approve):**
 - ✅ "Fix the button layout issue shown in the screenshot"
-  - **Action:** Route to `todo`, display plan and await approval
+  - **Action:** Route to `todo`, auto-execute immediately
   
 - ✅ "Why is the database info missing in the debug panel?"
-  - **Action:** Route to `todo`, display plan and await approval
+  - **Action:** Route to `todo`, auto-execute immediately
   
 - ✅ "Add user dashboard with widgets and profile section" (single feature with sub-components)
-  - **Action:** Route to `todo`, display plan and await approval
+  - **Action:** Route to `todo`, auto-execute immediately
 
 ---
 
@@ -600,13 +593,13 @@ FUNCTION ClassifyWork(analysis, targetPrompt)
     PRINT("No target specified, analyzing request for intelligent routing...")
     targetPrompt = DetermineIntelligentRouting(analysis, NULL)
     
-    // NOTE: Auto-execute is OFF by default for intelligent routing
-    // User must explicitly set auto-execute=true to bypass approval
-    IF autoExecute IS NOT EXPLICITLY SET THEN
-      autoExecute = false  // All routing requires approval by default
-      PRINT("   ⚙️  auto-execute: disabled (will display plan and request approval)")
-    ELSE IF autoExecute == true THEN
-      PRINT("   ⚙️  auto-execute: enabled (user override)")
+    // Set auto-execute based on routing decision
+    IF targetPrompt == "todo" THEN
+      autoExecute = true  // Single task → auto-approve
+      PRINT("   ⚙️  auto-execute: enabled")
+    ELSE IF targetPrompt == "plan" THEN
+      autoExecute = false  // Multiple tasks → require approval
+      PRINT("   ⚙️  auto-execute: disabled (will request approval)")
     END IF
     PRINT("---")
     PRINT("")
@@ -639,7 +632,7 @@ FUNCTION ClassifyWork(analysis, targetPrompt)
     // Single task detected
     IF targetPrompt == "todo" THEN
       PRINT("✅ Single task confirmed, proceeding with 'todo' agent")
-      // Note: Approval still required unless user explicitly set auto-execute=true
+      autoExecute = true  // Auto-approve single tasks
     END IF
   END IF
   
@@ -905,7 +898,6 @@ FUNCTION ConstructPrompt(targetPrompt, analysis, key, complexity)
       
     CASE "todo":
       prompt.parameters["auto-chain"] = "false"
-      prompt.parameters["from-build"] = "true"  // Signal to skip 5s auto-execute
       // Additional context for extending work
       prompt.context += "\nExtending Current Work: " + key
       
@@ -998,70 +990,6 @@ FUNCTION ExecuteBuildPrompt(rawInput)
 END FUNCTION
 ```
 
-### User Approval Gate (Step 6)
-
-**Present analysis and summary following output-style-mandate.md before handoff:**
-
-```
-FUNCTION PresentPromptForReview(builtPrompt)
-  
-  // MANDATORY OUTPUT FORMAT per output-style-mandate.md
-  // Maximum 15 bullets total (5 in Analysis, 10 in Summary)
-  
-  PRINT("---")
-  PRINT("")
-  PRINT("## 🧠 Analysis")
-  PRINT("")
-  
-  // Analysis bullets (max 5)
-  PRINT("- **Request Type:** {ClassifyRequestType(builtPrompt.userRequest)}")
-  PRINT("- **Target Agent:** `{builtPrompt.agent}` prompt")
-  PRINT("- **Key:** `{builtPrompt.key}`")
-  PRINT("- **Complexity:** {builtPrompt.complexity}")
-  
-  IF HasVisualContext(builtPrompt.context) THEN
-    PRINT("- **Context:** Includes {CountAttachments(builtPrompt.context)} attachment(s) (images/videos/files)")
-  ELSE
-    PRINT("- **Context:** Text-based request")
-  END IF
-  
-  PRINT("")
-  PRINT("## 📌 Summary")
-  PRINT("")
-  
-  // Summary bullets (max 10)
-  PRINT("**Handoff Plan:**")
-  PRINT("- Will load `{GetTargetPromptFile(builtPrompt.agent)}`")
-  PRINT("- Agent will receive structured request with key `{builtPrompt.key}`")
-  
-  IF builtPrompt.agent == "plan" THEN
-    PRINT("- Plan agent will create comprehensive multi-phase plan")
-    PRINT("- Plan files generated in `.github/key-data-streams/{builtPrompt.key}/`")
-  ELSE IF builtPrompt.agent == "todo" THEN
-    PRINT("- Todo agent will extend existing work under key `{builtPrompt.key}`")
-    PRINT("- Changes tracked in work-log.md")
-  ELSE IF builtPrompt.agent == "task" THEN
-    PRINT("- Task agent will execute single-focus work")
-    PRINT("- Implements {builtPrompt.userRequest.Truncate(60)}")
-  END IF
-  
-  IF HasRelatedKeys(builtPrompt.key) THEN
-    relatedKeys = GetRelatedKeys(builtPrompt.key)
-    PRINT("- Related keys: {FormatKeyList(relatedKeys)}")
-  END IF
-  
-  PRINT("")
-  PRINT("**What would you like to do next?**")
-  PRINT("")
-  PRINT("**A.** Proceed with handoff to `{builtPrompt.agent}` agent (execute plan)")
-  PRINT("**B.** Change target agent (switch to different prompt)")
-  PRINT("**C.** Modify key or parameters (adjust before handoff)")
-  PRINT("**D.** Cancel (stop and return to normal chat)")
-  PRINT("")
-  
-END FUNCTION
-```
-
 ### Automatic Handoff Mechanism
 
 **The handoff is NOT simulated - it actually invokes the target prompt:**
@@ -1087,13 +1015,26 @@ FUNCTION HandoffToAgent(builtPrompt, autoExecute)
   PRINT("")
   
   // Clear approval behavior messaging
-  IF autoExecute == false THEN
-    PRINT("⏸️  **Approval Mode:** Will pause for your review before execution")
-    PRINT("   The {builtPrompt.agent} agent will present its plan and await your confirmation")
+  IF builtPrompt.agent == "plan" THEN
+    IF autoExecute == false THEN
+      PRINT("📋 **Approval Mode:** Plan prompt will pause for your review and approval")
+      PRINT("   The plan will be generated but requires your confirmation before execution")
+      PRINT("")
+    ELSE
+      PRINT("📋 **Approval Mode:** Plan prompt will pause for your review and approval")
+      PRINT("   (Note: Even with auto-execute, plan prompts require user approval)")
+      PRINT("")
+    END IF
+  ELSE IF builtPrompt.agent == "todo" THEN
+    PRINT("⚡ **Approval Mode:** Auto-approved - executing immediately")
+    PRINT("   Todo prompt will proceed without requiring explicit user approval")
     PRINT("")
-  ELSE
-    PRINT("⚡ **Approval Mode:** Auto-executing (user override with auto-execute=true)")
-    PRINT("   The {builtPrompt.agent} agent will proceed immediately without pause")
+  ELSE IF builtPrompt.agent == "task" THEN
+    IF autoExecute THEN
+      PRINT("⚡ **Approval Mode:** Auto-approved - executing immediately")
+    ELSE
+      PRINT("⏸️  **Approval Mode:** Will pause for your review before execution")
+    END IF
     PRINT("")
   END IF
   
@@ -1108,15 +1049,21 @@ END FUNCTION
 
 **Approval Behavior by Agent:**
 
-- **All agents (v1.2.1):** Default behavior requires user approval
-  - Build agent displays 🧠 Analysis + 📌 Summary
-  - Presents A/B/C/D options for user to choose next action
-  - Target agent may have additional approval steps
+- **`plan` prompt:** Always pauses for user approval, regardless of auto-execute setting
+  - Generates comprehensive plan with phases
+  - Presents plan for review and confirmation
+  - User can approve, modify, or cancel before execution
   
-- **Auto-Execute Override:** When `auto-execute=true` is explicitly set
-  - Bypasses build agent's approval gate
-  - Target agent still follows its own approval logic
-  - Use only for trusted/routine operations
+- **`todo` prompt:** Auto-approved by default for single-task requests
+  - Immediately executes work without pause
+  - Suitable for straightforward, single-focus tasks
+  - User can still specify explicit review if needed
+  
+- **`task` prompt:** Respects auto-execute parameter
+  - If auto-execute=true: Proceeds immediately
+  - If auto-execute=false: Pauses for user review
+  
+- **Other agents:** Behavior varies by agent type (see individual prompt documentation)
 
 **Critical Implementation Note:**
 
