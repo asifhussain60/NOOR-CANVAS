@@ -15,6 +15,13 @@ description: Canonical execution engine that breaks down requests, validates out
 
 **CRITICAL:** MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 
+**Output Validation (MANDATORY):**
+- All user-facing responses MUST be validated before sending
+- See Execution Flow → Response Validation step
+- Uses `.github/prompts/shared/output-validator.md`
+- Critical violations BLOCK response (>15 bullets, implementation code)
+- Auto-fix: consolidation, flattening, next actions
+
 ## Output Format
 See `.github/prompts/shared/output-style-mandate.md`
 
@@ -1589,6 +1596,47 @@ SUMMARY: {key-name}
 **CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
 
 **GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/key-data-streams/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
+
+---
+
+### Step 8.5: Response Validation (MANDATORY - EXECUTE BEFORE Step 9)
+
+**Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
+
+**When:** ALWAYS execute immediately before final user-facing output (Step 9)
+
+**Algorithm:** See `.github/prompts/shared/output-validator.md`
+
+**Quick Validation:**
+```
+BEFORE responding to user (Step 9):
+  1. Count bullets (including nested) → Must be ≤15
+  2. Detect code blocks (```language markers) → Prohibit implementation code
+  3. Check nested lists (indentation >2 spaces) → Flatten to single level
+  4. Verify next actions present → Must have letter-based options (A/B/C/D)
+  5. If violations → Auto-fix or BLOCK response
+
+IF critical violations cannot be auto-fixed:
+  - Log violation details
+  - TERMINATE with error (do not send to user)
+  - Show developer message with remediation steps
+
+IF warnings only:
+  - Log for monitoring
+  - Allow response (optionally append warning note)
+```
+
+**Exempt from validation:**
+- Work log file contents
+- Plan file updates
+- Git commit messages
+- Internal execution logs
+
+**See:** `.github/prompts/shared/output-validator.md` for complete algorithm
+
+**See:** `.github/prompts/shared/loop-prevention.md` for phase re-execution prevention
+
+---
 
 #### Step 8.0: Auto-Chain Protocol (if auto-chain=true)
 

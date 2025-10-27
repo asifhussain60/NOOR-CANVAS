@@ -23,6 +23,7 @@ description: Extend or modify current active work while preserving context, key,
 4. **Preserve current key** - Use same key from most recent handoff/task
 5. **Extend, don't replace** - Add to existing plan, don't restart
 6. **Approval behavior:** Auto-execute after 5s unless "review"/"cancel" (skipped if `from-build=true`)
+7. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Execution Step 7)
 
 ## Parameters
 
@@ -274,6 +275,11 @@ END IF
 - **Auto-execute behavior:**
   - **If `from-build=true`**: Require explicit "proceed" (build already showed approval)
   - **If `from-build=false`**: Auto-execute after 5s unless "review"/"cancel"
+- **RESPONSE VALIDATION** (MANDATORY before user output):
+  - Validate all responses using `.github/prompts/shared/output-validator.md`
+  - Auto-fix violations (bullet consolidation, list flattening) when possible
+  - BLOCK response if critical violations cannot be fixed
+  - See loop-prevention.md for auto-chain depth limits
 
 ## Context Preservation
 - **Keep existing plan structure** intact
