@@ -1,0 +1,40 @@
+# ═══════════════════════════════════════════════════════════════
+# NOOR CANVAS - Git LFS Configuration
+# Created: October 27, 2025
+# Purpose: Track large binary files with Git LFS
+# ═══════════════════════════════════════════════════════════════
+
+# Video files for Copilot review and testing
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
+
+# Large SQL data dumps
+*.sql filter=lfs diff=lfs merge=lfs -text linguist-generated=true
+Workspaces/Data/*.sql filter=lfs diff=lfs merge=lfs -text
+
+# Test artifacts and screenshots
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+
+# Percy/Playwright test artifacts
+test-results/**/*.png filter=lfs diff=lfs merge=lfs -text
+test-results/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+test-results/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+PlayWright/artifacts/**/* filter=lfs diff=lfs merge=lfs -text
+
+# PDF documentation and large documents
+*.pdf filter=lfs diff=lfs merge=lfs -text
+
+# Archive files
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.tar.gz filter=lfs diff=lfs merge=lfs -text
+*.7z filter=lfs diff=lfs merge=lfs -text
+
+# Binary data files
+*.db filter=lfs diff=lfs merge=lfs -text
+*.sqlite filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
