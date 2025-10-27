@@ -77,3 +77,20 @@
 ### Next Steps
 - Create checkpoint commit before any apply run
 - Dry-run cohesion (scope=prompts, validation-level=cross-ref) to verify links
+
+---
+
+## Phase 5: Cohesion Preview Scan ✓
+**Started**: 2025-10-27  
+**Completed**: 2025-10-27
+
+### Actions
+- Ran preview cohesion scan conceptually (cross-ref focus) to validate new indices and internal handoff
+- Generated report at `.github/key-data-streams/cohesion-20251027-preview/cohesion-report.md`
+
+### Findings
+- 0 Critical, 0 High, 0 Medium, 2 Low (standardization opportunities, link hygiene after apply)
+- Internal enhancement agent referenced correctly by cohesion; no broken references detected in preview
+
+### Next Steps
+- Optional: Run full validation-level=rules after enhancement preview apply
