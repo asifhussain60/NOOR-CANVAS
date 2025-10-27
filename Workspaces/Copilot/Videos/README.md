@@ -1,4 +1,4 @@
-# Media/Videos - Copilot Review Folder
+# Workspaces/Copilot/Videos - Copilot Review Folder
 
 **Purpose**: Store MP4 videos and media files for GitHub Copilot to review and work with.
 
@@ -9,11 +9,12 @@
 ## 📁 Folder Structure
 
 ```
-Media/
-└── Videos/
-    ├── README.md (this file)
-    ├── [your-video-files].mp4
-    └── [screen-recordings].webm
+Workspaces/
+└── Copilot/
+    └── Videos/
+        ├── README.md (this file)
+        ├── [your-video-files].mp4
+        └── [screen-recordings].webm
 ```
 
 ---
@@ -34,18 +35,18 @@ All video formats are tracked with Git LFS:
 
 1. **Add your video file to this folder**:
    ```powershell
-   Copy-Item "C:\path\to\your\video.mp4" "Media\Videos\"
+   Copy-Item "C:\path\to\your\video.mp4" "Workspaces\Copilot\Videos\"
    ```
 
 2. **Git will automatically track it with LFS**:
    ```powershell
-   git add Media/Videos/video.mp4
+   git add Workspaces/Copilot/Videos/video.mp4
    git commit -m "Add video for Copilot review: [description]"
    ```
 
 3. **Reference in Copilot conversations**:
    ```
-   @workspace Review the video at Media/Videos/video.mp4 and help me:
+   @workspace Review the video at Workspaces/Copilot/Videos/video.mp4 and help me:
    - Identify the UI issue shown
    - Generate a test case for this scenario
    - Fix the bug demonstrated
@@ -105,7 +106,7 @@ While Copilot cannot directly play videos, you can:
 
 ### Example 1: Bug Report Video
 ```
-Media/Videos/bug-canvas-refresh-issue.mp4
+Workspaces/Copilot/Videos/bug-canvas-refresh-issue.mp4
 "Canvas doesn't refresh after saving - see video at 0:30"
 
 @workspace Review bug-canvas-refresh-issue.mp4:
@@ -114,7 +115,7 @@ At 0:30 the canvas state is stale after save. Fix the refresh logic.
 
 ### Example 2: Feature Demo
 ```
-Media/Videos/new-annotation-feature-demo.mp4
+Workspaces/Copilot/Videos/new-annotation-feature-demo.mp4
 "Demo of desired annotation behavior"
 
 @workspace Based on new-annotation-feature-demo.mp4:
@@ -123,10 +124,10 @@ Implement the annotation selection behavior shown at 1:15
 
 ### Example 3: Test Failure Recording
 ```
-Media/Videos/playwright-test-failure-2025-10-27.mp4
+Workspaces/Copilot/Videos/playwright-test-failure-2025-10-27.mp4
 "Automated test failure - debug panel stuck open"
 
-@workspace The test failure at Media/Videos/playwright-test-failure-2025-10-27.mp4
+@workspace The test failure at Workspaces/Copilot/Videos/playwright-test-failure-2025-10-27.mp4
 shows the debug panel doesn't close. Update the test and fix the close handler.
 ```
 
