@@ -1,16 +1,443 @@
-# plan.prompt.md (Feature Planning Agent v1.1)
+# plan.prompt.md (Feature Planning Agent v1.2)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-26
+lastUpdated: 2025-10-27
 ---
 
 # plan.prompt.md (Feature Planning)
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
+
+## 🔍 MANDATORY: KEY DATA STREAM CONSULTATION (EXECUTE FIRST - ALWAYS)
+
+**⚠️ BLOCKING REQUIREMENT**: Before ANY planning activity, you MUST consult the key data stream repository.
+
+### Execution Order (MANDATORY)
+
+```
+FUNCTION InitializePlanning(userRequest, providedKey)
+  
+  // STEP 0.0: Key Data Stream Intelligence Gathering (ALWAYS FIRST)
+  ExecuteKeyDataStreamConsultation(userRequest, providedKey)
+  
+  // STEP 0.1: Key Spelling Validation
+  ValidateAndCorrectKey(providedKey)
+  
+  // STEP 0.5: Key Detection (if no key provided)
+  IF providedKey IS NULL THEN
+    providedKey = AutoDetectActiveKey()
+  END IF
+  
+  // Continue with normal planning process...
+  
+END FUNCTION
+```
+
+### Key Data Stream Consultation Algorithm
+
+```
+FUNCTION ExecuteKeyDataStreamConsultation(userRequest, providedKey)
+  
+  // 1. Load global index
+  indexPath = ".github/key-data-streams/index.md"
+  IF FileExists(indexPath) THEN
+    globalIndex = ReadFile(indexPath)
+  END IF
+  
+  // 2. Load specialized indexes
+  specialIndexes = FindFiles(".github/key-data-streams/*INDEX.md")
+  FOR EACH indexFile IN specialIndexes
+    LoadIndex(indexFile)
+  END FOR
+  
+  // 3. Search for related keys
+  relatedKeys = SearchRelatedKeys(userRequest, globalIndex, specialIndexes)
+  
+  // 4. If key provided, load its complete context
+  IF providedKey IS NOT NULL THEN
+    keyContext = LoadKeyContext(providedKey)
+    RETURN keyContext
+  END IF
+  
+  // 5. If related keys found, present to user
+  IF relatedKeys.COUNT > 0 THEN
+    PRINT("🔍 Found {relatedKeys.COUNT} related existing keys:")
+    FOR EACH key IN relatedKeys
+      PRINT("  - {key.name}: {key.purpose} (Status: {key.status})")
+    END FOR
+    PRINT("")
+    PRINT("Options:")
+    PRINT("  A. Continue with existing key (specify which)")
+    PRINT("  B. Create new key")
+    PRINT("  C. Review key details before deciding")
+    
+    HALT_AND_WAIT_FOR_USER_CHOICE()
+  END IF
+  
+  // 6. No related keys - proceed with new key creation
+  RETURN NULL
+  
+END FUNCTION
+```
+
+### Key Context Loading
+
+```
+FUNCTION LoadKeyContext(key)
+  
+  basePath = ".github/key-data-streams/{key}/"
+  
+  context = {
+    key: key,
+    planFile: NULL,
+    workLog: NULL,
+    tracking: NULL,
+    tests: NULL,
+    status: "unknown",
+    version: NULL,
+    phases: [],
+    completedPhases: [],
+    pendingPhases: [],
+    relatedKeys: [],
+    dependencies: [],
+    questionnaires: []
+  }
+  
+  // Load plan file
+  planPath = basePath + "{key}.plan.md"
+  IF FileExists(planPath) THEN
+    context.planFile = ReadFile(planPath)
+    context.version = ExtractPlanVersion(context.planFile)
+  END IF
+  
+  // Load tracking
+  trackingPath = basePath + "{key}.plan.json"
+  IF FileExists(trackingPath) THEN
+    context.tracking = ParseJSON(ReadFile(trackingPath))
+    context.status = context.tracking.status
+    context.phases = context.tracking.phases
+    context.completedPhases = FilterPhases(context.phases, "completed")
+    context.pendingPhases = FilterPhases(context.phases, "pending")
+  END IF
+  
+  // Load work log
+  workLogPath = basePath + "work-log.md"
+  IF FileExists(workLogPath) THEN
+    context.workLog = ReadFile(workLogPath)
+  END IF
+  
+  // Load test registry
+  testRegistryPath = basePath + "tests/test-registry.md"
+  IF FileExists(testRegistryPath) THEN
+    context.tests = ReadFile(testRegistryPath)
+  END IF
+  
+  // Load questionnaires
+  questionnairePath = basePath + "questionnaire.md"
+  IF FileExists(questionnairePath) THEN
+    context.questionnaires.APPEND(ParseQuestionnaire(questionnairePath))
+  END IF
+  
+  // Find related keys (parent/child/drift relationships)
+  context.relatedKeys = FindRelatedKeys(key)
+  context.dependencies = ExtractDependencies(context.planFile)
+  
+  RETURN context
+  
+END FUNCTION
+```
+
+### Related Key Detection
+
+```
+FUNCTION SearchRelatedKeys(userRequest, globalIndex, specialIndexes)
+  
+  keywords = ExtractKeywords(userRequest)
+  relatedKeys = []
+  
+  // Search global index
+  FOR EACH keyword IN keywords
+    matches = SearchIndex(globalIndex, keyword)
+    relatedKeys.MERGE(matches)
+  END FOR
+  
+  // Search specialized indexes
+  FOR EACH specialIndex IN specialIndexes
+    FOR EACH keyword IN keywords
+      matches = SearchIndex(specialIndex, keyword)
+      relatedKeys.MERGE(matches)
+    END FOR
+  END FOR
+  
+  // Search key directory names
+  keyDirs = ListDirectories(".github/key-data-streams/")
+  FOR EACH keyDir IN keyDirs
+    IF KeywordMatchesKey(keywords, keyDir.name) THEN
+      relatedKeys.APPEND({
+        name: keyDir.name,
+        path: keyDir.path,
+        matchReason: "directory-name"
+      })
+    END IF
+  END FOR
+  
+  // Load context for each related key
+  FOR EACH key IN relatedKeys
+    key.context = LoadKeyContext(key.name)
+    key.purpose = ExtractPurpose(key.context.planFile)
+    key.status = key.context.status
+  END FOR
+  
+  // Sort by relevance and status
+  relatedKeys = SortByRelevance(relatedKeys, keywords)
+  
+  RETURN relatedKeys
+  
+END FUNCTION
+```
+
+### Consultation Output Format
+
+**When related keys found:**
+```markdown
+🔍 **Key Data Stream Consultation**
+
+Found {N} related existing keys:
+
+1. **{key-1}** (Status: {status})
+   - Purpose: {one-line-description}
+   - Version: {version}
+   - Completed: {X}/{Y} phases
+   - Path: `.github/key-data-streams/{key-1}/`
+
+2. **{key-2}** (Status: {status})
+   - Purpose: {one-line-description}
+   - Dependencies: {key-3}, {key-4}
+   - Path: `.github/key-data-streams/{key-2}/`
+
+**Recommendations:**
+- {recommendation-1}
+- {recommendation-2}
+
+**Options:**
+A. Continue `{key-1}` (most relevant)
+B. Create new key
+C. Review key details
+
+Your choice?
+```
+
+**When no related keys found:**
+```markdown
+🔍 **Key Data Stream Consultation**
+
+No existing keys related to: "{userRequest}"
+
+Proceeding with new key creation...
+```
+
+### Index Maintenance Protocol
+
+**When to update indexes:**
+- After creating new plan (Step 3)
+- After completing plan (final phase)
+- After archiving completed keys
+
+**Index update algorithm:**
+```
+FUNCTION UpdateIndexes(key, action, metadata)
+  
+  // Update global index
+  globalIndexPath = ".github/key-data-streams/index.md"
+  globalIndex = ReadFile(globalIndexPath)
+  
+  IF action == "create" THEN
+    AppendToIndex(globalIndex, key, metadata)
+  ELSE IF action == "complete" THEN
+    UpdateIndexStatus(globalIndex, key, "complete")
+  ELSE IF action == "archive" THEN
+    MoveToArchiveSection(globalIndex, key)
+  END IF
+  
+  WriteFile(globalIndexPath, globalIndex)
+  
+  // Update specialized indexes if applicable
+  specialIndexes = DetermineApplicableIndexes(metadata.domain)
+  FOR EACH specialIndex IN specialIndexes
+    UpdateSpecializedIndex(specialIndex, key, action, metadata)
+  END FOR
+  
+END FUNCTION
+```
+
+### Cleanup Phase Integration
+
+**When to trigger cleanup:**
+- Plan marked as "complete" in tracking JSON
+- All phases finished and tests passing
+- User explicitly requests cleanup
+- Key data stream exceeds size threshold (e.g., >100MB)
+
+**Cleanup phase template:**
+```markdown
+### Phase {N+1}: Key Data Stream Cleanup
+
+**Purpose**: Flatten and optimize key data stream for long-term storage and future reference.
+
+**Tasks**:
+1. **Archive Intermediate Files**
+   - Move draft versions to `_archive/` subfolder
+   - Preserve only final plan version
+   - Archive old questionnaires (keep latest)
+
+2. **Consolidate Logs**
+   - Merge execution logs into single `work-log.md`
+   - Remove duplicate entries
+   - Preserve critical timestamps and decisions
+
+3. **Optimize Test Artifacts**
+   - Archive test screenshots (keep only baseline + final)
+   - Compress large test outputs
+   - Keep test-registry.md as canonical reference
+
+4. **Update Indexes**
+   - Mark key as "complete" in global index
+   - Add to specialized index if applicable
+   - Link to related keys (parent/child/drift)
+
+5. **Generate Summary**
+   - Create `README.md` in key folder
+   - Include: purpose, outcome, key decisions, verification steps
+   - Link to critical files
+
+6. **Size Optimization**
+   - Compress artifacts >1MB
+   - Remove temporary files
+   - Target: <10MB per key data stream
+
+**Success Criteria**:
+- Key data stream size reduced by >50%
+- All critical information preserved
+- Future sessions can load context in <5 seconds
+- Index updated with completion metadata
+```
+
+**Cleanup execution algorithm:**
+```
+FUNCTION ExecuteCleanupPhase(key)
+  
+  basePath = ".github/key-data-streams/{key}/"
+  
+  // 1. Create archive subfolder
+  archivePath = basePath + "_archive/"
+  CreateDirectory(archivePath)
+  
+  // 2. Identify archivable files
+  archivableFiles = [
+    "{key}.plan.v*.md",  // Old plan versions
+    "questionnaire-*.md",  // Old questionnaires
+    "draft-*.md",  // Draft files
+    "tests/screenshots/intermediate/*"  // Intermediate test artifacts
+  ]
+  
+  FOR EACH pattern IN archivableFiles
+    files = FindFiles(basePath + pattern)
+    FOR EACH file IN files
+      MoveFile(file, archivePath)
+    END FOR
+  END FOR
+  
+  // 3. Consolidate logs
+  workLog = ReadFile(basePath + "work-log.md")
+  workLog = RemoveDuplicateEntries(workLog)
+  workLog = SortByTimestamp(workLog)
+  WriteFile(basePath + "work-log.md", workLog)
+  
+  // 4. Optimize tests
+  CompressTestArtifacts(basePath + "tests/")
+  
+  // 5. Update indexes
+  UpdateIndexes(key, "complete", ExtractMetadata(basePath))
+  
+  // 6. Generate README
+  GenerateKeyReadme(key, basePath)
+  
+  // 7. Report size reduction
+  sizeBefore = GetDirectorySize(basePath + "_archive/")
+  sizeAfter = GetDirectorySize(basePath)
+  reduction = ((sizeBefore - sizeAfter) / sizeBefore) * 100
+  
+  PRINT("✅ Cleanup complete: {reduction}% size reduction")
+  
+END FUNCTION
+```
+
+### Key README Template
+
+**Generated at cleanup completion:**
+
+```markdown
+# Key: {key}
+
+**Status**: ✅ Complete  
+**Version**: {final-version}  
+**Completed**: {completion-date}  
+**Duration**: {start-date} to {completion-date}
+
+---
+
+## Purpose
+
+{one-paragraph-description}
+
+## Outcome
+
+{what-was-achieved}
+
+## Key Decisions
+
+1. **{decision-1}**: {rationale}
+2. **{decision-2}**: {rationale}
+3. **{decision-3}**: {rationale}
+
+## Files Modified
+
+- `{file-1}`: {change-description}
+- `{file-2}`: {change-description}
+- `{file-3}`: {change-description}
+
+## Verification
+
+**Tests**: {test-count} tests, {pass-rate}% pass rate  
+**Manual Steps**: {link-to-verification-checklist}
+
+## Related Keys
+
+- **Parent**: {parent-key} (dependency)
+- **Children**: {child-key-1}, {child-key-2} (spawned)
+- **Drifts**: {drift-key-1} (detected during execution)
+
+## Quick Reference
+
+**Plan**: [{key}.plan.md](./{key}.plan.md)  
+**Work Log**: [work-log.md](./work-log.md)  
+**Tests**: [tests/test-registry.md](./tests/test-registry.md)
+
+## Rollback
+
+**Last Safe Checkpoint**: {commit-hash}  
+**Rollback Command**: `git revert {commit-hash}..{final-commit-hash}`
+
+---
+
+*Auto-generated by cleanup phase on {cleanup-date}*
+```
+
+---
 
 ## ⚠️ MANDATORY READING BEFORE EVERY RESPONSE
 
@@ -62,9 +489,10 @@ If you're about to paste 200+ lines in chat → **STOP** → Write to files inst
 ---
 
 ## Process
-- Step 0: Validate (5 bullets)
-  - **Step 0.1: Key Spelling** - Validate and correct spelling mistakes in key
-  - **Step 0.5: Key Detection** - If no key provided, auto-detect active plan key from git history
+- **Step 0.0: Key Data Stream Consultation** - **[MANDATORY - ALWAYS FIRST]** Search for related keys, load context, present options
+- Step 0.1: Validate (5 bullets)
+  - **Key Spelling** - Validate and correct spelling mistakes in key
+  - **Key Detection** - If no key provided, auto-detect active plan key from git history
 - Step 1: Draft (30-50 lines with MANDATORY enhancements)
 - **Step 1.5: Questionnaire Generation** - If open questions exist, generate `.github/key-data-streams/{key}/questionnaire.md`
 - **Step 1.75: OUTPUT CHECKPOINT** - Verify draft ≤ 100 lines before showing to user
@@ -72,13 +500,15 @@ If you're about to paste 200+ lines in chat → **STOP** → Write to files inst
 - **Step 2.5: Read Questionnaire Answers** - Parse user's "X" marked answers from questionnaire.md
 - Step 3: Write files (including test registry structure, incorporate questionnaire answers)
 - Step 4: Generate auto-execution handoff (task-to-task chaining) **[MANDATORY - BLOCKING CHECKPOINT]**
-- Step 5: STOP and present key prominently - **DO NOT auto-execute, DO NOT suggest moving to new chat, DO NOT continue to implementation** - Planning agent's work is COMPLETE
+- **Step 4.5: Update Indexes** - Add/update key in global and specialized indexes
+- **Step 6: Cleanup Phase (if applicable)** - For completed keys, offer cleanup/flattening phase
+- Step 7: STOP and present key prominently - **DO NOT auto-execute, DO NOT suggest moving to new chat, DO NOT continue to implementation** - Planning agent's work is COMPLETE
 
-**⚠️ CRITICAL: Planning Agent Must STOP at Step 5**
-- After creating all files, planning agent **HALTS** and shows final message with prominent key display
+**⚠️ CRITICAL: Planning Agent Must STOP at Step 7**
+- After creating all files and updating indexes, planning agent **HALTS** and shows final message with prominent key display
 - Planning agent **NEVER** auto-executes implementation phases
 - Planning agent **NEVER** tells user to "move to new chat" or "continue in fresh session"
-- User decides next action: proceed with implementation OR modify plan OR execute manually
+- User decides next action: proceed with implementation OR modify plan OR execute manually OR trigger cleanup phase
 - Implementation happens in SAME chat session unless user chooses otherwise
 
 **Note:** Execution agents (handoff/task) create git commits after each phase.
@@ -88,7 +518,7 @@ See: `.github/prompts/shared/commit-checkpoint-protocol.md`
 
 ## 🔒 STEP 4: AUTO-EXECUTION HANDOFF ENFORCEMENT (MANDATORY)
 
-**⚠️ BLOCKING CHECKPOINT**: You MUST NOT proceed to Step 5 (STOP) until execute-plan.ps1 is created.
+**⚠️ BLOCKING CHECKPOINT**: You MUST NOT proceed to Step 4.5 (Index Update) until execute-plan.ps1 is created.
 
 ### When to Execute Step 4
 - **Trigger**: After Step 3 completes (all plan files written)
@@ -117,22 +547,22 @@ FUNCTION ExecuteStep4(key, totalPhases)
   
   // Verify creation
   IF NOT FileExists(scriptPath) THEN
-    HALT_WITH_ERROR("Failed to create execute-plan.ps1 - cannot proceed to STOP")
+    HALT_WITH_ERROR("Failed to create execute-plan.ps1 - cannot proceed to index update")
   END IF
   
   // Confirm to user
   OUTPUT: "✅ Created execute-plan.ps1 with {totalPhases} phases"
   OUTPUT: "Run: .github/key-data-streams/{key}/execute-plan.ps1"
   
-  // Proceed to Step 5
-  CONTINUE_TO_STEP_5()
+  // Proceed to Step 4.5 (Index Update)
+  CONTINUE_TO_STEP_4_5()
   
 END FUNCTION
 ```
 
-### Self-Check Before STOP
+### Self-Check Before Index Update (Step 4.5)
 
-**Before outputting final "STOP" message, verify:**
+**Before updating indexes, verify:**
 
 1. ✅ `.github/key-data-streams/{key}/{key}.plan.md` exists
 2. ✅ `.github/key-data-streams/{key}/{key}.plan.json` exists
@@ -140,7 +570,7 @@ END FUNCTION
 4. ✅ `.github/key-data-streams/{key}/tests/test-registry.md` exists
 5. ✅ **`.github/key-data-streams/{key}/execute-plan.ps1` exists** ← CRITICAL
 
-**If any file missing → HALT and create it before STOP**
+**If any file missing → HALT and create it before proceeding to Step 4.5**
 
 ### Output Format After Step 4
 
@@ -151,6 +581,123 @@ END FUNCTION
    - work-log.md (timeline)
    - tests/test-registry.md (test tracking)
    - execute-plan.ps1 (auto-execution) ← MUST BE PRESENT
+
+⏭️ Next: Updating indexes (Step 4.5)
+```
+
+---
+
+## 🔒 STEP 4.5: INDEX UPDATE (MANDATORY)
+
+**⚠️ BLOCKING CHECKPOINT**: Update global and specialized indexes before offering cleanup or stopping.
+
+### Index Update Algorithm
+
+```
+FUNCTION ExecuteStep4_5(key, planMetadata)
+  
+  // 1. Update global index
+  UpdateGlobalIndex(key, planMetadata)
+  
+  // 2. Determine and update specialized indexes
+  specialIndexes = DetermineApplicableIndexes(planMetadata.domain)
+  FOR EACH specialIndex IN specialIndexes
+    UpdateSpecializedIndex(specialIndex, key, "create", planMetadata)
+  END FOR
+  
+  // 3. Create key-specific README if not exists
+  readmePath = ".github/key-data-streams/{key}/README.md"
+  IF NOT FileExists(readmePath) THEN
+    GenerateKeyReadme(key, planMetadata)
+  END IF
+  
+  // 4. Verify index updates
+  VerifyIndexIntegrity()
+  
+  OUTPUT: "✅ Indexes updated: global + {specialIndexes.COUNT} specialized"
+  
+  // Proceed to Step 6 (Cleanup check) or Step 7 (STOP)
+  CONTINUE_TO_STEP_6()
+  
+END FUNCTION
+```
+
+### Self-Check Before Cleanup/STOP
+
+**Before proceeding to final steps, verify:**
+
+1. ✅ Global index contains key entry
+2. ✅ Specialized indexes updated (if applicable)
+3. ✅ Key README exists (basic version)
+4. ✅ All plan files present and valid
+
+---
+
+## 🔒 STEP 6: CLEANUP PHASE OFFER (CONDITIONAL)
+
+**When to offer cleanup:**
+- Plan status = "complete" (all phases finished)
+- Key data stream size > 50MB
+- User explicitly requests cleanup
+- Plan marked for archival
+
+### Cleanup Decision Tree
+
+```
+FUNCTION ExecuteStep6(key, planStatus)
+  
+  IF planStatus != "complete" THEN
+    SKIP_CLEANUP("Plan not yet complete")
+    CONTINUE_TO_STEP_7()  // Go to STOP
+  END IF
+  
+  keySize = GetDirectorySize(".github/key-data-streams/{key}/")
+  
+  IF keySize < 50MB THEN
+    OUTPUT: "ℹ️ Key data stream size: {keySize}MB (cleanup optional)"
+    ASK_USER: "Run cleanup phase? (yes/no)"
+  ELSE
+    OUTPUT: "⚠️ Key data stream size: {keySize}MB (cleanup recommended)"
+    ASK_USER: "Run cleanup phase? (yes/no/later)"
+  END IF
+  
+  IF UserSays("yes") THEN
+    ExecuteCleanupPhase(key)
+  ELSE IF UserSays("later") THEN
+    OUTPUT: "📝 Cleanup deferred - run: @workspace /plan key:{key} cleanup"
+  END IF
+  
+  CONTINUE_TO_STEP_7()
+  
+END FUNCTION
+```
+
+### Cleanup Phase Execution (from earlier section)
+
+See "Cleanup Phase Integration" section above for full algorithm.
+
+---
+
+## 🔒 STEP 7: STOP AND PRESENT KEY (FINAL)
+
+**⚠️ FINAL CHECKPOINT**: All work complete, present key and options to user.
+
+### Final Output Format
+
+```
+✅ Planning Complete!
+
+**Files Created:**
+- `.github/key-data-streams/{key}/{key}.plan.md`
+- `.github/key-data-streams/{key}/{key}.plan.json`
+- `.github/key-data-streams/{key}/work-log.md`
+- `.github/key-data-streams/{key}/tests/test-registry.md`
+- `.github/key-data-streams/{key}/execute-plan.ps1`
+- `.github/key-data-streams/{key}/README.md`
+
+**Indexes Updated:**
+- Global: .github/key-data-streams/index.md
+- Specialized: {list-of-specialized-indexes}
 
 🚀 Ready for execution:
    .\.github\key-data-streams\{key}\execute-plan.ps1
