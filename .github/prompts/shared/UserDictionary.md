@@ -17,11 +17,12 @@ User acronyms and shortcuts used in prompts
 
 Views (Blazor Components)
 - hcp: Host Control Panel — view: #file:HostControlPanel.razor
-- scanv: Session Canvas — view: #file:SessionCanvas.razor
-- tcanv: Transcript Canvas — view: #file:TranscriptCanvas.razor
+- sc: Session Canvas — view: #file:SessionCanvas.razor
+- tc: Transcript Canvas — view: #file:TranscriptCanvas.razor
+- receivers: Transcript Canvas — view: #file:TranscriptCanvas.razor Session Canvas — view: #file:SessionCanvas.razor
 - swait: Session Waiting — view: #file:SessionWaiting.razor
-- uland: User Landing (registration) — view: #file:UserLanding.razor
-- hland: Host Landing — view: #file:HostLanding.razor
+- ul: User Landing (registration) — view: #file:UserLanding.razor
+- hl: Host Landing — view: #file:HostLanding.razor
 - sdiag: Session Diagnostics — view: #file:SessionDiagnostics.razor
 - send: Session Ended — view: #file:SessionEnded.razor
 

@@ -5,10 +5,14 @@ description: Extend or modify current active work while preserving context, key,
 
 # Todo — Extend Current Work with Same Key
 
-**Version**: 2.0.0  
+**Version**: 2.1.0  
 **Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow. Renamed from continue.prompt.md to better reflect "todo item" workflow pattern.
 
 **Rename Note**: Previously `continue.prompt.md` (v1.0.0). Renamed to `todo.prompt.md` (v2.0.0) on 2025-10-25 to align with todo-based workflow terminology. All agent references updated accordingly.
+
+**Changelog**:
+- **v2.1.0 (2025-10-27)**: Added `from-build` parameter to prevent dual approval gates when invoked from build.prompt.md. Approval behavior now conditional based on source agent.
+- **v2.0.0 (2025-10-25)**: Renamed from continue.prompt.md to todo.prompt.md
 
 ---
 
@@ -16,7 +20,7 @@ description: Extend or modify current active work while preserving context, key,
 1. MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 2. **Preserve current key** - Use same key from most recent handoff/task
 3. **Extend, don't replace** - Add to existing plan, don't restart
-4. Auto-execute after 5s unless "review"/"cancel"
+4. **Approval behavior:** Auto-execute after 5s unless "review"/"cancel" (skipped if `from-build=true`)
 
 ## Parameters
 
@@ -53,6 +57,12 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 Enable automatic task-to-task execution without user intervention
 - `true` - Auto-invoke next task after current completes
 - `false` - Wait for user approval between tasks
+
+### from-build *(default=`false`, internal)*
+Indicates handoff from build.prompt.md
+- `true` - Skip 5s auto-execute countdown (build already showed approval)
+- `false` - Use normal 5s auto-execute behavior
+- **Note:** This parameter is automatically set by build.prompt.md and should not be manually specified
 
 ### task-id *(optional)*
 Specific task ID to execute from plan
@@ -226,7 +236,11 @@ Update existing `{key}.plan.md` with:
 
 **Execute Extension:**
 ```
-Say "proceed" or wait 5s for auto-execution
+IF from-build == true THEN
+  Say "proceed" to execute (no 5s countdown)
+ELSE
+  Say "proceed" or wait 5s for auto-execution
+END IF
 ```
 
 **Continue Without Extension:**
@@ -243,7 +257,11 @@ Say "proceed" or wait 5s for auto-execution
 
 **Cancel:**
 ```
-Say "cancel" or "review" within 5s
+IF from-build == true THEN
+  Say "cancel" to abort
+ELSE
+  Say "cancel" or "review" within 5s
+END IF
 ```
 
 ## Execution
@@ -251,7 +269,9 @@ Say "cancel" or "review" within 5s
 - **NO approval needed** between existing phases
 - **MANDATORY**: Create git commit after EVERY new phase
 - **Commit format**: `ckpt({key}): Phase {N} - {extension-summary}`
-- **Auto-execute after 5s** unless "review"/"cancel"
+- **Auto-execute behavior:**
+  - **If `from-build=true`**: Require explicit "proceed" (build already showed approval)
+  - **If `from-build=false`**: Auto-execute after 5s unless "review"/"cancel"
 
 ## Context Preservation
 - **Keep existing plan structure** intact
