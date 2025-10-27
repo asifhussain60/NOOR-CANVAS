@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    HCT (Host Canvas Tool) - Build and launch NoorCanvas application
+    NCW (NoorCanvas Watch) - Build and launch NoorCanvas application
 
 .DESCRIPTION
     Lightweight PowerShell script to build and launch the NoorCanvas application in a new window.
@@ -21,17 +21,17 @@
     Optional: Maximum seconds to wait for app startup (default: 30)
 
 .EXAMPLE
-    .\hct.ps1
+    .\ncw.ps1
     
     Launches NoorCanvas in Development environment
 
 .EXAMPLE
-    .\hct.ps1 -Environment Production
+    .\ncw.ps1 -Environment Production
     
     Launches NoorCanvas in Production environment
 
 .EXAMPLE
-    .\hct.ps1 -OpenBrowser
+    .\ncw.ps1 -OpenBrowser
     
     Launches NoorCanvas and opens URL in browser
 
@@ -181,7 +181,7 @@ $currentEnvConfig = $envConfig[$Environment]
 # Display banner
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host " HCT - Host Canvas Tool" -ForegroundColor Cyan
+Write-Host " NCW - NoorCanvas Watch" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Environment: $Environment" -ForegroundColor White
 Write-Host "Base URL:    $($currentEnvConfig.BaseUrl)" -ForegroundColor White

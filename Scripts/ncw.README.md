@@ -1,218 +1,433 @@
-# hct.ps1 (Host Canvas Tool)# hct.ps1 (Host Canvas Tool)
+# ncw.ps1 (NoorCanvas Watch)# hct.ps1 (Host Canvas Tool)# hct.ps1 (Host Canvas Tool)
 
 
 
-PowerShell script for launching the NOOR Canvas application in a separate window.PowerShell script for rapid NOOR Canvas session provisioning from the command line.
+PowerShell script for launching the NOOR Canvas application in a separate window.
 
 
 
-## Purpose## Purpose
+## PurposePowerShell script for launching the NOOR Canvas application in a separate window.PowerShell script for rapid NOOR Canvas session provisioning from the command line.
 
 
 
-Simplified tool that:Replaces the Host Provisioner GUI with a fast command-line tool that:
+Simplified development tool that:
 
-1. Stops any existing NoorCanvas processes1. Resets canvas schema data for a session (clears participants and session data)
 
-2. Cleans up ports 9091 and 90902. Generates fresh host and user tokens
 
-3. Launches the NoorCanvas application in a separate window3. Displays clickable URLs for immediate host access
+1. Stops any existing NoorCanvas processes## Purpose## Purpose
+
+2. Cleans up ports 9091 and 9090
+
+3. Launches the NoorCanvas application in a separate window
 
 4. Waits for the application to be ready
 
-## Quick Start
+Simplified tool that:Replaces the Host Provisioner GUI with a fast command-line tool that:
 
 ## Quick Start
+
+1. Stops any existing NoorCanvas processes1. Resets canvas schema data for a session (clears participants and session data)
 
 **Global command** (works from any directory):
 
+```powershell2. Cleans up ports 9091 and 90902. Generates fresh host and user tokens
+
+ncw
+
+```3. Launches the NoorCanvas application in a separate window3. Displays clickable URLs for immediate host access
+
+
+
+**Direct script execution**:4. Waits for the application to be ready
+
+```powershell
+
+.\Scripts\ncw.ps1## Quick Start
+
+```
+
+## Quick Start
+
+## Parameters
+
+**Global command** (works from any directory):
+
+### Optional
+
 **Global command** (works from any directory):```powershell
-
-```powershellhct 212
-
-hct```
-
-```
-
-**Direct script execution**:
-
-**Direct script execution**:```powershell
-
-```powershell.\Scripts\hct.ps1 -SessionId 212
-
-.\Scripts\hct.ps1```
-
-```
-
-## Parameters
-
-## Parameters
-
-### Required
-
-### Optional- **`-SessionId`** (int): Session ID from KSESSIONS database to provision
 
 - **`-Environment`** (string): Target environment - "Development" or "Production" (default: Development)
 
-  - **Development**: Uses https://localhost:9091### Optional
+  - **Development**: Uses https://localhost:9091```powershellhct 212
 
-  - **Production**: Uses https://noorcanvas.kashkole.com- **`-Environment`** (string): Target environment - "Development" or "Production" (default: Development)
+  - **Production**: Uses https://noorcanvas.kashkole.com
 
-- **`-OpenBrowser`** (switch): Automatically open application URL in default browser after startup  - **Development**: Uses KSESSIONS_DEV database and https://localhost:9091
+hct```
 
-- **`-StartupTimeout`** (int): Maximum seconds to wait for app startup (default: 30)  - **Production**: Uses KSESSIONS database and https://noorcanvas.kashkole.com
+- **`-OpenBrowser`** (switch): Automatically open application URL in default browser after startup
 
-- **`-CreatedBy`** (string): Person provisioning (for audit tracking, defaults to current Windows user)
+```
 
-## Usage Examples- **`-OpenBrowser`** (switch): Automatically open host URL in default browser
+- **`-StartupTimeout`** (int): Maximum seconds to wait for app startup (default: 30)
 
+**Direct script execution**:
 
+## Usage Examples
 
-### Basic Launch (Development)## Usage Examples
+**Direct script execution**:```powershell
 
-```powershell
+### Basic Launch (Development)
 
-# Global command (recommended)### Basic Provisioning
-
-hct```powershell
+```powershell```powershell.\Scripts\hct.ps1 -SessionId 212
 
 # Global command (recommended)
 
-# Or direct scripthct 212
+ncw.\Scripts\hct.ps1```
 
-.\Scripts\hct.ps1
 
-```# Or direct script
 
-.\Scripts\hct.ps1 -SessionId 212
+# Or direct script```
 
-### Production Environment```
+.\Scripts\ncw.ps1
 
-```powershell
+```## Parameters
 
-hct -Environment Production### Production Environment
 
-``````powershell
 
-hct 215 -Environment Production
-
-### Auto-Open in Browser```
+### Production Environment## Parameters
 
 ```powershell
 
-hct -OpenBrowser### With Audit Tracking
+ncw -Environment Production### Required
 
-``````powershell
+```
 
-hct 212 -CreatedBy "John Doe"
+### Optional- **`-SessionId`** (int): Session ID from KSESSIONS database to provision
 
-### Custom Startup Timeout```
+### Auto-Open in Browser
+
+```powershell- **`-Environment`** (string): Target environment - "Development" or "Production" (default: Development)
+
+ncw -OpenBrowser
+
+```  - **Development**: Uses https://localhost:9091### Optional
+
+
+
+### Custom Startup Timeout  - **Production**: Uses https://noorcanvas.kashkole.com- **`-Environment`** (string): Target environment - "Development" or "Production" (default: Development)
 
 ```powershell
 
-hct -StartupTimeout 60### Auto-Open in Browser
+ncw -StartupTimeout 60- **`-OpenBrowser`** (switch): Automatically open application URL in default browser after startup  - **Development**: Uses KSESSIONS_DEV database and https://localhost:9091
+
+```
+
+- **`-StartupTimeout`** (int): Maximum seconds to wait for app startup (default: 30)  - **Production**: Uses KSESSIONS database and https://noorcanvas.kashkole.com
+
+## What It Does
+
+- **`-CreatedBy`** (string): Person provisioning (for audit tracking, defaults to current Windows user)
+
+1. **Process Cleanup**
+
+   - Kills any existing NoorCanvas processes## Usage Examples- **`-OpenBrowser`** (switch): Automatically open host URL in default browser
+
+   - Releases ports 9091 and 9090
+
+   - Ensures clean application start
+
+
+
+2. **Application Launch**### Basic Launch (Development)## Usage Examples
+
+   - Starts `dotnet run` in NoorCanvas project directory
+
+   - Runs in separate PowerShell window (stays open)```powershell
+
+   - Sets ASPNETCORE_ENVIRONMENT appropriately
+
+# Global command (recommended)### Basic Provisioning
+
+3. **Readiness Check**
+
+   - Polls application URL every secondhct```powershell
+
+   - Waits up to 30 seconds (configurable)
+
+   - Confirms HTTP 200 response before declaring success# Global command (recommended)
+
+
+
+4. **Browser Integration** (optional)# Or direct scripthct 212
+
+   - Opens application URL in default browser
+
+   - Only if `-OpenBrowser` flag specified.\Scripts\hct.ps1
+
+
+
+## Global Command Setup```# Or direct script
+
+
+
+To use `ncw` from any directory, add to PowerShell profile:.\Scripts\hct.ps1 -SessionId 212
+
+
+
+```powershell### Production Environment```
+
+# Edit profile
+
+notepad $PROFILE```powershell
+
+
+
+# Add this line (adjust path if needed)hct -Environment Production### Production Environment
+
+function ncw { & "D:\PROJECTS\NOOR CANVAS\Scripts\ncw.ps1" @args }
+
+`````````powershell
+
+
+
+Reload profile or restart PowerShell.hct 215 -Environment Production
+
+
+
+## Output Example### Auto-Open in Browser```
+
+
 
 ``````powershell
 
-hct 212 -OpenBrowser
+========================================
+
+ NCW - NoorCanvas Watchhct -OpenBrowser### With Audit Tracking
+
+========================================
+
+Environment: Development``````powershell
+
+Base URL:    https://localhost:9091
+
+========================================hct 212 -CreatedBy "John Doe"
+
+
+
+🔍 NoorCanvas app not detected, starting...### Custom Startup Timeout```
+
+🧹 Cleaning up ports 9091 and 9090...
+
+🚀 Starting NoorCanvas app in separate window...```powershell
+
+⏳ Waiting for app to be ready...
+
+   Progress: 12/30 seconds...hct -StartupTimeout 60### Auto-Open in Browser
+
+✅ App ready at https://localhost:9091
+
+``````powershell
+
+========================================
+
+ ✅ NoorCanvas Started Successfullyhct 212 -OpenBrowser
+
+========================================
 
 ### Show Help```
 
-```powershell
+🌐 Application URL:
 
-Get-Help .\Scripts\hct.ps1 -Full### Show Help
+   https://localhost:9091```powershell
+
+
+
+ℹ️  App is running in separate window (will stay open)Get-Help .\Scripts\hct.ps1 -Full### Show Help
+
+========================================
 
 ``````powershell
 
-hct -Help
+💡 Tip: Ctrl+Click URL to open in browser
+
+========================================hct -Help
+
+```
 
 ## Output Example```
 
+## Error Handling
 
 
-```## Output Example
 
-========================================
+### Port Already in Use
 
- HCT - Host Canvas Tool```
+Script automatically kills processes on ports 9091/9090 before starting.```## Output Example
+
+
+
+### App Fails to Start========================================
+
+- Check separate PowerShell window for build errors
+
+- Verify .NET 8.0 SDK installed HCT - Host Canvas Tool```
+
+- Check NoorCanvas project path exists
 
 ================================================================================
 
-Environment: Development HCT - Host Canvas Tool
+### Timeout Exceeded
 
-Base URL:    https://localhost:9091========================================
+- Increase `-StartupTimeout` parameterEnvironment: Development HCT - Host Canvas Tool
 
-========================================SessionId:   212
+- Check for build/compilation issues
 
-Environment: Development
+- Verify database connectivityBase URL:    https://localhost:9091========================================
 
-🔍 NoorCanvas app not detected, starting...Database:    KSESSIONS_DEV
 
-🧹 Cleaning up ports 9091 and 9090...Base URL:    https://localhost:9091
 
-🚀 Starting NoorCanvas app in separate window...Created By:  asifh
+## Development Workflow========================================SessionId:   212
 
-⏳ Waiting for app to be ready...========================================
+
+
+**Quick iteration cycle:**Environment: Development
+
+```powershell
+
+# 1. Make code changes in VS Code🔍 NoorCanvas app not detected, starting...Database:    KSESSIONS_DEV
+
+# 2. Launch app with ncw
+
+ncw🧹 Cleaning up ports 9091 and 9090...Base URL:    https://localhost:9091
+
+
+
+# 3. Test changes at https://localhost:9091🚀 Starting NoorCanvas app in separate window...Created By:  asifh
+
+# 4. Stop app (close PowerShell window or Ctrl+C)
+
+# 5. Repeat⏳ Waiting for app to be ready...========================================
+
+```
 
    Progress: 5/30 seconds...
 
-✅ App ready at https://localhost:9091🔧 Configuring Development environment...
+**Production testing:**
 
-   → Database: KSESSIONS_DEV
+```powershell✅ App ready at https://localhost:9091🔧 Configuring Development environment...
+
+# Test against production environment
+
+ncw -Environment Production   → Database: KSESSIONS_DEV
+
+```
 
 ========================================   → Base URL: https://localhost:9091
 
+## vs. Other Tools
+
  ✅ NoorCanvas Started Successfully
 
-========================================🚀 Invoking HostProvisioner...
+| Tool | Purpose | Use Case |
+
+|------|---------|----------|========================================🚀 Invoking HostProvisioner...
+
+| **ncw.ps1** | Build + Launch | Quick dev iteration, testing changes |
+
+| **hct.ps1** (deprecated) | Session provisioning | Replaced by ncw.ps1 |
+
+| **ncdeploy.ps1** | Production deployment | Publishing to live server |
+
+| **build-with-iiskill.ps1** | IIS-based launch | Windows Server hosting |🌐 Application URL:========================================
 
 
 
-🌐 Application URL:========================================
+## Troubleshooting   https://localhost:9091 ✅ Session Provisioned Successfully
 
-   https://localhost:9091 ✅ Session Provisioned Successfully
 
-========================================
 
-ℹ️  App is running in separate window (will stay open)
+### Global command not found========================================
+
+1. Check PowerShell profile: `Test-Path $PROFILE`
+
+2. Verify function added: `Get-Content $PROFILE`ℹ️  App is running in separate window (will stay open)
+
+3. Reload: `. $PROFILE`
 
 ========================================📊 Data Reset:
 
-   Participants cleared: 1
+### App window closes immediately
+
+- Build errors present (check window before it closes)   Participants cleared: 1
+
+- Run directly to see errors: `cd SPA\NoorCanvas; dotnet run`
 
 💡 Tip: Ctrl+Click URL to open in browser   Session data cleared: 0
 
-========================================
+### Browser doesn't open with `-OpenBrowser`
 
-```🎫 Host Access:
+- Default browser not set in Windows========================================
 
-   Token: NV9YKNJB
+- URL scheme not associated (https)
 
-## What It Does   URL:   https://localhost:9091/host/NV9YKNJB
+- Browser already open with page```🎫 Host Access:
 
 
+
+## Requirements   Token: NV9YKNJB
+
+
+
+- **PowerShell 7+** (pwsh.exe)## What It Does   URL:   https://localhost:9091/host/NV9YKNJB
+
+- **.NET 8.0 SDK**
+
+- **NOOR Canvas project** at `SPA\NoorCanvas\`
+
+- **Ports 9091 and 9090** available
 
 1. **Validates Environment**👥 Participant Access:
 
+## Related Files
+
    - Checks NoorCanvas project directory exists   Token: KPUH2ITQ
 
-   - Sets appropriate environment variables   URL:   https://localhost:9091/user/landing/KPUH2ITQ
+- `ncw.ps1` - Main script
+
+- `ncdeploy.ps1` - Production deployment   - Sets appropriate environment variables   URL:   https://localhost:9091/user/landing/KPUH2ITQ
+
+- `build-with-iiskill.ps1` - IIS-based build
 
 
+
+## Version History
 
 2. **Cleans Up Existing Processes**========================================
 
-   - Stops any NoorCanvas processes running on ports 9091 and 9090💡 Tip: Ctrl+Click URLs to open in browser
+| Version | Date | Changes |
 
-   - Waits for processes to release resources========================================
+|---------|------|---------|   - Stops any NoorCanvas processes running on ports 9091 and 9090💡 Tip: Ctrl+Click URLs to open in browser
+
+| 2.0.0 | 2025-10-27 | Renamed from hct.ps1, removed session provisioning |
+
+| 1.1.0 | 2025-10-27 | Removed token generation functionality |   - Waits for processes to release resources========================================
+
+| 1.0.0 | 2025-10-26 | Initial version as hct.ps1 |
 
    - Ensures clean startup```
 
+## Support
 
 
-3. **Launches Application**## What It Does
 
-   - Starts NoorCanvas in a separate PowerShell window
+For issues or questions:
+
+1. Check troubleshooting section above3. **Launches Application**## What It Does
+
+2. Review error messages in separate PowerShell window
+
+3. Verify environment configuration in `config/sharedsettings.json`   - Starts NoorCanvas in a separate PowerShell window
+
 
    - Window stays open for console output visibility1. **Validates Session**
 
