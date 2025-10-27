@@ -10,6 +10,9 @@
 
 ## Active Keys
 
+### Security & Configuration
+database-environment-safeguards: plan → task → test-generation → healthcheck
+
 ### Bug Fixes
 host-session-opener-fix: plan → task → test-generation → healthcheck
 

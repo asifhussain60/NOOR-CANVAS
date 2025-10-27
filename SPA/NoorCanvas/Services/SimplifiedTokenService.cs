@@ -60,29 +60,34 @@ public class SimplifiedTokenService
     public async Task<Session?> ValidateTokenAsync(string token, bool isHostToken)
     {
         var validationId = Guid.NewGuid().ToString("N")[..8];
-        _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Validating {TokenType} token: {Token}",
+        _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Validating {TokenType} token: {Token} ;CLEANUP_OK",
             validationId, isHostToken ? "HOST" : "USER", token);
 
         try
         {
             // First, check if any sessions exist at all
             var totalSessions = await _context.Sessions.CountAsync();
-            _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Total sessions in database: {Count}",
+            _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Total sessions in database: {Count} ;CLEANUP_OK",
                 validationId, totalSessions);
 
             // Check for sessions with this specific token (without filters)
             var allMatchingTokenSessions = await _context.Sessions
                 .Where(s => isHostToken ? s.HostToken == token : s.UserToken == token)
                 .ToListAsync();
-            _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Sessions matching token '{Token}': {Count}",
+            _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Sessions matching token '{Token}': {Count} ;CLEANUP_OK",
                 validationId, token, allMatchingTokenSessions.Count);
 
             // Log details of matching sessions
             foreach (var ms in allMatchingTokenSessions)
             {
-                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Matching session - ID: {SessionId} (KSESSIONS_ID), Status: {Status}, ExpiresAt: {ExpiresAt}, HostToken: {HostToken}, UserToken: {UserToken}",
-                    validationId, ms.SessionId, ms.Status, ms.ExpiresAt?.ToString() ?? "NULL", ms.HostToken, ms.UserToken);
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Matching session - ID: {SessionId}, Status: {Status}, ExpiresAt: {ExpiresAt}, HostToken: {HostToken}, UserToken: {UserToken} ;CLEANUP_OK",
+                    validationId, ms.SessionId, ms.Status, ms.ExpiresAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "NULL", ms.HostToken, ms.UserToken);
             }
+
+            // Log current UTC time for comparison
+            var currentUtc = DateTime.UtcNow;
+            _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Current UTC time: {UtcNow} ;CLEANUP_OK",
+                validationId, currentUtc.ToString("yyyy-MM-dd HH:mm:ss"));
 
             // Apply the original filters and see what happens
             var session = await _context.Sessions
@@ -92,26 +97,36 @@ public class SimplifiedTokenService
 
             if (session != null)
             {
-                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Token validation successful - Session {SessionId}",
-                    validationId, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] ✓ Token validation SUCCESSFUL - SessionId: {SessionId}, Status: {Status}, ExpiresAt: {ExpiresAt} ;CLEANUP_OK",
+                    validationId, session.SessionId, session.Status, session.ExpiresAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "NULL");
             }
             else
             {
-                _logger.LogWarning("NOOR-SIMPLIFIED: [{ValidationId}] Token validation failed - {TokenType} token not found or expired: {Token}",
+                _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] ✗ Token validation FAILED - {TokenType} token: {Token} ;CLEANUP_OK",
                     validationId, isHostToken ? "HOST" : "USER", token);
 
-                // Debug: Check what the current UTC time is
-                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Current UTC time: {UtcNow}",
-                    validationId, DateTime.UtcNow);
+                // Enhanced diagnostic: Check each filter condition separately
+                if (allMatchingTokenSessions.Any())
+                {
+                    var firstMatch = allMatchingTokenSessions.First();
+                    var expiresAtCheck = firstMatch.ExpiresAt == null || firstMatch.ExpiresAt > currentUtc;
+                    var statusCheck = firstMatch.Status != "Expired";
+                    
+                    _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Filter analysis for SessionId {SessionId}: ExpiresAt check: {ExpiresAtPass} (ExpiresAt={ExpiresAt}, CurrentUTC={CurrentUTC}), Status check: {StatusPass} (Status={Status}) ;CLEANUP_OK",
+                        validationId, firstMatch.SessionId, expiresAtCheck, 
+                        firstMatch.ExpiresAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "NULL", 
+                        currentUtc.ToString("yyyy-MM-dd HH:mm:ss"),
+                        statusCheck, firstMatch.Status);
+                }
             }
 
             return session;
         }
         catch (Exception ex)
         {
-            _logger.LogError("NOOR-SIMPLIFIED: [{ValidationId}] Exception during token validation: {Error}",
+            _logger.LogError("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Exception during token validation: {Error} ;CLEANUP_OK",
                 validationId, ex.Message);
-            _logger.LogError("NOOR-SIMPLIFIED: [{ValidationId}] Stack trace: {StackTrace}",
+            _logger.LogError("[DEBUG-WORKITEM:host-session-opener-fix:phase1] [{ValidationId}] Stack trace: {StackTrace} ;CLEANUP_OK",
                 validationId, ex.StackTrace);
             throw;
         }
