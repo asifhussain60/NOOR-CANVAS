@@ -1,0 +1,85 @@
+{
+  "key": "host-session-opener-fix",
+  "created": "2025-10-27",
+  "status": "planning",
+  "complexity": "high",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Diagnostic Logging & Data Collection",
+      "status": "not-started",
+      "tasks": [
+        "Add diagnostic logging to dropdown cascade",
+        "Add diagnostic logging to HostSessionService",
+        "Add diagnostic logging to HostController",
+        "Add diagnostic logging to SimplifiedTokenService",
+        "Database connectivity test"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Fix Dropdown Cascade Loading",
+      "status": "not-started",
+      "tasks": [
+        "Fix Albums loading",
+        "Fix Categories loading",
+        "Fix Sessions loading",
+        "End-to-end cascade test"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Fix Token Validation",
+      "status": "not-started",
+      "tasks": [
+        "Database state verification",
+        "Fix token format validation",
+        "Fix token lookup query",
+        "Fix session details JOIN",
+        "Token validation end-to-end test"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Fix Auto-Population from Token",
+      "status": "not-started",
+      "tasks": [
+        "Fix AutoPopulateDropdownsFromToken()",
+        "Test auto-population"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "End-to-End Testing",
+      "status": "not-started",
+      "tasks": [
+        "Create Playwright test: Manual Cascade",
+        "Create Playwright test: Token Validation",
+        "Create Playwright test: Invalid Token",
+        "Create Playwright test: Token Generation"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Cleanup & Documentation",
+      "status": "not-started",
+      "tasks": [
+        "Remove debug markers",
+        "Update work log",
+        "Update architecture documentation"
+      ]
+    }
+  ],
+  "currentPhase": 1,
+  "estimatedHours": "12-17",
+  "acceptanceCriteria": [
+    "Albums dropdown loads on page initialization",
+    "Selecting album triggers categories dropdown load",
+    "Selecting category triggers sessions dropdown load",
+    "Valid tokens are accepted by validation endpoint",
+    "Token validation returns session details",
+    "Navigating with valid token auto-populates dropdowns",
+    "Session creation generates valid HostToken and UserToken",
+    "All Playwright tests pass"
+  ]
+}

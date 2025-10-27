@@ -100,6 +100,10 @@ namespace NoorCanvas.Services
 
             try
             {
+                // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Service API call ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HostSessionService.LoadAlbumsAsync - HasToken: {HasToken} ;CLEANUP_OK", 
+                    !string.IsNullOrEmpty(hostToken));
+                
                 var httpClient = CreateHttpClient();
                 var url = "/api/Host/albums";
                 if (!string.IsNullOrEmpty(hostToken))
@@ -107,26 +111,41 @@ namespace NoorCanvas.Services
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
                 
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP GET request - URL: {Url} ;CLEANUP_OK", url);
+                
                 var response = await httpClient.GetAsync(url);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP response - StatusCode: {StatusCode}, Success: {Success} ;CLEANUP_OK", 
+                    response.StatusCode, response.IsSuccessStatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
                     
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
+                        jsonContent?.Length ?? 0);
+                    
                     albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent ?? string.Empty, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<NoorCanvas.Controllers.AlbumData>();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Deserialized albums count: {Count} ;CLEANUP_OK", 
+                        albums.Count);
                 }
                 else
                 {
                     _logger.LogWarning("Albums API call failed - Status: {Status}", 
+                        response.StatusCode);
+                    _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Albums API FAILED - StatusCode: {StatusCode} ;CLEANUP_OK", 
                         response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading albums - Message: {Message}", ex.Message);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadAlbumsAsync exception - Type: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                    ex.GetType().Name, ex.Message);
             }
 
             return albums;
@@ -142,30 +161,50 @@ namespace NoorCanvas.Services
 
             try
             {
+                // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Categories API call ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HostSessionService.LoadCategoriesAsync - AlbumId: {AlbumId} ;CLEANUP_OK", 
+                    albumId);
+                
                 var httpClient = CreateHttpClient();
                 var url = $"/api/Host/categories/{albumId}";
                 if (!string.IsNullOrEmpty(hostToken))
                 {
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP GET request - URL: {Url} ;CLEANUP_OK", url);
+                
                 var response = await httpClient.GetAsync(url);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP response - StatusCode: {StatusCode}, Success: {Success} ;CLEANUP_OK", 
+                    response.StatusCode, response.IsSuccessStatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
+                        jsonContent?.Length ?? 0);
+                    
                     categories = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.CategoryData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<NoorCanvas.Controllers.CategoryData>();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Deserialized categories count: {Count} ;CLEANUP_OK", 
+                        categories.Count);
                 }
                 else
                 {
-
+                    _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Categories API FAILED - AlbumId: {AlbumId}, StatusCode: {StatusCode} ;CLEANUP_OK", 
+                        albumId, response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading categories for album {AlbumId}", albumId);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadCategoriesAsync exception - AlbumId: {AlbumId}, Type: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                    albumId, ex.GetType().Name, ex.Message);
             }
 
             return categories;
@@ -181,29 +220,50 @@ namespace NoorCanvas.Services
 
             try
             {
+                // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Sessions API call ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HostSessionService.LoadSessionsAsync - CategoryId: {CategoryId} ;CLEANUP_OK", 
+                    categoryId);
+                
                 var httpClient = CreateHttpClient();
                 var url = $"/api/Host/sessions/{categoryId}";
                 if (!string.IsNullOrEmpty(hostToken))
                 {
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP GET request - URL: {Url} ;CLEANUP_OK", url);
+                
                 var response = await httpClient.GetAsync(url);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP response - StatusCode: {StatusCode}, Success: {Success} ;CLEANUP_OK", 
+                    response.StatusCode, response.IsSuccessStatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
+                        jsonContent?.Length ?? 0);
+                    
                     sessions = JsonSerializer.Deserialize<List<HostSessionData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<HostSessionData>();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Deserialized sessions count: {Count} ;CLEANUP_OK", 
+                        sessions.Count);
                 }
                 else
                 {
+                    _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Sessions API FAILED - CategoryId: {CategoryId}, StatusCode: {StatusCode} ;CLEANUP_OK", 
+                        categoryId, response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading sessions for category {CategoryId}", categoryId);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadSessionsAsync exception - CategoryId: {CategoryId}, Type: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                    categoryId, ex.GetType().Name, ex.Message);
             }
 
             return sessions;
@@ -314,13 +374,27 @@ namespace NoorCanvas.Services
         {
             try
             {
+                // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Token validation API call ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HostSessionService.ValidateHostTokenAsync - Token: {Token} ;CLEANUP_OK", 
+                    token);
+                
                 var httpClient = CreateHttpClient();
                 var url = $"/api/Host/token/{Uri.EscapeDataString(token)}/validate";
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP GET request - URL: {Url} ;CLEANUP_OK", url);
+                
                 var response = await httpClient.GetAsync(url);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] HTTP response - StatusCode: {StatusCode}, Success: {Success} ;CLEANUP_OK", 
+                    response.StatusCode, response.IsSuccessStatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
+                        jsonContent?.Length ?? 0);
+                    
                     var validationResponse = JsonSerializer.Deserialize<NoorCanvas.Controllers.HostSessionValidationResponse>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -330,6 +404,9 @@ namespace NoorCanvas.Services
                     {
                         _logger.LogInformation("NOOR-HOST-SERVICE: Token validation result - Valid: {Valid}, SessionId: {SessionId}",
                             validationResponse.Valid, validationResponse.SessionId);
+                        
+                        _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Token validation deserialized - Valid: {Valid}, SessionId: {SessionId} ;CLEANUP_OK", 
+                            validationResponse.Valid, validationResponse.SessionId);
 
                         return new HostTokenValidationResult
                         {
@@ -337,6 +414,15 @@ namespace NoorCanvas.Services
                             SessionId = validationResponse.SessionId
                         };
                     }
+                    else
+                    {
+                        _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Token validation deserialization returned null ;CLEANUP_OK");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Token validation API FAILED - StatusCode: {StatusCode} ;CLEANUP_OK", 
+                        response.StatusCode);
                 }
 
                 return new HostTokenValidationResult { Valid = false, SessionId = 0 };
@@ -344,6 +430,8 @@ namespace NoorCanvas.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "NOOR-HOST-SERVICE: Error validating host token: {Token}", token);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] ValidateHostTokenAsync exception - Token: {Token}, Type: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                    token, ex.GetType().Name, ex.Message);
                 return new HostTokenValidationResult { Valid = false, SessionId = 0 };
             }
         }

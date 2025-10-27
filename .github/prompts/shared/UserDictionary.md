@@ -8,9 +8,14 @@ How to use
 - When a request contains a shortcut token (e.g., "hcp", "tcanv"), resolve it using this dictionary before deciding scope.
 - If both a generic filename and a full path exist, prefer the generic #file: reference (the prompt system resolves it).
 
-Views (Blazor Components)
+User acronyms and shortcuts used in prompts
 - nc: NoorCanvas application
 - hp: Host Proivisioner Avalonia -  Tools\HostProvisioner\HostProvisioner.Avalonia"
+- ac: Acceptance Criteria
+- db: Database
+
+
+Views (Blazor Components)
 - hcp: Host Control Panel — view: #file:HostControlPanel.razor
 - scanv: Session Canvas — view: #file:SessionCanvas.razor
 - tcanv: Transcript Canvas — view: #file:TranscriptCanvas.razor

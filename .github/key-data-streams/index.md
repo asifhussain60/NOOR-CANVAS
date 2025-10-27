@@ -10,6 +10,9 @@
 
 ## Active Keys
 
+### Bug Fixes
+host-session-opener-fix: plan → task → test-generation → healthcheck
+
 ### Canvas Maintenance
 canvas-maintenance: plan → todo → task → healthcheck
 
