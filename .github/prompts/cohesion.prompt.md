@@ -6,6 +6,12 @@ purpose: Meta-agent that validates and harmonizes all prompts and instructions f
 inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full), -test
 outputs: Cohesion report with violations, conflicts, and auto-fix recommendations
 lastUpdated: 2025-10-27
+calls: [.github/prompts/internal/enhance-prompts.prompt.md]
+relatedFiles: [
+  .github/prompts/internal/enhance-prompts.prompt.md,
+  .github/prompts/shared/validation-engine.md,
+  .github/prompts/shared/integration-protocol.md
+]
 ---
 
 # cohesion.prompt.md (System Cohesion)
@@ -611,6 +617,12 @@ When duplicate rules found:
 - Missing output format sections (add template)
 - Inconsistent parameter defaults (standardize)
 
+### Enhancement Pack (Delegated, preview-first)
+- Scope: Metadata normalization, shared reference centralization, formatting harmonization
+- Flow: Delegate to internal enhancement agent in preview (report-only) mode, present proposed changes, then apply only with explicit approval
+- Invocation: Calls `.github/prompts/internal/enhance-prompts.prompt.md` with `report-only=true` by default; switch to `apply-enhancements=true` only after approval
+- Safety: Archive superseded prompt docs under `shared/archive/` (no deletions); create checkpoint commit before apply
+
 ### Manual Fix Required
 - Rule contradictions (needs human decision)
 - Overlapping jurisdictions (needs scope clarification)
@@ -850,3 +862,5 @@ If auto-fix fails:
 - `.github/prompts/shared/output-style-mandate.md` - Format standards
 - `.github/prompts/shared/agent-handoff-protocol.md` - Handoff specifications
 - `.github/instructions/SelfAwareness.instructions.md` - Global operating rules
+ - `.github/prompts/shared/validation-engine.md` - Validation guidance index
+ - `.github/prompts/shared/integration-protocol.md` - Integration handoff/index

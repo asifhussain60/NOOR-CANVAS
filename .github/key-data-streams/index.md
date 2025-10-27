@@ -31,6 +31,9 @@ sync-docs: plan → task → healthcheck
 ### Operations
 ops-cleanup: plan → task → healthcheck
 
+### Meta
+meta-enhancements: plan → cohesion(auto-fix preview) → enhance-prompts (apply, optional) → cohesion(rules) → healthcheck
+
 ---
 
 ## Key Data Stream Structure
