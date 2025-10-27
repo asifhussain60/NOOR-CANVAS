@@ -13,6 +13,7 @@ Index the core documents that define agent handoffs, execution flow, and output 
 - `.github/prompts/shared/commit-checkpoint-protocol.md` — Checkpoint commit requirements and examples
 - `.github/prompts/shared/context-loader.md` — Load required architectural context before planning (Architecture.md, InfrastructureQuickRef.md, etc.)
 - `.github/prompts/shared/execution-flow.md` — Standard execution phases and checkpoints for implementation agents
+- `.github/prompts/shared/loop-prevention.md` — Prevent infinite loops, circular handoffs, and repetitive analysis cycles
 - `.github/prompts/shared/output-style-mandate.md` — User-facing output format, icons, sections, and bullet constraints
 - `.github/prompts/shared/request-analyzer.md` — Extract requirements, estimate complexity, identify affected layers and test requirements
 - `.github/prompts/shared/task-detector.md` — Detect single vs multiple tasks for intelligent routing (single → todo, multiple → plan)
