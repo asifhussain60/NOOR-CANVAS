@@ -3,11 +3,21 @@ mode: agent
 description: Read-only system health auditor and prompt optimization analyzer (no code changes)
 ---
 
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Validate system and prompt infrastructure health without modifying code; analyze prompt optimization opportunities
+> inputs: scope, level, notes, -test
+> outputs: health audit report, violations by severity, optimization recommendations
+> lastUpdated: 2025-10-27
+
 **Version:** 1.1.0  
 **Last Updated:** 2025-10-22  
 **Changelog:**
 - Add quick banner with Prompt Optimization Mode pointer and shared references
 - Align early output-style and execution-flow cross-links
+
+See Also:
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
 
 > Quick banner
 > - Prompt Optimization Mode is available for any prompt scope (see section: Prompt Optimization Mode)

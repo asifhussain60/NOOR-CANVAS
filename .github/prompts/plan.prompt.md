@@ -8,6 +8,10 @@ outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md a
 lastUpdated: 2025-10-27
 ---
 
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> acceptsFrom: [build, ask, drift]
+> calls: [task, test-generation]
+
 # plan.prompt.md (Feature Planning)
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
@@ -62,6 +66,10 @@ D. Continue without validation fixes
 ```
 
 **See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
+See Also:
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
 
 ## 🔍 MANDATORY: KEY DATA STREAM CONSULTATION (EXECUTE FIRST - ALWAYS)
 
@@ -474,9 +482,9 @@ END FUNCTION
 
 ## Quick Reference
 
-**Plan**: [{key}.plan.md](./{key}.plan.md)  
-**Work Log**: [work-log.md](./work-log.md)  
-**Tests**: [tests/test-registry.md](./tests/test-registry.md)
+**Plan**: `{key}.plan.md` (in `.github/key-data-streams/{key}/`)
+**Work Log**: `work-log.md` (in `.github/key-data-streams/{key}/`)
+**Tests**: `tests/test-registry.md` (in `.github/key-data-streams/{key}/`)
 
 ## Rollback
 

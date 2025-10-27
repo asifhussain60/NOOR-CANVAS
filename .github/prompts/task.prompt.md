@@ -3,6 +3,14 @@ mode: agent
 description: Canonical execution engine that breaks down requests, validates outcomes, maintains audit trails through progressive key data stream updates
 ---
 
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Execute planned work, validate outcomes, update key data stream progressively
+> inputs: key, tasks, -test, github-branch, commit-checkpoints, auto-chain, phase, debug-level, verbosity
+> outputs: phase execution results, checkpoints, updated work-log and artifacts
+> lastUpdated: 2025-10-27
+> acceptsFrom: [plan]
+> calls: [test-generation]
+
 # task.prompt.md (Execution Agent)
 
 **CRITICAL:** MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
@@ -13,6 +21,12 @@ See `.github/prompts/shared/output-style-mandate.md`
 🧠 Analysis (≤5 bullets)
 📌 Summary (≤10 bullets)  
 📊 Final (always)
+
+---
+
+## See Also
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
 
 ## Parameters
 See `.github/prompts/shared/task-parameters-reference.md`

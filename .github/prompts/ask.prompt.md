@@ -1,7 +1,14 @@
----
 mode: agent
 description: Entry-point alias for asking application questions; routes to the internal question agent and returns a concise, bulletted answer
 ---
+
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Route questions to internal agent and return concise bulletted answers with clear next-action handoff
+> inputs: question, context, depth, verbosity, -test
+> outputs: concise bulletted answer; letter-based next-action options; optional handoff to plan agent
+> lastUpdated: 2025-10-27
+> acceptsFrom: [build]
+> calls: [plan]
 
 ## Role
 You are the Ask Router. Take a user's question plus optional parameters, invoke the internal question agent, and return the result as-is.
@@ -117,7 +124,13 @@ Agent: [Provides detailed answer about missing component]
 
 User: A (Turn into plan)
 Agent: Invoking plan agent...
-       @workspace /plan key:session-canvas-share-button 
+    @workspace /plan key:session-canvas-share-button 
+
+---
+
+## See Also
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
                   user_request="Add share button to SessionCanvas component"
                   context="SessionCanvas.razor - missing ShareButton component reference"
 ```

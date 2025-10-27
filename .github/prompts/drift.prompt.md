@@ -30,6 +30,12 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 @workspace /drift key=ui-refresh -test severity=high "Button alignment issue"
 ```
 
+---
+
+## See Also
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
+
 **Drift-Specific Validation Checks:**
 - ✓ Drift key created with "drift-" prefix
 - ✓ Parent key preserved and referenced

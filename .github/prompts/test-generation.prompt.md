@@ -3,6 +3,13 @@ mode: agent
 description: Generate Playwright end-to-end tests (functional and visual) with orchestration, browser-log guards, and key-scoped placement.
 ---
 
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Create Playwright tests and orchestration artifacts bound to a key data stream
+> inputs: key, scenario, phase, auto-chain, auto-execute, -test
+> outputs: .spec.ts files, orchestration scripts, updated test registry and report
+> lastUpdated: 2025-10-22
+> acceptsFrom: [task, plan]
+
 # Test Generation Agent
 
 **Version:** 1.1.0  
@@ -106,6 +113,10 @@ Automatically run generated tests after creation
 For detailed patterns, decision matrices, and examples, see:
 - `.github/prompts/shared/playwright-test-generation.md` (selectors, wait strategies, Percy usage, multi-user flows)
 - `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management)
+
+See Also:
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
 
 
 ## Initial Validation (MANDATORY)
