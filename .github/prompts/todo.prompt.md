@@ -18,9 +18,11 @@ description: Extend or modify current active work while preserving context, key,
 
 ## Critical Rules
 1. MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
-2. **Preserve current key** - Use same key from most recent handoff/task
-3. **Extend, don't replace** - Add to existing plan, don't restart
-4. **Approval behavior:** Auto-execute after 5s unless "review"/"cancel" (skipped if `from-build=true`)
+2. **NO code blocks** - Use brief pseudocode only
+3. **NO nested lists** - Flat bullets only
+4. **Preserve current key** - Use same key from most recent handoff/task
+5. **Extend, don't replace** - Add to existing plan, don't restart
+6. **Approval behavior:** Auto-execute after 5s unless "review"/"cancel" (skipped if `from-build=true`)
 
 ## Parameters
 

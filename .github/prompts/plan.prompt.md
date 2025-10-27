@@ -263,40 +263,27 @@ END FUNCTION
 
 **When related keys found:**
 ```markdown
-🔍 **Key Data Stream Consultation**
+## 🧠 Key Consultation (≤5 bullets)
+- Found: {N} related keys
+- Top: {key-1} ({X}/{Y} phases, {status})
+- Match: {relevance-score}
+- Location: .github/key-data-streams/
+- Recommendation: Continue vs New
 
-Found {N} related existing keys:
-
-1. **{key-1}** (Status: {status})
-   - Purpose: {one-line-description}
-   - Version: {version}
-   - Completed: {X}/{Y} phases
-   - Path: `.github/key-data-streams/{key-1}/`
-
-2. **{key-2}** (Status: {status})
-   - Purpose: {one-line-description}
-   - Dependencies: {key-3}, {key-4}
-   - Path: `.github/key-data-streams/{key-2}/`
-
-**Recommendations:**
-- {recommendation-1}
-- {recommendation-2}
-
-**Options:**
-A. Continue `{key-1}` (most relevant)
-B. Create new key
-C. Review key details
-
-Your choice?
+## 📌 Options (≤5 bullets)
+1. **A.** Use `{key-1}` (most relevant)
+2. **B.** Create new key
+3. **C.** Review {key-1} details
+4. Keys: {key-1}, {key-2}, {key-3}
+5. Reply: A, B, or C
 ```
 
 **When no related keys found:**
 ```markdown
-🔍 **Key Data Stream Consultation**
-
-No existing keys related to: "{userRequest}"
-
-Proceeding with new key creation...
+## 🧠 Key Consultation
+- Found: 0 related keys
+- Creating: {new-key}
+- Proceeding: Plan generation
 ```
 
 ### Index Maintenance Protocol
@@ -512,11 +499,13 @@ If you're about to paste 200+ lines in chat → **STOP** → Write to files inst
 1. **MAX 15 bullets** per response
 2. **WRITE {key}.plan.md v1.0 FIRST** - Document plan BEFORE showing to user
 3. **Show concise summary** in chat (max 100 lines) - NOT full plan content
-4. **Update {key}.plan.md continuously** - Increment version (v1.1, v1.2) on each modification
-5. **Present handoff command** (don't auto-invoke)
-6. **NO execution** - planning only
-7. **Pseudocode preferred** - Use algorithmic descriptions instead of executable code
-8. **Enable resume in new chat** - User can say "continue with {key}" to reload plan context
+4. **NO code blocks in chat** - Use brief pseudocode only (e.g., `IF X THEN Y`)
+5. **NO nested lists** - Single-level bullets only
+6. **Update {key}.plan.md continuously** - Increment version (v1.1, v1.2) on each modification
+7. **Present handoff command** (don't auto-invoke)
+8. **NO execution** - planning only
+9. **Pseudocode preferred** - Use algorithmic descriptions instead of executable code
+10. **Enable resume in new chat** - User can say "continue with {key}" to reload plan context
 
 ## 🚨 OUTPUT ENFORCEMENT CHECKPOINT (READ BEFORE EVERY RESPONSE)
 
@@ -904,15 +893,23 @@ END FUNCTION
 
 ### Output Format After Step 4
 
-```
-✅ Plan files created:
-   - {key}.plan.md (1245 lines)
-   - {key}.plan.json (tracking)
-   - work-log.md (timeline)
-   - tests/test-registry.md (test tracking)
-   - execute-plan.ps1 (auto-execution) ← MUST BE PRESENT
+```markdown
+## 🧠 Analysis (≤5 bullets)
+- Key: {key}
+- Phases: {count}
+- Files: {list-count}
+- Domain: {UI|API|Service|Database|etc}
+- Status: Draft/Approved
 
-⏭️ Next: Updating indexes (Step 4.5)
+## 📌 Summary (≤10 bullets)
+1. Key: {key} | Feature: {one-liner}
+2. Phases: {count} ({phase-names-only})
+3. Files: {count} technical specs
+4. Tests: {count} test scenarios
+5. Enhancements: {high-count}H {med-count}M {low-count}L
+6. Execution: execute-plan.ps1 created
+7. Version: {version}
+8. Next: **A.** Execute | **B.** Modify | **C.** Review
 ```
 
 ---
@@ -1014,26 +1011,27 @@ See "Cleanup Phase Integration" section above for full algorithm.
 
 ### Final Output Format
 
-```
-✅ Planning Complete!
+```markdown
+## 🧠 Analysis (≤5 bullets)
+- Key: {key}
+- Version: {version} (Approved)
+- Phases: {count}
+- Tests: {count} scenarios
+- Execution: Ready
 
-**Files Created:**
-- `.github/key-data-streams/{key}/{key}.plan.md`
-- `.github/key-data-streams/{key}/{key}.plan.json`
-- `.github/key-data-streams/{key}/work-log.md`
-- `.github/key-data-streams/{key}/tests/test-registry.md`
-- `.github/key-data-streams/{key}/execute-plan.ps1`
-- `.github/key-data-streams/{key}/README.md`
+## 📌 Summary (≤10 bullets)
+1. Key: {key} | Status: Approved
+2. Files: 6 (plan, json, work-log, tests, execute, readme)
+3. Indexes: Updated (global + {specialized-count})
+4. Execute: .\.github\key-data-streams\{key}\execute-plan.ps1
+5. Manual: @workspace /task key:{key} phase:1 auto-chain:true
+6. Version: {version}
+7. Next: **A.** Execute | **B.** Defer | **C.** Review
 
-**Indexes Updated:**
-- Global: .github/key-data-streams/index.md
-- Specialized: {list-of-specialized-indexes}
-
-🚀 Ready for execution:
-   .\.github\key-data-streams\{key}\execute-plan.ps1
-
-   Or manually:
-   @workspace /task key:{key} phase:1 auto-chain:true
+📊 Final
+- Status: Approved
+- Key: {key}
+- Execute: execute-plan.ps1
 ```
 
 ### Failure to Create execute-plan.ps1 = INCOMPLETE PLAN

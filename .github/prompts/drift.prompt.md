@@ -70,11 +70,13 @@ D. Accept findings and proceed
 
 ## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
-2. **Auto-commit** at each drift resolution
-3. **Max stack depth: 3** levels
-4. **Severity levels**: critical, high, medium, low, informational
-5. **Queue limit**: Max 10 auto-detected drifts per parent key
-6. **Always preserve parent key context**
+2. **NO code blocks** - Use brief pseudocode only
+3. **NO nested lists** - Flat bullets only
+4. **Auto-commit** at each drift resolution
+5. **Max stack depth: 3** levels
+6. **Severity levels**: critical, high, medium, low, informational
+7. **Queue limit**: Max 10 auto-detected drifts per parent key
+8. **Always preserve parent key context**
 
 ## Dual-Mode Operation
 

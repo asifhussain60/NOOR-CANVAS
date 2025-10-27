@@ -202,7 +202,18 @@ Whether to automatically execute after building prompt
 
 ---
 
-## 🔍 Analysis Process
+## � Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
+1. **MAX 15 bullets** per response
+2. **NO code blocks** - Use brief pseudocode only  
+3. **NO nested lists** - Flat bullets only
+4. **Show handoff summary** - Not full target agent output
+5. **Transition control** - Actually load and execute target prompt
+6. **Search before create** - Consult key data streams first
+7. **Intelligent routing** - Single task → todo, Multiple → plan
+
+---
+
+## �🔍 Analysis Process
 
 ### Step -1: Parse Invocation Format (EXECUTE FIRST)
 
@@ -1189,15 +1200,12 @@ User: @workspace /build-prompt target=task "Fix save button error"
 ### Phase 0: Invocation Parsing (Always First)
 
 ```markdown
-## 🔍 Parsing Invocation
-
-**Detected Format:** {Positional|Named Parameters|Default}
-**Target:** `{target-name}`
-**Request:** "{extracted-request}"
-{If key specified: **Key:** `{key}`}
-{If auto-execute: **Auto-execute:** Enabled}
-
----
+## 🧠 Parsing (≤5 bullets)
+- Format: {Positional|Named|Default}
+- Target: {target-name}
+- Request: {one-liner}
+- Key: {key} (if specified)
+- Auto-execute: {yes/no}
 ```
 
 ---
@@ -1205,31 +1213,20 @@ User: @workspace /build-prompt target=task "Fix save button error"
 ### Phase 1: Key Data Stream Consultation (If Related Keys Found)
 
 ```markdown
-## 🔍 Key Data Stream Search Results
+## 🧠 Key Search (≤5 bullets)
+- Found: {count} related keys
+- Top: {key-1} ({status})
+- Relevance: {score}%
+- Location: .github/key-data-streams/
+- Options: Continue | Create New | Review
 
-Found **{count}** related existing key(s):
+## 📌 Keys (≤10 bullets)
+1. **{key-1}**: {purpose} | Status: {status} | Phases: {X}/{Y}
+2. **{key-2}**: {purpose} | Status: {status} | Phases: {X}/{Y}
+3. Recommendation: {which-key-or-new}
+4. Next: **A.** Use {key-1} | **B.** Create New | **C.** Review
 
-### {key-name-1}
-- **Purpose:** {brief description}
-- **Location:** `.github/key-data-streams/{key}/` or `Workspaces/Copilot/KeyDataStreams/`
-- **Status:** {Active|Completed|Archived}
-- **Relevance:** {why this key matches the request}
-
-### {key-name-2}
-- **Purpose:** {brief description}
-- **Location:** ...
-- **Status:** ...
-- **Relevance:** ...
-
----
-
-## ⚡ What would you like to do next?
-
-**A.** Use existing key: `{most-relevant-key}` (continue/extend existing work)  
-**B.** Create new key (work is sufficiently different from existing keys)  
-**C.** Review key details in depth before deciding  
-
-**Reply with letter (A, B, or C)**
+Reply: A, B, or C
 ```
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
@@ -1239,47 +1236,26 @@ Found **{count}** related existing key(s):
 ### Phase 2: Before Handoff (User Review Mode, when auto-execute=false)
 
 ```markdown
-## 🧠 Copilot Analysis
+## 🧠 Analysis (≤5 bullets)
+- Request: {one-liner}
+- Context: {files-count}F {images-count}I {errors-count}E
+- Type: {work-type}
+- Complexity: {simple|moderate|complex} ({score}/15)
+- Target: {target-prompt}.prompt.md
 
-- **Request:** {core request summary in 1 sentence}
-- **Context gathered:** {X} files, {Y} images, {Z} error messages
-- **Work type:** {New feature|Bug fix|Test creation|Question|Health check|etc.}
-- **Complexity:** {simple|moderate|complex} ({score}/15 points)
-- **Affected layers:** {UI, API, Service, Database, SignalR, etc.}
-- **Target agent:** `{target-prompt}.prompt.md`
-- **Key:** `{key}` {(new) | (existing)}
+## 📌 Handoff (≤10 bullets)
+1. Key: {key} (new|existing)
+2. Agent: {target-prompt}.prompt.md
+3. Params: {key-params-list}
+4. Layers: {UI|API|Service|DB|SignalR}
+5. Context: {visual|error|file} packages prepared
+6. Related: {related-keys-count} keys
+7. Request: {optimized-request-one-liner}
+8. Routing: {intelligent|manual}
+9. Approval: {auto|manual}
+10. Next: **A.** Execute | **B.** Modify | **C.** Change Target | **D.** Cancel
 
-## 📌 Built Prompt for {Target Agent}
-
-**Will invoke:** `.github/prompts/{target}.prompt.md`
-
-**Parameters constructed:**
-```yaml
-key: {key}
-{param1}: {value1}
-{param2}: {value2}
-{param3}: {value3}
-```
-
-**Optimized user request:**
-> {cleaned, context-enriched, structured request text}
-
-**Context package:**
-- Visual context: {summary of images/videos analyzed}
-- Error context: {summary of errors/logs parsed}
-- File context: {list of mentioned/affected files}
-- Related keys: {any related existing keys found}
-
----
-
-## ⚡ What would you like to do next?
-
-**A.** Execute handoff to {target} agent with these parameters  
-**B.** Modify a parameter (specify which: key, verbosity, etc.)  
-**C.** Change target agent (suggest alternative)  
-**D.** Cancel and revise original request  
-
-**Reply with letter, multiple letters, or "all"**
+Reply: A, B, C, or D
 ```
 
 **Behavior:** Wait for user approval before proceeding to handoff.
@@ -1289,19 +1265,16 @@ key: {key}
 ### Phase 3: Handoff Execution (After approval or when auto-execute=true)
 
 ```markdown
-## 🚀 Handing off to {target} agent
+## 🚀 Handoff to {target}
 
-**Target prompt:** `.github/prompts/{target}.prompt.md`  
-**Key:** `{key}`  
-**Parameters:** {list of key parameters}
+- Target: .github/prompts/{target}.prompt.md
+- Key: {key}
+- Params: {key-params}
+- Transitioning control...
 
 ---
 
-{BEGIN TARGET AGENT EXECUTION}
-
-{All output from target agent appears here - the target agent now takes over completely}
-
-{END TARGET AGENT EXECUTION}
+{BEGIN TARGET AGENT EXECUTION - Target agent output follows}
 ```
 
 **Behavior:** Transition control to target agent. From this point forward, the target agent's instructions govern all behavior.
