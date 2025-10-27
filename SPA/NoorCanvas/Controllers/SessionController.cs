@@ -304,7 +304,7 @@ namespace NoorCanvas.Controllers
         [HttpGet("info/{token}")]
         public IActionResult GetSessionInfo(string token)
         {
-            _logger.LogWarning("[user-landing] GetSessionInfo endpoint not yet implemented - use /api/participant/session-info/{token} instead");
+            _logger.LogWarning("[user-landing] GetSessionInfo endpoint not yet implemented - use /api/participant/session-info/{{token}} instead");
             return StatusCode(501, new { error = "Use /api/participant/session-info/{token} instead" });
         }
     }

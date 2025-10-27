@@ -426,7 +426,7 @@ else
                 if (Model != null)
                 {
                     Model.SessionTranscript = transcript;
-                    Model.TransformedTranscript = await TransformTranscriptHtmlAsync(transcript);
+                    Model.TransformedTranscript = await TransformTranscriptHtmlAsync(transcript ?? string.Empty);
                     await InvokeAsync(StateHasChanged);
                     Logger.LogInformation("SIGNALR-DIAG: [HCP-TranscriptUpdated] Model updated - DiagId={DiagId}", diagId);
                 }
