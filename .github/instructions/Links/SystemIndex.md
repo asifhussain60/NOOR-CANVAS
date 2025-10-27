@@ -6,7 +6,7 @@
 **Auto-Update**: This file is automatically updated by Copilot agents when infrastructure, architecture, or configuration changes occur.
 
 **Active Agents**: 9
-- plan, task, question, test-generation, refactor, healthcheck, analyze-learning, sync, cohesion-review
+- plan, task, ask, test-generation, refactor, healthcheck, analyze-learning, sync, cohesion-review
 
 ---
 
@@ -142,7 +142,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
   - **HANDOFF**: Called by plan.prompt.md for phased execution
   - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
 
-- **question.prompt.md** - Application knowledge agent
+- **ask.prompt.md** - Application knowledge agent
   - One-stop Q&A solution
   - Deep application analysis
   - Supports all agents with investigation
