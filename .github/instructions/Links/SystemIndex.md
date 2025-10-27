@@ -51,6 +51,8 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ### Architecture & Infrastructure
 - **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
 - **InfrastructureQuickRef.md** ⭐ - DB connections (KSESSIONS_DEV rules), API endpoints, test data
+- **CDN-Architecture.md** - Resources CDN architecture (media serving, CORS, URL patterns)
+- **Cloudflare-Configuration.md** ⭐ **NEW** - Cloudflare Tunnel setup, dashboard access, troubleshooting, management scripts
 
 ### Validation & Quality
 - **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)ion hub for all architectural and configuration references.**

@@ -53,6 +53,7 @@ Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/
 - **`.github/instructions/Links/SystemIndex.md`** - Central navigation hub for all architectural references, agent coordination, and system snapshots
 - **`.github/instructions/Links/InfrastructureQuickRef.md`** - **MANDATORY** for database operations - contains KSESSIONS_DEV connection details and schema access rules
 - **`.github/instructions/CDN-Architecture.md`** - **MANDATORY** for media/resource URLs - explains why CDN (`resources.kashkole.com`) exists and why `file://` URLs should NOT be used (related keys: `ksessions-cdn`, `transcript-img-fix`, `cdn-dev-cors`)
+- **`.github/instructions/Cloudflare-Configuration.md`** - **MANDATORY** for tunnel/networking questions - comprehensive Cloudflare Tunnel configuration, dashboard access, troubleshooting, and management scripts (related keys: `cloudflare-tunnel-stability`, `cdn-cloudflare-fix`)
 - **`.github/instructions/Links/Architecture.md`** - Comprehensive application architecture documentation including:
   - Complete API endpoint catalog (52 endpoints across 11 controllers)
   - Razor pages and component inventory (15+ pages, 10+ components)

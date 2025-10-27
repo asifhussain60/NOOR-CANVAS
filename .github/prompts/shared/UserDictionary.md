@@ -76,6 +76,16 @@ Documentation quick refs
 - sysidx: System Index — #file:.github/instructions/Links/SystemIndex.md
 - infra: Infrastructure Quick Ref — #file:.github/instructions/Links/InfrastructureQuickRef.md
 - arch: Architecture Overview — #file:.github/instructions/Links/Architecture.md
+- cfcfg: Cloudflare Configuration — #file:.github/instructions/Cloudflare-Configuration.md
+- cdnarch: CDN Architecture — #file:.github/instructions/CDN-Architecture.md
+
+Cloudflare/Infrastructure
+- cftunnel: Cloudflare tunnel config — #file:Workspaces/Infrastructure/Cloudflare/tunnel-configuration.md
+- cfconfig: Cloudflare config.yml — #file:Workspaces/Infrastructure/Cloudflare/config.yml
+- cfinstall: Install tunnel service — #file:Workspaces/Infrastructure/Cloudflare/install-tunnel-service.ps1
+- cfrestart: Restart tunnel service — #file:Workspaces/Infrastructure/Cloudflare/restart-tunnel-service.ps1
+- cfhealth: Check tunnel health — #file:Workspaces/Infrastructure/Cloudflare/check-tunnel-health.ps1
+- cftrouble: Cloudflare troubleshooting — #file:Workspaces/Infrastructure/Cloudflare/TROUBLESHOOTING.md
 
 Notes
 - This file is authoritative for shortcut expansion. If a shortcut is ambiguous or missing, add a new entry here instead of hardcoding logic in a prompt.
