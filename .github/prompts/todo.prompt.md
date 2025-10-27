@@ -1,3 +1,8 @@
+---
+mode: agent
+description: Extend or modify current active work while preserving context, key, and execution flow (todo item workflow)
+---
+
 # Todo — Extend Current Work with Same Key
 
 **Version**: 2.0.0  

@@ -1,3 +1,8 @@
+---
+mode: agent
+description: Canonical execution engine that breaks down requests, validates outcomes, maintains audit trails through progressive key data stream updates
+---
+
 # task.prompt.md (Execution Agent)
 
 **CRITICAL:** MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)

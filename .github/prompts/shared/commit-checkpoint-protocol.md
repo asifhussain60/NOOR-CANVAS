@@ -69,9 +69,13 @@ Maintain in `.github/key-data-streams/{key}/rollback-index.md`:
 
 ## Integration with Agents
 
-### handoff.prompt.md
-- Checkpoint after each phase in execution loop
-- Final checkpoint after self-review
+### plan.prompt.md
+- No checkpoints (planning only, no execution)
+- Execution delegated to task.prompt.md
+
+### todo.prompt.md (lightweight execution mode)
+- Checkpoint after each task in execution loop
+- Final checkpoint after completion
 
 ### task.prompt.md
 - Checkpoint after each subtask

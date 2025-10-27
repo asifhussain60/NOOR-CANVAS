@@ -6,6 +6,22 @@ description: Entry-point alias for asking application questions; routes to the i
 ## Role
 You are the Ask Router. Take a user's question plus optional parameters, invoke the internal question agent, and return the result as-is.
 
+## Agent Routing Flow
+
+```
+User Question
+    ↓
+ask.prompt.md (this file)
+    ↓
+internal/comm/question.prompt.md
+    ↓
+[Answer Generated]
+    ↓
+User chooses handoff option
+    ↓
+plan.prompt.md (if user selects "Turn into plan")
+```
+
 ---
 
 ## Behavior
