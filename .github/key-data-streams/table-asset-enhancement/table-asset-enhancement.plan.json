@@ -1,0 +1,164 @@
+{
+    "key": "table-asset-enhancement",
+    "version": "1.1",
+    "status": "draft",
+    "created": "2025-10-27T00:00:00Z",
+    "lastUpdated": "2025-10-27T00:00:00Z",
+    "branch": "development",
+    "phases": [
+        {
+            "id": 1,
+            "name": "Database Verification",
+            "status": "pending",
+            "startedAt": null,
+            "completedAt": null,
+            "tasks": [
+                {
+                    "id": "1.1",
+                    "description": "Run AssetLookup query for table entry",
+                    "status": "pending"
+                },
+                {
+                    "id": "1.2",
+                    "description": "Identify test session with table content (optional)",
+                    "status": "pending"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "CSS Selector Update (MANDATORY)",
+            "status": "pending",
+            "conditional": false,
+            "startedAt": null,
+            "completedAt": null,
+            "tasks": [
+                {
+                    "id": "2.1",
+                    "description": "Execute UPDATE canvas.AssetLookup SET CssSelector = 'table'",
+                    "status": "pending"
+                },
+                {
+                    "id": "2.2",
+                    "description": "Verify API returns updated selector",
+                    "status": "pending"
+                },
+                {
+                    "id": "2.3",
+                    "description": "Document change in work-log.md",
+                    "status": "pending"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Asset Processing Verification",
+            "status": "pending",
+            "startedAt": null,
+            "completedAt": null,
+            "tasks": [
+                {
+                    "id": "3.1",
+                    "description": "Code review: AssetProcessingService",
+                    "status": "pending"
+                },
+                {
+                    "id": "3.2",
+                    "description": "Test AssetLookup API endpoint",
+                    "status": "pending"
+                },
+                {
+                    "id": "3.3",
+                    "description": "Manual test: Share button injection",
+                    "status": "pending"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Broadcasting & Reception E2E Test",
+            "status": "pending",
+            "startedAt": null,
+            "completedAt": null,
+            "tasks": [
+                {
+                    "id": "4.1",
+                    "description": "Manual E2E test: HostControlPanel → SessionCanvas",
+                    "status": "pending"
+                },
+                {
+                    "id": "4.2",
+                    "description": "SignalR payload inspection",
+                    "status": "pending"
+                },
+                {
+                    "id": "4.3",
+                    "description": "Visual verification of shared table",
+                    "status": "pending"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Playwright Automated Test",
+            "status": "pending",
+            "startedAt": null,
+            "completedAt": null,
+            "tasks": [
+                {
+                    "id": "5.1",
+                    "description": "Create table-asset-share-e2e.spec.ts",
+                    "status": "pending"
+                },
+                {
+                    "id": "5.2",
+                    "description": "Implement test with assertions",
+                    "status": "pending"
+                },
+                {
+                    "id": "5.3",
+                    "description": "Run test locally (3+ passes)",
+                    "status": "pending"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Documentation & Cleanup",
+            "status": "pending",
+            "startedAt": null,
+            "completedAt": null,
+            "tasks": [
+                {
+                    "id": "6.1",
+                    "description": "Update KSESSIONS-HUB.md",
+                    "status": "pending"
+                },
+                {
+                    "id": "6.2",
+                    "description": "Complete work-log.md",
+                    "status": "pending"
+                },
+                {
+                    "id": "6.3",
+                    "description": "Create VERIFICATION-REPORT.md",
+                    "status": "pending"
+                },
+                {
+                    "id": "6.4",
+                    "description": "Update index.md",
+                    "status": "pending"
+                }
+            ]
+        }
+    ],
+    "modifications": [
+        {
+            "version": "1.1",
+            "type": "change",
+            "summary": "Phase 2 changed from CONDITIONAL to MANDATORY - CSS selector update confirmed by user",
+            "timestamp": "2025-10-27T00:00:00Z",
+            "details": "User requested removal of style attribute requirement. Selector changed from 'table[style=\"width: 100%;\"]' to 'table' to match all tables."
+        }
+    ]
+}
