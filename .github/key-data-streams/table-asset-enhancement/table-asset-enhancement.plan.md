@@ -4,12 +4,18 @@
 **Key**: table-asset-enhancement  
 **Branch**: development  
 **Created**: 2025-10-27  
-**Status**: Draft  
-**Plan Version**: v1.1
+**Status**: In Progress (Phase 3)
+**Plan Version**: v1.2
 **Last Updated**: 2025-10-27
 ---
 
 ## Version History
+
+**v1.2** (2025-10-27):
+- **Phases 1-2 COMPLETE**: Database verification + CSS selector update
+- Revised plan to focus on remaining verification phases
+- Updated status: Ready for Phase 3 (E2E Testing)
+- Removed Production Migration phase (dev-only for now)
 
 **v1.1** (2025-10-27):
 - Changed Phase 2 from CONDITIONAL to MANDATORY
@@ -25,23 +31,22 @@
 
 **Objective**: Enable HTML tables in HCP session transcripts to be treated as shareable assets with inject share buttons and SignalR broadcasting to receivers (SessionCanvas, TranscriptCanvas).
 
-**User Request**: 
-> Enhance hcp session transcript to treat tables as an asset. Lookup the database protocol for dev and plan to update canvas.AssetLookup table. The html transform should inject a share asset button for tables similar to other assets. Clicking it should broadcast the asset to the receivers.
+**Current Status**: ✅ **Database Update Complete**
+- CSS selector updated from `table[style="width: 100%;"]` → `table`
+- All tables in transcripts will now be detected (not just styled tables)
 
-**Scope**: Verification + Enhancement of existing asset pipeline to support table sharing
+**Completed Phases**:
+- ✅ Phase 1: Database verification (table entry confirmed active)
+- ✅ Phase 2: CSS selector update (now matches ALL tables)
 
-**Impact**: 
-- ✅ Database verification (AssetLookup already contains table entry)
-- ✅ HTML transformation enhancement (AssetProcessingService)
-- ✅ Share button injection (already supported via existing pipeline)
-- ✅ Broadcasting validation (SessionHub.ShareAsset)
-- ✅ Reception handling (SessionCanvas, TranscriptCanvas)
+**Remaining Work**: 
+- 🔄 Phase 3: E2E manual verification (HostControlPanel → SessionCanvas)
+- 🔄 Phase 4: Playwright automated test creation
+- 🔄 Phase 5: Documentation updates
 
-**Estimated Effort**: 2-3 hours (CSS update + verification + testing)
+**Estimated Remaining Effort**: 2-3 hours (testing + documentation)
 
-**Key Discovery**: Tables already exist in `canvas.AssetLookup` table (added in Migration `20250920222544_AddAssetLookupTable.cs`). The asset processing pipeline already supports tables, but current CSS selector `table[style="width: 100%;"]` is too restrictive.
-
-**User Requirement (v1.1)**: Update CSS selector to just `table` (no style attribute requirement) so ALL tables can be shared, not just those with inline width styles.
+**Key Achievement**: Tables already supported in asset pipeline - only needed selector simplification to enable sharing of ALL table types (not just those with specific inline styles).
 
 ---
 
@@ -206,298 +211,230 @@ CREATE TABLE [canvas].[AssetLookup] (
 
 ---
 
-## Implementation Plan
+## Implementation Plan (REVISED)
 
-### Phase 1: Database Verification
+### ✅ Phase 1: Database Verification (COMPLETE)
 
-**Objective**: Verify AssetLookup table entry exists and is active (SIMPLIFIED - selector update confirmed by user)
+**Status**: ✅ COMPLETE (2025-10-27)  
+**Duration**: 10 minutes
 
-**Tasks**:
+**Executed**:
+- Connected to KSESSIONS_DEV database
+- Verified `canvas.AssetLookup` table contains active table entry
+- Confirmed CSS selector was `table[style="width: 100%;"]` (required update)
 
-1. **Database Verification**
-   - ✅ Confirm `canvas.AssetLookup` contains table entry (verified in migration)
-   - ✅ Verify `IsActive = true` for table asset
-   - Run query against DEV database:
-     ```sql
-     SELECT AssetId, AssetIdentifier, AssetType, CssSelector, DisplayName, IsActive
-     FROM canvas.AssetLookup
-     WHERE AssetIdentifier = 'table'
-     ```
-   - **Expected**: 1 row with CssSelector = `table[style="width: 100%;"]` (will be updated in Phase 2)
-
-2. **Quick Session Check** (optional)
-   - Identify test session with table content (e.g., session 213)
-   - Will be used in Phase 3-5 for testing
-   - No detailed HTML analysis needed (user confirmed selector needs simplification)
-
-**Success Criteria**:
-- ✅ Database query confirms table entry exists and is active
-- ✅ Test session identified (optional)
-
-**Files Modified**: None (verification only)
-
-**Estimated Time**: 15 minutes
-
-**Note**: Phase 1 simplified per v1.1 - user confirmed CSS selector update required, no need for extensive transcript analysis.
+**Results**:
+- AssetId: 10
+- AssetIdentifier: `table`
+- CssSelector: `table[style="width: 100%;"]` → **needs simplification**
+- IsActive: `true` ✅
 
 ---
 
-### Phase 2: CSS Selector Update (MANDATORY)
+### ✅ Phase 2: CSS Selector Update (COMPLETE)
 
-**Objective**: Update AssetLookup CSS selector to match ALL tables (remove style attribute requirement)
+**Status**: ✅ COMPLETE (2025-10-27)  
+**Duration**: 5 minutes
 
-**User Requirement**: Simplify selector from `table[style="width: 100%;"]` to just `table`
+**Executed**:
+```sql
+UPDATE canvas.AssetLookup
+SET CssSelector = 'table'
+WHERE AssetIdentifier = 'table'
+```
 
-**Rationale**: 
-- Current selector too restrictive (only matches tables with specific inline style)
-- User wants ALL tables in transcripts to be shareable
-- Example table from user has NO inline styles, wouldn't match current selector
+**Verification**:
+```sql
+SELECT AssetIdentifier, CssSelector, DisplayName, IsActive
+FROM canvas.AssetLookup
+WHERE AssetIdentifier = 'table'
+-- Result: CssSelector = 'table' ✅
+```
 
-**Tasks**:
-
-1. **Execute Database UPDATE**
-   - Direct UPDATE statement (no migration needed for dev environment):
-     ```sql
-     UPDATE canvas.AssetLookup
-     SET CssSelector = 'table'
-     WHERE AssetIdentifier = 'table'
-     ```
-   - Verify update successful:
-     ```sql
-     SELECT AssetIdentifier, CssSelector FROM canvas.AssetLookup WHERE AssetIdentifier = 'table'
-     -- Expected: CssSelector = 'table'
-     ```
-
-2. **Document Change**
-   - Record in work-log.md:
-     - Old selector: `table[style="width: 100%;"]`
-     - New selector: `table`
-     - Reason: User requirement to match all tables
-     - Impact: All table elements in transcripts will now get share buttons
-
-3. **Verify API Reflects Change**
-   - Test endpoint: `GET /api/host/asset-lookup`
-   - Verify response shows updated selector: `"cssSelector": "table"`
-
-**Success Criteria**:
-- ✅ CSS selector updated to `table` in database
-- ✅ API returns updated selector
-- ✅ Change documented in work-log.md
-
-**Files Modified**:
-- Database: `canvas.AssetLookup` table (UPDATE statement)
-- Documentation: work-log.md (record selector change)
-
-**Estimated Time**: 15 minutes
-
-**Note**: Changed from CONDITIONAL to MANDATORY per user request (v1.1)
-- Database: `canvas.AssetLookup` table (UPDATE statement)
-- Documentation: work-log.md (record selector change rationale)
-
-**Estimated Time**: 30 minutes (if needed)
+**Impact**:
+- ALL `<table>` elements now detected (previously only styled tables)
+- Share buttons will appear for all table types in transcripts
 
 ---
 
-### Phase 3: Asset Processing Verification
+### 🔄 Phase 3: E2E Manual Verification (NEXT)
 
-**Objective**: Verify AssetProcessingService correctly detects and injects share buttons for tables
+**Objective**: Verify table sharing works end-to-end (HostControlPanel → SessionCanvas)
 
 **Tasks**:
 
-1. **Code Review: AssetProcessingService**
-   - File: `SPA/NoorCanvas/Services/AssetProcessingService.cs`
-   - Verify `InjectAssetShareButtonsAsync()` loads all active AssetLookup entries
-   - Verify `ProcessAssetType()` handles generic asset types (not hardcoded to specific types)
-   - Verify `ProcessAssetElement()` assigns unique `data-asset-id` to each table
-   - **Key check**: Ensure no type-specific filtering that excludes tables
+1. **Start Application with Test Session**
+   - Use session 212 or 213 (contains table content)
+   - Command: `nc 212` or navigate to HostControlPanel manually
+   - Verify session transcript loads with table(s)
 
-2. **Test Asset Detection API**
-   - Endpoint: `GET /api/host/asset-lookup`
-   - Verify response includes table entry:
-     ```json
-     {
-       "assetIdentifier": "table",
-       "cssSelector": "table[style='width: 100%;']",  // or updated selector
-       "displayName": "Table",
-       "isActive": true
-     }
-     ```
-   - File: `SPA/NoorCanvas/Controllers/HostController.cs` (Line 920)
-
-3. **Manual Testing: Share Button Injection**
-   - Start session with known transcript containing tables
-   - Navigate to HostControlPanel for that session
-   - Verify blue share buttons appear before/above tables
-   - Verify button attributes:
-     - `data-share-id="asset-table-1"` (first table)
-     - `data-share-id="asset-table-2"` (second table)
-     - Contains "SHARE TABLE" text (or "Share Table" per DisplayName)
+2. **Verify Share Button Injection**
+   - Check HostControlPanel for blue "SHARE TABLE" buttons
+   - Verify buttons appear above/before each `<table>` element
+   - Inspect button attributes: `data-share-id="asset-table-1"`, etc.
    - Screenshot: Document button appearance
 
-4. **Logging Validation**
-   - Check logs for asset detection:
-     ```
-     [ASSETSHARE-API:{RunId}] Successfully loaded {Count} asset lookups from API
-     ```
-   - Verify table type is included in detection count
+3. **Test Broadcasting Flow**
+   - Open HostControlPanel in browser tab 1
+   - Open SessionCanvas in browser tab 2 (as participant for same session)
+   - Click "SHARE TABLE" button in HostControlPanel
+   - Verify table appears in SessionCanvas `Model.SharedAssetContent` area
+   - Check browser console for:
+     - SignalR AssetShared event
+     - No JavaScript errors
+     - Asset reception logs
+
+4. **Validate Table Structure**
+   - Compare received table vs original transcript table
+   - Verify: headers, rows, cells, content preserved
+   - Verify: Arabic/special characters render correctly
+   - Verify: styling/formatting intact
 
 **Success Criteria**:
-- ✅ AssetLookup API returns table entry
-- ✅ AssetProcessingService detects tables in transcript
-- ✅ Share buttons appear correctly positioned
-- ✅ Buttons have correct data-share-id attributes
+- ✅ Share buttons visible for ALL tables (not just styled ones)
+- ✅ Button click triggers ShareAsset method
+- ✅ SessionCanvas receives table HTML
+- ✅ Table structure and content preserved
+- ✅ No console errors during flow
 
-**Files Reviewed** (no modifications expected):
+**Files Verified** (no code changes expected):
 - `SPA/NoorCanvas/Services/AssetProcessingService.cs`
-- `SPA/NoorCanvas/Controllers/HostController.cs`
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor`
+- `SPA/NoorCanvas/Hubs/SessionHub.cs`
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
 
-**Estimated Time**: 1 hour
+**Estimated Time**: 45 minutes
 
----
-
-### Phase 4: Broadcasting & Reception E2E Test
-
-**Objective**: Verify complete flow from share button click → broadcast → reception in SessionCanvas/TranscriptCanvas
-
-**Tasks**:
-
-1. **Manual E2E Test: HostControlPanel → SessionCanvas**
-   - Setup:
-     - Start session with transcript containing table
-     - Open HostControlPanel in browser tab 1
-     - Open SessionCanvas in browser tab 2 (as participant)
-   - Action:
-     - Click "SHARE TABLE" button in HostControlPanel
-   - Verification:
-     - Check browser console for SignalR logs
-     - Verify table HTML appears in SessionCanvas
-     - Verify table preserves formatting (headers, borders, content)
-   - Screenshot: Capture before/after state in SessionCanvas
-
-2. **SignalR Payload Inspection**
-   - Monitor browser DevTools Network tab
-   - Capture WebSocket frame for ShareAsset broadcast
-   - Verify payload structure:
-     ```json
-     {
-       "sessionId": 213,
-       "asset": {
-         "shareId": "asset-table-1",
-         "assetType": "table",
-         "instanceNumber": 1,
-         "htmlContent": "<table>...</table>",
-         "sharedAt": "2025-10-27T...",
-         "sessionId": 213
-       },
-       "timestamp": "...",
-       "sharedBy": "connection-id"
-     }
-     ```
-
-3. **Reception Logging Validation**
-   - Check SessionCanvas logs:
-     ```
-     [DEBUG-WORKITEM:hcp-questions:reception:TRACE] Asset element found in payload
-     [DEBUG-WORKITEM:hcp-questions:reception:TRACE] Received HTML content: {Length} chars
-     ```
-   - Verify `assetType = "table"` in logs
-
-4. **Visual Verification**
-   - Compare shared table in SessionCanvas with original in transcript
-   - Verify table structure preserved (thead, tbody, rows, cells)
-   - Verify Arabic/special characters render correctly
-   - Verify table width/styling matches expected appearance
-
-**Success Criteria**:
-- ✅ Share button click triggers ShareAsset() method
-- ✅ SessionHub broadcasts AssetShared event
-- ✅ SessionCanvas receives and displays table HTML
-- ✅ Table formatting preserved in reception
-- ✅ No console errors during broadcast/reception
-
-**Files Verified** (no modifications expected):
-- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (ShareAsset method)
-- `SPA/NoorCanvas/Hubs/SessionHub.cs` (ShareAsset hub method)
-- `SPA/NoorCanvas/Pages/SessionCanvas.razor` (AssetShared listener)
-
-**Estimated Time**: 1 hour
+**Debug Markers**:
+- `[DEBUG-WORKITEM:table-asset-enhancement:phase3:share-buttons]`
+- `[DEBUG-WORKITEM:table-asset-enhancement:phase3:e2e-broadcast]`
 
 ---
 
-### Phase 5: Playwright Automated Test
+### 🔄 Phase 4: Playwright Automated Test
 
-**Objective**: Create Playwright E2E test to automate table sharing validation
+**Objective**: Create E2E test for table asset sharing
 
 **Tasks**:
 
-1. **Create Test File**
+1. **Create Test Specification**
    - File: `PlayWright/Tests/table-asset-share-e2e.spec.ts`
-   - Pattern: Follow existing `continue-assetshare-e2e-broadcast.spec.ts` structure
-   - Test structure:
-     ```typescript
-     test.describe('TABLE-ASSET-SHARE: End-to-End Table Sharing', () => {
-       test('Complete table sharing from HostControlPanel to SessionCanvas', async ({ context }) => {
-         // 1. Setup: Create host and canvas pages
-         // 2. Navigate to HostControlPanel with table-containing session
-         // 3. Start session to activate share buttons
-         // 4. Verify table share button appears
-         // 5. Click table share button
-         // 6. Verify AssetShared broadcast in SessionCanvas
-         // 7. Verify table HTML appears in SessionCanvas
-         // 8. Validate table structure (thead, tbody, row count)
-       });
-     });
-     ```
+   - Pattern: Follow `continue-assetshare-e2e-broadcast.spec.ts` structure
 
-2. **Test Implementation Details**
-   - Use session ID with known table content (e.g., session 213 or create test session)
-   - Selectors:
-     - Share button: `button[data-share-id^="asset-table-"]`
-     - Received content: `[data-testid="shared-content"], .shared-asset-content`
-   - Assertions:
-     - Table element exists in SessionCanvas
-     - Row count matches original table
-     - Cell content matches (sample cells)
-     - No JavaScript errors in console
+2. **Test Implementation**
+```typescript
+import { test, expect } from '@playwright/test';
 
-3. **Console Logging**
-   - Capture console messages for debugging
-   - Filter for:
-     - `AssetShared` events
-     - `HCP-QUESTIONS:reception` logs
-     - SignalR connection messages
-   - Log to test output for CI/CD analysis
+test.describe('TABLE-ASSET-SHARE: E2E Table Sharing', () => {
+  test('Host shares table → SessionCanvas receives it', async ({ context }) => {
+    // 1. Setup pages
+    const hostPage = await context.newPage();
+    const canvasPage = await context.newPage();
+    
+    // 2. Navigate to HCP (session with table content)
+    await hostPage.goto('https://localhost:9091/host/control-panel/212');
+    
+    // 3. Start session to activate share buttons
+    await hostPage.click('button:has-text("Start Session")');
+    await hostPage.waitForTimeout(2000);
+    
+    // 4. Verify table share button appears
+    const shareButton = hostPage.locator('button[data-share-id^="asset-table-"]').first();
+    await expect(shareButton).toBeVisible({ timeout: 10000 });
+    
+    // 5. Open SessionCanvas as participant
+    await canvasPage.goto('https://localhost:9090/session/212/participant-token');
+    
+    // 6. Click share button
+    await shareButton.click();
+    
+    // 7. Verify table appears in SessionCanvas
+    const sharedTable = canvasPage.locator('.shared-asset-content table').first();
+    await expect(sharedTable).toBeVisible({ timeout: 5000 });
+    
+    // 8. Validate table structure
+    const rowCount = await sharedTable.locator('tr').count();
+    expect(rowCount).toBeGreaterThan(0);
+  });
+});
+```
 
-4. **Test Execution**
-   - Run locally: `npx playwright test table-asset-share-e2e.spec.ts --headed`
-   - Verify test passes consistently (3+ runs)
-   - Add to test registry: `table-asset-enhancement/tests/test-registry.md`
+3. **Test Execution**
+   - Run: `npx playwright test table-asset-share-e2e.spec.ts --headed`
+   - Verify test passes 3+ consecutive runs
+   - Document in test registry
 
 **Success Criteria**:
-- ✅ Test file created and runs successfully
-- ✅ Test validates full E2E flow (share → broadcast → receive)
-- ✅ Test assertions cover table structure validation
+- ✅ Test runs successfully (no flakiness)
+- ✅ Test validates complete E2E flow
+- ✅ Test asserts table structure preservation
 - ✅ Test documented in test-registry.md
 
 **Files Created**:
-- `PlayWright/Tests/table-asset-share-e2e.spec.ts` (new test)
-- `.github/key-data-streams/table-asset-enhancement/tests/test-registry.md` (updated)
+- `PlayWright/Tests/table-asset-share-e2e.spec.ts`
+- `.github/key-data-streams/table-asset-enhancement/tests/test-registry.md`
 
 **Estimated Time**: 1 hour
 
 ---
 
-### Phase 6: Documentation & Cleanup
+### 🔄 Phase 5: Documentation & Finalization
 
-**Objective**: Document findings, update KSESSIONS-HUB.md, and record verification results
+**Objective**: Document verification results and update global documentation
 
 **Tasks**:
 
 1. **Update KSESSIONS-HUB.md**
    - File: `Workspaces/Documentation/KSESSIONS-HUB.MD`
-   - Section: "Asset Types Configuration" (Line 92)
-   - Add note confirming table asset is fully functional:
+   - Section: Asset Types Configuration (Line ~92)
+   - Add verification note:
      ```markdown
+     | Asset Type | Identifier | CSS Selector | Status |
+     |------------|------------|--------------|--------|
+     | `table` | `table` | `table` | ✅ VERIFIED: E2E sharing functional (selector updated 2025-10-27) |
+     ```
+
+2. **Create Verification Report**
+   - File: `.github/key-data-streams/table-asset-enhancement/VERIFICATION-REPORT.md`
+   - Contents:
+     - Database update summary
+     - Manual E2E test results
+     - Playwright test results
+     - Screenshots (optional)
+     - Recommendations
+
+3. **Update Work Log**
+   - File: `.github/key-data-streams/table-asset-enhancement/work-log.md`
+   - Mark all phases complete
+   - Record final status: ✅ COMPLETE
+
+4. **Update Global Index**
+   - File: `.github/key-data-streams/index.md`
+   - Update status for `table-asset-enhancement` key
+
+**Success Criteria**:
+- ✅ KSESSIONS-HUB.md updated with table verification
+- ✅ Verification report created
+- ✅ Work log marked complete
+- ✅ Global index updated
+
+**Files Modified**:
+- `Workspaces/Documentation/KSESSIONS-HUB.MD`
+- `.github/key-data-streams/table-asset-enhancement/work-log.md`
+- `.github/key-data-streams/table-asset-enhancement/VERIFICATION-REPORT.md` (new)
+- `.github/key-data-streams/index.md`
+
+**Estimated Time**: 30 minutes
+
+---
+
+## Total Remaining Effort
+
+- Phase 3: 45 minutes (E2E verification)
+- Phase 4: 1 hour (Playwright test)
+- Phase 5: 30 minutes (documentation)
+
+**Total**: ~2 hours 15 minutes
      | `table` | `table` | Table | ✅ VERIFIED: Full E2E support (share button + broadcast) |
      ```
    - Update table selector documentation if changed in Phase 2
