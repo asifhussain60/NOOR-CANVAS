@@ -36,7 +36,7 @@
             ],
             "estimatedDuration": "45 minutes",
             "actualDuration": "45 minutes",
-            "checkpointCommit": "pending",
+            "checkpointCommit": "9e3ed451",
             "completedDate": "2025-10-27",
             "dependsOn": [
                 1
