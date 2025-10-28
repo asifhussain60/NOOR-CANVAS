@@ -7,14 +7,19 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 > purpose: Create Playwright tests and orchestration artifacts bound to a key data stream
 > inputs: key, scenario, phase, auto-chain, auto-execute, -test
 > outputs: .spec.ts files, orchestration scripts, updated test registry and report
-> lastUpdated: 2025-10-22
-> acceptsFrom: [task, plan]
+> lastUpdated: 2025-10-28
+> acceptsFrom: [task, plan, route]
+> calls: [todo, task, plan]
 
 # Test Generation Agent
 
-**Version:** 1.1.0  
-**Last Updated:** 2025-10-22  
+**Version:** 1.2.0  
+**Last Updated:** 2025-10-28  
 **Changelog:**
+- Add Post-Generation Handoff Protocol with actionable options (A-F)
+- Support routing from route.prompt.md with intelligent test detection
+- Add handoff to todo/task/plan for test refinement and expansion
+- Enhanced "What would you like to do next?" with smart recommendations
 - Add canonical references to shared/playwright-test-generation.md and shared/test-orchestration-patterns.md for centralized guidance
 
 ---
@@ -37,6 +42,120 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - BEFORE implementation (planning for tests): include Work Requested (with key), Affected areas (files/infrastructure/db), phased Plan, Recommendations, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
 - AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
 - **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
+
+## Post-Generation Handoff Protocol (MANDATORY)
+
+**After test generation**, ALWAYS present actionable next steps in "What would you like to do next?" section:
+
+**Actionable Handoff Options:**
+- **A.** Execute generated tests now (run orchestration script)
+- **B.** Add more test scenarios (extend with todo)
+- **C.** Refine tests with task (modify selectors, add assertions)
+- **D.** Turn into comprehensive test plan (multiple test suites)
+- **E.** Review test registry (see all generated tests)
+- **F.** Nothing, I'm all set
+
+**Format:**
+```markdown
+## What would you like to do next?
+
+**A.** Execute tests (run orchestration script) ⭐  
+**B.** Add more scenarios (todo - extend current tests)  
+**C.** Refine tests (task - modify implementation)  
+**D.** Create test plan (plan - comprehensive test suite)  
+**E.** Review test registry  
+**F.** Nothing, I'm all set
+```
+
+### Handoff Flow
+
+**If user selects A (Execute tests):**
+```
+1. Run the generated orchestration script
+2. Report test results (pass/fail/skipped)
+3. Show Percy visual diffs (if visual test)
+4. Offer re-run or refinement options
+```
+
+**If user selects B (Add more scenarios):**
+```
+1. Preserve current key
+2. Accept new test scenario from user
+3. Invoke todo.prompt.md with:
+   - key: {current-key}
+   - task: "Add test scenario: {new-scenario}"
+   - context: {existing-tests + test-registry}
+```
+
+**If user selects C (Refine tests):**
+```
+1. Accept refinement request (selectors, assertions, timeouts)
+2. Invoke task.prompt.md with:
+   - key: {current-key}
+   - tasks: [{refinement-details}]
+   - context: {generated-test-file + orchestration-script}
+```
+
+**If user selects D (Create test plan):**
+```
+1. Extract comprehensive test requirements
+2. Invoke plan.prompt.md with:
+   - key: {current-key}
+   - user_request: "Create comprehensive test plan for {feature}"
+   - context: {generated-tests + test-scenarios}
+```
+
+**If user selects E (Review registry):**
+```
+1. Display test registry contents
+2. Show test execution history
+3. Offer execution or refinement options
+```
+
+**If user selects F (Nothing):**
+```
+1. End interaction gracefully
+2. Remind user of orchestration script location
+```
+
+### Intelligent Handoff Recommendations
+
+When presenting "What would you like to do next?" options, provide smart recommendations:
+
+**Recommend Execute (A) when:**
+- Tests successfully generated with no errors
+- Orchestration script created
+- Test infrastructure validated
+- No blocking issues detected
+
+**Recommend Add Scenarios (B) when:**
+- Single scenario generated
+- User might want edge cases
+- Test coverage incomplete
+
+**Recommend Refine (C) when:**
+- First-time test generation for feature
+- Complex selectors used
+- Timeouts or waits might need adjustment
+
+**Recommend Test Plan (D) when:**
+- Multiple test types needed (functional + visual)
+- Complex feature with many scenarios
+- Multi-phase testing approach suggested
+
+**Example Smart Recommendation:**
+```markdown
+## What would you like to do next?
+
+💡 **Recommended: A** (Tests ready to execute - infrastructure validated)
+
+**A.** Execute tests (run orchestration script) ⭐  
+**B.** Add more scenarios (todo - extend current tests)  
+**C.** Refine tests (task - modify implementation)  
+**D.** Create test plan (plan - comprehensive test suite)  
+**E.** Review test registry  
+**F.** Nothing, I'm all set
+```
 
 ## Parameters
 

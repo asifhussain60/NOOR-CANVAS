@@ -1,14 +1,14 @@
 # route.prompt.md (Request Router Agent)
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 ---
 mode: agent
-purpose: Analyzes user requests and context to intelligently route to specialized agents (plan, task, todo, ask, etc.)
+purpose: Analyzes user requests and context to intelligently route to specialized agents (plan, task, todo, ask, test-generation, etc.)
 inputs: target, request, key, context, auto-execute
 outputs: Handoff to target agent with optimized parameters
-lastUpdated: 2025-10-27
+lastUpdated: 2025-10-28
 ---
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
@@ -55,12 +55,17 @@ lastUpdated: 2025-10-27
 
 ### Intelligent Routing
 
-**When no target is specified**, the build prompt automatically analyzes the request:
+**When no target is specified**, the route prompt automatically analyzes the request:
 
+**Request Type Detection:**
+- **Question/investigation indicators** → Routes to `ask` prompt (answers first, offers actionable handoff)
+- **Test-related requests** → Routes to `test-generation` prompt (generates tests, offers execution)
 - **Single focused task** → Routes to `todo` prompt (auto-approved for immediate execution)
 - **Multiple unrelated tasks** → Routes to `plan` prompt (requires user approval)
 
 **Approval Behavior:**
+- **Ask prompt:** Auto-approved (answers question, then offers plan/todo/test handoff)
+- **Test-generation prompt:** Auto-approved (generates tests, then offers execution/validation)
 - **Plan prompt:** Always stops for user approval (multi-phase coordination)
 - **Todo prompt:** Auto-approved (single-task execution)
 
@@ -88,9 +93,12 @@ The specialized prompt to route to. Valid values:
 - `cohesion` - Code organization and structure analysis
 
 **Default Behavior:** If target is not specified, the agent uses intelligent routing:
-- Analyzes request to detect single vs multiple unrelated tasks
+- Analyzes request to detect questions, test needs, single tasks, or multiple unrelated tasks
+- **Question indicators** (how, why, what, where, when, explain, investigate) → routes to `ask` (answers first)
+- **Test indicators** (test, playwright, percy, e2e, visual regression) → routes to `test-generation` (generates tests)
 - **Single task** → routes to `todo` (auto-approved, immediate execution)
 - **Multiple tasks** → routes to `plan` (requires user approval, multi-phase coordination)
+- **Post-answer actionable handoff**: `ask` and `test-generation` offer to convert response to plan/todo/task
 
 ### -test *(flag, optional)*
 Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
@@ -179,8 +187,16 @@ Whether to automatically execute after building prompt
 5. Multiple problem statements
 
 **Routing decision:**
+- **Question indicators** (how, why, what, explain, investigate) → Route to `ask`
+- **Test indicators** (test, playwright, percy, e2e) → Route to `test-generation`
 - **Multiple tasks** → Route to `plan` (requires user approval)
 - **Single task** → Route to `todo` (auto-approved)
+
+**Special Routing Rules:**
+- If routed to `ask` or `test-generation`, these agents answer/generate first
+- After answering/generating, they offer actionable handoff options
+- User can convert answer to plan/todo/task without re-routing
+- This prevents endless loops and provides smooth workflow transitions
 
 **Algorithm:** See `.github/prompts/shared/task-detector.md`
 
@@ -190,11 +206,21 @@ Whether to automatically execute after building prompt
 
 **Classify work type and determine optimal target:**
 - Validates target choice is appropriate for request
-- Detects question indicators → suggests `ask`
+- Detects question indicators (how, why, what, where, when, explain, investigate) → suggests `ask`
+- Detects test indicators (test, playwright, percy, e2e, visual regression, spec file) → suggests `test-generation`
 - Detects continuation indicators + active key → suggests `todo`
 - Detects validation indicators → suggests `healthcheck`
 - Detects drift indicators → suggests `drift`
 - For all other cases (new features, bug fixes, architectural changes), uses `plan`
+
+**Question Detection Keywords:**
+- Interrogatives: how, why, what, where, when, which, who
+- Verbs: explain, describe, investigate, show me, tell me, find, locate
+
+**Test Detection Keywords:**
+- Test types: test, e2e, playwright, percy, visual regression, snapshot
+- Actions: create test, generate test, add test, write test
+- Files: .spec.ts, test file, test suite
 
 **Algorithm:** See `.github/prompts/shared/work-classifier.md`
 
@@ -251,10 +277,16 @@ Whether to automatically execute after building prompt
 - `plan`: user_request, scope, constraints, include_suggestions
 - `task`: tasks, github-branch, commit-checkpoints, verbosity
 - `todo`: auto-chain, current work context
-- `test-generation`: scenario, auto-execute
-- `ask`: question, depth, verbosity
+- `test-generation`: scenario, auto-execute, key (from plan or request)
+- `ask`: question, depth, verbosity, offer_actionable_handoff=true
 - `healthcheck`: scope, level
 - `drift`: parent_key, drift_description, severity
+
+**Post-Answer Handoff Protocol (for ask and test-generation):**
+- After answering/generating, these agents MUST offer actionable options
+- Options include: Turn into plan (A), Continue with todo (B), Execute immediately (C), Nothing (D)
+- If user selects actionable option, extract work from answer and handoff to appropriate agent
+- Preserve original context and answer summary in handoff
 
 **Algorithm:** See `.github/prompts/shared/prompt-constructor.md`
 
@@ -465,10 +497,12 @@ Reply: A, B, C, or D
 ### test-generation.prompt.md
 **Best for:** Creating Playwright tests, visual regression tests (Percy), E2E test scenarios
 **Handoff includes:** Test scenario definitions, selector strategies, Percy snapshot points
+**Post-generation behavior:** Offers to execute tests, validate with Percy, or convert to task for refinement
 
 ### ask.prompt.md
 **Best for:** Questions about codebase, how-to queries, explanation requests
 **Handoff includes:** Question context, related files/components, depth preference
+**Post-answer behavior:** Offers to turn answer into plan, todo, or task for implementation
 
 ### healthcheck.prompt.md
 **Best for:** System validation, pre-deployment checks, prompt optimization, cross-layer audits
@@ -509,7 +543,17 @@ Reply: A, B, C, or D
 - ✅ **Questions** - "How does SignalR hub work?"
 - ✅ **Investigation** - "Where is token validation implemented?"
 - ✅ **Explanation** - "What's the difference between SimplifiedToken and SecureToken?"
-- ❌ **NOT for implementation requests**
+- ✅ **How-to queries** - "How do I add Percy visual tests?"
+- ✅ **Post-answer actionable handoff** - Offers to turn answer into plan/todo/task
+- ❌ **NOT for direct implementation** (but can handoff to implementation agents after answering)
+
+#### Use `test-generation` for:
+- ✅ **Test creation requests** - "Create Playwright test for share button"
+- ✅ **Percy visual tests** - "Add visual regression test for debug panel"
+- ✅ **E2E test scenarios** - "Test multi-user question broadcast flow"
+- ✅ **Test file generation** - "Generate .spec.ts for session canvas"
+- ✅ **Post-generation execution** - Offers to run tests or validate with Percy
+- ❌ **NOT for non-test implementation** (but can handoff to task/plan for refinement)
 
 ---
 
@@ -547,6 +591,14 @@ BAD: @workspace /route todo "Why is database info missing? Token won't accept. F
 ---
 
 ## 📝 Version History
+
+**1.5.0** (2025-10-28)
+- **INTELLIGENT ROUTING ENHANCEMENT**: Added detection for questions and test requests
+- **ASK AGENT INTEGRATION**: Route question indicators to ask.prompt.md with actionable handoff
+- **TEST-GENERATION INTEGRATION**: Route test indicators to test-generation.prompt.md with execution options
+- **POST-ANSWER HANDOFF**: Both ask and test-generation offer conversion to plan/todo/task/test
+- Enhanced work classification with question and test keyword detection
+- Updated agent capability references with post-answer/post-generation behavior
 
 **1.4.0** (2025-10-27)
 - **RENAMED**: `build.prompt.md` → `route.prompt.md` (better reflects routing function)
