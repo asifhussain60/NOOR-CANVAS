@@ -1,0 +1,126 @@
+{
+  "completedPhases": 0,
+  "filesModified": [],
+  "lastUpdated": "2025-10-28T07:19:42.3592571-04:00",
+  "userDecisions": null,
+  "promptHandoffs": [],
+  "currentPhase": null,
+  "totalPhases": 0,
+  "status": "completed",
+  "branch": "development",
+  "commits": [
+    {
+      "sha": "4007b2bbe1017849e723a2bf5cad79ce3ec0ccae",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "refactor(auto-drift-detection): Complete Phase 5 - reorganize key-data-streams folder",
+      "timestamp": "2025-10-25T09:19:48-04:00",
+      "phase": 5
+    },
+    {
+      "sha": "478f33b7ce538b475c1910e16db6c72c518233f4",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(auto-drift-detection): Phases 3-4 complete - cohesion validation + styled headers",
+      "timestamp": "2025-10-25T09:15:25-04:00",
+      "phase": null
+    },
+    {
+      "sha": "7d650388578a1d07d6e0c9dd359e3c45b87fe701",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(auto-drift-detection): Phase 2 complete - standardized drift registration in todo.prompt.md",
+      "timestamp": "2025-10-25T09:11:35-04:00",
+      "phase": 2
+    },
+    {
+      "sha": "16d7e9b929c93909f891b651f6086589c0526064",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(auto-drift-detection): Add auto-drift detection to all prompts (Phase 1 complete)",
+      "timestamp": "2025-10-25T09:04:44-04:00",
+      "phase": 1
+    },
+    {
+      "sha": "ac0be4c71c003f3c898584f746d05941fbc68dd7",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(auto-drift-detection): Renamed continue.prompt.md to todo.prompt.md",
+      "timestamp": "2025-10-25T08:58:27-04:00",
+      "phase": null
+    },
+    {
+      "sha": "29f10e921fe2f61c62ea1833f62dd94311fa00e0",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(auto-drift-detection): Phase 1 WIP - Updated drift.prompt.md",
+      "timestamp": "2025-10-25T07:55:13-04:00",
+      "phase": 1
+    }
+  ],
+  "requests": [],
+  "key": "auto-drift-detection",
+  "driftKeys": [],
+  "tags": {},
+  "created": "2025-10-25",
+  "phases": [
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": null,
+      "title": "Dual-Mode Drift Detection",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": null,
+      "title": "Standardize Drift Registration",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": null,
+      "title": "Update Cohesion Validation",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": null,
+      "title": "Style Next Steps Headers",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": null,
+      "title": "Reorganize Key Data Streams Folder",
+      "started": null,
+      "commits": []
+    }
+  ],
+  "version": "2.0",
+  "estimatedTotalDuration": null
+}

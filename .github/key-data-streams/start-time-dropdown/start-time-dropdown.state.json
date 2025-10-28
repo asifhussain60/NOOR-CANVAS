@@ -1,0 +1,71 @@
+{
+  "completedPhases": 0,
+  "filesModified": [],
+  "lastUpdated": "2025-10-28T07:19:46.3485882-04:00",
+  "userDecisions": null,
+  "promptHandoffs": [],
+  "currentPhase": null,
+  "totalPhases": 5,
+  "status": "complete",
+  "branch": "development",
+  "commits": [],
+  "requests": [],
+  "key": "start-time-dropdown",
+  "driftKeys": [],
+  "tags": {},
+  "created": "2025-10-26T00:00:00Z",
+  "phases": [
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "complete",
+      "completed": null,
+      "title": "Generate Time Options Method",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "complete",
+      "completed": null,
+      "title": "Auto-Select Nearest Time",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "complete",
+      "completed": null,
+      "title": "Replace UI Component",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "complete",
+      "completed": null,
+      "title": "Remove Legacy Validation Code",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "complete",
+      "completed": null,
+      "title": "Testing & Validation",
+      "started": null,
+      "commits": []
+    }
+  ],
+  "version": "2.0",
+  "estimatedTotalDuration": null
+}

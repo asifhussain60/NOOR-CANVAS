@@ -1,0 +1,61 @@
+{
+  "completedPhases": 0,
+  "filesModified": [],
+  "lastUpdated": "2025-10-28T07:19:46.6062280-04:00",
+  "userDecisions": null,
+  "promptHandoffs": [],
+  "currentPhase": null,
+  "totalPhases": 4,
+  "status": "draft",
+  "branch": "development",
+  "commits": [],
+  "requests": [],
+  "key": "test-sample-plan",
+  "driftKeys": [],
+  "tags": {},
+  "created": "2025-10-25T00:00:00Z",
+  "phases": [
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "not-started",
+      "completed": null,
+      "title": "Create Simple Test Component",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "not-started",
+      "completed": null,
+      "title": "Add Backend API Endpoint",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "not-started",
+      "completed": null,
+      "title": "Connect Frontend to Backend",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "not-started",
+      "completed": null,
+      "title": "Visual Regression Testing",
+      "started": null,
+      "commits": []
+    }
+  ],
+  "version": "2.0",
+  "estimatedTotalDuration": null
+}
