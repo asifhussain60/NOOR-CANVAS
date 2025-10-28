@@ -4523,7 +4523,7 @@ else
 
     /**
      * Toggle visibility of asset kebab menu
-     * @param {string} shareId - The share ID of the asset
+     * @@param {string} shareId - The share ID of the asset
      */
     window.toggleAssetMenu = function(shareId) {
         const menuId = shareId + '-menu';
@@ -4559,10 +4559,10 @@ else
 
     /**
      * Handle asset menu action (Share or Annotate)
-     * @param {string} shareId - The share ID of the asset
-     * @param {string} action - The action to perform ('share' or 'annotate')
-     * @param {string} assetType - The type of asset
-     * @param {number} instanceNumber - The instance number of the asset
+     * @@param {string} shareId - The share ID of the asset
+     * @@param {string} action - The action to perform ('share' or 'annotate')
+     * @@param {string} assetType - The type of asset
+     * @@param {number} instanceNumber - The instance number of the asset
      */
     window.handleAssetMenuAction = async function(shareId, action, assetType, instanceNumber) {
         console.log('[ASSET-MENU] Action triggered:', { shareId, action, assetType, instanceNumber });
