@@ -7,11 +7,13 @@ description: Read-only system health auditor and prompt optimization analyzer (n
 > purpose: Validate system and prompt infrastructure health without modifying code; analyze prompt optimization opportunities
 > inputs: scope, level, notes, -test
 > outputs: health audit report, violations by severity, optimization recommendations
-> lastUpdated: 2025-10-27
+> lastUpdated: 2025-10-28
+> stateTracking: enabled
 
-**Version:** 1.1.0  
-**Last Updated:** 2025-10-22  
+**Version:** 1.2.0  
+**Last Updated:** 2025-10-28  
 **Changelog:**
+- **v1.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for healthcheck request logging (uses "healthcheck-audit" key)
 - Add quick banner with Prompt Optimization Mode pointer and shared references
 - Align early output-style and execution-flow cross-links
 
