@@ -404,4 +404,12 @@ Until automated tests are updated with authentication:
 **Triggered by:** User request to review work done and update prompts  
 **Scope:** Document successful test orchestration protocols in instructions files
 
+**Drift Resolution:** ✅ Completed
+- Created `PlaywrightTestOrchestration.md` with reusable orchestration pattern
+- Updated `PlaywrightQuickRef.md` with link to orchestration doc
+- Updated `test-generation.prompt.md` with authentication detection step
+- Documented patterns: Health check with SSL skip, process cleanup, authentication handling
+- See: `.github/key-data-streams/drift-prompt-efficiency/work-log.md`
+
 ---
+
