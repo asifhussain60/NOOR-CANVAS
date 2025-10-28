@@ -19,6 +19,38 @@ stateTracking: enabled
 
 ## Parameters
 
+### parent_key *(required)*
+The key of the active workflow where drift was detected.
+
+**Examples:**
+- `main-task` (user working on main task)
+- `session-42` (active session)
+- `feature-login` (feature development)
+
+### drift_key *(auto-generated or user-provided, optional)*
+The drift key identifier. If not provided, generated as `drift-{topic-or-timestamp}`.
+
+**Naming Rules**:
+- If NO key provided → `drift-{topic-or-timestamp}`
+- If key provided WITHOUT "drift-" prefix → `drift-{providedKey}`
+- If key ALREADY has "drift-" → keep as-is
+
+**Examples:**
+- `drift-spelling-fix` (user-provided)
+- `drift-test-flakiness` (auto-generated)
+- `drift-20251028-143020` (timestamp-based)
+
+### severity *(optional, auto-classified)*
+Drift severity level: `critical`, `high`, `medium`, `low`, `informational`
+
+**Auto-classification** if not provided (see "Severity Levels" section below)
+
+### description *(required for manual invocation)*
+Description of drift issue detected or reported
+
+### mode *(auto-detected)*
+Invocation mode: `auto` (agent-detected) or `manual` (user-invoked)
+
 ### -test *(flag, optional)*
 Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
 
@@ -175,9 +207,94 @@ User executes: `@workspace /drift key:{parent} description:{issue} [severity:{le
 - Track **drift count per parent** (max 10 auto-detected)
 - Resolution workflow:
   - **Auto-commit** drift resolution
+  - **Update drift work-log** (Step 8 below)
   - **Pop previous key** from stack
   - **Resume parent context** with full continuity
   - **Repeat** until stack empty
+
+### Step 8: Update Drift Work-Log
+
+After resolving drift issue (BEFORE popping stack):
+
+**1. Create/Update Drift Key Work-Log**
+
+Create `.github/key-data-streams/{drift-key}/work-log.md` with resolution details:
+
+```markdown
+# Work Log: {drift-key}
+
+**Key:** `{drift-key}`  
+**Parent Key:** `{parent-key}`  
+**Created:** {timestamp}  
+**Resolved:** {timestamp}  
+**Severity:** {critical|high|medium|low|informational}  
+**Triggered By:** {agent or user}  
+**Mode:** {auto|manual}
+
+---
+
+## Drift Context
+
+**Parent Workflow**: {parent-key}
+**Detection Phase**: {phase-name or step-number}
+**Stack Depth**: {N}
+
+**Issue Detected**:
+{description}
+
+---
+
+## Resolution ({date})
+
+**Actions Taken**:
+1. {action-1}
+2. {action-2}
+3. {action-3}
+
+**Files Modified**:
+- `{file-1}` - {change-description}
+- `{file-2}` - {change-description}
+
+**Tests Added/Updated**:
+- `{test-1}` - {description}
+
+**Commits**:
+- {sha} - `ckpt({drift-key}): Resolved - {summary}`
+
+**Validation**:
+- [ ] Build successful
+- [ ] Tests passing
+- [ ] No new drifts introduced
+
+---
+
+## Status: ✅ Resolved
+```
+
+**2. Update Parent Work-Log**
+
+Append to `.github/key-data-streams/{parent-key}/work-log.md`:
+
+```markdown
+## Drift Resolved: {drift-key} ({date})
+
+**Severity**: {level}  
+**Mode**: {auto|manual}  
+**Resolution**: {one-line-summary}  
+**Commit**: {sha}
+
+**See**: `.github/key-data-streams/{drift-key}/work-log.md` for details
+```
+
+**3. Update State Tracking**
+
+```powershell
+# Mark drift resolved in parent state.json
+Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Resolved $true -ResolutionSha (git rev-parse --short HEAD)
+
+# Log resolution commit
+Update-StateCommit -Key $drift_key -Sha (git rev-parse --short HEAD) -Message "ckpt({drift-key}): Resolved - {summary}" -CheckpointType "drift-resolution"
+```
 
 ### 4. Queue Overflow Protection
 
