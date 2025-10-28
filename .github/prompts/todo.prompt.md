@@ -5,12 +5,13 @@ description: Extend or modify current active work while preserving context, key,
 
 # Todo — Extend Current Work with Same Key
 
-**Version**: 2.1.0  
+**Version**: 2.2.0  
 **Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow. Renamed from continue.prompt.md to better reflect "todo item" workflow pattern.
 
 **Rename Note**: Previously `continue.prompt.md` (v1.0.0). Renamed to `todo.prompt.md` (v2.0.0) on 2025-10-25 to align with todo-based workflow terminology. All agent references updated accordingly.
 
 **Changelog**:
+- **v2.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/handoff/commit logging. Added Step -1 for state tracking initialization. Enables timeline reconstruction.
 - **v2.1.0 (2025-10-27)**: Added `from-build` parameter to prevent dual approval gates when invoked from build.prompt.md. Approval behavior now conditional based on source agent.
 - **v2.0.0 (2025-10-25)**: Renamed from continue.prompt.md to todo.prompt.md
 
@@ -23,7 +24,8 @@ description: Extend or modify current active work while preserving context, key,
 4. **Preserve current key** - Use same key from most recent handoff/task
 5. **Extend, don't replace** - Add to existing plan, don't restart
 6. **Approval behavior:** Auto-execute after 5s unless "review"/"cancel" (skipped if `from-build=true`)
-7. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Execution Step 7)
+7. **State tracking enabled** - Log all requests, handoffs, and commits
+8. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Execution Step 7)
 
 ## Parameters
 
@@ -80,6 +82,29 @@ Additional work requests + optional modifications to current plan
 - **Always preserve current key** from most recent work
 - **Multi-task extensions**: `{current-key}-ext1`, `{current-key}-ext2` if needed
 - **Expand shortcuts** via UserDictionary.md
+
+---
+
+## Execution Steps
+
+### Step -1: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the incoming request (todo extension of existing work)
+Update-StateRequest -Key $key -Type "continuation" -UserRequest $request -PromptChain @("route", "todo")
+```
+
+**Purpose:**
+- Track todo agent invocations and work continuations
+- Record continuation requests vs. original requests
+- Enable timeline reconstruction for extended work sessions
+
+---
 
 ## Context Detection
 1. **Find current key** from recent git commits (ckpt messages)
@@ -272,6 +297,7 @@ END IF
 - **NO approval needed** between existing phases
 - **MANDATORY**: Create git commit after EVERY new phase
 - **Commit format**: `ckpt({key}): Phase {N} - {extension-summary}`
+- **State tracking**: Log all commits with Update-StateCommit after each checkpoint
 - **Auto-execute behavior:**
   - **If `from-build=true`**: Require explicit "proceed" (build already showed approval)
   - **If `from-build=false`**: Auto-execute after 5s unless "review"/"cancel"
@@ -280,6 +306,11 @@ END IF
   - Auto-fix violations (bullet consolidation, list flattening) when possible
   - BLOCK response if critical violations cannot be fixed
   - See loop-prevention.md for auto-chain depth limits
+
+**After each checkpoint commit:**
+```powershell
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "ckpt({key}): Phase {N} - {summary}" -Phase $phase -CheckpointType "intermediate"
+```
 
 ## Context Preservation
 - **Keep existing plan structure** intact
