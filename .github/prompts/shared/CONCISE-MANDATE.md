@@ -3,49 +3,35 @@
 **ALL prompts MUST follow this for USER-FACING output. NO exceptions.**
 
 ## Hard Limits
-- MAX 25 bullets total per response (increased from 15 for clarity)
-- MAX 2 lines per bullet (allows brief explanations)
-- **NO implementation code in chat** (C#, JavaScript, HTML, CSS, Razor, SQL, TypeScript)
-- **ALLOWED: File paths, method names, architectural descriptions, step summaries**
-- NO nested lists (keep flat structure)
-- NO long paragraphs (use bullets)
+- MAX 25 bullets total per response
+- MAX 2 lines per bullet
+- **ZERO implementation code in chat** (no C#, JS, HTML, CSS, Razor, SQL, TS code blocks)
+- **ONLY architectural descriptions** (file paths, method names, flow diagrams)
+- NO nested lists (flat structure only)
+- NO long paragraphs (bullets only)
+- NO code examples or snippets (not even as teaching examples)
 
 ## What Code Means
 
-**❌ PROHIBITED (Implementation Code):**
-```csharp
-// DO NOT show in chat
-public void ShareAsset(string shareId) {
-    hubConnection.InvokeAsync("ShareAsset", shareId);
-}
-```
+**❌ PROHIBITED - NEVER show in chat:**
+- C# methods, classes, properties (public void, private string, etc.)
+- JavaScript/TypeScript functions (function, const, let, arrow functions)
+- HTML tags and structure (div, span, button elements with attributes)
+- CSS rules and selectors (.class { property: value })
+- SQL queries (SELECT, INSERT, UPDATE, DELETE statements)
+- Razor markup (@code blocks, @inject, component syntax)
 
-**✅ ALLOWED (Architectural Description):**
-```
-Step 3: Update SignalR Integration
-- File: SessionHub.cs, method ShareAsset(string shareId)
-- Change: Add assetType parameter to broadcast payload
-- Flow: HostControlPanel → SessionHub.ShareAsset → Broadcast to session_{id} group
-- Client: Participants receive AssetShared event in TranscriptCanvas.razor
-```
+**✅ ALLOWED - Descriptions only:**
+- File paths with line numbers: AssetProcessingService.cs (lines 361-394)
+- Method signatures: ShareAsset(string shareId, string assetType)
+- Architectural flow: Component A → Service B → Hub C → Client D
+- Change summaries: Added CreateShareButtonHtml method, returns HTML string
+- Data structures: Key-value pairs in text format (key: value)
 
-**✅ ALLOWED (File References):**
-```
-Files Modified:
-1. AssetProcessingService.cs (lines 361-394)
-   - Added CreateShareButtonHtml method
-   - Returns blue gradient bar HTML with Share Asset button
-2. SessionHub.cs (line 142)
-   - Modified ShareAsset method signature
-```
-
-**✅ ALLOWED (Configuration/JSON for settings):**
-```json
-{
-  "key": "hcp-fab-button",
-  "status": "in-progress"
-}
-```
+**✅ ALLOWED - Configuration only:**
+- JSON settings for appsettings.json (≤10 lines, no logic)
+- PowerShell/Git commands for operations (exact commands only)
+- Error messages for debugging (truncated, relevant portions)
 
 ## Where Code Details Go
 
@@ -104,50 +90,58 @@ Always provide 2-4 options:
 User replies: "A", "A, C", or "all"
 
 ## File Locations
-All output → `Workspaces/Copilot/_DOCS/` or `.github/key-data-streams/{key}/`
+All output → `.github/key-data-streams/{key}/` (authoritative location)
 NEVER → Chat responses
 
-## Step Descriptions (ALLOWED)
+## Step Descriptions (ALLOWED FORMAT)
 
-**When describing execution steps, use architectural descriptions:**
-```
-Step 4: Update Asset Processing Service
+**Describe changes with architectural bullets:**
 - File: AssetProcessingService.cs (line 384)
-- Add: CreateShareButtonHtml method
+- Method: CreateShareButtonHtml added
 - Purpose: Generate blue action bar with Share Asset button
-- Returns: HTML string with ks-share-button class for SignalR
-- Integration: Called by CreateAssetContainerHeaderHtml before wrapper
-```
+- Returns: HTML string with ks-share-button class
+- Integration: Called by CreateAssetContainerHeaderHtml
 
-**NOT this (shows implementation code):**
-```
-Step 4: Update Asset Processing Service
-private static string CreateShareButtonHtml(...) {
-    return $@"<div class='action-wrapper'>...</div>";
-}
-```
+**Reference documentation for details:**
+- Implementation → See {key}.plan.md section "Code Implementation"
+- Full methods → See {key}/work-log.md
+- Testing → See {key}.plan.md section "Testing Strategy"
 
 ## Enforcement
 Before responding:
-1. Count bullets → Must be ≤25
-2. Check for ```csharp, ```javascript, ```html, ```css blocks → REMOVE
-3. Verify architectural descriptions only → File paths, method names, flow diagrams
-4. Ensure {key}.plan.md reference present → "See {key}.plan.md for implementation details"
-5. If violations → Block response or auto-fix
+1. Count bullets → Must be ≤25 total
+2. Scan for code blocks → ZERO allowed (```csharp, ```js, ```html, ```css, ```sql)
+3. Verify architectural descriptions → File paths + method names + flow only
+4. Check for {key}.plan.md reference → Must point to docs for implementation
+5. Violations → AUTO-BLOCK response, rewrite without code
+
+**Auto-fail triggers:**
+- Any ```csharp, ```javascript, ```html, ```css, ```razor, ```sql block
+- Method implementations (public void, function, const myFunc)
+- HTML element structures (complete tags with attributes)
+- CSS rule sets (selectors with property:value pairs)
+- Exception: JSON config snippets ≤10 lines for settings only
 
 ## Special Cases
 
 **Configuration files (appsettings.json, package.json):**
-- ✅ ALLOWED to show JSON snippets for settings
-- Keep brief (≤10 lines)
-- Mark as configuration, not implementation
+- ✅ ALLOWED: JSON snippets for settings only (≤10 lines)
+- Must be pure configuration (no logic or code)
+- Label clearly as "Configuration Change"
 
 **Git commands, PowerShell scripts:**
-- ✅ ALLOWED for operational commands
-- Show exact commands to run
-- Keep concise
+- ✅ ALLOWED: Exact operational commands to run
+- Format: Command to execute (not script internals)
+- Example: git checkout -b feature/new-button
 
 **Error messages, stack traces:**
-- ✅ ALLOWED for debugging context
-- Truncate if >20 lines
-- Focus on relevant portions
+- ✅ ALLOWED: For debugging context only
+- Truncate if >20 lines, show relevant portions
+- Focus on error message and file/line references
+
+**NEVER ALLOWED regardless of context:**
+- Method/function implementations
+- HTML element structures with content
+- CSS styling rules
+- SQL query statements
+- Component markup (Razor, JSX, Vue)

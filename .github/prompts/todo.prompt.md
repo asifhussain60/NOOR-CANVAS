@@ -108,7 +108,7 @@ Update-StateRequest -Key $key -Type "continuation" -UserRequest $request -Prompt
 
 ## Context Detection
 1. **Find current key** from recent git commits (ckpt messages)
-2. **Load current plan** from `.github/key-data-streams/{key}/{key}.plan.md` OR `Workspaces/Copilot/_DOCS/summaries/{key}.plan.md`
+2. **Load current plan** from `.github/key-data-streams/{key}/{key}.plan.md` (authoritative source of truth)
 3. **Check execution status** from recent commits and file changes
 4. **Identify completion state** of current phases
 

@@ -171,14 +171,20 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 
 ### Step 0: Key Data Stream Consultation (EXECUTE FIRST - ALWAYS)
 
-**⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams.
+**⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams AND check for existing plan files.
 
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
-2. Search for related keys using semantic and keyword matching
-3. Search both `.github/key-data-streams/` and `Workspaces/Copilot/KeyDataStreams/` (legacy)
-4. If related keys found, present options to user and HALT
-5. If no related keys, proceed with new key creation
+2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
+3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
+4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
+5. If related keys found but no plan → present options to user and HALT
+6. If no related keys and no plan → proceed with new key creation
+
+**Routing Logic Based on Plan File:**
+- **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
+- **No plan exists** → Route to `plan` (create plan)
+- This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
