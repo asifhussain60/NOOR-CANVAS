@@ -370,10 +370,12 @@ public class AssetProcessingService
         var blueShareBar = CreateShareButtonHtml(encodedAssetType, encodedDisplayName, encodedShareId, instanceNumber);
         
         // Asset grouping container with header (golden wrapper from HCP-Fab Button.txt)
+        // [DEBUG-WORKITEM:hcp-fab-button] Added right-aligned FAB button to asset header with data attributes for sharing ;CLEANUP_OK
         return blueShareBar +
                $@"<div class=""asset-group-container"" data-noor-asset-group=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" style=""background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #0056b3; border-radius: 12px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: relative; transition: all 0.3s ease;"" onmouseover=""this.style.boxShadow='0 8px 12px rgba(0, 0, 0, 0.15)'; this.style.borderColor='#003d82';"" onmouseout=""this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'; this.style.borderColor='#0056b3';"">" +
                $@"<div class=""asset-header"" style=""display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #0056b3;"">" +
                $@"<h3 class=""asset-title"" style=""margin: 0; color: #0056b3; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center;""><i class=""fas fa-cube"" style=""margin-right: 8px; color: #007bff;""></i>{encodedDisplayName}</h3>" +
+               $@"<button type=""button"" class=""asset-header-fab-button"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" aria-label=""Share asset"" style=""width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background-color: #E9D5FF; color: #6B21A8; border: 1px solid #6B21A8; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(107, 33, 168, 0.2); transition: all 0.2s ease;"" onmouseover=""this.style.backgroundColor='#DDD6FE'; this.style.transform='scale(1.05)';"" onmouseout=""this.style.backgroundColor='#E9D5FF'; this.style.transform='scale(1)';""><i class=""fa-solid fa-ellipsis-vertical"" style=""font-size: 1.5rem;""></i></button>" +
                $@"</div>" +
                $@"<div class=""asset-content-wrapper"" style=""padding: 16px 0;"">";
     }

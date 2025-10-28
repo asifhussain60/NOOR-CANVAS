@@ -4825,6 +4825,8 @@ Please share this report with the development team for debugging.`;
         document.addEventListener('click', handleShareButtonClick);
         console.log('[DEBUG-WORKITEM:assetshare:continue] 👂 Added new click event listener');
         
+        // [DEBUG-WORKITEM:hcp-fab-button] FAB buttons now handled by unified handleShareButtonClick (no separate listener needed) ;CLEANUP_OK
+        
         const handlerCompleteTime = new Date();
         const completeTimeString = handlerCompleteTime.toLocaleTimeString() + '.' + handlerCompleteTime.getMilliseconds().toString().padStart(3, '0');
         console.log('[ASSET-SHARE-TIMING] ✅ HANDLER SETUP COMPLETE:', completeTimeString);
@@ -4860,8 +4862,8 @@ Please share this report with the development team for debugging.`;
         // TOAST: Show click detection
         console.log('[SHARE-DEBUG] 🔍 CLICK DETECTED:', clickData);
         
-        // Check if clicked element is a share button
-        const shareButton = event.target.closest('.ks-share-button');
+        // [DEBUG-WORKITEM:hcp-fab-button] Check if clicked element is a share button OR FAB button ;CLEANUP_OK
+        const shareButton = event.target.closest('.ks-share-button, .asset-header-fab-button');
         
         const shareButtonCheck = {
             foundShareButton: !!shareButton,
@@ -4999,6 +5001,8 @@ Please share this report with the development team for debugging.`;
             shareButton.disabled = false;
         }
     }
+    
+    // [DEBUG-WORKITEM:hcp-fab-button] FAB button handling merged into handleShareButtonClick - no separate handler needed ;CLEANUP_OK
     
     // Enhanced Custom Asset Detection Popup using SweetAlert2
     window.showCustomAssetPopup = function(htmlContent, title) {
