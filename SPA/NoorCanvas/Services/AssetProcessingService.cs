@@ -152,11 +152,11 @@ public class AssetProcessingService
             }
 
             var finalHtml = document.Body?.InnerHtml ?? html;
-            _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Asset detection complete - injected {TotalMatches} share buttons",
+            _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Asset grouping complete - created {TotalMatches} asset containers",
                 runId, totalMatches);
-            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? DOM INJECTION COMPLETE: {ButtonCount} buttons injected at {Time}",
+            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? DOM WRAPPING COMPLETE: {ContainerCount} asset containers created at {Time}",
                 runId, totalMatches, DateTime.Now.ToString("HH:mm:ss.fff"));
-            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ? NOTE: JavaScript handlers will be attached separately - watch for timing gaps",
+            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ? NOTE: JavaScript menu handlers will be attached separately - watch for timing gaps",
                 runId);
             _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Final HTML length: {FinalLength} (was {OriginalLength})",
                 runId, finalHtml.Length, html.Length);
@@ -215,7 +215,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Process individual asset element and inject share button.
+    /// Process individual asset element and wrap it in a grouped container with header and menu.
     /// </summary>
     private void ProcessAssetElement(IElement element, AssetLookupDto assetLookup, int instanceNumber, string runId, HtmlParser parser)
     {
@@ -223,41 +223,64 @@ public class AssetProcessingService
         var shareId = $"asset-{assetLookup.AssetType}-{instanceNumber}";
 
         var buttonCreateTime = DateTime.Now;
-        _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Injecting share button for element {Instance} with shareId: {ShareId}",
+        _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Wrapping asset element {Instance} with grouped container, shareId: {ShareId}",
             runId, instanceNumber, shareId);
-        _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? BUTTON CREATION START: shareId={ShareId}, assetType={AssetType}, time={Time}",
+        _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? CONTAINER CREATION START: shareId={ShareId}, assetType={AssetType}, time={Time}",
             runId, shareId, assetLookup.AssetType, buttonCreateTime.ToString("HH:mm:ss.fff"));
 
         // Add data-asset-id to the element for JavaScript matching
         element.SetAttribute("data-asset-id", shareId);
 
-        // Create share button HTML - pass AssetType for consistent identification
-        var shareButton = CreateShareButtonHtml(
+        // Create container header with title and kebab menu
+        var containerHeader = CreateAssetContainerHeaderHtml(
             assetLookup.AssetType,
             assetLookup.DisplayName ?? assetLookup.AssetType,
             shareId,
             instanceNumber);
 
-        // Parse share button and insert before the asset element
+        // Create container footer
+        var containerFooter = CreateAssetContainerFooterHtml();
+
+        // Wrap the asset element with the container
         if (element.ParentElement != null)
         {
-            var buttonDoc = parser.ParseFragment(shareButton, element.ParentElement);
-            var nodesToInsert = buttonDoc.ToList();  // Collect nodes first to avoid enumeration modification
-            foreach (var buttonNode in nodesToInsert)
+            // Parse and insert header before the asset element
+            var headerDoc = parser.ParseFragment(containerHeader, element.ParentElement);
+            var headerNodes = headerDoc.ToList();
+            foreach (var headerNode in headerNodes)
             {
-                element.ParentElement.InsertBefore(buttonNode, element);
+                element.ParentElement.InsertBefore(headerNode, element);
             }
-            _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Share button injected successfully for {ShareId}",
+
+            // Parse and insert footer after the asset element
+            var footerDoc = parser.ParseFragment(containerFooter, element.ParentElement);
+            var footerNodes = footerDoc.ToList();
+            
+            // Find the next sibling to insert footer before it (or append if no next sibling)
+            var nextSibling = element.NextSibling;
+            foreach (var footerNode in footerNodes)
+            {
+                if (nextSibling != null)
+                {
+                    element.ParentElement.InsertBefore(footerNode, nextSibling);
+                }
+                else
+                {
+                    element.ParentElement.AppendChild(footerNode);
+                }
+            }
+
+            _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Asset wrapped successfully in grouped container for {ShareId}",
                 runId, shareId);
             
             // Log completion timing for DOM debugging
-            var buttonCompleteTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            _logger.LogInformation("[DOM-TIMING] Share button creation completed at {ButtonCompleteTime}ms for asset {ShareId}",
-                buttonCompleteTime, shareId);
+            var containerCompleteTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _logger.LogInformation("[DOM-TIMING] Asset container creation completed at {ContainerCompleteTime}ms for asset {ShareId}",
+                containerCompleteTime, shareId);
         }
         else
         {
-            _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Element has no parent - cannot inject button for {ShareId}",
+            _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Element has no parent - cannot wrap in container for {ShareId}",
                 runId, shareId);
         }
     }
@@ -307,20 +330,43 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Create HTML for a share button based on AssetLookup data.
-    /// Uses blue theme matching CopilotContext.txt specifications.
+    /// Create HTML for asset grouping container with header and kebab menu.
+    /// Container wraps around the asset content with title, menu, and visual grouping.
     /// </summary>
-    private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    private static string CreateAssetContainerHeaderHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
         // HTML-encode all user-provided values to prevent parsing errors
         var encodedAssetType = System.Web.HttpUtility.HtmlEncode(assetType);
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
-        // Blue theme wrapper (action-wrapper from CopilotContext.txt) - spans full width of container
-        return $@"<div class=""action-wrapper"" data-noor-share-control=""true"" style=""background-color: #e6f2ff; border: 1px solid #0056b3; padding: 20px; margin-top: 30px; margin-bottom: 30px; width: 100%; margin-left: 0; margin-right: 0; box-sizing: border-box; border-radius: 8px; display: flex; justify-content: center;"">" +
-               $@"<button class=""shared-action-button"" data-share-button=""asset"" data-noor-share-control=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #007bff; border: 1px solid #0056b3; color: white; padding: 8px 15px; border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; font-weight: 500; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); transition: background-color 0.1s; margin: 0; white-space: nowrap; width: 200px;"" onmouseover=""this.style.backgroundColor='#0056b3';"" onmouseout=""this.style.backgroundColor='#007bff';"">" +
-               $@"<i class=""fas fa-lightbulb"" style=""margin-right: 8px; color: white;""></i>Share Asset</button></div>";
+        // Asset grouping container opening with header and kebab menu
+        return $@"<div class=""asset-group-container"" data-noor-asset-group=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" style=""background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #0056b3; border-radius: 12px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: relative; transition: all 0.3s ease;"" onmouseover=""this.style.boxShadow='0 8px 12px rgba(0, 0, 0, 0.15)'; this.style.borderColor='#003d82';"" onmouseout=""this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'; this.style.borderColor='#0056b3';"">" +
+               $@"<div class=""asset-header"" style=""display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #0056b3;"">" +
+               $@"<h3 class=""asset-title"" style=""margin: 0; color: #0056b3; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center;""><i class=""fas fa-cube"" style=""margin-right: 8px; color: #007bff;""></i>{encodedDisplayName}</h3>" +
+               $@"<div class=""asset-menu-wrapper"" style=""position: relative;"">" +
+               $@"<button class=""asset-kebab-menu-btn"" data-menu-id=""{encodedShareId}-menu"" type=""button"" aria-label=""Asset actions menu"" aria-haspopup=""true"" aria-expanded=""false"" style=""background: transparent; border: none; cursor: pointer; padding: 8px 12px; border-radius: 4px; transition: background-color 0.2s; display: flex; align-items: center;"" onmouseover=""this.style.backgroundColor='rgba(0, 86, 179, 0.1)';"" onmouseout=""this.style.backgroundColor='transparent';"" onclick=""window.toggleAssetMenu('{encodedShareId}')"">" +
+               $@"<i class=""fas fa-ellipsis-v"" style=""color: #0056b3; font-size: 1.2rem;""></i>" +
+               $@"</button>" +
+               $@"<div class=""asset-kebab-menu"" id=""{encodedShareId}-menu"" role=""menu"" aria-orientation=""vertical"" style=""display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #dee2e6; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 1000; min-width: 180px; margin-top: 4px;"">" +
+               $@"<button class=""asset-menu-item"" data-action=""share"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" role=""menuitem"" tabindex=""0"" aria-label=""Share asset"" style=""width: 100%; padding: 12px 16px; text-align: left; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; font-size: 0.9rem; color: #212529; transition: background-color 0.2s; border-radius: 6px 6px 0 0;"" onmouseover=""this.style.backgroundColor='#f8f9fa';"" onmouseout=""this.style.backgroundColor='transparent';"" onclick=""window.handleAssetMenuAction('{encodedShareId}', 'share', '{encodedAssetType}', {instanceNumber})"">" +
+               $@"<i class=""fas fa-share-alt"" style=""margin-right: 10px; color: #007bff; width: 16px; text-align: center;""></i>Share Asset" +
+               $@"</button>" +
+               $@"<button class=""asset-menu-item"" data-action=""annotate"" data-share-id=""{encodedShareId}"" type=""button"" role=""menuitem"" tabindex=""0"" aria-label=""Annotate asset"" style=""width: 100%; padding: 12px 16px; text-align: left; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; font-size: 0.9rem; color: #212529; transition: background-color 0.2s; border-radius: 0 0 6px 6px;"" onmouseover=""this.style.backgroundColor='#f8f9fa';"" onmouseout=""this.style.backgroundColor='transparent';"" onclick=""window.handleAssetMenuAction('{encodedShareId}', 'annotate', '{encodedAssetType}', {instanceNumber})"">" +
+               $@"<i class=""fas fa-pencil-alt"" style=""margin-right: 10px; color: #6c757d; width: 16px; text-align: center;""></i>Annotate" +
+               $@"</button>" +
+               $@"</div>" +
+               $@"</div>" +
+               $@"</div>" +
+               $@"<div class=""asset-content-wrapper"" style=""padding: 16px 0;"">";
+    }
+
+    /// <summary>
+    /// Create closing HTML for asset grouping container.
+    /// </summary>
+    private static string CreateAssetContainerFooterHtml()
+    {
+        return @"</div></div>";
     }
 
     /// <summary>

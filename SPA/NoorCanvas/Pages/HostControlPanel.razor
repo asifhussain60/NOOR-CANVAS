@@ -4517,6 +4517,153 @@ else
 
     console.log('NOOR-ASSET-SHARE: Individual asset sharing system ready with SignalR support');
 
+    // ===========================================
+    // ASSET KEBAB MENU FUNCTIONS
+    // ===========================================
+
+    /**
+     * Toggle visibility of asset kebab menu
+     * @param {string} shareId - The share ID of the asset
+     */
+    window.toggleAssetMenu = function(shareId) {
+        const menuId = shareId + '-menu';
+        const menu = document.getElementById(menuId);
+        const button = document.querySelector(`[data-menu-id="${menuId}"]`);
+        
+        if (!menu) {
+            console.error('[ASSET-MENU] Menu not found:', menuId);
+            return;
+        }
+
+        // Close all other menus first
+        document.querySelectorAll('.asset-kebab-menu').forEach(m => {
+            if (m.id !== menuId) {
+                m.style.display = 'none';
+                const otherButton = document.querySelector(`[data-menu-id="${m.id}"]`);
+                if (otherButton) {
+                    otherButton.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
+        // Toggle current menu
+        const isVisible = menu.style.display === 'block';
+        menu.style.display = isVisible ? 'none' : 'block';
+        
+        if (button) {
+            button.setAttribute('aria-expanded', !isVisible ? 'true' : 'false');
+        }
+
+        console.log('[ASSET-MENU] Menu toggled:', menuId, 'visible:', !isVisible);
+    };
+
+    /**
+     * Handle asset menu action (Share or Annotate)
+     * @param {string} shareId - The share ID of the asset
+     * @param {string} action - The action to perform ('share' or 'annotate')
+     * @param {string} assetType - The type of asset
+     * @param {number} instanceNumber - The instance number of the asset
+     */
+    window.handleAssetMenuAction = async function(shareId, action, assetType, instanceNumber) {
+        console.log('[ASSET-MENU] Action triggered:', { shareId, action, assetType, instanceNumber });
+
+        // Close the menu
+        const menuId = shareId + '-menu';
+        const menu = document.getElementById(menuId);
+        if (menu) {
+            menu.style.display = 'none';
+            const button = document.querySelector(`[data-menu-id="${menuId}"]`);
+            if (button) {
+                button.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        if (action === 'share') {
+            // Trigger existing SignalR share functionality
+            console.log('[ASSET-MENU] Triggering ShareAsset via SignalR for:', shareId);
+            
+            try {
+                // Use the existing shareAssetViaSignalR function
+                const uniqueAssetId = shareId;
+                await window.shareAssetViaSignalR(shareId, assetType, instanceNumber, uniqueAssetId);
+                console.log('[ASSET-MENU] ShareAsset completed successfully');
+            } catch (error) {
+                console.error('[ASSET-MENU] ShareAsset failed:', error);
+            }
+        } else if (action === 'annotate') {
+            // Placeholder for annotation functionality
+            console.log('[ASSET-MENU] Annotate action triggered for asset:', shareId, 'Type:', assetType);
+            
+            // Show toast notification for placeholder
+            if (typeof window.showNoorToast === 'function') {
+                window.showNoorToast(
+                    `Annotation feature coming soon for ${assetType}`,
+                    '🎨 Annotate',
+                    'info'
+                );
+            } else {
+                alert(`Annotation feature coming soon for ${assetType}`);
+            }
+        }
+    };
+
+    /**
+     * Close all open asset menus when clicking outside
+     */
+    document.addEventListener('click', function(event) {
+        // Check if click is outside any menu or menu button
+        const isMenuClick = event.target.closest('.asset-kebab-menu') || 
+                           event.target.closest('.asset-kebab-menu-btn');
+        
+        if (!isMenuClick) {
+            document.querySelectorAll('.asset-kebab-menu').forEach(menu => {
+                menu.style.display = 'none';
+                const button = document.querySelector(`[data-menu-id="${menu.id}"]`);
+                if (button) {
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+    });
+
+    /**
+     * Handle keyboard navigation for asset menus
+     */
+    document.addEventListener('keydown', function(event) {
+        // Close menus on ESC key
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.asset-kebab-menu').forEach(menu => {
+                if (menu.style.display === 'block') {
+                    menu.style.display = 'none';
+                    const button = document.querySelector(`[data-menu-id="${menu.id}"]`);
+                    if (button) {
+                        button.setAttribute('aria-expanded', 'false');
+                        button.focus(); // Return focus to button
+                    }
+                }
+            });
+        }
+
+        // Arrow key navigation within open menus
+        const openMenu = document.querySelector('.asset-kebab-menu[style*="display: block"]');
+        if (openMenu && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+            event.preventDefault();
+            const menuItems = Array.from(openMenu.querySelectorAll('.asset-menu-item'));
+            const currentIndex = menuItems.indexOf(document.activeElement);
+            
+            let nextIndex;
+            if (event.key === 'ArrowDown') {
+                nextIndex = currentIndex < menuItems.length - 1 ? currentIndex + 1 : 0;
+            } else {
+                nextIndex = currentIndex > 0 ? currentIndex - 1 : menuItems.length - 1;
+            }
+            
+            menuItems[nextIndex].focus();
+        }
+    });
+
+    console.log('[ASSET-MENU] Asset kebab menu system initialized with keyboard navigation and accessibility');
+
     // Toast Notification Functions for Q&A Alerts
     window.showQuestionToast = function(questionText) {
         // Create toast element
