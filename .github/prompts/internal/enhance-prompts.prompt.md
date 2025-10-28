@@ -4,11 +4,11 @@
 mode: agent
 purpose: Perform a non-destructive enhancement pass on `.github/prompts` and `.github/instructions`, improving consistency and maintainability without changing behavior; invoked by cohesion in approved auto-fix paths.
 inputs: scope (prompts|instructions|all|specific-file), apply-enhancements (true|false), report-only (true|false)
-outputs: Enhancement report and (when approved) updated prompt/instruction files with unified metadata and references
-lastUpdated: 2025-10-27
+outputs: Enhancement report and (when approved) updated prompt/instruction files with unified metadata and references; updates SYSTEM-REGISTRY.md
+lastUpdated: 2025-10-28
 acceptsFrom: [cohesion]
-calls: []
-relatedFiles: [.github/prompts/shared/validation-engine.md, .github/prompts/shared/integration-protocol.md, .github/prompts/shared/output-style-mandate.md, .github/instructions/SelfAwareness.instructions.md]
+calls: [update-registry]
+relatedFiles: [.github/prompts/shared/validation-engine.md, .github/prompts/shared/integration-protocol.md, .github/prompts/shared/output-style-mandate.md, .github/instructions/SelfAwareness.instructions.md, .github/SYSTEM-REGISTRY.md]
 validationLevel: none
 visibility: internal
 ---
@@ -24,6 +24,7 @@ Refactor and optimize prompt/instruction files under `.github/prompts/` and `.gi
 5. Normalize formatting and heading structure for maintainability.
 6. Ensure all links are valid and files end with a newline.
 7. Archive obsolete intermediate docs instead of deleting them.
+8. **Update SYSTEM-REGISTRY.md** after prompt infrastructure changes.
 
 ## Defaults and Safety
 - report-only: true (preview changes, do not write)
@@ -57,6 +58,7 @@ FUNCTION EnhancePromptSystem(scope, applyEnhancements, reportOnly)
     OutputSummaryOnly()
   ELSE
     WriteEnhancedFiles()
+    InvokeUpdateRegistry(scope=prompts)  // Update system registry after prompt changes
   END IF
 END FUNCTION
 ```
