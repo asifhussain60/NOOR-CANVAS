@@ -17,7 +17,7 @@
 1. Load global index: `.github/key-data-streams/index.md`
 2. Extract keywords from user_request (nouns, verbs, domain terms)
 3. Search index for semantic matches (80%+ similarity)
-4. **Check for existing plan file**: `.github/key-data-streams/{key}/{key}.plan.md`
+4. Search legacy location: `Workspaces/Copilot/KeyDataStreams/`
 5. If matches found:
    - Score each by relevance (semantic + keyword overlap)
    - Sort by score descending

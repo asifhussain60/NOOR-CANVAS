@@ -1858,30 +1858,57 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 
 ## Output Format
 
+**CRITICAL RULES:**
+- ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
+- ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
+- ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
+- ✅ **LETTER OPTIONS** - Always use A/B/C/D/E/F format for user choices
+
+---
+
 **CONCISE OUTPUT** (default):
-```markdown
-✅ Test Created: {test-file}.spec.ts
 
-**Test Type**: {Functional E2E | Visual Regression (Percy)}
-**Scenarios**: {X} test scenarios covering {brief-description}
+**Key:** `{key}`
 
-### What Was Created
-- {Brief bullet about test scenario 1}
-- {Brief bullet about test scenario 2}
-- {Brief bullet about test scenario 3}
+**✅ Test Created**
+- Test file: `.github/key-data-streams/{key}/tests/{test-file}.spec.ts`
+- Test type: {Functional E2E | Visual Regression (Percy) | Integration}
+- Scenarios: {X} test scenarios covering {brief-description}
+- Orchestration: `.github/key-data-streams/{key}/scripts/run-{feature}-test.ps1`
 
-## 🎯 What Would You Like To Do Next?
-- Run test: `.\Scripts\{script-name}.ps1`
+**🧠 What Was Created (≤5 bullets)**
+- Test scenario 1: {brief-description}
+- Test scenario 2: {brief-description}
+- Test scenario 3: {brief-description}
+- Registry updated: `.github/key-data-streams/{key}/tests/test-registry.md`
+- Ready to run: Use orchestration script
+
+**📌 How to Run**
+- Run test: `.\Scripts\run-{feature}-test.ps1`
 - View details: `.github/key-data-streams/{key}/tests/test-registry.md`
-```
+- Percy dashboard: (if visual regression test)
+
+**🎯 What Would You Like To Do Next?**
+
+**A.** Execute tests now (run orchestration script) ⭐  
+**B.** Add more scenarios (extend with todo)  
+**C.** Refine tests (modify selectors/assertions)  
+**D.** Create test plan (comprehensive test suite)  
+**E.** Review test registry  
+**F.** Nothing, I'm all set
+
+Reply: A, B, C, D, E, or F
+
+---
 
 **RULES:**
 - ✅ YES: Bulleted summary of what test scenarios cover
-- ✅ YES: How to run the test
+- ✅ YES: How to run the test with script path
 - ✅ YES: Link to registry for full specification
-- ❌ NO: Full test code (it's in the file)
-- ❌ NO: File locations (user doesn't care)
+- ✅ YES: Clear actionable options with letter-based selection
+- ❌ NO: Full test code (it's in the file attachments)
 - ❌ NO: Template examples or code blocks
+- ❌ NO: File locations details (just the run command)
 
 ---
 

@@ -371,20 +371,31 @@ IF warnings only:
 
 ## �📊 OUTPUT FORMAT (MAX 15 BULLETS TOTAL)
 
+**CRITICAL RULES:**
+- ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
+- ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
+- ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
+- ✅ **LETTER OPTIONS** - Always use A/B/C/D format for user choices
+
+---
+
 ### Phase 1: After Key Consultation (if related keys found)
 
-```markdown
-## 🧠 Key Search (≤5 bullets)
-- Found: {count} related keys
-- Top: {key-1} ({status})
-- Relevance: {score}%
-- Recommendation: {which}
+**Key:** `{key}` (user-specified or auto-detected)
 
-## 📌 Options
-**A.** Use {key-1} | **B.** Create New | **C.** Review
+**🧠 Key Search (≤5 bullets)**
+- Found: {count} related keys in key data streams
+- Top match: `{key-1}` with status {status}
+- Relevance score: {score}%
+- Recommendation: {Use existing | Create new}
+- Reason: {brief-explanation}
+
+**📌 Options**
+**A.** Use `{key-1}` (reuse existing work)  
+**B.** Create new key `{key}`  
+**C.** Review `{key-1}` details first
 
 Reply: A, B, or C
-```
 
 **Behavior:** HALT and wait for user choice.
 
@@ -392,20 +403,21 @@ Reply: A, B, or C
 
 ### Phase 2: After Questionnaire Generation (if complex/moderate)
 
-```markdown
-## 🧠 Questions (≤5 bullets)
-- Generated: {count} questions
-- Saved: .github/key-data-streams/{key}/questionnaire-{ts}.md
-- Sections: Open Questions, Drift, Test Strategy
-- Next: Answer questionnaire
+**Key:** `{key}`
 
-## 📌 Instructions
-**A.** Open `.github/key-data-streams/{key}/questionnaire-{ts}.md`
-**B.** Answer all questions in file
-**C.** Reply "Done" when complete
+**🧠 Questions Generated (≤5 bullets)**
+- Questionnaire created with {count} questions
+- Saved to: `.github/key-data-streams/{key}/questionnaire-{ts}.md`
+- Sections included: Open Questions, Drift Detection, Test Strategy
+- Purpose: Refine plan based on your answers
+- Next: Answer questions in the file, then reply "Done"
+
+**📌 Instructions**
+**A.** Open `.github/key-data-streams/{key}/questionnaire-{ts}.md`  
+**B.** Answer all questions directly in that file  
+**C.** Reply "Done" when complete (I'll process answers and finalize plan)
 
 Reply: Done (after answering)
-```
 
 **Behavior:** HALT and wait for user to answer.
 
@@ -413,28 +425,34 @@ Reply: Done (after answering)
 
 ### Phase 3: After Plan Generation (final output)
 
-```markdown
-## 🧠 Plan Summary (≤5 bullets)
-- Key: {key}
-- Phases: {count}
-- Complexity: {simple|moderate|complex}
-- Files: {key}.plan.md, {key}.plan.json, work-log.md
-- Location: .github/key-data-streams/{key}/
+**Key:** `{key}`
 
-## 📌 Plan (≤10 bullets)
-1. **Phase 1:** {title} - {file-count}F
-2. **Phase 2:** {title} - {file-count}F
-3. **Phase 3:** {title} - {file-count}F
-4. **Test Strategy:** {test-types}
-5. **Rollback:** Checkpoint commits enabled
+**🧠 Plan Summary (≤5 bullets)**
+- Plan finalized for key: `{key}`
+- Total phases: {count} ({simple|moderate|complex} complexity)
+- Files created: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
+- Location: `.github/key-data-streams/{key}/`
+- Ready for execution via task.prompt.md
+
+**📌 Plan Overview (≤10 bullets)**
+1. **Phase 1:** {phase-title} - {file-count} files affected
+2. **Phase 2:** {phase-title} - {file-count} files affected
+3. **Phase 3:** {phase-title} - {file-count} files affected
+4. **Test Strategy:** {test-types-list}
+5. **Rollback:** Checkpoint commits enabled for each phase
 6. **Handoff:** task.prompt.md (execution) + test-generation.prompt.md (tests)
-7. **Next Phase:** {phase-1-title}
+7. **First Phase:** {phase-1-title}
+8. **Estimated Scope:** {affected-layers-summary}
+9. **Dependencies:** {any-dependencies-or-none}
+10. **Next Step:** Execute Phase 1 or review plan files
 
-## ⚡ Options
-**A.** Execute Phase 1 | **B.** Review Plan | **C.** Modify | **D.** Cancel
+**⚡ Options**
+**A.** Execute Phase 1 now  
+**B.** Review plan files first  
+**C.** Modify plan scope  
+**D.** Cancel planning
 
 Reply: A, B, C, or D
-```
 
 **Behavior:** Wait for user approval before handoff to task.prompt.md.
 
