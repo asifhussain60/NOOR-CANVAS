@@ -1,7 +1,7 @@
 # Agent Handoff Protocol
 
-**Version**: 1.0.0  
-**Last Updated**: 2025-10-21  
+**Version**: 1.1.0  
+**Last Updated**: 2025-10-27  
 **Purpose**: Standardize agent-to-agent handoffs for consistent workflow execution
 
 ---
@@ -12,7 +12,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 
 ---
 
-## create-plan.prompt.md → task.prompt.md Handoff
+## plan.prompt.md → task.prompt.md Handoff
 
 **Purpose**: Hand off from interactive planning to phased execution
 
@@ -43,7 +43,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
 ### Context Carried
 
 **Plan Files** (automatically loaded by task agent):
-1. `.github/prompts.keys/{key}/{key}.plan.md` - Complete plan specification
+1. `.github/key-data-streams/{key}/{key}.plan.md` - Complete plan specification
    - Technology stack analysis
    - Architecture layers affected
    - Phase specifications with objectives, deliverables, tests
@@ -51,7 +51,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
    - Risk assessments
    - System Context Pack (APIs, database schemas, SignalR hubs, test data)
 
-2. `.github/prompts.keys/{key}/{key}.plan.json` - Structured plan metadata (JSON tracking)
+2. `.github/key-data-streams/{key}/{key}.plan.json` - Structured plan metadata (JSON tracking)
    ```json
    {
      "key": "user-landing",
@@ -69,7 +69,7 @@ This document defines the standard protocol for agent-to-agent handoffs in the N
    }
    ```
 
-3. `.github/prompts.keys/{key}/work-log.md` - Execution history
+3. `.github/key-data-streams/{key}/work-log.md` - Execution history
    - Key data stream entry
    - User request summary
    - Plan approval record
@@ -120,7 +120,7 @@ feature planning agent: @workspace /task key=user-landing github-branch=developm
 [Task agent takes over]
 
 Task Agent: [Loads plan from {key}.plan.md]
-Task Agent: "✅ Loaded comprehensive plan from .github/prompts.keys/user-landing/user-landing.plan.md"
+Task Agent: "✅ Loaded comprehensive plan from .github/key-data-streams/user-landing/user-landing.plan.md"
 Task Agent: "Phase 1: Database Schema - {objectives}"
 Task Agent: [Executes Phase 1]
 Task Agent: "✅ Phase 1 complete. What's next: Phase 2 will implement ..."
@@ -137,6 +137,101 @@ User: "proceed"
 - ✅ **Progress tracking**: JSON enables programmatic queries
 - ✅ **Pre-gathered context**: APIs, database schemas, test data reused
 - ✅ **Clear user experience**: Simple "proceed" triggers without manual commands
+
+---
+
+## build.prompt.md → todo.prompt.md Handoff
+
+**Purpose**: Hand off single-task work to todo agent for extension of existing work
+
+**When**: After build agent analyzes request, detects single task, and user approves handoff
+
+### Handoff Format
+
+**Standard Invocation**:
+```
+@workspace /todo from-build=true key={key-identifier} {user-request}
+```
+
+**Parameters**:
+- `from-build` *(required)*: Set to `true` to indicate handoff from build agent
+  - Signals todo agent to skip 5s auto-execute countdown
+  - Build agent already showed analysis and received approval
+  - Prevents dual approval gates
+- `key` *(auto-detected if not provided)*: Task identifier
+- Additional request text passed as-is to todo agent
+
+### Approval Flow
+
+**Build Agent Responsibilities**:
+1. ✅ Analyze request and detect single task
+2. ✅ Display 🧠 Analysis + 📌 Summary with A/B/C/D options
+3. ✅ Wait for user approval (option A)
+4. ✅ Set `from-build=true` parameter
+5. ✅ Invoke todo agent with constructed parameters
+
+**Todo Agent Responsibilities**:
+1. ✅ Detect `from-build=true` parameter
+2. ✅ Skip 5s auto-execute countdown (approval already received)
+3. ✅ Require explicit "proceed" instead of countdown
+4. ✅ Load existing plan from key data stream
+5. ✅ Extend work and execute
+
+### Example Handoff
+
+**User Flow**:
+```
+User: @workspace /build "Fix the button layout in Header.razor"
+
+[Build agent analyzes and routes to todo]
+
+Build Agent: 
+## 🧠 Analysis
+- Request Type: Bug fix
+- Target Agent: `todo` prompt
+- Key: `header-button-layout`
+- Complexity: Simple
+- Context: Text-based request
+
+## 📌 Summary
+
+**Handoff Plan:**
+- Will load `.github/prompts/todo.prompt.md`
+- Agent will receive request with key `header-button-layout`
+- Todo agent will extend existing work under this key
+- Changes tracked in work-log.md
+
+**What would you like to do next?**
+
+**A.** Proceed with handoff to `todo` agent (execute plan)
+**B.** Change target agent (switch to different prompt)
+**C.** Modify key or parameters (adjust before handoff)
+**D.** Cancel (stop and return to normal chat)
+
+User: A
+
+Build Agent: [Sets from-build=true]
+Build Agent: @workspace /todo from-build=true key=header-button-layout "Fix the button layout in Header.razor"
+
+[Todo agent takes over]
+
+Todo Agent: "✅ Loaded key: header-button-layout from git history"
+Todo Agent: "Current Status: Phase 2 of 3 complete"
+Todo Agent: "Extension: Fix button layout"
+Todo Agent: "What would you like to do next?"
+Todo Agent: "Say 'proceed' to execute (no countdown - approval already received)"
+
+User: "proceed"
+
+[Todo agent executes work]
+```
+
+### Benefits
+
+- ✅ **No dual approval**: Build shows plan once, todo respects that approval
+- ✅ **Clear UX**: User knows approval was already given
+- ✅ **Consistent workflow**: Same approval pattern across all build handoffs
+- ✅ **Key preservation**: Todo extends existing work without creating new keys
 
 ---
 
@@ -205,7 +300,7 @@ User: "proceed"
 
 ## Related Files
 
-- **create-plan.prompt.md** - Feature Planning Agent (Step 6: Handoff Protocol)
+- **plan.prompt.md** - Feature Planning Agent (Step 6: Handoff Protocol)
 - **task.prompt.md** - Task executor (Plan Integration Protocol)
 - **SelfAwareness.instructions.md** - Global operating guardrails
 - **SystemIndex.md** - Agent coordination documentation
@@ -213,6 +308,12 @@ User: "proceed"
 ---
 
 ## Changelog
+
+### v1.1.0 (2025-10-27)
+- Added build → todo handoff protocol
+- Documented `from-build` parameter to prevent dual approval gates
+- Added approval flow diagram for build handoffs
+- Updated best practices for build agent integration
 
 ### v1.0.0 (2025-10-21)
 - Initial creation

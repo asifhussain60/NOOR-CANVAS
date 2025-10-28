@@ -411,7 +411,7 @@ GO
 
 ---
 
-## Integration with create-plan.prompt.md
+## Integration with plan.prompt.md
 
 This module is used throughout feature planning agent execution:
 
@@ -421,7 +421,7 @@ This module is used throughout feature planning agent execution:
 - **Step 6 ({key}.plan.md writing)**: Document phase deliverables using Phase Deliverables structure
 - **Step 6 (task agent handoff)**: Ensure migration specifications included in handoff context
 
-### Example Usage in create-plan.prompt.md
+### Example Usage in plan.prompt.md
 
 ```markdown
 ### Step 2: Draft Plan
@@ -442,7 +442,7 @@ This module is used throughout feature planning agent execution:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2025-10-20 | Initial extraction from create-plan.prompt.md (Steps 2-4, ~450 lines) |
+| 1.0.0 | 2025-10-20 | Initial extraction from plan.prompt.md (Steps 2-4, ~450 lines) |
 
 ---
 

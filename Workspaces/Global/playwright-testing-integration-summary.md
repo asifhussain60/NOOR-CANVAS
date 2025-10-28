@@ -127,7 +127,7 @@ User requested Playwright testing information be consolidated into a single auth
 **Impact**: Cohesion review agent now maintains Playwright knowledge automatically
 
 ### 4. Updated key-template.md
-**File**: `Workspaces/Copilot/prompts.keys/_template/key-template.md`  
+**File**: `Workspaces/Copilot/key-data-streams/_template/key-template.md`  
 **Change**: Added "QuickRef Localization" section
 
 **New Section**:
@@ -297,7 +297,7 @@ Auto-Update: cohesion-review maintains QuickRef files
 | `.github/prompts/task.prompt.md` | UPDATE | Added Step 2.5, PlaywrightQuickRef.md to mandates |
 | `.github/prompts/question.prompt.md` | UPDATE | Added Playwright Testing knowledge section |
 | `.github/prompts/cohesion-review.prompt.md` | UPDATE | Added PlaywrightQuickRef.md to auto-update protocol |
-| `Workspaces/Copilot/prompts.keys/_template/key-template.md` | UPDATE | Added QuickRef Localization section |
+| `Workspaces/Copilot/key-data-streams/_template/key-template.md` | UPDATE | Added QuickRef Localization section |
 
 ---
 

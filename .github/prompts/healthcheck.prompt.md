@@ -3,11 +3,24 @@ mode: agent
 description: Read-only system health auditor and prompt optimization analyzer (no code changes)
 ---
 
-**Version:** 1.1.0  
-**Last Updated:** 2025-10-22  
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Validate system and prompt infrastructure health without modifying code; analyze prompt optimization opportunities
+> inputs: scope, level, notes, -test
+> outputs: health audit report, violations by severity, optimization recommendations; updates SYSTEM-REGISTRY.md when changes detected
+> lastUpdated: 2025-10-28
+> stateTracking: enabled
+> calls: [update-registry]
+
+**Version:** 1.2.0  
+**Last Updated:** 2025-10-28  
 **Changelog:**
+- **v1.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for healthcheck request logging (uses "healthcheck-audit" key)
 - Add quick banner with Prompt Optimization Mode pointer and shared references
 - Align early output-style and execution-flow cross-links
+
+See Also:
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
 
 > Quick banner
 > - Prompt Optimization Mode is available for any prompt scope (see section: Prompt Optimization Mode)
@@ -156,6 +169,49 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
     - Provides recommendations for optimization
     - Automatically invokes task agent to execute approved optimizations
   - **See:** Prompt Optimization Mode section for complete workflow
+
+- **-test** *(flag, optional)*  
+  Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+  
+  **Behavior:**
+  1. Execute healthcheck workflow normally (validate scope, generate report)
+  2. After completion, run validation checks specific to healthcheck.prompt.md
+  3. Generate validation report with quality score (0-100)
+  4. If violations (especially read-only enforcement): generate critical alerts
+  5. Present findings to user
+  
+  **Example:**
+  ```bash
+  @workspace /healthcheck scope=prompts -test
+  @workspace /healthcheck scope=all -test level=micro
+  ```
+  
+  **Healthcheck-Specific Validation Checks:**
+  - ✓ Read-only enforcement (NO files modified or created)
+  - ✓ Validation report generated
+  - ✓ Scope coverage complete (all requested files validated)
+  - ✓ Cross-reference validation performed
+  - ✓ Conflict detection executed (for prompt optimization mode)
+  - ✓ No code in user-facing output
+  
+  **Critical Violation Example:**
+  ```markdown
+  🚨 HEALTHCHECK VALIDATION FAILED
+  
+  Quality Score: 0/100 (Critical Issues)
+  
+  ❌ Critical Violation: READ-ONLY AGENT MODIFIED FILES
+     Files Created: healthcheck-fix.cs
+     
+  Healthcheck is a read-only agent and must NOT modify any files.
+  
+  What would you like to do next?
+  A. Rollback changes immediately
+  B. Review violation details
+  C. Report bug in healthcheck implementation
+  ```
+  
+  **See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
 - **level** *(optional, default=`macro`)*  
   - `macro` → High-level architecture, contracts, cross-layer consistency (default).
@@ -396,9 +452,10 @@ Final validation:
    ```
 
 4. **Update Key Data Stream:**
-   - Document optimization in `.github/prompts.keys/healthcheck-audits/work-log.md`
+   - Document optimization in `.github/key-data-streams/healthcheck-audits/work-log.md`
    - Record metrics for trend analysis
    - Update validation patterns library
+   - **Update SYSTEM-REGISTRY.md** via `update-registry` prompt if prompt infrastructure changed
 
 #### 9. Exit Confirmation
 
@@ -459,6 +516,141 @@ Final validation:
 ---
 
 ## Execution Steps
+
+## Auto-Drift Detection (MANDATORY)
+
+During healthcheck analysis, automatically detect and register unrelated system-wide issues for post-completion resolution.
+
+### Detection Triggers
+
+**System-Wide Validation**:
+- Architectural inconsistencies across layers (UI/API/Database)
+- Contract mismatches (DTO/API/DB schema drift)
+- Missing infrastructure (config files, environment vars)
+- Security vulnerabilities (exposed secrets, weak validation)
+
+**Prompt System Analysis**:
+- Conflicting instructions across prompts
+- Broken cross-references between prompts/shared files
+- Missing/invalid parameters in prompt definitions
+- Execution flow inconsistencies
+
+**Documentation Drift**:
+- Outdated documentation vs. actual code
+- Missing documentation for new features
+- Broken internal links/references
+- Inaccurate SystemIndex.md entries
+
+**Code Quality Issues**:
+- Unused imports/dead code across multiple files
+- Inconsistent patterns (not isolated to single feature)
+- Performance bottlenecks affecting system-wide performance
+- Test coverage gaps in multiple modules
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION HealthcheckDetectDrift(scope, issue, validationPhase, severity)
+  
+  // Healthcheck is system-wide, so most issues are potential drifts
+  // Only register as drift if issue is outside current healthcheck scope
+  
+  IF IsWithinRequestedScope(issue, scope) THEN
+    RETURN "REPORT_IN_FINDINGS"  // Include in healthcheck report
+  END IF
+  
+  // Issue found outside requested scope → register as drift
+  driftKey = GenerateDriftKey(issue)
+  
+  RegisterDrift(
+    parentKey: "healthcheck-" + GenerateTimestamp(),  // Healthcheck may not have parent key
+    driftKey: driftKey,
+    description: issue,
+    severity: severity,
+    mode: "auto",
+    triggeredBy: "healthcheck.prompt.md",
+    phase: validationPhase  // "architecture" | "prompts" | "documentation" | "code-quality"
+  )
+  
+  LogToWorkLog("🔍 System drift detected: {driftKey} (severity: {severity}, phase: {validationPhase})")
+  
+  // Continue healthcheck (no blocking - healthcheck is read-only)
+  CONTINUE_HEALTHCHECK()
+  
+END FUNCTION
+```
+
+### Non-Blocking Approach
+
+**Healthcheck is read-only** → never halts for critical issues (unlike task/test-generation)
+
+All drifts registered silently during analysis:
+- **critical**: Build-breaking errors, security holes, contract violations
+- **high**: Test failures, missing infrastructure, architectural drift
+- **medium**: Code quality issues, documentation gaps
+- **low**: Formatting inconsistencies, minor optimization opportunities
+- **informational**: Observations, suggestions
+
+### Drift Organization
+
+**Healthcheck generates systematic drift queues**:
+
+1. **Architecture Drifts**: Layer mismatches, contract violations, missing dependencies
+2. **Prompt System Drifts**: Instruction conflicts, broken references, parameter issues
+3. **Documentation Drifts**: Outdated docs, missing entries, broken links
+4. **Code Quality Drifts**: Dead code, pattern violations, test coverage gaps
+
+### Drift Commit Format
+
+```
+drift(healthcheck-{timestamp}): Register {drift-key} - {one-line-description}
+Mode: auto
+Severity: {level}
+Triggered by: healthcheck.prompt.md
+Phase: {architecture|prompts|documentation|code-quality}
+Scope: {requested-healthcheck-scope}
+```
+
+### Comprehensive Drift Summary
+
+**At Healthcheck Completion**:
+
+Presents organized drift summary:
+```
+## 🔍 System Drifts Detected
+
+### Critical (Fix Immediately)
+- {drift-key-1}: {description} [Phase: architecture]
+- {drift-key-2}: {description} [Phase: prompts]
+
+### High (Address Soon)
+- {drift-key-3}: {description} [Phase: code-quality]
+
+### Medium (Plan Resolution)
+- {drift-key-4}: {description} [Phase: documentation]
+
+### Low / Informational
+- {drift-key-5}: {description} [Phase: optimization]
+
+**Recommended Resolution Order**:
+1. Fix critical architecture/prompt issues first
+2. Address high-priority code quality issues
+3. Update documentation
+4. Apply optimizations
+
+## 🎯 What Would You Like To Do Next?
+A) Start resolving critical drifts
+B) Generate detailed drift resolution plan
+C) Export drift report for team review
+D) Continue with another healthcheck scope
+```
+
+**Silent Logging**:
+- All drifts appended to `work-log.md` with full context
+- No chat interruption during healthcheck execution
+- Comprehensive summary presented at completion only
+
+---
 
 ### 0. Checkpoint Commit (Mandatory)
 - Create a checkpoint commit:  
@@ -644,7 +836,7 @@ After completing healthcheck (either mode):
 1. **Document Findings**: Create or update key data stream entry for audit trail
 2. **Update Learning Patterns**: Contribute discovered validation patterns to `.github/learning/validation-patterns.json`
 
-**Key Data Stream Path**: `.github/prompts.keys/healthcheck-audits/work-log.md`
+**Key Data Stream Path**: `.github/key-data-streams/healthcheck-audits/work-log.md`
 
 **Entry Format (Standard Healthcheck):**
 ```markdown

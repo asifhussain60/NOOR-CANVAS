@@ -55,7 +55,7 @@
   "devDependencies": {
     "@percy/cli": "^1.31.4",
     "@percy/playwright": "^1.0.9",
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.56.1",
     "@types/mssql": "^9.1.8",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
@@ -64,7 +64,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.2.2",
     "mssql": "^11.0.1",
-    "playwright": "^1.55.0",
+    "playwright": "^1.56.1",
     "postcss-html": "^1.8.0",
     "prettier": "^3.6.2",
     "stylelint": "^16.25.0",

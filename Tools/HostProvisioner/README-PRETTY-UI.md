@@ -9,7 +9,7 @@ The HostProvisioner now automatically generates URLs based on the environment:
 | Environment | Base URL |
 |------------|----------|
 | **Development** | `https://localhost:9091` |
-| **Production** | `https://noorcanvas.servehttp.com` |
+| **Production** | `https://noorcanvas.kashkole.com` |
 
 ### 2. Beautiful Interactive Display
 
@@ -31,7 +31,7 @@ When run in interactive mode, the HostProvisioner shows a professional, color-co
 
    Token: E55MYJY6
 
-   🔗 https://noorcanvas.servehttp.com/host/E55MYJY6
+   🔗 https://noorcanvas.kashkole.com/host/E55MYJY6
 
    ✓ Click the link above to open in your browser
 
@@ -41,7 +41,7 @@ When run in interactive mode, the HostProvisioner shows a professional, color-co
 
    Token: FL7JGVR6
 
-   🔗 https://noorcanvas.servehttp.com/user/landing/FL7JGVR6
+   🔗 https://noorcanvas.kashkole.com/user/landing/FL7JGVR6
 
    ✓ Share this link with participants
 
@@ -97,8 +97,8 @@ cd D:\Websites\NOOR-CANVAS\HostProvisioner
 ```
 
 **Generated URLs:**
-- Host: `https://noorcanvas.servehttp.com/host/E55MYJY6`
-- User: `https://noorcanvas.servehttp.com/user/landing/FL7JGVR6`
+- Host: `https://noorcanvas.kashkole.com/host/E55MYJY6`
+- User: `https://noorcanvas.kashkole.com/user/landing/FL7JGVR6`
 
 ## Configuration
 
@@ -111,7 +111,7 @@ cd D:\Websites\NOOR-CANVAS\HostProvisioner
     
     <!-- Base URLs for each environment -->
     <add key="BaseUrl_Development" value="https://localhost:9091" />
-    <add key="BaseUrl_Production" value="https://noorcanvas.servehttp.com" />
+    <add key="BaseUrl_Production" value="https://noorcanvas.kashkole.com" />
 </appSettings>
 ```
 

@@ -105,7 +105,7 @@ Development environment:
 ### appsettings.Production.json
 Production environment:
 - Database: KSESSIONS
-- Base URL: https://noorcanvas.servehttp.com
+- Base URL: https://noorcanvas.kashkole.com
 
 ### app.config
 Modified by ncdeploy.ps1 for production deployment:
@@ -113,7 +113,7 @@ Modified by ncdeploy.ps1 for production deployment:
 <configuration>
   <appSettings>
     <add key="ASPNETCORE_ENVIRONMENT" value="Production" />
-    <add key="BaseUrl_Production" value="https://noorcanvas.servehttp.com" />
+    <add key="BaseUrl_Production" value="https://noorcanvas.kashkole.com" />
   </appSettings>
 </configuration>
 ```
@@ -176,7 +176,7 @@ dotnet run --project Tools/HostProvisioner/HostProvisioner
 
 When deploying to production, `ncdeploy.ps1`:
 1. Modifies `app.config` to set `ASPNETCORE_ENVIRONMENT=Production`
-2. Sets `BaseUrl_Production=https://noorcanvas.servehttp.com`
+2. Sets `BaseUrl_Production=https://noorcanvas.kashkole.com`
 3. Both CLI and WinForms applications automatically detect production mode
 4. Both connect to KSESSIONS database (not KSESSIONS_DEV)
 
@@ -185,7 +185,7 @@ When deploying to production, `ncdeploy.ps1`:
 Configuration logic includes debug markers:
 ```
 [DEBUG-WORKITEM:host-provisioner-form:config] Environment: Production
-[DEBUG-WORKITEM:host-provisioner-form:config] Base URL: https://noorcanvas.servehttp.com
+[DEBUG-WORKITEM:host-provisioner-form:config] Base URL: https://noorcanvas.kashkole.com
 [DEBUG-WORKITEM:host-provisioner-form:config] Target Database: KSESSIONS
 ```
 

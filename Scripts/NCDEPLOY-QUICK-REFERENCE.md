@@ -23,6 +23,43 @@
 
 ---
 
+## Quick Host Provisioning (HCT) ⚡
+
+**Fastest way to reset a session and get host URLs:**
+
+```powershell
+hct 212
+```
+
+**What it does:**
+- ✅ Clears canvas.Participants and canvas.SessionData
+- ✅ Generates fresh host and user tokens
+- ✅ Displays clickable URLs for immediate access
+- ✅ ~2 seconds vs 10+ seconds for GUI
+- ✅ Works from any directory (global command)
+
+**Examples:**
+```powershell
+# Basic usage (Development environment)
+hct 212
+
+# Production environment
+hct 215 -Environment Production
+
+# Auto-open in browser
+hct 212 -OpenBrowser
+
+# With audit tracking
+hct 212 -CreatedBy "John Doe"
+
+# Show help
+hct -Help
+```
+
+**See also:** `nct` command for interactive provisioning
+
+---
+
 ## Common Scenarios
 
 ### 1. Standard Deployment (Most Common)

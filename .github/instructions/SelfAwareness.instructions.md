@@ -44,14 +44,46 @@
 - Clear deployment path: `ncdeploy.ps1` knows to deploy from `master`
 - Easy rollback: Can revert `master` without losing development work
 
+## 🚫 File Organization Rules (CRITICAL)
+
+**PROMPTS FOLDER MUST REMAIN CLEAN:**
+- **.github/prompts/** contains ONLY:
+  - Agent prompt files (`*.prompt.md`)
+  - Shared algorithm files (`shared/*.md`)
+  - Internal agent files (`internal/**/*.prompt.md`)
+  - State tracker utility (`shared/state-tracker.ps1`)
+  
+**PROHIBITED in .github/prompts/:**
+- ❌ Documentation files (guides, tutorials, references)
+- ❌ Work items or plan files
+- ❌ Analysis reports or summaries
+- ❌ Temporary files or logs
+- ❌ Key data stream files (belong in `.github/key-data-streams/`)
+- ❌ README files or markdown documentation
+
+**DOCUMENTATION LOCATIONS:**
+- **Workspaces/Documentation/** - All documentation, guides, references
+- **Workspaces/Copilot/_DOCS/** - Copilot-specific documentation
+- **.github/key-data-streams/{key}/** - Key-specific work plans and logs
+- **Docs/** - Project-level documentation (deployment, setup, processes)
+
+**ENFORCEMENT:**
+- ✅ Prompts MUST save reports to `Workspaces/Documentation/` or `Workspaces/Copilot/_DOCS/`
+- ✅ Work plans MUST go to `.github/key-data-streams/{key}/`
+- ✅ Never create `*.md` files directly in `.github/prompts/` root
+- ✅ Cleanup: Remove any documentation files found in prompts folder
+- ✅ All agents MUST follow these rules when generating output
+
 ## Scope
-Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
+Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
 - **`.github/prompts/shared/UserDictionary.md`** - Canonical shortcut lookup; during analysis, ALWAYS load and expand user shorthand (e.g., hcp, scanv, tcanv) to concrete files and concepts
 - **`.github/instructions/Links/SystemIndex.md`** - Central navigation hub for all architectural references, agent coordination, and system snapshots
 - **`.github/instructions/Links/InfrastructureQuickRef.md`** - **MANDATORY** for database operations - contains KSESSIONS_DEV connection details and schema access rules
+- **`.github/instructions/CDN-Architecture.md`** - **MANDATORY** for media/resource URLs - explains why CDN (`resources.kashkole.com`) exists and why `file://` URLs should NOT be used (related keys: `ksessions-cdn`, `transcript-img-fix`, `cdn-dev-cors`)
+- **`.github/instructions/Cloudflare-Configuration.md`** - **MANDATORY** for tunnel/networking questions - comprehensive Cloudflare Tunnel configuration, dashboard access, troubleshooting, and management scripts (related keys: `cloudflare-tunnel-stability`, `cdn-cloudflare-fix`)
 - **`.github/instructions/Links/Architecture.md`** - Comprehensive application architecture documentation including:
   - Complete API endpoint catalog (52 endpoints across 11 controllers)
   - Razor pages and component inventory (15+ pages, 10+ components)
@@ -143,7 +175,7 @@ For each phase, agents must:
   - Config/documentation → `Workspaces/Copilot/_DOCS/configs/`
   - Migrations/reorg notes → `Workspaces/Copilot/_DOCS/migrations/`
   - Temporary notes/drafts → `Workspaces/Copilot/_DOCS/temp/`
-  - Exception: Key data streams in `.github/prompts.keys/` remain as-is.
+  - Exception: Key data streams in `.github/key-data-streams/` remain as-is.
 
 ### Documentation & Analysis File Placement
 All agent-generated documentation must be placed in the designated directory structure:
@@ -157,7 +189,7 @@ Workspaces/Copilot/
 │   └── migrations/          # Migration and reorganization docs
 ├── artifacts/               # Build and test artifacts
 ├── config/                  # Agent configurations
-└── prompts.keys/           # Key-based prompt storage
+└── key-data-streams/           # Key-based prompt storage
 ```
 
 ### Code Quality Analysis - Roslynator Organization
@@ -453,7 +485,7 @@ This instruction set references the central `SystemIndex.md`. Any structural cha
 
 
 ## Git Backup & Rollback Discipline
-- Every /workitem and /continue must begin by creating a backup commit.
+- Every /workitem and /todo must begin by creating a backup commit.
 - Undo logs must store commit hashes for rollback.
 - Rollback uses `git reset --hard <hash>`.
 - On /keylock, squash backup commits into one final commit.

@@ -8,13 +8,21 @@ How to use
 - When a request contains a shortcut token (e.g., "hcp", "tcanv"), resolve it using this dictionary before deciding scope.
 - If both a generic filename and a full path exist, prefer the generic #file: reference (the prompt system resolves it).
 
+User acronyms and shortcuts used in prompts
+- nc: NoorCanvas application
+- hp: Host Proivisioner Avalonia -  Tools\HostProvisioner\HostProvisioner.Avalonia"
+- ac: Acceptance Criteria
+- db: Database
+
+
 Views (Blazor Components)
 - hcp: Host Control Panel — view: #file:HostControlPanel.razor
-- scanv: Session Canvas — view: #file:SessionCanvas.razor
-- tcanv: Transcript Canvas — view: #file:TranscriptCanvas.razor
+- sc: Session Canvas — view: #file:SessionCanvas.razor
+- tc: Transcript Canvas — view: #file:TranscriptCanvas.razor
+- receivers: Transcript Canvas — view: #file:TranscriptCanvas.razor Session Canvas — view: #file:SessionCanvas.razor
 - swait: Session Waiting — view: #file:SessionWaiting.razor
-- uland: User Landing (registration) — view: #file:UserLanding.razor
-- hland: Host Landing — view: #file:HostLanding.razor
+- ul: User Landing (registration) — view: #file:UserLanding.razor
+- hl: Host Landing — view: #file:HostLanding.razor
 - sdiag: Session Diagnostics — view: #file:SessionDiagnostics.razor
 - send: Session Ended — view: #file:SessionEnded.razor
 
@@ -76,6 +84,16 @@ Documentation quick refs
 - sysidx: System Index — #file:.github/instructions/Links/SystemIndex.md
 - infra: Infrastructure Quick Ref — #file:.github/instructions/Links/InfrastructureQuickRef.md
 - arch: Architecture Overview — #file:.github/instructions/Links/Architecture.md
+- cfcfg: Cloudflare Configuration — #file:.github/instructions/Cloudflare-Configuration.md
+- cdnarch: CDN Architecture — #file:.github/instructions/CDN-Architecture.md
+
+Cloudflare/Infrastructure
+- cftunnel: Cloudflare tunnel config — #file:Workspaces/Infrastructure/Cloudflare/tunnel-configuration.md
+- cfconfig: Cloudflare config.yml — #file:Workspaces/Infrastructure/Cloudflare/config.yml
+- cfinstall: Install tunnel service — #file:Workspaces/Infrastructure/Cloudflare/install-tunnel-service.ps1
+- cfrestart: Restart tunnel service — #file:Workspaces/Infrastructure/Cloudflare/restart-tunnel-service.ps1
+- cfhealth: Check tunnel health — #file:Workspaces/Infrastructure/Cloudflare/check-tunnel-health.ps1
+- cftrouble: Cloudflare troubleshooting — #file:Workspaces/Infrastructure/Cloudflare/TROUBLESHOOTING.md
 
 Notes
 - This file is authoritative for shortcut expansion. If a shortcut is ambiguous or missing, add a new entry here instead of hardcoding logic in a prompt.

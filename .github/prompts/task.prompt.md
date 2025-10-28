@@ -1,6 +1,27 @@
+---
+mode: agent
+description: Canonical execution engine that breaks down requests, validates outcomes, maintains audit trails through progressive key data stream updates
+---
+
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Execute planned work, validate outcomes, update key data stream progressively
+> inputs: key, tasks, -test, github-branch, commit-checkpoints, auto-chain, phase, debug-level, verbosity
+> outputs: phase execution results, checkpoints, updated work-log and artifacts
+> lastUpdated: 2025-10-28
+> stateTracking: enabled
+> acceptsFrom: [plan]
+> calls: [test-generation]
+
 # task.prompt.md (Execution Agent)
 
 **CRITICAL:** MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
+
+**Output Validation (MANDATORY):**
+- All user-facing responses MUST be validated before sending
+- See Execution Flow → Response Validation step
+- Uses `.github/prompts/shared/output-validator.md`
+- Critical violations BLOCK response (>15 bullets, implementation code)
+- Auto-fix: consolidation, flattening, next actions
 
 ## Output Format
 See `.github/prompts/shared/output-style-mandate.md`
@@ -9,11 +30,66 @@ See `.github/prompts/shared/output-style-mandate.md`
 📌 Summary (≤10 bullets)  
 📊 Final (always)
 
+---
+
+## See Also
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
+
 ## Parameters
 See `.github/prompts/shared/task-parameters-reference.md`
 
 ### key *(required)*
 Task identifier
+
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute task workflow normally (implement features, create files, commit checkpoints)
+2. After completion, run validation checks specific to task.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations (especially critical like database access rules): auto-generate improvement plan and handoff to plan.prompt.md
+5. Present findings and actionable next steps to user
+
+**Example:**
+```bash
+@workspace /task key=my-task -test tasks="Phase 1: Implement UI\n---\nPhase 2: Add tests"
+@workspace /task key=hcp -test tasks="Fix button alignment"
+```
+
+**Task-Specific Validation Checks:**
+- ✓ Commit checkpoints created after phase completion (ckpt: messages in git log)
+- ✓ Work log updated during execution
+- ✓ Database access rules enforced (canvas.* READ-WRITE, dbo.* READ-ONLY)
+- ✓ Branch compliance (development branch only)
+- ✓ Test generation for UI/API changes (.spec.ts files created)
+- ✓ Required reading consultation (Architecture.md, InfrastructureQuickRef.md for architectural changes)
+- ✓ No code in user-facing output (CONCISE-MANDATE compliance)
+- ✓ Output format compliance (🧠/📌/📊 structure)
+- ✓ Max 15 bullets per response
+
+**Critical Violations Detected:**
+```markdown
+🚨 VALIDATION FAILED - Critical Violation
+
+Quality Score: 35/100 (Critical Issues)
+
+❌ Database Access Rule Violation:
+   File: AdminService.cs, Line 42
+   Issue: INSERT INTO dbo.Users (READ-ONLY schema)
+   
+🔄 Auto-generating improvement plan...
+Handing off to plan.prompt.md for remediation
+
+What would you like to do next?
+A. Review improvement plan and apply fixes
+B. Rollback changes (restore to last checkpoint)
+C. Manual fix with guidance
+D. Cancel validation (NOT RECOMMENDED)
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
 ### debug-level *(default=`none`)*
 `none` | `simple` | `trace` | `diagnostic` | `cleanup` | `doc`
@@ -30,6 +106,16 @@ Target branch per SelfAwareness.instructions.md
 ### commit-checkpoints *(default=`true`)*
 Create git commit after each task completion (MANDATORY)
 See: `.github/prompts/shared/commit-checkpoint-protocol.md`
+
+### auto-chain *(default=`false`)*
+Enable automatic phase-to-phase execution without user intervention
+- `true` - Auto-invoke next phase after current completes
+- `false` - Wait for user approval between phases
+
+### phase *(optional)*
+Specific phase number to execute (used with auto-chain)
+- If specified, execute only that phase from plan
+- If omitted, execute all tasks sequentially
 
 Proceed with task without image analysis? (not recommended for complex visual changes)
 ```
@@ -148,7 +234,7 @@ Follow `.github/prompts/shared/commit-message-format.md`, extended with standard
    - Example: `ckpt(user-landing): pre-task checkpoint [sha=abc1234]`
    - Example: `task(user-landing): Phase 2 - API wiring [sha=def5678] [parent=abc1234]`
 - Git Tag (for checkpoints only): `key-{key}-ckpt-{yyyyMMdd-HHmm}-{short}`
-- Rollback Index: Update `.github/prompts.keys/{key}/rollback-index.md` on every checkpoint and major commit (task/test/hc)
+- Rollback Index: Update `.github/key-data-streams/{key}/rollback-index.md` on every checkpoint and major commit (task/test/hc)
 
 These conventions ensure `git log --oneline -10` is human-scannable and that every commit indicates its rollback lineage.
 
@@ -198,7 +284,7 @@ These conventions ensure `git log --oneline -10` is human-scannable and that eve
 
 **WHEN invoked with `key` parameter:**
 
-1. **ALWAYS check for comprehensive plan first**: `.github/prompts.keys/{key}/{key}.plan.md`
+1. **ALWAYS check for comprehensive plan first**: `.github/key-data-streams/{key}/{key}.plan.md`
 2. **If plan exists:**
    - ✅ Load complete phase details from `{key}.plan.md`
    - ✅ Load JSON tracking data from `{key}.plan.json`
@@ -233,7 +319,7 @@ These conventions ensure `git log --oneline -10` is human-scannable and that eve
 User: @workspace /feature key=user-landing user_request="Route users based on host selection"
 [Plan agent creates plan, user approves]
 Plan Agent: @workspace /task key=user-landing github-branch=development tasks="Phase 1: ...\n---\nPhase 2: ..."
-Task Agent: ✅ Loaded comprehensive plan from .github/prompts.keys/user-landing/user-landing.plan.md
+Task Agent: ✅ Loaded comprehensive plan from .github/key-data-streams/user-landing/user-landing.plan.md
 Task Agent: [Executes phases sequentially]
 ```
 
@@ -242,6 +328,25 @@ Task Agent: [Executes phases sequentially]
 ## Execution Steps
 
 **See:** `shared/execution-flow.md` for complete visual flow diagram
+
+### Step -1: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the incoming request (routed from plan or direct invocation)
+Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain @("route", "plan", "task")
+```
+
+**Purpose:**
+- Track task execution invocations
+- Record execution requests and handoffs from plan agent
+- Enable commit tracking during checkpoint operations
+
+---
 
 ### Step 0: Branch Verification (MANDATORY)
 
@@ -320,10 +425,10 @@ Task Agent: [Executes phases sequentially]
 **Detection & Resolution:**
 1. **Scan recent git commits** for key data stream modifications:
    ```bash
-   git log --pretty=format:"%H %s" --name-only -10 | grep "prompts.keys"
+   git log --pretty=format:"%H %s" --name-only -10 | grep "key-data-streams"
    ```
 2. **Identify most recent key:**
-   - Parse file path: `.github/prompts.keys/**/{key}.md`
+   - Parse file path: `.github/key-data-streams/**/{key}.md`
    - Extract `{key}` from path
    - Verify last modification timestamp
 3. **Auto-populate key parameter:**
@@ -345,7 +450,7 @@ Task Agent: [Executes phases sequentially]
 User: "Adding to previous key data stream, fix the button alignment issue"
 
 Agent Actions:
-1. Scan git log → Finds `.github/prompts.keys/canvas/canvas.md` modified 2 minutes ago
+1. Scan git log → Finds `.github/key-data-streams/canvas/canvas.md` modified 2 minutes ago
 2. Extract key: "canvas"
 3. Notify: "📌 Continuing work on key: canvas (last modified: 2025-10-15T00:02:00Z)"
 4. Proceed to Step 1 with key="canvas"
@@ -365,7 +470,7 @@ Agent Actions:
 **Purpose:** Detect interrupted workflows and offer seamless recovery from last checkpoint
 
 **Detection:**
-1. **Load plan.json**: `.github/prompts.keys/{key}/{key}.plan.json`
+1. **Load plan.json**: `.github/key-data-streams/{key}/{key}.plan.json`
 2. **Check for interruptedAt field**:
    ```json
    "interruptedAt": {
@@ -443,14 +548,14 @@ Executing remaining tasks...
 
 **Validation:**
 
-1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
+1. **Check if key folder exists**: `.github/key-data-streams/{key}/`
    - If NOT exists → HALT immediately
    - Error message to user:
      ```
      ❌ ERROR: Key folder does not exist
      
      Key: {key}
-     Expected path: .github/prompts.keys/{key}/
+     Expected path: .github/key-data-streams/{key}/
      
      This key has not been initialized through the planning process.
      
@@ -469,7 +574,7 @@ Executing remaining tasks...
      ```
    - **EXIT with status code 1** (prevents downstream failures)
 
-2. **Check if plan exists**: `.github/prompts.keys/{key}/{key}.plan.md`
+2. **Check if plan exists**: `.github/key-data-streams/{key}/{key}.plan.md`
    - If exists → Use comprehensive plan (existing Step 3 Plan Integration Protocol)
    - If NOT exists → Warn user but continue with lightweight planning:
      ```
@@ -489,7 +594,7 @@ Executing remaining tasks...
   ✓ Key Folder Validation
   
   Key: {key}
-  Path: .github/prompts.keys/{key}/
+  Path: .github/key-data-streams/{key}/
   Status: EXISTS
   Plan: {FOUND | NOT FOUND}
   Mode: {Comprehensive | Lightweight}
@@ -506,24 +611,146 @@ git commit -m "ckpt({key}): pre-task checkpoint"
 set "_SHA=" & for /f %i in ('git rev-parse --short HEAD') do set _SHA=%i
 
 # Create/update rollback index for this key
-if not exist .github\prompts.keys\{key} mkdir .github\prompts.keys\{key}
+if not exist .github\key-data-streams\{key} mkdir .github\key-data-streams\{key}
 "" >nul 2>&1
-echo | set /p="# Rollback Index for {key}\r\n" > .github\prompts.keys\{key}\rollback-index.md
-if not exist .github\prompts.keys\{key}\rollback-index.md (
-   echo # Rollback Index for {key}> .github\prompts.keys\{key}\rollback-index.md
-   echo >> .github\prompts.keys\{key}\rollback-index.md
-   echo | set /p="| Date | Type | Summary | SHA | Parent |\r\n" >> .github\prompts.keys\{key}\rollback-index.md
-   echo | set /p="|------|------|---------|-----|--------|\r\n" >> .github\prompts.keys\{key}\rollback-index.md
+echo | set /p="# Rollback Index for {key}\r\n" > .github\key-data-streams\{key}\rollback-index.md
+if not exist .github\key-data-streams\{key}\rollback-index.md (
+   echo # Rollback Index for {key}> .github\key-data-streams\{key}\rollback-index.md
+   echo >> .github\key-data-streams\{key}\rollback-index.md
+   echo | set /p="| Date | Type | Summary | SHA | Parent |\r\n" >> .github\key-data-streams\{key}\rollback-index.md
+   echo | set /p="|------|------|---------|-----|--------|\r\n" >> .github\key-data-streams\{key}\rollback-index.md
 )
 
 # Append current checkpoint row
-powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); Add-Content '.github/prompts.keys/{key}/rollback-index.md' \"| $d | ckpt | pre-task checkpoint | $sha | - |\""
+powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); Add-Content '.github/key-data-streams/{key}/rollback-index.md' \"| $d | ckpt | pre-task checkpoint | $sha | - |\""
 
 # Tag the checkpoint for easy discovery
 powershell -NoProfile -Command "$sha=(git rev-parse --short HEAD); $t=Get-Date -Format 'yyyyMMdd-HHmm'; git tag \"key-{key}-ckpt-$t-$sha\""
 ```
 
+**Log checkpoint to state tracking:**
+```powershell
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "ckpt({key}): pre-task checkpoint" -Phase $phase -CheckpointType "pre-task"
+```
+
 This ensures rollback capability if the task introduces instability.
+
+---
+
+## Auto-Drift Detection (MANDATORY)
+
+During task execution, automatically detect and register unrelated issues for post-completion resolution.
+
+### Detection Triggers
+
+**Context Gathering (Step 2)**:
+- File errors unrelated to current task (missing imports, broken references)
+- Test failures in unrelated test suites
+- Configuration mismatches discovered during validation
+- Architecture violations found during Step 2.8 analysis
+
+**Execution Phase (Step 5)**:
+- Dead code or unused imports in modified files
+- Security vulnerabilities in code paths
+- Performance bottlenecks unrelated to current work
+- Documentation inconsistencies discovered during implementation
+
+**Validation Phase (Step 6)**:
+- Unexpected test failures in unrelated tests
+- Build warnings in other modules
+- Integration issues outside current scope
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION TaskDetectDrift(currentKey, issue, phase, severity)
+  
+  // Check if issue blocks current task
+  IF severity == "critical" THEN
+    HALT_TASK()
+    PRESENT_USER_CHOICE(
+      options: [
+        "Fix now (switches to drift key)",
+        "Continue anyway (risky)",
+        "Abort task (rollback to checkpoint)"
+      ]
+    )
+    AWAIT_USER_DECISION()
+  END IF
+  
+  // For non-critical issues, register silently
+  IF IsUnrelatedToCurrentTask(issue, currentKey) THEN
+    driftKey = GenerateDriftKey(issue)
+    
+    RegisterDrift(
+      parentKey: currentKey,
+      driftKey: driftKey,
+      description: issue,
+      severity: severity,
+      mode: "auto",
+      triggeredBy: "task.prompt.md",
+      phase: phase  // "context-gathering" | "execution" | "validation"
+    )
+    
+    LogToWorkLog("🔍 Drift detected: {driftKey} (severity: {severity}, phase: {phase})")
+    CONTINUE_TASK()
+  END IF
+  
+END FUNCTION
+```
+
+### Critical Drift Blocking
+
+When `severity=critical`, execution **MUST HALT** until user decides:
+
+**Presentation Format**:
+```
+⚠️ CRITICAL ISSUE DETECTED (blocks task execution)
+
+Issue: {description}
+Severity: CRITICAL
+Detected in: {phase}
+
+This issue may affect task success. Choose one:
+1️⃣ Fix now (pause current task, switch to drift resolution)
+2️⃣ Continue anyway (risky - may cause failures)
+3️⃣ Abort task (rollback to checkpoint from Step 1)
+
+Your choice (1/2/3):
+```
+
+**User Choice Handling**:
+- **Fix now**: Register drift with `mode: "user-critical"`, pause task, switch to drift key, resume parent after resolution
+- **Continue anyway**: Register drift with `mode: "auto-deferred"`, log warning, proceed with task (add note in Step 8 work-log)
+- **Abort task**: Rollback using checkpoint from Step 1, present drift as standalone work item
+
+### Severity Classification
+
+- **critical**: Build-breaking errors, null reference risks, security holes (HALT required)
+- **high**: Failing tests, broken integrations, performance degradation
+- **medium**: Code smells, documentation gaps, minor bugs
+- **low**: Formatting issues, unused code
+- **informational**: Suggestions, observations
+
+### Drift Commit Format
+
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | user-critical | auto-deferred
+Severity: {level}
+Triggered by: task.prompt.md
+Phase: {context-gathering|execution|validation}
+```
+
+### Silent Logging
+
+**During Task** (no chat interruption):
+- Append to `{key}.plan.md`: "🔍 Drift detected: {drift-key} (phase: {phase})"
+- Append to `work-log.md`: Full drift details with context
+
+**At Step 9 Completion**:
+- Present drift summary with severity-sorted list
+- User decides resolution order or defers all
 
 ---
 
@@ -579,12 +806,12 @@ Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement 
 
 #### Step 2.12: Load System Context Pack (from plan)
 
-**Trigger:** When `.github/prompts.keys/{key}/{key}.plan.md` exists
+**Trigger:** When `.github/key-data-streams/{key}/{key}.plan.md` exists
 
 **Purpose:** Load pre-gathered execution context to skip redundant analysis
 
 **Actions:**
-1. **Read plan document** at `.github/prompts.keys/{key}/{key}.plan.md`
+1. **Read plan document** at `.github/key-data-streams/{key}/{key}.plan.md`
 2. **Extract System Context Pack section** (if present)
 3. **Cache the following for immediate use:**
    - **API Endpoints**: Paths, methods, request/response contracts, authentication
@@ -620,9 +847,9 @@ Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement 
 
 **Execution Context Detection:**
 
-**A. Phase-Driven Planning** (when `.github/prompts.keys/{key}/{key}.plan.md` exists):
+**A. Phase-Driven Planning** (when `.github/key-data-streams/{key}/{key}.plan.md` exists):
 1. Load comprehensive plan document
-2. Load JSON tracking from `.github/prompts.keys/{key}/{key}.plan.json`
+2. Load JSON tracking from `.github/key-data-streams/{key}/{key}.plan.json`
 3. Parse `tasks` parameter for phase identifiers:
    - Pattern: `Phase 1: {title}\n---\nPhase 2: {title}\n---\nPhase 3: {title}`
    - Extract phase numbers and titles
@@ -852,13 +1079,13 @@ Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
 1. Skip code execution - no file modifications
 2. Generate implementation documentation in key data stream
 3. Document validation checklist for manual implementation
-4. Output location: `.github/prompts.keys/{key}/implementation-plan.md`
+4. Output location: `.github/key-data-streams/{key}/implementation-plan.md`
 5. Skip to Step 8 (bypass Steps 6-7)
 
 #### 5b. Phase-Driven Execution (when {key}.plan.md exists)
 **Actions:**
 1. **For each phase in tasks parameter:**
-   - Load full phase details from `.github/prompts.keys/{key}/{key}.plan.md`
+   - Load full phase details from `.github/key-data-streams/{key}/{key}.plan.md`
    - Execute TODO items from "Implementation Tasks" section
    - Follow "Validation Checklist" from plan (build, lint, tests)
    - Use "Debug Markers" from plan
@@ -1066,7 +1293,7 @@ GO
 
 **Step 5: Document Migration in Work Log**
 
-Add to `.github/prompts.keys/{key}/work-log.md`:
+Add to `.github/key-data-streams/{key}/work-log.md`:
 
 ```markdown
 ### Migration Generated
@@ -1225,9 +1452,9 @@ See: Scripts/Migrations/Prod/README.md for workflow"
 - Test lifecycle management (creation, execution, promotion, cleanup)
 
 **Key Requirements:**
-- **Test Location**: `.github/prompts.keys/{key}/tests/` (within key data stream)
-- **Test Registry**: `.github/prompts.keys/{key}/tests/test-registry.md` (prevents duplication)
-- **Orchestration Scripts**: `.github/prompts.keys/{key}/scripts/`
+- **Test Location**: `.github/key-data-streams/{key}/tests/` (within key data stream)
+- **Test Registry**: `.github/key-data-streams/{key}/tests/test-registry.md` (prevents duplication)
+- **Orchestration Scripts**: `.github/key-data-streams/{key}/scripts/`
 - **Naming**: `{feature}-{test-type}.spec.ts`
 - **Test Data**: Use Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
 - **Execution**: Via orchestration scripts ONLY (never direct `npx playwright test`)
@@ -1393,17 +1620,130 @@ SUMMARY: {key-name}
 
 **CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
 
-**GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/prompts.keys/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
+**GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/key-data-streams/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
+
+---
+
+### Step 8.5: Response Validation (MANDATORY - EXECUTE BEFORE Step 9)
+
+**Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
+
+**When:** ALWAYS execute immediately before final user-facing output (Step 9)
+
+**Algorithm:** See `.github/prompts/shared/output-validator.md`
+
+**Quick Validation:**
+```
+BEFORE responding to user (Step 9):
+  1. Count bullets (including nested) → Must be ≤15
+  2. Detect code blocks (```language markers) → Prohibit implementation code
+  3. Check nested lists (indentation >2 spaces) → Flatten to single level
+  4. Verify next actions present → Must have letter-based options (A/B/C/D)
+  5. If violations → Auto-fix or BLOCK response
+
+IF critical violations cannot be auto-fixed:
+  - Log violation details
+  - TERMINATE with error (do not send to user)
+  - Show developer message with remediation steps
+
+IF warnings only:
+  - Log for monitoring
+  - Allow response (optionally append warning note)
+```
+
+**Exempt from validation:**
+- Work log file contents
+- Plan file updates
+- Git commit messages
+- Internal execution logs
+
+**See:** `.github/prompts/shared/output-validator.md` for complete algorithm
+
+**See:** `.github/prompts/shared/loop-prevention.md` for phase re-execution prevention
+
+---
+
+#### Step 8.0: Auto-Chain Protocol (if auto-chain=true)
+
+**Trigger:** `auto-chain` parameter = `true`
+
+**Purpose:** Enable unassisted end-to-end execution with automatic phase-to-phase transitions
+
+**Algorithm:**
+```
+IF auto-chain == true AND phase IS NOT NULL THEN
+  
+  // Verify current phase completed successfully
+  IF CurrentPhaseStatus != "complete" THEN
+    HALT("Phase {phase} incomplete - cannot auto-chain")
+  END IF
+  
+  // Load test registry and run phase tests
+  testRegistry = LoadTestRegistry(key)
+  phaseTests = GetTestsForPhase(testRegistry, phase)
+  
+  IF phaseTests.length > 0 THEN
+    Write-Host "🧪 Running {phaseTests.length} test(s) for Phase {phase}..." -ForegroundColor Cyan
+    
+    FOR EACH test IN phaseTests
+      result = ExecuteTest(test)
+      UpdateTestRegistry(test, result)
+      
+      IF result.status == "failed" THEN
+        HALT("Test '{test.name}' failed - cannot auto-chain")
+        SHOW_ROLLBACK_OPTIONS()
+      END IF
+    END FOR
+    
+    Write-Host "✅ All Phase {phase} tests passed" -ForegroundColor Green
+  END IF
+  
+  // Check if more phases exist
+  plan = LoadPlanJSON(key)
+  nextPhase = phase + 1
+  
+  IF nextPhase <= plan.totalPhases THEN
+    // Auto-invoke next phase
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host "📍 Auto-chaining to Phase {nextPhase}/{plan.totalPhases}" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host ""
+    
+    SELF_INVOKE: @workspace /task key:{key} phase:{nextPhase} auto-chain:true
+    
+  ELSE
+    // All phases complete
+    Write-Host "✅ All {plan.totalPhases} phases complete!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  @workspace /task key:{key} tasks='mark complete'" -ForegroundColor White
+    
+    STOP_AUTO_CHAIN()
+  END IF
+  
+END IF
+```
+
+**Test Registry Integration:**
+- **Before chaining:** Execute all tests registered for current phase
+- **Test failure:** Halt auto-chain, show rollback options
+- **Test success:** Update test registry, proceed to next phase
+- **No tests:** Skip test execution, proceed to next phase
+
+**User Break Points:**
+- Auto-chain runs continuously UNLESS user invoked with script (then 10s break)
+- User can Ctrl+C at any time to halt auto-chain
+- Errors halt auto-chain automatically with rollback options
 
 #### 8.1. Update JSON Tracking (if plan exists)
 
-**Trigger:** When `.github/prompts.keys/{key}/{key}.plan.json` exists
+**Trigger:** When `.github/key-data-streams/{key}/{key}.plan.json` exists
 
 **Purpose:** Maintain machine-readable progress tracking synchronized with markdown work-log
 
 **After each phase completion:**
 
-1. **Load existing JSON** from `.github/prompts.keys/{key}/{key}.plan.json`
+1. **Load existing JSON** from `.github/key-data-streams/{key}/{key}.plan.json`
 2. **Update phase status**: Find phase by ID, change status from `"in-progress"` to `"complete"`
 3. **Record phase timing**:
    ```json
@@ -1481,7 +1821,7 @@ SUMMARY: {key-name}
 4. Size limits: If >100 entries or >50KB, trigger consolidation
 
 #### 8.3. Key Data Stream Update Requirements
-1. Locate key file: `.github/prompts.keys/**/{key}.md`
+1. Locate key file: `.github/key-data-streams/**/{key}.md`
 2. Retrieve git commit hash: `git rev-parse HEAD`
 3. **Record user request** (Step 2.2.1 - if not already recorded):
    ```markdown
@@ -1600,7 +1940,7 @@ git tag --list "checkpoint/*/*" --sort=-creatordate
 - **Concise:** `"✓ Checkpoint created: {tag-name}"`
 - **Detailed:** Show tag name, SHA, and rollback command
 
-**Example Checkpoint Log (`.github/prompts.keys/.checkpoints/canvas.log`):**
+**Example Checkpoint Log (`.github/key-data-streams/.checkpoints/canvas.log`):**
 ```
 2025-10-16T02:30:00Z | a3f5b9c1234 | added share button with confirmation dialog
 2025-10-16T01:15:00Z | b2d4e8f5678 | fixed session title display bug
@@ -1643,9 +1983,9 @@ Search all modified source files and remove debug logging markers:
 
 **Promote Passing Tests to Production:**
 
-1. **Check for active tests** in `.github/prompts.keys/{key}/tests/`:
+1. **Check for active tests** in `.github/key-data-streams/{key}/tests/`:
    ```powershell
-   $testFiles = Get-ChildItem ".github/prompts.keys/{key}/tests/*.spec.ts"
+   $testFiles = Get-ChildItem ".github/key-data-streams/{key}/tests/*.spec.ts"
    ```
 
 2. **For each passing test**:
@@ -1654,7 +1994,7 @@ Search all modified source files and remove debug logging markers:
    - Copy orchestration script to: `Scripts/run-{feature}-test.ps1`
    - Document promotion in test registry (archive section)
 
-3. **Update test registry** (`.github/prompts.keys/{key}/tests/test-registry.md`):
+3. **Update test registry** (`.github/key-data-streams/{key}/tests/test-registry.md`):
    ```markdown
    ## Archived Tests (Promoted to Production)
    
@@ -1668,8 +2008,8 @@ Search all modified source files and remove debug logging markers:
 
 4. **Delete tests from key directory**:
    ```powershell
-   Remove-Item ".github/prompts.keys/{key}/tests/*.spec.ts"
-   Remove-Item ".github/prompts.keys/{key}/scripts/run-*-test.ps1"
+   Remove-Item ".github/key-data-streams/{key}/tests/*.spec.ts"
+   Remove-Item ".github/key-data-streams/{key}/scripts/run-*-test.ps1"
    ```
 
 5. **Preserve test registry** for historical reference
@@ -1684,7 +2024,7 @@ Search all modified source files and remove debug logging markers:
 ```
 
 **Skip Conditions:**
-- No tests exist in `.github/prompts.keys/{key}/tests/`
+- No tests exist in `.github/key-data-streams/{key}/tests/`
 - All tests failed (do not promote failing tests)
 
 #### 9.3. State Management & Completion
@@ -1758,7 +2098,7 @@ Search all modified source files and remove debug logging markers:
 - **Completion triggers Step 9** - comprehensive cross-layer documentation and cleanup
 - **Completed keys can be reopened** - new tasks automatically revert status to `in-progress`
 - **Resumption preserves history** - completion documentation remains intact when key is reopened
-- Keys and summaries in `prompts.keys` remain **single source of truth** for lifecycle tracking
+- Keys and summaries in `key-data-streams` remain **single source of truth** for lifecycle tracking
 
 ---
 

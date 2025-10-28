@@ -343,9 +343,9 @@ const BASE_URL = 'https://localhost:9091';
 - **Instructions**: `.github/instructions/*.instructions.md`
 
 ### Keys (Work Items)
-- **Key Metadata**: `.github/prompts.keys/{key}/{key}.md`
-- **Work Logs**: `.github/prompts.keys/{key}/work-log.md`
-- **Template**: `.github/prompts.keys/_template/key-template.md`
+- **Key Metadata**: `.github/key-data-streams/{key}/{key}.md`
+- **Work Logs**: `.github/key-data-streams/{key}/work-log.md`
+- **Template**: `.github/key-data-streams/_template/key-template.md`
 
 ---
 
@@ -380,8 +380,23 @@ const BASE_URL = 'https://localhost:9091';
 
 ---
 
+## 🌐 Related Infrastructure Documentation
+
+- **CDN Architecture**: `.github/instructions/CDN-Architecture.md` - Resources CDN, media serving, CORS
+- **Cloudflare Configuration**: `.github/instructions/Cloudflare-Configuration.md` - Tunnel setup, dashboard, troubleshooting
+- **IIS Configuration**: `.github/instructions/IIS-Configuration.md` - IIS sites, bindings, URL rewrite
+- **Database Schema**: See "Database Connections" section above
+
+---
+
 ## Version History
 
+- **v2.1.0** (2025-10-27): Added Cloudflare infrastructure references
+  - Added link to Cloudflare-Configuration.md
+  - Added link to CDN-Architecture.md
+- **v2.0.0** (2025-10-12): Database schema updates
+  - Documented `canvas.*` and `dbo.*` schema access rules
+  - Added READ-ONLY restrictions enforcement
 - **v1.0.0** (2025-01-11): Initial creation
   - Extracted from live appsettings.json, Program.cs, Controllers
   - Added Session 212 canonical test data

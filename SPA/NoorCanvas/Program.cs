@@ -186,12 +186,119 @@ builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection an
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks
 builder.Services.AddScoped<HtmlParsingService>(); // [DEBUG-WORKITEM:signalcomm:impl] Advanced HTML parsing service to replace Blazor DOM parser limitations ;CLEANUP_OK
+builder.Services.AddScoped<IMediaUrlTransformService, MediaUrlTransformService>(); // Environment-aware media URL transformation for transcript images
 builder.Services.AddScoped<UnifiedHtmlTransformService>(); // Unified HTML transformation for host and participant views
 builder.Services.AddScoped<IScreenshotAnalysisService, ScreenshotAnalysisService>(); // AI-powered screenshot annotation extraction
 // [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcastService removed ;CLEANUP_OK
 // [DEBUG-WORKITEM:canvascleanup:impl] DatabaseMigrator removed ;CLEANUP_OK
 
 var app = builder.Build();
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DATABASE ENVIRONMENT VALIDATION (Fail-Fast Security)
+// Critical safeguard against wrong database for environment (Phase 2)
+// Key: database-environment-safeguards
+// ═══════════════════════════════════════════════════════════════════════════════
+var environment = app.Environment.EnvironmentName;
+var dbConnectionString = app.Configuration.GetConnectionString("DefaultConnection");
+
+if (!string.IsNullOrEmpty(dbConnectionString))
+{
+    // Extract database name from connection string
+    var dbMatch = System.Text.RegularExpressions.Regex.Match(
+        dbConnectionString,
+        @"(?:Database|Initial Catalog)=([^;]+)",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+    var databaseName = dbMatch.Success ? dbMatch.Groups[1].Value.Trim() : "UNKNOWN";
+
+    // Log database connection prominently
+    app.Logger.LogWarning(
+        "═══════════════════════════════════════════════════════════════\n" +
+        "DATABASE ENVIRONMENT VALIDATION\n" +
+        "Environment: {Environment}\n" +
+        "Database: {DatabaseName}\n" +
+        "Server: AHHOME\n" +
+        "═══════════════════════════════════════════════════════════════",
+        environment, databaseName);
+
+    // ───────────────────────────────────────────────────────────────────
+    // RULE 1: Development → KSESSIONS_DEV ONLY
+    // ───────────────────────────────────────────────────────────────────
+    if (environment.Equals("Development", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!databaseName.Contains("KSESSIONS_DEV", StringComparison.OrdinalIgnoreCase))
+        {
+            var errorMessage =
+                "\n╔═══════════════════════════════════════════════════════════════╗\n" +
+                "║ 🚨 CRITICAL CONFIGURATION ERROR - APPLICATION STOPPED        ║\n" +
+                "╠═══════════════════════════════════════════════════════════════╣\n" +
+                "║ Development environment MUST connect to KSESSIONS_DEV        ║\n" +
+                "║                                                               ║\n" +
+                $"║ Current Configuration:                                        ║\n" +
+                $"║   Environment: {environment,-46} ║\n" +
+                $"║   Database: {databaseName,-49} ║\n" +
+                $"║   Expected: KSESSIONS_DEV                                     ║\n" +
+                "║                                                               ║\n" +
+                "║ DANGER: This would corrupt production Islamic learning data! ║\n" +
+                "║                                                               ║\n" +
+                "║ FIX:                                                          ║\n" +
+                "║   1. Verify appsettings.Development.json exists               ║\n" +
+                "║   2. Ensure it contains: Database=KSESSIONS_DEV               ║\n" +
+                "║   3. Remove any appsettings.local.json override files         ║\n" +
+                "║   4. Run: .\\Scripts\\validate-dev-setup.ps1 -Fix               ║\n" +
+                "╚═══════════════════════════════════════════════════════════════╝\n";
+
+            app.Logger.LogCritical(errorMessage);
+            throw new InvalidOperationException(
+                $"CRITICAL: Development environment cannot connect to {databaseName}. " +
+                "Expected KSESSIONS_DEV. See console for details.");
+        }
+    }
+
+    // ───────────────────────────────────────────────────────────────────
+    // RULE 2: Production → KSESSIONS ONLY (not KSESSIONS_DEV)
+    // ───────────────────────────────────────────────────────────────────
+    if (environment.Equals("Production", StringComparison.OrdinalIgnoreCase))
+    {
+        if (databaseName.Contains("KSESSIONS_DEV", StringComparison.OrdinalIgnoreCase))
+        {
+            var errorMessage =
+                "\n╔═══════════════════════════════════════════════════════════════╗\n" +
+                "║ 🚨 CRITICAL SECURITY VIOLATION - APPLICATION STOPPED         ║\n" +
+                "╠═══════════════════════════════════════════════════════════════╣\n" +
+                "║ Production environment MUST NOT connect to KSESSIONS_DEV     ║\n" +
+                "║                                                               ║\n" +
+                $"║ Current Configuration:                                        ║\n" +
+                $"║   Environment: {environment,-46} ║\n" +
+                $"║   Database: {databaseName,-49} ║\n" +
+                $"║   Expected: KSESSIONS                                         ║\n" +
+                "║                                                               ║\n" +
+                "║ DANGER: This exposes production users to test data!          ║\n" +
+                "║                                                               ║\n" +
+                "║ FIX:                                                          ║\n" +
+                "║   1. Check deployment configuration                           ║\n" +
+                "║   2. Verify appsettings.Production.json has KSESSIONS         ║\n" +
+                "║   3. Remove any appsettings.local.json override files         ║\n" +
+                "║   4. Restart IIS app pool: Restart-WebAppPool NoorCanvas      ║\n" +
+                "╚═══════════════════════════════════════════════════════════════╝\n";
+
+            app.Logger.LogCritical(errorMessage);
+            throw new InvalidOperationException(
+                $"CRITICAL SECURITY VIOLATION: Production cannot connect to {databaseName}. " +
+                "Expected KSESSIONS. Application stopped to prevent data corruption.");
+        }
+    }
+
+    app.Logger.LogInformation(
+        "✅ Database environment validation PASSED: {Environment} → {DatabaseName}",
+        environment, databaseName);
+}
+else
+{
+    app.Logger.LogWarning("⚠️  No DefaultConnection found in configuration!");
+}
+// ═══════════════════════════════════════════════════════════════════════════════
 
 // NOOR CANVAS STARTUP VALIDATION - Prevent configuration issues like Issue-62
 ValidateStartupConfiguration(app.Services);

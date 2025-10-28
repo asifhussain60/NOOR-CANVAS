@@ -16,7 +16,7 @@ The agent will attempt to infer the key in this order:
 
 1. **Thread History:** Check conversation history for most recently used key in this session
 2. **Terminal Commands:** Review `#terminalLastCommand`, `#getTerminalOutput` for context clues
-3. **Recent Keys:** Query `.github/prompts.keys/` for recently modified key files
+3. **Recent Keys:** Query `.github/key-data-streams/` for recently modified key files
 4. **User Clarification:** If uncertain after all attempts, halt and request explicit key
 
 ### Rationale
@@ -25,7 +25,7 @@ Work within a session typically relates to the same key context unless explicitl
 
 ### Key File Location
 
-`.github/prompts.keys/**/{key}.md` or `.github/prompts.keys/{category}/{key}.md`
+`.github/key-data-streams/**/{key}.md` or `.github/key-data-streams/{category}/{key}.md`
 
 ---
 
@@ -439,7 +439,7 @@ When `debug-level=doc`:
 6. Step 7: Summary of documentation generated
 7. Step 8: Key data stream updated with implementation plan
 
-Output: Complete technical specification in `.github/prompts.keys/{key}/implementation-plan.md`
+Output: Complete technical specification in `.github/key-data-streams/{key}/implementation-plan.md`
 
 ### Verbosity Impact Across Steps
 

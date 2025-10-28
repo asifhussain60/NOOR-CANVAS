@@ -3,11 +3,25 @@ mode: agent
 description: Generate Playwright end-to-end tests (functional and visual) with orchestration, browser-log guards, and key-scoped placement.
 ---
 
+<!-- Metadata (non-frontmatter, lint-safe) -->
+> purpose: Create Playwright tests and orchestration artifacts bound to a key data stream
+> inputs: key, scenario, phase, auto-chain, auto-execute, -test
+> outputs: .spec.ts files, orchestration scripts, updated test registry and report
+> lastUpdated: 2025-10-28
+> stateTracking: enabled
+> acceptsFrom: [task, plan, route]
+> calls: [todo, task, plan]
+
 # Test Generation Agent
 
-**Version:** 1.1.0  
-**Last Updated:** 2025-10-22  
+**Version:** 1.3.0  
+**Last Updated:** 2025-10-28  
 **Changelog:**
+- **v1.3.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/commit logging. Log test generation requests and commits after test creation.
+- Add Post-Generation Handoff Protocol with actionable options (A-F)
+- Support routing from route.prompt.md with intelligent test detection
+- Add handoff to todo/task/plan for test refinement and expansion
+- Enhanced "What would you like to do next?" with smart recommendations
 - Add canonical references to shared/playwright-test-generation.md and shared/test-orchestration-patterns.md for centralized guidance
 
 ---
@@ -18,7 +32,7 @@ Follow `.github/prompts/shared/commit-message-format.md` with added rollback met
 - Types: `ckpt`, `test` (use `test` for generated/updated tests and orchestration scripts)
 - Format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
   - Example: `test({key}): add scenario 'asset-card-visibility' [sha=abc1234] [parent=zz99yy1]`
-- Rollback Index: Append a row to `.github/prompts.keys/{key}/rollback-index.md` after generating tests
+- Rollback Index: Append a row to `.github/key-data-streams/{key}/rollback-index.md` after generating tests
 
 When invoked standalone (not via task prompt), create a checkpoint before generating tests using the `ckpt` type and tag it (see task conventions). Otherwise, reuse the latest `ckpt` parent from the task flow.
 
@@ -31,11 +45,199 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - AFTER implementation (tests generated): include Work Requested (with key), Tasks completed ([x]), Next steps (how to run selectively/all), the attachments note, and **Next Actions (2-4 clear options with letter-based selection A, B, C, D)**.
 - **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
 
+## Post-Generation Handoff Protocol (MANDATORY)
+
+**After test generation**, ALWAYS present actionable next steps in "What would you like to do next?" section:
+
+**Actionable Handoff Options:**
+- **A.** Execute generated tests now (run orchestration script)
+- **B.** Add more test scenarios (extend with todo)
+- **C.** Refine tests with task (modify selectors, add assertions)
+- **D.** Turn into comprehensive test plan (multiple test suites)
+- **E.** Review test registry (see all generated tests)
+- **F.** Nothing, I'm all set
+
+**Format:**
+```markdown
+## What would you like to do next?
+
+**A.** Execute tests (run orchestration script) ⭐  
+**B.** Add more scenarios (todo - extend current tests)  
+**C.** Refine tests (task - modify implementation)  
+**D.** Create test plan (plan - comprehensive test suite)  
+**E.** Review test registry  
+**F.** Nothing, I'm all set
+```
+
+### Handoff Flow
+
+**If user selects A (Execute tests):**
+```
+1. Run the generated orchestration script
+2. Report test results (pass/fail/skipped)
+3. Show Percy visual diffs (if visual test)
+4. Offer re-run or refinement options
+```
+
+**If user selects B (Add more scenarios):**
+```
+1. Preserve current key
+2. Accept new test scenario from user
+3. Invoke todo.prompt.md with:
+   - key: {current-key}
+   - task: "Add test scenario: {new-scenario}"
+   - context: {existing-tests + test-registry}
+```
+
+**If user selects C (Refine tests):**
+```
+1. Accept refinement request (selectors, assertions, timeouts)
+2. Invoke task.prompt.md with:
+   - key: {current-key}
+   - tasks: [{refinement-details}]
+   - context: {generated-test-file + orchestration-script}
+```
+
+**If user selects D (Create test plan):**
+```
+1. Extract comprehensive test requirements
+2. Invoke plan.prompt.md with:
+   - key: {current-key}
+   - user_request: "Create comprehensive test plan for {feature}"
+   - context: {generated-tests + test-scenarios}
+```
+
+**If user selects E (Review registry):**
+```
+1. Display test registry contents
+2. Show test execution history
+3. Offer execution or refinement options
+```
+
+**If user selects F (Nothing):**
+```
+1. End interaction gracefully
+2. Remind user of orchestration script location
+```
+
+### Intelligent Handoff Recommendations
+
+When presenting "What would you like to do next?" options, provide smart recommendations:
+
+**Recommend Execute (A) when:**
+- Tests successfully generated with no errors
+- Orchestration script created
+- Test infrastructure validated
+- No blocking issues detected
+
+**Recommend Add Scenarios (B) when:**
+- Single scenario generated
+- User might want edge cases
+- Test coverage incomplete
+
+**Recommend Refine (C) when:**
+- First-time test generation for feature
+- Complex selectors used
+- Timeouts or waits might need adjustment
+
+**Recommend Test Plan (D) when:**
+- Multiple test types needed (functional + visual)
+- Complex feature with many scenarios
+- Multi-phase testing approach suggested
+
+**Example Smart Recommendation:**
+```markdown
+## What would you like to do next?
+
+💡 **Recommended: A** (Tests ready to execute - infrastructure validated)
+
+**A.** Execute tests (run orchestration script) ⭐  
+**B.** Add more scenarios (todo - extend current tests)  
+**C.** Refine tests (task - modify implementation)  
+**D.** Create test plan (plan - comprehensive test suite)  
+**E.** Review test registry  
+**F.** Nothing, I'm all set
+```
+
+## Parameters
+
+### key *(required)*
+Test generation key identifier. Must match existing key data stream.
+
+### -test *(flag, optional)*
+Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
+
+**Behavior:**
+1. Execute test-generation workflow normally (create .spec.ts files, update test registry)
+2. After completion, run validation checks specific to test-generation.prompt.md
+3. Generate validation report with quality score (0-100)
+4. If violations or quality issues: generate improvement recommendations
+5. Present findings to user
+
+**Example:**
+```bash
+@workspace /test key=my-feature -test scenario="user-login"
+@workspace /test key=ui-refresh -test
+```
+
+**Test-Generation-Specific Validation Checks:**
+- ✓ Test files created (.spec.ts in Tests/UI/ directory)
+- ✓ Test registry updated (`.github/key-data-streams/{key}/tests/test-registry.md`)
+- ✓ Test coverage types appropriate (Percy for UI changes, functional for API)
+- ✓ Valid test structure (test() or it() blocks present)
+- ✓ Browser-log guards implemented where needed
+- ✓ Orchestration scripts created for complex scenarios
+- ✓ Commit message format followed (test(key): description)
+
+**Validation Report Example:**
+```markdown
+📊 Test Generation Validation Report
+
+Quality Score: 90/100 (Excellent)
+
+✅ Critical: 0 violations
+✅ High: 0 issues
+📋 Medium: 1 missed requirement
+  - Percy snapshots not included for UI component test
+
+What would you like to do next?
+A. Accept tests (quality excellent)
+B. Add Percy snapshots for visual regression
+C. Review detailed test coverage analysis
+D. Execute generated tests
+```
+
+**See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
+
+### scenario *(optional)*
+Specific test scenario to generate (e.g., "asset-card-visibility", "participant-registration-flow")
+- If specified, generate only that scenario's tests
+- If omitted, generate all tests for the key based on plan
+
+### phase *(optional)*
+Specific phase number from plan to generate tests for
+- Used in conjunction with auto-chain for phase-based test generation
+- If omitted, generate tests based on scenario or key
+
+### auto-chain *(default=`false`)*
+Enable automatic test generation → execution → validation without user intervention
+- `true` - Auto-execute generated tests and update test registry
+- `false` - Wait for user approval to execute tests
+
+### auto-execute *(default=`false`)*
+Automatically run generated tests after creation
+- `true` - Execute tests immediately and report results
+- `false` - Only generate tests, do not execute
+
 
 ## Canonical Playwright Guidance
 For detailed patterns, decision matrices, and examples, see:
 - `.github/prompts/shared/playwright-test-generation.md` (selectors, wait strategies, Percy usage, multi-user flows)
 - `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management)
+
+See Also:
+- `.github/prompts/shared/validation-engine.md`
+- `.github/prompts/shared/integration-protocol.md`
 
 
 ## Initial Validation (MANDATORY)
@@ -48,7 +250,7 @@ For detailed patterns, decision matrices, and examples, see:
 
 **Validation:**
 
-1. **Check if key folder exists**: `.github/prompts.keys/{key}/`
+1. **Check if key folder exists**: `.github/key-data-streams/{key}/`
    - If NOT exists → HALT immediately
    - Error message to user:
     ```powershell
@@ -58,7 +260,7 @@ For detailed patterns, decision matrices, and examples, see:
 
     # Update rollback index with lineage
     $sha = (git rev-parse --short HEAD).Trim()
-    $dir = ".github/prompts.keys/{key}"
+    $dir = ".github/key-data-streams/{key}"
     $idx = Join-Path $dir "rollback-index.md"
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
     if (-not (Test-Path $idx)) {
@@ -85,15 +287,15 @@ For detailed patterns, decision matrices, and examples, see:
      ```
    - **EXIT with status code 1**
 
-2. **Check if test directory exists**: `.github/prompts.keys/{key}/tests/`
+2. **Check if test directory exists**: `.github/key-data-streams/{key}/tests/`
    - If NOT exists → Create it automatically
-   - Log: `"Created test directory: .github/prompts.keys/{key}/tests/"`
+   - Log: `"Created test directory: .github/key-data-streams/{key}/tests/"`
 
-3. **Check if scripts directory exists**: `.github/prompts.keys/{key}/scripts/`
+3. **Check if scripts directory exists**: `.github/key-data-streams/{key}/scripts/`
    - If NOT exists → Create it automatically
-   - Log: `"Created scripts directory: .github/prompts.keys/{key}/scripts/"`
+   - Log: `"Created scripts directory: .github/key-data-streams/{key}/scripts/"`
 
-4. **Check if test registry exists**: `.github/prompts.keys/{key}/tests/test-registry.md`
+4. **Check if test registry exists**: `.github/key-data-streams/{key}/tests/test-registry.md`
    - If NOT exists → Create it using template (see Test Registry Protocol below)
    - If exists → Load for deduplication check
 
@@ -181,12 +383,12 @@ git commit -m "test({key}): {short summary of scenario}"
 for /f %i in ('git rev-parse --short HEAD') do set _TSHA=%i
 
 # Resolve latest checkpoint parent (short) from rollback-index (if present)
-powershell -NoProfile -Command "if (Test-Path '.github/prompts.keys/{key}/rollback-index.md') { (Get-Content '.github/prompts.keys/{key}/rollback-index.md' | Select-String -Pattern '\| .* \| ckpt \| .* \| ([0-9a-f]{7,8}) \|' -AllMatches | Select-Object -Last 1).Matches.Groups[1].Value }"
+powershell -NoProfile -Command "if (Test-Path '.github/key-data-streams/{key}/rollback-index.md') { (Get-Content '.github/key-data-streams/{key}/rollback-index.md' | Select-String -Pattern '\| .* \| ckpt \| .* \| ([0-9a-f]{7,8}) \|' -AllMatches | Select-Object -Last 1).Matches.Groups[1].Value }"
 
 # Append row
-powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); $parent=(git log --oneline -n 1 --grep '^ckpt\(' | ForEach-Object { ($_ -split ' ')[0] }); if (!(Test-Path '.github/prompts.keys/{key}/rollback-index.md')) { Add-Content '.github/prompts.keys/{key}/rollback-index.md' '# Rollback Index for {key}'; Add-Content '.github/prompts.keys/{key}/rollback-index.md' ''; Add-Content '.github/prompts.keys/{key}/rollback-index.md' '| Date | Type | Summary | SHA | Parent |'; Add-Content '.github/prompts.keys/{key}/rollback-index.md' '|------|------|---------|-----|--------|'; }; Add-Content '.github/prompts.keys/{key}/rollback-index.md' \"| $d | test | {short summary of scenario} | $sha | $parent |\""
+powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); $parent=(git log --oneline -n 1 --grep '^ckpt\(' | ForEach-Object { ($_ -split ' ')[0] }); if (!(Test-Path '.github/key-data-streams/{key}/rollback-index.md')) { Add-Content '.github/key-data-streams/{key}/rollback-index.md' '# Rollback Index for {key}'; Add-Content '.github/key-data-streams/{key}/rollback-index.md' ''; Add-Content '.github/key-data-streams/{key}/rollback-index.md' '| Date | Type | Summary | SHA | Parent |'; Add-Content '.github/key-data-streams/{key}/rollback-index.md' '|------|------|---------|-----|--------|'; }; Add-Content '.github/key-data-streams/{key}/rollback-index.md' \"| $d | test | {short summary of scenario} | $sha | $parent |\""
 
-git add .github/prompts.keys/{key}/rollback-index.md
+git add .github/key-data-streams/{key}/rollback-index.md
 git commit -m "meta({key}): update rollback-index [sha=%_TSHA%]"
 ```
 
@@ -194,11 +396,134 @@ This guarantees the last 10 commits show a clear sequence: checkpoint → test g
 
 ---
 
+## Auto-Drift Detection (MANDATORY)
+
+During test generation, automatically detect and register unrelated issues discovered while analyzing test infrastructure.
+
+### Detection Triggers
+
+**Test Infrastructure Analysis**:
+- Missing test dependencies (Playwright packages, config issues)
+- Test framework configuration errors (playwright.config.ts)
+- Percy integration issues (API key, snapshot setup)
+- Broken test utilities or fixtures
+
+**Test Execution Phase**:
+- Unexpected test failures in unrelated test suites
+- Server startup issues during orchestration
+- Browser automation errors (timeout/selector issues)
+- Visual regression failures outside current scope
+
+**Test Review**:
+- Duplicate test scenarios (overlap with existing tests)
+- Inconsistent selector patterns (not following canonical rules)
+- Missing accessibility validations
+- Performance issues in test execution
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION TestGenerationDetectDrift(currentKey, issue, phase, severity)
+  
+  // Check if issue relates to current test generation work
+  IF IsRelatedToCurrentTests(issue, currentKey) THEN
+    RETURN "NOT_DRIFT"  // Fix as part of current work
+  END IF
+  
+  // For infrastructure issues, may need immediate attention
+  IF severity == "critical" AND phase == "test-infrastructure" THEN
+    HALT_GENERATION()
+    PRESENT_USER_CHOICE(
+      options: [
+        "Fix infrastructure now (pause test generation)",
+        "Generate tests anyway (may fail)",
+        "Abort generation (rollback)"
+      ]
+    )
+    AWAIT_USER_DECISION()
+  END IF
+  
+  // For non-critical issues, register silently
+  driftKey = GenerateDriftKey(issue)
+  
+  RegisterDrift(
+    parentKey: currentKey,
+    driftKey: driftKey,
+    description: issue,
+    severity: severity,
+    mode: "auto",
+    triggeredBy: "test-generation.prompt.md",
+    phase: phase  // "test-infrastructure" | "test-execution" | "test-review"
+  )
+  
+  LogToWorkLog("🔍 Test drift detected: {driftKey} (severity: {severity}, phase: {phase})")
+  CONTINUE_TEST_GENERATION()
+  
+END FUNCTION
+```
+
+### Critical Infrastructure Blocking
+
+When `severity=critical` AND `phase=test-infrastructure`, execution **HALTS**:
+
+**Presentation Format**:
+```
+⚠️ CRITICAL TEST INFRASTRUCTURE ISSUE
+
+Issue: {description}
+Severity: CRITICAL
+Phase: Test Infrastructure Setup
+
+Generated tests may fail without fixing this. Choose one:
+1️⃣ Fix infrastructure now (pause test generation)
+2️⃣ Generate tests anyway (may fail during execution)
+3️⃣ Abort generation (rollback to checkpoint)
+
+Your choice (1/2/3):
+```
+
+**User Choice Handling**:
+- **Fix now**: Register drift with `mode: "user-critical"`, pause generation, fix infrastructure, resume
+- **Generate anyway**: Register drift with `mode: "auto-deferred"`, add warning comment in orchestration script
+- **Abort**: Rollback, present infrastructure issue as standalone work
+
+### Severity Classification
+
+- **critical**: Missing Playwright packages, broken config, server won't start (HALT for infrastructure)
+- **high**: Failing existing tests, broken utilities, Percy misconfigured
+- **medium**: Duplicate tests, selector inconsistencies, missing validations
+- **low**: Documentation gaps in tests, formatting issues
+- **informational**: Performance observations, optimization suggestions
+
+### Drift Commit Format
+
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | user-critical | auto-deferred
+Severity: {level}
+Triggered by: test-generation.prompt.md
+Phase: {test-infrastructure|test-execution|test-review}
+```
+
+### Silent Logging
+
+**During Test Generation** (no chat interruption):
+- Append to `{key}.plan.md`: "🔍 Test drift: {drift-key} (phase: {phase})"
+- Append to `work-log.md`: Full drift details
+- Add warning comment in orchestration script if infrastructure issue deferred
+
+**At Test Generation Completion**:
+- Present drift summary sorted by severity
+- Recommend fixing critical infrastructure drifts before running tests
+- User decides resolution order
+
+---
+
 ## Plan Integration Protocol
 
 **WHEN invoked with `key` parameter:**
 
-1. **Check for test specification in plan**: `.github/prompts.keys/{key}/{key}.plan.md`
+1. **Check for test specification in plan**: `.github/key-data-streams/{key}/{key}.plan.md`
 2. **If plan exists:**
    - Locate current phase's "Playwright Test Specification" section
    - Use specified test scenarios (already defined by plan)
@@ -206,7 +531,7 @@ This guarantees the last 10 commits show a clear sequence: checkpoint → test g
    - Use specified mode (headed/headless), Percy requirements
    - Use specified orchestration script template (if provided)
    - Generate test matching plan's exact specifications
-   - Update test registry at `.github/prompts.keys/{key}/tests/test-registry.md`
+   - Update test registry at `.github/key-data-streams/{key}/tests/test-registry.md`
    - Check for duplicate tests before generation
 3. **If plan missing:**
    - Use current test-generation.prompt.md behavior (infer from parameters)
@@ -235,6 +560,34 @@ PORT POLICY: The NoorCanvas app must always bind to HTTPS on port 9091 only.
 - Do NOT bind to http://localhost:9090 (prevents port conflicts and Kestrel binding errors)
 
 CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
+
+---
+
+## Execution Steps
+
+### Step -1: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the test generation request
+Update-StateRequest -Key $key -Type "test-generation" -UserRequest $scenario -PromptChain @("route", "test-generation")
+```
+
+**After test file commits:**
+```powershell
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "test({key}): Generated {test-type} test for {scenario}" -CheckpointType "test-generation"
+```
+
+**Purpose:**
+- Track test generation activities
+- Record test scenarios and commits
+- Enable test coverage timeline reconstruction
+
+---
 
 ### 1. Server Management Protocol
 
@@ -422,11 +775,11 @@ Receive from task.prompt.md or plan.prompt.md:
 
 **WHEN plan exists:**
 
-1. **Load orchestration script specification** from `.github/prompts.keys/{key}/{key}.plan.md`
+1. **Load orchestration script specification** from `.github/key-data-streams/{key}/{key}.plan.md`
    - Locate current phase's "Orchestration Script Specification" section
    - Use plan's customized PowerShell template (already tailored for phase requirements)
 
-2. **Generate script** at `.github/prompts.keys/{key}/scripts/run-{feature}-phase{N}-test.ps1`
+2. **Generate script** at `.github/key-data-streams/{key}/scripts/run-{feature}-phase{N}-test.ps1`
    - Use plan's template as base
    - Customize test file path to match generated test
    - Customize health check URL if specified
@@ -438,7 +791,7 @@ Receive from task.prompt.md or plan.prompt.md:
 
 1. **Use canonical template** from `.github/prompts/shared/test-orchestration-patterns.md`
 2. **Generate generic orchestration script** with standard health check
-3. **Save to** `.github/prompts.keys/{key}/scripts/run-{key}-{feature}-test.ps1`
+3. **Save to** `.github/key-data-streams/{key}/scripts/run-{key}-{feature}-test.ps1`
 4. **Document in test registry**
 
 **Script Naming Convention:**
@@ -564,7 +917,7 @@ Receive from task.prompt.md or plan.prompt.md:
 migration-{YYYYMMDD-HHMMSS}-{key}-{description}-validation.spec.ts
 ```
 
-**Location**: `.github/prompts.keys/{key}/tests/`
+**Location**: `.github/key-data-streams/{key}/tests/`
 
 **Example File**: `migration-20251020-143000-user-landing-add-canvastype-validation.spec.ts`
 
@@ -726,7 +1079,7 @@ test.describe('Migration Validation: {migration-description}', () => {
 
 **Orchestration Script for Migration Tests:**
 
-Location: `.github/prompts.keys/{key}/scripts/run-migration-{timestamp}-validation-test.ps1`
+Location: `.github/key-data-streams/{key}/scripts/run-migration-{timestamp}-validation-test.ps1`
 
 ```powershell
 # ============================================================================
@@ -773,7 +1126,7 @@ Write-Host "  ⚠️ Backup skipped (optional step)" -ForegroundColor Yellow
 
 # Step 3: Run migration validation tests
 Write-Host "[3/4] Running migration validation tests..." -ForegroundColor Cyan
-$testFile = ".github/prompts.keys/{key}/tests/migration-{timestamp}-{key}-{description}-validation.spec.ts"
+$testFile = ".github/key-data-streams/{key}/tests/migration-{timestamp}-{key}-{description}-validation.spec.ts"
 
 $playwrightArgs = @(
     "test",
@@ -867,9 +1220,9 @@ Examples:
 - `question-multi-user-sync.spec.ts`
 
 ### Test Location
-- **ALL new tests**: `.github/prompts.keys/{key}/tests/` (MANDATORY - within key data stream)
-- **Test Registry**: `.github/prompts.keys/{key}/tests/test-registry.md` (log of all tests for this key)
-- **Orchestration Scripts**: `.github/prompts.keys/{key}/scripts/` (test execution scripts)
+- **ALL new tests**: `.github/key-data-streams/{key}/tests/` (MANDATORY - within key data stream)
+- **Test Registry**: `.github/key-data-streams/{key}/tests/test-registry.md` (log of all tests for this key)
+- **Orchestration Scripts**: `.github/key-data-streams/{key}/scripts/` (test execution scripts)
 - **Production promotion**: Tests copy to `Tests/UI/` ONLY during task completion workflow (Step 9)
 - **Temporary cleanup**: Tests in key directory deleted after production promotion
 - **Rationale**: 
@@ -882,7 +1235,7 @@ Examples:
 
 **Before generating any test:**
 
-1. **Check if test registry exists**: `.github/prompts.keys/{key}/tests/test-registry.md`
+1. **Check if test registry exists**: `.github/key-data-streams/{key}/tests/test-registry.md`
    - If missing → Create new registry using template below
    - If exists → Load and parse for duplicate detection
 
@@ -948,7 +1301,7 @@ Examples:
 
 **Directory Structure Example:**
 ```
-.github/prompts.keys/canvas/
+.github/key-data-streams/canvas/
 ├── canvas.md (key data stream)
 ├── tests/
 │   ├── test-registry.md (log of all tests)
@@ -960,7 +1313,7 @@ Examples:
     └── run-question-deletion-test.ps1
 ```
 
-**Test Registry Format** (`.github/prompts.keys/{key}/tests/test-registry.md`):
+**Test Registry Format** (`.github/key-data-streams/{key}/tests/test-registry.md`):
 ```markdown
 # Test Registry: {key}
 
@@ -1517,9 +1870,9 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 - {Brief bullet about test scenario 2}
 - {Brief bullet about test scenario 3}
 
-### Next Steps
+## 🎯 What Would You Like To Do Next?
 - Run test: `.\Scripts\{script-name}.ps1`
-- View details: `.github/prompts.keys/{key}/tests/test-registry.md`
+- View details: `.github/key-data-streams/{key}/tests/test-registry.md`
 ```
 
 **RULES:**
@@ -1536,7 +1889,7 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 
 Generate complete TypeScript test file, PowerShell orchestration script, AND update test registry:
 
-### 1. TypeScript Test File (.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts)
+### 1. TypeScript Test File (.github/key-data-streams/{key}/tests/{feature}-{test-type}.spec.ts)
 
 **Generation Strategy:**
 
@@ -1563,7 +1916,7 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 6. **Cleanup**: Proper context/page closure in finally blocks
 7. **Documentation**: Inline comments explaining critical waits and assertions
 
-### 2. PowerShell Orchestration Script (.github/prompts.keys/{key}/scripts/run-{feature}-test.ps1)
+### 2. PowerShell Orchestration Script (.github/key-data-streams/{key}/scripts/run-{feature}-test.ps1)
 
 > **MANDATORY**: Follow canonical patterns from `.github/prompts/shared/test-orchestration-patterns.md`
 
@@ -1580,7 +1933,7 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 3. **App launch**: `$app = Start-Process ... -PassThru -WindowStyle Minimized`
 4. **try block start**: Wrap health check and test execution
 5. **Health check polling**: Loop with 500ms intervals, timeout after 60 seconds
-6. **Test execution**: `npx playwright test ".github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed`
+6. **Test execution**: `npx playwright test ".github/key-data-streams/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed`
 7. **finally block**: `Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue`
 
 **Example** (see test-orchestration-patterns.md for complete template with comments):
@@ -1606,14 +1959,14 @@ try {
         }
     } while ($true)
     
-    npx playwright test ".github/prompts.keys/{key}/tests/{feature}.spec.ts" --reporter=list
+    npx playwright test ".github/key-data-streams/{key}/tests/{feature}.spec.ts" --reporter=list
 }
 finally {
     Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
 }
 ```
 
-### 3. Test Registry Update (.github/prompts.keys/{key}/tests/test-registry.md)
+### 3. Test Registry Update (.github/key-data-streams/{key}/tests/test-registry.md)
 
 **Deduplication Check (MANDATORY):**
 1. **Load registry** (create if missing using template)
@@ -1648,13 +2001,13 @@ finally {
 ## Test Lifecycle Management
 
 ### Test Creation (Step 6.1 of task.prompt.md)
-1. Generate test file in `.github/prompts.keys/{key}/tests/`
-2. Generate orchestration script in `.github/prompts.keys/{key}/scripts/`
+1. Generate test file in `.github/key-data-streams/{key}/tests/`
+2. Generate orchestration script in `.github/key-data-streams/{key}/scripts/`
 3. Update test registry with new entry
 4. Document test paths in key data stream
 
 ### Test Execution (During Development)
-1. Run via orchestration script: `.\github\prompts.keys\{key}\scripts\run-{feature}-test.ps1`
+1. Run via orchestration script: `.\github\key-data-streams\{key}\scripts\run-{feature}-test.ps1`
 2. Update test registry with execution results (Last Run, Status)
 3. Document test results in key data stream
 
@@ -1677,9 +2030,81 @@ finally {
 
 ### Test Cleanup (Automatic)
 - **When**: Step 9 (Completion Workflow) OR when tests become obsolete
-- **What**: Delete test files from `.github/prompts.keys/{key}/tests/`
+- **What**: Delete test files from `.github/key-data-streams/{key}/tests/`
 - **Why**: Prevent folder bloat, maintain single source of truth (production)
 - **Preserve**: Test registry entries (archived section for history)
+
+---
+
+## Auto-Chain Protocol (if auto-chain=true)
+
+**Trigger:** `auto-chain` parameter = `true`
+
+**Purpose:** Enable unassisted test generation → execution → validation → next scenario without user intervention
+
+**Algorithm:**
+```
+IF auto-chain == true THEN
+  
+  // Step 1: Generate tests for current scenario
+  GenerateTests(key, scenario, phase)
+  
+  // Step 2: Auto-execute if auto-execute=true
+  IF auto-execute == true THEN
+    Write-Host "🧪 Executing generated tests..." -ForegroundColor Cyan
+    
+    orchestrationScript = `.github/key-data-streams/{key}/scripts/run-{scenario}-test.ps1`
+    result = ExecuteScript(orchestrationScript)
+    
+    // Update test registry with results
+    UpdateTestRegistry(key, scenario, result)
+    
+    IF result.status == "failed" THEN
+      HALT("Tests failed - cannot auto-chain")
+      SHOW_ROLLBACK_OPTIONS()
+      EXIT
+    END IF
+    
+    Write-Host "✅ Tests passed for scenario: {scenario}" -ForegroundColor Green
+  END IF
+  
+  // Step 3: Check if more scenarios exist for this phase
+  plan = LoadPlanJSON(key)
+  scenarioList = GetScenariosForPhase(plan, phase)
+  currentIndex = FindScenarioIndex(scenarioList, scenario)
+  nextScenario = scenarioList[currentIndex + 1]
+  
+  IF nextScenario EXISTS THEN
+    // Auto-invoke next scenario
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host "📍 Auto-chaining to next scenario: {nextScenario}" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host ""
+    
+    SELF_INVOKE: @workspace /test-gen key:{key} scenario:{nextScenario} phase:{phase} auto-chain:true auto-execute:true
+    
+  ELSE
+    // All scenarios complete for this phase
+    Write-Host "✅ All test scenarios complete for Phase {phase}!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Returning to task agent for phase completion..." -ForegroundColor Cyan
+    
+    STOP_AUTO_CHAIN()
+  END IF
+  
+END IF
+```
+
+**Integration with execute-plan.ps1:**
+- When test-generation.prompt.md invoked via task.prompt.md with auto-chain=true
+- Auto-executes generated tests and validates results
+- Automatically chains to next test scenario if multiple scenarios exist
+- Halts on test failure with rollback options
+
+**User Break Points:**
+- User can Ctrl+C at any time to halt auto-chain
+- Test failures halt auto-chain automatically
+- Errors halt auto-chain with rollback options
 
 ---
 
@@ -1694,8 +2119,8 @@ finally {
 - [PASS] Monitors console for critical errors
 - [PASS] Validates API responses against expected data
 - [PASS] Includes cleanup in finally blocks
-- [PASS] Test file saved to `.github/prompts.keys/{key}/tests/` (within key data stream)
-- [PASS] Orchestration script saved to `.github/prompts.keys/{key}/scripts/`
+- [PASS] Test file saved to `.github/key-data-streams/{key}/tests/` (within key data stream)
+- [PASS] Orchestration script saved to `.github/key-data-streams/{key}/scripts/`
 - [PASS] Test registry updated with new test entry
 - [PASS] No duplicate tests created (registry checked first)
 - [PASS] ASCII-only characters in PowerShell scripts
@@ -1719,7 +2144,7 @@ finally {
 - `phase`: Phase number (if from plan) - used for registry tracking and naming
 
 **Context Sources**:
-- **Primary**: `.github/prompts.keys/{key}/{key}.plan.md` (if exists - test specification, System Context Pack)
+- **Primary**: `.github/key-data-streams/{key}/{key}.plan.md` (if exists - test specification, System Context Pack)
 - **Fallback**: Parameters + canonical patterns + decision matrix
 
 **Returns to**: 
@@ -1728,9 +2153,9 @@ finally {
 - Test registry with duplicate detection results
 
 **Artifacts Generated**:
-1. TypeScript test file in `.github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts`
-2. PowerShell orchestration script in `.github/prompts.keys/{key}/scripts/run-{feature}-test.ps1`
-3. Test registry entry in `.github/prompts.keys/{key}/tests/test-registry.md`
+1. TypeScript test file in `.github/key-data-streams/{key}/tests/{feature}-{test-type}.spec.ts`
+2. PowerShell orchestration script in `.github/key-data-streams/{key}/scripts/run-{feature}-test.ps1`
+3. Test registry entry in `.github/key-data-streams/{key}/tests/test-registry.md`
 4. Execution instructions (how to run the tests)
 5. Server management guidance (when to use orchestration vs webServer)
 
@@ -1739,15 +2164,15 @@ finally {
 ## Test Coverage
 
 ### Active Tests (In Key Directory)
-- **Test File**: .github/prompts.keys/{key}/tests/{feature}-{test-type}.spec.ts
-- **Orchestration Script**: .github/prompts.keys/{key}/scripts/run-{script-name}.ps1
+- **Test File**: .github/key-data-streams/{key}/tests/{feature}-{test-type}.spec.ts
+- **Orchestration Script**: .github/key-data-streams/{key}/scripts/run-{script-name}.ps1
 - **Test Type**: {Functional E2E | Visual Regression | Both}
 - **Session Data**: Session 212 (Host: PQ9N5YWW, User: KJAHA99L)
-- **Execution**: `.\.github\prompts.keys\{key}\scripts\run-{script-name}.ps1`
+- **Execution**: `.\.github\key-data-streams\{key}\scripts\run-{script-name}.ps1`
 - **Expected Result**: {description of expected test outcomes}
 - **Status**: Active (pending promotion to production)
 - **Plan Reference**: {key}.plan.md Phase {N} (if from plan, otherwise "Ad-hoc generation")
-- **Test Registry**: .github/prompts.keys/{key}/tests/test-registry.md (entry created)
+- **Test Registry**: .github/key-data-streams/{key}/tests/test-registry.md (entry created)
 
 ### Test Generation Context
 - **Source**: {Plan-driven | Parameter-driven}

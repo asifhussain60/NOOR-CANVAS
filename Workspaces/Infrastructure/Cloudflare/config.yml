@@ -1,0 +1,31 @@
+# Cloudflare Tunnel Configuration
+# Tunnel: noorcanvas
+# Tunnel ID: 5be8b5a1-5d1f-4a9c-803d-e3a1d4383ee1
+# Created: 2025-10-26
+# Authentication: Credentials-based (allows config.yml ingress rules)
+#
+# This is a version-controlled backup of the tunnel configuration.
+# Active config location: C:\Users\asifh\.cloudflared\config.yml
+# 
+# To update active config:
+#   1. Edit this file
+#   2. Copy to: C:\Users\asifh\.cloudflared\config.yml
+#   3. Restart service: Restart-Service CloudflaredTunnel
+
+tunnel: 5be8b5a1-5d1f-4a9c-803d-e3a1d4383ee1
+credentials-file: C:\Users\asifh\.cloudflared\5be8b5a1-5d1f-4a9c-803d-e3a1d4383ee1.json
+
+ingress:
+  # NoorCanvas main site (IIS)
+  - hostname: noorcanvas.kashkole.com
+    service: http://127.0.0.1:80
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: noorcanvas.kashkole.com
+  
+  # Session API (separate service)
+  - hostname: session.kashkole.com
+    service: http://127.0.0.1:8080
+  
+  # Catchall for unmatched hostnames
+  - service: http_status:404

@@ -1,0 +1,20 @@
+{
+  "completedPhases": 0,
+  "filesModified": [],
+  "lastUpdated": "2025-10-28T07:19:43.7647777-04:00",
+  "userDecisions": null,
+  "promptHandoffs": [],
+  "currentPhase": null,
+  "totalPhases": 0,
+  "status": "unknown",
+  "branch": "development",
+  "commits": [],
+  "requests": [],
+  "key": "cohesion-20251027-preview",
+  "driftKeys": [],
+  "tags": {},
+  "created": "2025-10-28T07:19:43.7647094-04:00",
+  "phases": [],
+  "version": "2.0",
+  "estimatedTotalDuration": null
+}

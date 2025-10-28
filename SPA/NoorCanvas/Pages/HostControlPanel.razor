@@ -20,6 +20,7 @@
 @inject SafeHtmlRenderingService SafeHtmlRenderer
 @inject UnifiedHtmlTransformService HtmlTransform
 @inject AssetProcessingService AssetProcessor
+@inject IMediaUrlTransformService MediaUrlTransform
 @inject IDatabaseEnvironmentGuardService DbGuard
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
@@ -426,7 +427,7 @@ else
                 if (Model != null)
                 {
                     Model.SessionTranscript = transcript;
-                    Model.TransformedTranscript = await TransformTranscriptHtmlAsync(transcript);
+                    Model.TransformedTranscript = await TransformTranscriptHtmlAsync(transcript ?? string.Empty);
                     await InvokeAsync(StateHasChanged);
                     Logger.LogInformation("SIGNALR-DIAG: [HCP-TranscriptUpdated] Model updated - DiagId={DiagId}", diagId);
                 }
@@ -1717,13 +1718,25 @@ else
                 return;
             }
 
-            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 2/4: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId}", rawAssetHtml.Length, broadcastId);
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 2/5: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId}", rawAssetHtml.Length, broadcastId);
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 📄 HTML PREVIEW: {HtmlPreview}, broadcastId={BroadcastId}", rawAssetHtml.Substring(0, Math.Min(200, rawAssetHtml.Length)), broadcastId);
 
-            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🚀 STEP 3/4: Broadcasting asset via KSESSIONS-style PublishAssetContent, target=session_{SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
+            // Ensure the HTML matches participant expectations (media URLs + sanitization)
+            var participantReadyHtml = await ProcessAssetForSharing(rawAssetHtml, assetType);
+
+            if (string.IsNullOrEmpty(participantReadyHtml))
+            {
+                Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ Processed HTML empty after transformation, shareId={ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
+                await ShowErrorMessageAsync($"Unable to prepare asset content for {assetType} #{instanceNumber}");
+                return;
+            }
+
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🔄 STEP 3/5: Asset HTML transformed for participant view, final length={Length} chars, broadcastId={BroadcastId}", participantReadyHtml.Length, broadcastId);
+
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🚀 STEP 4/5: Broadcasting asset via KSESSIONS-style PublishAssetContent, target=session_{SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
             
             // [KSESSIONS PATTERN] Direct content broadcasting - no complex object wrapping
-            var shareTask = hubConnection.InvokeAsync("PublishAssetContent", SessionId.Value, rawAssetHtml);
+            var shareTask = hubConnection.InvokeAsync("PublishAssetContent", SessionId.Value, participantReadyHtml);
             var timeoutTask = Task.Delay(5000);
             
             var completedTask = await Task.WhenAny(shareTask, timeoutTask);
@@ -1738,7 +1751,7 @@ else
 
             await shareTask; // Await the actual task to catch any exceptions
             
-            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 4/4: KSESSIONS-style PublishAssetContent completed successfully, SessionId={SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 5/5: KSESSIONS-style PublishAssetContent completed successfully, SessionId={SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
             
             // SignalR broadcast logging preserved for troubleshooting
             Logger.LogInformation("[ASSET-SHARE-BROADCAST] ✅ Asset shared successfully - AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId}", assetType, instanceNumber, broadcastId);
@@ -2629,22 +2642,29 @@ else
             }
 
             Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Extracting raw asset HTML using asset-type-specific pattern matching: {AssetType}", assetType);
-            
-            // [FIX] Use asset-type-specific HTML parsing to extract correct content based on actual assetType
+
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.LoadHtml(Model.SessionTranscript);
-            
+
+            // Prefer an explicit data-asset-id lookup to keep button/asset mappings stable
+            var targetElement = htmlDoc.DocumentNode.SelectSingleNode($"//*[@data-asset-id='{shareId}']");
+            if (targetElement != null)
+            {
+                var directHtml = targetElement.OuterHtml;
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Direct match found for {ShareId}: {Length} chars", shareId, directHtml.Length);
+                return Task.FromResult(directHtml);
+            }
+
             // Dynamically find elements based on the actual asset type
             HtmlAgilityPack.HtmlNodeCollection? assetElements = null;
-            
+
             switch (assetType.ToLowerInvariant())
             {
                 case "ayah-card":
                     assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card')]");
                     break;
                 case "inserted-hadees":
-                    // Try multiple possible hadees class names
-                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'inserted-hadees')] | //div[contains(@class, 'hadees-english')] | //div[contains(@class, 'ks-ahadees-english')]");
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'inserted-hadees') and contains(@class, 'ks-ahadees-container')]");
                     break;
                 case "verse-container":
                     assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'verse-container')]");
@@ -2674,39 +2694,41 @@ else
                     assetElements = htmlDoc.DocumentNode.SelectNodes("//p[contains(@class, 'quote')]");
                     break;
                 default:
-                    // Fallback: try to find by data-asset-id attribute first
-                    assetElements = htmlDoc.DocumentNode.SelectNodes($"//div[@data-asset-id='{shareId}']");
-                    
-                    // If not found, try generic class name matching
-                    if (assetElements == null || assetElements.Count == 0)
-                    {
-                        assetElements = htmlDoc.DocumentNode.SelectNodes($"//div[contains(@class, '{assetType}')]");
-                    }
+                    assetElements = htmlDoc.DocumentNode.SelectNodes($"//*[@data-asset-id='{shareId}']")
+                        ?? htmlDoc.DocumentNode.SelectNodes($"//*[contains(@class, '{assetType}')]");
                     break;
             }
-            
-            if (assetElements != null && assetElements.Count > instanceNumber - 1)
+
+            if (assetElements != null && assetElements.Count > 0)
             {
-                var targetElement = assetElements[instanceNumber - 1];
-                var rawHtml = targetElement.OuterHtml;
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML for {AssetType} instance {Instance}: {Length} chars", assetType, instanceNumber, rawHtml.Length);
-                return Task.FromResult(rawHtml);
-            }
-            else
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] Asset element not found: {AssetType} instance {Instance}. Found {Count} elements of this type.", assetType, instanceNumber, assetElements?.Count ?? 0);
-                
-                // Debug: Log available asset types in the document
-                var allAssetClasses = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card') or contains(@class, 'inserted-hadees') or contains(@class, 'verse-container') or contains(@class, 'poetry-wrapper')] | //p[contains(@class, 'example') or contains(@class, 'quote')]");
-                if (allAssetClasses != null)
+                // Try to match by data-asset-id within the collection to avoid relying on index ordering
+                targetElement = assetElements.FirstOrDefault(node =>
+                    string.Equals(node.GetAttributeValue("data-asset-id", string.Empty), shareId, StringComparison.OrdinalIgnoreCase));
+
+                if (targetElement == null && assetElements.Count >= instanceNumber)
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Available assets in document: {AvailableAssets}", 
-                        string.Join(", ", allAssetClasses.Select((el, i) => $"{el.GetClasses().FirstOrDefault(c => c.Contains("ayah") || c.Contains("hadees") || c.Contains("verse") || c.Contains("poetry") || c.Contains("example") || c.Contains("quote"))}#{i+1}")));
+                    targetElement = assetElements[instanceNumber - 1];
                 }
-                
-                return Task.FromResult(string.Empty);
+
+                if (targetElement != null)
+                {
+                    var rawHtml = targetElement.OuterHtml;
+                    Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML for {AssetType} instance {Instance}: {Length} chars", assetType, instanceNumber, rawHtml.Length);
+                    return Task.FromResult(rawHtml);
+                }
             }
+
+            Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] Asset element not found: {AssetType} instance {Instance}. Found {Count} elements of this type.", assetType, instanceNumber, assetElements?.Count ?? 0);
+
+            // Debug: Log available asset types in the document
+            var allAssetClasses = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card') or contains(@class, 'inserted-hadees') or contains(@class, 'verse-container') or contains(@class, 'poetry-wrapper')] | //p[contains(@class, 'example') or contains(@class, 'quote')]");
+            if (allAssetClasses != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Available assets in document: {AvailableAssets}",
+                    string.Join(", ", allAssetClasses.Select((el, i) => $"{el.GetClasses().FirstOrDefault(c => c.Contains("ayah") || c.Contains("hadees") || c.Contains("verse") || c.Contains("poetry") || c.Contains("example") || c.Contains("quote"))}#{i + 1}")));
+            }
+
+            return Task.FromResult(string.Empty);
         }
         catch (Exception ex)
         {
@@ -2752,31 +2774,43 @@ else
     /// <summary>
     /// Process asset HTML for sharing using AssetHtmlProcessingService
     /// </summary>
-    private Task<string> ProcessAssetForSharing(string assetHtml, string assetType)
+    private async Task<string> ProcessAssetForSharing(string assetHtml, string assetType)
     {
+        if (string.IsNullOrWhiteSpace(assetHtml))
+        {
+            Logger.LogWarning("[ASSET-SHARE-KSESSIONS] ⚠️ ProcessAssetForSharing received empty HTML for assetType={AssetType}", assetType);
+            return string.Empty;
+        }
+
+        string participantHtml = string.Empty;
+
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Processing asset HTML for sharing, type: {AssetType}", assetType);
-            
-            // Use AssetProcessingService to process the HTML for sharing
-            // Note: AssetHtmlProcessor functionality moved to AssetProcessingService
-            var processResult = new { ProcessedHtml = assetHtml }; // Simplified for now
-            
-            if (processResult != null && !string.IsNullOrEmpty(processResult.ProcessedHtml))
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] Preparing asset HTML for participants, assetType={AssetType}, sessionId={SessionId}, originalLength={Length}",
+                assetType, SessionId, assetHtml.Length);
+
+            // Convert asset HTML to participant-safe markup using unified transform
+            participantHtml = HtmlTransform.TransformForParticipant(assetHtml);
+
+            if (string.IsNullOrWhiteSpace(participantHtml))
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Asset HTML processed successfully: {Length} chars", processResult.ProcessedHtml.Length);
-                return Task.FromResult(processResult.ProcessedHtml);
+                Logger.LogWarning("[ASSET-SHARE-KSESSIONS] ⚠️ TransformForParticipant returned empty result for assetType={AssetType}", assetType);
+                return string.Empty;
             }
-            else
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] AssetHtmlProcessor returned null or empty result, using original HTML");
-                return Task.FromResult(assetHtml);
-            }
+
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] Participant transform complete, length={Length}", participantHtml.Length);
+
+            // Normalize media asset URLs so receivers load images/audio/video correctly
+            var mediaSafeHtml = await MediaUrlTransform.TransformMediaUrlsAsync(participantHtml, SessionId);
+
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] Media URL transform complete, final length={Length}", mediaSafeHtml?.Length ?? 0);
+
+            return mediaSafeHtml ?? participantHtml;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] Error processing asset HTML, using original: {AssetType}", assetType);
-            return Task.FromResult(assetHtml);
+            Logger.LogError(ex, "[ASSET-SHARE-KSESSIONS] ❌ Error processing asset HTML for participants, assetType={AssetType}", assetType);
+            return string.IsNullOrWhiteSpace(participantHtml) ? assetHtml : participantHtml;
         }
     }
 

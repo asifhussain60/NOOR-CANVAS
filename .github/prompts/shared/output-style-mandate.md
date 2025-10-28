@@ -3,10 +3,17 @@
 **CRITICAL:** Maximum 15 bullets total per response. Every word counts.
 
 ## Non-Negotiables
-- NO code/pseudocode/JSON
+- NO executable code blocks
+- Pseudocode/algorithmic descriptions ALLOWED (for clarity)
 - NO walls of text
 - MAX 15 bullets total
 - 1 line per bullet
+
+## Plan Drafts (Special Case)
+- **Chat drafts**: Maximum 100 lines (up from 30-50 for complex plans)
+- **Pseudocode preferred**: Use algorithmic/pseudocode style instead of full code
+- **Full details**: Always go to `{key}.plan.md` files, never dumped in chat
+- **Balance**: More detail allowed in drafts, but still concise vs 2000+ line dumps
 
 ## Headers
 - 🧠 Analysis (max 5 bullets)
@@ -32,6 +39,58 @@
 - Key: {key}
 - Work: {one-liner}
 - Next: {primary action}
+
+## 📋 NEXT STEPS (always include after implementation)
+
+**Current Key**: `{key}`
+
+**Run Tests:**
+```
+# All tests for this key
+.github/key-data-streams/{key}/tests/run-all-tests.ps1
+
+# Phase-specific tests
+.github/key-data-streams/{key}/tests/run-phase-{N}-tests.ps1
+```
+
+**Continue This Work:**
+```
+@workspace /todo {additional-work-description}
+(Auto-detects {key} from git history)
+```
+
+**Modify Plan:**
+```
+@workspace /plan {modification-description}
+(Auto-detects {key}, updates plan version)
+```
+
+**Mark Complete:**
+```
+@workspace /task key:{key} tasks="mark complete"
+```
+
+**Start New Work:**
+```
+@workspace /plan key:{new-key} {new-work-description}
+```
+
+## Test Registry Reference
+
+**Every key maintains test registry** at `.github/key-data-streams/{key}/tests/test-registry.md`
+
+**Test Registry Structure:**
+- Phase-organized test suites
+- Real-time test execution status
+- Pass/fail tracking with timestamps
+- Commands for selective test execution
+- Test coverage checklist
+
+**Integration Points:**
+- plan.prompt.md creates test registry structure
+- test-generation.prompt.md updates registry when creating tests
+- task.prompt.md reads registry for phase validation (auto-chain mode)
+- healthcheck.prompt.md uses registry for comprehensive test suites
 
 ## Rules
 - 15 bullets MAX total

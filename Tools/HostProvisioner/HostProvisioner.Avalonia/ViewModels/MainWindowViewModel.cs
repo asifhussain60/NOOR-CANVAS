@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Services;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 
 namespace HostProvisioner.Avalonia.ViewModels;
@@ -18,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly KSessionsDbContext _ksessionsContext;
     private readonly SimplifiedTokenService _tokenService;
     private readonly string _baseUrl;
+    private Window? _window;
 
     [ObservableProperty]
     private string _sessionId = "";
@@ -48,6 +51,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _hasStatusMessage = false;
+
+    public void SetWindow(Window window)
+    {
+        _window = window;
+    }
 
     public MainWindowViewModel(
         SimplifiedCanvasDbContext dbContext,
@@ -165,15 +173,26 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(HostToken))
+            if (string.IsNullOrWhiteSpace(HostUrl))
                 return;
 
-            // Use Windows clipboard directly for simplicity
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            if (_window == null)
             {
-                System.Windows.Forms.Clipboard.SetText(HostToken);
-                ShowStatus("📋 Token copied to clipboard!", "#006400");
-            });
+                ShowError("Window reference not available");
+                return;
+            }
+
+            // Use Avalonia's cross-platform clipboard API
+            var clipboard = TopLevel.GetTopLevel(_window)?.Clipboard;
+            if (clipboard != null)
+            {
+                await clipboard.SetTextAsync(HostUrl);
+                ShowStatus("✅ Link copied to clipboard!", "#006400");
+            }
+            else
+            {
+                ShowError("Clipboard not available");
+            }
         }
         catch (Exception ex)
         {

@@ -1,0 +1,35 @@
+{
+    "key": "hp-avalonia-migration",
+    "version": "1.0",
+    "created": "2025-10-27",
+    "status": "planning-complete",
+    "totalPhases": 3,
+    "phases": [
+        {
+            "id": 1,
+            "name": "Remove WinForms Host Provisioner",
+            "status": "not-started",
+            "duration": "15 minutes",
+            "risk": "low"
+        },
+        {
+            "id": 2,
+            "name": "Fix Avalonia Clipboard Functionality",
+            "status": "not-started",
+            "duration": "25 minutes",
+            "risk": "medium"
+        },
+        {
+            "id": 3,
+            "name": "Global Domain Migration",
+            "status": "not-started",
+            "duration": "20 minutes",
+            "risk": "low"
+        }
+    ],
+    "estimatedTotalTime": "60 minutes",
+    "complexity": "medium",
+    "filesAffected": 95,
+    "testingRequired": true,
+    "rollbackAvailable": true
+}

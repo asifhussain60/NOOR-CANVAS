@@ -337,7 +337,7 @@ Identify which files and methods control those behaviors (use grep/search).
 List existing tests OR create manual validation checklist.
 
 **Step 4: Add Registry Section**
-Copy template from `.github/prompts.keys/_template/key-template.md`.
+Copy template from `.github/key-data-streams/_template/key-template.md`.
 
 **Step 5: Validate**
 Run manual validation to ensure behaviors are testable and accurate.

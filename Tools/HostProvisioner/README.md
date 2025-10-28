@@ -97,8 +97,8 @@ Example output:
 [INF] PROVISIONER: Cleared 5 participants, 5 session data records for Session 212
 [INF] PROVISIONER-TOKEN: Host Token: B7PPBDFN
 [INF] PROVISIONER-TOKEN: User Token: ZQPX29ZP
-[INF] PROVISIONER-TOKEN: Host URL: https://noorcanvas.servehttp.com/host/B7PPBDFN
-[INF] PROVISIONER-TOKEN: Participant URL: https://noorcanvas.servehttp.com/user/landing/ZQPX29ZP
+[INF] PROVISIONER-TOKEN: Host URL: https://noorcanvas.kashkole.com/host/B7PPBDFN
+[INF] PROVISIONER-TOKEN: Participant URL: https://noorcanvas.kashkole.com/user/landing/ZQPX29ZP
 ```
 
 ## Validation
@@ -130,7 +130,7 @@ The provisioner performs automatic validation:
 
 ### Protection Mechanism
 - **Service**: `DatabaseEnvironmentGuardService` (injected into all host pages)
-- **Detection**: Checks if hostname is "noorcanvas.servehttp.com" AND database is "KSESSIONS_DEV"
+- **Detection**: Checks if hostname is "noorcanvas.kashkole.com" AND database is "KSESSIONS_DEV"
 - **Response**: Full-screen red alert blocks all UI interaction, prevents data loading
 - **Logging**: Critical security violation logged for audit trail
 

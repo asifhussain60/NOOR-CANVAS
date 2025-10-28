@@ -1,0 +1,28 @@
+# Cloudflare Tunnel Configuration for KSESSIONS Resources CDN
+# 
+# Purpose: Serve D:\Websites\KSESSIONS\Resources via https://resources.kashkole.com
+# 
+# SETUP INSTRUCTIONS:
+# 1. Replace <TUNNEL_ID> with your actual Cloudflare tunnel ID
+# 2. Replace <CREDENTIALS_FILE> with your tunnel credentials JSON filename
+# 3. Copy this file to D:\PROJECTS\__CLOUDFLARE\config-resources.yml
+# 4. Run install-cloudflare-resources-service.ps1
+#
+# DNS Setup:
+# - Create CNAME: resources.kashkole.com -> <TUNNEL_ID>.cfargotunnel.com
+#
+# Last Updated: 2025-10-26
+
+tunnel: <TUNNEL_ID>
+credentials-file: D:\PROJECTS\__CLOUDFLARE\<CREDENTIALS_FILE>.json
+
+ingress:
+  # Route resources.kashkole.com to local IIS site on port 80
+  - hostname: resources.kashkole.com
+    service: http://localhost:80
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: resources.kashkole.com
+  
+  # Catch-all rule (required)
+  - service: http_status:404

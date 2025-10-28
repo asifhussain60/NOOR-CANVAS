@@ -54,6 +54,8 @@ if ($Remove) {
         Write-Host "  iiskill -Verbose # Kill IIS processes with detailed output"
         Write-Host "  ksrun -Test     # Launch app with testing suite"
         Write-Host "  ksrun -Help     # Show testing launcher options"
+        Write-Host "  plist -keys     # List work item keys"
+        Write-Host "  plist -Help     # Show project intelligence tool help"
     }
 }
 
@@ -71,3 +73,8 @@ Write-Host "  iiskill -Verbose         # Kill IIS processes with detailed output
 Write-Host "  iiskill -Help            # Show IIS kill command help"
 Write-Host "  ksrun -Test              # Launch with testing suite"
 Write-Host "  ksrun -Build -Test       # Build, run, and test"
+Write-Host "  plist -keys -n 10        # List last 10 work keys"
+Write-Host "  plist -dic -c V          # Show view shortcuts"
+Write-Host "  plist -git -n 20         # Show last 20 git commits"
+Write-Host "  plist -files -f pattern  # Fuzzy file search"
+Write-Host "  plist -Help              # Show project intelligence tool help"

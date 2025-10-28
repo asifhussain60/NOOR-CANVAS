@@ -1,0 +1,6 @@
+# Ignore cache files
+*.json
+*.cache
+
+# Keep this .gitignore file
+!.gitignore

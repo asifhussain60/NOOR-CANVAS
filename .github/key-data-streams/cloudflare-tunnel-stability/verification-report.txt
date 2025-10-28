@@ -1,0 +1,49 @@
+CLOUDFLARE TUNNEL INTEGRITY VERIFICATION REPORT
+================================================
+
+Verification Date: 2025-10-26 18:01:29
+Overall Status: Pass
+
+CANONICAL TUNNEL ID
+-------------------
+93650d38-60af-4dc7-a5ec-f8347fc57514
+
+VERIFICATION CHECKS
+-------------------
+✅ Credentials File: Pass
+   Valid JSON with AccountTag and TunnelSecret
+✅ Config Tunnel ID: Pass
+   Matches canonical: 93650d38-60af-4dc7-a5ec-f8347fc57514
+⚠️ DNS CNAME Records: Warning
+   DNS queries failed - may be offline or network issue
+✅ Backup Created: Pass
+   Config and credentials backed up successfully
+
+DNS CNAME RECORDS
+-----------------
+Expected: All hostnames point to 93650d38-60af-4dc7-a5ec-f8347fc57514.cfargotunnel.com
+
+✅ noorcanvas.kashkole.com → 
+✅ resources.kashkole.com → 
+✅ session.kashkole.com → 
+
+BACKUP INFORMATION
+------------------
+Backup Directory: D:\PROJECTS\NOOR CANVAS\.github\key-data-streams\cloudflare-tunnel-stability\backups
+Backup Timestamp: 20251026-180129
+Config Backup: config-20251026-180129.yml
+Credentials Backup: credentials-20251026-180129.json.encrypted (encrypted)
+Manifest: manifest-20251026-180129.json
+
+CONFIG FILE HASH
+----------------
+SHA256: 683CFC0BDBF0B127FCBB7D9D5ECF6A2BB285455827D608BA0D47B1029B282E14
+
+CREDENTIALS FILE HASH
+---------------------
+SHA256: 04EFA8B9A8ADE84C9E71027B02DC9BB69FB04CDF94B4420ED2DDC32E23C88936
+
+NEXT STEPS
+----------✅ All checks passed. Tunnel configuration is valid and stable.
+
+Proceed to Phase 2: Git Protection Hook

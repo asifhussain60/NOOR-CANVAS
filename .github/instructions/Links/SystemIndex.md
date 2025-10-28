@@ -6,7 +6,7 @@
 **Auto-Update**: This file is automatically updated by Copilot agents when infrastructure, architecture, or configuration changes occur.
 
 **Active Agents**: 9
-- plan, task, question, test-generation, refactor, healthcheck, analyze-learning, sync, cohesion-review
+- plan, task, ask, test-generation, refactor, healthcheck, analyze-learning, sync, cohesion-review
 
 ---
 
@@ -51,6 +51,8 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ### Architecture & Infrastructure
 - **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
 - **InfrastructureQuickRef.md** ⭐ - DB connections (KSESSIONS_DEV rules), API endpoints, test data
+- **CDN-Architecture.md** - Resources CDN architecture (media serving, CORS, URL patterns)
+- **Cloudflare-Configuration.md** ⭐ **NEW** - Cloudflare Tunnel setup, dashboard access, troubleshooting, management scripts
 
 ### Validation & Quality
 - **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)ion hub for all architectural and configuration references.**
@@ -140,7 +142,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
   - **HANDOFF**: Called by plan.prompt.md for phased execution
   - **CRITICAL**: Launch application in separate PowerShell window before executing headed tests
 
-- **question.prompt.md** - Application knowledge agent
+- **ask.prompt.md** - Application knowledge agent
   - One-stop Q&A solution
   - Deep application analysis
   - Supports all agents with investigation
@@ -235,7 +237,7 @@ Create automated end-to-end visual regression tests using Playwright, Percy, and
 ℹ️ No Functionality Registry found for key 'user-auth'
 Consider adding one to track core behaviors and prevent regressions.
 
-Template: .github/prompts.keys/_template/key-template.md
+Template: .github/key-data-streams/_template/key-template.md
 Guide: .github/instructions/Links/FunctionalityRegistry.md
 ```
 
@@ -353,7 +355,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ## 🔧 Key Management
 
-- **Location**: `.github/prompts.keys`
+- **Location**: `.github/key-data-streams`
 - **States**: `new`, `In Progress`, `complete`
 - **Sorting**: Always alphabetically sorted
 - **Template**: `_template/key-template.md`

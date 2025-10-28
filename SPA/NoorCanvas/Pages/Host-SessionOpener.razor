@@ -22,6 +22,7 @@
 @inject ILogger<Host_SessionOpener> Logger
 @inject SimplifiedCanvasDbContext DbContext
 @inject IDatabaseEnvironmentGuardService DbGuard
+@inject IConfiguration Configuration
 
 <PageTitle>NOOR Canvas - Host Session Opener</PageTitle>
 
@@ -481,12 +482,17 @@ else
                                    class="host-opener-input">
                         </div>
                         
-                        <!-- Time Input -->
+                        <!-- Time Dropdown -->
                         <div class="host-opener-field">
                             <label for="session-time" class="host-opener-label">Start Time (EST)</label>
-                            <input type="text" id="session-time" @bind="SessionTime" @oninput="OnTimeInput" @bind:after="OnFormFieldChanged" required autocomplete="off"
-                                   placeholder="HH:MM AM/PM" 
-                                   class="host-opener-input">
+                            <select id="session-time" @bind="SessionTime" @bind:after="OnFormFieldChanged" required 
+                                    class="host-opener-input"
+                                    aria-label="Select session start time in Eastern Standard Time">
+                                @foreach (var time in GenerateTimeOptions())
+                                {
+                                    <option value="@time">@time</option>
+                                }
+                            </select>
                         </div>
                         
                         <!-- Duration Input -->
@@ -610,6 +616,86 @@ else
         }
     }
 
+    /// <summary>
+    /// Generates time options in 30-minute intervals from 5:00 AM to 11:30 PM.
+    /// </summary>
+    /// <returns>List of time strings in "h:mm AM/PM" format</returns>
+    private List<string> GenerateTimeOptions()
+    {
+        var times = new List<string>();
+        
+        // Generate times from 5:00 AM to 11:30 PM in 30-minute intervals
+        for (int hour = 5; hour <= 23; hour++)
+        {
+            for (int minute = 0; minute <= 30; minute += 30)
+            {
+                var displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+                var amPm = hour >= 12 ? "PM" : "AM";
+                var timeString = $"{displayHour}:{minute:D2} {amPm}";
+                times.Add(timeString);
+                
+                // Stop at 11:30 PM
+                if (hour == 23 && minute == 30)
+                    break;
+            }
+        }
+        
+        return times;
+    }
+
+    /// <summary>
+    /// Selects the time option nearest to the current time.
+    /// </summary>
+    /// <returns>Time string in "h:mm AM/PM" format</returns>
+    private string SelectNearestTime()
+    {
+        var now = DateTime.Now;
+        var currentMinutes = now.Hour * 60 + now.Minute;
+        
+        var timeOptions = GenerateTimeOptions();
+        string nearestTime = "6:00 AM"; // Default fallback
+        int minDifference = int.MaxValue;
+        
+        foreach (var timeOption in timeOptions)
+        {
+            // Parse time option to minutes since midnight
+            var optionMinutes = ParseTimeToMinutes(timeOption);
+            var difference = Math.Abs(currentMinutes - optionMinutes);
+            
+            if (difference < minDifference)
+            {
+                minDifference = difference;
+                nearestTime = timeOption;
+            }
+        }
+        
+        return nearestTime;
+    }
+
+    /// <summary>
+    /// Converts time string to total minutes since midnight.
+    /// </summary>
+    /// <param name="timeString">Time in "h:mm AM/PM" format</param>
+    /// <returns>Total minutes since midnight (0-1439)</returns>
+    private int ParseTimeToMinutes(string timeString)
+    {
+        // Parse format: "5:00 AM" or "11:30 PM"
+        var parts = timeString.Split(' ');
+        var timeParts = parts[0].Split(':');
+        var amPm = parts[1];
+        
+        int hour = int.Parse(timeParts[0]);
+        int minute = int.Parse(timeParts[1]);
+        
+        // Convert to 24-hour format
+        if (amPm == "PM" && hour != 12)
+            hour += 12;
+        else if (amPm == "AM" && hour == 12)
+            hour = 0;
+        
+        return hour * 60 + minute;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         // [SECURITY-GUARD:hp-db-guard] FIRST CHECK - Before any other logic, verify environment safety
@@ -631,6 +717,12 @@ else
         if (!string.IsNullOrEmpty(Token))
         {
             Model.HostFriendlyToken = Token;
+        }
+
+        // Auto-select nearest time if not already set
+        if (string.IsNullOrEmpty(Model.SessionTime) || Model.SessionTime == "6:00 AM")
+        {
+            Model.SessionTime = SelectNearestTime();
         }
 
         // Load initial data
@@ -655,13 +747,22 @@ else
             Logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Razor component calling HostService.LoadAlbumsAsync - Token: {Token} ;CLEANUP_OK", 
                 Model.HostFriendlyToken?.Substring(0, Math.Min(8, Model.HostFriendlyToken?.Length ?? 0)) ?? "null");
             
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Albums loading ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadAlbumsAsync started - HasToken: {HasToken} ;CLEANUP_OK", 
+                !string.IsNullOrEmpty(Model.HostFriendlyToken));
+            
             Albums = await HostService.LoadAlbumsAsync(Model.HostFriendlyToken);
             
             Logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums loaded in Razor component - Count: {Count} ;CLEANUP_OK", Albums.Count);
             
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] Albums loading result ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadAlbumsAsync completed - Count: {Count}, Success: {Success} ;CLEANUP_OK", 
+                Albums.Count, Albums.Count > 0);
+            
             if (Albums.Count == 0)
             {
                 Logger.LogWarning("[DEBUG-WORKITEM:session-opener:dropdown-load] No albums returned from service ;CLEANUP_OK");
+                Logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Albums dropdown empty - possible database issue ;CLEANUP_OK");
                 // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty albums ;CLEANUP_OK
                 // No message needed - user will see empty dropdown
             }
@@ -669,6 +770,8 @@ else
         catch (Exception ex)
         {
             Logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] Error loading albums in Razor component - Message: {Message} ;CLEANUP_OK", ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadAlbumsAsync FAILED - Exception: {ExceptionType}, Message: {Message}, StackTrace: {StackTrace} ;CLEANUP_OK", 
+                ex.GetType().Name, ex.Message, ex.StackTrace);
             Model.ErrorMessage = "<strong>Unable to load albums</strong><br/>• Check your internet connection<br/>• Refresh the page to try again<br/>• Contact support if the problem persists";
         }
         finally
@@ -686,35 +789,59 @@ else
             // Step 1: Validate token and get SessionId
             if (string.IsNullOrEmpty(Token))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] AutoPopulateDropdownsFromToken - No token provided, skipping ;CLEANUP_OK");
                 return;
             }
             
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Token validation and auto-population ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] AutoPopulateDropdownsFromToken started - Token: {Token} ;CLEANUP_OK", 
+                Token);
+            
             var validationResponse = await HostService.ValidateHostTokenAsync(Token);
+            
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] Token validation result ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Token validation result - Token: {Token}, Valid: {Valid}, SessionId: {SessionId} ;CLEANUP_OK", 
+                Token, validationResponse.Valid, validationResponse.SessionId);
+            
             if (!validationResponse.Valid || validationResponse.SessionId <= 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Token validation FAILED - Token: {Token}, Valid: {Valid}, SessionId: {SessionId} ;CLEANUP_OK", 
+                    Token, validationResponse.Valid, validationResponse.SessionId);
                 // DEBUG-WORKITEM: session-opener - Removed InfoMessage, form loads silently ;CLEANUP_OK
                 // Token invalid - form will be empty for manual entry
                 return;
             }
 
             // Step 2: Get session details to find GroupId (AlbumId) and CategoryId
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Fetching session details for SessionId: {SessionId} ;CLEANUP_OK", 
+                validationResponse.SessionId);
+            
             var sessionDetails = await HostService.GetSessionDetailsAsync(validationResponse.SessionId, Token);
+            
             if (sessionDetails == null)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] GetSessionDetailsAsync returned null for SessionId: {SessionId} ;CLEANUP_OK", 
+                    validationResponse.SessionId);
                 // DEBUG-WORKITEM: session-opener - Removed InfoMessage, form loads silently ;CLEANUP_OK
                 // Session details unavailable - form will be empty for manual entry
                 return;
             }
 
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Session details retrieved - GroupId: {GroupId}, CategoryId: {CategoryId}, SessionId: {SessionId} ;CLEANUP_OK", 
+                sessionDetails.GroupId, sessionDetails.CategoryId, sessionDetails.SessionId);
+
             // Step 3: Auto-populate dropdowns in sequence
             await AutoPopulateSequence(sessionDetails.GroupId.ToString(), sessionDetails.CategoryId.ToString(), sessionDetails.SessionId.ToString());
             
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] AutoPopulateDropdownsFromToken completed successfully ;CLEANUP_OK");
             // DEBUG-WORKITEM: session-opener - Removed auto-populated info message ;CLEANUP_OK
             // Form loads silently without displaying information banner
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error during auto-population for token: {Token}", Token);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] AutoPopulateDropdownsFromToken FAILED - Token: {Token}, Exception: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                Token, ex.GetType().Name, ex.Message);
             Model.ErrorMessage = $"<strong>Auto-population Failed</strong><br/>Could not load session data for token <code>{Token ?? "unknown"}</code>.<br/><br/><strong>What to do:</strong><br/>• Select options manually from the dropdowns below<br/>• Check your network connection<br/>• Contact support if the issue persists";
         }
     }
@@ -796,6 +923,10 @@ else
     {
         try
         {
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] CASCADE: Album changed ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnAlbumChanged triggered - AlbumId: {AlbumId} ;CLEANUP_OK", 
+                Model?.SelectedAlbum ?? "null");
+            
             // Reset dependent selections when album changes
             if (Model != null)
             {
@@ -807,16 +938,20 @@ else
 
             if (string.IsNullOrEmpty(Model?.SelectedAlbum))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnAlbumChanged - Album cleared, skipping categories load ;CLEANUP_OK");
                 ValidateForm();
                 StateHasChanged();
                 return;
             }
 
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnAlbumChanged - Triggering LoadCategoriesAsync ;CLEANUP_OK");
             await LoadCategoriesAsync();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error in OnAlbumChanged for album {AlbumId}", Model?.SelectedAlbum);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnAlbumChanged FAILED - AlbumId: {AlbumId}, Exception: {ExceptionType} ;CLEANUP_OK", 
+                Model?.SelectedAlbum, ex.GetType().Name);
             if (Model != null) Model.ErrorMessage = "Error loading categories. Please try again.";
         }
     }
@@ -825,22 +960,30 @@ else
     {
         try
         {
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] CASCADE: Category changed ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnCategoryChanged triggered - CategoryId: {CategoryId} ;CLEANUP_OK", 
+                Model?.SelectedCategory ?? "null");
+            
             // Reset dependent selection when category changes
             if (Model != null) Model.SelectedSession = null;
             Sessions.Clear();
 
             if (string.IsNullOrEmpty(Model?.SelectedCategory))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnCategoryChanged - Category cleared, skipping sessions load ;CLEANUP_OK");
                 ValidateForm();
                 StateHasChanged();
                 return;
             }
 
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnCategoryChanged - Triggering LoadSessionsAsync ;CLEANUP_OK");
             await LoadSessionsAsync();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error in OnCategoryChanged for category {CategoryId}", Model?.SelectedCategory);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] OnCategoryChanged FAILED - CategoryId: {CategoryId}, Exception: {ExceptionType} ;CLEANUP_OK", 
+                Model?.SelectedCategory, ex.GetType().Name);
             if (Model != null) Model.ErrorMessage = "<strong>Unable to load sessions</strong><br/>• Check your internet connection<br/>• Try selecting a different category<br/>• Refresh the page if the problem persists";
         }
     }
@@ -848,6 +991,10 @@ else
     private async Task LoadCategoriesAsync()
     {
         if (string.IsNullOrEmpty(Model.SelectedAlbum)) return;
+        
+        // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Categories loading ;CLEANUP_OK
+        Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadCategoriesAsync started - AlbumId: {AlbumId} ;CLEANUP_OK", 
+            Model.SelectedAlbum);
         
         Model.IsLoadingCategories = true;
         Model.SelectedCategory = null;
@@ -861,8 +1008,14 @@ else
         {
             Categories = await HostService.LoadCategoriesAsync(Model.SelectedAlbum, Model.HostFriendlyToken);
             
+            // [DEBUG-WORKITEM:host-session-opener-fix:phase1] Categories loading result ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadCategoriesAsync completed - AlbumId: {AlbumId}, Count: {Count}, Success: {Success} ;CLEANUP_OK", 
+                Model.SelectedAlbum, Categories.Count, Categories.Count > 0);
+            
             if (Categories.Count == 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Categories dropdown empty for AlbumId: {AlbumId} - possible database issue ;CLEANUP_OK", 
+                    Model.SelectedAlbum);
                 // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty categories ;CLEANUP_OK
                 // No message needed - user will see empty dropdown
             }
@@ -870,6 +1023,8 @@ else
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error loading categories for album {AlbumId}", Model.SelectedAlbum);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadCategoriesAsync FAILED - AlbumId: {AlbumId}, Exception: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                Model.SelectedAlbum, ex.GetType().Name, ex.Message);
             Model.ErrorMessage = $"<strong>Unable to load categories</strong><br/>• Check your internet connection<br/>• Try selecting a different album<br/>• Refresh the page if the problem persists";
         }
         finally
@@ -884,6 +1039,10 @@ else
     {
         if (string.IsNullOrEmpty(Model.SelectedCategory)) return;
         
+        // [DEBUG-WORKITEM:host-session-opener-fix:phase1] START Sessions loading ;CLEANUP_OK
+        Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadSessionsAsync started - CategoryId: {CategoryId} ;CLEANUP_OK", 
+            Model.SelectedCategory);
+        
         Model.IsLoadingSessions = true;
         Model.SelectedSession = null;
         Model.ErrorMessage = "";
@@ -894,22 +1053,35 @@ else
         {
             if (int.TryParse(Model.SelectedCategory, out int categoryId))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadSessionsAsync - Parsed CategoryId: {CategoryId} ;CLEANUP_OK", 
+                    categoryId);
+                
                 Sessions = await HostService.LoadSessionsAsync(categoryId, Model.HostFriendlyToken);
+                
+                // [DEBUG-WORKITEM:host-session-opener-fix:phase1] Sessions loading result ;CLEANUP_OK
+                Logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadSessionsAsync completed - CategoryId: {CategoryId}, Count: {Count}, Success: {Success} ;CLEANUP_OK", 
+                    categoryId, Sessions.Count, Sessions.Count > 0);
                 
                 if (Sessions.Count == 0)
                 {
+                    Logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Sessions dropdown empty for CategoryId: {CategoryId} - possible database issue ;CLEANUP_OK", 
+                        categoryId);
                     // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty sessions ;CLEANUP_OK
                     // No message needed - user will see empty dropdown
                 }
             }
             else
             {
+                Logger.LogError("[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadSessionsAsync - Failed to parse CategoryId: {CategoryId} ;CLEANUP_OK", 
+                    Model.SelectedCategory);
                 Model.ErrorMessage = "<strong>Invalid Category Selection</strong><br/>Please select a valid category from the dropdown.";
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error loading sessions for category {CategoryId}", Model.SelectedCategory);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:host-session-opener-fix:phase1] LoadSessionsAsync FAILED - CategoryId: {CategoryId}, Exception: {ExceptionType}, Message: {Message} ;CLEANUP_OK", 
+                Model.SelectedCategory, ex.GetType().Name, ex.Message);
             Model.ErrorMessage = "<strong>Unable to load sessions</strong><br/>• Check your internet connection<br/>• Try selecting a different category<br/>• Refresh the page if the problem persists";
         }
         finally
@@ -920,13 +1092,6 @@ else
         }
     }
 
-    private void OnTimeInput(ChangeEventArgs e)
-    {
-        var input = e.Value?.ToString() ?? "";
-        Model.SessionTime = HostService.FormatTimeInput(input);
-        ValidateForm();
-    }
-
     private void ValidateForm()
     {
         // Reset form state flags
@@ -935,13 +1100,8 @@ else
         // Validate required fields
         Model.IsFormValid = Model.ValidateRequiredFields();
         
-        // Validate time format if form is otherwise valid
-        if (Model.IsFormValid && !HostService.ValidateTimeFormat(Model.SessionTime))
-        {
-            Model.IsFormValid = false;
-            Model.ErrorMessage = "<strong>Invalid Time Format</strong><br/>Please enter time in HH:MM AM/PM format (e.g., 9:30 AM or 2:15 PM).";
-        }
-        else if (!Model.IsFormValid && Model.HasAttemptedSubmit)
+        // Time format validation removed - dropdown guarantees valid format
+        if (!Model.IsFormValid && Model.HasAttemptedSubmit)
         {
             // Provide detailed guidance on what's missing
             var missingFields = new List<string>();

@@ -3,5 +3,14 @@
     "ConnectionStrings": {
         "Development": "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;",
         "Production": "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"
+    },
+    "Resources": {
+        "Development": {
+            "BaseUrl": "https://resources.kashkole.com",
+            "_Comment": "CDN is accessible in all environments. CORS configured for localhost. Fallback to file:// only if CDN unreachable (not implemented)."
+        },
+        "Production": {
+            "BaseUrl": "https://resources.kashkole.com"
+        }
     }
 }
