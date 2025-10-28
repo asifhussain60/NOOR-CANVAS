@@ -64,6 +64,8 @@
     <!-- Transcript Content Area with Independent Scrolling -->
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;">
             @* [WORKITEM:hcp-fab-button] FAB share button always visible when transcript loaded (not tied to session state) ;CLEANUP_OK *@
+            @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
                 <button type="button" 
                         @onclick="OnBroadcastTranscript" 
                         disabled="@IsLoading"
@@ -79,6 +81,7 @@
                         <i class="fa-solid fa-share-nodes" style="font-size:1.5rem;"></i>
                     }
                 </button>
+            }
             
             @* [DEBUG-WORKITEM:hcp-unify:spinner] Loading state already implemented with LoadingSpinner component ;CLEANUP_OK *@
             @if (IsLoading)
