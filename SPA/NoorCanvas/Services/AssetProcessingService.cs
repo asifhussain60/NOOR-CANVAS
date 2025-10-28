@@ -249,24 +249,49 @@ public class AssetProcessingService
             var headerNodes = headerDoc.ToList();
             foreach (var headerNode in headerNodes)
             {
+                // Insert header before the element
                 element.ParentElement.InsertBefore(headerNode, element);
+                
+                // Find the .asset-content-wrapper div that was just inserted
+                if (headerNode is IElement headerElement)
+                {
+                    var contentWrapper = headerElement.QuerySelector(".asset-content-wrapper");
+                    if (contentWrapper != null)
+                    {
+                        // CRITICAL FIX: Move the element INSIDE the .asset-content-wrapper
+                        element.Remove();  // Remove from current position
+                        contentWrapper.AppendChild(element);  // Move inside wrapper
+                        
+                        _logger.LogInformation("[INSERTED-HADEES-DEBUG:{RunId}] MOVED element inside .asset-content-wrapper for {ShareId}",
+                            runId, shareId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[INSERTED-HADEES-DEBUG:{RunId}] .asset-content-wrapper not found in header for {ShareId}",
+                            runId, shareId);
+                    }
+                }
             }
 
-            // Parse and insert footer after the asset element
+            // Parse and insert footer after the header (header now contains the element)
             var footerDoc = parser.ParseFragment(containerFooter, element.ParentElement);
             var footerNodes = footerDoc.ToList();
             
-            // Find the next sibling to insert footer before it (or append if no next sibling)
-            var nextSibling = element.NextSibling;
-            foreach (var footerNode in footerNodes)
+            // Insert footer after the header container
+            var headerContainer = element.ParentElement?.ParentElement;  // The .asset-group-container
+            if (headerContainer?.ParentElement != null)
             {
-                if (nextSibling != null)
+                var nextSibling = headerContainer.NextSibling;
+                foreach (var footerNode in footerNodes)
                 {
-                    element.ParentElement.InsertBefore(footerNode, nextSibling);
-                }
-                else
-                {
-                    element.ParentElement.AppendChild(footerNode);
+                    if (nextSibling != null)
+                    {
+                        headerContainer.ParentElement.InsertBefore(footerNode, nextSibling);
+                    }
+                    else
+                    {
+                        headerContainer.ParentElement.AppendChild(footerNode);
+                    }
                 }
             }
 

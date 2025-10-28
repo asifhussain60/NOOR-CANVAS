@@ -528,79 +528,6 @@
     gap: 8px;
 }
 
-/* Kebab Menu Button */
-.asset-kebab-menu-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-}
-
-.asset-kebab-menu-btn:hover {
-    background-color: rgba(0, 86, 179, 0.1);
-}
-
-.asset-kebab-menu-btn:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* Kebab Menu Dropdown */
-.asset-kebab-menu {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    min-width: 180px;
-    margin-top: 4px;
-}
-
-/* Menu Items */
-.asset-menu-item {
-    width: 100%;
-    padding: 12px 16px;
-    text-align: left;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-    color: #212529;
-    transition: background-color 0.2s;
-}
-
-.asset-menu-item:first-child {
-    border-radius: 6px 6px 0 0;
-}
-
-.asset-menu-item:last-child {
-    border-radius: 0 0 6px 6px;
-}
-
-.asset-menu-item:hover {
-    background-color: #f8f9fa;
-}
-
-.asset-menu-item:focus {
-    background-color: #e9ecef;
-    outline: none;
-}
-
-.asset-menu-item i {
-    width: 16px;
-    text-align: center;
-}
-
 /* Asset Content Wrapper */
 .asset-content-wrapper {
     padding: 16px 0;
@@ -622,15 +549,6 @@
         margin-bottom: 12px;
         padding-bottom: 8px;
     }
-
-    .asset-kebab-menu {
-        min-width: 150px;
-    }
-
-    .asset-menu-item {
-        padding: 10px 12px;
-        font-size: 0.85rem;
-    }
 }
 
 @media (max-width: 480px) {
@@ -642,16 +560,11 @@
     .asset-title {
         font-size: 0.95rem;
     }
-
-    .asset-menu-item {
-        padding: 8px 10px;
-    }
 }
 
-/* Print Styles - Hide menus when printing */
+/* Print Styles - Hide share buttons when printing */
 @media print {
-    .asset-kebab-menu-btn,
-    .asset-kebab-menu {
+    .asset-share-btn {
         display: none !important;
     }
 
