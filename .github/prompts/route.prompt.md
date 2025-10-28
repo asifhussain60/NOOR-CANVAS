@@ -1,6 +1,6 @@
 # route.prompt.md (Request Router Agent)
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 ---
@@ -9,6 +9,7 @@ purpose: Analyzes user requests and context to intelligently route to specialize
 inputs: target, request, key, context, auto-execute
 outputs: Handoff to target agent with optimized parameters
 lastUpdated: 2025-10-28
+stateTracking: enabled
 ---
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
@@ -132,6 +133,27 @@ Whether to automatically execute after building prompt
 ---
 
 ## 🔍 Analysis Process
+
+### Step -2: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log original request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the original user request
+Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChain @("route")
+```
+
+**Purpose:**
+- Track entry point of all work
+- Record original user request verbatim before any analysis
+- Enable timeline reconstruction across prompt handoffs
+
+**Note:** Key is determined in Step 4, but logged retroactively after key determination completes.
+
+---
 
 ### Step -1: Parse Invocation Format (EXECUTE FIRST)
 
@@ -380,11 +402,16 @@ IF warnings only:
 
 **The handoff is NOT simulated - it actually invokes the target prompt:**
 
-1. Load target agent prompt file (e.g., `.github/prompts/plan.prompt.md`)
-2. Format invocation based on target agent's parameter requirements
-3. Print clear handoff message with target, key, work summary
-4. Print approval behavior message (auto-approved vs. requires approval)
-5. **EXECUTE AS AGENT** → Follow target agent's instructions with constructed parameters
+1. **Log handoff to state tracking**
+   ```powershell
+   Update-StateHandoff -Key $key -From "route" -To $target -Parameters @{ key = $key; auto_execute = $autoExecute } -Reason "Routing based on work classification"
+   ```
+
+2. Load target agent prompt file (e.g., `.github/prompts/plan.prompt.md`)
+3. Format invocation based on target agent's parameter requirements
+4. Print clear handoff message with target, key, work summary
+5. Print approval behavior message (auto-approved vs. requires approval)
+6. **EXECUTE AS AGENT** → Follow target agent's instructions with constructed parameters
 
 **Approval Behavior by Agent:**
 - **`plan` prompt:** Always pauses for user approval, regardless of auto-execute setting
@@ -591,6 +618,13 @@ BAD: @workspace /route todo "Why is database info missing? Token won't accept. F
 ---
 
 ## 📝 Version History
+
+**1.6.0** (2025-10-28)
+- **STATE TRACKING INTEGRATION**: Added state-tracker.ps1 integration for request/handoff logging
+- **Step -2**: New step to initialize state tracking and log original request
+- **Handoff Logging**: Log all prompt handoffs with Update-StateHandoff
+- **Metadata**: Added `stateTracking: enabled` to frontmatter
+- Enables timeline reconstruction and cross-prompt coordination tracking
 
 **1.5.0** (2025-10-28)
 - **INTELLIGENT ROUTING ENHANCEMENT**: Added detection for questions and test requests
