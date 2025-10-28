@@ -1101,3 +1101,31 @@ Starting (3/5) *Create orchestrated Playwright test*
 Now let me create the orchestrated test following the test-generation protocol: 
 
 Made changes.
+asifhussain60: @workspace /route  key: hcp-fab-button
+Check #getTerminalOutput . The FAB button should not need to be disabled as the Session Transcript is not rendered until the user clicks the start session button. Make it always visible. The fab button should be inserted using the same timing logic that was used to insert the blue Share Asset button previously used (check git and document ref for future). 
+The user token https://localhost:9091/host/control-panel/PQ9N5YWW should work as long as the app is running following the proper orchestration protocol..  Follow #file:CONCISE-MANDATE.md 
+
+Workspace: Checked background terminal output
+
+Collecting workspace informationStill updating workspace index. Falling back to using the latest remote code index only. Response may be less accurate.🧠 Analysis
+- Key: hcp-fab-button
+- Routing: hcp-fab-button.prompt.md
+- Issue: FAB disabled until Start Session clicked
+- Fix: Always visible, same timing as blue Share Asset buttons
+- Reference: Git history + blue Share Asset button insertion logic
+
+📌 Summary
+1. Key: hcp-fab-button | Work: Make FAB always visible, insert using Share Asset timing
+2. Files: 2 modified
+3. Phase 1: Remove disabled condition from FAB button (HostControlPanel.razor)
+4. Phase 2: Apply Share Asset button timing logic to FAB insertion
+5. Phase 3: Test with PQ9N5YWW token after proper app start
+6. Reference: Blue Share Asset button used OnAfterRenderAsync + DOM timing
+7. Location: HostControlPanel.razor (FAB rendering logic)
+8. Git: Check recent commits for Share Asset button insertion pattern
+9. Next: **A.** Proceed with fix | **B.** Review timing logic first | **C.** Check git history for Share Asset pattern
+
+📊 Final
+- Status: Ready to execute
+- Key: hcp-fab-button
+- Next: User choice (A/B/C)

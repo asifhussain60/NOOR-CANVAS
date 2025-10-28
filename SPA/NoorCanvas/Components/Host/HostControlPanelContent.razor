@@ -63,9 +63,7 @@
         
     <!-- Transcript Content Area with Independent Scrolling -->
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;">
-            @* [WORKITEM:hcp-fab-button] FAB share button for broadcasting transcript ;CLEANUP_OK *@
-            @if (IsBroadcastMode && !string.IsNullOrEmpty(Model?.TransformedTranscript))
-            {
+            @* [WORKITEM:hcp-fab-button] FAB share button always visible when transcript loaded (not tied to session state) ;CLEANUP_OK *@
                 <button type="button" 
                         @onclick="OnBroadcastTranscript" 
                         disabled="@IsLoading"
@@ -81,7 +79,6 @@
                         <i class="fa-solid fa-share-nodes" style="font-size:1.5rem;"></i>
                     }
                 </button>
-            }
             
             @* [DEBUG-WORKITEM:hcp-unify:spinner] Loading state already implemented with LoadingSpinner component ;CLEANUP_OK *@
             @if (IsLoading)
@@ -275,14 +272,14 @@
         // [TRACE:hcp-fab-button] Log FAB button visibility conditions ;CLEANUP_OK
         if (firstRender || Model != null)
         {
-            Console.WriteLine($"[FAB-DEBUG] IsBroadcastMode: {IsBroadcastMode}, HasTranscript: {!string.IsNullOrEmpty(Model?.TransformedTranscript)}, IsLoading: {IsLoading}");
-            if (IsBroadcastMode && !string.IsNullOrEmpty(Model?.TransformedTranscript))
+            Console.WriteLine($"[FAB-DEBUG] HasTranscript: {!string.IsNullOrEmpty(Model?.TransformedTranscript)}, IsLoading: {IsLoading}");
+            if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
             {
                 Console.WriteLine("[FAB-DEBUG] ✅ FAB button SHOULD be visible");
             }
             else
             {
-                Console.WriteLine($"[FAB-DEBUG] ❌ FAB button hidden - BroadcastMode: {IsBroadcastMode}, Transcript: {(Model?.TransformedTranscript != null ? "exists" : "null")}");
+                Console.WriteLine($"[FAB-DEBUG] ❌ FAB button hidden - Transcript: {(Model?.TransformedTranscript != null ? "exists" : "null")}");
             }
         }
         

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * HCP FAB Button Verification Test
@@ -32,7 +32,7 @@ test.describe('HCP FAB Button Verification', () => {
         // Step 1: Navigate to Host Control Panel with session PQ9N5YWW
         console.log('📍 Step 1: Navigating to Host Control Panel...');
         await page.goto('https://localhost:9091/host/control-panel/PQ9N5YWW');
-        
+
         // Wait for page to load
         await page.waitForLoadState('networkidle');
         console.log('✅ Page loaded');
@@ -47,18 +47,18 @@ test.describe('HCP FAB Button Verification', () => {
         // Step 3: Click "Start Session" button to trigger transcript render
         console.log('📍 Step 3: Starting session to trigger transcript render...');
         const startSessionButton = page.locator('button:has-text("Start Session")').first();
-        
+
         // Wait for button to be visible and enabled
         await expect(startSessionButton).toBeVisible({ timeout: 10000 });
         await expect(startSessionButton).toBeEnabled({ timeout: 5000 });
-        
+
         await startSessionButton.click();
         console.log('✅ Session started');
 
         // Step 4: Wait for transcript to load (loading spinner should disappear)
         console.log('📍 Step 4: Waiting for transcript to load...');
         await page.waitForSelector('.fa-spinner', { state: 'hidden', timeout: 15000 });
-        
+
         // Wait for transcript content to appear
         await page.waitForSelector('#transcript-content-container', { state: 'visible', timeout: 10000 });
         console.log('✅ Transcript loaded');
@@ -66,7 +66,7 @@ test.describe('HCP FAB Button Verification', () => {
         // Step 5: Verify FAB button exists
         console.log('📍 Step 5: Verifying FAB button...');
         const fabButton = page.locator('button.hcp-fab-share-button');
-        
+
         // Wait for FAB button to appear
         await expect(fabButton).toBeVisible({ timeout: 10000 });
         console.log('✅ FAB button is visible');
@@ -76,7 +76,7 @@ test.describe('HCP FAB Button Verification', () => {
         expect(fabBox).not.toBeNull();
         if (fabBox) {
             console.log(`📐 FAB button position: top=${fabBox.y}px, right=${page.viewportSize()!.width - (fabBox.x + fabBox.width)}px`);
-            
+
             // Button should be in top-right area (top < 200px, right < 100px from viewport edge)
             const rightDistance = page.viewportSize()!.width - (fabBox.x + fabBox.width);
             expect(fabBox.y).toBeLessThan(200); // Top positioning
@@ -117,7 +117,7 @@ test.describe('HCP FAB Button Verification', () => {
 
     test('FAB button hidden when not in broadcast mode', async ({ page }) => {
         console.log('📍 Testing FAB button visibility logic...');
-        
+
         // Navigate to Host Control Panel
         await page.goto('https://localhost:9091/host/control-panel/PQ9N5YWW');
         await page.waitForLoadState('networkidle');
@@ -139,17 +139,17 @@ test.describe('HCP FAB Button Verification', () => {
 
     test('FAB button styling and hover effects', async ({ page }) => {
         console.log('📍 Testing FAB button styling...');
-        
+
         // Navigate and setup (same as first test)
         await page.goto('https://localhost:9091/host/control-panel/PQ9N5YWW');
         await page.waitForLoadState('networkidle');
-        
+
         const transcriptCanvasButton = page.locator('button:has-text("Transcript Canvas")').first();
         await transcriptCanvasButton.click();
-        
+
         const startSessionButton = page.locator('button:has-text("Start Session")').first();
         await startSessionButton.click();
-        
+
         await page.waitForSelector('#transcript-content-container', { state: 'visible', timeout: 10000 });
 
         const fabButton = page.locator('button.hcp-fab-share-button');
@@ -166,7 +166,7 @@ test.describe('HCP FAB Button Verification', () => {
         // Verify button has green background (check computed styles)
         const bgColor = await fabButton.evaluate(el => getComputedStyle(el).backgroundColor);
         console.log(`🎨 Background color: ${bgColor}`);
-        
+
         // Verify border radius is 50% (circular)
         const borderRadius = await fabButton.evaluate(el => getComputedStyle(el).borderRadius);
         expect(borderRadius).toContain('50%');
@@ -176,7 +176,7 @@ test.describe('HCP FAB Button Verification', () => {
         console.log('📍 Testing hover effect...');
         await fabButton.hover();
         await page.waitForTimeout(500); // Wait for transition
-        
+
         // Button should scale on hover (check transform)
         const transform = await fabButton.evaluate(el => getComputedStyle(el).transform);
         console.log(`🎨 Hover transform: ${transform}`);

@@ -397,9 +397,9 @@
     transform: scale(1.05);
 }
 
-/* [WORKITEM:hcp-fab-button] FAB Share Button - Top-right of transcript container (absolute positioning) ;CLEANUP_OK */
+/* [WORKITEM:hcp-fab-button] FAB Share Button - Fixed position for always-visible floating button ;CLEANUP_OK */
 .hcp-fab-share-button {
-    position: absolute;
+    position: fixed;
     top: 1rem;
     right: 1rem;
     width: 56px;
