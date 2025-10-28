@@ -32,6 +32,29 @@ What to validate:
 - `all` - Complete AI infrastructure (prompts + instructions)
 - `{filename}` - Specific file to validate
 
+### key *(optional, auto-generated)*
+Unique identifier for cohesion validation session.
+
+**Default**: `cohesion-{timestamp}` (e.g., `cohesion-20251028-143500`)  
+**User-provided**: `cohesion-{description}` (e.g., `cohesion-pre-release-audit`)
+
+**Examples:**
+```bash
+@workspace /cohesion scope=all key=cohesion-weekly-scan
+@workspace /cohesion scope=prompts key=cohesion-prompt-audit
+@workspace /cohesion scope=all  # Auto: cohesion-20251028-143500
+```
+
+**Note**: Work-log and reports saved to `.github/key-data-streams/{key}/`
+
+### validation-level *(optional, default=syntax)*
+Depth of validation:
+- `syntax` - Quick structural validation
+- `cross-ref` - Reference checking
+- `rules` - Compliance validation
+- `conflicts` - Deep conflict detection
+- `full` - All validation levels
+
 ### -test *(flag, optional)*
 Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
 
@@ -633,6 +656,147 @@ When duplicate rules found:
 - Overlapping jurisdictions (needs scope clarification)
 - Circular dependencies (needs architecture change)
 - Incompatible workflows (needs redesign)
+
+## Cohesion Workflow
+
+### Step 1: Initialize Cohesion Session
+
+Create key data stream structure:
+```
+.github/key-data-streams/{key}/
+├── work-log.md
+├── cohesion-report.md
+└── scripts/ (if auto-fixes needed)
+```
+
+Initialize work-log.md with validation context.
+
+### Step 2-6: Execute Validation
+
+Perform validation based on `validation-level`:
+- **Step 2**: Discover files in scope
+- **Step 3**: Validate structural integrity (syntax)
+- **Step 4**: Check cross-references
+- **Step 5**: Enforce rule compliance
+- **Step 6**: Detect conflicts (if conflicts/full level)
+
+Update work-log.md progressively after each step.
+
+### Step 7: Update Work-Log
+
+After completing validation (BEFORE generating final report):
+
+**Create/Update** `.github/key-data-streams/{key}/work-log.md`:
+
+```markdown
+# Work Log: {key}
+
+**Key:** `{key}`  
+**Created:** {timestamp}  
+**Agent:** cohesion.prompt.md  
+**Status:** {In Progress|Completed|Requires Action}
+
+---
+
+## Cohesion Validation Session
+
+**Scope**: {prompts|instructions|all|{specific-file}}  
+**Validation Level**: {syntax|cross-ref|rules|conflicts|full}  
+**Files Scanned**: {count}
+
+---
+
+## Validation Results ({date})
+
+### Issues Found
+
+**Critical**: {count}  
+**High**: {count}  
+**Medium**: {count}  
+**Low**: {count}
+
+### Critical Issues
+
+1. **{issue-title}**
+   - File: `{file-path}`
+   - Line: {line-number}
+   - Violation: {description}
+   - Fix: {recommended-action}
+
+2. **{issue-title}**
+   - File: `{file-path}`
+   - Violation: {description}
+   - Fix: {recommended-action}
+
+### High Priority Issues
+
+1. **{issue-title}**
+   - File: `{file-path}`
+   - Violation: {description}
+   - Fix: {recommended-action}
+
+### Medium Priority Issues
+
+*(List medium issues)*
+
+### Low Priority Issues
+
+*(List low issues)*
+
+---
+
+## Auto-Fix Analysis
+
+**Auto-Fixable**: {count} issues  
+**Manual Fixes Required**: {count} issues
+
+**Proposed Auto-Fixes**:
+1. {fix-description} - File: `{file}`
+2. {fix-description} - File: `{file}`
+
+---
+
+## Recommendations
+
+1. {recommendation-1}
+2. {recommendation-2}
+3. {recommendation-3}
+
+---
+
+## Report
+
+**Location**: `.github/key-data-streams/{key}/cohesion-report.md`  
+**Generated**: {timestamp}
+
+---
+
+## Status
+
+- [ ] Validation complete
+- [ ] Critical issues resolved
+- [ ] Auto-fixes applied (if approved)
+- [ ] Manual fixes documented
+```
+
+**State Tracking Integration**:
+
+```powershell
+# Log cohesion validation session
+Update-StateKey -Key $key -Type "cohesion-validation" -Status "in-progress" -Scope $scope
+
+# After validation complete
+Update-StateKey -Key $key -Status "completed" -IssuesFound $issueCount -Severity $highestSeverity
+
+# Log work-log update
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "cohesion({key}): Validation complete - {N} issues found" -CheckpointType "cohesion-validation"
+```
+
+### Step 8: Generate Final Report
+
+Create comprehensive report (see "Report Structure" section below).
+
+---
 
 ## Output Format (Following CONCISE-MANDATE)
 
