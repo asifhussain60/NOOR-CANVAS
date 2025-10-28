@@ -171,14 +171,20 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 
 ### Step 0: Key Data Stream Consultation (EXECUTE FIRST - ALWAYS)
 
-**⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams.
+**⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams AND check for existing plan files.
 
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
-2. Search for related keys using semantic and keyword matching
-3. Search both `.github/key-data-streams/` and `Workspaces/Copilot/KeyDataStreams/` (legacy)
-4. If related keys found, present options to user and HALT
-5. If no related keys, proceed with new key creation
+2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
+3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
+4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
+5. If related keys found but no plan → present options to user and HALT
+6. If no related keys and no plan → proceed with new key creation
+
+**Routing Logic Based on Plan File:**
+- **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
+- **No plan exists** → Route to `plan` (create plan)
+- This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
@@ -425,7 +431,7 @@ IF warnings only:
 
 ## 📊 Output Format
 
-### Phase 0: Invocation Parsing (Always First)
+### Task 0: Invocation Parsing (Always First)
 
 ```markdown
 ## 🧠 Parsing (≤5 bullets)
@@ -438,59 +444,57 @@ IF warnings only:
 
 ---
 
-### Phase 1: Key Data Stream Consultation (If Related Keys Found)
+### Task 1: Key Data Stream Consultation (If Related Keys Found)
 
 ```markdown
-## 🧠 Key Search (≤5 bullets)
+## 🧠 Key Search (≤8 bullets)
 - Found: {count} related keys
 - Top: {key-1} ({status})
 - Relevance: {score}%
 - Location: .github/key-data-streams/
+- Files: {count} modified in {key-1}
 - Recommendation: {which-key-or-new}
 
-## 📌 Options (≤5 bullets)
-1. **A.** Use {key-1}
-2. **B.** Create New
-3. **C.** Review Details
-4. Keys: {key-1}, {key-2}, {key-3}
+## 📌 Options
+**A.** Use {key-1} | **B.** Create New | **C.** Review Details
 
-Reply: A, B, or C
+Keys: {key-1}, {key-2}, {key-3}
 ```
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
 
 ---
 
-### Phase 2: Before Handoff (User Review Mode, when auto-execute=false)
+### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
 
 ```markdown
-## 🧠 Analysis (≤5 bullets)
+## 🧠 Analysis (≤8 bullets)
 - Request: {one-liner}
 - Context: {files-count}F {images-count}I {errors-count}E
 - Type: {work-type}
 - Complexity: {simple|moderate|complex} ({score}/15)
 - Target: {target-prompt}.prompt.md
+- Layers: {UI, API, Service, DB, SignalR}
+- Routing: {intelligent|manual}
 
-## 📌 Handoff (≤10 bullets)
+## � Tasks (≤10 bullets when applicable)
 1. Key: {key} (new|existing)
 2. Agent: {target-prompt}.prompt.md
 3. Params: {key-params-list}
-4. Layers: {UI|API|Service|DB|SignalR}
-5. Context: {visual|error|file} packages prepared
-6. Routing: {intelligent|manual}
-7. Approval: {auto|manual}
+4. Context: {visual|error|file} packages prepared
+5. Approval: {auto|manual}
+6. Files: {estimated-file-count} expected changes
+7. Architecture: {high-level-approach}
 
 ## ⚡ Options
 **A.** Execute | **B.** Modify | **C.** Change Target | **D.** Cancel
-
-Reply: A, B, C, or D
 ```
 
 **Behavior:** Wait for user approval before proceeding to handoff.
 
 ---
 
-### Phase 3: Handoff Execution (After approval or when auto-execute=true)
+### Task 3: Handoff Execution (After approval or when auto-execute=true)
 
 ```markdown
 ## 🚀 Handoff to {target}

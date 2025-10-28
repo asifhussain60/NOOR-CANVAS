@@ -82,11 +82,17 @@ Update-StateRequest -Key $key -Type "refinement" -UserRequest $user_request -Pro
 
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
-2. Search for related keys using semantic and keyword matching
-3. Search both `.github/key-data-streams/` and `Workspaces/Copilot/KeyDataStreams/` (legacy)
-4. Load context for each related key (plan file, work log, status, phases)
-5. If related keys found, present options to user and **HALT**
-6. If no related keys, proceed to Step 0.1 (key spelling validation)
+2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
+3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
+4. **If plan exists**: Load it as source of truth, skip to Step 5 (plan update/refinement)
+5. Load context for each related key (plan file, work log, status, phases)
+6. If related keys found, present options to user and **HALT**
+7. If no related keys, proceed to Step 0.1 (key spelling validation)
+
+**Critical: If `{key}.plan.md` exists, treat it as authoritative source of truth:**
+- Load existing plan structure
+- User request becomes a refinement/update to existing plan
+- Skip full plan generation (Step 4), proceed to plan update (Step 5)
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
