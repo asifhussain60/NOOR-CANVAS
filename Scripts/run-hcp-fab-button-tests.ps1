@@ -82,20 +82,30 @@ try {
     $attempt = 0
     $appReady = $false
 
-    # Disable SSL verification for health check
-    Add-Type @"
-        using System.Net;
-        using System.Security.Cryptography.X509Certificates;
-        public class TrustAllCertsPolicy : ICertificatePolicy {
-            public bool CheckValidationResult(
-                ServicePoint srvPoint, X509Certificate certificate,
-                WebRequest request, int certificateProblem) {
-                return true;
+    # Skip SSL certificate validation for localhost health check
+    if (-not ([System.Management.Automation.PSTypeName]'ServerCertificateValidationCallback').Type) {
+        $certCallback = @"
+            using System;
+            using System.Net;
+            using System.Net.Security;
+            using System.Security.Cryptography.X509Certificates;
+            public class ServerCertificateValidationCallback {
+                public static void Ignore() {
+                    ServicePointManager.ServerCertificateValidationCallback = 
+                        delegate (
+                            Object obj, 
+                            X509Certificate certificate, 
+                            X509Chain chain, 
+                            SslPolicyErrors errors
+                        ) {
+                            return true;
+                        };
+                }
             }
-        }
 "@
-    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Add-Type $certCallback
+    }
+    [ServerCertificateValidationCallback]::Ignore()
 
     while (-not $appReady -and $attempt -lt $maxAttempts) {
         $attempt++
