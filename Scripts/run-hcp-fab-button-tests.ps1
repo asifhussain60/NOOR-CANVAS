@@ -82,37 +82,13 @@ try {
     $attempt = 0
     $appReady = $false
 
-    # Skip SSL certificate validation for localhost health check
-    if (-not ([System.Management.Automation.PSTypeName]'ServerCertificateValidationCallback').Type) {
-        $certCallback = @"
-            using System;
-            using System.Net;
-            using System.Net.Security;
-            using System.Security.Cryptography.X509Certificates;
-            public class ServerCertificateValidationCallback {
-                public static void Ignore() {
-                    ServicePointManager.ServerCertificateValidationCallback = 
-                        delegate (
-                            Object obj, 
-                            X509Certificate certificate, 
-                            X509Chain chain, 
-                            SslPolicyErrors errors
-                        ) {
-                            return true;
-                        };
-                }
-            }
-"@
-        Add-Type $certCallback
-    }
-    [ServerCertificateValidationCallback]::Ignore()
-
     while (-not $appReady -and $attempt -lt $maxAttempts) {
         $attempt++
         Write-Host "   Attempt $attempt/$maxAttempts..." -ForegroundColor Gray
         
         try {
-            $response = Invoke-WebRequest -Uri $appUrl -Method GET -TimeoutSec 2 -UseBasicParsing -ErrorAction SilentlyContinue
+            # Use -SkipCertificateCheck for localhost HTTPS (PowerShell 7+)
+            $response = Invoke-WebRequest -Uri $appUrl -Method GET -TimeoutSec 2 -UseBasicParsing -SkipCertificateCheck -ErrorAction SilentlyContinue
             if ($response.StatusCode -eq 200) {
                 $appReady = $true
                 Write-Host "   ✅ App is ready! (HTTP 200)" -ForegroundColor Green
