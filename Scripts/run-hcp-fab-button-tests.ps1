@@ -29,7 +29,7 @@ Related: Tests/UI/hcp-fab-button-verification.spec.ts
 
 param(
     [switch]$KeepAppRunning,
-    [string]$TestPattern = "hcp-fab-button-verification.spec.ts",
+    [string]$TestPattern = "hcp-fab-button-click-test.spec.ts",
     [switch]$Headed
 )
 
