@@ -365,13 +365,32 @@ public class AssetProcessingService
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
-        // [WORKITEM:hcp-fab-button] Removed kebab menu - replaced with FAB share button in HostControlPanelContent.razor ;CLEANUP_OK
-        // Asset grouping container with header (no menu)
-        return $@"<div class=""asset-group-container"" data-noor-asset-group=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" style=""background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #0056b3; border-radius: 12px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: relative; transition: all 0.3s ease;"" onmouseover=""this.style.boxShadow='0 8px 12px rgba(0, 0, 0, 0.15)'; this.style.borderColor='#003d82';"" onmouseout=""this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'; this.style.borderColor='#0056b3';"">" +
+        // [WORKITEM:hcp-fab-button] Blue Share Asset bar + Golden wrapper (both elements preserved) ;CLEANUP_OK
+        // Blue action bar with Share Asset button (broadcasts via SignalR)
+        var blueShareBar = CreateShareButtonHtml(encodedAssetType, encodedDisplayName, encodedShareId, instanceNumber);
+        
+        // Asset grouping container with header (golden wrapper from HCP-Fab Button.txt)
+        return blueShareBar +
+               $@"<div class=""asset-group-container"" data-noor-asset-group=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" style=""background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #0056b3; border-radius: 12px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: relative; transition: all 0.3s ease;"" onmouseover=""this.style.boxShadow='0 8px 12px rgba(0, 0, 0, 0.15)'; this.style.borderColor='#003d82';"" onmouseout=""this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'; this.style.borderColor='#0056b3';"">" +
                $@"<div class=""asset-header"" style=""display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #0056b3;"">" +
                $@"<h3 class=""asset-title"" style=""margin: 0; color: #0056b3; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center;""><i class=""fas fa-cube"" style=""margin-right: 8px; color: #007bff;""></i>{encodedDisplayName}</h3>" +
                $@"</div>" +
                $@"<div class=""asset-content-wrapper"" style=""padding: 16px 0;"">";
+    }
+
+    /// <summary>
+    /// Create blue Share Asset button bar with SignalR broadcast functionality.
+    /// </summary>
+    private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    {
+        return $@"<div class=""action-wrapper"" style=""background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 12px 20px; border-radius: 8px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);"">" +
+               $@"<div style=""color: white; font-weight: 600; font-size: 0.95rem;"">" +
+               $@"<i class=""fas fa-cube"" style=""margin-right: 8px;""></i>{displayName}" +
+               $@"</div>" +
+               $@"<button class=""ks-share-button"" data-share-id=""{shareId}"" data-asset-type=""{assetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background: white; color: #1e40af; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"" onmouseover=""this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"" onmouseout=""this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"">" +
+               $@"<i class=""fas fa-share-nodes"" style=""margin-right: 6px;""></i>Share Asset" +
+               $@"</button>" +
+               $@"</div>";
     }
 
     /// <summary>

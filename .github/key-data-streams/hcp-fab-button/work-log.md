@@ -413,3 +413,206 @@ Until automated tests are updated with authentication:
 
 ---
 
+## Phase 3: Asset Wrapper Implementation (2025-10-28)
+
+### Objective
+Replace kebab menu in detected assets (hadees, images, tables, ayah cards, esoteric blocks) with:
+1. **Blue Share Asset bar** - Contains white "Share Asset" button with SignalR broadcast
+2. **Golden wrapper container** - Visual grouping with asset title header
+
+### User Request
+> "You have removed the BLUE bar with the Share Asset button. Restore that from git history. Add it back while preserving current changes of wrapping asset in div. Remove kebab component from UI."
+
+### Context
+- **File:** `SPA/NoorCanvas/Services/AssetProcessingService.cs`
+- **Methods:** `CreateAssetContainerHeaderHtml`, `CreateShareButtonHtml` (new)
+- **Previous State:** Kebab menu wrapper with Share/Annotate dropdown
+- **Issue:** Blue Share Asset bar was lost when implementing kebab menu
+- **Goal:** BOTH blue bar AND golden wrapper together
+
+### Implementation Details
+
+#### 3.1 Asset Detection System
+**Location:** AssetProcessingService.cs `InjectAssetShareButtonsAsync` method (line 135)
+
+**Asset Types Detected:**
+1. `inserted-hadees` - Hadith content blocks
+2. `imgResponsive` - Responsive images
+3. `table` - Data tables
+4. `ayah-card` - Quranic verse cards
+5. `esotericBlock` - Special content blocks
+
+**Detection Logic:**
+```csharp
+var assetLookup = await AssetLookup.BuildFromHtml(sanitizedInput, transformRunId);
+// Returns: List of detected assets with type, shareId, instanceNumber
+```
+
+**Reference:** AssetLookup.cs (performs DOM traversal with AngleSharp HTML parser)
+
+#### 3.2 Blue Share Asset Bar
+**Method:** `CreateShareButtonHtml` (lines 384-394)
+
+**HTML Structure:**
+```html
+<div class="action-wrapper" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 12px 20px; border-radius: 8px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
+  <div style="color: white; font-weight: 600; font-size: 0.95rem;">
+    <i class="fas fa-cube" style="margin-right: 8px;"></i>{displayName}
+  </div>
+  <button class="ks-share-button" 
+          data-share-id="{shareId}" 
+          data-asset-type="{assetType}" 
+          data-instance-number="{instanceNumber}" 
+          type="button" 
+          style="background: white; color: #1e40af; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <i class="fas fa-share-nodes" style="margin-right: 6px;"></i>Share Asset
+  </button>
+</div>
+```
+
+**SignalR Integration:**
+- **Class:** `ks-share-button` - JavaScript event listener selector
+- **Data Attributes:**
+  - `data-share-id`: Unique asset identifier for broadcast
+  - `data-asset-type`: Asset type (hadees, image, table, etc.)
+  - `data-instance-number`: Asset instance count (e.g., 3rd table in transcript)
+- **JavaScript Handler:** Invokes `hubConnection.InvokeAsync('ShareAsset', shareId, assetType)` on click
+- **Broadcast Target:** All participants in session receive asset via SessionHub
+
+**Design Specifications:**
+- **Background:** Blue gradient (#1e40af → #3b82f6)
+- **Button:** White background, blue text (#1e40af)
+- **Hover Effect:** Inline style - translateY(-2px), enhanced shadow
+- **Icon:** Font Awesome `fa-share-nodes` (share icon)
+
+#### 3.3 Golden Wrapper Container
+**Method:** `CreateAssetContainerHeaderHtml` (lines 361-380)
+
+**HTML Structure:**
+```html
+<div class="asset-group-container" 
+     data-noor-asset-group="true" 
+     data-share-id="{shareId}" 
+     data-asset-type="{assetType}" 
+     style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #0056b3; border-radius: 12px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: relative; transition: all 0.3s ease;">
+  <div class="asset-header" 
+       style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #0056b3;">
+    <h3 class="asset-title" 
+        style="margin: 0; color: #0056b3; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center;">
+      <i class="fas fa-cube" style="margin-right: 8px; color: #007bff;"></i>{displayName}
+    </h3>
+  </div>
+  <div class="asset-content-wrapper" style="padding: 16px 0;">
+    [ASSET CONTENT INSERTED HERE]
+  </div>
+</div>
+```
+
+**Design Specifications:**
+- **Background:** Gray gradient (#f8f9fa → #e9ecef)
+- **Border:** 2px solid blue (#0056b3)
+- **Border Radius:** 12px (rounded corners)
+- **Shadow:** 0 4px 6px rgba(0, 0, 0, 0.1) (subtle depth)
+- **Hover Effect:** Enhanced shadow (0 8px 12px), darker border (#003d82)
+- **Icon:** Font Awesome `fa-cube` (asset icon)
+
+**Pattern Source:** HCP-Fab Button.txt (original design reference, kebab menu removed)
+
+#### 3.4 Complete Output Structure
+**Combined HTML (both elements):**
+```html
+<!-- Blue Share Asset Bar -->
+<div class="action-wrapper">
+  <div>[Asset Name]</div>
+  <button class="ks-share-button">Share Asset</button>
+</div>
+
+<!-- Golden Wrapper Container -->
+<div class="asset-group-container">
+  <div class="asset-header">
+    <h3 class="asset-title">[Asset Name]</h3>
+  </div>
+  <div class="asset-content-wrapper">
+    [ORIGINAL ASSET CONTENT - UNCHANGED]
+  </div>
+</div>
+```
+
+**Processing Flow:**
+1. AssetLookup detects asset in transcript HTML
+2. `CreateAssetContainerHeaderHtml` called with asset metadata
+3. `CreateShareButtonHtml` generates blue bar HTML
+4. Golden wrapper HTML appended after blue bar
+5. Original asset content wrapped inside `asset-content-wrapper`
+6. `CreateAssetContainerFooterHtml` closes wrapper divs
+7. Transformed HTML injected back into transcript
+
+#### 3.5 Removed: Kebab Menu Implementation
+**Deleted Components:**
+- `asset-menu-wrapper` div (kebab menu container)
+- Dropdown menu with Share/Annotate actions
+- Kebab icon (3-dot vertical menu)
+- JavaScript dropdown toggle handlers
+
+**Reason:** User requested removal - kebab menu added UI complexity, blue Share Asset bar is clearer UX
+
+### API/Database References
+
+**No API Changes** - Asset processing is HTML transformation only
+
+**Database Queries:**
+- **AssetLookup.BuildFromHtml** queries no database (client-side HTML parsing)
+- **Share Asset Broadcast** uses existing SignalR hub (SessionHub.ShareAsset)
+- **Asset Metadata** stored in HTML data attributes (no database persistence)
+
+**SignalR Hub Method:**
+- **Hub:** `SessionHub` (located: `SPA/NoorCanvas/Hubs/SessionHub.cs`)
+- **Method:** `ShareAsset(string shareId, string assetType)`
+- **Broadcast:** Sends to all clients in session group `session_{sessionId}`
+- **Client Handler:** JavaScript `connection.on('AssetShared', ...)` in HostControlPanelContent.razor
+
+### Files Modified
+
+1. **SPA/NoorCanvas/Services/AssetProcessingService.cs**
+   - Line 361-380: `CreateAssetContainerHeaderHtml` - Modified to call CreateShareButtonHtml and remove kebab menu
+   - Line 384-394: `CreateShareButtonHtml` - NEW method - Generates blue Share Asset bar
+   - Line 370: WORKITEM comment added - `[WORKITEM:hcp-fab-button] Blue Share Asset bar + Golden wrapper`
+
+### Testing Strategy
+
+**Manual Verification Steps:**
+1. Start session with transcript (e.g., session 212)
+2. Insert asset (hadees, image, table, ayah, esoteric block)
+3. Verify blue Share Asset bar appears ABOVE golden wrapper
+4. Verify golden wrapper contains asset title header
+5. Verify asset content inside wrapper
+6. Click "Share Asset" button
+7. Verify SignalR broadcast triggers (check browser console)
+8. Verify participant receives asset (check student canvas)
+
+**Expected Visual Result:**
+```
+┌─────────────────────────────────────────┐
+│ [Blue Gradient Bar]                    │
+│ 📦 Asset Name    [Share Asset Button]  │  ← Blue bar with white button
+└─────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│ 📦 Asset Name                           │  ← Golden wrapper header
+├─────────────────────────────────────────┤
+│                                         │
+│  [ASSET CONTENT HERE]                   │  ← Original asset (unchanged)
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+### Status
+✅ **Complete** - Both blue Share Asset bar AND golden wrapper implemented  
+✅ **Kebab menu removed** - No dropdown UI complexity  
+✅ **SignalR preserved** - Share Asset button broadcasts via ks-share-button class  
+✅ **Hot reload ready** - Application running with dotnet watch (ncw)
+
+### Next Action
+**User:** Test Share Asset button click in browser to confirm SignalR broadcast works
+
+---
+

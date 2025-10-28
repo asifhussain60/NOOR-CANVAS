@@ -1569,6 +1569,27 @@ HIGH-PRIORITY Constraints Verified:
 
 ### Step 7: Confirm
 
+**BLOCKER VALIDATION (Execute BEFORE providing summary):**
+
+```
+Documentation Completeness Check:
+  ✓ Step 2.2.1 executed? (User Request + Implementation Plan recorded)
+  ✓ Work-log.md contains Views/Components section? (if UI work)
+  ✓ Work-log.md contains API Endpoints section? (if API work)
+  ✓ Work-log.md contains Database section? (if data persistence)
+  ✓ Work-log.md contains SignalR Hubs section? (if real-time features)
+  ✓ Work-log.md contains HTML/CSS/JavaScript changes? (if UI styling)
+  ✓ Work-log.md contains Testing Results? (all tests documented)
+  ✓ Work-log.md contains complete file paths, method names, line ranges?
+
+IF any check fails:
+  → HALT confirmation
+  → Update work-log.md with missing documentation
+  → Then proceed to summary
+
+WHY: "Document first, report later" - Work-log must be comprehensive for investigation timeline reconstruction
+```
+
 **Provide summary based on `verbosity` parameter:**
 
 **Concise:**
@@ -1820,37 +1841,119 @@ END IF
 3. Obsolescence cleanup: Remove superseded implementations, failed experiments
 4. Size limits: If >100 entries or >50KB, trigger consolidation
 
-#### 8.3. Key Data Stream Update Requirements
-1. Locate key file: `.github/key-data-streams/**/{key}.md`
+#### 8.3. Key Data Stream Update Requirements (COMPREHENSIVE DOCUMENTATION)
+
+**CRITICAL:** Work-log.md must contain complete implementation details for investigation timeline reconstruction.
+
+1. Locate key file: `.github/key-data-streams/{key}/work-log.md`
 2. Retrieve git commit hash: `git rev-parse HEAD`
-3. **Record user request** (Step 2.2.1 - if not already recorded):
+3. **Verify Step 2.2.1 documentation exists** (User Request + Implementation Plan recorded BEFORE work started)
+4. **Append Work Completed section** (AFTER work finished):
+
    ```markdown
-   ### User Request (2025-10-18T12:00:00Z)
-   {succinct 1-2 sentence summary of user's original request}
+   ### Work Completed (YYYY-MM-DD HH:MM)
    
-   **High-Priority Constraints** (ALL CAPS from user):
-   - do NOT remove existing save button
-   - EXACTLY match mockup colors
+   **Status**: {In Progress | Complete}
+   
+   #### Changes Summary
+   {1-2 sentence overview of what was implemented}
+   
+   #### Files Modified
+   
+   **Views/Components:**
+   1. `{path}` (lines {start}-{end})
+      - Added: {feature-description}
+      - Modified: {existing-feature-description}
+      - Removed: {removed-feature-description}
+   
+   **API Endpoints:**
+   1. `{ControllerName}.{MethodName}` ({HttpMethod} {route})
+      - Request: {request-model-type}
+      - Response: {response-model-type}
+      - Authentication: {required|optional|none}
+      - Changes: {what-changed}
+   
+   **Database:**
+   1. Schema: `{schema.table}`
+      - Operations: {SELECT|INSERT|UPDATE|DELETE}
+      - Columns Affected: {column-names}
+      - Migration: {migration-file-name} (if created)
+   
+   **SignalR Hubs:**
+   1. `{HubName}` (file: `{path}`)
+      - Methods Added/Modified: `{MethodName}({parameters})`
+      - Events Broadcast: `{EventName}` to `{target-group}`
+      - Client Handlers: `connection.on('{EventName}', ...)` in `{client-file}`
+   
+   **Services:**
+   1. `{ServiceName}` (file: `{path}`)
+      - Methods: `{MethodName}({parameters}) : {ReturnType}`
+      - Dependencies Injected: {service-names}
+      - Algorithm: {brief-description-of-logic}
+   
+   #### HTML/CSS/JavaScript Changes
+   
+   **HTML Structure:**
+   ```html
+   {key-structural-changes-with-brief-example}
    ```
-4. Update or create entry (append to work log):
-   ```markdown
-   ### Work Completed (2025-10-18T12:30:00Z)
-   - **Status**: {In Progress | Complete}
-   - **Changes**: {list}
-   - **Files Affected**: {list}
-   - **Tests**: {results}
-   - **Lint Validation**: {PASS | FAIL with details}
-   - **High-Priority Constraints Verified**:
-     - [PASS] Save button preserved (user ALL CAPS: do NOT remove)
-     - [PASS] Mockup colors matched (user ALL CAPS: EXACTLY match)
-   - **Approval Iterations**: {N} (if re-evaluation occurred)
-   - **Additional Requirements**: {list of requirements added during iterations}
-   - **Commit**: {SHA}
+   
+   **CSS Classes:**
+   - `.{class-name}` - {purpose} (positioning, styling, animation)
+   
+   **JavaScript:**
+   - Event handlers: `{element-selector}` → `{handler-function}`
+   - SignalR: `hubConnection.on('{event}', ...)` in `{file}`
+   
+   #### Testing Results
+   - **Manual Verification**: {steps-performed} - {PASS|FAIL}
+   - **Automated Tests**: {test-file-names} - {results}
+   - **Percy Visual**: {snapshot-names} - {baseline|changes-detected}
+   - **Lint Validation**: {PASS|FAIL with details}
+   
+   #### High-Priority Constraints Verified
+   - [PASS|FAIL] {constraint-description} (user ALL CAPS: {original-constraint})
+   - [PASS|FAIL] {constraint-description} (user ALL CAPS: {original-constraint})
+   
+   #### Approval Iterations
+   {N} re-evaluations (if requirements evolved during implementation)
+   
+   **Additional Requirements Added:**
+   - {requirement-1}
+   - {requirement-2}
+   
+   #### Commit Details
+   - **SHA**: {full-commit-hash}
+   - **Message**: `{commit-message}`
+   - **Tag**: `checkpoint/{key}/{timestamp}`
+   - **Files Changed**: {count}
+   - **Lines Changed**: +{additions} -{deletions}
+   
+   #### Next Steps
+   - [ ] {pending-task-1}
+   - [ ] {pending-task-2}
    ```
-5. Output to user (brief acknowledgment only):
+
+5. **Enforcement Rules:**
+   - ❌ NEVER skip "SignalR Hubs" section if real-time features involved
+   - ❌ NEVER skip "Database" section if data persistence involved
+   - ❌ NEVER skip "API Endpoints" section if client-server communication involved
+   - ❌ NEVER use vague descriptions - include file paths, method names, line ranges
+   - ✅ ALWAYS include HTML/CSS/JavaScript changes for UI work
+   - ✅ ALWAYS document complete data flow (UI → API → Service → DB → SignalR → UI)
+   - ✅ ALWAYS cross-reference Step 2.2.1 documentation (plan vs. actual)
+
+6. Output to user (brief acknowledgment only):
    - Concise: `"[OK] Key data stream updated (commit: {SHA})"`
    - Detailed: Show complete entry added
-6. Maintain alphabetical sorting of keys
+
+7. Maintain alphabetical sorting of keys
+
+**Rationale:**
+- Enables future developers to understand "why" and "how" decisions were made
+- Creates searchable knowledge base of implementation patterns
+- Documents architectural context for investigation timeline reconstruction
+- Records SignalR event flow, database schema, API contracts for system-wide understanding
 
 #### 8.4. Functionality Registry Validation (Regression Prevention)
 1. Load Functionality Registry (if exists)
