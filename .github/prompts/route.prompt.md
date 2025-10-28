@@ -122,13 +122,15 @@ Whether to automatically execute after building prompt
 
 ## 🔒 Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
-2. **NO code blocks** - Use brief pseudocode only  
+2. **NO code blocks** - NEVER show implementation code in route responses
 3. **NO nested lists** - Flat bullets only
 4. **Show handoff summary** - Not full target agent output
 5. **Transition control** - Actually load and execute target prompt
 6. **Search before create** - Consult key data streams first
 7. **Intelligent routing** - Single task → todo, Multiple → plan
 8. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Step 7.5)
+9. **STEP DESCRIPTIONS ONLY** - Show "Step X: [action description]" with file paths, NO code snippets
+10. **CONCISE FILE UPDATES** - List only file paths and high-level changes (e.g., "Update button HTML generation")
 
 ---
 
