@@ -2,20 +2,106 @@
 
 **Key:** `hcp-fab-button`  
 **Created:** 2025-10-28  
-**Status:** ✅ Complete  
+**Status:** 🔄 In Progress  
 **Agent:** route.prompt.md → task.prompt.md
 
 ---
 
 ## Objective
 
-Implement FAB (Floating Action Button) for broadcasting session transcript in Host Control Panel, positioned top-right of transcript container.
+Add FAB (Floating Action Button) to asset headers for quick sharing functionality. Goal: Replace blue "Share Ayat Card" buttons with unified lilac FAB buttons in asset headers.
 
 ---
 
 ## Implementation History
 
-### Phase 1: Initial Misunderstanding (Retroactive Documentation)
+### Phase 1: Initial Transcript FAB (Completed 2025-10-28)
+- **Scope:** FAB button for broadcasting full session transcript
+- **Location:** Top-right of transcript container
+- **Status:** ✅ Complete (CSS positioning fixed, tests created)
+
+### Phase 2: Asset Header FAB (Current - 2025-10-28)
+- **Scope:** FAB button in each asset header for individual asset sharing
+- **Goal:** Replace blue share buttons with lilac FAB buttons
+- **Status:** 🔄 In Progress
+
+---
+
+## Phase 2: Asset Header FAB Implementation
+
+### Changes Applied
+
+#### 1. Asset Header FAB Button HTML Generation
+**File:** `SPA/NoorCanvas/Services/AssetProcessingService.cs` (line 375)
+
+**Added to `CreateAssetContainerHeaderHtml` method:**
+```csharp
+// [DEBUG-WORKITEM:hcp-fab-button] Added FAB button with data attributes for asset sharing ;CLEANUP_OK
+$@"<button type=""button"" 
+          class=""asset-header-fab-button"" 
+          data-share-id=""{encodedShareId}"" 
+          data-asset-type=""{encodedAssetType}"" 
+          data-instance-number=""{instanceNumber}""
+          onclick=""console.log('Asset FAB clicked: {encodedShareId}');"" 
+          aria-label=""Share asset"" 
+          style=""width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background-color: #E9D5FF; color: #6B21A8; border: 1px solid #6B21A8; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(107, 33, 168, 0.2); transition: all 0.2s ease;"" 
+          onmouseover=""this.style.backgroundColor='#DDD6FE'; this.style.transform='scale(1.05)';"" 
+          onmouseout=""this.style.backgroundColor='#E9D5FF'; this.style.transform='scale(1)';"">
+    <i class=""fa-solid fa-ellipsis-vertical"" style=""font-size: 1.5rem;""></i>
+</button>"
+```
+
+**Key Features:**
+- **Data Attributes:** `data-share-id`, `data-asset-type`, `data-instance-number` (cloned from blue share button pattern)
+- **Styling:** Lilac background (#E9D5FF), dark purple border (#6B21A8), 40px circle
+- **Icon:** Vertical ellipsis (fa-ellipsis-vertical)
+- **Position:** Right-aligned in asset header (via flexbox `justify-content: space-between`)
+- **Always Visible:** No conditional rendering (renders with every asset)
+
+---
+
+#### 2. Unified Click Handler (Share Button + FAB Button)
+**File:** `SPA/NoorCanvas/Pages/HostControlPanel.razor` (JavaScript section, line 4866)
+
+**Modified `handleShareButtonClick` function:**
+```javascript
+// [DEBUG-WORKITEM:hcp-fab-button] Check if clicked element is a share button OR FAB button ;CLEANUP_OK
+const shareButton = event.target.closest('.ks-share-button, .asset-header-fab-button');
+```
+
+**Behavior:**
+- Unified handler processes both `.ks-share-button` (blue) and `.asset-header-fab-button` (lilac)
+- Extracts `data-share-id`, `data-asset-type`, `data-instance-number` from clicked button
+- Calls `ShareAsset` DotNet method via existing interop
+- Visual feedback: Spinner → Checkmark/X → Restore original state
+
+**ShareTranscriptSection Protection:**
+- ✅ Unaffected - uses separate handler and JSInvokable method
+- ✅ Different selector pattern (section-specific, not asset buttons)
+- ✅ No overlap in event delegation logic
+
+---
+
+### Testing Plan
+
+**Manual Verification:**
+1. Start session with asset content (Ayat cards, Hadees, etc.)
+2. Verify FAB button appears in each asset header (right-aligned)
+3. Click FAB button → Should trigger asset share
+4. Verify blue share button still works (during transition)
+5. Confirm transcript section sharing unaffected
+
+**Next Steps:**
+1. ✅ Add data attributes to FAB button HTML (COMPLETE)
+2. ✅ Update click handler to support both button types (COMPLETE)
+3. ⏳ Manual testing (FAB click triggers share)
+4. ⏳ Remove blue share button HTML generation
+5. ⏳ Remove `.ks-share-button` CSS cleanup
+6. ⏳ Update Playwright tests for new button class
+
+---
+
+## Phase 1: Initial Misunderstanding (Retroactive Documentation)
 - **Date:** 2025-10-28 (earlier)
 - **Action:** Created plan.md assuming button was already working
 - **Issue:** Misread code - button existed but was NOT visible due to wrong positioning
