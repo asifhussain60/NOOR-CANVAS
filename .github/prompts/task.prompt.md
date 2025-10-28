@@ -1843,6 +1843,12 @@ END IF
 
 #### 8.3. Key Data Stream Update Requirements (COMPREHENSIVE DOCUMENTATION)
 
+**🎯 SCOPE CLARIFICATION:**
+- The code examples below are **TEMPLATES for work-log.md documentation** (written to `.github/key-data-streams/{key}/work-log.md`)
+- They are **NOT user-facing output** (shown to user in chat)
+- **User-facing output** should use **architectural descriptions** (file paths, method names, data flows) - see CONCISE-MANDATE.md
+- **Work-log.md documentation** should include **code examples** for investigation timeline reconstruction
+
 **CRITICAL:** Work-log.md must contain complete implementation details for investigation timeline reconstruction.
 
 1. Locate key file: `.github/key-data-streams/{key}/work-log.md`
