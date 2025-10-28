@@ -7,7 +7,8 @@ description: Canonical execution engine that breaks down requests, validates out
 > purpose: Execute planned work, validate outcomes, update key data stream progressively
 > inputs: key, tasks, -test, github-branch, commit-checkpoints, auto-chain, phase, debug-level, verbosity
 > outputs: phase execution results, checkpoints, updated work-log and artifacts
-> lastUpdated: 2025-10-27
+> lastUpdated: 2025-10-28
+> stateTracking: enabled
 > acceptsFrom: [plan]
 > calls: [test-generation]
 
@@ -328,6 +329,25 @@ Task Agent: [Executes phases sequentially]
 
 **See:** `shared/execution-flow.md` for complete visual flow diagram
 
+### Step -1: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the incoming request (routed from plan or direct invocation)
+Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain @("route", "plan", "task")
+```
+
+**Purpose:**
+- Track task execution invocations
+- Record execution requests and handoffs from plan agent
+- Enable commit tracking during checkpoint operations
+
+---
+
 ### Step 0: Branch Verification (MANDATORY)
 
 ⚠️ **ALWAYS verify you're in the correct branch before starting any work.**
@@ -606,6 +626,11 @@ powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=
 
 # Tag the checkpoint for easy discovery
 powershell -NoProfile -Command "$sha=(git rev-parse --short HEAD); $t=Get-Date -Format 'yyyyMMdd-HHmm'; git tag \"key-{key}-ckpt-$t-$sha\""
+```
+
+**Log checkpoint to state tracking:**
+```powershell
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "ckpt({key}): pre-task checkpoint" -Phase $phase -CheckpointType "pre-task"
 ```
 
 This ensures rollback capability if the task introduces instability.

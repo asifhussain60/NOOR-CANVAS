@@ -1,7 +1,19 @@
 # project-enhancement — Comprehensive Project Stack Analysis & Tooling Recommendations
 
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **Purpose**: Analyze entire application stack, identify enhancement opportunities, and recommend secure, production-grade tooling improvements for any GitHub project.
+
+**Changelog:**
+- **v1.1.0 (2025-10-28)**: Added SYSTEM-REGISTRY.md update after stack analysis and recommendations
+
+---
+
+## Metadata
+> inputs: scope, focus, -test
+> outputs: Stack analysis report, enhancement recommendations, security audit; updates SYSTEM-REGISTRY.md
+> calls: [update-registry]
+> relatedFiles: [.github/SYSTEM-REGISTRY.md, package.json, **/*.csproj]
+> lastUpdated: 2025-10-28
 
 ---
 
@@ -503,6 +515,15 @@ END FUNCTION
 - ROI/effort estimates included
 - Generic enough for any project
 - Output passes CONCISE-MANDATE validation
+- **SYSTEM-REGISTRY.md updated** if stack/tools changed
+
+---
+
+## Post-Analysis Actions
+After completing analysis and providing recommendations:
+1. If new tools/frameworks recommended, invoke `update-registry scope=stack` to update SYSTEM-REGISTRY.md
+2. If configuration changes suggested, invoke `update-registry scope=config` to update task/config listings
+3. Document analysis in key-data-stream if major enhancements recommended
 
 ---
 
@@ -510,6 +531,7 @@ END FUNCTION
 - Can invoke `/plan` for detailed implementation
 - Can invoke `/healthcheck` for validation
 - Can invoke `/task` for immediate fixes
+- **Invokes** `/update-registry` after stack/tooling analysis
 - Compatible with drift detection for found issues
 
 ---

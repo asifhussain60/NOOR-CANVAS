@@ -1,15 +1,27 @@
 # Project List (plist) - Portable Project Intelligence Tool
 # Works in any git-based project with auto-discovery
-# Version: 1.0.0
+# Version: 2.0.0 - Enhanced with key state tracking, request history, commit lookup
 
 param(
+    # Original commands (preserved)
     [switch]$keys,
     [switch]$dic,
     [switch]$git,
     [switch]$files,
+    
+    # New key data stream commands
+    [switch]$lookup,
+    [switch]$requests,
+    [switch]$commits,
+    [switch]$timeline,
+    [switch]$prompts,
+    [switch]$graph,
+    
+    # Parameters
     [int]$n = 10,
     [string]$c,
     [string]$f,
+    [string]$k,  # Key name for lookup/requests/commits/timeline/graph
     [switch]$oldest,
     [switch]$help
 )
@@ -20,27 +32,42 @@ param(
 
 if ($help) {
     Write-Host ""
-    Write-Host "Project List (plist) - Project Intelligence Tool" -ForegroundColor Cyan
-    Write-Host "=================================================" -ForegroundColor Cyan
+    Write-Host "Project List (plist) - Project Intelligence Tool v2.0" -ForegroundColor Cyan
+    Write-Host "=====================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "DESCRIPTION:" -ForegroundColor White
-    Write-Host "  Search and list keys, dictionary entries, git history, and files"
+    Write-Host "  Search keys, dictionary, git history, files, and key data streams"
     Write-Host "  Auto-discovers project structure - works in any git repository"
     Write-Host ""
-    Write-Host "USAGE:" -ForegroundColor White
+    Write-Host "USAGE (Original):" -ForegroundColor White
     Write-Host "  plist -keys [-n <count>]              List work keys"
     Write-Host "  plist -dic -c <cat> [-f <filter>]     Dictionary lookup"
     Write-Host "  plist -git [-n <count>] [-oldest]     Git commit history"
     Write-Host "  plist -files -f <pattern>             Fuzzy file search"
+    Write-Host ""
+    Write-Host "USAGE (New - Key Data Streams):" -ForegroundColor Yellow
+    Write-Host "  plist -lookup -k <key>                Full key summary"
+    Write-Host "  plist -requests -k <key>              Request history for key"
+    Write-Host "  plist -commits -k <key>               Git commits for key"
+    Write-Host "  plist -timeline -k <key>              Visual timeline"
+    Write-Host "  plist -prompts                        Show prompt graph"
+    Write-Host "  plist -graph -k <key>                 Prompt execution path for key"
     Write-Host ""
     Write-Host "PARAMETERS:" -ForegroundColor White
     Write-Host "  -keys         List work item keys"
     Write-Host "  -dic          Show dictionary entries"
     Write-Host "  -git          Show git commit history"
     Write-Host "  -files        Search for files"
+    Write-Host "  -lookup       Show full key details"
+    Write-Host "  -requests     Show request history"
+    Write-Host "  -commits      Show commits for key"
+    Write-Host "  -timeline     Show visual timeline"
+    Write-Host "  -prompts      Show prompt system graph"
+    Write-Host "  -graph        Show prompt execution path"
     Write-Host "  -n <int>      Number of results (default: 10)"
     Write-Host "  -c <char>     Category (U|V|A|S|T|D|I|X=all)"
     Write-Host "  -f <string>   Filter/pattern"
+    Write-Host "  -k <string>   Key name (for lookup/requests/commits/timeline/graph)"
     Write-Host "  -oldest       Reverse chronological (for git)"
     Write-Host "  -help         Show this help"
     Write-Host ""
@@ -54,7 +81,7 @@ if ($help) {
     Write-Host "  I = Infrastructure"
     Write-Host "  X = All categories"
     Write-Host ""
-    Write-Host "EXAMPLES:" -ForegroundColor White
+    Write-Host "EXAMPLES (Original):" -ForegroundColor White
     Write-Host "  plist -keys                      # Last 10 keys"
     Write-Host "  plist -keys -n 20                # Last 20 keys"
     Write-Host "  plist -dic -c V                  # All view shortcuts"
@@ -62,6 +89,14 @@ if ($help) {
     Write-Host "  plist -dic -c X                  # All dictionary entries"
     Write-Host "  plist -git -n 15                 # Last 15 commits"
     Write-Host "  plist -files -f hcpraz           # Fuzzy file search"
+    Write-Host ""
+    Write-Host "EXAMPLES (New - Key Data Streams):" -ForegroundColor Yellow
+    Write-Host "  plist -lookup -k zoom-integration        # Full key details"
+    Write-Host "  plist -requests -k database-safeguards   # Request history"
+    Write-Host "  plist -commits -k transcript-canvas      # Commits for key"
+    Write-Host "  plist -timeline -k host-prov-domain      # Visual timeline"
+    Write-Host "  plist -prompts                           # Show prompt graph"
+    Write-Host "  plist -graph -k zoom-integration         # Prompt execution path"
     Write-Host ""
     return
 }
@@ -92,7 +127,15 @@ function Get-FirstExisting {
 
 $script:ProjectRoot = Get-ProjectRoot
 
-# Auto-discover key locations
+# Auto-discover key data stream locations
+$script:KeyDataStreamPaths = @(
+    ".github/key-data-streams",
+    "Workspaces/Copilot/KeyDataStreams",
+    ".copilot/key-data-streams",
+    "docs/keys"
+)
+
+# Auto-discover key locations (preserved for compatibility)
 $script:KeyPaths = @(
     "Workspaces/Copilot/keys",
     ".copilot/keys",
@@ -391,16 +434,508 @@ function Show-Files {
 }
 
 # ============================================================================
+# LOOKUP COMMAND (New)
+# ============================================================================
+
+function Show-KeyLookup {
+    if (-not $k) {
+        Write-Host ""
+        Write-Host "Error: -k <key> required for -lookup" -ForegroundColor Red
+        Write-Host "Example: plist -lookup -k zoom-integration" -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    Write-Host ""
+    Write-Host "Key Lookup: $k" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Find key data stream directory
+    $keyDirFound = $false
+    foreach ($basePath in $script:KeyDataStreamPaths) {
+        $keyDir = Join-Path $script:ProjectRoot $basePath
+        $targetKeyDir = Join-Path $keyDir $k
+        
+        if (Test-Path $targetKeyDir) {
+            $keyDirFound = $true
+            
+            # Load state.json if exists
+            $stateFile = Join-Path $targetKeyDir "$k.state.json"
+            if (Test-Path $stateFile) {
+                $state = Get-Content $stateFile -Raw | ConvertFrom-Json
+                
+                Write-Host "  Status: " -NoNewline -ForegroundColor White
+                Write-Host $state.status -ForegroundColor Green
+                Write-Host "  Created: " -NoNewline -ForegroundColor White
+                Write-Host $state.created -ForegroundColor Gray
+                Write-Host "  Phases: " -NoNewline -ForegroundColor White
+                Write-Host "$($state.completedPhases)/$($state.totalPhases)" -ForegroundColor Yellow
+                
+                if ($state.requests -and $state.requests.Count -gt 0) {
+                    Write-Host "  Requests: " -NoNewline -ForegroundColor White
+                    Write-Host $state.requests.Count -ForegroundColor Cyan
+                }
+                
+                if ($state.commits -and $state.commits.Count -gt 0) {
+                    Write-Host "  Commits: " -NoNewline -ForegroundColor White
+                    Write-Host $state.commits.Count -ForegroundColor Cyan
+                }
+                
+                if ($state.filesModified -and $state.filesModified.Count -gt 0) {
+                    Write-Host "  Files Modified: " -NoNewline -ForegroundColor White
+                    Write-Host $state.filesModified.Count -ForegroundColor Cyan
+                }
+                
+                if ($state.branch) {
+                    Write-Host "  Branch: " -NoNewline -ForegroundColor White
+                    Write-Host $state.branch -ForegroundColor Magenta
+                }
+                
+                Write-Host "  Location: " -NoNewline -ForegroundColor White
+                Write-Host $targetKeyDir.Replace($script:ProjectRoot, '.') -ForegroundColor Gray
+            }
+            else {
+                # Fallback to plan.json
+                $planFile = Join-Path $targetKeyDir "$k.plan.json"
+                if (Test-Path $planFile) {
+                    $plan = Get-Content $planFile -Raw | ConvertFrom-Json
+                    
+                    Write-Host "  Status: " -NoNewline -ForegroundColor White
+                    Write-Host $plan.status -ForegroundColor Yellow
+                    Write-Host "  Phases: " -NoNewline -ForegroundColor White
+                    Write-Host "$($plan.completedPhases)/$($plan.totalPhases)" -ForegroundColor Cyan
+                    Write-Host "  Location: " -NoNewline -ForegroundColor White
+                    Write-Host $targetKeyDir.Replace($script:ProjectRoot, '.') -ForegroundColor Gray
+                    Write-Host ""
+                    Write-Host "  Note: Legacy format (plan.json only)" -ForegroundColor Yellow
+                    Write-Host "  Run migration script to upgrade to state.json" -ForegroundColor Gray
+                }
+                else {
+                    Write-Host "  No state.json or plan.json found" -ForegroundColor Yellow
+                }
+            }
+            
+            break
+        }
+    }
+    
+    if (-not $keyDirFound) {
+        Write-Host "  Key not found: $k" -ForegroundColor Yellow
+        Write-Host "  Searched paths:" -ForegroundColor Gray
+        foreach ($basePath in $script:KeyDataStreamPaths) {
+            Write-Host "    - $basePath" -ForegroundColor Gray
+        }
+    }
+    
+    Write-Host ""
+}
+
+# ============================================================================
+# REQUESTS COMMAND (New)
+# ============================================================================
+
+function Show-KeyRequests {
+    if (-not $k) {
+        Write-Host ""
+        Write-Host "Error: -k <key> required for -requests" -ForegroundColor Red
+        Write-Host "Example: plist -requests -k zoom-integration" -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    Write-Host ""
+    Write-Host "Request History: $k" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Find state.json
+    $stateFile = $null
+    foreach ($basePath in $script:KeyDataStreamPaths) {
+        $keyDir = Join-Path $script:ProjectRoot $basePath
+        $targetKeyDir = Join-Path $keyDir $k
+        $testStateFile = Join-Path $targetKeyDir "$k.state.json"
+        
+        if (Test-Path $testStateFile) {
+            $stateFile = $testStateFile
+            break
+        }
+    }
+    
+    if (-not $stateFile) {
+        Write-Host "  No state.json found for key: $k" -ForegroundColor Yellow
+        Write-Host "  Run migration script to create state.json from work-log.md" -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    $state = Get-Content $stateFile -Raw | ConvertFrom-Json
+    
+    if (-not $state.requests -or $state.requests.Count -eq 0) {
+        Write-Host "  No requests recorded for this key" -ForegroundColor Yellow
+    }
+    else {
+        $i = 1
+        foreach ($req in $state.requests) {
+            Write-Host "  $i. " -NoNewline -ForegroundColor White
+            Write-Host "[$($req.type)] " -NoNewline -ForegroundColor Cyan
+            $timestamp = if ($req.timestamp -is [DateTime]) { 
+                $req.timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+            } else { 
+                $req.timestamp.ToString().Substring(0, 19)
+            }
+            Write-Host $timestamp -ForegroundColor Gray
+            Write-Host "     " -NoNewline
+            Write-Host $req.userRequest.Substring(0, [Math]::Min(100, $req.userRequest.Length)) -ForegroundColor White
+            if ($req.userRequest.Length -gt 100) {
+                Write-Host "     ..." -ForegroundColor Gray
+            }
+            if ($req.commits -and $req.commits.Count -gt 0) {
+                Write-Host "     Commits: " -NoNewline -ForegroundColor Gray
+                Write-Host ($req.commits -join ', ') -ForegroundColor Yellow
+            }
+            Write-Host ""
+            $i++
+        }
+    }
+    
+    Write-Host ""
+}
+
+# ============================================================================
+# COMMITS COMMAND (New)
+# ============================================================================
+
+function Show-KeyCommits {
+    if (-not $k) {
+        Write-Host ""
+        Write-Host "Error: -k <key> required for -commits" -ForegroundColor Red
+        Write-Host "Example: plist -commits -k zoom-integration" -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    Write-Host ""
+    Write-Host "Commits: $k" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Find state.json
+    $stateFile = $null
+    foreach ($basePath in $script:KeyDataStreamPaths) {
+        $keyDir = Join-Path $script:ProjectRoot $basePath
+        $targetKeyDir = Join-Path $keyDir $k
+        $testStateFile = Join-Path $targetKeyDir "$k.state.json"
+        
+        if (Test-Path $testStateFile) {
+            $stateFile = $testStateFile
+            break
+        }
+    }
+    
+    if (-not $stateFile) {
+        Write-Host "  No state.json found for key: $k" -ForegroundColor Yellow
+        Write-Host "  Searching git history for ckpt($k) commits..." -ForegroundColor Gray
+        Write-Host ""
+        
+        # Fallback: search git history
+        $commits = git log --all --grep="ckpt($k)" --format="%h|%s|%ad|%an" --date=short -50 2>$null
+        if ($commits) {
+            $i = 1
+            $commits | ForEach-Object {
+                if ($_ -match '^(.+?)\|(.+?)\|(.+?)\|(.+)$') {
+                    $sha = $Matches[1]
+                    $message = $Matches[2]
+                    $date = $Matches[3]
+                    $author = $Matches[4]
+                    
+                    Write-Host "  $i. " -NoNewline -ForegroundColor White
+                    Write-Host "[$date] " -NoNewline -ForegroundColor Gray
+                    Write-Host $sha -NoNewline -ForegroundColor Yellow
+                    Write-Host " - $message" -ForegroundColor White
+                    $i++
+                }
+            }
+        }
+        else {
+            Write-Host "  No commits found matching ckpt($k)" -ForegroundColor Yellow
+        }
+        
+        Write-Host ""
+        return
+    }
+    
+    $state = Get-Content $stateFile -Raw | ConvertFrom-Json
+    
+    if (-not $state.commits -or $state.commits.Count -eq 0) {
+        Write-Host "  No commits recorded for this key" -ForegroundColor Yellow
+    }
+    else {
+        $i = 1
+        foreach ($commit in $state.commits) {
+            Write-Host "  $i. " -NoNewline -ForegroundColor White
+            $timestampStr = if ($commit.timestamp -is [DateTime]) { $commit.timestamp.ToString("yyyy-MM-dd") } else { $commit.timestamp.Substring(0, 10) }
+            Write-Host "[$timestampStr] " -NoNewline -ForegroundColor Gray
+            Write-Host $commit.sha -NoNewline -ForegroundColor Yellow
+            
+            if ($commit.phase) {
+                Write-Host " [Phase $($commit.phase)]" -NoNewline -ForegroundColor Cyan
+            }
+            
+            Write-Host ""
+            Write-Host "     $($commit.message)" -ForegroundColor White
+            
+            if ($commit.filesChanged -and $commit.filesChanged.Count -gt 0) {
+                Write-Host "     Files: " -NoNewline -ForegroundColor Gray
+                Write-Host "$($commit.filesChanged.Count) changed" -ForegroundColor Cyan
+            }
+            
+            Write-Host ""
+            $i++
+        }
+    }
+    
+    Write-Host ""
+}
+
+# ============================================================================
+# TIMELINE COMMAND (New)
+# ============================================================================
+
+function Show-KeyTimeline {
+    if (-not $k) {
+        Write-Host ""
+        Write-Host "Error: -k <key> required for -timeline" -ForegroundColor Red
+        Write-Host "Example: plist -timeline -k zoom-integration" -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    Write-Host ""
+    Write-Host "Timeline: $k" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Find state.json
+    $stateFile = $null
+    foreach ($basePath in $script:KeyDataStreamPaths) {
+        $keyDir = Join-Path $script:ProjectRoot $basePath
+        $targetKeyDir = Join-Path $keyDir $k
+        $testStateFile = Join-Path $targetKeyDir "$k.state.json"
+        
+        if (Test-Path $testStateFile) {
+            $stateFile = $testStateFile
+            break
+        }
+    }
+    
+    if (-not $stateFile) {
+        Write-Host "  No state.json found for key: $k" -ForegroundColor Yellow
+        Write-Host ""
+        return
+    }
+    
+    $state = Get-Content $stateFile -Raw | ConvertFrom-Json
+    
+    # Build chronological timeline
+    $events = @()
+    
+    # Add requests
+    if ($state.requests) {
+        foreach ($req in $state.requests) {
+            $events += [PSCustomObject]@{
+                Timestamp = [DateTime]::Parse($req.timestamp)
+                Type = "Request"
+                Description = "[$($req.type)] $($req.userRequest.Substring(0, [Math]::Min(80, $req.userRequest.Length)))"
+                Color = "Cyan"
+            }
+        }
+    }
+    
+    # Add commits
+    if ($state.commits) {
+        foreach ($commit in $state.commits) {
+            $events += [PSCustomObject]@{
+                Timestamp = [DateTime]::Parse($commit.timestamp)
+                Type = "Commit"
+                Description = "$($commit.sha) - $($commit.message.Substring(0, [Math]::Min(60, $commit.message.Length)))"
+                Color = "Yellow"
+            }
+        }
+    }
+    
+    # Add prompt handoffs
+    if ($state.promptHandoffs) {
+        foreach ($handoff in $state.promptHandoffs) {
+            $events += [PSCustomObject]@{
+                Timestamp = [DateTime]::Parse($handoff.timestamp)
+                Type = "Handoff"
+                Description = "$($handoff.from) → $($handoff.to)"
+                Color = "Magenta"
+            }
+        }
+    }
+    
+    # Sort by timestamp
+    $events = $events | Sort-Object Timestamp
+    
+    if ($events.Count -eq 0) {
+        Write-Host "  No timeline events found" -ForegroundColor Yellow
+    }
+    else {
+        foreach ($event in $events) {
+            Write-Host "  [$($event.Timestamp.ToString('yyyy-MM-dd HH:mm:ss'))] " -NoNewline -ForegroundColor Gray
+            Write-Host "$($event.Type.PadRight(10)) " -NoNewline -ForegroundColor $event.Color
+            Write-Host $event.Description -ForegroundColor White
+        }
+    }
+    
+    Write-Host ""
+}
+
+# ============================================================================
+# PROMPTS COMMAND (New)
+# ============================================================================
+
+function Show-PromptsGraph {
+    Write-Host ""
+    Write-Host "Prompt System Graph" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Auto-discover prompt files
+    $promptDir = Join-Path $script:ProjectRoot ".github/prompts"
+    if (-not (Test-Path $promptDir)) {
+        Write-Host "  Prompt directory not found: .github/prompts" -ForegroundColor Yellow
+        Write-Host ""
+        return
+    }
+    
+    # Parse prompts for acceptsFrom/calls metadata
+    $prompts = @()
+    Get-ChildItem $promptDir -Filter "*.md" -Recurse | ForEach-Object {
+        $content = Get-Content $_.FullName -Raw
+        
+        # Extract prompt name
+        $promptName = $_.BaseName -replace '\.prompt$', ''
+        
+        # Extract acceptsFrom
+        $acceptsFrom = @()
+        if ($content -match '(?m)^>\s*acceptsFrom:\s*\[([^\]]+)\]') {
+            $acceptsFrom = $Matches[1] -split ',\s*' | ForEach-Object { $_.Trim() }
+        }
+        
+        # Extract calls
+        $calls = @()
+        if ($content -match '(?m)^>\s*calls:\s*\[([^\]]+)\]') {
+            $calls = $Matches[1] -split ',\s*' | ForEach-Object { $_.Trim() }
+        }
+        
+        $prompts += [PSCustomObject]@{
+            Name = $promptName
+            AcceptsFrom = $acceptsFrom
+            Calls = $calls
+            Path = $_.FullName.Replace($script:ProjectRoot, '.')
+        }
+    }
+    
+    # Display graph
+    Write-Host "  Main Agents:" -ForegroundColor White
+    $mainAgents = @('route', 'plan', 'task', 'todo', 'test-generation', 'ask', 'drift', 'healthcheck', 'cohesion')
+    foreach ($agent in $mainAgents) {
+        $prompt = $prompts | Where-Object { $_.Name -eq $agent }
+        if ($prompt) {
+            Write-Host "    $($agent.PadRight(20)) " -NoNewline -ForegroundColor Green
+            if ($prompt.Calls.Count -gt 0) {
+                Write-Host "→ $($prompt.Calls -join ', ')" -ForegroundColor Cyan
+            }
+            else {
+                Write-Host "(leaf)" -ForegroundColor Gray
+            }
+        }
+    }
+    
+    Write-Host ""
+    Write-Host "  Total Prompts: $($prompts.Count)" -ForegroundColor Gray
+    Write-Host ""
+}
+
+# ============================================================================
+# GRAPH COMMAND (New)
+# ============================================================================
+
+function Show-KeyPromptGraph {
+    if (-not $k) {
+        Write-Host ""
+        Write-Host "Error: -k <key> required for -graph" -ForegroundColor Red
+        Write-Host "Example: plist -graph -k zoom-integration" -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    Write-Host ""
+    Write-Host "Prompt Execution Graph: $k" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Find state.json
+    $stateFile = $null
+    foreach ($basePath in $script:KeyDataStreamPaths) {
+        $keyDir = Join-Path $script:ProjectRoot $basePath
+        $targetKeyDir = Join-Path $keyDir $k
+        $testStateFile = Join-Path $targetKeyDir "$k.state.json"
+        
+        if (Test-Path $testStateFile) {
+            $stateFile = $testStateFile
+            break
+        }
+    }
+    
+    if (-not $stateFile) {
+        Write-Host "  No state.json found for key: $k" -ForegroundColor Yellow
+        Write-Host ""
+        return
+    }
+    
+    $state = Get-Content $stateFile -Raw | ConvertFrom-Json
+    
+    if (-not $state.promptHandoffs -or $state.promptHandoffs.Count -eq 0) {
+        Write-Host "  No prompt handoffs recorded for this key" -ForegroundColor Yellow
+        Write-Host "  This feature requires state.json with promptHandoffs tracking" -ForegroundColor Gray
+    }
+    else {
+        Write-Host "  Execution Path:" -ForegroundColor White
+        Write-Host ""
+        
+        $i = 1
+        foreach ($handoff in $state.promptHandoffs) {
+            Write-Host "    $i. " -NoNewline -ForegroundColor White
+            Write-Host "$($handoff.from.PadRight(15)) " -NoNewline -ForegroundColor Green
+            Write-Host "→ " -NoNewline -ForegroundColor Gray
+            Write-Host "$($handoff.to.PadRight(15)) " -NoNewline -ForegroundColor Cyan
+            $timeStr = if ($handoff.timestamp -is [DateTime]) {
+                $handoff.timestamp.ToString("HH:mm:ss")
+            } else {
+                $handoff.timestamp.ToString().Substring(11, 8)
+            }
+            Write-Host "[$timeStr]" -ForegroundColor Gray
+            
+            if ($handoff.reason) {
+                Write-Host "       Reason: $($handoff.reason)" -ForegroundColor Yellow
+            }
+            
+            $i++
+        }
+    }
+    
+    Write-Host ""
+}
+
+# ============================================================================
 # MAIN EXECUTION
 # ============================================================================
 
 # Validate mutually exclusive commands
-$commandCount = @($keys, $dic, $git, $files) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+$commandCount = @($keys, $dic, $git, $files, $lookup, $requests, $commits, $timeline, $prompts, $graph) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
 
 if ($commandCount -eq 0) {
     Write-Host ""
     Write-Host "Error: No command specified" -ForegroundColor Red
-    Write-Host "Use: plist -keys | -dic | -git | -files" -ForegroundColor Gray
+    Write-Host "Use: plist -keys | -dic | -git | -files | -lookup | -requests | -commits | -timeline | -prompts | -graph" -ForegroundColor Gray
     Write-Host "Or:  plist -help" -ForegroundColor Gray
     Write-Host ""
     exit 1
@@ -409,7 +944,7 @@ if ($commandCount -eq 0) {
 if ($commandCount -gt 1) {
     Write-Host ""
     Write-Host "Error: Only one command allowed at a time" -ForegroundColor Red
-    Write-Host "Use: plist -keys | -dic | -git | -files (not combined)" -ForegroundColor Gray
+    Write-Host "Use one command at a time (not combined)" -ForegroundColor Gray
     Write-Host ""
     exit 1
 }
@@ -426,4 +961,22 @@ elseif ($git) {
 }
 elseif ($files) {
     Show-Files
+}
+elseif ($lookup) {
+    Show-KeyLookup
+}
+elseif ($requests) {
+    Show-KeyRequests
+}
+elseif ($commits) {
+    Show-KeyCommits
+}
+elseif ($timeline) {
+    Show-KeyTimeline
+}
+elseif ($prompts) {
+    Show-PromptsGraph
+}
+elseif ($graph) {
+    Show-KeyPromptGraph
 }

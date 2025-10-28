@@ -8,14 +8,16 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 > inputs: key, scenario, phase, auto-chain, auto-execute, -test
 > outputs: .spec.ts files, orchestration scripts, updated test registry and report
 > lastUpdated: 2025-10-28
+> stateTracking: enabled
 > acceptsFrom: [task, plan, route]
 > calls: [todo, task, plan]
 
 # Test Generation Agent
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Last Updated:** 2025-10-28  
 **Changelog:**
+- **v1.3.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/commit logging. Log test generation requests and commits after test creation.
 - Add Post-Generation Handoff Protocol with actionable options (A-F)
 - Support routing from route.prompt.md with intelligent test detection
 - Add handoff to todo/task/plan for test refinement and expansion
@@ -558,6 +560,34 @@ PORT POLICY: The NoorCanvas app must always bind to HTTPS on port 9091 only.
 - Do NOT bind to http://localhost:9090 (prevents port conflicts and Kestrel binding errors)
 
 CRITICAL WARNING: **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
+
+---
+
+## Execution Steps
+
+### Step -1: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the test generation request
+Update-StateRequest -Key $key -Type "test-generation" -UserRequest $scenario -PromptChain @("route", "test-generation")
+```
+
+**After test file commits:**
+```powershell
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "test({key}): Generated {test-type} test for {scenario}" -CheckpointType "test-generation"
+```
+
+**Purpose:**
+- Track test generation activities
+- Record test scenarios and commits
+- Enable test coverage timeline reconstruction
+
+---
 
 ### 1. Server Management Protocol
 

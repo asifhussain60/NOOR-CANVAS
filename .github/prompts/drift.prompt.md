@@ -1,16 +1,21 @@
-# drift.prompt.md (Drift Management Agent v1.2)
+# drift.prompt.md (Drift Management Agent v1.3)
 
 ---
 mode: agent
 purpose: Manage dynamic, multi-threaded workflows using key-linked drift system for issue isolation and resolution (supports dual-mode: agent auto-detection + user manual invocation)
 inputs: parent_key, drift_trigger, drift_description, stack_state, mode (auto|manual), severity (critical|high|medium|low|informational), -test
 outputs: Drift key registration, stack management, context preservation, auto-commit checkpoints, drift summary at completion
-lastUpdated: 2025-10-27
+lastUpdated: 2025-10-28
+stateTracking: enabled
 ---
 
 # drift.prompt.md (Drift Management)
 
 **Mode:** Agent | **Purpose:** Multi-threaded workflow management via drift stack (dual-mode support)
+
+**Version:** 1.3.0  
+**Changelog:**
+- **v1.3.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration with Update-StateDriftKey for automatic drift key tracking in parent state.json
 
 ## Parameters
 
@@ -131,6 +136,10 @@ When agent detects unrelated issue during work:
 - **Create drift key** with automatic naming: `drift-{topic-or-timestamp}`
 - **Classify severity** using auto-classification rules
 - **Register silently** via commit (no user interruption)
+- **Track in parent state.json**:
+  ```powershell
+  Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Severity $severity -Description $drift_description
+  ```
 - **Queue for resolution** after parent completion
 - **Log to work-log.md**: "🔍 Drift detected: {drift-key} (severity: {level})"
 - **Continue parent work** without blocking
@@ -139,6 +148,10 @@ When agent detects unrelated issue during work:
 User executes: `@workspace /drift key:{parent} description:{issue} [severity:{level}]`
 - **Create drift key** from description or user-provided
 - **Classify severity** (user-specified or auto-classified)
+- **Track in parent state.json**:
+  ```powershell
+  Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Severity $severity -Description $drift_description
+  ```
 - **Present confirmation**:
   ```
   Drift: {drift-key}
@@ -310,6 +323,15 @@ Context: {user-provided-context}
 ckpt({drift-key}): Resolved - {one-line-summary}
 Parent: {parent-key} | Remaining: {count} drifts
 Severity: {level} | Mode: {auto|manual}
+```
+
+**After drift resolution commit:**
+```powershell
+# Mark drift as resolved in parent state.json
+Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Resolved $true
+
+# Log the resolution commit
+Update-StateCommit -Key $drift_key -Sha (git rev-parse --short HEAD) -Message "ckpt({drift-key}): Resolved - {summary}" -CheckpointType "drift-resolution"
 ```
 
 ### Stack Empty Commit

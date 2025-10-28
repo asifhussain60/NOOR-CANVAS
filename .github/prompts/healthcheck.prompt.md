@@ -6,12 +6,15 @@ description: Read-only system health auditor and prompt optimization analyzer (n
 <!-- Metadata (non-frontmatter, lint-safe) -->
 > purpose: Validate system and prompt infrastructure health without modifying code; analyze prompt optimization opportunities
 > inputs: scope, level, notes, -test
-> outputs: health audit report, violations by severity, optimization recommendations
-> lastUpdated: 2025-10-27
+> outputs: health audit report, violations by severity, optimization recommendations; updates SYSTEM-REGISTRY.md when changes detected
+> lastUpdated: 2025-10-28
+> stateTracking: enabled
+> calls: [update-registry]
 
-**Version:** 1.1.0  
-**Last Updated:** 2025-10-22  
+**Version:** 1.2.0  
+**Last Updated:** 2025-10-28  
 **Changelog:**
+- **v1.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for healthcheck request logging (uses "healthcheck-audit" key)
 - Add quick banner with Prompt Optimization Mode pointer and shared references
 - Align early output-style and execution-flow cross-links
 
@@ -452,6 +455,7 @@ Final validation:
    - Document optimization in `.github/key-data-streams/healthcheck-audits/work-log.md`
    - Record metrics for trend analysis
    - Update validation patterns library
+   - **Update SYSTEM-REGISTRY.md** via `update-registry` prompt if prompt infrastructure changed
 
 #### 9. Exit Confirmation
 

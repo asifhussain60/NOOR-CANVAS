@@ -1,11 +1,12 @@
-# cohesion.prompt.md (System Cohesion Agent v1.1)
+# cohesion.prompt.md (System Cohesion Agent v1.2)
 
 ---
 mode: agent
 purpose: Meta-agent that validates and harmonizes all prompts and instructions for unified system operation
 inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full), -test
 outputs: Cohesion report with violations, conflicts, and auto-fix recommendations
-lastUpdated: 2025-10-27
+lastUpdated: 2025-10-28
+stateTracking: enabled
 calls: [.github/prompts/internal/enhance-prompts.prompt.md]
 relatedFiles: [
   .github/prompts/internal/enhance-prompts.prompt.md,
@@ -17,6 +18,10 @@ relatedFiles: [
 # cohesion.prompt.md (System Cohesion)
 
 **Mode:** Agent | **Purpose:** Ensure all prompts/instructions work as unified, conflict-free system
+
+**Version:** 1.2.0  
+**Changelog:**
+- **v1.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for cohesion audit logging (uses "cohesion-audit" key)
 
 ## Parameters
 

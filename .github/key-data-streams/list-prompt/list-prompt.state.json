@@ -1,0 +1,99 @@
+{
+  "completedPhases": 0,
+  "filesModified": [],
+  "lastUpdated": "2025-10-28T07:19:45.4423492-04:00",
+  "userDecisions": null,
+  "promptHandoffs": [],
+  "currentPhase": null,
+  "totalPhases": 0,
+  "status": "completed",
+  "branch": "development",
+  "commits": [
+    {
+      "sha": "cd9c67db091eb5cf134ee93613cfc2a25b3fda5e",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(list-prompt): Phases 3, 4, 5 complete - Full implementation",
+      "timestamp": "2025-10-26T10:21:15-04:00",
+      "phase": null
+    },
+    {
+      "sha": "23fb9b67f45b9a692f244a9c2b8e38f32ad4f7c4",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(list-prompt): Phase 2 complete - Enhanced search & filtering",
+      "timestamp": "2025-10-26T10:17:10-04:00",
+      "phase": 2
+    },
+    {
+      "sha": "c9c38182a7e927869c219034c677cab872ccac6d",
+      "checkpointType": "intermediate",
+      "author": "GitHub Copilot",
+      "filesChanged": [],
+      "message": "ckpt(list-prompt): Phase 1 complete - Core list infrastructure",
+      "timestamp": "2025-10-26T10:15:08-04:00",
+      "phase": 1
+    }
+  ],
+  "requests": [],
+  "key": "list-prompt",
+  "driftKeys": [],
+  "tags": {},
+  "created": "2025-10-26",
+  "phases": [
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": "2025-10-26T11:15:00Z",
+      "title": "Core List Infrastructure",
+      "started": "2025-10-26T11:00:00Z",
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": "2025-10-26T11:30:00Z",
+      "title": "Enhanced Search & Filtering",
+      "started": "2025-10-26T11:15:00Z",
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": "2025-10-26T11:45:00Z",
+      "title": "Git Integration & Key-Specific Queries",
+      "started": "2025-10-26T11:30:00Z",
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": "2025-10-26T12:00:00Z",
+      "title": "Workspace Intelligence & Output Formats",
+      "started": "2025-10-26T11:45:00Z",
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "completed",
+      "completed": "2025-10-26T12:15:00Z",
+      "title": "Testing & Documentation",
+      "started": "2025-10-26T12:00:00Z",
+      "commits": []
+    }
+  ],
+  "version": "2.0",
+  "estimatedTotalDuration": null
+}

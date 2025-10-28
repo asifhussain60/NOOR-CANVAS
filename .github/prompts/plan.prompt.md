@@ -1,11 +1,12 @@
-# plan.prompt.md (Feature Planning Agent v1.4)
+# plan.prompt.md (Feature Planning Agent v1.5)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-27
+lastUpdated: 2025-10-28
+stateTracking: enabled
 ---
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
@@ -50,6 +51,28 @@ Technical or business constraints
 5. **Letter-based options** - A/B/C/D for user choices
 6. **All output → `.github/key-data-streams/{key}/`** - NEVER in chat
 7. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Step 7.5)
+
+---
+
+## 🔍 Step -1: INITIALIZE STATE TRACKING (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming request:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the incoming request (if this is an original request routed from route.prompt)
+# OR log as a refinement request if this is a follow-up
+Update-StateRequest -Key $key -Type "refinement" -UserRequest $user_request -PromptChain @("route", "plan")
+```
+
+**Purpose:**
+- Track plan agent invocations
+- Record request type (original routed from route vs. direct invocation)
+- Enable timeline reconstruction across planning iterations
+
+**Note:** If invoked directly without route, use Type "original". If routed from route.prompt, use Type "refinement".
 
 ---
 
@@ -261,13 +284,18 @@ Reply: A, B, or C
 
 **Prepare handoff to task.prompt.md and test-generation.prompt.md:**
 
-**Task handoff parameters:**
+**1. Log handoff to state tracking:**
+```powershell
+Update-StateHandoff -Key $key -From "plan" -To "task" -Parameters @{ key = $key; phase = 1 } -Reason "Plan approved, beginning Phase 1 execution"
+```
+
+**2. Prepare task handoff parameters:**
 - `key={key}` - Key identifier
 - `phase=1` - Start with Phase 1
 - `github-branch=development` - Target branch
 - `commit-checkpoints=true` - Checkpoint after each phase
 
-**Test handoff parameters (if UI/API changes):**
+**3. Prepare test handoff parameters (if UI/API changes):**
 - `key={key}` - Key identifier
 - `scenario={test-scenarios}` - Extracted from plan
 - `test-type={unit|e2e|visual}` - Based on affected layers
@@ -548,6 +576,13 @@ Reply: A, B, or C
 ---
 
 ## 📝 VERSION HISTORY
+
+**1.5.0** (2025-10-28)
+- **STATE TRACKING INTEGRATION**: Added state-tracker.ps1 integration for request/handoff logging
+- **Step -1**: New step to initialize state tracking and log incoming request
+- **Handoff Logging**: Log handoff to task.prompt.md with Update-StateHandoff
+- **Metadata**: Added `stateTracking: enabled` to frontmatter
+- Enables timeline reconstruction and cross-prompt coordination tracking
 
 **1.4.0** (2025-10-27)
 - **CONCISE MANDATE COMPLIANCE**: Removed all FUNCTION pseudocode blocks

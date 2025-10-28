@@ -44,6 +44,36 @@
 - Clear deployment path: `ncdeploy.ps1` knows to deploy from `master`
 - Easy rollback: Can revert `master` without losing development work
 
+## 🚫 File Organization Rules (CRITICAL)
+
+**PROMPTS FOLDER MUST REMAIN CLEAN:**
+- **.github/prompts/** contains ONLY:
+  - Agent prompt files (`*.prompt.md`)
+  - Shared algorithm files (`shared/*.md`)
+  - Internal agent files (`internal/**/*.prompt.md`)
+  - State tracker utility (`shared/state-tracker.ps1`)
+  
+**PROHIBITED in .github/prompts/:**
+- ❌ Documentation files (guides, tutorials, references)
+- ❌ Work items or plan files
+- ❌ Analysis reports or summaries
+- ❌ Temporary files or logs
+- ❌ Key data stream files (belong in `.github/key-data-streams/`)
+- ❌ README files or markdown documentation
+
+**DOCUMENTATION LOCATIONS:**
+- **Workspaces/Documentation/** - All documentation, guides, references
+- **Workspaces/Copilot/_DOCS/** - Copilot-specific documentation
+- **.github/key-data-streams/{key}/** - Key-specific work plans and logs
+- **Docs/** - Project-level documentation (deployment, setup, processes)
+
+**ENFORCEMENT:**
+- ✅ Prompts MUST save reports to `Workspaces/Documentation/` or `Workspaces/Copilot/_DOCS/`
+- ✅ Work plans MUST go to `.github/key-data-streams/{key}/`
+- ✅ Never create `*.md` files directly in `.github/prompts/` root
+- ✅ Cleanup: Remove any documentation files found in prompts folder
+- ✅ All agents MUST follow these rules when generating output
+
 ## Scope
 Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 

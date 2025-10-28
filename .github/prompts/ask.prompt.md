@@ -7,11 +7,16 @@ description: Entry-point alias for asking application questions; routes to the i
 > inputs: question, context, depth, verbosity, -test
 > outputs: concise bulletted answer; letter-based next-action options; optional handoff to plan/todo/task/test-generation agents
 > lastUpdated: 2025-10-28
+> stateTracking: enabled
 > acceptsFrom: [route]
 > calls: [plan, todo, task, test-generation]
 
 ## Role
 You are the Ask Router. Take a user's question plus optional parameters, invoke the internal question agent, and return the result as-is.
+
+**Version:** 1.1.0  
+**Changelog:**
+- **v1.1.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/handoff logging. Log questions and handoffs to actionable agents.
 
 ## Agent Routing Flow
 
@@ -46,6 +51,33 @@ Must follow `.github/prompts/shared/output-style-mandate.md`.
 - For planning/answers BEFORE implementation, include: Work Requested (with key), Affected areas (2a files, 2b architecture/infrastructure, 2c database), Plan (phases), Recommendations, and **Next Actions (2-4 clear options)**.
 - For AFTER implementation answers, include: Work Requested (with key), Tasks completed ([x]), Next steps (runnable individually/selectively/all), the attachments note, and **Next Actions (2-4 clear options)**.
 - **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D). User can reply with single letter, multiple, or "all". Never use checkbox format [ ]. Never leave user guessing.
+
+---
+
+## Execution Steps
+
+### Step -1: Initialize State Tracking (EXECUTE FIRST)
+
+**Load state-tracker utility and log incoming question:**
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the question request (no key needed for ask, uses "ask-session")
+Update-StateRequest -Key "ask-session" -Type "question" -UserRequest $question -PromptChain @("route", "ask")
+```
+
+**After handoff to actionable agent:**
+```powershell
+# If user chooses to convert to plan/todo/task
+Update-StateHandoff -Key $targetKey -From "ask" -To $targetAgent -Parameters @{ question = $question } -Reason "Converting question to actionable work"
+```
+
+**Purpose:**
+- Track question history and handoffs
+- Record question-to-implementation workflows
+- Enable investigation timeline reconstruction
 
 ---
 

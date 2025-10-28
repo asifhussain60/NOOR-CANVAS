@@ -1,0 +1,124 @@
+{
+    "key": "prompt-state-integration",
+    "version": "2.0",
+    "status": "planning",
+    "created": "2025-10-28T11:30:00Z",
+    "lastUpdated": "2025-10-28T11:30:00Z",
+    "branch": "feature/plist-state-tracking",
+    "totalPhases": 5,
+    "completedPhases": 0,
+    "currentPhase": 1,
+    "estimatedTotalDuration": "3-4 hours",
+    "phases": [
+        {
+            "number": 1,
+            "title": "Create State Tracking Utility Module",
+            "status": "not-started",
+            "duration": "45 minutes",
+            "risk": "low",
+            "tasks": [
+                "Create .github/prompts/shared/state-tracker.ps1 utility",
+                "Implement Update-StateRequest function (logs user requests)",
+                "Implement Update-StateCommit function (logs git commits)",
+                "Implement Update-StateHandoff function (logs prompt transitions)",
+                "Add JSON validation against state.schema.json",
+                "Create helper Get-StateFile function for auto-discovery"
+            ]
+        },
+        {
+            "number": 2,
+            "title": "Update Route Prompt (Entry Point)",
+            "status": "not-started",
+            "duration": "30 minutes",
+            "risk": "medium",
+            "tasks": [
+                "Add state-tracker.ps1 import to route.prompt.md",
+                "Log original user request on entry with Update-StateRequest",
+                "Record prompt handoff when routing to target agent",
+                "Update metadata: version 1.6.0, add 'stateTracking: enabled'",
+                "Test route → plan handoff logging"
+            ]
+        },
+        {
+            "number": 3,
+            "title": "Update Main Agent Prompts",
+            "status": "not-started",
+            "duration": "1.5 hours",
+            "risk": "medium",
+            "tasks": [
+                "plan.prompt.md: Log incoming requests, handoffs to task/test-generation",
+                "task.prompt.md: Log task execution start, handoffs to test-generation",
+                "todo.prompt.md: Log quick task execution, no handoffs",
+                "test-generation.prompt.md: Log test creation requests, handoffs back to task/plan",
+                "ask.prompt.md: Log question requests, handoffs to plan/task/todo",
+                "Add commit logging after ckpt() calls in all agents"
+            ]
+        },
+        {
+            "number": 4,
+            "title": "Update Specialized Agent Prompts",
+            "status": "not-started",
+            "duration": "45 minutes",
+            "risk": "low",
+            "tasks": [
+                "healthcheck.prompt.md: Log healthcheck requests",
+                "drift.prompt.md: Log drift detection, create drift keys",
+                "cohesion.prompt.md: Log cohesion audits",
+                "Update all internal/ prompts with state tracking"
+            ]
+        },
+        {
+            "number": 5,
+            "title": "Testing & Documentation",
+            "status": "not-started",
+            "duration": "30 minutes",
+            "risk": "low",
+            "tasks": [
+                "Test full workflow: route → plan → task → test-generation",
+                "Verify state.json updates with plist -timeline",
+                "Verify prompt graph with plist -graph -k <key>",
+                "Create PROMPT-STATE-TRACKING.md guide",
+                "Update .github/prompts/README.md with state tracking info"
+            ]
+        }
+    ],
+    "requests": [
+        {
+            "timestamp": "2025-10-28T11:30:00Z",
+            "type": "original",
+            "userRequest": "implement prompt file updates for state tracking integration",
+            "promptChain": [
+                "route",
+                "plan"
+            ],
+            "commits": [],
+            "outcome": "in-progress"
+        }
+    ],
+    "commits": [],
+    "filesModified": [],
+    "promptHandoffs": [],
+    "driftKeys": [],
+    "tags": {
+        "classification": "feature",
+        "complexity": "moderate"
+    },
+    "userDecisions": {},
+    "metadata": {
+        "dependencies": [
+            "state.schema.json (already created)",
+            "plist.ps1 v2.0 (already created)",
+            "migrate-keys-to-state.ps1 (already created)"
+        ],
+        "risks": [
+            "Breaking changes to prompt execution flow (mitigated by gradual rollout)",
+            "JSON serialization errors (mitigated by schema validation)"
+        ],
+        "successCriteria": [
+            "All prompts log requests to state.json",
+            "All prompt handoffs recorded in promptHandoffs[]",
+            "plist -timeline shows complete execution history",
+            "plist -graph shows accurate prompt chain"
+        ]
+    }
+}
