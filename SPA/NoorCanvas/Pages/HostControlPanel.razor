@@ -24,6 +24,7 @@
 @inject IDatabaseEnvironmentGuardService DbGuard
 @inject TranscriptProcessingService TranscriptProcessor
 @inject IAssetSharingService AssetSharing
+@inject IQuestionManagementService QuestionManagement
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
@@ -1147,54 +1148,20 @@ else
 
     private async Task LoadQuestionsForHostAsync(string userToken)
     {
+        // [PHASE-6:hcp] Delegate to QuestionManagementService
         try
         {
-            using var httpClient = HttpClientFactory.CreateClient("default");
-            var response = await httpClient.GetAsync($"/api/question/session/{userToken}");
+            var questions = await QuestionManagement.LoadQuestionsAsync(userToken);
             
-            if (response.IsSuccessStatusCode)
+            if (Model != null)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var questionsResponse = System.Text.Json.JsonSerializer.Deserialize<GetQuestionsApiResponse>(content, 
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                if (questionsResponse?.Questions != null && Model != null)
-                {
-                    Model.Questions = questionsResponse.Questions.Select(q => new QuestionItem
-                    {
-                        Id = Guid.NewGuid(), // Generate new GUID for UI tracking
-                        Text = q.Text ?? "",
-                        UserName = !string.IsNullOrWhiteSpace(q.UserName) ? q.UserName : "Anonymous User",
-                        CreatedBy = q.CreatedBy ?? "",
-                        CreatedAt = q.CreatedAt,
-                        IsAnswered = q.IsAnswered,
-                        VoteCount = q.Votes
-                    }).ToList();
-                    
-                    // Debug logging to understand the data flow
-                    foreach (var question in questionsResponse.Questions)
-                    {
-                        Logger.LogInformation("QUESTIONS-DATA-DEBUG: Question Text='{Text}', UserName='{UserName}', CreatedBy='{CreatedBy}'", 
-                            question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)) ?? "null",
-                            question.UserName ?? "null",
-                            question.CreatedBy ?? "null");
-                    }
-                    
-                    Logger.LogInformation("QUESTIONS-DATA: Loaded {Count} questions for host", Model.Questions.Count);
-                }
-            }
-            else
-            {
-                Logger.LogWarning("QUESTIONS-DATA: Failed to load questions - API returned: {StatusCode}", response.StatusCode);
-                if (Model != null)
-                {
-                    Model.Questions = new List<QuestionItem>();
-                }
+                Model.Questions = questions;
+                Logger.LogInformation("[PHASE-6:hcp] Loaded {Count} questions via QuestionManagementService", questions.Count);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "QUESTIONS-DATA: Exception loading questions for host");
+            Logger.LogError(ex, "[PHASE-6:hcp] Exception loading questions via service");
             if (Model != null)
             {
                 Model.Questions = new List<QuestionItem>();
@@ -2119,108 +2086,31 @@ else
     /// </summary>
     private async Task ShareQuestionAsset(NoorCanvas.ViewModels.QuestionItem question)
     {
+        // [PHASE-6:hcp] Delegate to QuestionManagementService
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        var broadcastId = Guid.NewGuid().ToString("N")[..8];
         
         Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:selection-state:TRACE] [{RequestId}] Setting selectedQuestionId={QuestionId} for visual feedback ;CLEANUP_OK", requestId, question.Id);
-        selectedQuestionId = question.Id; // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Update selected question for UI feedback ;CLEANUP_OK
-        StateHasChanged(); // [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Force UI refresh to show selection ;CLEANUP_OK
-        
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW START ════════ ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] QuestionId: {QuestionId}, Text: '{Text}', BroadcastId: {BroadcastId} ;CLEANUP_OK", 
-            requestId, question.Id, question.Text?.Substring(0, Math.Min(50, question.Text.Length)) ?? "NULL", broadcastId);
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Applying orange theme: border=#fdba74, bg=#fff7f5, icon=#f97316, title=#c2410c ;CLEANUP_OK", requestId);
+        selectedQuestionId = question.Id;
+        StateHasChanged();
         
         if (SessionId == null || hubConnection?.State != HubConnectionState.Connected)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ Cannot share - SessionId={SessionId}, HubState={HubState} ;CLEANUP_OK", 
+            Logger.LogWarning("[PHASE-6:hcp] [{RequestId}] Cannot share - SessionId={SessionId}, HubState={HubState}", 
                 requestId, SessionId?.ToString() ?? "NULL", hubConnection?.State.ToString() ?? "NULL");
             return;
         }
         
         try
         {
-            // Step 1: Create formatted HTML with orange theme from ContextCopilot.txt
-            var encodedQuestionText = System.Web.HttpUtility.HtmlEncode(question.Text);
-            var encodedUserName = System.Web.HttpUtility.HtmlEncode(question.UserName ?? "Anonymous");
-            
-            // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Vote badge preserved from original implementation ;CLEANUP_OK
-            var voteBadgeHtml = "";
-            if (question.VoteCount > 0)
-            {
-                var voteLabel = question.VoteCount == 1 ? "vote" : "votes";
-                voteBadgeHtml = $@"
-        <div style=""display:flex;align-items:center;gap:0.5rem;background-color:#DC2626;color:white;padding:0.375rem 0.75rem;border-radius:9999px;box-shadow:0 2px 4px rgba(220,38,38,0.3);"">
-            <i class=""fa-solid fa-thumbs-up"" style=""font-size:0.75rem;""></i>
-            <span style=""font-size:0.875rem;font-weight:600;"">{question.VoteCount} {voteLabel}</span>
-        </div>";
-            }
-            
-            // [DEBUG-WORKITEM:canvas-question:css-migration:TRACE] Orange card styling moved to session-transcript.css ;CLEANUP_OK
-            // [DEBUG-WORKITEM:canvas-question:css-classes:TRACE] Refactored from inline styles to CSS classes for maintainability ;CLEANUP_OK
-            // Background: #fff7f5 (orange-50), Border: #fdba74 (orange-300), Icon: #f97316 (orange-500), Title: #c2410c (orange-700)
-            // Subtitle: darkgreen (1rem), Title: #c2410c (1.5rem left-aligned), Footer removed
-            var questionHtml = $@"
-<div class=""shared-question-card"">
-    <div class=""shared-question-header"">
-        <div class=""shared-question-icon-wrapper"">
-            <i class=""fa-solid fa-question-circle shared-question-icon""></i>
-        </div>
-        <div>
-            <h1 class=""shared-question-title"">Participant Question</h1>
-            <p class=""shared-question-subtitle"">Shared by host for discussion</p>
-        </div>
-    </div>
-    <div class=""shared-question-content"">
-        <p class=""shared-question-text"">{encodedQuestionText}</p>
-    </div>
-</div>";
-
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 1: Orange-themed HTML created, length={Length} chars ;CLEANUP_OK", 
-                requestId, questionHtml.Length);
-            
-            // Step 2: Create asset payload
-            var assetData = new
-            {
-                shareId = broadcastId,
-                assetType = "question",
-                htmlContent = questionHtml,
-                metadata = new
-                {
-                    questionId = question.Id.ToString(),
-                    questionText = question.Text,
-                    userName = question.UserName,
-                    voteCount = question.VoteCount,
-                    sharedAt = DateTime.UtcNow,
-                    // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Styling metadata for debugging ;CLEANUP_OK
-                    theme = "orange",
-                    styleSource = "ContextCopilot.txt"
-                }
-            };
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 2: Asset payload created with orange theme metadata ;CLEANUP_OK", requestId);
-            
-            // Step 3: Broadcast via SignalR (using same pattern as TestShareAsset)
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 3: Invoking ShareAsset on hub, target=session_{SessionId} ;CLEANUP_OK", 
-                requestId, SessionId.Value);
-            
-            await hubConnection.InvokeAsync("ShareAsset", SessionId.Value, assetData);
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ✅ Step 4: ShareAsset SignalR call completed successfully ;CLEANUP_OK", requestId);
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] 📡 Orange-themed question broadcasted to session_{SessionId}, BroadcastId: {BroadcastId} ;CLEANUP_OK", 
-                requestId, SessionId.Value, broadcastId);
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW COMPLETE ════════ ;CLEANUP_OK", requestId);
-        }
-        catch (HubException ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ SignalR Hub error: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            await QuestionManagement.ShareQuestionAsync(question, SessionId.Value, hubConnection);
+            Logger.LogInformation("[PHASE-6:hcp] [{RequestId}] ✅ Question shared successfully via QuestionManagementService", requestId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ Unexpected error during question share: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[PHASE-6:hcp] [{RequestId}] Error sharing question via service", requestId);
         }
     }
-
+    
     private async Task ShowDeleteModal(Guid questionId)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
@@ -2235,85 +2125,46 @@ else
 
     private async Task ConfirmDelete()
     {
+        // [PHASE-6:hcp] Delegate to QuestionManagementService
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] HOST DELETE INITIATED - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionToDeleteId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[PHASE-6:hcp] [{RequestId}] Delete initiated for QuestionId: {QuestionId}", requestId, questionToDeleteId);
         
         if (questionToDeleteId == Guid.Empty)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ ABORT: questionToDeleteId is empty ;CLEANUP_OK", requestId);
+            Logger.LogWarning("[PHASE-6:hcp] [{RequestId}] Abort: questionToDeleteId is empty", requestId);
             showDeleteModal = false;
             return;
         }
 
-        // Log current state before deletion
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State BEFORE deletion: ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, SessionId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question to Delete: {QuestionId} ;CLEANUP_OK", requestId, questionToDeleteId);
-        
-        // Find the question details before deletion
         var questionToDelete = Model?.Questions?.FirstOrDefault(q => q.Id == questionToDeleteId);
-        if (questionToDelete != null)
+        if (questionToDelete == null)
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question Text: '{Text}' ;CLEANUP_OK", requestId, questionToDelete.Text);
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question UserName: '{UserName}' ;CLEANUP_OK", requestId, questionToDelete.UserName);
-        }
-        else
-        {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Question NOT FOUND in local Model.Questions list ;CLEANUP_OK", requestId);
+            Logger.LogWarning("[PHASE-6:hcp] [{RequestId}] Question not found in Model.Questions", requestId);
+            showDeleteModal = false;
+            return;
         }
 
         try
         {
-            // CRITICAL FIX: Host deletion MUST go through API to trigger database deletion and SignalR broadcast
-            // Previous implementation was UI-only, causing questions to reappear after page refresh
+            var success = await QuestionManagement.DeleteQuestionAsync(
+                questionToDeleteId, 
+                HostToken ?? "", 
+                questionToDelete.CreatedBy);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🌐 Step 1/4: Calling API endpoint /api/Question/{QuestionId}/delete ;CLEANUP_OK", requestId, questionToDeleteId);
-            
-            // Prepare API request payload
-            var requestPayload = new
+            if (success)
             {
-                SessionToken = HostToken,  // Use HostToken for host-initiated deletions
-                UserGuid = questionToDelete?.CreatedBy ?? string.Empty  // Use question creator's UserGuid for ownership validation
-            };
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Payload: SessionToken={SessionToken}, UserGuid={UserGuid} ;CLEANUP_OK", 
-                requestId, requestPayload.SessionToken, requestPayload.UserGuid);
-            
-            var httpClient = HttpClientFactory.CreateClient();
-            var response = await httpClient.PostAsJsonAsync($"https://localhost:9091/api/Question/{questionToDeleteId}/delete", requestPayload);
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 📡 Step 2/4: API response received - StatusCode: {StatusCode} ;CLEANUP_OK", 
-                requestId, response.StatusCode);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ Step 3/4: API deletion successful - Response: {Response} ;CLEANUP_OK", 
-                    requestId, responseContent);
+                Logger.LogInformation("[PHASE-6:hcp] [{RequestId}] ✅ Question deleted successfully via QuestionManagementService", requestId);
                 
-                // Remove from local UI immediately (SignalR broadcast will also trigger removal)
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🗑️ Step 4/4: Removing question from local UI ;CLEANUP_OK", requestId);
+                // Remove from local UI (SignalR broadcast will also trigger removal)
                 Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
                 showDeleteModal = false;
                 await InvokeAsync(StateHasChanged);
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🎉 HOST DELETE COMPLETE - Database updated, SignalR broadcast sent ;CLEANUP_OK", requestId);
-                
-                // NOTE: SignalR HostQuestionDeleted event will be received by this host AND other connected hosts
-                // SignalR QuestionDeleted event will be received by all participants in the session
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ API deletion FAILED: {StatusCode} - {Error} ;CLEANUP_OK", 
-                    requestId, response.StatusCode, errorContent);
+                Logger.LogError("[PHASE-6:hcp] [{RequestId}] ❌ Deletion failed via service", requestId);
                 
-                // Still remove from UI as fallback (though database won't be updated)
+                // Still remove from UI as fallback
                 Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
                 showDeleteModal = false;
                 await InvokeAsync(StateHasChanged);
@@ -2321,18 +2172,14 @@ else
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION during question deletion: {Message} ;CLEANUP_OK", 
-                requestId, ex.Message);
-            Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
+            Logger.LogError(ex, "[PHASE-6:hcp] [{RequestId}] Exception during question deletion", requestId);
             
             // Still remove from UI as fallback
             Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
             showDeleteModal = false;
         }
         
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] HOST DELETE FLOW COMPLETE ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[PHASE-6:hcp] [{RequestId}] Delete flow complete", requestId);
     }
 
     private async Task CancelDelete()

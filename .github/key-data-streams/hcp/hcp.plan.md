@@ -39,6 +39,55 @@ For detailed implementation information on each component, see the archived plan
 
 ---
 
+## Refactoring Phases (Ongoing)
+
+### Phase 6: QuestionManagementService Extraction ✅ COMPLETE
+
+**Objective:** Extract question management logic into dedicated service layer
+
+**Implementation Complete:**
+- Created `Services/QuestionManagementService.cs` (277 lines)
+- Interface: `IQuestionManagementService`
+- Methods extracted:
+  - `LoadQuestionsAsync(string userToken)` - API call to get questions
+  - `ShareQuestionAsync(QuestionItem question, int sessionId, HubConnection hub)` - Format and broadcast question
+  - `DeleteQuestionAsync(Guid questionId, string hostToken, string createdBy)` - API call to delete question
+  - `FormatQuestionHtml(QuestionItem question)` - Orange-themed HTML generation
+
+**HostControlPanel.razor Updates:**
+- Injected `IQuestionManagementService`
+- Updated `LoadQuestionsForHostAsync` - Simplified from 54 lines → 22 lines (59% reduction)
+- Updated `ShareQuestionAsset` - Simplified from 105 lines → 26 lines (75% reduction)
+- Updated `ConfirmDelete` - Simplified from 127 lines → 47 lines (63% reduction)
+
+**Dependencies:**
+- IHttpClientFactory (API calls)
+- ILogger<QuestionManagementService>
+- HubConnection passed as parameter (not injected)
+
+**Impact:**
+- HostControlPanel.razor reduced: 5,103 → 4,950 lines (153 lines, 3% reduction)
+- QuestionManagementService: 277 lines (well-scoped service)
+- Improved testability: Question logic now unit testable
+- Reusability: Service usable by other components
+
+**Quality Metrics:**
+- ✅ Build: Clean (0 errors, 9 pre-existing warnings)
+- ✅ Tests: 10/10 baseline tests passed (34.2s)
+- ✅ No regressions detected
+- ✅ Service registered in DI container
+
+**Total Progress (Phases 1-6):**
+- Original: 5,154 lines
+- Current: 4,950 lines
+- Reduction: 204 lines (4%)
+- Services created: 3 (TranscriptProcessingService, AssetSharingService, QuestionManagementService)
+- Controllers created: 1 (TranscriptController)
+
+**Next Phase:** Phase 7 - Extract SessionStateService or TranscriptManagementService
+
+---
+
 ## Component Summary
 
 ### 1. FAB (Floating Action Button) Implementation ✅
