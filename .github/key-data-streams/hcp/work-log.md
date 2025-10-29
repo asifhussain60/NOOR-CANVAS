@@ -460,14 +460,21 @@
 **Commits:** Pending - `ckpt(hcp): Phase 5 - AssetSharingService extracted`
 
 **Next Steps:**
-1. Run baseline regression test (hcp-refactor-baseline.spec.ts)
-2. If tests pass: commit checkpoint
+1. ✅ Run baseline regression test (hcp-refactor-baseline.spec.ts) - PASSED
+2. ✅ Commit checkpoint - COMPLETE (e82fed94)
 3. Continue to Phase 6 (additional service extraction)
+
+**Test Results:**
+- ✅ 10/10 baseline tests passed (31.4s)
+- ✅ No regressions detected
+- ✅ All functionality preserved
+- ✅ Asset sharing logic successfully delegated to service
 
 **Lessons Learned:**
 - Service extraction requires careful dependency mapping
 - UnifiedHtmlTransformService + IMediaUrlTransformService pattern works well
 - 1% line reduction modest but improves testability significantly
+- Baseline test provides excellent regression safety net
 
 ---
 
