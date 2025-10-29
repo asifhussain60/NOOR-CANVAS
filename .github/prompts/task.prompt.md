@@ -349,69 +349,50 @@ Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain
 
 ### Step 0: Branch Verification (MANDATORY)
 
+**LOAD MODULE:** `.github/prompts/shared/step-0-branch-verification.md`
+
 ⚠️ **ALWAYS verify you're in the correct branch before starting any work.**
 
 **Branch Strategy:**
 - **`master`** - Production only (PROTECTED - deploy target)
 - **`development`** - ALL development work (DEFAULT)
 
-**Verification Process:**
+**Execute:**
+```powershell
+# Verify branch strategy compliance
+$githubBranch = $parameters.githubBranch ?? "development"
+$branchCheck = VerifyBranchStrategy($githubBranch)
 
-1. **Check current git branch:**
-   ```bash
-   git branch --show-current
-   # Expected: development (or github-branch parameter value)
-   ```
+IF $branchCheck.status == "BLOCKED" THEN
+  # CRITICAL: Cannot execute on master
+  SHOW_MESSAGE($branchCheck.message)
+  EXIT 1  # HALT execution
+END IF
 
-2. **Validate against github-branch parameter:**
-   - **If `github-branch` parameter provided:** Verify current branch matches parameter
-   - **If `github-branch` NOT provided:** Default to `development`, verify current branch is `development`
+IF $branchCheck.status == "WARNING" THEN
+  # Branch mismatch - prompt user
+  SHOW_MESSAGE($branchCheck.message)
+  WAIT_FOR_USER_CHOICE()  # A or B
+  
+  IF userChoice == "A" THEN
+    ExecuteCommand("git checkout {$branchCheck.expectedBranch}")
+    VERIFY_BRANCH_SWITCH()
+  ELSE IF userChoice == "B" THEN
+    LOG_OVERRIDE_TO_WORK_LOG($branchCheck)
+  END IF
+END IF
 
-3. **Branch Mismatch Handling:**
-   - **Current branch = `master` AND github-branch = `development` (or not specified):**
-     ```
-     ⚠️ CRITICAL: Cannot execute on master branch
-     
-     Current branch: master
-     Required branch: development (per github-branch parameter)
-     
-     Per SelfAwareness.instructions.md, ALL development work occurs in 'development' branch.
-     
-     ACTION REQUIRED: Switch to development branch
-     Command: git checkout development
-     
-     ❌ ABORTING task execution
-     ```
-     **EXIT with error - do NOT proceed**
-   
-   - **Current branch ≠ github-branch parameter:**
-     ```
-     ⚠️ WARNING: Branch mismatch detected
-     
-     Current branch: {current-branch}
-     Expected branch: {github-branch} (from parameter)
-     
-     Would you like to:
-     1. Switch to {github-branch} branch (recommended)
-     2. Proceed on {current-branch} anyway (override)
-     
-     Respond with "1" or "2"
-     ```
-     - If user chooses "1" → Switch branch: `git checkout {github-branch}`
-     - If user chooses "2" → Warn and document override in work log
-
-4. **Branch Validation Success:**
-   ```
-   ✓ Branch verified: {current-branch}
-   (Matches github-branch parameter: {github-branch})
-   ```
+# Proceed to Step 1 (checkpoint commit)
+```
 
 **Enforcement:**
 - ⚠️ **ABORT** task execution if on `master` branch (unless github-branch explicitly set to `master`)
 - ✅ **PROCEED** if current branch matches github-branch parameter
 - ⚠️ **PROMPT** user if mismatch detected (allow override with warning)
 
-**See:** `SelfAwareness.instructions.md` - Branch Strategy section
+**See:** 
+- `.github/prompts/shared/step-0-branch-verification.md` - Complete verification algorithm
+- `SelfAwareness.instructions.md` - Branch Strategy section
 
 ---
 
@@ -662,6 +643,64 @@ Build comprehensive context before planning through conditional, intelligent sub
 - Phase timeout (>5 minutes → warn and proceed)
 
 **Key Feature:** Step 2.8.7 validates complete CRUD data lifecycle (UI → API → DB → Broadcast → UI)
+
+---
+
+### Step 2.5: Document First Checkpoint (MANDATORY)
+
+**LOAD MODULE:** `.github/prompts/shared/step-2-5-document-first-checkpoint.md`
+
+**Purpose:** Update key documentation BEFORE any code implementation
+
+**Trigger:** ALWAYS when `key` parameter exists
+
+**Execute:**
+```powershell
+IF KeyExists($key) THEN
+  
+  # Update plan and work log with session details
+  $docResult = DocumentFirstCheckpoint($key, $userRequest, $phase)
+  
+  IF $docResult.status == "FAILED" THEN
+    # Documentation update failed - HALT execution
+    SHOW_ERROR($docResult.reason)
+    LOG_FAILURE($docResult)
+    EXIT 1
+  END IF
+  
+  IF $docResult.status == "SUCCESS" THEN
+    # Documentation committed - proceed to planning
+    LOG_SUCCESS("Documentation updated: {$docResult.filesUpdated} files")
+    LOG_COMMIT("Checkpoint SHA: {$docResult.commitSha}")
+  END IF
+  
+  # If status == "SKIP", key folder doesn't exist yet (first-time execution)
+  # Proceed to Step 3 for lightweight planning
+  
+END IF
+
+# Continue to Step 3 (Planning)
+```
+
+**Guardrail:** Code commits WITHOUT prior documentation updates = VIOLATION
+
+**Output (based on verbosity):**
+- **Concise:** `"✅ Documentation checkpoint: {file-count} files updated, committed {short-sha}"`
+- **Detailed:** 
+  ```
+  ✅ Documentation First Checkpoint
+  
+  Files Updated: {count}
+  - {key}.plan.md (session context added)
+  - work-log.md (session entry created)
+  
+  Commit: {short-sha}
+  Message: doc({key}): session start documentation
+  
+  Status: Ready for implementation (Step 5)
+  ```
+
+**See:** `.github/prompts/shared/step-2-5-document-first-checkpoint.md` - Complete protocol
 
 ---
 
@@ -1354,6 +1393,8 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 
 ## Guardrails
 
+- **ALWAYS verify branch strategy BEFORE any work** (Step 0 - blocks execution on master)
+- **ALWAYS update documentation BEFORE code changes** (Step 2.5 - document first checkpoint)
 - **ALWAYS check for comprehensive plan first** (if key provided, look for {key}.plan.md)
 - **ALWAYS load System Context Pack** (if {key}.plan.md exists - Step 2.12)
 - **ALWAYS update JSON tracking** (if {key}.plan.json exists - Step 8.1 after each phase)
@@ -1373,6 +1414,8 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 - **ALWAYS infer key from recent work** if not explicitly provided
 - **ALWAYS enforce re-evaluation iteration limit** (max 3 iterations at Step 4 approval gate)
 - **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
+- **NEVER execute on master branch** unless explicitly authorized (Step 0 enforcement)
+- **NEVER skip documentation updates** when key exists (Step 2.5 blocks code commits)
 - **NEVER implement UI-only mutations** - all CRUD operations MUST have complete data lifecycle (UI → API → DB → Broadcast → UI)
 - **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
 - **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes
