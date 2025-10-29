@@ -22,6 +22,7 @@
 @inject AssetProcessingService AssetProcessor
 @inject IMediaUrlTransformService MediaUrlTransform
 @inject IDatabaseEnvironmentGuardService DbGuard
+@inject TranscriptProcessingService TranscriptProcessor
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
@@ -897,21 +898,26 @@ else
                         requestId, transcriptContent.Length, string.IsNullOrEmpty(transcriptContent));
                     Model.SessionTranscript = transcriptContent;
                     
-                    // Transform transcript with asset detection and share buttons
-                    if (!string.IsNullOrEmpty(Model.SessionTranscript))
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] CALLING TransformTranscriptHtmlAsync with {Length} chars, SessionStatus: {SessionStatus} ;CLEANUP_OK", 
-                            Model.SessionTranscript.Length, Model.SessionStatus);
-                        Model.TransformedTranscript = await TransformTranscriptHtmlAsync(Model.SessionTranscript);
-                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] TransformTranscriptHtmlAsync COMPLETED, output length: {OutputLength} ;CLEANUP_OK", 
-                            Model.TransformedTranscript?.Length ?? 0);
-                    }
-                    else
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] No transcript content to transform - SessionTranscript is empty ;CLEANUP_OK");
-                    }
+                // [PHASE-3:hcp-cleanup] Use TranscriptProcessingService instead of inline transformation
+                if (!string.IsNullOrEmpty(Model.SessionTranscript))
+                {
+                    Logger.LogInformation("[PHASE-3:hcp-cleanup] Using TranscriptProcessingService.TransformTranscriptAsync for {Length} chars ;CLEANUP_OK", 
+                        Model.SessionTranscript.Length);
                     
-                    Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] Session data loaded from API - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength} ;CLEANUP_OK", 
+                    var transformResult = await TranscriptProcessor.TransformTranscriptAsync(
+                        sessionIdLong,
+                        Model.SessionTranscript,
+                        TransformationType.Full
+                    );
+                    
+                    Model.TransformedTranscript = transformResult.TransformedHtml;
+                    Logger.LogInformation("[PHASE-3:hcp-cleanup] Transformation complete - Original: {Original} chars, Transformed: {Transformed} chars ;CLEANUP_OK", 
+                        transformResult.OriginalLength, transformResult.TransformedLength);
+                }
+                else
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] No transcript content to transform - SessionTranscript is empty ;CLEANUP_OK");
+                }                    Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] Session data loaded from API - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength} ;CLEANUP_OK", 
                         requestId, sessionId, sessionDetails.SessionName, Model.SessionTranscript?.Length ?? 0);
                     
                     // [API-MIGRATION:09291900-api] Load scheduling fields via API
@@ -1561,65 +1567,42 @@ else
     }
 
     /// <summary>
-    /// [DEBUG-WORKITEM:transcript-canvas:scroll-sync] Handle transcript scroll and broadcast to participants ;CLEANUP_OK
-    /// Throttled to 200ms intervals to prevent network flooding
+    /// [PHASE-3:hcp-cleanup] Transform transcript for broadcast using TranscriptProcessingService
+    /// Replaces inline regex transformations with centralized service
     /// Participants receive scroll position and are locked to host's view
     /// </summary>
-    private Task<string> TransformTranscriptForBroadcastAsync()
+    private async Task<string> TransformTranscriptForBroadcastAsync()
     {
-        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] ════════ TRANSFORM TRANSCRIPT START ════════ ;CLEANUP_OK");
+        Logger.LogInformation("[PHASE-3:hcp-cleanup] ════════ TRANSFORM TRANSCRIPT START (Service) ════════ ;CLEANUP_OK");
         
         if (Model == null || string.IsNullOrEmpty(Model.SessionTranscript))
         {
-            Logger.LogWarning("[TRACE:hcp-tcanvas:transform] ❌ Model or SessionTranscript is null/empty ;CLEANUP_OK");
-            return Task.FromResult(string.Empty);
+            Logger.LogWarning("[PHASE-3:hcp-cleanup] ❌ Model or SessionTranscript is null/empty ;CLEANUP_OK");
+            return string.Empty;
         }
-
-        var html = Model.SessionTranscript;
-        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Input HTML length={Length} chars ;CLEANUP_OK", html.Length);
-        
-        // Count h2 elements in original HTML
-        var h2CountBefore = System.Text.RegularExpressions.Regex.Matches(html, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
-        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] h2 elements in original HTML: {Count} ;CLEANUP_OK", h2CountBefore);
-        
-        // Show first 500 chars of HTML for diagnosis
-        Logger.LogInformation("[TRACE:hcp-tcanvas:transform] First 500 chars: {Preview} ;CLEANUP_OK", html.Substring(0, Math.Min(500, html.Length)));
 
         try
         {
-            // Remove delete buttons using regex (same pattern as AssetProcessingService)
-            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing delete buttons ;CLEANUP_OK");
-            html = System.Text.RegularExpressions.Regex.Replace(html, 
-                @"<button[^>]*class\s*=\s*[""'][^""']*delete[^""']*[""'][^>]*>.*?</button>", 
-                "", 
-                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            Logger.LogInformation("[PHASE-3:hcp-cleanup] Input HTML length={Length} chars ;CLEANUP_OK", Model.SessionTranscript.Length);
             
-            // Remove individual share buttons (different from Start Session - we want NO asset buttons)
-            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing individual asset share buttons ;CLEANUP_OK");
-            html = System.Text.RegularExpressions.Regex.Replace(html, 
-                @"<button[^>]*onclick\s*=\s*[""']shareIndividualAsset\([^)]*\)[""'][^>]*>.*?</button>", 
-                "", 
-                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            // Use TranscriptProcessingService for transformation
+            var sessionIdLong = SessionId.HasValue ? (long)SessionId.Value : 0;
+            var transformResult = await TranscriptProcessor.TransformTranscriptAsync(
+                sessionIdLong,
+                Model.SessionTranscript,
+                TransformationType.Full  // Removes delete buttons, share buttons, data-asset-id attributes
+            );
             
-            // Remove any data-asset-id attributes (clean markup)
-            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Removing data-asset-id attributes ;CLEANUP_OK");
-            html = System.Text.RegularExpressions.Regex.Replace(html, 
-                @"\s+data-asset-id\s*=\s*[""'][^""']*[""']", 
-                "", 
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-            // Count h2 elements after transformation
-            var h2CountAfter = System.Text.RegularExpressions.Regex.Matches(html, @"<h2[^>]*>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
-            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] h2 elements AFTER transformation: {Count} ;CLEANUP_OK", h2CountAfter);
-            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] Output HTML length={Length} chars ;CLEANUP_OK", html.Length);
-            Logger.LogInformation("[TRACE:hcp-tcanvas:transform] ════════ TRANSFORM TRANSCRIPT COMPLETE ════════ ;CLEANUP_OK");
+            Logger.LogInformation("[PHASE-3:hcp-cleanup] Transformation complete - Original: {Original} chars, Transformed: {Transformed} chars ;CLEANUP_OK", 
+                transformResult.OriginalLength, transformResult.TransformedLength);
+            Logger.LogInformation("[PHASE-3:hcp-cleanup] ════════ TRANSFORM TRANSCRIPT COMPLETE (Service) ════════ ;CLEANUP_OK");
             
-            return Task.FromResult(html);
+            return transformResult.TransformedHtml;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[TRACE:hcp-tcanvas:transform] 💥 Exception during transformation: {Message} ;CLEANUP_OK", ex.Message);
-            return Task.FromResult(Model.SessionTranscript); // Return original on error
+            Logger.LogError(ex, "[PHASE-3:hcp-cleanup] 💥 Exception during transformation: {Message} ;CLEANUP_OK", ex.Message);
+            return Model.SessionTranscript; // Return original on error
         }
     }
 

@@ -75,7 +75,7 @@ $ProgressPreference = "SilentlyContinue"
 # ============================================================================
 
 $workspaceRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-$testFrameworkPath = Join-Path $PSScriptRoot "Test-Framework"
+$testFrameworkPath = $PSScriptRoot  # Already in Scripts/Test-Framework
 $startScript = Join-Path $testFrameworkPath "Start-NoorCanvasForTests.ps1"
 $stopScript = Join-Path $testFrameworkPath "Stop-NoorCanvasForTests.ps1"
 
