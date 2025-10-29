@@ -1,6 +1,43 @@
 # Key: prompt-merged
 
-**Created**: 2025-10-29 (Consolidation)  
+# prompt-merged - Consolidated Prompt System Enhancements
+
+**Type**: Consolidated Key  
+**Status**: Planning  
+**Created**: 2025-10-29  
+**Consolidated From**: prompt-enhancements, prompt-port, prompt-state-integration, prompt-system-audit
+
+## Overview
+
+This key consolidates multiple prompt system enhancement initiatives into a unified plan focused on enforcing "Document First, Respond Later" protocol and enabling end-to-end phase execution.
+
+## Consolidated Work
+
+**Source Keys**:
+- `prompt-enhancements` - Document First protocol enforcement
+- `prompt-port` - (merged into prompt-enhancements)
+- `prompt-state-integration` - (merged into prompt-enhancements)
+- `prompt-system-audit` - (merged into prompt-enhancements)
+
+**Primary Plan**: `prompt-merged.plan.md`  
+**Primary Plan JSON**: `prompt-merged.plan.json`
+
+## Archived Files
+
+The following files have been moved to `_ARCHIVE/` during consolidation:
+- `prompt-enhancements.plan.json` (superseded by prompt-merged.plan.json)
+- `prompt-port.plan.json` (merged)
+- `prompt-port.state.json` (merged)
+- `prompt-state-integration.plan.json` (merged)
+- `prompt-state-integration.state.json` (merged)
+- `prompt-system-audit.state.json` (merged)
+
+## Active Files
+
+- `prompt-merged.plan.md` - Consolidated implementation plan (6 phases)
+- `prompt-merged.plan.json` - Machine-readable plan structure
+- `work-log.md` - Consolidated work history
+- `test-file-finalization.ps1` - File verification test script (Consolidation)  
 **Type**: Consolidated Key  
 **Source Keys**: prompt-enhancements, prompt-efficiency-fix, prompt-state-integration, prompt-port, prompt-system-audit, prompt-system-gaps
 
