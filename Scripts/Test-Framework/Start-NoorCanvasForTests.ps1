@@ -3,10 +3,10 @@
     Robust application launcher for Playwright/Percy tests with proper lifecycle management.
 
 .DESCRIPTION
-    This is the CANONICAL way to start NoorCanvas for automated testing:
+    This is the CANONICAL way to start NoorCanvas for automated testing (v3.0 PATTERN):
     
     1. ✅ Kills existing NoorCanvas processes (clean slate)
-    2. ✅ Launches app with correct environment variables
+    2. ✅ Launches app with DIRECT dotnet.exe (NOT nested PowerShell)
     3. ✅ Performs robust health checks with exponential backoff
     4. ✅ Returns process information for cleanup
     5. ✅ Handles all error scenarios gracefully
@@ -16,6 +16,7 @@
     - Fail-Fast: Exits immediately on critical errors
     - Observable: Clear logging of all operations
     - Testable: Returns structured data for verification
+    - v3.0 Compliance: Direct dotnet launch per test-orchestration-patterns.md
 
 .PARAMETER Url
     Application URL. Default: https://localhost:9091
@@ -136,7 +137,7 @@ function Get-BackoffDelay {
 
 Write-Host ""
 Write-Host "===================================================================" -ForegroundColor Magenta
-Write-Host "  NoorCanvas Test Application Launcher v2.0" -ForegroundColor Magenta
+Write-Host "  NoorCanvas Test Application Launcher v3.0" -ForegroundColor Magenta
 Write-Host "===================================================================" -ForegroundColor Magenta
 Write-Host ""
 
@@ -210,16 +211,18 @@ if (-not (Test-Path $csprojPath)) {
 Write-TestLog "Project validated" -Level Success
 
 # ============================================================================
-# STEP 3: LAUNCH APPLICATION DIRECTLY (NO NESTED POWERSHELL)
+# STEP 3: LAUNCH APPLICATION DIRECTLY (v3.0 PATTERN - MANDATORY)
 # ============================================================================
 
 Write-TestLog "Launching application..." -Level Info
 Write-TestLog "  URL: $Url" -Level Info
 Write-TestLog "  Environment: $Environment" -Level Info
+Write-TestLog "  Pattern: Direct dotnet.exe launch (v3.0)" -Level Info
 
 try {
-    # Launch dotnet.exe DIRECTLY in separate window for reliable PID tracking
-    # Previous approach used nested PowerShell which caused health check delays
+    # CRITICAL: Launch dotnet.exe DIRECTLY (not via nested PowerShell)
+    # Proven pattern from commit 9448e8cd - eliminates health check delays
+    # See: .github/prompts/shared/test-orchestration-patterns.md
     $processArgs = @{
         FilePath = "dotnet"
         ArgumentList = @(
@@ -228,7 +231,7 @@ try {
         )
         WorkingDirectory = $fullProjectPath
         PassThru = $true
-        WindowStyle = "Normal"
+        WindowStyle = "Normal"  # v3.0: Normal (not Minimized/Hidden) for debugging
     }
     
     # Set environment variables for the new process
@@ -242,6 +245,7 @@ try {
     }
     
     Write-TestLog "Application launched (PID: $($appProcess.Id))" -Level Success
+    Write-TestLog "  Launch Method: Start-Process -FilePath 'dotnet' (v3.0)" -Level Info
     $startTime = Get-Date
 }
 catch {

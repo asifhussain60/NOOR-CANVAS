@@ -81,7 +81,7 @@ $stopScript = Join-Path $testFrameworkPath "Stop-NoorCanvasForTests.ps1"
 
 Write-Host ""
 Write-Host "===================================================================" -ForegroundColor Magenta
-Write-Host "  NoorCanvas Playwright Test Runner v2.0" -ForegroundColor Magenta
+Write-Host "  NoorCanvas Playwright Test Runner v3.0" -ForegroundColor Magenta
 Write-Host "===================================================================" -ForegroundColor Magenta
 Write-Host ""
 Write-Host "  Test File:    $TestFile" -ForegroundColor White

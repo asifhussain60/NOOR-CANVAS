@@ -184,6 +184,7 @@ builder.Services.AddScoped<AssetProcessingService>(); // HTML transformation ser
 
 // [PHASE-1:hcp-cleanup] TranscriptProcessingService - API layer for transcript operations
 builder.Services.AddScoped<TranscriptProcessingService>(); // Transcript retrieval, transformation, and asset detection
+builder.Services.AddScoped<IAssetSharingService, AssetSharingService>(); // [PHASE-5:hcp] Asset sharing service - extracted from HostControlPanel.razor
 
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
