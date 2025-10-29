@@ -150,8 +150,35 @@ $fullProjectPath = Join-Path $workspaceRoot $ProjectPath
 
 Write-TestLog "Cleaning up existing NoorCanvas processes..." -Level Info
 
-$existingProcesses = Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue
-if ($existingProcesses) {
+# Check for both NoorCanvas.exe AND dotnet.exe running the project
+$existingProcesses = @()
+
+# Check for compiled executable
+$noorCanvasExe = Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue
+if ($noorCanvasExe) {
+    $existingProcesses += $noorCanvasExe
+}
+
+# Check for dotnet run instances (manual testing windows)
+$dotnetProcesses = Get-Process -Name "dotnet" -ErrorAction SilentlyContinue
+if ($dotnetProcesses) {
+    foreach ($proc in $dotnetProcesses) {
+        try {
+            $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($proc.Id)").CommandLine
+            # Check if this dotnet process is running NoorCanvas project
+            if ($cmdLine -and ($cmdLine -like "*NoorCanvas*" -or $cmdLine -like "*SPA\NoorCanvas*")) {
+                Write-TestLog "Found dotnet.exe running NoorCanvas (PID: $($proc.Id))" -Level Warning
+                $existingProcesses += $proc
+            }
+        }
+        catch {
+            # Skip if can't read command line (access denied, etc.)
+            continue
+        }
+    }
+}
+
+if ($existingProcesses.Count -gt 0) {
     Write-TestLog "Found $($existingProcesses.Count) existing process(es)" -Level Warning
     $existingProcesses | ForEach-Object {
         Write-TestLog "  Killing PID $($_.Id)..." -Level Warning
