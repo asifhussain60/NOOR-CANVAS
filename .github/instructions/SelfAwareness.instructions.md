@@ -258,31 +258,63 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 - **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
 
 ### For Playwright Testing
-**CRITICAL**: Playwright has its own server management system - DO NOT manually start the app!
+**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with separate window app launch!
 
-- **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for test execution
-- **Never** manually run `dotnet run` before Playwright tests
-- **Never** launch the app in a separate window/terminal for Playwright tests
-- Playwright manages application lifecycle **automatically** via `webServer` configuration in `config/testing/playwright.config.cjs`
-- Use `PW_MODE=standalone` to enable automatic app startup and shutdown
-- Tests run entirely in Node.js context with Playwright managing the .NET app as a subprocess (not in a separate window)
-- The app runs invisibly as a background process controlled by Playwright
-- Playwright will start the app, run tests, then stop the app automatically
+**⚠️ ABSOLUTE REQUIREMENT: Use Orchestration Scripts**
 
-**When PW_MODE=standalone:**
-```bash
-# Playwright does ALL of this automatically:
-# 1. Starts: dotnet run (in background)
-# 2. Waits: for port 9091 to be ready
-# 3. Runs: all tests
-# 4. Stops: the dotnet process
-# 5. Cleans up: automatically
+- **ALWAYS** use orchestration scripts in `Scripts/run-{feature}-test.ps1`
+- **ALWAYS** launch app in SEPARATE PowerShell window (not background, not hidden)
+- **ALWAYS** use health check polling (not fixed delays)
+- **ALWAYS** use `try/finally` for guaranteed cleanup
+- **NEVER** use `PW_MODE=standalone` or `webServer` config (DEPRECATED approach)
+- **NEVER** use `Start-Job` for app startup (unreliable)
+- **NEVER** use direct `npx playwright test` without orchestration script
+- **NEVER** use PowerShell background operator `&` (doesn't work in PowerShell 5.1)
+
+**Orchestration Script Pattern (MANDATORY):**
+```powershell
+# 1. Launch app in SEPARATE window
+$app = Start-Process powershell -ArgumentList "-NoExit", "-Command", 
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
+     dotnet run" -WindowStyle Minimized -PassThru
+
+# 2. Health check with polling (not fixed delay)
+$maxAttempts = 30
+$attempt = 0
+$appReady = $false
+while (-not $appReady -and $attempt -lt $maxAttempts) {
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
+        if ($response.StatusCode -eq 200) { $appReady = $true }
+    } catch {
+        $attempt++
+        Start-Sleep -Seconds 1
+    }
+}
+
+# 3. Run tests with guaranteed cleanup
+try {
+    npx playwright test test.spec.ts --headed
+} finally {
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
 ```
 
-**Manual App Launch is ONLY for:**
-- Development: Use `nc.ps1` or `ncb.ps1` for manual testing in browser
-- Debugging: Use Visual Studio/VS Code debugger
-- **NEVER** for running Playwright tests
+**Why Separate Window is Mandatory:**
+- ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
+- ✅ Visible error messages for debugging (can restore minimized window)
+- ✅ Reliable PID tracking for cleanup
+- ✅ Health check polling prevents race conditions
+- ✅ Guaranteed cleanup via `try/finally`
+
+**See:** `.github/prompts/shared/test-orchestration-patterns.md` for canonical template and complete pattern explanation
+
+**Manual App Launch (nc.ps1/ncb.ps1) is ONLY for:**
+- Development: Manual testing in browser
+- Debugging: Visual Studio/VS Code debugger
+- **NEVER** for Playwright test execution (use orchestration scripts instead)
 
 #### ✅ Multi-Browser Isolation Success (Oct 1, 2025)
 **Proven Solution**: API-based participant identification eliminates "same name on multiple browsers" issue

@@ -476,4 +476,4 @@ END IF
 - `.github/prompts/shared/CONCISE-MANDATE.md` - Output rules being enforced
 - `.github/prompts/shared/output-style-mandate.md` - Formatting requirements
 - `.github/prompts/shared/loop-prevention.md` - Prevent infinite validation loops
-- `.github/docs/analysis/VERBOSITY-ANALYSIS-REMEDIATION.md` - Analysis of current violation rates
+- `.github/key-data-streams/prompt-system-gaps/VERBOSITY-ANALYSIS-REMEDIATION.md` - Analysis of current violation rates

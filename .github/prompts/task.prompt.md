@@ -1645,11 +1645,11 @@ SUMMARY: {key-name}
 
 ---
 
-### Step 8.5: Response Validation (MANDATORY - EXECUTE BEFORE Step 9)
+### Step 8.6: Response Validation (MANDATORY - EXECUTE AFTER Step 8.25)
 
 **Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
 
-**When:** ALWAYS execute immediately before final user-facing output (Step 9)
+**When:** ALWAYS execute immediately after Step 8.25 (File Finalization Verification) and before Step 9 (Completion Workflow)
 
 **Algorithm:** See `.github/prompts/shared/output-validator.md`
 
@@ -1969,6 +1969,62 @@ END IF
 5. Regression detection & history
 
 **Failure to update the key data stream constitutes an incomplete task execution.**
+
+---
+
+### Step 8.25: FILE FINALIZATION VERIFICATION (BLOCKING)
+
+**Purpose:** Ensure work log updated before response validation
+
+**⚠️ BLOCKING REQUIREMENT:** Do NOT proceed to Step 8.5 (Response Validation) until work log verified.
+
+**Algorithm:** See `.github/prompts/shared/file-finalization-verifier.md`
+
+**Verification Requirements:**
+1. `.github/key-data-streams/{key}/work-log.md` exists
+2. File modified within last 60 seconds (recent update)
+3. `.github/key-data-streams/{key}/state.json` updated (if state tracking enabled)
+
+**Quick Verification:**
+```
+VerifyWorkLogUpdated(key):
+  workLogPath = ".github/key-data-streams/{key}/work-log.md"
+  
+  IF NOT FileExists(workLogPath) THEN
+    HALT_EXECUTION()
+    LOG_ERROR("Work log missing: {workLogPath}")
+    SHOW_ERROR_MESSAGE("Work log file not found")
+    RETURN FALSE
+  END IF
+  
+  lastModified = GetFileModificationTime(workLogPath)
+  currentTime = GetCurrentTime()
+  timeDifference = currentTime - lastModified
+  
+  // File must be modified within last 60 seconds
+  IF timeDifference > 60_SECONDS THEN
+    HALT_EXECUTION()
+    LOG_ERROR("Work log not recently updated: last modified {timeDifference}s ago")
+    SHOW_ERROR_MESSAGE("Work log update incomplete")
+    RETURN FALSE
+  END IF
+  
+  LOG_SUCCESS("Work log updated: {workLogPath} (modified {timeDifference}s ago)")
+  RETURN TRUE
+```
+
+**If verification fails:**
+- **HALT execution immediately**
+- Log error with file path and timestamp
+- **DO NOT proceed to Step 8.5** (Response Validation)
+- **DO NOT show user output**
+- Display error message (see file-finalization-verifier.md)
+
+**If verification passes:**
+- Log success with modification timestamp
+- Proceed to Step 8.5 (Response Validation)
+
+**See:** `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm and error messages
 
 ---
 

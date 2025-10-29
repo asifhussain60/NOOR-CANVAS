@@ -230,6 +230,22 @@ Reply: A, B, or C
 ## Test Strategy
 - Test types required (unit, E2E, visual)
 - Test scenarios and coverage
+- **CRITICAL**: If Playwright tests required, include:
+  - Orchestration script phase: `Scripts/run-{key}-test.ps1`
+  - Template reference: `.github/prompts/shared/test-orchestration-patterns.md`
+  - Required pattern: Separate window + health check + try/finally cleanup
+  - Prohibited: webServer config, direct npx execution, Start-Job
+
+## Test Execution Requirements (if Playwright/Percy tests)
+- **Method**: Orchestration script (MANDATORY)
+- **Script Location**: `Scripts/run-{key}-test.ps1`
+- **Template**: `.github/prompts/shared/test-orchestration-patterns.md`
+- **Launch Pattern**: Separate PowerShell window with health check polling
+- **Cleanup**: Guaranteed via try/finally with Stop-Process -Force
+- **References**:
+  - Orchestration: `.github/prompts/shared/test-orchestration-patterns.md` (MANDATORY)
+  - Test Generation: `.github/prompts/shared/playwright-test-generation.md`
+  - Test Data: `.github/instructions/Links/PlaywrightQuickRef.md` (Session 212)
 
 ## Rollback Plan
 - Checkpoint commits, rollback steps
@@ -292,45 +308,56 @@ Reply: A, B, or C
 
 **⚠️ BLOCKING REQUIREMENT:** Do NOT proceed to response validation or user output until ALL files verified.
 
+**Algorithm:** See `.github/prompts/shared/file-finalization-verifier.md`
+
 **Verification Checklist:**
 1. `.github/key-data-streams/{key}/{key}.plan.md` exists
 2. `.github/key-data-streams/{key}/{key}.plan.json` exists  
 3. `.github/key-data-streams/{key}/work-log.md` exists
 4. `.github/key-data-streams/{key}/state.json` exists (if state tracking enabled)
 
-**Verification Algorithm:**
+**Quick Verification:**
 ```
 VerifyFileFinalization(key):
-  files = [
+  requiredFiles = [
     ".github/key-data-streams/{key}/{key}.plan.md",
     ".github/key-data-streams/{key}/{key}.plan.json",
-    ".github/key-data-streams/{key}/work-log.md",
-    ".github/key-data-streams/{key}/state.json"  // optional
+    ".github/key-data-streams/{key}/work-log.md"
   ]
   
-  FOR EACH file IN files:
-    IF NOT FileExists(file) AND file != "state.json":
+  IF StateTrackingEnabled THEN
+    requiredFiles.Add(".github/key-data-streams/{key}/state.json")
+  END IF
+  
+  FOR EACH file IN requiredFiles:
+    IF NOT FileExists(file) THEN
       HALT_EXECUTION()
       LOG_ERROR("File finalization incomplete: {file} missing")
+      SHOW_ERROR_MESSAGE(file)  // See file-finalization-verifier.md
       RETURN FALSE
     END IF
   END FOR
   
+  LOG_SUCCESS("File finalization complete: {requiredFiles.length} files verified")
   RETURN TRUE
 ```
 
 **If ANY required file missing:**
 - **HALT execution immediately**
 - Log error with missing file path
+- **DO NOT proceed to Step 6** (Handoff Preparation)
 - **DO NOT proceed to Step 7.5** (Response Validation)
 - **DO NOT show user output**
+- Display error message (see file-finalization-verifier.md for templates)
 - Request manual file creation or restart process
 
 **If ALL files verified:**
-- Log success: "File finalization complete"
+- Log success: "File finalization complete: {count} files verified"
 - Proceed to Step 6 (Handoff Preparation)
 
-**Critical:** This step enforces document-first protocol. No user-facing output until documentation complete.
+**Critical:** This step enforces "Document First, Respond Later" protocol. No user-facing output until documentation complete.
+
+**See:** `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm and error message templates
 
 ---
 
@@ -584,6 +611,7 @@ Reply: A, B, or C
 - ✅ Visual regression tests (Percy)
 - ✅ E2E interaction tests (Playwright)
 - ✅ Accessibility tests (if new components)
+- ⚠️ **MANDATORY**: ALL Playwright tests require orchestration scripts
 
 **API changes:**
 - ✅ Integration tests (API endpoints)
@@ -599,6 +627,37 @@ Reply: A, B, or C
 - ✅ Real-time communication tests
 - ✅ Connection/disconnection handling
 - ✅ Message delivery verification
+- ⚠️ **MANDATORY**: ALL SignalR tests require orchestration scripts (app must be running)
+
+### Playwright Test Orchestration Requirements (MANDATORY)
+
+**When plan includes ANY Playwright/Percy tests, the plan MUST include:**
+
+1. **Orchestration Script Creation Phase**
+   - Create `Scripts/run-{key}-test.ps1` using canonical template
+   - Template: `.github/prompts/shared/test-orchestration-patterns.md`
+   - Pattern: Cleanup → Launch (separate window) → Health Check → Test → Guaranteed Cleanup
+
+2. **Test Strategy Documentation Must Specify:**
+   ```markdown
+   ## Test Execution
+   - **Method**: Orchestration script (REQUIRED)
+   - **Script**: `Scripts/run-{key}-test.ps1`
+   - **Pattern**: Separate PowerShell window with health check polling
+   - **Cleanup**: Guaranteed via try/finally with Stop-Process -Force
+   - **Reference**: `.github/prompts/shared/test-orchestration-patterns.md`
+   ```
+
+3. **Plan Must Reference Required Files:**
+   - `.github/prompts/shared/test-orchestration-patterns.md` - Canonical orchestration template (MANDATORY)
+   - `.github/prompts/shared/playwright-test-generation.md` - Test generation patterns
+   - `.github/instructions/Links/PlaywrightQuickRef.md` - Test data (Session 212)
+
+4. **Prohibited Approaches (Mark as DEPRECATED in plan):**
+   - ❌ `PW_MODE=standalone npx playwright test` (webServer config - unreliable)
+   - ❌ Direct `npx playwright test` without orchestration
+   - ❌ `Start-Job` for app startup
+   - ❌ Manual `dotnet run` before tests
 
 **Algorithm:** See `.github/prompts/shared/test-strategist.md`
 

@@ -30,13 +30,41 @@
 
 **When user mentions "Playwright test" or "pwtest":**
 
-Create automated end-to-end visual regression tests using Playwright, Percy, and any other configured libraries to reproduce and fix the issue. Ensure that the application is launched in a separate PowerShell window (not a Terminal window) before executing any headed tests to maintain proper environment isolation and visual consistency.
+Create automated end-to-end tests using Playwright and Percy. **ALL Playwright tests MUST use orchestration scripts** that launch the application in a separate PowerShell window for proper environment isolation, visible debugging, and reliable cleanup.
+
+**CRITICAL REQUIREMENTS:**
+- ✅ **ALWAYS** create orchestration script in `Scripts/run-{feature}-test.ps1`
+- ✅ **ALWAYS** launch app in separate PowerShell window (not background, not hidden)
+- ✅ **ALWAYS** use health check polling (not fixed delays)
+- ✅ **ALWAYS** use `try/finally` for guaranteed cleanup
+- ❌ **NEVER** use `PW_MODE=standalone` or webServer config (DEPRECATED)
+- ❌ **NEVER** use direct `npx playwright test` without orchestration
+- ❌ **NEVER** use `Start-Job` or PowerShell background operator `&`
+
+**Required Pattern:**
+```powershell
+# Launch in separate window with health check
+$app = Start-Process powershell -ArgumentList "-NoExit", "-Command",
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     dotnet run" -WindowStyle Minimized -PassThru
+
+# Health check polling (not fixed delay)
+# ... polling logic ...
+
+# Run tests with guaranteed cleanup
+try {
+    npx playwright test test.spec.ts --headed
+} finally {
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
+```
 
 - Test Location: `PlayWright/tests/`, `Tests/UI/`, or `Workspaces/TEMP/` (temporary)
 - Configuration: `config/testing/playwright.config.cjs`
 - Test Data: Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
 - Base URL: `https://localhost:9091`
-- Execution: `npx playwright test` or `$env:PW_MODE='standalone'; npx playwright test`
+- Orchestration Template: `.github/prompts/shared/test-orchestration-patterns.md` ⭐ **MANDATORY READING**
 
 **See**: `PlaywrightQuickRef.md` for complete testing documentation
 

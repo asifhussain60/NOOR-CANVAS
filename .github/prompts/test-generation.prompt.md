@@ -230,15 +230,99 @@ Automatically run generated tests after creation
 - `false` - Only generate tests, do not execute
 
 
+## CRITICAL: Application Launch Protocol (MANDATORY)
+
+**⚠️ ABSOLUTE REQUIREMENT: ALL PLAYWRIGHT TESTS MUST USE ORCHESTRATION SCRIPTS**
+
+### Application Launch Mandate
+
+**DO THIS (ONLY ACCEPTABLE APPROACH):**
+```powershell
+# Launch app in SEPARATE PowerShell window via orchestration script
+Start-Process powershell -ArgumentList "-NoExit", "-Command", 
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
+     dotnet run" -WindowStyle Minimized -PassThru
+```
+
+**NEVER DO THIS:**
+- ❌ `PW_MODE=standalone npx playwright test` (webServer config approach - DEPRECATED)
+- ❌ Direct `npx playwright test` without app startup
+- ❌ Manual `dotnet run` in terminal before tests
+- ❌ `Start-Job` for background app startup (unreliable)
+- ❌ PowerShell background operator `&` (doesn't work in PowerShell 5.1)
+
+### Why Separate Window is Mandatory
+
+**Benefits:**
+- ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
+- ✅ Visible error messages in separate window (easier debugging)
+- ✅ Reliable PID tracking for cleanup (`$app.Id`)
+- ✅ Can restore minimized window to inspect app output
+- ✅ Health check polling ensures app is ready before tests
+- ✅ Guaranteed cleanup via `try/finally` with `Stop-Process -Force`
+
+**Problems with webServer Config (deprecated approach):**
+- ❌ Hidden process output (can't debug startup failures)
+- ❌ Environment variables not consistently set
+- ❌ Race conditions (tests start before app ready)
+- ❌ Orphaned processes (unreliable cleanup)
+
+### Orchestration Script Requirement
+
+**EVERY generated test MUST have an accompanying orchestration script** in `Scripts/run-{feature}-test.ps1`
+
+See `.github/prompts/shared/test-orchestration-patterns.md` for canonical template.
+
 ## Canonical Playwright Guidance
 For detailed patterns, decision matrices, and examples, see:
 - `.github/prompts/shared/playwright-test-generation.md` (selectors, wait strategies, Percy usage, multi-user flows)
-- `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management)
+- `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management) ⭐ **MANDATORY READING**
 
 See Also:
 - `.github/prompts/shared/validation-engine.md`
 - `.github/prompts/shared/integration-protocol.md`
 
+
+## Pre-Generation: Orchestration Requirements Check (EXECUTE FIRST)
+
+### Step -1: Verify Orchestration Context
+
+**Trigger:** ALWAYS before generating any Playwright/Percy tests
+
+**Purpose:** Ensure calling agent (route/plan/todo) passed orchestration requirements
+
+**Check for orchestration context:**
+1. **If invoked from route/plan/todo**: Context should include orchestration-required=true
+2. **Load required reference files:**
+   - `.github/prompts/shared/test-orchestration-patterns.md` (canonical template)
+   - `.github/prompts/shared/playwright-test-generation.md` (test patterns)
+   - `.github/instructions/Links/PlaywrightQuickRef.md` (Session 212 test data)
+
+**Validation:**
+```
+IF orchestration-required == true OR test-type in ["playwright", "percy", "e2e", "visual"] THEN
+  MUST create orchestration script in Scripts/run-{key}-test.ps1
+  MUST use template from .github/prompts/shared/test-orchestration-patterns.md
+  MUST include: Cleanup → Launch (separate window) → Health Check → Test → Guaranteed Cleanup
+ELSE
+  Skip orchestration script (non-Playwright test)
+END IF
+```
+
+**Output to user (if orchestration required):**
+```markdown
+🔧 Orchestration Requirements Detected
+
+- Test Type: Playwright/Percy (orchestration MANDATORY)
+- Script: Will create `Scripts/run-{key}-test.ps1`
+- Template: `.github/prompts/shared/test-orchestration-patterns.md`
+- Pattern: Separate window + health check + try/finally cleanup
+- Prohibited: webServer config, direct npx, Start-Job
+```
+
+---
 
 ## Initial Validation (MANDATORY)
 

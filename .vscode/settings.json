@@ -104,8 +104,15 @@
 
   "// === Copilot Chat Enhancement ===": "",
   "workbench.panel.defaultLocation": "right",
-  "chat.editor.fontSize": 14,
+  "chat.editor.fontSize": 18,
   "chat.editor.wordWrap": "on",
   "testing.automaticallyOpenTestResults": "neverOpen",
-  "workbench.editor.enablePreview": false
+  "workbench.editor.enablePreview": false,
+
+  "// === Font Size Adjustments ===": "",
+  "editor.fontSize": 16,
+  "terminal.integrated.fontSize": 14,
+  "markdown.preview.fontSize": 16,
+  "debug.console.fontSize": 14,
+  "window.zoomLevel": 0
 }

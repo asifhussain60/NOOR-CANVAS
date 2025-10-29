@@ -307,10 +307,17 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 - `plan`: user_request, scope, constraints, include_suggestions
 - `task`: tasks, github-branch, commit-checkpoints, verbosity
 - `todo`: auto-chain, current work context
-- `test-generation`: scenario, auto-execute, key (from plan or request)
+- `test-generation`: scenario, auto-execute, key (from plan or request), **orchestration-required=true**
 - `ask`: question, depth, verbosity, offer_actionable_handoff=true
 - `healthcheck`: scope, level
 - `drift`: parent_key, drift_description, severity
+
+**Test-Generation Specific Requirements:**
+When routing to `test-generation`, ALWAYS include orchestration context:
+- `orchestration-template`: `.github/prompts/shared/test-orchestration-patterns.md`
+- `test-patterns`: `.github/prompts/shared/playwright-test-generation.md`
+- `test-data`: `.github/instructions/Links/PlaywrightQuickRef.md`
+- `orchestration-required`: true (MANDATORY - never use webServer config)
 
 **Post-Answer Handoff Protocol (for ask and test-generation):**
 - After answering/generating, these agents MUST offer actionable options
@@ -361,6 +368,8 @@ ExecuteBuildPrompt(rawInput)
 **Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
 
 **When:** ALWAYS execute immediately before any user-facing output (after Step 6, before handoff message)
+
+**Note on File Finalization:** Route prompt delegates file creation to target agents (plan, task, todo). File finalization verification is performed by target agents, not route. See `.github/prompts/shared/file-finalization-verifier.md` for target agent requirements.
 
 **Algorithm:** See `.github/prompts/shared/output-validator.md`
 

@@ -149,6 +149,8 @@ Classify work type → include specialized prompts:
 - **Tests Required** → `test-generation.prompt.md`
   - New features, UI changes, API endpoints, database schema
   - Triggers: keywords (test, e2e, Percy, Playwright, visual regression)
+  - ⚠️ **MANDATORY**: If Playwright tests, must create orchestration script
+  - Template: `.github/prompts/shared/test-orchestration-patterns.md`
   
 - **Architecture Changes** → `plan.prompt.md` (recommend upgrade)
   - Multi-layer changes, new services, SignalR hubs
@@ -161,6 +163,28 @@ Classify work type → include specialized prompts:
 - **Drift Detected** → `drift.prompt.md`
   - Unrelated issues discovered during work
   - Auto-trigger when tangent/blocker found
+
+### Test Orchestration Requirements (if Playwright/Percy tests)
+
+**When todo includes ANY Playwright/Percy test work:**
+
+1. **MUST create orchestration script**: `Scripts/run-{key}-test.ps1`
+2. **MUST use canonical template**: `.github/prompts/shared/test-orchestration-patterns.md`
+3. **MUST include in plan extension**:
+   ```markdown
+   ### Phase N: Create Test Orchestration Script
+   **Goal**: Set up automated test execution with proper app lifecycle
+   **Tasks**:
+   1. Create `Scripts/run-{key}-test.ps1` from canonical template
+   2. Configure: Cleanup → Launch (separate window) → Health Check → Test → Cleanup
+   3. Verify: Health check polling, try/finally cleanup, -Force flag
+   ```
+
+4. **PROHIBITED approaches (mark as deprecated)**:
+   - ❌ `PW_MODE=standalone npx playwright test`
+   - ❌ Direct `npx playwright test`
+   - ❌ `Start-Job` for app startup
+   - ❌ Manual `dotnet run` before tests
 
 ## Complexity Classification Algorithm
 
@@ -355,7 +379,24 @@ END IF
 - **Auto-execute behavior:**
   - **If `from-build=true`**: Require explicit "proceed" (build already showed approval)
   - **If `from-build=false`**: Auto-execute after 5s unless "review"/"cancel"
-- **RESPONSE VALIDATION** (MANDATORY before user output):
+- **FILE FINALIZATION VERIFICATION** (MANDATORY before response validation):
+  - Algorithm: See `.github/prompts/shared/file-finalization-verifier.md`
+  - Verify work-log.md appended (file size increased)
+  - Check state.json updated (if state tracking enabled)
+  - HALT if work-log.md size unchanged
+  - **Quick Check:**
+    ```
+    previousSize = GetFileSizeBeforeExecution(work-log.md)
+    ExecuteWork()
+    currentSize = GetFileSize(work-log.md)
+    
+    IF currentSize <= previousSize THEN
+      HALT_EXECUTION()
+      LOG_ERROR("Work log append failed")
+      SHOW_ERROR_MESSAGE("Work log not updated")
+    END IF
+    ```
+- **RESPONSE VALIDATION** (MANDATORY after file finalization):
   - Validate all responses using `.github/prompts/shared/output-validator.md`
   - Auto-fix violations (bullet consolidation, list flattening) when possible
   - BLOCK response if critical violations cannot be fixed
