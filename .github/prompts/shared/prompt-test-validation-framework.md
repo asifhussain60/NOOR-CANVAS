@@ -161,6 +161,36 @@ FUNCTION ValidatePlanPrompt(evidence)
   violations = []
   missedRequirements = []
   
+  // Check 0: File Finalization Verification (BLOCKING)
+  // Per file-finalization-verifier.md and Step 5.5
+  requiredFiles = [
+    ".github/key-data-streams/{key}/{key}.plan.md",
+    ".github/key-data-streams/{key}/{key}.plan.json",
+    ".github/key-data-streams/{key}/work-log.md",
+    ".github/key-data-streams/{key}/state.json"
+  ]
+  
+  missingFiles = []
+  FOR EACH file IN requiredFiles
+    IF NOT FileExists(file) THEN
+      missingFiles.APPEND(file)
+    END IF
+  END FOR
+  
+  IF missingFiles.COUNT > 0 THEN
+    violations.APPEND({
+      severity: "critical",
+      rule: "File finalization verification (Step 5.5 - BLOCKING)",
+      description: "Plan must create all required files BEFORE user response",
+      missingFiles: missingFiles,
+      enforcement: "HALT execution - Step 6 and Step 7.5 must not execute",
+      reference: ".github/prompts/shared/file-finalization-verifier.md"
+    })
+    
+    // HALT further validation - no point checking other rules if files don't exist
+    RETURN {violations: violations, missedRequirements: missedRequirements}
+  END IF
+  
   // Check 1: Key Data Stream Created
   IF NOT evidence.keyDataStreams.Contains(currentKey) THEN
     violations.APPEND({
@@ -234,6 +264,42 @@ FUNCTION ValidateTaskPrompt(evidence)
   
   violations = []
   missedRequirements = []
+  
+  // Check 0: File Finalization Verification (work-log.md timestamp check)
+  // Per file-finalization-verifier.md and Step 8.25
+  expectedWorkLog = ".github/key-data-streams/{key}/work-log.md"
+  
+  IF FileExists(expectedWorkLog) THEN
+    lastModified = GetFileLastModified(expectedWorkLog)
+    currentTime = GetCurrentTime()
+    timeDiff = currentTime - lastModified
+    
+    IF timeDiff > 60 THEN  // 60 seconds threshold
+      violations.APPEND({
+        severity: "critical",
+        rule: "File finalization verification (Step 8.25 - timestamp check)",
+        description: "work-log.md must be updated within 60 seconds of task completion",
+        lastModified: lastModified,
+        timeDiff: timeDiff,
+        enforcement: "HALT execution - Step 8.6 (Response Validation) must not execute",
+        reference: ".github/prompts/shared/file-finalization-verifier.md"
+      })
+      
+      // HALT further validation
+      RETURN {violations: violations, missedRequirements: missedRequirements}
+    END IF
+  ELSE
+    violations.APPEND({
+      severity: "critical",
+      rule: "File finalization verification (Step 8.25 - file existence)",
+      description: "work-log.md must exist before task response",
+      enforcement: "HALT execution - Step 8.6 must not execute",
+      reference: ".github/prompts/shared/file-finalization-verifier.md"
+    })
+    
+    // HALT further validation
+    RETURN {violations: violations, missedRequirements: missedRequirements}
+  END IF
   
   // Check 1: Commit Checkpoints
   recentCommits = evidence.commitMessages.Take(10)
@@ -416,6 +482,41 @@ FUNCTION ValidateTodoPrompt(evidence)
   
   violations = []
   missedRequirements = []
+  
+  // Check 0: File Finalization Verification (work-log.md append check)
+  // Per file-finalization-verifier.md and Execution section
+  expectedWorkLog = ".github/key-data-streams/{key}/work-log.md"
+  
+  IF FileExists(expectedWorkLog) THEN
+    previousSize = GetFileSizeBeforeWork(expectedWorkLog)
+    currentSize = GetCurrentFileSize(expectedWorkLog)
+    
+    IF currentSize <= previousSize THEN
+      violations.APPEND({
+        severity: "critical",
+        rule: "File finalization verification (todo - append check)",
+        description: "work-log.md must be appended during todo execution",
+        previousSize: previousSize,
+        currentSize: currentSize,
+        enforcement: "HALT execution - Response validation must not execute",
+        reference: ".github/prompts/shared/file-finalization-verifier.md"
+      })
+      
+      // HALT further validation
+      RETURN {violations: violations, missedRequirements: missedRequirements}
+    END IF
+  ELSE
+    violations.APPEND({
+      severity: "critical",
+      rule: "File finalization verification (todo - file existence)",
+      description: "work-log.md must exist for todo to extend work",
+      enforcement: "HALT execution - Response validation must not execute",
+      reference: ".github/prompts/shared/file-finalization-verifier.md"
+    })
+    
+    // HALT further validation
+    RETURN {violations: violations, missedRequirements: missedRequirements}
+  END IF
   
   // Check 1: Key Preserved
   activeKey = DetectActiveKey(evidence.gitHistory)
@@ -1266,6 +1367,256 @@ Agent: [Executes healthcheck.prompt.md normally]
        C. Re-run with enhanced scope
        D. Continue to next healthcheck scope
 ```
+
+### Example 4: plan.prompt.md File Finalization Failure
+
+```
+User: @workspace /plan key=user-dashboard -test "Create user dashboard"
+
+Agent: [Executes plan.prompt.md]
+       - Analyzes request
+       - Creates key data stream directory
+       - Generates plan.md ✅
+       - Generates plan.json ✅
+       - (SKIPPED: work-log.md creation) ❌
+       - (SKIPPED: state.json creation) ❌
+       
+       [Step 5.5: FILE FINALIZATION VERIFICATION - BLOCKING]
+       
+       🚨 CRITICAL VIOLATION DETECTED
+       
+       Missing Files (2):
+       - .github/key-data-streams/user-dashboard/work-log.md
+       - .github/key-data-streams/user-dashboard/state.json
+       
+       ⛔ HALT EXECUTION
+       
+       Step 6 (Response to User) and Step 7.5 (Response Validation) 
+       will NOT execute until files are created.
+       
+       Per file-finalization-verifier.md:
+       - Plan must create ALL required files before showing response
+       - This is a BLOCKING requirement
+       
+       🔄 Auto-fix attempt:
+       - Creating work-log.md...
+       - Creating state.json...
+       
+       ✅ Files created. Resuming validation...
+       
+       [Continuing to Step 6]
+       
+       Quality Score: 75/100 (Good - auto-recovered from critical violation)
+       
+       What would you like to do next?
+       
+       **A. PROCEED** with plan execution  
+       **B.** Review file finalization details  
+       **C.** Generate improvement plan (enforce Step 5.5 compliance)  
+       **D.** Cancel and restart with correct workflow
+```
+
+### Example 5: task.prompt.md Stale Work Log Failure
+
+```
+User: @workspace /task key=admin-panel -test tasks="Implement Phase 1"
+
+Agent: [Executes task.prompt.md]
+       - Implements admin panel UI
+       - Creates database migrations
+       - Updates API endpoints
+       - Commits changes ✅
+       - (FORGOT: work-log.md update) ❌
+       
+       [Step 8.25: FILE FINALIZATION VERIFICATION]
+       
+       🚨 CRITICAL VIOLATION DETECTED
+       
+       work-log.md timestamp check:
+       - Last Modified: 2025-10-29 14:30:22 (125 seconds ago)
+       - Threshold: 60 seconds
+       - Status: STALE ❌
+       
+       ⛔ HALT EXECUTION
+       
+       Step 8.6 (Response Validation) will NOT execute until 
+       work-log.md is updated.
+       
+       Per file-finalization-verifier.md:
+       - work-log.md must be modified within 60 seconds of completion
+       - This ensures documentation happens DURING execution, not after
+       
+       🔄 Auto-fix attempt:
+       - Appending execution summary to work-log.md...
+       - Timestamp: 2025-10-29 14:32:30 ✅
+       
+       ✅ work-log.md updated. Resuming validation...
+       
+       [Continuing to Step 8.6]
+       
+       Quality Score: 70/100 (Acceptable - auto-recovered from critical violation)
+       
+       What would you like to do next?
+       
+       **A. PROCEED** with next phase  
+       **B.** Review work-log.md updates  
+       **C.** Generate improvement plan (enforce Step 8.25 compliance)  
+       **D.** Rollback and restart with correct workflow
+```
+
+### Example 6: todo.prompt.md No Append Failure
+
+```
+User: @workspace /todo -test "Add error handling to admin panel"
+
+Agent: [Executes todo.prompt.md]
+       - Detects active key: admin-panel
+       - Analyzes existing work
+       - Adds error handling code
+       - Commits changes ✅
+       - (FORGOT: work-log.md append) ❌
+       
+       [Execution: FILE FINALIZATION VERIFICATION]
+       
+       🚨 CRITICAL VIOLATION DETECTED
+       
+       work-log.md append check:
+       - Previous Size: 4,521 bytes
+       - Current Size: 4,521 bytes
+       - Change: 0 bytes ❌
+       
+       ⛔ HALT EXECUTION
+       
+       Response validation will NOT execute until work-log.md 
+       is appended with todo execution details.
+       
+       Per file-finalization-verifier.md:
+       - todo must APPEND to work-log.md (file size must increase)
+       - This preserves execution history and context
+       
+       🔄 Auto-fix attempt:
+       - Appending todo execution summary...
+       - Previous Size: 4,521 bytes
+       - New Size: 4,892 bytes
+       - Change: +371 bytes ✅
+       
+       ✅ work-log.md appended. Resuming validation...
+       
+       [Continuing to Response Validation]
+       
+       Quality Score: 72/100 (Acceptable - auto-recovered from critical violation)
+       
+       What would you like to do next?
+       
+       **A. PROCEED** with next todo  
+       **B.** Review work-log.md append details  
+       **C.** Generate improvement plan (enforce append verification)  
+       **D.** Mark admin-panel complete and close key
+```
+
+---
+
+### Example 7: plan.prompt.md Auto-Chain E2E Execution
+
+**Scenario:** Multi-phase plan finalized, user selects Option E (auto-execute all phases)
+
+**Execution:**
+1. User approves plan with `auto-chain=true`
+2. plan.prompt.md hands off to task.prompt.md with `auto-chain=true`, `phase=1`
+3. task.prompt.md completes Phase 1, automatically proceeds to Phase 2
+4. Phase 2 encounters test failure (manual intervention required)
+5. Auto-chain pauses, waits for user to fix tests
+6. User replies "Continue", auto-chain resumes from Phase 3
+7. Phases 3-5 execute automatically to completion
+
+**Expected Validation:**
+
+```markdown
+**🧠 Auto-Chain Validation (≤5 bullets)**
+- Test: plan.prompt.md multi-phase auto-chain execution
+- Phases: 5 total (Phase 1-2 auto, Phase 2 paused, Phase 3-5 auto)
+- Auto-chain: Successfully paused for manual intervention (test failure)
+- Resume: User replied "Continue", execution resumed correctly
+- Result: All phases completed with 1 manual intervention
+
+**📌 Validation Checks (≤10 bullets)**
+1. ✅ Option E (**AUTO-EXECUTE ALL PHASES**) shown as RECOMMENDED
+2. ✅ `auto-chain=true` passed to task.prompt.md in handoff parameters
+3. ✅ Phases 1-2 executed without user approval gates
+4. ✅ Phase 2 test failure detected → auto-chain PAUSED
+5. ✅ User notified: "Auto-chain paused - test failure in Phase 2"
+6. ✅ User action: "Continue" → auto-chain resumed from Phase 3
+7. ✅ Phases 3-5 executed without further approval
+8. ✅ No approval gates between successful phases
+9. ✅ Total execution time: Reduced by 80% (vs manual approval)
+10. ✅ Quality score: 95/100 (Excellent - smart pause/resume)
+
+**⚡ Options**
+**A. PROCEED** with next test case  
+**B.** Review auto-chain execution logs  
+**C.** Test manual intervention scenarios (migrations, Percy)  
+**D.** Mark validation framework tests complete
+```
+
+**Quality Score:** 95/100 (Excellent)
+- Auto-chain enabled as RECOMMENDED ✅
+- Proper handoff with auto-chain flag ✅
+- Smart pause on manual intervention ✅
+- Clean resume after user action ✅
+- Significant efficiency improvement ✅
+
+---
+
+### Example 8: plan.prompt.md Missing Auto-Chain Recommendation
+
+**Scenario:** Multi-phase plan (4 phases) shown to user WITHOUT Option E
+
+**Execution:**
+1. User requests plan with 4 phases
+2. plan.prompt.md generates plan successfully
+3. Output shows Options A-D but NOT Option E
+4. Validation detects missing auto-chain recommendation
+
+**Expected Validation:**
+
+```markdown
+**🧠 Validation Failure (≤5 bullets)**
+- Test: plan.prompt.md output format validation
+- Issue: Multi-phase plan missing auto-chain recommendation
+- Phases: 4 (should trigger Option E display)
+- Violation: CONCISE-MANDATE.md Rule 12 (default to E2E execution)
+- Severity: WARNING (user can still proceed but suboptimal UX)
+
+**📌 Validation Checks (≤10 bullets)**
+1. ✅ Plan generated correctly (4 phases, tasks defined)
+2. ✅ 📋 Phases & Tasks section present
+3. ✅ File finalization verified (plan.md, plan.json, work-log.md)
+4. ❌ **Option E missing** - Multi-phase plan MUST show auto-chain option
+5. ❌ **Recommended option unclear** - No option shown in ALL CAPS
+6. ⚠️ User defaults to Option A (manual phase-by-phase)
+7. ⚠️ Execution will require 4 approval cycles (inefficient)
+8. ⚠️ Violates CONCISE-MANDATE.md Rule 12
+9. ⚠️ output-validator.md Check 9 should have caught this
+10. ❌ Quality score: 70/100 (Acceptable but needs improvement)
+
+**⚡ Options**
+**A.** Auto-fix output (add Option E, mark as RECOMMENDED)  
+**B.** Report to improvement plan  
+**C.** Update output-validator.md to catch this earlier  
+**D. ALL OF THE ABOVE** (recommended)
+```
+
+**Quality Score:** 70/100 (Acceptable)
+- Plan structure correct ✅
+- Tasks and file finalization verified ✅
+- **Missing auto-chain option** ❌
+- **No RECOMMENDED guidance** ❌
+- Inefficient user experience ⚠️
+
+**Improvement Actions:**
+1. Add Option E to output template
+2. Update output-validator.md Check 8 enforcement
+3. Test with multi-phase plans to verify
 
 ---
 

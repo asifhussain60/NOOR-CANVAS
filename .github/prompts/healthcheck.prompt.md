@@ -758,6 +758,26 @@ D) Continue with another healthcheck scope
   - **Shared library usage:** Check for duplicate content that should be extracted to shared/
   - **Version tracking:** Ensure changelog entries present for modified prompts
   - **Learning pattern references:** Validate references to `.github/learning/` exist
+  - **Modular structure compliance (Phase 3 Validation):**
+    - **Output-Style-Mandate:** All 10 root agents LOAD MODULE `output-style-mandate.md`
+      - Check: plan.prompt.md, task.prompt.md, todo.prompt.md, test-generation.prompt.md, healthcheck.prompt.md, ask.prompt.md, cohesion.prompt.md, drift.prompt.md, route.prompt.md, collapse-keys.prompt.md
+      - Validate: "See `.github/prompts/shared/output-style-mandate.md`" or "Must follow `.github/prompts/shared/output-style-mandate.md`" present
+      - Detect violations: Inline output format rules (🧠/📌/📊 structure) NOT in LOAD MODULE context
+      - Drift severity: **medium** (inconsistent output format reduces user experience quality)
+    - **Checkpoint Protocol:** Agents with checkpoint logic LOAD MODULE `checkpoint-protocol.md`
+      - Check: task.prompt.md, todo.prompt.md, plan.prompt.md, test-generation.prompt.md
+      - Validate: "LOAD MODULE `.github/prompts/shared/task-exec/checkpoint-protocol.md`" present
+      - Detect violations: Inline PowerShell checkpoint creation NOT delegating to module
+      - Drift severity: **high** (duplicate logic causes maintenance burden and potential inconsistencies)
+    - **Agent Handoff Protocol:** All handoffs documented in `agent-handoff-protocol.md`
+      - Check: Documented patterns (plan→task, build→todo, task→test-generation, SELF_INVOKE, test context, route→*)
+      - Validate: Each pattern has Purpose, Format, Parameters, Workflow, Example
+      - Detect violations: Handoff logic in prompts NOT matching protocol specification
+      - Drift severity: **medium** (undocumented handoffs cause integration confusion)
+    - **Drift Detection:**
+      - Register prompt structure violations as drifts (auto mode)
+      - Example drift keys: `drift-output-mandate-missing`, `drift-checkpoint-inline`, `drift-handoff-undocumented`
+      - Log severity and affected files for post-healthcheck resolution
 
 ### 4. Validate
 

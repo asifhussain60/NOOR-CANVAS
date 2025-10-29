@@ -43,6 +43,8 @@ Automatically generate appropriate test coverage for UI changes following establ
 
 ⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS**
 
+**NEVER execute tests directly - ALWAYS use orchestration scripts.**
+
 ### Why Orchestration Scripts Are Mandatory
 
 **Orchestration scripts ensure:**
@@ -50,13 +52,25 @@ Automatically generate appropriate test coverage for UI changes following establ
 - ✅ `ASPNETCORE_ENVIRONMENT=Development` correctly sets DevMode
 - ✅ Health check retry logic prevents race conditions
 - ✅ Automated cleanup prevents port conflicts
+- ✅ Reliable PID tracking for process termination
+- ✅ Visible app window (minimized) for debugging
+- ✅ Guaranteed cleanup even if tests fail (`try/finally`)
 
-**Direct execution ALWAYS fails:**
-- ❌ `npx playwright test` directly from VS Code terminal (missing environment, wrong isolation)
-- ❌ `Start-Job` for app startup (wrong isolation model)
-- ❌ Manual app startup without orchestration script
+**Direct execution approaches are ALL DEPRECATED:**
+- ❌ `npx playwright test` (missing environment setup, no cleanup)
+- ❌ `PW_MODE=standalone npx playwright test` (webServer config - unreliable)
+- ❌ `Start-Job` for app startup (unreliable PID tracking, orphaned processes)
+- ❌ Manual `dotnet run` before tests (non-automatable, fragile)
+- ❌ PowerShell background operator `&` (doesn't work in PowerShell 5.1)
 
-### Required Script Pattern
+**REQUIRED: Create orchestration script for EVERY test**
+- Location: `Scripts/run-{feature}-test.ps1`
+- Template: See `.github/prompts/shared/test-orchestration-patterns.md` (MANDATORY READING)
+- Execution: `.\Scripts\run-{feature}-test.ps1`
+
+**See Complete Pattern:** `.github/prompts/shared/test-orchestration-patterns.md`
+
+---
 
 **Script MUST include these components:**
 

@@ -1,319 +1,249 @@
-# hcp.plan.md — Collapsible Questions+Participants Panel in Host Control Panel
+# Plan: hcp (Host Control Panel Consolidated)
 
-**Key**: hcp  
-**Created**: 2025-10-22  
-**Status**: Ready for execution
+**Key:** `hcp`  
+**Created:** 2025-10-29 (Consolidated from 4 source keys)  
+**Type:** Consolidated Key  
+**Status:** ✅ Complete (All implementations merged)
+
+---
+
+## Merged From
+
+This plan consolidates work from the following source keys:
+
+- `hcp` - Collapsible Questions+Participants panel (2025-10-22)
+- `hcp-cleanup` - Cleanup scripts and baseline tests  
+- `hcp-fab-button` - FAB (Floating Action Button) implementation (2025-10-28)
+- `hcp-timer` - Timer UI redesign and relocation (2025-10-22)
+- `hcp-timer-v2` - Timer layout refinements and sticky positioning (2025-10-22)
+
+**Merged on:** 2025-10-29  
+**Consolidation Mode:** Folder Merge + File Consolidation  
+**Source Folders:** 4 (hcp-cleanup, hcp-fab-button, hcp-timer, hcp-timer-v2)  
+**Archived Plans:** 4 files in `_ARCHIVE/plans/`
+
+---
 
 ## Overview
-Make Questions+Participants panel collapsible on the right in Host Control Panel. Toggle button shows badge with total questions count. Panel slides in from right (RTL animation). Maximize transcript width when collapsed.
 
-## Execution Model
-- User says "proceed" → Copilot executes all phases sequentially
-- Each phase: implement → test → validate (max 3 fix attempts) → next phase
-- Testing discontinued after 3 failed attempts; report failure and stop
-- No user intervention required between phases
+The Host Control Panel (HCP) is a critical component for session hosts in the NOOR Canvas application. This consolidated plan documents all major enhancements and refinements made to the HCP.
 
-## Affected Files
-- Primary: `SPA/NoorCanvas/Pages/HostControlPanel.razor`
-- Supporting: Shared CSS/layout files as needed
-- Optional: `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (container sizing only)
+**Components Consolidated:**
+1. **Collapsible Questions Panel** - Right-side panel with toggle button and badge
+2. **FAB Share Button** - Modern floating action button for transcript broadcasting
+3. **Timer Redesign** - Visual improvements and repositioning
+4. **Timer Refinements** - Layout optimization and sticky positioning
+5. **Cleanup Scripts** - Test automation and baseline validation
 
----
-
-## Phase 1: UI/State Basics
-
-### Implementation Context
-Add collapsible right-side panel container for Questions+Participants. Add toggle button with live-updating badge showing total questions count. Default state: collapsed.
-
-### Ready-to-paste prompt:
-```
-@task key:hcp-phase1 
-  title:"Add collapsible panel container and toggle button with badge"
-  scope:HostControlPanel.razor
-  acceptance:[
-    - Right-side panel container wrapping Questions+Participants sections
-    - Toggle button positioned appropriately with icon/text
-    - Badge element on toggle showing question count (initially "0")
-    - Local component state: panelOpen (boolean, default false)
-    - Panel visibility controlled by panelOpen state
-    - Toggle button onclick flips panelOpen state
-  ]
-  constraints:[
-    - No CSS transitions yet (Phase 2)
-    - Badge shows static count for now (wired in Phase 3)
-    - Keep existing functionality intact
-  ]
-  implementation_notes:[
-    - Use Blazor @code block for panelOpen state
-    - Panel content: wrap existing Questions and Participants markup
-    - Toggle: button with aria-expanded, aria-controls
-    - Badge: span with count value
-  ]
-  validation:[
-    - Build succeeds (dotnet build)
-    - Panel toggles visibility on button click
-    - No console errors
-  ]
-```
-
-### Test Generation:
-```
-@test-generation key:hcp-phase1
-  subject:HostControlPanel toggle button and panel visibility
-  test_types:[e2e]
-  frameworks:[Playwright]
-  coverage:[
-    - Toggle button exists and is accessible
-    - Initial state: panel hidden, badge shows "0"
-    - Click toggle: panel becomes visible
-    - Click again: panel hides
-  ]
-  test_location:Tests/UI/hcp-collapsible-panel-phase1.spec.ts
-  retry_policy:3_attempts_max
-```
-
-### Exit Criteria
-- [x] Build passes
-- [x] Playwright test passes (max 3 attempts)
-- [x] Panel toggles on/off
-- [x] Badge element present
+For detailed implementation information on each component, see the archived plan files in `_ARCHIVE/plans/`.
 
 ---
 
-## Phase 2: Layout and Animation
+## Component Summary
 
-### Implementation Context
-Add responsive layout with smooth CSS transitions. Transcript region resizes when panel toggles. Panel slides in from right. Support mobile/tablet/desktop breakpoints.
+### 1. FAB (Floating Action Button) Implementation ✅
 
-### Ready-to-paste prompt:
-```
-@task key:hcp-phase2
-  title:"Add responsive layout and smooth animations"
-  scope:HostControlPanel.razor,shared CSS
-  acceptance:[
-    - CSS transitions for panel width/transform (200-300ms)
-    - Panel slides from right edge using transform: translateX()
-    - Transcript region width adjusts smoothly via flex/grid
-    - Responsive breakpoints: mobile (<768px), tablet (768-1024px), desktop (>1024px)
-    - prefers-reduced-motion: disable/reduce animations
-    - No cumulative layout shift (CLS-friendly)
-  ]
-  constraints:[
-    - Use CSS transitions, not JavaScript animations
-    - Panel overlay on mobile, side-by-side on desktop
-  ]
-  implementation_notes:[
-    - Add CSS class: .panel-container with transition properties
-    - Transcript container: flex-grow/shrink based on panel state
-    - Use @media queries for breakpoints
-    - Add @media (prefers-reduced-motion: reduce) rules
-  ]
-  validation:[
-    - Smooth animation at 60fps (visual check)
-    - No layout jump during transition
-    - Reduced motion honored
-  ]
-```
+**Source:** `hcp-fab-button` key  
+**Status:** Complete  
+**Commit:** `10012091`, `ada3df5d`
 
-### Test Generation:
-```
-@test-generation key:hcp-phase2
-  subject:Panel animation and responsive layout
-  test_types:[e2e,visual]
-  frameworks:[Playwright,Percy]
-  coverage:[
-    - Animation completes within 300ms
-    - Transcript width changes smoothly
-    - Percy snapshots: desktop (panel open/closed), tablet, mobile
-    - Reduced motion: transitions disabled
-  ]
-  test_location:Tests/UI/hcp-collapsible-panel-phase2.spec.ts
-  retry_policy:3_attempts_max
-```
+**Key Features:**
+- Removed kebab menu (-147 lines from HostControlPanel.razor)
+- Added FAB button for transcript broadcasting
+- Green circular design (56x56px) with hover effects
+- Asset header FAB buttons (lilac, 40px) for individual asset sharing
+- Unified click handler for both button types
+- Comprehensive test suite with orchestration scripts
 
-### Exit Criteria
-- [x] Build passes
-- [x] Playwright test passes (max 3 attempts)
-- [x] Percy snapshots approved
-- [x] Animations smooth, no layout shift
+**Files Modified:**
+- `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor`
+- `SPA/NoorCanvas/wwwroot/css/host-control-panel.css`
+- `SPA/NoorCanvas/Services/AssetProcessingService.cs`
+
+**Tests:** 3 test files + 2 orchestration scripts
 
 ---
 
-## Phase 3: Data and Accessibility
+### 2. Timer UI Redesign ✅
 
-### Implementation Context
-Wire badge to live total questions count from existing API/SignalR. Add keyboard navigation and ARIA attributes. Ensure focus management.
+**Source:** `hcp-timer` key  
+**Status:** Complete
 
-### Ready-to-paste prompt:
-```
-@task key:hcp-phase3
-  title:"Wire live question count and add accessibility"
-  scope:HostControlPanel.razor
-  acceptance:[
-    - Badge displays real-time total questions count
-    - Subscribe to existing question events/API
-    - Keyboard: Space/Enter on toggle button works
-    - ARIA: aria-expanded on button, aria-label on badge, aria-controls linking button to panel
-    - Focus management: toggle button retains focus after activation
-    - Screen reader announces panel state changes
-  ]
-  constraints:[
-    - Use existing API/SignalR patterns (no new endpoints)
-    - No DbContext injection in UI layer
-  ]
-  implementation_notes:[
-    - Inject existing service/hub for question count
-    - OnInitializedAsync: load initial count
-    - Subscribe to question added/removed events
-    - Update badge value on state change
-    - Add @onkeydown handler for Space/Enter
-  ]
-  validation:[
-    - Badge shows correct count
-    - Count updates when question added (test with mock event)
-    - Keyboard navigation works
-    - Screen reader announces correctly
-  ]
-```
+**Key Changes:**
+- Removed green background gradient
+- Changed to orange plain text (#FF8C00)
+- Increased icon size 3x (0.9rem → 2.7rem)
+- Increased text size 3x (1rem → 3rem)
+- Relocated from control pod to session title header
 
-### Test Generation:
-```
-@test-generation key:hcp-phase3
-  subject:Live badge updates and keyboard accessibility
-  test_types:[e2e,a11y]
-  frameworks:[Playwright,axe-core]
-  coverage:[
-    - Badge reflects initial question count
-    - Add question via API: badge increments
-    - Keyboard: Space and Enter toggle panel
-    - Axe-core scan: no critical/serious violations
-    - Focus remains on toggle after activation
-  ]
-  test_location:Tests/UI/hcp-collapsible-panel-phase3.spec.ts
-  retry_policy:3_attempts_max
-```
-
-### Exit Criteria
-- [x] Build passes
-- [x] Playwright test passes (max 3 attempts)
-- [x] Badge shows live count
-- [x] Keyboard accessible, no a11y violations
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (lines 109-116 removed)
+- `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor` (lines 15-26 updated)
 
 ---
 
-## Phase 4: Final Tests and Health Check
+### 3. Timer Layout Refinements ✅
 
-### Implementation Context
-Comprehensive e2e tests, Percy visual regression across all states/breakpoints, final healthcheck (build, lint, all tests).
+**Source:** `hcp-timer-v2` key  
+**Status:** Complete
 
-### Ready-to-paste prompt:
-```
-@task key:hcp-phase4
-  title:"Final testing and validation"
-  scope:All hcp changes
-  acceptance:[
-    - All previous phase tests pass
-    - Percy snapshots: all breakpoints, all states (collapsed/expanded, badge values 0/1/10)
-    - Edge cases: no questions, many questions, rapid toggling
-    - No regressions to existing HCP functionality
-    - Build clean, no new warnings/errors
-  ]
-  implementation_notes:[
-    - Run full test suite
-    - Generate Percy baseline for future comparisons
-    - Manual smoke test: toggle on desktop and mobile
-  ]
-  validation:[
-    - dotnet build --no-incremental: success
-    - npm run lint: no new errors
-    - All Playwright tests pass
-    - Percy visual diff: approved
-  ]
-```
+**Key Changes:**
+- Moved Q&A button into timer container
+- Applied fixed-width monospace font to timer
+- Made session title header sticky (desktop/tablets only)
+- Conditionally hide "Share Section" button (Asset Canvas mode)
+- Display canvas type indicator below timer
 
-### Test Generation:
-```
-@test-generation key:hcp-phase4
-  subject:Full integration and regression testing
-  test_types:[e2e,visual,regression]
-  frameworks:[Playwright,Percy]
-  coverage:[
-    - Happy path: full user flow with toggle, questions, badge updates
-    - Edge cases: zero questions, 100+ questions, rapid clicking
-    - Regression: existing HCP features still work
-    - Percy: comprehensive snapshots (6+ variants)
-  ]
-  test_location:Tests/UI/hcp-collapsible-panel-final.spec.ts
-  retry_policy:3_attempts_max
-```
-
-### Healthcheck:
-```
-@healthcheck
-  pre_flight:[build, lint_baseline]
-  post_implementation:[build, lint, playwright_tests, percy_snapshots]
-  report_format:summary
-```
-
-### Exit Criteria
-- [x] All tests pass
-- [x] Percy approved
-- [x] Build clean
-- [x] No regressions
+**Files Modified:**
+- `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor`
 
 ---
 
-## Failure Handling
+### 4. Collapsible Questions+Participants Panel ✅
 
-**Per-phase retry policy**:
-1. Test fails → analyze error
-2. Apply fix (implementation or test adjustment)
-3. Retry test
-4. Repeat up to 3 total attempts
-5. After 3 failed attempts: STOP, report failure with:
-   - Phase number
-   - Test failure details
-   - Last error message
-   - Attempted fixes
-   - Recommendation for manual intervention
+**Source:** `hcp` key  
+**Status:** Complete
 
-**Phase gate**: Each phase must fully pass before proceeding to next phase.
+**Key Features:**
+- Collapsible right-side panel with toggle button
+- Live question count badge
+- Smooth RTL slide animation (200-300ms)
+- Responsive layout (mobile/tablet/desktop)
+- Full keyboard accessibility (Space/Enter)
+- ARIA attributes and screen reader support
+
+**Implementation Phases:**
+1. UI/State basics (panel container, toggle, badge)
+2. Layout and animation (responsive, CSS transitions)
+3. Data and accessibility (live count, keyboard, ARIA)
+4. Final tests and healthcheck (Playwright + Percy)
+
+**Files Modified:**
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor`
+
+**Tests:** 4 phase-specific test files
 
 ---
 
-## Completion Summary Template
+### 5. Cleanup Scripts ✅
 
-After all phases complete, generate:
+**Source:** `hcp-cleanup` key  
+**Status:** Available
+
+**Script:** `scripts/run-hcp-baseline-test.ps1`  
+**Purpose:** Baseline validation before/after HCP changes
+
+---
+
+## Consolidated File Structure
 
 ```
-## 📌 Summary for You — AFTER IMPLEMENTATION
-
-1) Work Requested (key: hcp)
-- Collapsible Questions+Participants panel in Host Control Panel with toggle badge
-
-2) Tasks completed:
-- [x] Phase 1: UI/State basics (panel container, toggle, badge)
-- [x] Phase 2: Layout and animation (responsive, smooth transitions)
-- [x] Phase 3: Data and accessibility (live count, keyboard, ARIA)
-- [x] Phase 4: Final tests and healthcheck
-
-3) Next step recommendations:
-- Optional: Persist panel state per session in localStorage
-- Optional: Add subtle shadow/divider when panel open
-- Deploy to staging for user acceptance testing
-
-4) What would you like to do next?
-- [ ] Run additional healthcheck validation (specify scope)
-- [ ] Review implementation details (open HostControlPanel.razor)
-- [ ] Generate conventional commit message (@commit)
-- [ ] Deploy to staging environment (ncdeploy workflow)
-- [ ] Add enhancement (persist state / shadow effect)
-
-(See <attachments> above for file contents. You may not need to search or read the file again.)
+.github/key-data-streams/hcp/
+├── hcp.plan.md                        # This consolidated plan
+├── work-log.md                        # Consolidated work log
+├── README.md                          # Auto-generated summary
+├── scripts/                           # From hcp-cleanup
+│   └── run-hcp-baseline-test.ps1
+├── tests/                             # Test artifacts (if any)
+├── _ARCHIVE/                          # Historical artifacts
+│   ├── plans/
+│   │   ├── hcp-original.plan.md      # Collapsible panel plan
+│   │   ├── hcp-fab-button.plan.md    # FAB implementation plan
+│   │   ├── hcp-timer.plan.md         # Timer redesign plan
+│   │   └── hcp-timer-v2.plan.md      # Timer refinements plan
+│   └── state/
+│       ├── hcp-fab-button.state.json
+│       └── hcp-original.state.json
 ```
 
 ---
 
-## User Command
+## Summary Statistics
 
-**To execute this plan**: Simply say "proceed" and Copilot will execute all 4 phases sequentially with automatic testing and retry logic.
+**Source Keys Merged:** 4
+- hcp-cleanup
+- hcp-fab-button  
+- hcp-timer
+- hcp-timer-v2
+
+**Files Modified:** 15+
+- 4 Razor components
+- 1 CSS file
+- 1 C# service
+
+**Tests Created:** 10+
+- Visual regression (Percy)
+- E2E verification (Playwright)
+- Accessibility (axe-core)
+- Phase-specific validation
+
+**Scripts Created:** 3
+- FAB Percy test runner
+- FAB verification test orchestrator
+- HCP baseline validation
+
+**Documentation:** 3 files
+- This consolidated plan
+- FAB implementation doc
+- Work log
+
+---
+
+## Related Work
+
+### Commits
+- `a96bb22a` - feat(hcp): Implement asset grouping redesign with kebab menu
+- `f3a3ed1e` - docs: Add share-button redesign documentation
+- `10012091` - refactor(hcp): Remove kebab menu
+- `9783744c` - docs(hcp-fab-button): Retroactive key data stream documentation
+- `ada3df5d` - feat(hcp-fab-button): Fix positioning + verification tests
+
+### Prompt System Improvements
+- **Key:** `prompt-system-gaps`
+- **Work:** Patched drift.prompt.md and cohesion.prompt.md
+- **Result:** Future work always creates key data streams
+
+### Drift Resolution
+- **Key:** `drift-prompt-efficiency`
+- **Created:** PlaywrightTestOrchestration.md pattern
+- **Updated:** PlaywrightQuickRef.md, test-generation.prompt.md
+
+---
+
+## Next Steps
+
+**Optional Enhancements:**
+- Persist collapsible panel state in localStorage
+- Add subtle shadow/divider when panel open
+- Remove legacy blue share buttons after FAB validation
+- Update Playwright tests for new button classes
+
+**Deployment:**
+- Run comprehensive healthcheck validation
+- Generate conventional commit message
+- Deploy to staging environment
+
+---
+
+## Detailed Implementation
+
+For detailed implementation information on each component, see:
+
+- **FAB Button:** `_ARCHIVE/plans/hcp-fab-button.plan.md`
+- **Timer Redesign:** `_ARCHIVE/plans/hcp-timer.plan.md`
+- **Timer Refinements:** `_ARCHIVE/plans/hcp-timer-v2.plan.md`
+- **Collapsible Panel:** `_ARCHIVE/plans/hcp-original.plan.md`
+- **Work History:** `work-log.md`
+
+---
+
+## Metadata
+
+**Key:** `hcp`  
+**Type:** Consolidated Key  
+**Status:** ✅ Complete  
+**Last Updated:** 2025-10-29  
+**Consolidation Agent:** collapse-keys.prompt.md  
+**Mode:** Folder Merge + File Consolidation

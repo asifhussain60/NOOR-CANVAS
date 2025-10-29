@@ -6,46 +6,106 @@
 
 ---
 
-## ⚠️ CRITICAL: Server Management Rules
+## ⚠️ CRITICAL: Application Launch Protocol (MANDATORY)
 
-**PLAYWRIGHT MANAGES THE SERVER AUTOMATICALLY - DO NOT START IT MANUALLY!**
+**ALL PLAYWRIGHT TESTS MUST USE ORCHESTRATION SCRIPTS WITH SEPARATE WINDOW APP LAUNCH**
 
-Port policy: The application must bind only to HTTPS on 9091. Do not bind to 9090.
+### ✅ REQUIRED APPROACH: Orchestration Scripts
 
-### ❌ NEVER Do This for Playwright Tests:
+**ALWAYS use this pattern for ALL Playwright tests:**
+
 ```powershell
-# WRONG - Don't manually start the app
+# Complete orchestration script (Scripts/run-{feature}-test.ps1)
+
+# 1. Kill existing processes
+Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | 
+    Where-Object { $_.MainWindowTitle -like "*NoorCanvas*" } | 
+    Stop-Process -Force
+
+# 2. Launch app in SEPARATE PowerShell window
+$app = Start-Process powershell -ArgumentList "-NoExit", "-Command",
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
+     dotnet run" -WindowStyle Minimized -PassThru
+
+# 3. Health check with polling (NEVER use fixed delays)
+$maxAttempts = 30
+$attempt = 0
+$appReady = $false
+
+while (-not $appReady -and $attempt -lt $maxAttempts) {
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
+        if ($response.StatusCode -eq 200) {
+            $appReady = $true
+            Write-Host "✅ App ready after $attempt seconds" -ForegroundColor Green
+        }
+    } catch {
+        $attempt++
+        Write-Host "⏳ Waiting... ($attempt/$maxAttempts)" -ForegroundColor Gray
+        Start-Sleep -Seconds 1
+    }
+}
+
+if (-not $appReady) {
+    Write-Host "❌ App failed to start within timeout" -ForegroundColor Red
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    exit 1
+}
+
+# 4. Run tests with guaranteed cleanup
+try {
+    npx playwright test test.spec.ts --headed --reporter=list
+} finally {
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
+```
+
+**See:** `.github/prompts/shared/test-orchestration-patterns.md` for complete canonical template
+
+### ❌ DEPRECATED APPROACHES (DO NOT USE)
+
+```powershell
+# ❌ WRONG - webServer config (deprecated, unreliable)
+PW_MODE=standalone npx playwright test
+
+# ❌ WRONG - Direct execution without orchestration
+npx playwright test
+
+# ❌ WRONG - Manual app startup before tests
 dotnet run
 ./Workspaces/Global/nc.ps1
 ./Workspaces/Global/ncb.ps1
-Start-Process powershell -ArgumentList "dotnet run"
+
+# ❌ WRONG - Start-Job (unreliable PID tracking, orphaned processes)
+Start-Job -ScriptBlock { dotnet run }
+
+# ❌ WRONG - Background operator (doesn't work in PowerShell 5.1)
+dotnet run &
 ```
 
-### ✅ ALWAYS Do This:
-```bash
-# RIGHT - Let Playwright manage everything
-PW_MODE=standalone npx playwright test
+### Why Separate Window is Mandatory
 
-# Playwright automatically:
-# 1. Starts dotnet run (background subprocess)
-# 2. Waits for port 9091 to be ready
-# 3. Runs all tests
-# 4. Stops the server
-# 5. Cleans up processes
-```
+**Benefits of Orchestration Scripts:**
+- ✅ **Proper environment isolation**: `ASPNETCORE_ENVIRONMENT=Development` guaranteed
+- ✅ **Visible debugging**: Can restore minimized window to see app errors
+- ✅ **Reliable PID tracking**: `$app.Id` for guaranteed cleanup
+- ✅ **Health check polling**: Prevents race conditions (tests wait for app ready)
+- ✅ **Guaranteed cleanup**: `try/finally` ensures app stops even if tests fail
+- ✅ **No orphaned processes**: Direct PID control via `Stop-Process -Force`
 
-### How webServer Works:
-- **Not a separate window**: Server runs as invisible Node.js subprocess
-- **Automatic lifecycle**: Start → Wait → Test → Stop
-- **Port monitoring**: Waits for port 9091 to respond before testing
-- **Process cleanup**: Kills server process when tests complete
-- **Error handling**: Stops server even if tests fail
+**Problems with Deprecated Approaches:**
+- ❌ **webServer config**: Hidden errors, inconsistent environment variables, race conditions
+- ❌ **Start-Job**: Unpredictable job names (`Job1`, `Job2`), unreliable cleanup
+- ❌ **Manual startup**: Non-automatable, human error prone, no cleanup guarantee
+- ❌ **Background operator**: Doesn't work in PowerShell 5.1 (Windows default)
 
-### Manual Server Launch is ONLY for:
-- **Browser Development**: Manual testing in browser (use `nc.ps1`)
+### Manual App Launch (nc.ps1/ncb.ps1) is ONLY for:
+- **Browser Development**: Manual testing in browser (not automated tests)
 - **Debugging**: Visual Studio/VS Code debugger
 - **Demo Pages**: Showing features to stakeholders
-- **NEVER**: For running automated Playwright tests
+- **NEVER**: For running automated Playwright tests (use orchestration scripts instead)
 
 ---
 
@@ -85,80 +145,72 @@ console.log('[INFO] Additional context');     // Information
 
 ---
 
-## 🖥️ CRITICAL: Application Management for Manual Testing
+## 🖥️ Test Execution with Orchestration Scripts
 
-**When YOU (Copilot) need to run tests that require manual app startup:**
+**ALL Playwright tests MUST use orchestration scripts** - See canonical pattern above.
 
-### Step 1: Launch Application in Separate PowerShell Window
+### Standard Test Execution Workflow
+
+**Step 1: Create Orchestration Script**
+- Location: `Scripts/run-{feature}-test.ps1`
+- Template: See `.github/prompts/shared/test-orchestration-patterns.md`
+- Required components: Cleanup, Launch, Health Check, Test Execution, Guaranteed Cleanup
+
+**Step 2: Run Via Orchestration Script**
 ```powershell
-# Start app in NEW window (not background process)
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
-
-# Store the process info
-# The app will run in its own window, visible to user
+# Execute the orchestration script (handles everything)
+.\Scripts\run-{feature}-test.ps1
 ```
 
-### Step 2: Wait for Application to be Ready
-```powershell
-# Wait for app startup (15-20 seconds typical)
-Start-Sleep -Seconds 20
-
-# Verify app is listening
-netstat -ano | findstr "LISTENING" | findstr ":9091"
-```
-
-### Step 3: Run Tests in Current Terminal
-```powershell
-# Run Playwright tests in the CURRENT terminal window
-npx playwright test path/to/test.spec.ts --headed --reporter=list
-```
-
-### Step 4: Clean Up After Tests Complete
-```powershell
-# Find and kill the app PowerShell window process
-$appProcess = Get-Process powershell | Where-Object { 
-    $_.MainWindowTitle -like "*dotnet run*" -or 
-    $_.CommandLine -like "*NoorCanvas*dotnet run*" 
+**Step 3: Optional - Add to tasks.json**
+```json
+{
+    "label": "test-{feature}",
+    "type": "shell",
+    "command": "powershell.exe",
+    "args": [
+        "-NoProfile",
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/Scripts/run-{feature}-test.ps1"
+    ],
+    "group": "test"
 }
+```
 
-if ($appProcess) {
-    Stop-Process -Id $appProcess.Id -Force
-    Write-Host "[CLEANUP] Killed application process: $($appProcess.Id)"
+### Advanced: Keep App Running for Debugging
+
+```powershell
+# Add -KeepAppRunning parameter to orchestration script
+param([switch]$KeepAppRunning)
+
+# ... run tests ...
+
+if ($KeepAppRunning) {
+    Write-Host "[DEBUG] Keeping app running for manual verification" -ForegroundColor Yellow
+    Write-Host "  App URL: https://localhost:9091" -ForegroundColor Cyan
+    Write-Host "  PID: $($app.Id)" -ForegroundColor Cyan
+    Write-Host "  To stop: Stop-Process -Id $($app.Id)" -ForegroundColor Gray
 } else {
-    Write-Host "[WARN] Could not find application process to clean up"
-}
-
-# Alternative: Kill by port
-$portProcess = netstat -ano | findstr ":9091" | findstr "LISTENING"
-if ($portProcess -match '\s+(\d+)$') {
-    $pid = $matches[1]
-    Stop-Process -Id $pid -Force
-    Write-Host "[CLEANUP] Killed process on port 9091: $pid"
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
 }
 ```
 
-### Complete Workflow Example
+**Usage:**
 ```powershell
-# 1. Launch app
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
-
-# 2. Wait for startup
-Start-Sleep -Seconds 20
-
-# 3. Run tests
-npx playwright test Workspaces/TEMP/share-transcript-navigation.spec.ts --headed
-
-# 4. Cleanup
-$pid = (netstat -ano | findstr ":9091" | findstr "LISTENING" | Select-String -Pattern '\s+(\d+)$').Matches.Groups[1].Value
-if ($pid) { Stop-Process -Id $pid -Force }
+.\Scripts\run-{feature}-test.ps1 -KeepAppRunning
 ```
 
-### When to Use This Approach
-- **✅ Use when**: Test file is in `Workspaces/TEMP/` (temporary test)
-- **✅ Use when**: Debugging specific issues that need visual app window
-- **✅ Use when**: Percy visual regression tests need manual verification
-- **❌ NEVER use**: For standard CI/CD tests in `PlayWright/tests/`
-- **❌ NEVER use**: When `webServer` configuration is available in `playwright.config.cjs`
+### When to Use Orchestration Scripts
+- **✅ ALWAYS**: For all Playwright test execution
+- **✅ ALWAYS**: For Percy visual regression tests
+- **✅ ALWAYS**: For headed tests (debugging)
+- **✅ ALWAYS**: For CI/CD test automation
+- **✅ ALWAYS**: For temporary tests in `Workspaces/TEMP/`
+
+### Reference Implementations
+- `Scripts/run-debug-panel-percy-tests.ps1` - Percy visual tests with orchestration
+- `Scripts/run-transcript-canvas-visual-tests.ps1` - Visual regression tests
+- `.github/prompts/shared/test-orchestration-patterns.md` - Canonical template
 
 ---
 
@@ -352,63 +404,48 @@ test.describe('Visual Regression: Feature Name', () => {
 }
 ```
 
-### Environment Modes
+### Environment Modes (DEPRECATED - Use Orchestration Scripts Instead)
 
-#### 1. Standalone Mode (`PW_MODE=standalone`)
-**Purpose**: Automatic .NET app lifecycle management
+**⚠️ NOTE: All environment modes below are DEPRECATED. Use orchestration scripts instead.**
 
-**Usage**:
+The following modes were part of the webServer config approach, which is no longer recommended:
+
+#### 1. Standalone Mode (`PW_MODE=standalone`) - DEPRECATED
+**Status**: DEPRECATED - Use orchestration scripts instead
+
+**Previous Approach (DO NOT USE):**
 ```bash
 $env:PW_MODE='standalone'; npx playwright test
 ```
 
-**Features**:
-- Starts .NET app automatically (`dotnet run` in `SPA/NoorCanvas`)
-- Port: 9091
-- Timeout: 60000ms for app startup
-- Workers: 1 (sequential execution)
-- Headless: false (visible browser)
-- Viewport: 1280x720
-- Video/Trace: retain-on-failure
-- Report: `Workspaces/TEMP/playwright-report/standalone-html`
+**Problems:**
+- Hidden process output (can't debug startup failures)
+- Environment variables not consistently set
+- Race conditions (tests start before app ready)
+- Orphaned processes (unreliable cleanup)
 
-**When to Use**:
-- Manual test execution
-- Debugging tests
-- Local development
+**Replacement:** Use orchestration script pattern (see above)
 
-#### 2. Temp Mode (`PW_MODE=temp`)
-**Purpose**: Enhanced artifact collection
+#### 2. Temp Mode (`PW_MODE=temp`) - DEPRECATED
+**Status**: DEPRECATED - Use orchestration scripts with artifact collection instead
 
-**Usage**:
+**Previous Approach (DO NOT USE):**
 ```bash
 $env:PW_MODE='temp'; npx playwright test
 ```
 
-**Features**:
-- Video: on (always)
-- Trace: on (always)
-- Workers: 1
-- Retries: 0
+**Replacement:** Configure video/trace in playwright.config.cjs per-test
 
-**When to Use**:
-- Debugging failures
-- Capturing full test execution
-- Temporary test runs
+#### 3. CI Mode (default) - DEPRECATED
+**Status**: DEPRECATED - Use orchestration scripts in CI/CD pipelines
 
-#### 3. CI Mode (default)
-**Purpose**: Continuous Integration
+**Replacement:** Execute orchestration scripts from CI/CD (GitHub Actions, Azure DevOps)
 
-**Features**:
-- Headless: true
-- Workers: multiple (parallel)
-- Video: retain-on-failure
-- Trace: on-first-retry
-
-**When to Use**:
-- Automated CI/CD pipelines
-- Pre-commit hooks
-- Batch test execution
+**Modern Approach for All Scenarios:**
+```powershell
+# Use orchestration scripts for ALL test execution
+.\Scripts\run-{feature}-test.ps1
+```
 
 ---
 
@@ -778,6 +815,7 @@ Configured in `playwright.config.cjs` per mode
 
 - **PlaywrightConfig.MD** - Detailed configuration reference
 - **PlaywrightTestPaths.MD** - Canonical test patterns and Session 212 data
+- **PlaywrightTestOrchestration.md** - ⭐ App launch + test orchestration patterns
 - **InfrastructureQuickRef.md** - API endpoints for test assertions
 - **Architecture.md** - SignalR hubs and real-time testing
 

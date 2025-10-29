@@ -3,15 +3,34 @@
 **ALL prompts MUST follow this for USER-FACING output. NO exceptions.**
 
 ## Hard Limits
-- MAX 25 bullets total per response
-- MAX 2 lines per bullet
-- **ZERO implementation code in chat** (no C#, JS, HTML, CSS, Razor, SQL, TS code blocks)
-- **ONLY architectural descriptions** (file paths, method names, flow diagrams)
-- NO nested lists (flat structure only)
-- NO long paragraphs (bullets only)
-- NO code examples or snippets (not even as teaching examples)
+1. MAX 25 bullets total per response
+2. MAX 3 lines per bullet
+3. **ZERO implementation code** - No code blocks or snippets in chat (see `.github/prompts/shared/snippet-handling-policy.md`)
+4. **ONLY architectural descriptions** - File paths, method names, flow diagrams only
+5. NO nested lists (flat structure only)
+6. NO long paragraphs (bullets only)
+7. NO code snippets or examples (not even as teaching examples)
+8. File locations → `.github/key-data-streams/{key}/` only (NEVER in chat)
+9. **Letter-based actions** - Always provide A/B/C/D options with **RECOMMENDED option in ALL CAPS**
+10. **Enforcement validation** - Must validate before responding (see Enforcement section)
+11. **VERIFY FILE FINALIZATION** - All key data stream files must exist before user output
+    - **plan.prompt.md**: Verify `{key}.plan.md`, `{key}.plan.json`, `work-log.md`, `state.json` at Step 5.5
+    - **task.prompt.md**: Verify `work-log.md` updated (within 60s) at Step 8.25
+    - **todo.prompt.md**: Verify `work-log.md` appended (file size increased) before response
+    - **Enforcement**: HALT if files missing, BLOCK subsequent steps, show error message
+    - **See**: `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm
+12. **DEFAULT TO E2E EXECUTION** - After plan finalized, recommend auto-chain mode
+    - **plan.prompt.md**: Show Option A (**AUTO-EXECUTE ALL PHASES**) as RECOMMENDED with 5s countdown
+    - **Default behavior**: `auto-chain=true` (user must actively choose Option B for manual mode)
+    - **Behavior**: Execute all phases automatically without approval gates
+    - **Manual intervention**: Halt only when user action required (tests, migrations, failures)
+    - **Rationale**: User approves plan once, execution proceeds end-to-end
+    - **User control**: 5-second countdown allows abort/switch to manual mode
+    - **See**: plan.prompt.md auto-chain parameter documentation
 
 ## What Code Means
+
+**See:** `.github/prompts/shared/snippet-handling-policy.md` for complete policy
 
 **❌ PROHIBITED - NEVER show in chat:**
 - C# methods, classes, properties (public void, private string, etc.)
@@ -51,7 +70,7 @@
 ## Response Structure
 
 ```
-🧠 Analysis (≤8 bullets, 2 lines each)
+🧠 Analysis (≤8 bullets, 3 lines each)
 - Key: {key}
 - Routing: {prompts-used}
 - Complexity: {simple|moderate|complex}
@@ -59,7 +78,7 @@
 - Context: {visual|error|file} packages
 - Assumptions: {1-2 brief assumptions}
 
-📌 Summary (≤15 bullets, 2 lines each)
+📌 Summary (≤15 bullets, 3 lines each)
 1. Key: {key} | Status: {status}
 2. Work: {one-liner description}
 3. Files: {count} modified ({file-list})
@@ -81,13 +100,24 @@
 ```
 
 ## Letter-Based Actions
-Always provide 2-4 options:
-- **A.** Execute / Proceed
-- **B.** Review Plan / Details
-- **C.** Modify Approach
-- **D.** Cancel / Skip
+Always provide 2-5 options with **RECOMMENDED option in ALL CAPS**:
+- **A.** **AUTO-EXECUTE ALL PHASES** (for multi-phase plans - recommended, auto-starts in 5s)
+- **B.** Manual mode (step-by-step with approval gates)
+- **C.** Review Plan / Details
+- **D.** Modify Approach
+- **E.** Cancel / Skip
 
-User replies: "A", "A, C", or "all"
+**Formatting:**
+- Recommended option: Use **bold** + **ALL CAPS** for prominence
+- For multi-phase plans: Option A (auto-chain) is RECOMMENDED with 5s countdown
+- For single actions: Option A is RECOMMENDED
+- Alternative: Increase font size using heading (e.g., `### A. AUTO-EXECUTE ALL PHASES`)
+- User replies: "A", "manual", "cancel", or waits 5s for auto-execution
+
+**Auto-Chain Preference:**
+- When plan.prompt.md shows final plan: Default to Option A with 5s countdown
+- When task.prompt.md shows phase completion: Use auto-chain flag from plan
+- User approves plan ONCE, execution proceeds automatically (can abort with "manual" or "cancel")
 
 ## File Locations
 All output → `.github/key-data-streams/{key}/` (authoritative location)
@@ -110,16 +140,24 @@ NEVER → Chat responses
 ## Enforcement
 Before responding:
 1. Count bullets → Must be ≤25 total
-2. Scan for code blocks → ZERO allowed (```csharp, ```js, ```html, ```css, ```sql)
-3. Verify architectural descriptions → File paths + method names + flow only
-4. Check for {key}.plan.md reference → Must point to docs for implementation
-5. Violations → AUTO-BLOCK response, rewrite without code
+2. Check line length → Must be ≤3 lines per bullet
+3. Scan for code blocks → ZERO allowed (```csharp, ```js, ```html, ```css, ```sql, ```razor)
+4. Scan for code snippets → ZERO allowed (inline code examples, method bodies)
+5. Verify architectural descriptions → File paths + method names + flow only
+6. Check for {key}.plan.md reference → Must point to docs for implementation details
+7. **Verify file finalization** → All key data stream files must exist (see Rule 11)
+8. Check letter-based actions → Recommended option must be in **ALL CAPS**
+9. **Check auto-chain recommendation** → For multi-phase plans, Option E should be RECOMMENDED
+10. Violations → AUTO-BLOCK response, rewrite without code/snippets
 
 **Auto-fail triggers:**
-- Any ```csharp, ```javascript, ```html, ```css, ```razor, ```sql block
-- Method implementations (public void, function, const myFunc)
+- Any ```csharp, ```javascript, ```html, ```css, ```razor, ```sql, ```typescript block
+- Code snippets (method implementations, function bodies, component markup)
 - HTML element structures (complete tags with attributes)
 - CSS rule sets (selectors with property:value pairs)
+- SQL statements (full queries or commands)
+- Inline code examples (even for teaching purposes)
+- **Missing key data stream files** (plan.md, plan.json, work-log.md)
 - Exception: JSON config snippets ≤10 lines for settings only
 
 ## Special Cases

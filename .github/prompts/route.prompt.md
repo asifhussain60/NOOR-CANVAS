@@ -1,20 +1,34 @@
 # route.prompt.md (Request Router Agent)
 
-**Version:** 1.6.0  
+**Version:** 1.7.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
+
+**Changelog:**
+- **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
+- **v1.6.0**: Previous version with state tracking
 
 ---
 mode: agent
 purpose: Analyzes user requests and context to intelligently route to specialized agents (plan, task, todo, ask, test-generation, etc.)
 inputs: target, request, key, context, auto-execute
 outputs: Handoff to target agent with optimized parameters
-lastUpdated: 2025-10-28
+lastUpdated: 2025-10-29
 stateTracking: enabled
 ---
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
 > acceptsFrom: [user]
 > calls: [plan, task, todo, ask, healthcheck, drift, cohesion, test-generation]
+
+---
+
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
+- Use "📌 Summary for You" for user-facing bullets only.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D).
+- MAX 15 bullets total per response.
 
 ---
 
@@ -177,16 +191,12 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 1. Load global index (`.github/key-data-streams/index.md`)
 2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
 3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
-4. **If plan file exists:**
-   - **Extract `**Branch**` field** from plan frontmatter (e.g., `**Branch**: development`)
-   - Store as `planBranch` variable for handoff
-   - **Route to task or todo** (NOT plan) - plan is source of truth
+4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
 5. If related keys found but no plan → present options to user and HALT
 6. If no related keys and no plan → proceed with new key creation
 
 **Routing Logic Based on Plan File:**
 - **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
-  - Pass `github-branch={planBranch}` from plan file to target prompt
 - **No plan exists** → Route to `plan` (create plan)
 - This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
 
@@ -306,21 +316,22 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 2. Add context from analysis (visual, error, file packages)
 3. Set agent-specific parameters based on target
 4. Preserve all analyzed context for target agent
-5. **If plan file exists (from Step 0):** Include `github-branch={planBranch}` in handoff parameters
 
 **Agent-specific parameters:**
 - `plan`: user_request, scope, constraints, include_suggestions
-- `task`: tasks, github-branch (from plan file if exists, else default), commit-checkpoints, verbosity
-- `todo`: auto-chain, current work context, github-branch (from plan file if exists)
-- `test-generation`: scenario, auto-execute, key (from plan or request)
+- `task`: tasks, github-branch, commit-checkpoints, verbosity
+- `todo`: auto-chain, current work context
+- `test-generation`: scenario, auto-execute, key (from plan or request), **orchestration-required=true**
 - `ask`: question, depth, verbosity, offer_actionable_handoff=true
 - `healthcheck`: scope, level
 - `drift`: parent_key, drift_description, severity
 
-**Branch Parameter Priority:**
-1. **Plan file branch** (if `{key}.plan.md` exists) - HIGHEST PRIORITY
-2. User-provided `github-branch` parameter
-3. Default: `development`
+**Test-Generation Specific Requirements:**
+When routing to `test-generation`, ALWAYS include orchestration context:
+- `orchestration-template`: `.github/prompts/shared/test-orchestration-patterns.md`
+- `test-patterns`: `.github/prompts/shared/playwright-test-generation.md`
+- `test-data`: `.github/instructions/Links/PlaywrightQuickRef.md`
+- `orchestration-required`: true (MANDATORY - never use webServer config)
 
 **Post-Answer Handoff Protocol (for ask and test-generation):**
 - After answering/generating, these agents MUST offer actionable options
@@ -371,6 +382,8 @@ ExecuteBuildPrompt(rawInput)
 **Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
 
 **When:** ALWAYS execute immediately before any user-facing output (after Step 6, before handoff message)
+
+**Note on File Finalization:** Route prompt delegates file creation to target agents (plan, task, todo). File finalization verification is performed by target agents, not route. See `.github/prompts/shared/file-finalization-verifier.md` for target agent requirements.
 
 **Algorithm:** See `.github/prompts/shared/output-validator.md`
 

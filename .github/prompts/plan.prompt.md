@@ -1,12 +1,30 @@
-# plan.prompt.md (Feature Planning Agent v1.5)
+=# plan.prompt.md (Feature Planning Agent v1.7)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
-inputs: key, user_request, context, scope, constraints, include_suggestions, -test
+inputs: key, user_request, context, scope, constraints, include_suggestions, auto-chain, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-28
+lastUpdated: 2025-10-29
 stateTracking: enabled
+changelog: |
+  v1.7 (2025-10-29): E2E PHASE EXECUTION & RESPONSE FORMAT IMPROVEMENTS
+  - Added auto-chain parameter for end-to-end multi-phase execution
+  - **DEFAULT BEHAVIOR CHANGED**: auto-chain now defaults to TRUE (autocomplete enabled)
+  - Option A (**AUTO-EXECUTE ALL PHASES**) shown as RECOMMENDED with 5s countdown
+  - Updated Step 6 with auto-chain handoff logic (default auto vs manual override)
+  - Added 📋 Phases & Tasks section to OUTPUT FORMAT (shows task breakdown)
+  - Updated 📌 Plan Overview to show AUTO-CONTINUE markers between phases
+  - Reduced 🧠 Analysis to ≤5 bullets (allocate space for task lists)
+  - Users approve plan ONCE, execution proceeds E2E (halts only for manual intervention)
+  - References CONCISE-MANDATE.md Rule 12 (default to E2E execution)
+  - Phase templates include explicit AUTO-CONTINUE instructions for task agent
+  
+  v1.6 (2025-10-29): Added Step 5.5 FILE FINALIZATION VERIFICATION (BLOCKING)
+  - Enforces "Document First, Respond Later" protocol
+  - Verifies plan.md, plan.json, work-log.md, state.json exist before user response
+  - HALT execution if files missing (blocks Step 6 and Step 7.5)
+  - References .github/prompts/shared/file-finalization-verifier.md
 ---
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
@@ -39,6 +57,13 @@ Technical or business constraints
 ### include_suggestions *(optional)*
 - `lightweight-mode` - Skip questionnaires for simple features
 - `full-detail` - Use questionnaires for all features
+
+### auto-chain *(default=`true`)*
+- `true` - Automatically execute all phases end-to-end without user approval between phases (DEFAULT, RECOMMENDED)
+- `false` - Wait for user approval after each phase (manual mode)
+- When enabled: Executes Phase 1 → Phase 2 → ... → Phase N automatically
+- Halts only for manual intervention (test validation, migration review, failures)
+- User can override to manual mode by selecting Option B during plan approval
 
 ---
 
@@ -87,7 +112,7 @@ Update-StateRequest -Key $key -Type "refinement" -UserRequest $user_request -Pro
 4. **If plan exists**: Load it as source of truth, skip to Step 5 (plan update/refinement)
 5. Load context for each related key (plan file, work log, status, phases)
 6. If related keys found, present options to user and **HALT**
-7. If no related keys, proceed to Step 0.2 (key spelling validation)
+7. If no related keys, proceed to Step 0.1 (key spelling validation)
 
 **Critical: If `{key}.plan.md` exists, treat it as authoritative source of truth:**
 - Load existing plan structure
@@ -116,60 +141,7 @@ Reply: A, B, or C
 
 ---
 
-## 🔍 Step 0.1: BRANCH VALIDATION (If Existing Plan)
-
-**⚠️ CRITICAL: If `{key}.plan.md` exists, validate and preserve branch:**
-
-**Process:**
-1. Extract `**Branch**` field from plan frontmatter
-2. Check current git branch: `git branch --show-current`
-3. Compare current branch with plan's recorded branch
-
-**Branch Mismatch Handling:**
-```markdown
-⚠️ CRITICAL: Plan exists on different branch
-
-Plan branch: {plan-branch} (from {key}.plan.md)
-Current branch: {current-branch}
-
-This key's work MUST remain on {plan-branch}.
-
-Would you like to:
-**A.** Switch to {plan-branch} (required to continue)
-**B.** Update plan to use {current-branch} (requires explicit approval)
-**C.** Cancel
-
-Reply: A, B, or C
-```
-
-**If user chooses A:**
-- Execute: `git checkout {plan-branch}`
-- Verify switch successful
-- Proceed with plan update
-
-**If user chooses B:**
-- Show warning: "⚠️ Changing plan branch. All future work will use {current-branch}"
-- Update `**Branch**` field in `{key}.plan.md`
-- Log change in work-log.md: "Branch changed from {plan-branch} to {current-branch} (user approved)"
-- Proceed with plan update
-
-**If user chooses C:**
-- Abort plan execution
-- Show message: "Cancelled. Switch to {plan-branch} to work on this key."
-
-**Branch Match (Success):**
-```
-✓ Branch verified: {current-branch} (matches plan)
-```
-
-**Enforcement:**
-- **ABORT** if mismatch and user doesn't approve switch/update
-- **PRESERVE** original branch unless user explicitly approves change
-- **LOG** all branch changes in work-log.md with timestamp and reason
-
----
-
-## 🔍 Step 0.2: KEY SPELLING VALIDATION
+## 🔍 Step 0.1: KEY SPELLING VALIDATION
 
 **Validate key follows naming conventions:**
 - Format: lowercase-with-hyphens (kebab-case)
@@ -186,7 +158,7 @@ Reply: A, B, or C
 
 ---
 
-## 🔍 Step 0.3: KEY DETECTION (if no key provided)
+## 🔍 Step 0.5: KEY DETECTION (if no key provided)
 
 **Auto-detect active key from git history:**
 1. Check recent commits for `ckpt({key}):` or `[DEBUG-WORKITEM:{key}:*]` patterns
@@ -260,17 +232,9 @@ Reply: A, B, or C
 
 **Generate comprehensive technical plan:**
 
-**Plan structure with frontmatter:**
-```markdown
+**Plan structure:**
+```
 # {key}.plan.md
-
----
-**Key**: {key}  
-**Branch**: {github-branch}  
-**Created**: {date}  
-**Status**: Planning  
-**Plan Version**: v1.0
----
 
 ## Executive Summary
 - Purpose, complexity, estimated time, priority
@@ -284,22 +248,48 @@ Reply: A, B, or C
 **Tasks:**
 1. {task} - {file} - {debug-marker}
 2. {task} - {file} - {debug-marker}
+3. **AUTO-CONTINUE:** Upon successful completion, automatically proceed to Phase 2
 
 ### Phase 2: {Title}
+**Dependencies:** Phase 1 must be complete
+**Goal:** {one-liner}
+**Tasks:**
+1. {task} - {file} - {debug-marker}
+2. {task} - {file} - {debug-marker}
+3. **AUTO-CONTINUE:** Upon successful completion, automatically proceed to Phase 3
+
+### Phase N: {Title} (Final Phase)
+**Dependencies:** Phase N-1 must be complete
+**Goal:** {one-liner}
+**Tasks:**
+1. {task} - {file} - {debug-marker}
+2. {task} - {file} - {debug-marker}
+3. **FINAL PHASE:** Mark work as complete upon successful validation
 ...
 
 ## Test Strategy
 - Test types required (unit, E2E, visual)
 - Test scenarios and coverage
+- **CRITICAL**: If Playwright tests required, include:
+  - Orchestration script phase: `Scripts/run-{key}-test.ps1`
+  - Template reference: `.github/prompts/shared/test-orchestration-patterns.md`
+  - Required pattern: Separate window + health check + try/finally cleanup
+  - Prohibited: webServer config, direct npx execution, Start-Job
+
+## Test Execution Requirements (if Playwright/Percy tests)
+- **Method**: Orchestration script (MANDATORY)
+- **Script Location**: `Scripts/run-{key}-test.ps1`
+- **Template**: `.github/prompts/shared/test-orchestration-patterns.md`
+- **Launch Pattern**: Separate PowerShell window with health check polling
+- **Cleanup**: Guaranteed via try/finally with Stop-Process -Force
+- **References**:
+  - Orchestration: `.github/prompts/shared/test-orchestration-patterns.md` (MANDATORY)
+  - Test Generation: `.github/prompts/shared/playwright-test-generation.md`
+  - Test Data: `.github/instructions/Links/PlaywrightQuickRef.md` (Session 212)
 
 ## Rollback Plan
-- Checkpoint commits, rollback steps
+- Checkpoint commits (see `.github/prompts/shared/task-exec/checkpoint-protocol.md`), rollback steps
 ```
-
-**Branch Recording:**
-- Use current git branch: `git branch --show-current`
-- Record in `**Branch**` field of plan frontmatter
-- This branch becomes the locked branch for all work on this key
 
 **Algorithm:** See `.github/prompts/shared/plan-generator.md`
 
@@ -358,45 +348,56 @@ Reply: A, B, or C
 
 **⚠️ BLOCKING REQUIREMENT:** Do NOT proceed to response validation or user output until ALL files verified.
 
+**Algorithm:** See `.github/prompts/shared/file-finalization-verifier.md`
+
 **Verification Checklist:**
 1. `.github/key-data-streams/{key}/{key}.plan.md` exists
 2. `.github/key-data-streams/{key}/{key}.plan.json` exists  
 3. `.github/key-data-streams/{key}/work-log.md` exists
 4. `.github/key-data-streams/{key}/state.json` exists (if state tracking enabled)
 
-**Verification Algorithm:**
+**Quick Verification:**
 ```
 VerifyFileFinalization(key):
-  files = [
+  requiredFiles = [
     ".github/key-data-streams/{key}/{key}.plan.md",
     ".github/key-data-streams/{key}/{key}.plan.json",
-    ".github/key-data-streams/{key}/work-log.md",
-    ".github/key-data-streams/{key}/state.json"  // optional
+    ".github/key-data-streams/{key}/work-log.md"
   ]
   
-  FOR EACH file IN files:
-    IF NOT FileExists(file) AND file != "state.json":
+  IF StateTrackingEnabled THEN
+    requiredFiles.Add(".github/key-data-streams/{key}/state.json")
+  END IF
+  
+  FOR EACH file IN requiredFiles:
+    IF NOT FileExists(file) THEN
       HALT_EXECUTION()
       LOG_ERROR("File finalization incomplete: {file} missing")
+      SHOW_ERROR_MESSAGE(file)  // See file-finalization-verifier.md
       RETURN FALSE
     END IF
   END FOR
   
+  LOG_SUCCESS("File finalization complete: {requiredFiles.length} files verified")
   RETURN TRUE
 ```
 
 **If ANY required file missing:**
 - **HALT execution immediately**
 - Log error with missing file path
+- **DO NOT proceed to Step 6** (Handoff Preparation)
 - **DO NOT proceed to Step 7.5** (Response Validation)
 - **DO NOT show user output**
+- Display error message (see file-finalization-verifier.md for templates)
 - Request manual file creation or restart process
 
 **If ALL files verified:**
-- Log success: "File finalization complete"
+- Log success: "File finalization complete: {count} files verified"
 - Proceed to Step 6 (Handoff Preparation)
 
-**Critical:** This step enforces document-first protocol. No user-facing output until documentation complete.
+**Critical:** This step enforces "Document First, Respond Later" protocol. No user-facing output until documentation complete.
+
+**See:** `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm and error message templates
 
 ---
 
@@ -422,8 +423,23 @@ VerifyFileFinalization(key):
 - `phase=1` - Start with Phase 1
 - `github-branch=development` - Target branch
 - `commit-checkpoints=true` - Checkpoint after each phase
+- `auto-chain=true` - **DEFAULT: Auto-continue phases (user can override with Option B)**
 
-**3. Prepare test handoff parameters (if UI/API changes):**
+**3. Auto-chain execution logic:**
+```
+IF user selects Option B (Manual Mode) THEN
+  // Manual approval mode
+  InvokeTaskPrompt(key, phase=1, auto-chain=false)
+  // Will wait for user approval after each phase
+ELSE
+  // DEFAULT: Auto-execute (Option A or 5s timeout)
+  InvokeTaskPrompt(key, phase=1, auto-chain=true)
+  // Phases execute automatically until completion or manual intervention
+  // Returns here only on completion or error
+END IF
+```
+
+**4. Prepare test handoff parameters (if UI/API changes):**
 - `key={key}` - Key identifier
 - `scenario={test-scenarios}` - Extracted from plan
 - `test-type={unit|e2e|visual}` - Based on affected layers
@@ -554,29 +570,51 @@ Reply: Done (after answering)
 - Total phases: {count} ({simple|moderate|complex} complexity)
 - Files created: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
 - Location: `.github/key-data-streams/{key}/`
-- Ready for execution via task.prompt.md
+- Ready for execution via task.prompt.md (manual or auto-chain)
 
 **📌 Plan Overview (≤10 bullets)**
-1. **Phase 1:** {phase-title} - {file-count} files affected
-2. **Phase 2:** {phase-title} - {file-count} files affected
-3. **Phase 3:** {phase-title} - {file-count} files affected
+1. **Phase 1:** {phase-title} ({task-count} tasks, {file-count} files) → **AUTO-CONTINUE to Phase 2**
+2. **Phase 2:** {phase-title} ({task-count} tasks, {file-count} files) → **AUTO-CONTINUE to Phase 3**
+3. **Phase 3:** {phase-title} ({task-count} tasks, {file-count} files) → **FINAL PHASE**
 4. **Test Strategy:** {test-types-list}
 5. **Rollback:** Checkpoint commits enabled for each phase
 6. **Handoff:** task.prompt.md (execution) + test-generation.prompt.md (tests)
 7. **First Phase:** {phase-1-title}
 8. **Estimated Scope:** {affected-layers-summary}
 9. **Dependencies:** {any-dependencies-or-none}
-10. **Next Step:** Execute Phase 1 or review plan files
+10. **Next Step:** Auto-executing in 5 seconds (say "manual" or "cancel" to abort)
+
+**📋 Phases & Tasks** (phase headers use bold, tasks use bullets)
+
+**Phase 1: {Title}**
+- Task 1.1: {action} - {expected-outcome}
+- Task 1.2: {action} - {expected-outcome}
+- Task 1.3: {action} - {expected-outcome}
+
+**Phase 2: {Title}**
+- Task 2.1: {action} - {expected-outcome}
+- Task 2.2: {action} - {expected-outcome}
+
+**Phase 3: {Title}**
+- Task 3.1: {action} - {expected-outcome}
+- Task 3.2: {action} - {expected-outcome}
+- Task 3.3: {action} - {expected-outcome}
 
 **⚡ Options**
-**A.** Execute Phase 1 now  
-**B.** Review plan files first  
-**C.** Modify plan scope  
-**D.** Cancel planning
+**A. AUTO-EXECUTE ALL PHASES** (RECOMMENDED - starts in 5s)  
+**B.** Manual mode (approve each phase individually)  
+**C.** Review plan files first  
+**D.** Modify plan scope  
+**E.** Cancel planning
 
-Reply: A, B, C, or D
+**Auto-executing in 5 seconds... Say "manual" or "cancel" to abort.**
 
-**Behavior:** Wait for user approval before handoff to task.prompt.md.
+Reply: A (or wait 5s), B, C, D, or E
+
+**Behavior:** 
+- **Default (no reply or A):** Set `auto-chain=true` and invoke task.prompt.md for automatic E2E execution
+- **If B selected:** Set `auto-chain=false` and wait for approval after each phase
+- If C/D/E selected: Wait for user action
 
 ---
 
@@ -650,6 +688,7 @@ Reply: A, B, or C
 - ✅ Visual regression tests (Percy)
 - ✅ E2E interaction tests (Playwright)
 - ✅ Accessibility tests (if new components)
+- ⚠️ **MANDATORY**: ALL Playwright tests require orchestration scripts
 
 **API changes:**
 - ✅ Integration tests (API endpoints)
@@ -665,6 +704,37 @@ Reply: A, B, or C
 - ✅ Real-time communication tests
 - ✅ Connection/disconnection handling
 - ✅ Message delivery verification
+- ⚠️ **MANDATORY**: ALL SignalR tests require orchestration scripts (app must be running)
+
+### Playwright Test Orchestration Requirements (MANDATORY)
+
+**When plan includes ANY Playwright/Percy tests, the plan MUST include:**
+
+1. **Orchestration Script Creation Phase**
+   - Create `Scripts/run-{key}-test.ps1` using canonical template
+   - Template: `.github/prompts/shared/test-orchestration-patterns.md`
+   - Pattern: Cleanup → Launch (separate window) → Health Check → Test → Guaranteed Cleanup
+
+2. **Test Strategy Documentation Must Specify:**
+   ```markdown
+   ## Test Execution
+   - **Method**: Orchestration script (REQUIRED)
+   - **Script**: `Scripts/run-{key}-test.ps1`
+   - **Pattern**: Separate PowerShell window with health check polling
+   - **Cleanup**: Guaranteed via try/finally with Stop-Process -Force
+   - **Reference**: `.github/prompts/shared/test-orchestration-patterns.md`
+   ```
+
+3. **Plan Must Reference Required Files:**
+   - `.github/prompts/shared/test-orchestration-patterns.md` - Canonical orchestration template (MANDATORY)
+   - `.github/prompts/shared/playwright-test-generation.md` - Test generation patterns
+   - `.github/instructions/Links/PlaywrightQuickRef.md` - Test data (Session 212)
+
+4. **Prohibited Approaches (Mark as DEPRECATED in plan):**
+   - ❌ `PW_MODE=standalone npx playwright test` (webServer config - unreliable)
+   - ❌ Direct `npx playwright test` without orchestration
+   - ❌ `Start-Job` for app startup
+   - ❌ Manual `dotnet run` before tests
 
 **Algorithm:** See `.github/prompts/shared/test-strategist.md`
 

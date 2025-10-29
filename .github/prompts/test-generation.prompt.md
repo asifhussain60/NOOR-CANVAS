@@ -230,148 +230,307 @@ Automatically run generated tests after creation
 - `false` - Only generate tests, do not execute
 
 
+## CRITICAL: Application Launch Protocol (MANDATORY)
+
+**⚠️ ABSOLUTE REQUIREMENT: ALL PLAYWRIGHT TESTS MUST USE ORCHESTRATION SCRIPTS**
+
+### Application Launch Mandate
+
+**DO THIS (ONLY ACCEPTABLE APPROACH):**
+```powershell
+# MANDATORY: Kill existing NoorCanvas processes before launching
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Launch app in SEPARATE external PowerShell window (NOT VS Code terminal)
+Start-Process powershell -ArgumentList "-NoExit", "-Command", 
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
+     dotnet run" -WindowStyle Minimized -PassThru
+```
+
+**Critical Requirements:**
+- ✅ **ALWAYS kill existing NoorCanvas processes first** (`Get-Process -Name "NoorCanvas" | Stop-Process -Force`)
+- ✅ **Launch in external PowerShell window** (Start-Process powershell, NOT integrated terminal)
+- ✅ **Minimize window** for clean workspace (`-WindowStyle Minimized`)
+- ✅ **Track process ID** for guaranteed cleanup (`-PassThru` returns process object)
+
+**NEVER DO THIS:**
+- ❌ `PW_MODE=standalone npx playwright test` (webServer config approach - DEPRECATED)
+- ❌ Direct `npx playwright test` without app startup
+- ❌ Manual `dotnet run` in terminal before tests
+- ❌ `Start-Job` for background app startup (unreliable)
+- ❌ PowerShell background operator `&` (doesn't work in PowerShell 5.1)
+- ❌ **Launch application in VS Code integrated terminal** (use external PowerShell window)
+- ❌ **Create tests without user workflow guidance** for headed UI tests (request screenshots first)
+
+### Why Separate Window is Mandatory
+
+**Benefits:**
+- ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
+- ✅ Visible error messages in separate window (easier debugging)
+- ✅ Reliable PID tracking for cleanup (`$app.Id`)
+- ✅ Can restore minimized window to inspect app output
+- ✅ Health check polling ensures app is ready before tests
+- ✅ Guaranteed cleanup via `try/finally` with `Stop-Process -Force`
+
+**Problems with webServer Config (deprecated approach):**
+- ❌ Hidden process output (can't debug startup failures)
+- ❌ Environment variables not consistently set
+- ❌ Race conditions (tests start before app ready)
+- ❌ Orphaned processes (unreliable cleanup)
+
+### Orchestration Script Requirement
+
+**EVERY generated test MUST have an accompanying orchestration script** in `Scripts/run-{feature}-test.ps1`
+
+See `.github/prompts/shared/test-orchestration-patterns.md` for canonical template.
+
+## UI Test Workflow Guidance Protocol (MANDATORY)
+
+**⚠️ CRITICAL: For headed UI tests, NEVER auto-generate tests blindly**
+
+### Required User Interaction for UI Tests
+
+**When generating tests for UI workflows:**
+
+1. **Request User Screenshots First**
+   - Ask user to provide annotated screenshots showing test execution sequence
+   - Look for numbered markers (red circles/arrows) indicating step order
+   - Example: "Please provide screenshots with numbered steps showing the UI workflow to test"
+
+2. **Wait for User Workflow Guidance**
+   - User will provide images showing:
+     - Step 1: Initial UI state (e.g., Host Control Panel URL)
+     - Step 2: Target interaction element (e.g., "Transcript Canvas" button)
+     - Step 3: Expected outcome (e.g., session start confirmation)
+   - Use these screenshots to understand correct selector strategy and user journey
+
+3. **Benefits of Screenshot-Driven Approach**
+   - ✅ Prevents wasted time creating incorrect test sequences
+   - ✅ Ensures accurate selector targeting (user shows exact elements)
+   - ✅ Captures correct user workflow (not assumed workflow)
+   - ✅ Validates test expectations match user intent
+
+**Enforcement:**
+```
+IF test-type == "headed" OR test-type == "ui-workflow" THEN
+  IF user-screenshots NOT provided THEN
+    HALT test generation
+    REQUEST screenshots with message:
+      "To create accurate UI tests, please provide annotated screenshots showing:
+       1. Initial page/state (with step number)
+       2. Elements to interact with (highlighted with markers)
+       3. Expected outcomes after each action
+       
+       This prevents creating incorrect test sequences and ensures I target the right elements."
+    WAIT for user response
+  END IF
+END IF
+```
+
+**Example User Screenshot Pattern:**
+- Screenshot 1: URL bar showing `localhost:9091/host/control-panel/PQ9N5YWW` (marked with ①)
+- Screenshot 2: "Transcript Canvas" button highlighted with red circle (marked with ②)
+- Screenshot 3: "Start Session" button shown after canvas selection (marked with ③)
+
+**See Also:** Screenshot-driven test generation examples in test-orchestration-patterns.md
+
+---
+
 ## Canonical Playwright Guidance
 For detailed patterns, decision matrices, and examples, see:
 - `.github/prompts/shared/playwright-test-generation.md` (selectors, wait strategies, Percy usage, multi-user flows)
-- `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management)
+- `.github/prompts/shared/test-orchestration-patterns.md` (PowerShell orchestration templates and lifecycle management) ⭐ **MANDATORY READING**
 
 See Also:
 - `.github/prompts/shared/validation-engine.md`
 - `.github/prompts/shared/integration-protocol.md`
 
 
-## Initial Validation (MANDATORY)
+## Pre-Generation: Orchestration Requirements Check (EXECUTE FIRST)
 
-### Step 0: Key Folder Existence Validation
+### Step -1: Verify Orchestration Context
 
-**Trigger:** ALWAYS when invoked
+**Trigger:** ALWAYS before generating any Playwright/Percy tests
 
-**Purpose:** Verify key data stream infrastructure exists before generating tests
+**Purpose:** Ensure calling agent (route/plan/todo) passed orchestration requirements
+
+**Check for orchestration context:**
+1. **If invoked from route/plan/todo**: Context should include orchestration-required=true
+2. **Load required reference files:**
+   - `.github/prompts/shared/test-orchestration-patterns.md` (canonical template)
+   - `.github/prompts/shared/playwright-test-generation.md` (test patterns)
+   - `.github/instructions/Links/PlaywrightQuickRef.md` (Session 212 test data)
 
 **Validation:**
+```
+IF orchestration-required == true OR test-type in ["playwright", "percy", "e2e", "visual"] THEN
+  MUST create orchestration script in Scripts/run-{key}-test.ps1
+  MUST use template from .github/prompts/shared/test-orchestration-patterns.md
+  MUST include: Cleanup → Launch (separate window) → Health Check → Test → Guaranteed Cleanup
+ELSE
+  Skip orchestration script (non-Playwright test)
+END IF
+```
 
-1. **Check if key folder exists**: `.github/key-data-streams/{key}/`
-   - If NOT exists → HALT immediately
-   - Error message to user:
-    ```powershell
-    # Commit generated tests and scripts
-    git add -A
-    git commit -m "test({key}): {short summary of scenario}"
+**Output to user (if orchestration required):**
+```markdown
+🔧 Orchestration Requirements Detected
 
-    # Update rollback index with lineage
-    $sha = (git rev-parse --short HEAD).Trim()
-    $dir = ".github/key-data-streams/{key}"
-    $idx = Join-Path $dir "rollback-index.md"
-    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
-    if (-not (Test-Path $idx)) {
-      @(
-        "# Rollback Index for {key}",
-        "",
-        "| Date | Type | Summary | SHA | Parent |",
-        "|------|------|---------|-----|--------|"
-      ) | Set-Content -Path $idx -NoNewline:$false
-    }
-    $now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $parent = (git log --oneline --grep '^ckpt\(' -n 1 | ForEach-Object { ($_ -split ' ')[0] })
-    Add-Content $idx "| $now | test | {short summary of scenario} | $sha | $parent |"
-
-    git add $idx
-    git commit -m "meta({key}): update rollback-index [sha=$sha]"
-    ```
-     
-     3. Task agent will invoke test-generation automatically when needed
-     
-     Tests cannot be generated without a valid key infrastructure.
-     The planning agent creates the folder structure and comprehensive plan.
-     The task agent delegates to test-generation during Step 6.1 (UI changes).
-     ```
-   - **EXIT with status code 1**
-
-2. **Check if test directory exists**: `.github/key-data-streams/{key}/tests/`
-   - If NOT exists → Create it automatically
-   - Log: `"Created test directory: .github/key-data-streams/{key}/tests/"`
-
-3. **Check if scripts directory exists**: `.github/key-data-streams/{key}/scripts/`
-   - If NOT exists → Create it automatically
-   - Log: `"Created scripts directory: .github/key-data-streams/{key}/scripts/"`
-
-4. **Check if test registry exists**: `.github/key-data-streams/{key}/tests/test-registry.md`
-   - If NOT exists → Create it using template (see Test Registry Protocol below)
-   - If exists → Load for deduplication check
-
-**Output:**
-- **Concise:** `"✓ Key infrastructure validated"`
-- **Detailed:**
-  ```
-  ✓ Key Infrastructure Validation
-  
-  Key: {key}
-  Key Folder: EXISTS
-  Test Directory: {CREATED | EXISTS}
-  Scripts Directory: {CREATED | EXISTS}
-  Test Registry: {CREATED | EXISTS}
-  
-  Ready for test generation.
-  ```
+- Test Type: Playwright/Percy (orchestration MANDATORY)
+- Script: Will create `Scripts/run-{key}-test.ps1`
+- Template: `.github/prompts/shared/test-orchestration-patterns.md`
+- Pattern: Separate window + health check + try/finally cleanup
+- Prohibited: webServer config, direct npx, Start-Job
+```
 
 ---
 
-### Step 0.1: Branch Verification (MANDATORY)
+## Initial Validation (MANDATORY)
 
-⚠️ **ALWAYS verify you're in the correct branch before generating any tests.**
+**LOAD MODULE:** `.github/prompts/shared/test-gen/validation-protocol.md`
 
-**Branch Strategy:**
-- **`master`** - Production only (PROTECTED - deploy target)
-- **`development`** - ALL development work (DEFAULT)
+### Step 0 & 0.1: Validation Protocol
 
-**Verification:**
-```bash
-git branch --show-current
-# Expected: development
-```
+**Purpose:** Verify key data stream infrastructure and branch before test generation.
 
-**If on wrong branch:**
-```bash
-git checkout development
-```
+**Module Executes:**
+- Step 0: Key folder existence validation (auto-create directories if missing)
+- Step 0.1: Branch verification (development required, abort if on master)
 
-**Enforcement:**
-- ⚠️ **ABORT** test generation if on `master` branch
-- ✅ **PROCEED** only if on `development` branch
-- Error message if on master:
-  ```
-  ❌ ERROR: Cannot generate tests on master branch
-  
-  Current branch: master
-  Required branch: development
-  
-  The master branch is PROTECTED and only receives tested merges from development.
-  All test generation must occur in the development branch.
-  
-  REQUIRED ACTION:
-  git checkout development
-  
-  Then re-run test generation command.
-  
-  See: SelfAwareness.instructions.md - Branch Strategy section
-  ```
-
-**See:** `SelfAwareness.instructions.md` - Branch Strategy section
-
-**Output:**
-- **Concise:** `"✓ Branch verified: development"`
-- **Detailed:**
-  ```
-  ✓ Branch Verification
-  
-  Current Branch: development
-  Target Branch: development (from plan or default)
-  Status: MATCH
-  
-  Proceeding with test generation.
-  ```
+**See module for:**
+- Complete validation algorithm
+- Error messages and user actions
+- Auto-creation logic for missing directories
+- Branch switching instructions
 
 ---
+
+## Authentication Requirements Detection
+
+**LOAD MODULE:** `.github/prompts/shared/test-gen/authentication-detection.md`
+
+### Step 1: Authentication Detection Algorithm
+
+**Purpose:** Determine if test requires host authentication before implementation.
+
+**Module Executes:**
+- Detection triggers (host routes, broadcast actions, control panel features)
+- Pattern matching algorithm (TypeScript pseudocode)
+- Authentication implementation patterns (host vs participant)
+- Session 212 token integration (PQ9N5YWW for host, KJAHA99L for participant)
+- Orchestration script documentation requirements
+
+**See module for:**
+- Complete detection algorithm with code examples
+- Authentication patterns for host and participant tests
+- Token management and beforeEach integration
+- Reference to PlaywrightTestPaths.MD for canonical tokens
+
+---
+
+## Auto-Drift Detection Protocol
+
+**LOAD MODULE:** `.github/prompts/shared/test-gen/drift-detection-protocol.md`
+
+### Drift Detection During Test Generation
+
+**Purpose:** Automatically detect and register unrelated issues discovered during test generation.
+
+**Module Executes:**
+- Detection triggers (infrastructure, execution, review phases)
+- Auto-registration algorithm with severity classification
+- Critical infrastructure blocking (HALT on critical+infrastructure)
+- User choice handling (fix now, generate anyway, abort)
+- Silent logging to work-log.md and drift commits
+
+**See module for:**
+- Complete detection algorithm
+- Severity classification matrix
+- User interaction patterns for critical issues
+- Drift commit message format
+- IsRelatedToCurrentTests() logic
+
+---
+
+## Test Registry Deduplication Protocol
+
+**LOAD MODULE:** `.github/prompts/shared/test-gen/test-registry-protocol.md`
+
+### Duplicate Prevention and Test Index Management
+
+**Purpose:** Prevent duplicate test creation through per-key registries and global test index.
+
+**CRITICAL: ALWAYS search existing tests before creating new ones**
+
+**Module Executes:**
+- Registry existence check and creation
+- **Global test search** - Query test-index.json BEFORE generating any test
+- Duplicate scenario detection (feature + scenario matching)
+- **Key association** - Link tests to workitem keys for quick retrieval
+- Test registry update after generation
+- Global test index (test-index.json) updates for cross-key reuse
+- Similarity hash calculation for test discovery
+
+**Search Protocol (MANDATORY FIRST STEP):**
+```
+BEFORE generating ANY test:
+1. Load .github/tests/test-index.json
+2. Search for existing tests matching:
+   - Feature name (exact or similar)
+   - Scenario keywords
+   - Key name (same workitem)
+   - Tags (UI elements, actions, flows)
+3. IF matches found:
+   - Present to user: "Found {N} existing tests for similar scenarios"
+   - Show test names, files, orchestration scripts
+   - Ask: "A. Reuse existing test | B. Create new variant | C. Modify existing"
+4. IF no matches:
+   - Proceed with generation
+   - Update test-index.json with new test metadata
+```
+
+**Test Index Structure:**
+- **Per-Key Registry**: `.github/key-data-streams/{key}/tests/test-registry.md`
+- **Global Index**: `.github/tests/test-index.json` (searchable across ALL keys)
+- **Metadata Fields**: id, key, file, feature, scenarios, tags, similarityHash, reusable, created, orchestration
+
+**Benefits:**
+- ✅ **PREVENTS DUPLICATE TESTS** - Search before create (per-key and global)
+- ✅ **QUICK RETRIEVAL** - Find tests by key name, feature, or tags
+- ✅ **CROSS-KEY REUSE** - Discover similar tests from other workitems
+- ✅ Clear test inventory per key (test-registry.md)
+- ✅ Global test discovery and reuse (test-index.json)
+- ✅ Facilitates test cleanup during Step 9 completion
+- ✅ Enables test reuse across phases and keys
+
+**See module for:**
+- Complete deduplication workflow (5-step process)
+- Global search algorithm
+- Test registry format and templates
+- Global test index JSON schema
+- Similarity hash algorithm
+- Directory structure examples
+
+---
+
+## CRITICAL CHECK - Validation Complete
+
+**Before proceeding, ensure:**
+1. ✓ Key infrastructure validated (Step 0 from validation-protocol.md)
+2. ✓ Branch verified: development (Step 0.1 from validation-protocol.md)
+3. ✓ Authentication requirements detected (Step 1 from authentication-detection.md)
+4. ✓ Drift detection active (drift-detection-protocol.md loaded)
+5. ✓ Test registry loaded (test-registry-protocol.md ready)
+
+**If any validation failed:** HALT and present error to user with actions.
+
+**If all validations passed:** Proceed to test generation steps below.
+
+---
+
+## Test Generation Steps
 
 ## Test Commit and Rollback Index Update (MANDATORY)
 
@@ -589,7 +748,108 @@ Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "test({k
 
 ---
 
-### 1. Server Management Protocol
+### 1. Authentication Requirements Detection
+
+**MANDATORY step before test implementation - prevents authentication-related test failures**
+
+**Detection Triggers:**
+- Test involves Host Control Panel (`/host` route)
+- Test requires "Start Session" or "Begin Broadcast" actions
+- Test accesses host-only features (share controls, participant management)
+- Test modifies session state (recording, transcript broadcasting)
+
+**Detection Algorithm:**
+
+```typescript
+// Check test scenario for authentication keywords
+const requiresAuth = scenario.match(/host|broadcast|share|session.*start|control.*panel|recording|transcript.*share/i)
+
+// Check route patterns
+const routeRequiresAuth = testRoute.includes('/host') || 
+                          testRoute.includes('/control') ||
+                          testRoute.includes('/admin')
+
+// Check test steps for authentication actions
+const stepsRequireAuth = testSteps.some(step => 
+  step.includes('start session') ||
+  step.includes('begin broadcast') ||
+  step.includes('share transcript') ||
+  step.includes('manage participants')
+)
+
+if (requiresAuth || routeRequiresAuth || stepsRequireAuth) {
+  // Add authentication step to test
+}
+```
+
+**Authentication Patterns:**
+
+**For Host Control Panel tests:**
+```typescript
+test.describe('Host Control Panel - {scenario}', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('https://localhost:9091/sessions/212');
+    
+    // ⚠️ AUTHENTICATION REQUIRED: Host token input
+    const tokenInput = page.locator('input[placeholder*="token" i]').first();
+    await tokenInput.fill('TESTHOST'); // Session 212 host token: PQ9N5YWW
+    await tokenInput.press('Enter');
+    
+    // Wait for authentication to complete
+    await page.waitForTimeout(2000);
+    
+    // Verify "Start Session" button is enabled
+    const startSessionButton = page.locator('button:has-text("Start Session")').first();
+    await expect(startSessionButton).toBeEnabled();
+  });
+  
+  test('{test name}', async ({ page }) => {
+    // Test implementation with authenticated state
+  });
+});
+```
+
+**For participant tests (no auth required):**
+```typescript
+test.describe('Participant - {scenario}', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('https://localhost:9091/sessions/212');
+    
+    // Participant tests use KJAHA99L token
+    const tokenInput = page.locator('input[placeholder*="token" i]').first();
+    await tokenInput.fill('TESTPART'); // Session 212 participant token
+    await tokenInput.press('Enter');
+    await page.waitForTimeout(1000);
+  });
+  
+  test('{test name}', async ({ page }) => {
+    // Test implementation
+  });
+});
+```
+
+**Orchestration Script Integration:**
+
+When authentication is detected, orchestrator should document requirements:
+
+```powershell
+# Authentication Requirements
+# Host token required for this test suite
+# Session 212 host token: PQ9N5YWW
+# Test uses 'TESTHOST' as token input
+
+Write-Host "   📝 Authentication: Host token required" -ForegroundColor Yellow
+Write-Host "   Token input automated in test beforeEach block" -ForegroundColor Gray
+```
+
+**Reference:**
+- See: `PlaywrightTestOrchestration.md` - Authentication Handling section
+- Session 212 tokens documented in `PlaywrightTestPaths.MD`
+- Example: `Tests/UI/hcp-fab-button-verification.spec.ts` (authentication gap documented)
+
+---
+
+### 2. Server Management Protocol
 
 > **CANONICAL REFERENCE**: `.github/prompts/shared/test-orchestration-patterns.md`
 > 
@@ -1956,39 +2216,63 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 
 **Script Structure:**
 1. **File header**: ASCII-only comments describing purpose and usage
-2. **Process cleanup**: `Get-Process -Name "{{APP_PROCESS_NAME}}" | Stop-Process -Force`
-3. **App launch**: `$app = Start-Process ... -PassThru -WindowStyle Minimized`
+2. **MANDATORY: Process cleanup FIRST**: `Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force`
+3. **App launch in external window**: `$app = Start-Process powershell ... -PassThru -WindowStyle Minimized` (NOT integrated terminal)
 4. **try block start**: Wrap health check and test execution
 5. **Health check polling**: Loop with 500ms intervals, timeout after 60 seconds
 6. **Test execution**: `npx playwright test ".github/key-data-streams/{key}/tests/{feature}-{test-type}.spec.ts" --reporter=list --headed`
 7. **finally block**: `Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue`
 
+**CRITICAL: Step 2 (Process Cleanup) is MANDATORY**
+- Always kill existing NoorCanvas processes BEFORE launching new instance
+- Prevents port conflicts (9091 already bound)
+- Prevents orphaned processes accumulating
+- Command: `Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force`
+
 **Example** (see test-orchestration-patterns.md for complete template with comments):
 ```powershell
 # Scripts/run-{feature}-test.ps1
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-$app = Start-Process "dotnet" -ArgumentList "run --no-build" `
-    -WorkingDirectory "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+# STEP 1: MANDATORY - Kill any existing NoorCanvas processes
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+Write-Host "[INFO] Cleaned up existing NoorCanvas processes"
+
+# STEP 2: Launch app in EXTERNAL PowerShell window (not VS Code terminal)
+$app = Start-Process powershell -ArgumentList "-NoExit", "-Command", `
+    "cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; `
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; `
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; `
+     dotnet run" `
     -PassThru -WindowStyle Minimized
 
 try {
+    # STEP 3: Health check polling (not fixed delays)
     $timeout = 60
     $startTime = Get-Date
+    Write-Host "[INFO] Waiting for app to start (timeout: ${timeout}s)..."
+    
     do {
         Start-Sleep -Milliseconds 500
         try {
             $response = Invoke-WebRequest -Uri "https://localhost:9091" -TimeoutSec 2 -UseBasicParsing
-            if ($response.StatusCode -eq 200) { break }
+            if ($response.StatusCode -eq 200) { 
+                Write-Host "[INFO] App ready!"
+                break 
+            }
         } catch { }
+        
         if (((Get-Date) - $startTime).TotalSeconds -gt $timeout) {
-            Write-Host "[ERROR] Timeout"; exit 1
+            Write-Host "[ERROR] App startup timeout"; exit 1
         }
     } while ($true)
     
-    npx playwright test ".github/key-data-streams/{key}/tests/{feature}.spec.ts" --reporter=list
+    # STEP 4: Run Playwright tests
+    Write-Host "[INFO] Running tests..."
+    npx playwright test ".github/key-data-streams/{key}/tests/{feature}.spec.ts" --reporter=list --headed
 }
 finally {
+    # STEP 5: GUARANTEED cleanup (always executes)
+    Write-Host "[INFO] Stopping app (PID: $($app.Id))..."
     Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
 }
 ```

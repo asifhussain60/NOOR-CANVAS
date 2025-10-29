@@ -101,12 +101,35 @@ FUNCTION ValidateResponse(response, agentName)
   END IF
   
   // 6. Check for letter-based options
-  IF NOT response.matches(/\*\*[A-D]\.\*\*/g) THEN
+  IF NOT response.matches(/\*\*[A-E]\.\*\*/g) THEN
     violations.add({
       rule: "Letter-based options missing",
       severity: "moderate",
-      remediation: "Use **A.** **B.** **C.** **D.** format"
+      remediation: "Use **A.** **B.** **C.** **D.** **E.** format"
     })
+  END IF
+  
+  // 7. Check for phase/task breakdown (plan.prompt.md only)
+  IF agentName == "plan.prompt.md" AND response.contains("Phase") THEN
+    IF NOT response.contains("📋 Phases & Tasks") THEN
+      violations.add({
+        rule: "Phase breakdown must show tasks",
+        severity: "critical",
+        remediation: "Add 📋 Phases & Tasks section showing individual tasks per phase"
+      })
+    END IF
+  END IF
+  
+  // 8. Check auto-chain recommendation (plan.prompt.md multi-phase)
+  IF agentName == "plan.prompt.md" AND response.contains("Total phases:") THEN
+    phaseCount = ExtractPhaseCount(response)
+    IF phaseCount > 1 AND NOT response.contains("**E. AUTO-EXECUTE ALL PHASES**") THEN
+      warnings.add({
+        rule: "Multi-phase plan should recommend auto-chain",
+        severity: "warning",
+        remediation: "Add Option E (**AUTO-EXECUTE ALL PHASES**) as recommended choice"
+      })
+    END IF
   END IF
   
   // Generate validation report
@@ -476,4 +499,4 @@ END IF
 - `.github/prompts/shared/CONCISE-MANDATE.md` - Output rules being enforced
 - `.github/prompts/shared/output-style-mandate.md` - Formatting requirements
 - `.github/prompts/shared/loop-prevention.md` - Prevent infinite validation loops
-- `.github/docs/analysis/VERBOSITY-ANALYSIS-REMEDIATION.md` - Analysis of current violation rates
+- `.github/key-data-streams/prompt-system-gaps/VERBOSITY-ANALYSIS-REMEDIATION.md` - Analysis of current violation rates

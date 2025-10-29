@@ -5,12 +5,13 @@ description: Extend or modify current active work while preserving context, key,
 
 # Todo — Extend Current Work with Same Key
 
-**Version**: 2.2.0  
+**Version**: 2.3.0  
 **Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow. Renamed from continue.prompt.md to better reflect "todo item" workflow pattern.
 
 **Rename Note**: Previously `continue.prompt.md` (v1.0.0). Renamed to `todo.prompt.md` (v2.0.0) on 2025-10-25 to align with todo-based workflow terminology. All agent references updated accordingly.
 
 **Changelog**:
+- **v2.3.0 (2025-10-29)**: FILE FINALIZATION VERIFICATION - Added work-log.md append verification in Execution section. Enforces "Document First, Respond Later" protocol. Verifies file size increased (append occurred). HALT if unchanged. References file-finalization-verifier.md.
 - **v2.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/handoff/commit logging. Added Step -1 for state tracking initialization. Enables timeline reconstruction.
 - **v2.1.0 (2025-10-27)**: Added `from-build` parameter to prevent dual approval gates when invoked from build.prompt.md. Approval behavior now conditional based on source agent.
 - **v2.0.0 (2025-10-25)**: Renamed from continue.prompt.md to todo.prompt.md
@@ -109,43 +110,8 @@ Update-StateRequest -Key $key -Type "continuation" -UserRequest $request -Prompt
 ## Context Detection
 1. **Find current key** from recent git commits (ckpt messages)
 2. **Load current plan** from `.github/key-data-streams/{key}/{key}.plan.md` (authoritative source of truth)
-3. **Validate branch matches plan** - Extract `**Branch**` field and verify current branch
-4. **Check execution status** from recent commits and file changes
-5. **Identify completion state** of current phases
-
-## Branch Validation (EXECUTE AFTER LOADING PLAN)
-
-**⚠️ CRITICAL: After loading `{key}.plan.md`, validate branch consistency:**
-
-**Process:**
-1. Extract `**Branch**` field from plan frontmatter
-2. Check current git branch: `git branch --show-current`
-3. Compare current branch with plan's recorded branch
-
-**Branch Mismatch Handling:**
-```
-⚠️ CRITICAL: Branch locked by plan file
-
-Plan branch: {planBranch} (from {key}.plan.md)
-Current branch: {current-branch}
-
-This key's work MUST remain on {planBranch} (recorded in plan).
-
-ACTION REQUIRED: Switch to {planBranch} branch
-Command: git checkout {planBranch}
-
-❌ ABORTING todo execution
-```
-
-**Branch Match (Success):**
-```
-✓ Branch verified: {current-branch} (matches plan)
-```
-
-**Enforcement:**
-- 🔒 **ABORT** (no override) if current branch ≠ plan branch
-- ✅ **PROCEED** only if current branch matches plan's branch
-- **NO user override allowed** - plan branch is authoritative
+3. **Check execution status** from recent commits and file changes
+4. **Identify completion state** of current phases
 
 ## Mode Detection (Auto-Select Best Workflow)
 
@@ -184,6 +150,8 @@ Classify work type → include specialized prompts:
 - **Tests Required** → `test-generation.prompt.md`
   - New features, UI changes, API endpoints, database schema
   - Triggers: keywords (test, e2e, Percy, Playwright, visual regression)
+  - ⚠️ **MANDATORY**: If Playwright tests, must create orchestration script
+  - Template: `.github/prompts/shared/test-orchestration-patterns.md`
   
 - **Architecture Changes** → `plan.prompt.md` (recommend upgrade)
   - Multi-layer changes, new services, SignalR hubs
@@ -196,6 +164,28 @@ Classify work type → include specialized prompts:
 - **Drift Detected** → `drift.prompt.md`
   - Unrelated issues discovered during work
   - Auto-trigger when tangent/blocker found
+
+### Test Orchestration Requirements (if Playwright/Percy tests)
+
+**When todo includes ANY Playwright/Percy test work:**
+
+1. **MUST create orchestration script**: `Scripts/run-{key}-test.ps1`
+2. **MUST use canonical template**: `.github/prompts/shared/test-orchestration-patterns.md`
+3. **MUST include in plan extension**:
+   ```markdown
+   ### Phase N: Create Test Orchestration Script
+   **Goal**: Set up automated test execution with proper app lifecycle
+   **Tasks**:
+   1. Create `Scripts/run-{key}-test.ps1` from canonical template
+   2. Configure: Cleanup → Launch (separate window) → Health Check → Test → Cleanup
+   3. Verify: Health check polling, try/finally cleanup, -Force flag
+   ```
+
+4. **PROHIBITED approaches (mark as deprecated)**:
+   - ❌ `PW_MODE=standalone npx playwright test`
+   - ❌ Direct `npx playwright test`
+   - ❌ `Start-Job` for app startup
+   - ❌ Manual `dotnet run` before tests
 
 ## Complexity Classification Algorithm
 
@@ -384,13 +374,31 @@ END IF
 ## Execution
 - **Preserve execution context** - Continue from current phase
 - **NO approval needed** between existing phases
-- **MANDATORY**: Create git commit after EVERY new phase
+- **MANDATORY**: Create git commit after EVERY new phase (see checkpoint protocol)
+- **Checkpoint creation**: LOAD MODULE `.github/prompts/shared/task-exec/checkpoint-protocol.md`
 - **Commit format**: `ckpt({key}): Phase {N} - {extension-summary}`
 - **State tracking**: Log all commits with Update-StateCommit after each checkpoint
 - **Auto-execute behavior:**
   - **If `from-build=true`**: Require explicit "proceed" (build already showed approval)
   - **If `from-build=false`**: Auto-execute after 5s unless "review"/"cancel"
-- **RESPONSE VALIDATION** (MANDATORY before user output):
+- **FILE FINALIZATION VERIFICATION** (MANDATORY before response validation):
+  - Algorithm: See `.github/prompts/shared/file-finalization-verifier.md`
+  - Verify work-log.md appended (file size increased)
+  - Check state.json updated (if state tracking enabled)
+  - HALT if work-log.md size unchanged
+  - **Quick Check:**
+    ```
+    previousSize = GetFileSizeBeforeExecution(work-log.md)
+    ExecuteWork()
+    currentSize = GetFileSize(work-log.md)
+    
+    IF currentSize <= previousSize THEN
+      HALT_EXECUTION()
+      LOG_ERROR("Work log append failed")
+      SHOW_ERROR_MESSAGE("Work log not updated")
+    END IF
+    ```
+- **RESPONSE VALIDATION** (MANDATORY after file finalization):
   - Validate all responses using `.github/prompts/shared/output-validator.md`
   - Auto-fix violations (bullet consolidation, list flattening) when possible
   - BLOCK response if critical violations cannot be fixed

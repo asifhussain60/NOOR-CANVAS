@@ -3,7 +3,7 @@
 **CRITICAL:** Maximum 15 bullets total per response. Every word counts.
 
 ## Non-Negotiables
-- NO executable code blocks
+- NO executable code blocks (see `.github/prompts/shared/snippet-handling-policy.md` for complete policy)
 - Pseudocode/algorithmic descriptions ALLOWED (for clarity)
 - NO walls of text
 - MAX 15 bullets total

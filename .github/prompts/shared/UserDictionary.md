@@ -13,6 +13,7 @@ User acronyms and shortcuts used in prompts
 - hp: Host Proivisioner Avalonia -  Tools\HostProvisioner\HostProvisioner.Avalonia"
 - ac: Acceptance Criteria
 - db: Database
+- kds: Key Data Stream
 
 
 Views (Blazor Components)
