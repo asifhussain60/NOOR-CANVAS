@@ -589,7 +589,108 @@ Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "test({k
 
 ---
 
-### 1. Server Management Protocol
+### 1. Authentication Requirements Detection
+
+**MANDATORY step before test implementation - prevents authentication-related test failures**
+
+**Detection Triggers:**
+- Test involves Host Control Panel (`/host` route)
+- Test requires "Start Session" or "Begin Broadcast" actions
+- Test accesses host-only features (share controls, participant management)
+- Test modifies session state (recording, transcript broadcasting)
+
+**Detection Algorithm:**
+
+```typescript
+// Check test scenario for authentication keywords
+const requiresAuth = scenario.match(/host|broadcast|share|session.*start|control.*panel|recording|transcript.*share/i)
+
+// Check route patterns
+const routeRequiresAuth = testRoute.includes('/host') || 
+                          testRoute.includes('/control') ||
+                          testRoute.includes('/admin')
+
+// Check test steps for authentication actions
+const stepsRequireAuth = testSteps.some(step => 
+  step.includes('start session') ||
+  step.includes('begin broadcast') ||
+  step.includes('share transcript') ||
+  step.includes('manage participants')
+)
+
+if (requiresAuth || routeRequiresAuth || stepsRequireAuth) {
+  // Add authentication step to test
+}
+```
+
+**Authentication Patterns:**
+
+**For Host Control Panel tests:**
+```typescript
+test.describe('Host Control Panel - {scenario}', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('https://localhost:9091/sessions/212');
+    
+    // ⚠️ AUTHENTICATION REQUIRED: Host token input
+    const tokenInput = page.locator('input[placeholder*="token" i]').first();
+    await tokenInput.fill('TESTHOST'); // Session 212 host token: PQ9N5YWW
+    await tokenInput.press('Enter');
+    
+    // Wait for authentication to complete
+    await page.waitForTimeout(2000);
+    
+    // Verify "Start Session" button is enabled
+    const startSessionButton = page.locator('button:has-text("Start Session")').first();
+    await expect(startSessionButton).toBeEnabled();
+  });
+  
+  test('{test name}', async ({ page }) => {
+    // Test implementation with authenticated state
+  });
+});
+```
+
+**For participant tests (no auth required):**
+```typescript
+test.describe('Participant - {scenario}', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('https://localhost:9091/sessions/212');
+    
+    // Participant tests use KJAHA99L token
+    const tokenInput = page.locator('input[placeholder*="token" i]').first();
+    await tokenInput.fill('TESTPART'); // Session 212 participant token
+    await tokenInput.press('Enter');
+    await page.waitForTimeout(1000);
+  });
+  
+  test('{test name}', async ({ page }) => {
+    // Test implementation
+  });
+});
+```
+
+**Orchestration Script Integration:**
+
+When authentication is detected, orchestrator should document requirements:
+
+```powershell
+# Authentication Requirements
+# Host token required for this test suite
+# Session 212 host token: PQ9N5YWW
+# Test uses 'TESTHOST' as token input
+
+Write-Host "   📝 Authentication: Host token required" -ForegroundColor Yellow
+Write-Host "   Token input automated in test beforeEach block" -ForegroundColor Gray
+```
+
+**Reference:**
+- See: `PlaywrightTestOrchestration.md` - Authentication Handling section
+- Session 212 tokens documented in `PlaywrightTestPaths.MD`
+- Example: `Tests/UI/hcp-fab-button-verification.spec.ts` (authentication gap documented)
+
+---
+
+### 2. Server Management Protocol
 
 > **CANONICAL REFERENCE**: `.github/prompts/shared/test-orchestration-patterns.md`
 > 
@@ -1858,30 +1959,57 @@ npx playwright test Tests/UI/feature-visual.spec.ts --headed
 
 ## Output Format
 
+**CRITICAL RULES:**
+- ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
+- ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
+- ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
+- ✅ **LETTER OPTIONS** - Always use A/B/C/D/E/F format for user choices
+
+---
+
 **CONCISE OUTPUT** (default):
-```markdown
-✅ Test Created: {test-file}.spec.ts
 
-**Test Type**: {Functional E2E | Visual Regression (Percy)}
-**Scenarios**: {X} test scenarios covering {brief-description}
+**Key:** `{key}`
 
-### What Was Created
-- {Brief bullet about test scenario 1}
-- {Brief bullet about test scenario 2}
-- {Brief bullet about test scenario 3}
+**✅ Test Created**
+- Test file: `.github/key-data-streams/{key}/tests/{test-file}.spec.ts`
+- Test type: {Functional E2E | Visual Regression (Percy) | Integration}
+- Scenarios: {X} test scenarios covering {brief-description}
+- Orchestration: `.github/key-data-streams/{key}/scripts/run-{feature}-test.ps1`
 
-## 🎯 What Would You Like To Do Next?
-- Run test: `.\Scripts\{script-name}.ps1`
+**🧠 What Was Created (≤5 bullets)**
+- Test scenario 1: {brief-description}
+- Test scenario 2: {brief-description}
+- Test scenario 3: {brief-description}
+- Registry updated: `.github/key-data-streams/{key}/tests/test-registry.md`
+- Ready to run: Use orchestration script
+
+**📌 How to Run**
+- Run test: `.\Scripts\run-{feature}-test.ps1`
 - View details: `.github/key-data-streams/{key}/tests/test-registry.md`
-```
+- Percy dashboard: (if visual regression test)
+
+**🎯 What Would You Like To Do Next?**
+
+**A.** Execute tests now (run orchestration script) ⭐  
+**B.** Add more scenarios (extend with todo)  
+**C.** Refine tests (modify selectors/assertions)  
+**D.** Create test plan (comprehensive test suite)  
+**E.** Review test registry  
+**F.** Nothing, I'm all set
+
+Reply: A, B, C, D, E, or F
+
+---
 
 **RULES:**
 - ✅ YES: Bulleted summary of what test scenarios cover
-- ✅ YES: How to run the test
+- ✅ YES: How to run the test with script path
 - ✅ YES: Link to registry for full specification
-- ❌ NO: Full test code (it's in the file)
-- ❌ NO: File locations (user doesn't care)
+- ✅ YES: Clear actionable options with letter-based selection
+- ❌ NO: Full test code (it's in the file attachments)
 - ❌ NO: Template examples or code blocks
+- ❌ NO: File locations details (just the run command)
 
 ---
 

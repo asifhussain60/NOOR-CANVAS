@@ -138,6 +138,17 @@ if ($portProcess -match '\s+(\d+)$') {
 ```
 
 ### Complete Workflow Example
+
+**⚠️ DEPRECATED: Use PlaywrightTestOrchestration.md pattern instead**
+
+For tests requiring manual app startup (Host Control Panel, full workflow tests), use the standardized orchestration pattern documented in `PlaywrightTestOrchestration.md`. That pattern provides:
+- Automated health checks with SSL certificate handling
+- Graceful cleanup with `-KeepAppRunning` option
+- Debugging support with `-Headed` flag
+- Reusable PowerShell template
+
+**Legacy Manual Approach (for reference only):**
+
 ```powershell
 # 1. Launch app
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; $env:ASPNETCORE_URLS='https://localhost:9091'; dotnet run" -WindowStyle Normal
@@ -778,6 +789,7 @@ Configured in `playwright.config.cjs` per mode
 
 - **PlaywrightConfig.MD** - Detailed configuration reference
 - **PlaywrightTestPaths.MD** - Canonical test patterns and Session 212 data
+- **PlaywrightTestOrchestration.md** - ⭐ App launch + test orchestration patterns
 - **InfrastructureQuickRef.md** - API endpoints for test assertions
 - **Architecture.md** - SignalR hubs and real-time testing
 

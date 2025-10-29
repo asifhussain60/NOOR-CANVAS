@@ -397,6 +397,49 @@
     transform: scale(1.05);
 }
 
+/* [WORKITEM:hcp-fab-button] FAB Share Button - Fixed position for always-visible floating button ;CLEANUP_OK */
+.hcp-fab-share-button {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border: 1px solid rgba(5, 150, 105, 0.3);
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.35), 0 3px 6px rgba(0, 0, 0, 0.12);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+    outline: none;
+}
+
+.hcp-fab-share-button:hover:not(:disabled) {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.hcp-fab-share-button:active:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.hcp-fab-share-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hcp-fab-share-button:focus-visible {
+    outline: 3px solid rgba(16, 185, 129, 0.4);
+    outline-offset: 4px;
+}
+
 /* Transcript Content Styling */
 .html-viewer-content {
     line-height: 1.6;
@@ -478,4 +521,99 @@
 
 .noor-green {
     color: #006400;
+}
+
+/* ========================================
+   ASSET GROUPING CONTAINER STYLES
+   Feature: Asset Grouping Redesign
+   ======================================== */
+
+/* Asset Group Container */
+.asset-group-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #0056b3;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 30px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.asset-group-container:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    border-color: #003d82;
+}
+
+.asset-group-container:focus-within {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Asset Header */
+.asset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #0056b3;
+}
+
+/* Asset Title */
+.asset-title {
+    margin: 0;
+    color: #0056b3;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Asset Content Wrapper */
+.asset-content-wrapper {
+    padding: 16px 0;
+}
+
+/* Responsive Design for Asset Containers */
+@media (max-width: 768px) {
+    .asset-group-container {
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 8px;
+    }
+
+    .asset-title {
+        font-size: 1rem;
+    }
+
+    .asset-header {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .asset-group-container {
+        padding: 12px;
+        margin: 16px 0;
+    }
+
+    .asset-title {
+        font-size: 0.95rem;
+    }
+}
+
+/* Print Styles - Hide share buttons when printing */
+@media print {
+    .asset-share-btn {
+        display: none !important;
+    }
+
+    .asset-group-container {
+        border: 1px solid #ccc;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
 }
