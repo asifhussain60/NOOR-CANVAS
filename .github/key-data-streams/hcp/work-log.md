@@ -293,15 +293,24 @@
 
 **Commits:** 
 - `46b83b8f` - "fix(test-framework): Detect dotnet run instances in process cleanup"
+- `9448e8cd` - "fix(test-framework): Launch dotnet.exe directly for reliable health checks"
 
 **Next Steps:** 
-1. Run baseline regression test (hcp-refactor-baseline.spec.ts) to validate Phase 3 changes
-2. Proceed to Phase 4 (JavaScript externalization) if baseline passes
-3. Document baseline test results
+1. ✅ Fixed app launch pattern (direct dotnet.exe instead of nested PowerShell)
+2. 🔄 Running baseline regression test to validate fixes
+3. Document baseline test results and health check improvements
+4. Proceed to Phase 4 (JavaScript externalization) if baseline passes
+
+**Test Infrastructure Improvements:**
+1. **Process Detection** (46b83b8f): Enhanced cleanup to detect both NoorCanvas.exe AND `dotnet run` instances
+2. **App Launch Pattern** (9448e8cd): Replaced nested PowerShell → dotnet run with direct dotnet.exe launch
+   - Previous: `powershell.exe` → temp script → `dotnet run` (health check delays)
+   - Current: `Start-Process -FilePath dotnet` with `-WorkingDirectory` (faster, reliable)
+   - Benefit: PID maps directly to dotnet.exe for accurate process tracking
 
 **Key Insight:** Phase 3 goal was NOT "use TranscriptController endpoints" but rather "use service injections for business logic". The transformation logic is correctly delegated to the service layer - Phase 3 is essentially complete pending baseline validation.
 
-**Testing Strategy:** Baseline test will confirm no regressions from Phase 1+3 refactoring work.
+**Testing Strategy:** Baseline test will confirm no regressions from Phase 1+3 refactoring work and validate test infrastructure improvements.
 
 ---
 
