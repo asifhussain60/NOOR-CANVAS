@@ -5,7 +5,7 @@
 ## Hard Limits
 1. MAX 25 bullets total per response
 2. MAX 3 lines per bullet
-3. **ZERO implementation code** - No code blocks or snippets in chat (no C#, JS, HTML, CSS, Razor, SQL, TS)
+3. **ZERO implementation code** - No code blocks or snippets in chat (see `.github/prompts/shared/snippet-handling-policy.md`)
 4. **ONLY architectural descriptions** - File paths, method names, flow diagrams only
 5. NO nested lists (flat structure only)
 6. NO long paragraphs (bullets only)
@@ -27,6 +27,8 @@
     - **See**: plan.prompt.md auto-chain parameter documentation
 
 ## What Code Means
+
+**See:** `.github/prompts/shared/snippet-handling-policy.md` for complete policy
 
 **❌ PROHIBITED - NEVER show in chat:**
 - C# methods, classes, properties (public void, private string, etc.)
