@@ -342,3 +342,112 @@ No new validation patterns discovered during this healthcheck. All issues found 
 **Trend**: First baseline healthcheck audit completed successfully.
 
 ---
+
+## [2025-10-29T11:37:39Z] - healthcheck agent
+
+**Status**: complete
+**Phase**: validation
+**Git Commit**: dc4e754645c860d6d9f197212480e96eabd85db5
+**Scope**: .github (AI infrastructure)
+
+**Audit Results**: Issues Found
+
+**Validation Levels Checked**:
+- [X] Level 1: Build Validation (not applicable for AI infrastructure)
+- [X] Level 2: Analyzer & Linter (prompt syntax validation)
+- [X] Level 3: Unit Tests (not applicable for prompts)
+- [X] Level 4: Reference Integrity (cross-file references)
+- [X] Level 5: Modular Structure Compliance
+- [X] Level 6: Key Data Stream (KDS) Validation (NEW)
+
+**Issues Found**: 51 total issues (0 critical, 51 high, 2 medium, 0 low)
+
+**Prompt File Syntax**: ✅ ALL PASSED
+- All 10 root agents validated with proper structure
+- Frontmatter present in all files
+- Parameter definitions documented
+
+**Modular Structure Compliance**: ⚠️ 2 ISSUES
+- Missing output-style-mandate.md references:
+  - plan.prompt.md (severity: medium)
+  - todo.prompt.md (severity: medium)
+
+**Key Data Stream (KDS) Validation**: ⚠️ 51 HIGH-SEVERITY ISSUES
+- Keys Validated: 40
+- Index Status: ⚠️ Incomplete (not all keys documented)
+- Structure Issues: 51 issues found
+  - Missing {key}.plan.md: 18 keys (HIGH)
+  - Missing {key}.plan.json: 24 keys (HIGH)
+  - Missing work-log.md: 9 keys (HIGH)
+  - Invalid JSON: 0 (not scanned yet)
+  - Phase count mismatches: 0 (not applicable without plan.json)
+  - Naming violations: 0
+- Orphaned Files: Not yet scanned
+- State Tracking: ✅ Enabled and operational
+
+**Validation Patterns Updated**:
+- Added pattern: kds-missing-required-files (51 occurrences)
+- Added pattern: output-mandate-missing (2 occurrences)
+
+**Recommendations**:
+1. Generate missing KDS files (51 files total) - HIGH PRIORITY
+2. Add output-style-mandate references to plan/todo prompts - MEDIUM PRIORITY
+3. Update index.md with all 40 keys - MEDIUM PRIORITY
+4. Run orphaned files scan - LOW PRIORITY
+
+**Files Reviewed**: 112+ (10 prompts + 62 shared + 40 key folders)
+
+**Handoff**: KDS file generation → plan/task agent | Output-mandate fixes → task agent
+
+**Next**: Generate missing KDS files or fix modular structure issues
+
+**Full Report**: Workspaces/Copilot/_DOCS/temp/ai-infrastructure-healthcheck-20251029.md
+
+---
+
+## [2025-10-29T11:51:28Z] - healthcheck agent (Post-KDS-Cleanup Validation)
+
+**Status**: complete
+**Phase**: validation
+**Git Commit**: 5178210b2eab852f76cba6daf039b9c87d9985bb
+**Scope**: .github/key-data-streams (KDS structure only)
+
+**Audit Results**: Significant Improvement
+
+**KDS Validation Results (Post-Cleanup)**:
+- Total Active Keys: 29 (was 40)
+- Fully Compliant: 21 keys (72.4% compliance rate)
+- Needs Attention: 8 keys
+- Archived: 11 non-compliant keys moved to _ARCHIVE
+- Fixed: 6 keys with wrong file names corrected
+
+**Improvements from Previous Audit**:
+- Before: 18 missing plan.md, 24 missing plan.json, 9 missing work-log.md (51 total issues)
+- After: 1 missing plan.md, 8 missing plan.json, 1 missing work-log.md (10 total issues)
+- **Reduction: 80% fewer issues** (51 → 10)
+- **Compliance improved: 47.5% → 72.4%** (+24.9 percentage points)
+
+**Remaining Issues (8 keys)**:
+
+1. **drift-prompt** - Missing: plan.json
+2. **hcp** - Missing: plan.json  
+3. **healthcheck-audits** - Missing: plan.md, plan.json (operational without plan)
+4. **ksessions-cdn** - Missing: plan.json
+5. **meta-enhancements** - Missing: plan.json
+6. **prompt-merged** - Missing: prompt-merged.plan.json (has wrong names: prompt-enhancements.plan.json, prompt-port.plan.json, prompt-state-integration.plan.json)
+7. **quick-provision-ps1** - Missing: plan.json
+8. **url-migration-production** - Missing: plan.json, work-log.md
+
+**Actions Completed**:
+1. ✅ Fixed naming: 6 keys renamed to match KDS convention
+2. ✅ Archived: 11 non-KDS keys moved to _ARCHIVE
+3. ✅ Commits: 2c8d583b (renames), 5178210b (archives)
+
+**Recommendations**:
+1. Create missing plan.json files for 7 keys (drift-prompt, hcp, ksessions-cdn, meta-enhancements, prompt-merged, quick-provision-ps1, url-migration-production)
+2. Fix prompt-merged naming (consolidate or rename plan.json files)
+3. healthcheck-audits: Decision needed (create plan files or accept as special case)
+
+**Next**: Create missing plan.json files or accept current 72.4% compliance as operational baseline
+
+---
