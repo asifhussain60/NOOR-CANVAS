@@ -122,15 +122,13 @@ Whether to automatically execute after building prompt
 
 ## 🔒 Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
 1. **MAX 15 bullets** per response
-2. **NO code blocks** - NEVER show implementation code in route responses
+2. **NO code blocks** - Use brief pseudocode only  
 3. **NO nested lists** - Flat bullets only
 4. **Show handoff summary** - Not full target agent output
 5. **Transition control** - Actually load and execute target prompt
 6. **Search before create** - Consult key data streams first
 7. **Intelligent routing** - Single task → todo, Multiple → plan
 8. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Step 7.5)
-9. **STEP DESCRIPTIONS ONLY** - Show "Step X: [action description]" with file paths, NO code snippets
-10. **CONCISE FILE UPDATES** - List only file paths and high-level changes (e.g., "Update button HTML generation")
 
 ---
 
@@ -171,20 +169,14 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 
 ### Step 0: Key Data Stream Consultation (EXECUTE FIRST - ALWAYS)
 
-**⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams AND check for existing plan files.
+**⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams.
 
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
-2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
-3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
-4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
-5. If related keys found but no plan → present options to user and HALT
-6. If no related keys and no plan → proceed with new key creation
-
-**Routing Logic Based on Plan File:**
-- **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
-- **No plan exists** → Route to `plan` (create plan)
-- This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
+2. Search for related keys using semantic and keyword matching
+3. Search both `.github/key-data-streams/` and `Workspaces/Copilot/KeyDataStreams/` (legacy)
+4. If related keys found, present options to user and HALT
+5. If no related keys, proceed with new key creation
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
@@ -431,7 +423,7 @@ IF warnings only:
 
 ## 📊 Output Format
 
-### Task 0: Invocation Parsing (Always First)
+### Phase 0: Invocation Parsing (Always First)
 
 ```markdown
 ## 🧠 Parsing (≤5 bullets)
@@ -444,57 +436,59 @@ IF warnings only:
 
 ---
 
-### Task 1: Key Data Stream Consultation (If Related Keys Found)
+### Phase 1: Key Data Stream Consultation (If Related Keys Found)
 
 ```markdown
-## 🧠 Key Search (≤8 bullets)
+## 🧠 Key Search (≤5 bullets)
 - Found: {count} related keys
 - Top: {key-1} ({status})
 - Relevance: {score}%
 - Location: .github/key-data-streams/
-- Files: {count} modified in {key-1}
 - Recommendation: {which-key-or-new}
 
-## 📌 Options
-**A.** Use {key-1} | **B.** Create New | **C.** Review Details
+## 📌 Options (≤5 bullets)
+1. **A.** Use {key-1}
+2. **B.** Create New
+3. **C.** Review Details
+4. Keys: {key-1}, {key-2}, {key-3}
 
-Keys: {key-1}, {key-2}, {key-3}
+Reply: A, B, or C
 ```
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
 
 ---
 
-### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
+### Phase 2: Before Handoff (User Review Mode, when auto-execute=false)
 
 ```markdown
-## 🧠 Analysis (≤8 bullets)
+## 🧠 Analysis (≤5 bullets)
 - Request: {one-liner}
 - Context: {files-count}F {images-count}I {errors-count}E
 - Type: {work-type}
 - Complexity: {simple|moderate|complex} ({score}/15)
 - Target: {target-prompt}.prompt.md
-- Layers: {UI, API, Service, DB, SignalR}
-- Routing: {intelligent|manual}
 
-## � Tasks (≤10 bullets when applicable)
+## 📌 Handoff (≤10 bullets)
 1. Key: {key} (new|existing)
 2. Agent: {target-prompt}.prompt.md
 3. Params: {key-params-list}
-4. Context: {visual|error|file} packages prepared
-5. Approval: {auto|manual}
-6. Files: {estimated-file-count} expected changes
-7. Architecture: {high-level-approach}
+4. Layers: {UI|API|Service|DB|SignalR}
+5. Context: {visual|error|file} packages prepared
+6. Routing: {intelligent|manual}
+7. Approval: {auto|manual}
 
 ## ⚡ Options
 **A.** Execute | **B.** Modify | **C.** Change Target | **D.** Cancel
+
+Reply: A, B, C, or D
 ```
 
 **Behavior:** Wait for user approval before proceeding to handoff.
 
 ---
 
-### Task 3: Handoff Execution (After approval or when auto-execute=true)
+### Phase 3: Handoff Execution (After approval or when auto-execute=true)
 
 ```markdown
 ## 🚀 Handoff to {target}

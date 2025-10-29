@@ -108,7 +108,7 @@ Update-StateRequest -Key $key -Type "continuation" -UserRequest $request -Prompt
 
 ## Context Detection
 1. **Find current key** from recent git commits (ckpt messages)
-2. **Load current plan** from `.github/key-data-streams/{key}/{key}.plan.md` (authoritative source of truth)
+2. **Load current plan** from `.github/key-data-streams/{key}/{key}.plan.md` OR `Workspaces/Copilot/_DOCS/summaries/{key}.plan.md`
 3. **Check execution status** from recent commits and file changes
 4. **Identify completion state** of current phases
 
@@ -208,109 +208,55 @@ Update existing `{key}.plan.md` with:
 
 ## Output (STRICT)
 
-**CRITICAL RULES:**
-- ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
-- ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
-- ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
-- ✅ **LETTER OPTIONS** - Always use A/B/C/D format for user choices
-
----
-
 ### For Simple Work (No Active Key)
+🧠 Analysis (≤5 bullets):
+- Complexity: SIMPLE (lightweight mode)
+- Key: {generated-key}
+- Routing: task + {conditional-prompts}
+- Phases: {1-2}
 
-**Key:** `{generated-key}` (auto-generated from request)
-
-**🧠 Analysis (≤5 bullets)**
-- Detected complexity: SIMPLE (lightweight mode suitable)
-- Key assigned: `{generated-key}`
-- Routing to: task.prompt.md + {conditional-prompts}
-- Total phases: {1-2}
-- Execution: Auto-execute after 5s unless cancelled
-
-**📌 Summary (≤10 bullets)**
-1. Work: {one-line-description}
-2. Mode: Lightweight (quick execution without comprehensive planning)
-3. Phases: {phase-list-brief}
-4. Files affected: {count} files
-5. Tests required: {yes/no}
-6. Timeline: {estimated-duration}
-7. Impact: {scope-description}
-8. Rollback: Checkpoint commits enabled
-9. Auto-execute: 5 seconds (say "cancel" to abort)
-10. Next: Execute or upgrade to full planning
-
-**⚡ Options**
-**A.** Execute now (auto-starts in 5s)  
-**B.** Upgrade to `/plan` for comprehensive planning  
-**C.** Modify scope  
-**D.** Cancel
-
-Reply: A, B, C, or D (or wait 5s for auto-execute)
-
----
+📌 Summary (≤10 bullets):
+1. Key: {key} | Work: {one-liner}
+2. Mode: Lightweight (quick execution)
+3. Phases: {phase-list}
+4. Files: {count}
+5. Tests: {yes/no}
+6. Next: **A.** Execute | **B.** Upgrade to /plan | **C.** Modify | **D.** Cancel
 
 ### For Complex Work (Recommendation)
+🧠 Analysis (≤5 bullets):
+- Complexity: COMPLEX (recommend /plan)
+- Reason: {multi-layer|phases>2|architecture|UI-redesign}
+- Suggested key: {key}
 
-**Key:** `{suggested-key}` (recommended for comprehensive planning)
-
-**🧠 Analysis (≤5 bullets)**
-- Detected complexity: COMPLEX (comprehensive planning recommended)
-- Reason: {multi-layer|phases>2|architectural-impact|UI-redesign}
-- Suggested key: `{suggested-key}`
-- Recommendation: Use `/plan` for better structure and testing
-- Override option: Available if you prefer lightweight mode
-
-**📌 Summary (≤10 bullets)**
-1. Work: {one-line-description}
-2. Complexity reason: {detailed-reason}
-3. Why `/plan` recommended: {benefits-list}
-4. Phases estimated: {count} phases
-5. Files affected: {count} files across {layers}
-6. Testing scope: {test-types-needed}
-7. Risk if lightweight: {potential-issues}
-8. Override available: Say "proceed anyway" to continue
-9. Alternative: Use `/plan key={suggested-key}` for comprehensive approach
-10. Next: Choose planning approach
-
-**⚡ Options**
-**A.** Use `/plan` (recommended for complex work)  
-**B.** Proceed anyway with lightweight mode  
-**C.** Cancel
-
-Reply: A, B, or C
-
----
+📌 Summary (≤10 bullets):
+1. Work: {one-liner}
+2. Complexity: {reason}
+3. Recommendation: Use @workspace /plan for comprehensive planning
+4. Override: Say "proceed anyway" for lightweight mode
+5. Next: **A.** Use /plan (recommended) | **B.** Proceed anyway | **C.** Cancel
 
 ### For Extension (Active Key)
-
-**Key:** `{current-key}` (detected from git history)
-
-**🧠 Analysis (≤5 bullets)**
-- Current key detected: `{current-key}`
-- Current phase: {N} of {total} ({phase-name})
+🧠 Analysis (≤5 bullets):
+- Current key detected: {key}
+- Current phase: {N} of {total}
 - Extension scope: {description}
-- Routing to: {prompts-list}
-- Integration: {how-fits-with-current-work}
+- Routing: {prompts}
 
-**📌 Summary (≤10 bullets)**
-1. Key: `{current-key}` | Extension: {description}
-2. Current status: Phase {N} of {total}
-3. Extension work: {new-work-description}
-4. New phases to add: {count} phases
-5. Additional files: {count} files
-6. Integration approach: {how-extension-integrates}
-7. Impact on existing work: {changes-needed}
-8. Testing additions: {additional-tests}
-9. Estimated timeline: {duration}
-10. Next: Execute extension or review plan
+📌 Summary (10 bullets):
+1. Key: {current-key} | Extension: {description}
+2. Current Status: Phase {N} of {total}
+3. Addition: {new-work-description}
+4. New Phases: {count}
+5. Files: {additional-count}
+6. Integration: {how-extension-fits}
+7. Impact: {existing-work-changes}
+8. Testing: {additional-tests-needed}
+9. Timeline: {estimated-addition}
+10. Next: **A.** Execute Extension | **B.** Review Plan | **C.** Modify Scope | **D.** Start Fresh
 
-**⚡ Options**
-**A.** Execute extension now  
-**B.** Review extended plan first  
-**C.** Modify extension scope  
-**D.** Start fresh with new key
-
-Reply: A, B, C, or D
+📊 Final:
+- Status | Key | Current Phase | Extension | Next
 
 ## 🎯 What Would You Like To Do Next?
 

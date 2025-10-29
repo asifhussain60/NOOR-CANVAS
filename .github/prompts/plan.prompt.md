@@ -82,17 +82,11 @@ Update-StateRequest -Key $key -Type "refinement" -UserRequest $user_request -Pro
 
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
-2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
-3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
-4. **If plan exists**: Load it as source of truth, skip to Step 5 (plan update/refinement)
-5. Load context for each related key (plan file, work log, status, phases)
-6. If related keys found, present options to user and **HALT**
-7. If no related keys, proceed to Step 0.1 (key spelling validation)
-
-**Critical: If `{key}.plan.md` exists, treat it as authoritative source of truth:**
-- Load existing plan structure
-- User request becomes a refinement/update to existing plan
-- Skip full plan generation (Step 4), proceed to plan update (Step 5)
+2. Search for related keys using semantic and keyword matching
+3. Search both `.github/key-data-streams/` and `Workspaces/Copilot/KeyDataStreams/` (legacy)
+4. Load context for each related key (plan file, work log, status, phases)
+5. If related keys found, present options to user and **HALT**
+6. If no related keys, proceed to Step 0.1 (key spelling validation)
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
@@ -286,69 +280,13 @@ Reply: A, B, or C
 
 ---
 
-## 🔍 Step 5.5: FILE FINALIZATION VERIFICATION (BLOCKING)
-
-**Purpose:** Ensure all key data stream files created before user output
-
-**⚠️ BLOCKING REQUIREMENT:** Do NOT proceed to response validation or user output until ALL files verified.
-
-**Verification Checklist:**
-1. `.github/key-data-streams/{key}/{key}.plan.md` exists
-2. `.github/key-data-streams/{key}/{key}.plan.json` exists  
-3. `.github/key-data-streams/{key}/work-log.md` exists
-4. `.github/key-data-streams/{key}/state.json` exists (if state tracking enabled)
-
-**Verification Algorithm:**
-```
-VerifyFileFinalization(key):
-  files = [
-    ".github/key-data-streams/{key}/{key}.plan.md",
-    ".github/key-data-streams/{key}/{key}.plan.json",
-    ".github/key-data-streams/{key}/work-log.md",
-    ".github/key-data-streams/{key}/state.json"  // optional
-  ]
-  
-  FOR EACH file IN files:
-    IF NOT FileExists(file) AND file != "state.json":
-      HALT_EXECUTION()
-      LOG_ERROR("File finalization incomplete: {file} missing")
-      RETURN FALSE
-    END IF
-  END FOR
-  
-  RETURN TRUE
-```
-
-**If ANY required file missing:**
-- **HALT execution immediately**
-- Log error with missing file path
-- **DO NOT proceed to Step 7.5** (Response Validation)
-- **DO NOT show user output**
-- Request manual file creation or restart process
-
-**If ALL files verified:**
-- Log success: "File finalization complete"
-- Proceed to Step 6 (Handoff Preparation)
-
-**Critical:** This step enforces document-first protocol. No user-facing output until documentation complete.
-
----
-
 ## 🔍 Step 6: HANDOFF PREPARATION
 
 **Prepare handoff to task.prompt.md and test-generation.prompt.md:**
 
-**1. Log handoff to state tracking (file-based):**
-- Update `.github/key-data-streams/{key}/state.json`
-- Append to `promptHandoffs[]` array:
-```json
-{
-  "timestamp": "2025-10-29T...",
-  "from": "plan",
-  "to": "task",
-  "parameters": {"key": "{key}", "phase": 1},
-  "reason": "Plan approved, beginning Phase 1 execution"
-}
+**1. Log handoff to state tracking:**
+```powershell
+Update-StateHandoff -Key $key -From "plan" -To "task" -Parameters @{ key = $key; phase = 1 } -Reason "Plan approved, beginning Phase 1 execution"
 ```
 
 **2. Prepare task handoff parameters:**
@@ -427,31 +365,20 @@ IF warnings only:
 
 ## �📊 OUTPUT FORMAT (MAX 15 BULLETS TOTAL)
 
-**CRITICAL RULES:**
-- ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
-- ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
-- ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
-- ✅ **LETTER OPTIONS** - Always use A/B/C/D format for user choices
-
----
-
 ### Phase 1: After Key Consultation (if related keys found)
 
-**Key:** `{key}` (user-specified or auto-detected)
+```markdown
+## 🧠 Key Search (≤5 bullets)
+- Found: {count} related keys
+- Top: {key-1} ({status})
+- Relevance: {score}%
+- Recommendation: {which}
 
-**🧠 Key Search (≤5 bullets)**
-- Found: {count} related keys in key data streams
-- Top match: `{key-1}` with status {status}
-- Relevance score: {score}%
-- Recommendation: {Use existing | Create new}
-- Reason: {brief-explanation}
-
-**📌 Options**
-**A.** Use `{key-1}` (reuse existing work)  
-**B.** Create new key `{key}`  
-**C.** Review `{key-1}` details first
+## 📌 Options
+**A.** Use {key-1} | **B.** Create New | **C.** Review
 
 Reply: A, B, or C
+```
 
 **Behavior:** HALT and wait for user choice.
 
@@ -459,21 +386,20 @@ Reply: A, B, or C
 
 ### Phase 2: After Questionnaire Generation (if complex/moderate)
 
-**Key:** `{key}`
+```markdown
+## 🧠 Questions (≤5 bullets)
+- Generated: {count} questions
+- Saved: .github/key-data-streams/{key}/questionnaire-{ts}.md
+- Sections: Open Questions, Drift, Test Strategy
+- Next: Answer questionnaire
 
-**🧠 Questions Generated (≤5 bullets)**
-- Questionnaire created with {count} questions
-- Saved to: `.github/key-data-streams/{key}/questionnaire-{ts}.md`
-- Sections included: Open Questions, Drift Detection, Test Strategy
-- Purpose: Refine plan based on your answers
-- Next: Answer questions in the file, then reply "Done"
-
-**📌 Instructions**
-**A.** Open `.github/key-data-streams/{key}/questionnaire-{ts}.md`  
-**B.** Answer all questions directly in that file  
-**C.** Reply "Done" when complete (I'll process answers and finalize plan)
+## 📌 Instructions
+**A.** Open `.github/key-data-streams/{key}/questionnaire-{ts}.md`
+**B.** Answer all questions in file
+**C.** Reply "Done" when complete
 
 Reply: Done (after answering)
+```
 
 **Behavior:** HALT and wait for user to answer.
 
@@ -481,34 +407,28 @@ Reply: Done (after answering)
 
 ### Phase 3: After Plan Generation (final output)
 
-**Key:** `{key}`
+```markdown
+## 🧠 Plan Summary (≤5 bullets)
+- Key: {key}
+- Phases: {count}
+- Complexity: {simple|moderate|complex}
+- Files: {key}.plan.md, {key}.plan.json, work-log.md
+- Location: .github/key-data-streams/{key}/
 
-**🧠 Plan Summary (≤5 bullets)**
-- Plan finalized for key: `{key}`
-- Total phases: {count} ({simple|moderate|complex} complexity)
-- Files created: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
-- Location: `.github/key-data-streams/{key}/`
-- Ready for execution via task.prompt.md
-
-**📌 Plan Overview (≤10 bullets)**
-1. **Phase 1:** {phase-title} - {file-count} files affected
-2. **Phase 2:** {phase-title} - {file-count} files affected
-3. **Phase 3:** {phase-title} - {file-count} files affected
-4. **Test Strategy:** {test-types-list}
-5. **Rollback:** Checkpoint commits enabled for each phase
+## 📌 Plan (≤10 bullets)
+1. **Phase 1:** {title} - {file-count}F
+2. **Phase 2:** {title} - {file-count}F
+3. **Phase 3:** {title} - {file-count}F
+4. **Test Strategy:** {test-types}
+5. **Rollback:** Checkpoint commits enabled
 6. **Handoff:** task.prompt.md (execution) + test-generation.prompt.md (tests)
-7. **First Phase:** {phase-1-title}
-8. **Estimated Scope:** {affected-layers-summary}
-9. **Dependencies:** {any-dependencies-or-none}
-10. **Next Step:** Execute Phase 1 or review plan files
+7. **Next Phase:** {phase-1-title}
 
-**⚡ Options**
-**A.** Execute Phase 1 now  
-**B.** Review plan files first  
-**C.** Modify plan scope  
-**D.** Cancel planning
+## ⚡ Options
+**A.** Execute Phase 1 | **B.** Review Plan | **C.** Modify | **D.** Cancel
 
 Reply: A, B, C, or D
+```
 
 **Behavior:** Wait for user approval before handoff to task.prompt.md.
 

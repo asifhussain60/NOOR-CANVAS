@@ -118,79 +118,11 @@ Step 2: Context Gathering
 3. If NOT found:
    - Create new key file with initial metadata
    - Mark status as `in-progress`
-4. **2.2.1: Record User Request and Implementation Plan** (MANDATORY - DOCUMENT FIRST):
-   
-   **CRITICAL:** This step executes BEFORE any code changes. Document the plan before implementing.
-   
-   **Required Documentation (append to work-log.md):**
-   
-   ```markdown
-   ## [Phase Name] Implementation (YYYY-MM-DD HH:MM)
-   
-   ### User Request
-   {succinct 1-2 sentence summary of user's original request}
-   
-   **High-Priority Constraints** (ALL CAPS from user):
-   - {constraint-1}
-   - {constraint-2}
-   
-   ### Implementation Plan
-   
-   #### Affected Components
-   **Views/Components:**
-   - File: {path-to-razor-component}
-   - Lines: {start}-{end}
-   - Changes: {what-will-change}
-   
-   **API Endpoints:**
-   - Controller: {ControllerName}
-   - Method: {HttpMethod} {route}
-   - Request/Response: {brief-description}
-   - Authentication: {required|optional|none}
-   
-   **Database:**
-   - Schema: {schema-name}
-   - Tables: {table-names}
-   - Operations: {SELECT|INSERT|UPDATE|DELETE}
-   - Migration Required: {yes|no}
-   
-   **SignalR Hubs:**
-   - Hub: {HubName} (file: {path})
-   - Methods: {method-names}
-   - Events: {event-names}
-   - Broadcast Target: {group-name|all|caller}
-   
-   **Services:**
-   - Service: {ServiceName} (file: {path})
-   - Methods: {method-names}
-   - Dependencies: {injected-services}
-   
-   #### Implementation Strategy
-   1. {step-1}
-   2. {step-2}
-   3. {step-3}
-   
-   #### Testing Plan
-   - Manual: {verification-steps}
-   - Automated: {test-file-names}
-   - Percy: {visual-regression-scenarios}
-   ```
-   
-   **Enforcement:**
-   - ❌ DO NOT start coding until this documentation is written
-   - ❌ DO NOT skip any section - mark "N/A" if not applicable
-   - ✅ ALWAYS include file paths, method names, line ranges
-   - ✅ ALWAYS document SignalR hub integration if real-time features involved
-   - ✅ ALWAYS document database schema if data persistence involved
-   - ✅ ALWAYS document API endpoints if client-server communication involved
-   
-   **Why This Matters:**
-   - Enables investigation timeline reconstruction
-   - Records architectural context for future work
-   - Prevents "what was I thinking?" moments
-   - Makes handoffs to other developers seamless
-   - Creates searchable knowledge base of implementation patterns
-
+4. **2.2.1: Record User Request** (NEW):
+   - Create succinct 1-2 sentence summary of user's original request
+   - Include high-priority constraints (ALL CAPS emphasis)
+   - Timestamp entry for traceability
+   - This becomes the "User Request" section in key data stream
 5. Log verification results
 
 **Output:**

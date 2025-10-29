@@ -4825,8 +4825,6 @@ Please share this report with the development team for debugging.`;
         document.addEventListener('click', handleShareButtonClick);
         console.log('[DEBUG-WORKITEM:assetshare:continue] 👂 Added new click event listener');
         
-        // [DEBUG-WORKITEM:hcp-fab-button] FAB buttons now handled by unified handleShareButtonClick (no separate listener needed) ;CLEANUP_OK
-        
         const handlerCompleteTime = new Date();
         const completeTimeString = handlerCompleteTime.toLocaleTimeString() + '.' + handlerCompleteTime.getMilliseconds().toString().padStart(3, '0');
         console.log('[ASSET-SHARE-TIMING] ✅ HANDLER SETUP COMPLETE:', completeTimeString);
@@ -4848,54 +4846,35 @@ Please share this report with the development team for debugging.`;
     }
     
     function handleShareButtonClick(event) {
-        // [WORKITEM:hcp-fab-button] ENHANCED DEBUG LOGGING - Trace click to function execution ;TEST_ISOLATION
-        const clickTimestamp = Date.now();
-        const clickTime = new Date().toISOString();
-        
+        // [DEBUG-WORKITEM:assetshare:continue] Enhanced click debugging - log ALL clicks first
         const clickData = {
-            timestamp: clickTime,
-            timestampMs: clickTimestamp,
             target: event.target,
             tagName: event.target.tagName,
             className: event.target.className,
-            id: event.target.id || '(no id)',
             hasClosest: !!event.target.closest,
-            allClasses: Array.from(event.target.classList || []),
-            eventType: event.type,
-            eventBubbles: event.bubbles,
-            eventCancelable: event.cancelable
+            allClasses: Array.from(event.target.classList || [])
         };
         
-        console.log('[HCP-FAB-TEST] ═══════════════════════════════════════════════════');
-        console.log('[HCP-FAB-TEST] 🔍 CLICK EVENT DETECTED:', clickData);
-        console.log('[HCP-FAB-TEST] ═══════════════════════════════════════════════════');
-        
-        // [DEBUG-WORKITEM:assetshare:continue] Enhanced click debugging - log ALL clicks first
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 CLICK DETECTED:', clickData);
         
         // TOAST: Show click detection
         console.log('[SHARE-DEBUG] 🔍 CLICK DETECTED:', clickData);
         
-        // [DEBUG-WORKITEM:hcp-fab-button] Check if clicked element is a share button OR FAB button ;CLEANUP_OK
-        const shareButton = event.target.closest('.ks-share-button, .asset-header-fab-button');
+        // Check if clicked element is a share button
+        const shareButton = event.target.closest('.ks-share-button');
         
         const shareButtonCheck = {
             foundShareButton: !!shareButton,
             shareButtonElement: shareButton,
-            shareButtonClasses: shareButton ? Array.from(shareButton.classList) : null,
-            isFabButton: shareButton ? shareButton.classList.contains('asset-header-fab-button') : false,
-            isKsShareButton: shareButton ? shareButton.classList.contains('ks-share-button') : false
+            shareButtonClasses: shareButton ? Array.from(shareButton.classList) : null
         };
         
-        console.log('[HCP-FAB-TEST] 🔍 SHARE BUTTON CHECK:', shareButtonCheck);
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON CHECK:', shareButtonCheck);
         
         // TOAST: Show share button detection result
         if (shareButton) {
-            console.log('[HCP-FAB-TEST] ✅ SHARE BUTTON FOUND:', shareButtonCheck);
             console.log('[SHARE-DEBUG] ✅ SHARE BUTTON FOUND:', shareButtonCheck);
         } else {
-            console.log('[HCP-FAB-TEST] ❌ NOT A SHARE BUTTON - Ignoring click');
             console.log('[SHARE-DEBUG] ❌ Not a share button click:', shareButtonCheck);
         }
         
@@ -4903,34 +4882,6 @@ Please share this report with the development team for debugging.`;
             console.log('[DEBUG-WORKITEM:assetshare:continue] ❌ Not a share button click, ignoring');
             return;
         }
-        
-        // [WORKITEM:hcp-fab-button] Enhanced logging with timestamp and detailed button info ;CLEANUP_OK
-        const clickTimestamp = new Date();
-        const clickTimeString = clickTimestamp.toLocaleTimeString() + '.' + clickTimestamp.getMilliseconds().toString().padStart(3, '0');
-        const isFabButton = shareButton.classList.contains('asset-header-fab-button');
-        
-        console.log('[HCP-FAB-TEST] ⏰ CLICK TIMESTAMP:', clickTimeString);
-        console.log('[HCP-FAB-TEST] 🎯 BUTTON TYPE:', isFabButton ? 'FAB Button' : 'Standard Share Button');
-        console.log('[HCP-FAB-TEST] 📍 BUTTON ELEMENT:', {
-            className: shareButton.className,
-            tagName: shareButton.tagName,
-            id: shareButton.id || '(no id)',
-            ariaLabel: shareButton.getAttribute('aria-label'),
-            dataAttributes: {
-                shareId: shareButton.getAttribute('data-share-id'),
-                assetType: shareButton.getAttribute('data-asset-type'),
-                instanceNumber: shareButton.getAttribute('data-instance-number')
-            }
-        });
-        
-        console.log('[FAB-CLICK] ⏰ CLICK TIMESTAMP:', clickTimeString);
-        console.log('[FAB-CLICK] 🎯 BUTTON TYPE:', isFabButton ? 'FAB Button' : 'Share Button');
-        console.log('[FAB-CLICK] 📍 BUTTON ELEMENT:', {
-            className: shareButton.className,
-            tagName: shareButton.tagName,
-            id: shareButton.id || '(no id)',
-            ariaLabel: shareButton.getAttribute('aria-label')
-        });
         
         event.preventDefault();
         
@@ -4948,56 +4899,18 @@ Please share this report with the development team for debugging.`;
             }))
         };
         
-        console.log('[HCP-FAB-TEST] 📋 EXTRACTED ATTRIBUTES:', attributesData);
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON ATTRIBUTES:', attributesData);
         
         // TOAST: Show extracted attributes
         console.log('[SHARE-DEBUG] 📋 SHARE BUTTON ATTRIBUTES:', attributesData);
         
-        // [WORKITEM:hcp-fab-button] Log all data attributes for debugging ;CLEANUP_OK
-        console.log('[HCP-FAB-TEST] 📋 ALL DATA ATTRIBUTES:', {
-            'data-share-id': shareId,
-            'data-asset-type': assetType,
-            'data-instance-number': instanceNumber,
-            attributeCount: attributesData.allAttributes.length,
-            allAttributes: attributesData.allAttributes
-        });
-        console.log('[FAB-CLICK] 📋 ALL DATA ATTRIBUTES:', {
-            'data-share-id': shareId,
-            'data-asset-type': assetType,
-            'data-instance-number': instanceNumber,
-            attributeCount: attributesData.allAttributes.length,
-            allAttributes: attributesData.allAttributes
-        });
-        
         if (!shareId || !assetType) {
             const errorData = { shareId, assetType, instanceNumber };
-            console.error('[HCP-FAB-TEST] ❌ VALIDATION FAILED - Missing data attributes:', errorData);
             console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ Missing data attributes:', errorData);
             console.log('[SHARE-DEBUG] ❌ MISSING DATA ATTRIBUTES:', errorData);
-            
-            // [WORKITEM:hcp-fab-button] Show error toast if attributes missing ;CLEANUP_OK
-            if (window.showNoorToast) {
-                window.showNoorToast('error', '❌ Missing Data Attributes', 
-                    `shareId: ${shareId || 'missing'}, assetType: ${assetType || 'missing'}`);
-            }
-            
             alert(`Missing data attributes: shareId=${shareId}, assetType=${assetType}`);
             return;
         }
-        
-        console.log('[HCP-FAB-TEST] ✅ VALIDATION PASSED - All required attributes present');
-        
-        // [WORKITEM:hcp-fab-button] Show success toast when button clicked with valid attributes ;CLEANUP_OK
-        if (window.showNoorToast) {
-            const buttonTypeLabel = isFabButton ? '🎯 FAB Button' : '📤 Share Button';
-            window.showNoorToast('success', `${buttonTypeLabel} Clicked!`, 
-                `Sharing ${assetType}: ${shareId.substring(0, 20)}${shareId.length > 20 ? '...' : ''}`);
-        }
-        
-        console.log('[HCP-FAB-TEST] ✅ Proceeding to share asset');
-        console.log('[FAB-CLICK] ✅ VALIDATION PASSED - Proceeding to share asset');
-        console.log('[FAB-CLICK] 📤 SHARE REQUEST:', { shareId, assetType, instanceNumber, buttonType: isFabButton ? 'FAB' : 'Standard' });
         
         // Find and display the HTML payload that would be shared
         const assetElement = document.querySelector(`[data-asset-id="${shareId}"]`);
@@ -5008,10 +4921,8 @@ Please share this report with the development team for debugging.`;
                 className: assetElement.className || '',
                 elementFound: true
             };
-            console.log('[HCP-FAB-TEST] 📦 HTML PAYLOAD TO BE SHARED:', htmlPayload);
             console.log('[SHARE-DEBUG] 📦 HTML PAYLOAD TO BE SHARED:', htmlPayload);
         } else {
-            console.log('[HCP-FAB-TEST] ❌ ASSET ELEMENT NOT FOUND:', { shareId, selector: `[data-asset-id="${shareId}"]` });
             console.log('[SHARE-DEBUG] ❌ ASSET ELEMENT NOT FOUND:', { shareId, selector: `[data-asset-id="${shareId}"]` });
         }
         
@@ -5023,24 +4934,19 @@ Please share this report with the development team for debugging.`;
         shareButton.disabled = true;
         shareButton.style.backgroundColor = '#f59e0b';
         
-        console.log('[HCP-FAB-TEST] 🔄 Button disabled, calling DotNet method ShareAsset...');
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔄 Calling DotNet method ShareAsset...');
         
         // [DOM-TIMING] Log click timing for DOM debugging
         const clickTime = new Date().toISOString();
         const clickTimestamp = Date.now();
-        console.log('[HCP-FAB-TEST] [DOM-TIMING] Share button clicked at', clickTime, 'timestamp:', clickTimestamp);
         console.log('[DOM-TIMING] Share button clicked at', clickTime, 'timestamp:', clickTimestamp);
         console.log('[DOM-TIMING] About to invoke KSESSIONS ShareAsset method');
-        
-        console.log('[HCP-FAB-TEST] 🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber });
         
         // TOAST: Show method call initiation
         console.log('[SHARE-DEBUG] 🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber });
         
         // Call C# method via DotNet interop
         if (window.dotNetRef) {
-            console.log('[HCP-FAB-TEST] 📞 DOTNET REFERENCE FOUND - Invoking ShareAsset...');
             console.log('[DEBUG-WORKITEM:assetshare:continue] 📞 DotNet reference available, invoking ShareAsset...');
             
             // TOAST: Show DotNet reference status
@@ -5048,7 +4954,6 @@ Please share this report with the development team for debugging.`;
             
             window.dotNetRef.invokeMethodAsync('ShareAsset', shareId, assetType, instanceNumber)
                 .then((result) => {
-                    console.log('[HCP-FAB-TEST] ✅ ShareAsset completed successfully:', result);
                     console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ ShareAsset completed successfully:', result);
                     
                     // TOAST: Show success result
@@ -5094,8 +4999,6 @@ Please share this report with the development team for debugging.`;
             shareButton.disabled = false;
         }
     }
-    
-    // [DEBUG-WORKITEM:hcp-fab-button] FAB button handling merged into handleShareButtonClick - no separate handler needed ;CLEANUP_OK
     
     // Enhanced Custom Asset Detection Popup using SweetAlert2
     window.showCustomAssetPopup = function(htmlContent, title) {
