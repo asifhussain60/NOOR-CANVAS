@@ -199,14 +199,16 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 **ALWAYS** follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails, file organization, runtime rules, and Roslynator integration.
 
 ### 🗄️ Database Access Rules (MANDATORY)
+**PRIMARY DATABASE:** KSESSIONS_DEV
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/database-access-rules.md`
-
-**Quick Reference:**
-- PRIMARY DATABASE: KSESSIONS_DEV
-- ✅ `canvas.*` - READ/WRITE allowed
-- ❌ All other schemas - **READ-ONLY**
+- When user mentions "database", assume **KSESSIONS_DEV**
+- Connection: Always use `_configuration.GetConnectionString("DefaultConnection")`
+- **SCHEMA RULES:**
+  - ✅ `canvas.*` - READ/WRITE allowed
+  - ❌ All other schemas - **READ-ONLY**
 - **VIOLATION = IMMEDIATE ROLLBACK**
+
+**See:** `InfrastructureQuickRef.md` for complete database rules
 
 ### Architectural Reference Documentation
 
@@ -227,14 +229,16 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 - Build must complete with **zero errors and zero warnings**
 
 ### Commit and Tagging Conventions (MANDATORY)
+Follow `.github/prompts/shared/commit-message-format.md`, extended with standardized types and rollback metadata so recent history is meaningful and rollbacks are easy:
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/checkpoint-protocol.md`
-
-**Quick Reference:**
 - Types: `ckpt`, `task`, `test`, `hc`, `doc`, `meta`
 - Format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
-- Git Tag: `key-{key}-ckpt-{yyyyMMdd-HHmm}-{short}`
-- Rollback Index: Update `.github/key-data-streams/{key}/rollback-index.md`
+   - Example: `ckpt(user-landing): pre-task checkpoint [sha=abc1234]`
+   - Example: `task(user-landing): Phase 2 - API wiring [sha=def5678] [parent=abc1234]`
+- Git Tag (for checkpoints only): `key-{key}-ckpt-{yyyyMMdd-HHmm}-{short}`
+- Rollback Index: Update `.github/key-data-streams/{key}/rollback-index.md` on every checkpoint and major commit (task/test/hc)
+
+These conventions ensure `git log --oneline -10` is human-scannable and that every commit indicates its rollback lineage.
 
 ### UI/UX Execution Requirements (apply when redesign/layout/styling is in scope)
 - Preserve existing visual identity (theme, colors, typography) unless explicitly authorized to change
@@ -637,30 +641,207 @@ This ensures rollback capability if the task introduces instability.
 
 ## Auto-Drift Detection (MANDATORY)
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/drift-detection-task.md`
+During task execution, automatically detect and register unrelated issues for post-completion resolution.
 
-Automatically detect and register unrelated issues during task execution (Steps 2, 5, 6) for post-completion resolution.
+### Detection Triggers
 
-**Detection Triggers:** Context gathering, execution phase, validation phase  
-**Critical Blocking:** Severity=critical requires user choice (fix/continue/abort)
+**Context Gathering (Step 2)**:
+- File errors unrelated to current task (missing imports, broken references)
+- Test failures in unrelated test suites
+- Configuration mismatches discovered during validation
+- Architecture violations found during Step 2.8 analysis
+
+**Execution Phase (Step 5)**:
+- Dead code or unused imports in modified files
+- Security vulnerabilities in code paths
+- Performance bottlenecks unrelated to current work
+- Documentation inconsistencies discovered during implementation
+
+**Validation Phase (Step 6)**:
+- Unexpected test failures in unrelated tests
+- Build warnings in other modules
+- Integration issues outside current scope
+
+### Auto-Registration Algorithm
+
+```
+FUNCTION TaskDetectDrift(currentKey, issue, phase, severity)
+  
+  // Check if issue blocks current task
+  IF severity == "critical" THEN
+    HALT_TASK()
+    PRESENT_USER_CHOICE(
+      options: [
+        "Fix now (switches to drift key)",
+        "Continue anyway (risky)",
+        "Abort task (rollback to checkpoint)"
+      ]
+    )
+    AWAIT_USER_DECISION()
+  END IF
+  
+  // For non-critical issues, register silently
+  IF IsUnrelatedToCurrentTask(issue, currentKey) THEN
+    driftKey = GenerateDriftKey(issue)
+    
+    RegisterDrift(
+      parentKey: currentKey,
+      driftKey: driftKey,
+      description: issue,
+      severity: severity,
+      mode: "auto",
+      triggeredBy: "task.prompt.md",
+      phase: phase  // "context-gathering" | "execution" | "validation"
+    )
+    
+    LogToWorkLog("🔍 Drift detected: {driftKey} (severity: {severity}, phase: {phase})")
+    CONTINUE_TASK()
+  END IF
+  
+END FUNCTION
+```
+
+### Critical Drift Blocking
+
+When `severity=critical`, execution **MUST HALT** until user decides:
+
+**Presentation Format**:
+```
+⚠️ CRITICAL ISSUE DETECTED (blocks task execution)
+
+Issue: {description}
+Severity: CRITICAL
+Detected in: {phase}
+
+This issue may affect task success. Choose one:
+1️⃣ Fix now (pause current task, switch to drift resolution)
+2️⃣ Continue anyway (risky - may cause failures)
+3️⃣ Abort task (rollback to checkpoint from Step 1)
+
+Your choice (1/2/3):
+```
+
+**User Choice Handling**:
+- **Fix now**: Register drift with `mode: "user-critical"`, pause task, switch to drift key, resume parent after resolution
+- **Continue anyway**: Register drift with `mode: "auto-deferred"`, log warning, proceed with task (add note in Step 8 work-log)
+- **Abort task**: Rollback using checkpoint from Step 1, present drift as standalone work item
+
+### Severity Classification
+
+- **critical**: Build-breaking errors, null reference risks, security holes (HALT required)
+- **high**: Failing tests, broken integrations, performance degradation
+- **medium**: Code smells, documentation gaps, minor bugs
+- **low**: Formatting issues, unused code
+- **informational**: Suggestions, observations
+
+### Drift Commit Format
+
+```
+drift({parent-key}): Register {drift-key} - {one-line-description}
+Mode: auto | user-critical | auto-deferred
+Severity: {level}
+Triggered by: task.prompt.md
+Phase: {context-gathering|execution|validation}
+```
+
+### Silent Logging
+
+**During Task** (no chat interruption):
+- Append to `{key}.plan.md`: "🔍 Drift detected: {drift-key} (phase: {phase})"
+- Append to `work-log.md`: Full drift details with context
+
+**At Step 9 Completion**:
+- Present drift summary with severity-sorted list
+- User decides resolution order or defers all
 
 ---
 
 ### Step 2: Context Gathering (MANDATORY - Multi-Phase)
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/context-gathering-protocol.md`
+**Purpose:** Build comprehensive context before planning through conditional, intelligent sub-phases.
 
-Build comprehensive context before planning through conditional, intelligent sub-phases.
+**See:**
+- `.github/prompts/shared/context-gathering-phases.md` for the complete decision tree, all 10 sub-phases, skip conditions, and performance optimizations
+- `.github/prompts/shared/framework-validation-checklists.md` for Step 2.5 Framework Validation quick checks (ASP.NET, Blazor, SignalR, Playwright, SQL)
+- `.github/prompts/shared/ui-debugging-protocol.md` for Step 2.7 UI Debugging evidence-gathering flow (selectors, logs, screenshots, Percy)
 
-**Always Execute:** 2.1 (Key Resolution + High-Priority Constraints), 2.2 (Key Data Stream Query), 2.3 (Auto-Load Files)  
-**Conditional:** 2.4-2.12 (based on task type - errors, framework validation, UI debugging, architecture analysis, etc.)
+**CRITICAL GUARDRAILS:**
+1. **Token Budget Protection:** If Step 2 context gathering exceeds 50,000 tokens → HALT and request user approval before proceeding (prevents context overflow)
+2. **Circular Dependency Detection:** If Step 2.8 detects circular dependencies in architecture → HALT and request resolution strategy from user (prevents infinite recursion)
+3. **Phase Timeout Protection:** If Step 2 total execution exceeds 5 minutes → Emit warning, proceed with gathered context (prevents infinite analysis loops)
 
-**Critical Guardrails:**
-- Token budget protection (>50,000 tokens → HALT)
-- Circular dependency detection → HALT
-- Phase timeout (>5 minutes → warn and proceed)
+**Key Sub-Phases Overview:**
 
-**Key Feature:** Step 2.8.7 validates complete CRUD data lifecycle (UI → API → DB → Broadcast → UI)
+**Always Execute:**
+- **2.1:** Key Resolution (infer from history, use provided parameter, or auto-detected from Step 0.5)
+  - **2.1.5:** High-Priority Constraint Detection (scan for ALL CAPS emphasis in user request)
+- **2.2:** Key Data Stream Query (read existing work, prevent duplication)
+  - **2.2.1:** Record User Request (succinct summary before work begins)
+- **2.3:** Auto-Load File Mappings (load referenced files into context)
+
+**Conditional Execution (based on task type):**
+- **2.4:** Error Triage → Classify error type, route to appropriate investigation
+   - **2.5:** Framework Validation (if framework error detected) — See `shared/framework-validation-checklists.md`
+  - **2.6:** Known Pattern Matching (instant solution from error library)
+   - **2.7:** UI Debugging Protocol (automated evidence gathering for UI bugs) — See `shared/ui-debugging-protocol.md`
+- **2.8:** Architecture Analysis (prevent duplication, ensure compliance)
+  - **2.8.7:** Data Lifecycle Validation (CRUD: verify UI → API → DB → Broadcast → UI)
+- **2.9:** QuickRef Localization (cache InfrastructureQuickRef, PlaywrightQuickRef - first use only)
+- **2.10:** View Documentation - **DEPRECATED** (image analysis moved to plan.prompt.md Step 0.6)
+- **2.11:** Refactoring Opportunity Detection (conditional - runs when modifying existing code)
+- **2.12:** Load System Context Pack (if {key}.plan.md exists - load pre-gathered context)
+
+**Note on Step 2.10 Deprecation:**
+Image analysis has been moved to plan.prompt.md Step 0.6 for proper requirement gathering during planning phase. If user provides `annotate` parameter or images during task execution, warn that image analysis should be done in planning phase and suggest running `@workspace /feature` first.
+
+**Routing Logic:**
+- Error reported → 2.4 triages → Routes to 2.5, 2.6, 2.7, or 2.8
+- HIGH confidence pattern match (2.6) → Skip 2.8, proceed to planning
+- CRUD operation → 2.8.7 validates complete data lifecycle
+- Incomplete lifecycle → Early warning in Step 4 approval
+
+**Output (controlled by verbosity):**
+- **Concise:** Phase names, routing decisions, key findings only
+- **Detailed:** Complete context dump, analysis results, confidence scores
+
+---
+
+#### Step 2.12: Load System Context Pack (from plan)
+
+**Trigger:** When `.github/key-data-streams/{key}/{key}.plan.md` exists
+
+**Purpose:** Load pre-gathered execution context to skip redundant analysis
+
+**Actions:**
+1. **Read plan document** at `.github/key-data-streams/{key}/{key}.plan.md`
+2. **Extract System Context Pack section** (if present)
+3. **Cache the following for immediate use:**
+   - **API Endpoints**: Paths, methods, request/response contracts, authentication
+   - **Database Schemas**: Tables, columns, relations, migration details
+   - **SignalR Hubs**: Hub names, event names, payload structures
+   - **Test Data**: Session 212 defaults, tokens (Host/User), canonical URLs
+   - **Configuration**: Environment variables, ports, feature flags
+   - **Canonical References**: Links to InfrastructureQuickRef, PlaywrightQuickRef
+
+**Benefits:**
+- ✅ Skip API endpoint discovery (already documented in plan)
+- ✅ Skip database schema exploration (already validated in plan)
+- ✅ Use pre-validated test data (consistency across phases)
+- ✅ Faster execution (no redundant context gathering)
+- ✅ Technology-aware implementation (framework/version compatibility validated by plan)
+
+**Output:**
+```
+📦 Loaded System Context Pack from plan
+
+- APIs: 3 endpoints cached
+- Database: 2 tables (canvas.Sessions, canvas.Participants)
+- SignalR: SessionHub (3 events)
+- Test Data: Session 212 (Host: PQ9N5YWW, User: KJAHA99L)
+- Technology: ASP.NET Core 8.0 (Blazor Server)
+
+✅ Ready to execute with pre-validated context
+```
 
 ---
 
@@ -1290,64 +1471,749 @@ See: Scripts/Migrations/Prod/README.md for workflow"
 
 #### 6.2. Mandatory Lint Validation (ALL Modified Files)
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/ui-execution-requirements.md` (Section: Mandatory Lint Validation)
+**CRITICAL: This step is MANDATORY before any commit. Lint failures BLOCK commit creation.**
 
-**CRITICAL:** MANDATORY before any commit. Lint failures BLOCK commit creation.
+**See:** `.github/prompts/shared/mandatory-lint-validation.md` for complete linting protocols
 
-**Linters by Type:** C# (Roslynator), JS/TS (ESLint), CSS (Stylelint), PowerShell (PSScriptAnalyzer), JSON (syntax + Prettier)
+**Execution**:
+1. **Detect all modified files**:
+   ```powershell
+   $modifiedFiles = git diff --name-only HEAD
+   ```
+
+2. **Run linters by file type**:
+   - **C# Files** (*.cs, *.cshtml, *.razor): Roslynator + Roslyn Analyzers
+   - **JavaScript/TypeScript** (*.js, *.ts, *.tsx): ESLint
+   - **CSS/Razor Styles** (*.css, *.razor): Stylelint
+   - **PowerShell Scripts** (*.ps1): PSScriptAnalyzer
+   - **JSON Files** (*.json): JSON syntax validation + Prettier
+
+3. **Auto-Fix Attempt**:
+   - If lint failures detected, attempt auto-fix with `--fix` flags
+   - Re-run validation after auto-fix
+   - If still failing → Request manual intervention
+
+4. **Linter Installation** (if tools missing):
+   - ESLint: `npm install --save-dev eslint @typescript-eslint/parser`
+   - Stylelint: `npm install --save-dev stylelint stylelint-config-standard`
+   - PSScriptAnalyzer: `Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force`
+
+5. **Report Results**:
+   ```
+   [LINT VALIDATION]
+   - C# Files: [PASS] 3 files validated (0 warnings)
+   - JS/TS Files: [PASS] 2 files validated (0 errors)
+   - CSS Files: [PASS] 1 file validated (0 errors)
+   - PowerShell: [PASS] 1 file validated (0 warnings)
+   - JSON: [PASS] 2 files validated (valid syntax)
+   
+   All files passed lint validation.
+   ```
+
+6. **Halt on Failure**:
+   - If ANY linter returns non-zero exit code → HALT execution
+   - Document lint errors in key data stream
+   - **NEVER proceed to Step 8 (Commit) with lint failures**
+
+**Output to User** (controlled by verbosity):
+- **Concise:** Summary of files validated by type, pass/fail status
+- **Detailed:** Full lint output, specific errors, auto-fix attempts
+
+---
 
 #### 6.3. High-Priority Constraint Verification
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/ui-execution-requirements.md` (Section: High-Priority Constraint Verification)
+**CRITICAL: Verify ALL CAPS constraints from user request before marking work complete.**
 
-**CRITICAL:** Verify ALL CAPS constraints from user request before marking work complete.
+**See:** `.github/prompts/shared/high-priority-task-detection.md` for complete protocol
 
-**Violation Protocol:** HALT → Rollback → Return to Step 3 for re-planning
+**Execution**:
+1. **Retrieve constraints from Step 2.1.5**:
+   ```markdown
+   HIGH-PRIORITY Constraints:
+   1. do NOT remove existing save button (Preservation)
+   2. EXACTLY match mockup colors (Exactness)
+   ```
+
+2. **Run verification checks**:
+   - **Preservation**: DOM queries, visual inspection, regression tests
+   - **Exactness**: Percy visual tests, CSS value inspection, pixel measurement
+   - **Mandatory Inclusion**: Code inspection, E2E tests, feature presence
+   - **Behavioral**: Functional tests, user acceptance testing
+
+3. **Document verification results**:
+   ```text
+   ## High-Priority Constraint Verification
+   
+   - [PASS] Constraint 1: Save button preserved
+     - Verification: DOM query `.session-save-button` successful
+     - Test: `SaveButtonPresent` E2E test passed
+   
+    - [PASS] Constraint 2: Colors matched exactly
+       - Verification: Percy visual regression passed
+       - CSS values (hex): FF5733, 3357FF confirmed
+   ```
+
+4. **Constraint Violation Protocol**:
+   - If ANY constraint violated → HALT execution immediately
+   - Rollback to checkpoint commit
+   - Notify user with violation details
+   - Return to Step 3 (re-plan with constraint awareness)
+
+**Output to User**:
+```
+HIGH-PRIORITY Constraints Verified:
+- [PASS] Save button preserved (user requested: do NOT remove)
+- [PASS] Mockup colors matched (user requested: EXACTLY match)
+```
 
 ---
 
 ### Step 7: Confirm
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/validation-and-response.md`
+**BLOCKER VALIDATION (Execute BEFORE providing summary):**
 
-Provide summary based on `verbosity` parameter (concise/detailed).
+```
+Documentation Completeness Check:
+  ✓ Step 2.2.1 executed? (User Request + Implementation Plan recorded)
+  ✓ Work-log.md contains Views/Components section? (if UI work)
+  ✓ Work-log.md contains API Endpoints section? (if API work)
+  ✓ Work-log.md contains Database section? (if data persistence)
+  ✓ Work-log.md contains SignalR Hubs section? (if real-time features)
+  ✓ Work-log.md contains HTML/CSS/JavaScript changes? (if UI styling)
+  ✓ Work-log.md contains Testing Results? (all tests documented)
+  ✓ Work-log.md contains complete file paths, method names, line ranges?
 
-**BLOCKER VALIDATION (Execute BEFORE summary):** Ensure documentation completeness - work-log.md must contain all required sections.
+IF any check fails:
+  → HALT confirmation
+  → Update work-log.md with missing documentation
+  → Then proceed to summary
 
-**Summary Includes:** Status, work done, files modified, debug logging, tests, build, lint validation, high-priority constraints, approval iterations, checkpoint
+WHY: "Document first, report later" - Work-log must be comprehensive for investigation timeline reconstruction
+```
+
+**Provide summary based on `verbosity` parameter:**
+
+**Concise:**
+```
+SUMMARY: {key-name}
+- Status: {In Progress | Complete | Failed}
+- Work Done: {1-2 sentence summary}
+- Files Modified: {count} files
+- Debug Logging: {inserted | removed | none}
+- Tests: {passed/failed count}
+- Build: {Clean | Warnings | Errors}
+- Lint Validation: {PASS | FAIL} ({file-type breakdown})
+- High-Priority Constraints: {N} verified
+- Approval Iterations: {N} (if re-evaluation occurred)
+- Checkpoint: checkpoint/{key}/{timestamp}
+```
+
+**Detailed:**
+```
+SUMMARY: {key-name}
+- Status: {In Progress | Complete | Failed}
+- Work Done: {detailed list of changes}
+- Files Modified: {count} files
+  - {file1}: {change description}
+  - {file2}: {change description}
+- Debug Logging: {details}
+- Tests: {X passed, Y failed with details}
+- Build: {Clean | Warnings | Errors with details}
+- Lint Validation: {PASS | FAIL}
+  - C# Files: {count} files, {warnings/errors}
+  - JS/TS Files: {count} files, {warnings/errors}
+  - CSS Files: {count} files, {warnings/errors}
+  - PowerShell: {count} files, {warnings/errors}
+  - JSON: {count} files, {syntax status}
+- High-Priority Constraints Verified:
+  - [PASS] {constraint 1 description}
+  - [PASS] {constraint 2 description}
+- Approval Iterations: {N} (if re-evaluation occurred)
+  - Iteration 1: {additional requirement 1}
+  - Iteration 2: {additional requirement 2}
+- Checkpoint: checkpoint/{key}/{timestamp}
+  - Browse: git tag --list "checkpoint/{key}/*" --sort=-creatordate
+  - Rollback: git reset --hard checkpoint/{key}/{timestamp}
+```
 
 ---
 
 ### Step 8: Update Key Data Stream (MANDATORY)
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/completion-workflow.md`
+**CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
 
-**CRITICAL:** ALL task completions MUST update the key data stream.
+**GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/key-data-streams/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
 
-**Key Steps:**
-- **8.0:** Auto-Chain Protocol (if auto-chain=true)
-- **8.1:** Update JSON Tracking (if plan exists)
-- **8.2:** Key Data Stream Bloat Detection
-- **8.3:** Key Data Stream Update Requirements (COMPREHENSIVE DOCUMENTATION)
-- **8.25:** File Finalization Verification (BLOCKING - verify work-log.md updated)
-- **8.6:** Response Validation (MANDATORY - CONCISE-MANDATE enforcement)
-- **8.5:** Checkpoint Commit & Tag (MANDATORY - create git tag)
+---
 
-**Guardrail:** Lock detection - HALT if `.github/key-data-streams/**/{key}.lock` exists
+### Step 8.6: Response Validation (MANDATORY - EXECUTE AFTER Step 8.25)
+
+**Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
+
+**When:** ALWAYS execute immediately after Step 8.25 (File Finalization Verification) and before Step 9 (Completion Workflow)
+
+**Algorithm:** See `.github/prompts/shared/output-validator.md`
+
+**Quick Validation:**
+```
+BEFORE responding to user (Step 9):
+  1. Count bullets (including nested) → Must be ≤15
+  2. Detect code blocks (```language markers) → Prohibit implementation code
+  3. Check nested lists (indentation >2 spaces) → Flatten to single level
+  4. Verify next actions present → Must have letter-based options (A/B/C/D)
+  5. If violations → Auto-fix or BLOCK response
+
+IF critical violations cannot be auto-fixed:
+  - Log violation details
+  - TERMINATE with error (do not send to user)
+  - Show developer message with remediation steps
+
+IF warnings only:
+  - Log for monitoring
+  - Allow response (optionally append warning note)
+```
+
+**Exempt from validation:**
+- Work log file contents
+- Plan file updates
+- Git commit messages
+- Internal execution logs
+
+**See:** `.github/prompts/shared/output-validator.md` for complete algorithm
+
+**See:** `.github/prompts/shared/loop-prevention.md` for phase re-execution prevention
+
+---
+
+#### Step 8.0: Auto-Chain Protocol (if auto-chain=true)
+
+**Trigger:** `auto-chain` parameter = `true`
+
+**Purpose:** Enable unassisted end-to-end execution with automatic phase-to-phase transitions
+
+**Algorithm:**
+```
+IF auto-chain == true AND phase IS NOT NULL THEN
+  
+  // Verify current phase completed successfully
+  IF CurrentPhaseStatus != "complete" THEN
+    HALT("Phase {phase} incomplete - cannot auto-chain")
+  END IF
+  
+  // Load test registry and run phase tests
+  testRegistry = LoadTestRegistry(key)
+  phaseTests = GetTestsForPhase(testRegistry, phase)
+  
+  IF phaseTests.length > 0 THEN
+    Write-Host "🧪 Running {phaseTests.length} test(s) for Phase {phase}..." -ForegroundColor Cyan
+    
+    FOR EACH test IN phaseTests
+      result = ExecuteTest(test)
+      UpdateTestRegistry(test, result)
+      
+      IF result.status == "failed" THEN
+        HALT("Test '{test.name}' failed - cannot auto-chain")
+        SHOW_ROLLBACK_OPTIONS()
+      END IF
+    END FOR
+    
+    Write-Host "✅ All Phase {phase} tests passed" -ForegroundColor Green
+  END IF
+  
+  // Check if more phases exist
+  plan = LoadPlanJSON(key)
+  nextPhase = phase + 1
+  
+  IF nextPhase <= plan.totalPhases THEN
+    // Auto-invoke next phase
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host "📍 Auto-chaining to Phase {nextPhase}/{plan.totalPhases}" -ForegroundColor Yellow
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+    Write-Host ""
+    
+    SELF_INVOKE: @workspace /task key:{key} phase:{nextPhase} auto-chain:true
+    
+  ELSE
+    // All phases complete
+    Write-Host "✅ All {plan.totalPhases} phases complete!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Cyan
+    Write-Host "  @workspace /task key:{key} tasks='mark complete'" -ForegroundColor White
+    
+    STOP_AUTO_CHAIN()
+  END IF
+  
+END IF
+```
+
+**Test Registry Integration:**
+- **Before chaining:** Execute all tests registered for current phase
+- **Test failure:** Halt auto-chain, show rollback options
+- **Test success:** Update test registry, proceed to next phase
+- **No tests:** Skip test execution, proceed to next phase
+
+**User Break Points:**
+- Auto-chain runs continuously UNLESS user invoked with script (then 10s break)
+- User can Ctrl+C at any time to halt auto-chain
+- Errors halt auto-chain automatically with rollback options
+
+#### 8.1. Update JSON Tracking (if plan exists)
+
+**Trigger:** When `.github/key-data-streams/{key}/{key}.plan.json` exists
+
+**Purpose:** Maintain machine-readable progress tracking synchronized with markdown work-log
+
+**After each phase completion:**
+
+1. **Load existing JSON** from `.github/key-data-streams/{key}/{key}.plan.json`
+2. **Update phase status**: Find phase by ID, change status from `"in-progress"` to `"complete"`
+3. **Record phase timing**:
+   ```json
+   "completedAt": "{ISO-8601-timestamp}",  // Set to current time
+   "durationMinutes": {calculated}         // (completedAt - startedAt) / 60000 milliseconds
+   ```
+4. **Update validation results**:
+   ```json
+   "validation": {
+     "buildPassed": true,
+     "lintPassed": true,
+     "testCreated": true,
+     "testFile": "phase2-session-canvas-guard.spec.ts",
+     "testsPassing": 3,
+     "testsTotal": 3,
+     "flakyTests": 0
+   }
+   ```
+5. **Record commit info**:
+   ```json
+   "commit": {
+     "sha": "{full-40-char-sha}",
+     "message": "{commit-message}",
+     "timestamp": "{ISO-8601-timestamp}"
+   }
+   ```
+6. **Record checkpoint tag**:
+   ```json
+   "checkpoint": {
+     "tag": "checkpoint/{key}/{timestamp}",
+     "timestamp": "{ISO-8601-timestamp}"
+   }
+   ```
+7. **Update metrics** (aggregate across all phases):
+   ```json
+   "metrics": {
+     "completedPhases": 2,           // increment
+     "totalTests": 6,                // aggregate from all phases
+     "passingTests": 6,              // aggregate
+     "flakyTests": 0,                // aggregate
+     "filesModified": 5,             // count unique files
+     "linesAdded": 150,              // sum from git diff
+     "linesRemoved": 20,             // sum from git diff
+     "totalDurationMinutes": 45,     // sum of all phase durations
+     "averagePhaseDuration": 22.5    // totalDurationMinutes / completedPhases
+   }
+   ```
+8. **Update global status** (when all phases complete):
+   ```json
+   "status": "complete",
+   "updated": "{ISO-8601-timestamp}"
+   ```
+9. **Save JSON file** (pretty-printed for readability)
+
+**Before Starting Next Phase (when triggered by plan agent):**
+
+1. **Update next phase status**: Find next phase by ID, change status to `"in-progress"`
+2. **Record phase start timing**:
+   ```json
+   "startedAt": "{ISO-8601-timestamp}"  // Set to current time when phase begins
+   ```
+
+**Synchronization Rule:** Both markdown work-log AND JSON tracking must be updated in same commit
+
+**Output to User:**
+- **Concise:** `"✓ JSON tracking updated (Phase 2 complete, duration: 23 minutes)"`
+- **Detailed:** Show updated phase status, metrics, timing breakdown, and checkpoint reference
+
+---
+
+#### 8.2. Key Data Stream Bloat Detection (Pre-Update Cleanup)
+1. Read current state: Check file size, entry count
+2. Deduplication: Remove duplicate work log entries
+3. Obsolescence cleanup: Remove superseded implementations, failed experiments
+4. Size limits: If >100 entries or >50KB, trigger consolidation
+
+#### 8.3. Key Data Stream Update Requirements (COMPREHENSIVE DOCUMENTATION)
+
+**🎯 SCOPE CLARIFICATION:**
+- The code examples below are **TEMPLATES for work-log.md documentation** (written to `.github/key-data-streams/{key}/work-log.md`)
+- They are **NOT user-facing output** (shown to user in chat)
+- **User-facing output** should use **architectural descriptions** (file paths, method names, data flows) - see CONCISE-MANDATE.md
+- **Work-log.md documentation** should include **code examples** for investigation timeline reconstruction
+
+**CRITICAL:** Work-log.md must contain complete implementation details for investigation timeline reconstruction.
+
+1. Locate key file: `.github/key-data-streams/{key}/work-log.md`
+2. Retrieve git commit hash: `git rev-parse HEAD`
+3. **Verify Step 2.2.1 documentation exists** (User Request + Implementation Plan recorded BEFORE work started)
+4. **Append Work Completed section** (AFTER work finished):
+
+   ```markdown
+   ### Work Completed (YYYY-MM-DD HH:MM)
+   
+   **Status**: {In Progress | Complete}
+   
+   #### Changes Summary
+   {1-2 sentence overview of what was implemented}
+   
+   #### Files Modified
+   
+   **Views/Components:**
+   1. `{path}` (lines {start}-{end})
+      - Added: {feature-description}
+      - Modified: {existing-feature-description}
+      - Removed: {removed-feature-description}
+   
+   **API Endpoints:**
+   1. `{ControllerName}.{MethodName}` ({HttpMethod} {route})
+      - Request: {request-model-type}
+      - Response: {response-model-type}
+      - Authentication: {required|optional|none}
+      - Changes: {what-changed}
+   
+   **Database:**
+   1. Schema: `{schema.table}`
+      - Operations: {SELECT|INSERT|UPDATE|DELETE}
+      - Columns Affected: {column-names}
+      - Migration: {migration-file-name} (if created)
+   
+   **SignalR Hubs:**
+   1. `{HubName}` (file: `{path}`)
+      - Methods Added/Modified: `{MethodName}({parameters})`
+      - Events Broadcast: `{EventName}` to `{target-group}`
+      - Client Handlers: `connection.on('{EventName}', ...)` in `{client-file}`
+   
+   **Services:**
+   1. `{ServiceName}` (file: `{path}`)
+      - Methods: `{MethodName}({parameters}) : {ReturnType}`
+      - Dependencies Injected: {service-names}
+      - Algorithm: {brief-description-of-logic}
+   
+   #### HTML/CSS/JavaScript Changes
+   
+   **HTML Structure:**
+   ```html
+   {key-structural-changes-with-brief-example}
+   ```
+   
+   **CSS Classes:**
+   - `.{class-name}` - {purpose} (positioning, styling, animation)
+   
+   **JavaScript:**
+   - Event handlers: `{element-selector}` → `{handler-function}`
+   - SignalR: `hubConnection.on('{event}', ...)` in `{file}`
+   
+   #### Testing Results
+   - **Manual Verification**: {steps-performed} - {PASS|FAIL}
+   - **Automated Tests**: {test-file-names} - {results}
+   - **Percy Visual**: {snapshot-names} - {baseline|changes-detected}
+   - **Lint Validation**: {PASS|FAIL with details}
+   
+   #### High-Priority Constraints Verified
+   - [PASS|FAIL] {constraint-description} (user ALL CAPS: {original-constraint})
+   - [PASS|FAIL] {constraint-description} (user ALL CAPS: {original-constraint})
+   
+   #### Approval Iterations
+   {N} re-evaluations (if requirements evolved during implementation)
+   
+   **Additional Requirements Added:**
+   - {requirement-1}
+   - {requirement-2}
+   
+   #### Commit Details
+   - **SHA**: {full-commit-hash}
+   - **Message**: `{commit-message}`
+   - **Tag**: `checkpoint/{key}/{timestamp}`
+   - **Files Changed**: {count}
+   - **Lines Changed**: +{additions} -{deletions}
+   
+   #### Next Steps
+   - [ ] {pending-task-1}
+   - [ ] {pending-task-2}
+   ```
+
+5. **Enforcement Rules:**
+   - ❌ NEVER skip "SignalR Hubs" section if real-time features involved
+   - ❌ NEVER skip "Database" section if data persistence involved
+   - ❌ NEVER skip "API Endpoints" section if client-server communication involved
+   - ❌ NEVER use vague descriptions - include file paths, method names, line ranges
+   - ✅ ALWAYS include HTML/CSS/JavaScript changes for UI work
+   - ✅ ALWAYS document complete data flow (UI → API → Service → DB → SignalR → UI)
+   - ✅ ALWAYS cross-reference Step 2.2.1 documentation (plan vs. actual)
+
+6. Output to user (brief acknowledgment only):
+   - Concise: `"[OK] Key data stream updated (commit: {SHA})"`
+   - Detailed: Show complete entry added
+
+7. Maintain alphabetical sorting of keys
+
+**Rationale:**
+- Enables future developers to understand "why" and "how" decisions were made
+- Creates searchable knowledge base of implementation patterns
+- Documents architectural context for investigation timeline reconstruction
+- Records SignalR event flow, database schema, API contracts for system-wide understanding
+
+#### 8.4. Functionality Registry Validation (Regression Prevention)
+1. Load Functionality Registry (if exists)
+2. Detect breaking change risk
+3. Execute validation
+4. Update registry
+5. Regression detection & history
+
+**Failure to update the key data stream constitutes an incomplete task execution.**
+
+---
+
+### Step 8.25: FILE FINALIZATION VERIFICATION (BLOCKING)
+
+**Purpose:** Ensure work log updated before response validation
+
+**⚠️ BLOCKING REQUIREMENT:** Do NOT proceed to Step 8.5 (Response Validation) until work log verified.
+
+**Algorithm:** See `.github/prompts/shared/file-finalization-verifier.md`
+
+**Verification Requirements:**
+1. `.github/key-data-streams/{key}/work-log.md` exists
+2. File modified within last 60 seconds (recent update)
+3. `.github/key-data-streams/{key}/state.json` updated (if state tracking enabled)
+
+**Quick Verification:**
+```
+VerifyWorkLogUpdated(key):
+  workLogPath = ".github/key-data-streams/{key}/work-log.md"
+  
+  IF NOT FileExists(workLogPath) THEN
+    HALT_EXECUTION()
+    LOG_ERROR("Work log missing: {workLogPath}")
+    SHOW_ERROR_MESSAGE("Work log file not found")
+    RETURN FALSE
+  END IF
+  
+  lastModified = GetFileModificationTime(workLogPath)
+  currentTime = GetCurrentTime()
+  timeDifference = currentTime - lastModified
+  
+  // File must be modified within last 60 seconds
+  IF timeDifference > 60_SECONDS THEN
+    HALT_EXECUTION()
+    LOG_ERROR("Work log not recently updated: last modified {timeDifference}s ago")
+    SHOW_ERROR_MESSAGE("Work log update incomplete")
+    RETURN FALSE
+  END IF
+  
+  LOG_SUCCESS("Work log updated: {workLogPath} (modified {timeDifference}s ago)")
+  RETURN TRUE
+```
+
+**If verification fails:**
+- **HALT execution immediately**
+- Log error with file path and timestamp
+- **DO NOT proceed to Step 8.5** (Response Validation)
+- **DO NOT show user output**
+- Display error message (see file-finalization-verifier.md)
+
+**If verification passes:**
+- Log success with modification timestamp
+- Proceed to Step 8.5 (Response Validation)
+
+**See:** `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm and error messages
+
+---
+
+### Step 8.5: Checkpoint Commit & Tag (MANDATORY)
+
+**After all work is complete and key data stream is updated, create a final checkpoint commit with git tag.**
+
+#### Checkpoint Commit Requirements
+1. **Stage all changes:**
+   ```bash
+   git add -A
+   ```
+
+2. **Create checkpoint commit with standardized message:**
+   ```bash
+   git commit -m "checkpoint: {key} - {one-line summary of work}"
+   ```
+   - Example: `git commit -m "checkpoint: canvas - added share button with confirmation dialog"`
+
+3. **Create lightweight git tag:**
+   ```bash
+   git tag "checkpoint/{key}/{ISO-8601-date-compact}"
+   ```
+   - Example: `git tag "checkpoint/canvas/2025-10-16_0230"`
+   - Format: `checkpoint/{key}/{YYYY-MM-DD_HHMM}` (enables filtering by key)
+   - Note: Git tags cannot contain colons, so use underscore for time separator
+
+4. **Retrieve commit SHA:**
+   ```bash
+   git rev-parse HEAD
+   ```
+
+#### Automatic Tag Pruning (28-tag limit per key)
+1. **List existing checkpoints for this key:**
+   ```bash
+   git tag --list "checkpoint/{key}/*" --sort=-creatordate
+   ```
+
+2. **If ≥28 tags exist, delete oldest:**
+   ```bash
+   git tag --list "checkpoint/{key}/*" --sort=creatordate | Select-Object -First {count-to-delete} | ForEach-Object { git tag -d $_ }
+   ```
+
+3. **Maintains most recent 28 checkpoints per key automatically**
+
+#### Rollback & Browsing Capabilities
+
+**Rollback to specific checkpoint:**
+```bash
+git reset --hard {tag-name}
+# Example: git reset --hard checkpoint/canvas/2025-10-16T02:30:00Z
+```
+
+**Browse all checkpoints for a key:**
+```bash
+git tag --list "checkpoint/{key}/*" --sort=-creatordate
+```
+
+**View checkpoint details:**
+```bash
+git show {tag-name} --stat
+```
+
+**Browse all checkpoints across all keys:**
+```bash
+git tag --list "checkpoint/*/*" --sort=-creatordate
+```
+
+**Advantages over separate log files:**
+- ✅ Single source of truth (git history)
+- ✅ No file sync issues
+- ✅ Native git browsing/search
+- ✅ Works with all git tools (GUI clients, IDE integrations)
+- ✅ Automatic cleanup via tag deletion
+- ✅ Can view full diff: `git show checkpoint/canvas/2025-10-16T02:30:00Z`
+
+**Output to User:**
+- **Concise:** `"✓ Checkpoint created: {tag-name}"`
+- **Detailed:** Show tag name, SHA, and rollback command
+
+**Example Checkpoint Log (`.github/key-data-streams/.checkpoints/canvas.log`):**
+```
+2025-10-16T02:30:00Z | a3f5b9c1234 | added share button with confirmation dialog
+2025-10-16T01:15:00Z | b2d4e8f5678 | fixed session title display bug
+2025-10-15T23:45:00Z | c1a7b3d9012 | implemented question deletion with persistence
+...
+(up to 28 most recent checkpoints)
+```
 
 ---
 
 ### Step 9: Completion Workflow *(Conditional: When tasks = "mark complete" or "completed")*
 
-**LOAD MODULE:** `.github/prompts/shared/task-exec/completion-workflow.md` (Section: Step 9)
+**Triggered when user specifies "mark complete" or "completed" as tasks parameter value.**
 
-**Triggered when:** User specifies `tasks = "mark complete"` or `tasks = "completed"`
+#### 9.1. Obsolete Information Removal & Debug Cleanup
 
-**Workflow:**
-- **9.1:** Obsolete Information Removal & Debug Cleanup (remove all debug markers)
-- **9.2:** Test Promotion & Cleanup (promote passing tests to production, delete from key directory)
-- **9.3:** State Management & Completion (mark key as `complete`)
-- **9.4:** Resumption Protocol (auto-revert to `in-progress` if new tasks arrive)
+**Key Data Stream Cleanup:**
+- Remove superseded implementations, failed attempts, temporary workarounds
+- Remove outdated architecture decisions
+- Keep only current, working implementation details
+
+**Debug Marker Cleanup (MANDATORY):**
+Search all modified source files and remove debug logging markers:
+
+1. **C# Files:** Remove lines containing `[DEBUG-WORKITEM:*] ;CLEANUP_OK` or `[DIAGNOSTIC:*] ;CLEANUP_OK`
+2. **JavaScript/TypeScript:** Remove lines containing `[DEBUG-WORKITEM:*] ;CLEANUP_OK`
+3. **Razor Files:** Remove lines containing `DEBUG-WORKITEM` or `DIAGNOSTIC`
+4. **Verification:** Run `git grep "\[DEBUG-WORKITEM:\|DIAGNOSTIC:"` to ensure zero remaining markers
+5. **Build:** Verify clean build after cleanup
+
+**Output:**
+```
+[CLEANUP] Debug Cleanup Complete
+- Removed {X} debug markers from {Y} files
+- Verification: git grep found 0 remaining markers
+- Build status: Clean
+```
+
+#### 9.2. Test Promotion & Cleanup (MANDATORY if tests exist)
+
+**Promote Passing Tests to Production:**
+
+1. **Check for active tests** in `.github/key-data-streams/{key}/tests/`:
+   ```powershell
+   $testFiles = Get-ChildItem ".github/key-data-streams/{key}/tests/*.spec.ts"
+   ```
+
+2. **For each passing test**:
+   - Copy test file to production: `Tests/UI/{feature}-{test-type}.spec.ts`
+   - Update orchestration script paths to point to production location
+   - Copy orchestration script to: `Scripts/run-{feature}-test.ps1`
+   - Document promotion in test registry (archive section)
+
+3. **Update test registry** (`.github/key-data-streams/{key}/tests/test-registry.md`):
+   ```markdown
+   ## Archived Tests (Promoted to Production)
+   
+   ### {feature}-{test-type}.spec.ts
+   - **Promoted**: {ISO-8601 timestamp}
+   - **Destination**: Tests/UI/{feature}-{test-type}.spec.ts
+   - **Orchestration**: Scripts/run-{feature}-test.ps1
+   - **Commit**: {SHA}
+   - **Status**: Promoted (deleted from key directory)
+   ```
+
+4. **Delete tests from key directory**:
+   ```powershell
+   Remove-Item ".github/key-data-streams/{key}/tests/*.spec.ts"
+   Remove-Item ".github/key-data-streams/{key}/scripts/run-*-test.ps1"
+   ```
+
+5. **Preserve test registry** for historical reference
+
+**Output:**
+```
+[TESTS] Test Promotion Complete
+- Promoted {X} test(s) to Tests/UI/
+- Copied {X} orchestration script(s) to Scripts/
+- Deleted {X} test(s) from key directory
+- Test registry archived
+```
+
+**Skip Conditions:**
+- No tests exist in `.github/key-data-streams/{key}/tests/`
+- All tests failed (do not promote failing tests)
+
+#### 9.3. State Management & Completion
+- Mark key as `complete` in metadata
+- Verify key data stream is up-to-date with final state
+- Archive work log (historical entries intact)
+- Update key index
+
+**Output to User:**
+```
+[COMPLETE] Key marked as COMPLETE
+[OK] All information recorded in key data stream
+[CLEANUP] Debug markers removed ({X} markers from {Y} files)
+[TESTS] Tests promoted to production ({X} tests)
+```
+
+#### 9.4. Resumption Protocol
+**If new tasks arrive for a `complete` key:**
+- Auto-revert status from `complete` to `in-progress`
+- Preserve all historical entries in key data stream
+- Add new work log entry documenting resumption
+- Continue normal workflow (Steps 1-8)
 
 ---
 
