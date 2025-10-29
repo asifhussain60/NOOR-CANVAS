@@ -26,6 +26,29 @@
 
 ---
 
+### TranscriptApi Integration Tests
+- **File**: `Tests/Integration/TranscriptApiTests.cs`
+- **Phase**: Phase 1 - API Layer Consolidation
+- **Type**: Integration (API contract validation)
+- **Test Count**: 11 test cases
+- **Coverage**: 
+  - GET /api/transcript/{sessionId} - 3 tests (valid, invalid, empty)
+  - POST /api/transcript/{sessionId}/transform - 4 tests (delete buttons, share buttons, attributes, invalid)
+  - POST /api/transcript/{sessionId}/detect-assets - 2 tests (with assets, no assets)
+  - Error handling - 2 tests (database errors, invalid content type)
+- **Status**: ⚠️ Non-executable (no test project .csproj, needs migration to Playwright)
+- **Created**: 2025-10-29
+- **Commit**: 316a093f
+
+### Run TranscriptApi Tests
+```powershell
+# Currently non-executable - awaiting test project setup
+# Future: dotnet test --filter "TranscriptApiTests"
+# Alternative: Migrate to Playwright API tests
+```
+
+---
+
 ## Test Execution Commands
 
 ### Run Phase 1 Test
