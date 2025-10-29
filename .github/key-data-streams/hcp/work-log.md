@@ -318,16 +318,20 @@
 
 **Severity**: high  
 **Mode**: manual  
-**Resolution**: In Progress  
-**Commit**: 0d4b5179
+**Resolution**: ✅ Resolved (commit `9d847474`)  
+**Commits**: 0d4b5179 (registration), 79e721c7 (doc update), 9d847474 (script migration)
 
-**Context**: During Phase 3 baseline testing, discovered that direct `dotnet.exe` launch (commit 9448e8cd) is 3-5x faster than nested PowerShell approach. Codebase scan revealed 18+ test orchestration scripts still using deprecated pattern.
+**Context**: Phase 3 baseline testing proved direct `dotnet.exe` launch (9448e8cd) is 3-5x faster than nested PowerShell. All orchestration scripts now align with the v3.0 launch protocol.
 
-**Actions Required**:
-1. Update `.github/prompts/shared/test-orchestration-patterns.md` with v3.0 pattern ✅ (79e721c7)
-2. Migrate 18 Scripts/run-*.ps1 files to direct dotnet.exe pattern ⏳
-3. Remove webServer/PW_MODE references from codebase
-4. Update SelfAwareness.instructions.md Playwright section
+**Actions Completed**:
+1. Updated `.github/prompts/shared/test-orchestration-patterns.md` with v3.0 pattern ✅ (79e721c7)
+2. Migrated 16 active Scripts/run-*.ps1 files to direct dotnet.exe pattern ✅ (9d847474); archived scripts verified compliant
+3. Updated SelfAwareness.instructions.md Playwright section ✅ (pending commit)
+4. Removed webServer/PW_MODE guidance from SelfAwareness ✅
+
+**Follow-up (Phase 3)**:
+- Run baseline regression with new orchestration (pending)
+- Update lessons learned after baseline results
 
 **See**: `.github/key-data-streams/drift-playwright-launch-protocol/work-log.md` for details
 
