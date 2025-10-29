@@ -314,4 +314,23 @@
 
 ---
 
+## Drift Detected: drift-playwright-launch-protocol (2025-10-29)
+
+**Severity**: high  
+**Mode**: manual  
+**Resolution**: In Progress  
+**Commit**: 0d4b5179
+
+**Context**: During Phase 3 baseline testing, discovered that direct `dotnet.exe` launch (commit 9448e8cd) is 3-5x faster than nested PowerShell approach. Codebase scan revealed 18+ test orchestration scripts still using deprecated pattern.
+
+**Actions Required**:
+1. Update `.github/prompts/shared/test-orchestration-patterns.md` with v3.0 pattern ✅ (79e721c7)
+2. Migrate 18 Scripts/run-*.ps1 files to direct dotnet.exe pattern ⏳
+3. Remove webServer/PW_MODE references from codebase
+4. Update SelfAwareness.instructions.md Playwright section
+
+**See**: `.github/key-data-streams/drift-playwright-launch-protocol/work-log.md` for details
+
+---
+
 *Work log consolidated from 4 source keys on 2025-10-29*
