@@ -238,36 +238,37 @@ Automatically run generated tests after creation
 
 **DO THIS (ONLY ACCEPTABLE APPROACH):**
 ```powershell
-# MANDATORY: Kill existing NoorCanvas processes before launching
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+# LAUNCH APP USING CANONICAL LAUNCHER (V3.0 - DIRECT DOTNET.EXE)
+$appInfo = & "$PSScriptRoot\..\..\..\Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+    -Url "https://localhost:9091" `
+    -Environment "Development" `
+    -Verbose:$VerbosePreference
 
-# Launch app in SEPARATE external PowerShell window (NOT VS Code terminal)
-Start-Process powershell -ArgumentList "-NoExit", "-Command", 
-    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
-     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
-     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
-     dotnet run" -WindowStyle Minimized -PassThru
+Write-Host "✅ App ready (PID: $($appInfo.ProcessId), Pattern: $($appInfo.LaunchPattern))" -ForegroundColor Green
 ```
 
-**Critical Requirements:**
-- ✅ **ALWAYS kill existing NoorCanvas processes first** (`Get-Process -Name "NoorCanvas" | Stop-Process -Force`)
-- ✅ **Launch in external PowerShell window** (Start-Process powershell, NOT integrated terminal)
-- ✅ **Minimize window** for clean workspace (`-WindowStyle Minimized`)
-- ✅ **Track process ID** for guaranteed cleanup (`-PassThru` returns process object)
+**Critical Requirements (v3.0):**
+- ✅ **ALWAYS delegate to Start-NoorCanvasForTests.ps1** (canonical launcher - single source of truth)
+- ✅ **Use $appInfo.ProcessId for cleanup** (returned from canonical launcher)
+- ✅ **Port binding validation automatic** (launcher checks before HTTP health check)
+- ✅ **Optimized exponential backoff** (500ms, 1s, 2s, 3s vs old 2s, 4s, 8s, 16s)
+- ✅ **67-80% faster startup** (1-3 attempts vs 5-15 attempts)
 
 **NEVER DO THIS:**
+- ❌ `Start-Process powershell -ArgumentList ...` (v2.0 nested PowerShell - DEPRECATED)
+- ❌ Inline launch logic (duplicates complexity, breaks maintainability)
 - ❌ `PW_MODE=standalone npx playwright test` (webServer config approach - DEPRECATED)
 - ❌ Direct `npx playwright test` without app startup
 - ❌ Manual `dotnet run` in terminal before tests
 - ❌ `Start-Job` for background app startup (unreliable)
 - ❌ PowerShell background operator `&` (doesn't work in PowerShell 5.1)
-- ❌ **Launch application in VS Code integrated terminal** (use external PowerShell window)
 - ❌ **Create tests without user workflow guidance** for headed UI tests (request screenshots first)
 
-### Why Separate Window is Mandatory
+### Why Canonical Launcher is Mandatory (v3.0)
 
 **Benefits:**
-- ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
+- ✅ Direct `dotnet.exe` launch (eliminates nested PowerShell hierarchy)
+- ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development` set internally)
 - ✅ Visible error messages in separate window (easier debugging)
 - ✅ Reliable PID tracking for cleanup (`$app.Id`)
 - ✅ Can restore minimized window to inspect app output
@@ -2233,48 +2234,57 @@ Generate complete TypeScript test file, PowerShell orchestration script, AND upd
 ```powershell
 # Scripts/run-{feature}-test.ps1
 
-# STEP 1: MANDATORY - Kill any existing NoorCanvas processes
-Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
-Write-Host "[INFO] Cleaned up existing NoorCanvas processes"
-
-# STEP 2: Launch app in EXTERNAL PowerShell window (not VS Code terminal)
-$app = Start-Process powershell -ArgumentList "-NoExit", "-Command", `
-    "cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; `
-     `$env:ASPNETCORE_ENVIRONMENT='Development'; `
-     `$env:ASPNETCORE_URLS='https://localhost:9091'; `
-     dotnet run" `
-    -PassThru -WindowStyle Minimized
+# STEP 1: Launch app using canonical launcher (v3.0 direct dotnet.exe)
+Write-Host "[APP] Launching NoorCanvas with v3.0 pattern..." -ForegroundColor Cyan
 
 try {
-    # STEP 3: Health check polling (not fixed delays)
-    $timeout = 60
-    $startTime = Get-Date
-    Write-Host "[INFO] Waiting for app to start (timeout: ${timeout}s)..."
+    $appInfo = & "$PSScriptRoot\Test-Framework\Start-NoorCanvasForTests.ps1" `
+        -Url "https://localhost:9091" `
+        -Environment "Development" `
+        -Verbose:$VerbosePreference
     
-    do {
-        Start-Sleep -Milliseconds 500
-        try {
-            $response = Invoke-WebRequest -Uri "https://localhost:9091" -TimeoutSec 2 -UseBasicParsing
-            if ($response.StatusCode -eq 200) { 
-                Write-Host "[INFO] App ready!"
-                break 
-            }
-        } catch { }
-        
-        if (((Get-Date) - $startTime).TotalSeconds -gt $timeout) {
-            Write-Host "[ERROR] App startup timeout"; exit 1
-        }
-    } while ($true)
+    Write-Host "  ✅ App ready (PID: $($appInfo.ProcessId), Attempts: $($appInfo.HealthCheckAttempts))" -ForegroundColor Green
+}
+catch {
+    Write-Host "  ❌ App launch failed: $_" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host ""
+
+# STEP 2: Run tests (with guaranteed cleanup)
+try {
+    Push-Location "Tests\UI"
     
-    # STEP 4: Run Playwright tests
-    Write-Host "[INFO] Running tests..."
-    npx playwright test ".github/key-data-streams/{key}/tests/{feature}.spec.ts" --reporter=list --headed
+    Write-Host "[TEST] Running tests..." -ForegroundColor Cyan
+    npx playwright test {feature}.spec.ts --reporter=list --headed
+    $testExitCode = $LASTEXITCODE
+    
+    if ($testExitCode -eq 0) {
+        Write-Host "  ✅ Tests PASSED" -ForegroundColor Green
+    }
+    else {
+        Write-Host "  ❌ Tests FAILED (exit code: $testExitCode)" -ForegroundColor Red
+    }
+}
+catch {
+    Write-Host "  ❌ Test execution error: $_" -ForegroundColor Red
+    $testExitCode = 1
 }
 finally {
-    # STEP 5: GUARANTEED cleanup (always executes)
-    Write-Host "[INFO] Stopping app (PID: $($app.Id))..."
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    # STEP 3: GUARANTEED cleanup (always executes - even on error)
+    Pop-Location
+    
+    Write-Host ""
+    Write-Host "[CLEANUP] Stopping app..." -ForegroundColor Cyan
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
+    Write-Host "  ✅ Cleanup complete" -ForegroundColor Green
 }
+
+Write-Host ""
+Write-Host "=== Test orchestration complete (v3.0) ===" -ForegroundColor Cyan
+
+exit $testExitCode
 ```
 
 ### 3. Test Registry Update (.github/key-data-streams/{key}/tests/test-registry.md)

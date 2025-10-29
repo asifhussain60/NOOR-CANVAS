@@ -291,58 +291,54 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 - **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
 
 ### For Playwright Testing
-**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with separate window app launch!
+**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with direct dotnet.exe launch!
 
 **⚠️ ABSOLUTE REQUIREMENT: Use Orchestration Scripts**
 
 - **ALWAYS** use orchestration scripts in `Scripts/run-{feature}-test.ps1`
-- **ALWAYS** launch app in SEPARATE PowerShell window (not background, not hidden)
-- **ALWAYS** use health check polling (not fixed delays)
+- **ALWAYS** launch app with direct `Start-Process -FilePath "dotnet"` (v3.0 pattern)
+- **ALWAYS** use health check polling with port binding validation (not fixed delays)
 - **ALWAYS** use `try/finally` for guaranteed cleanup
 - **NEVER** use `PW_MODE=standalone` or `webServer` config (DEPRECATED approach)
 - **NEVER** use `Start-Job` for app startup (unreliable)
+- **NEVER** use nested PowerShell windows (slow health checks, unreliable cleanup)
 - **NEVER** use direct `npx playwright test` without orchestration script
 - **NEVER** use PowerShell background operator `&` (doesn't work in PowerShell 5.1)
 
-**Orchestration Script Pattern (MANDATORY):**
+**Orchestration Script Pattern v3.0 (MANDATORY):**
 ```powershell
-# 1. Launch app in SEPARATE window
-$app = Start-Process powershell -ArgumentList "-NoExit", "-Command", 
-    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
-     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
-     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
-     dotnet run" -WindowStyle Minimized -PassThru
+# 1. Launch app with direct dotnet.exe (SEPARATE WINDOW)
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+    -Url "https://localhost:9091" `
+    -Environment "Development"
 
-# 2. Health check with polling (not fixed delay)
-$maxAttempts = 30
-$attempt = 0
-$appReady = $false
-while (-not $appReady -and $attempt -lt $maxAttempts) {
-    try {
-        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
-        if ($response.StatusCode -eq 200) { $appReady = $true }
-    } catch {
-        $attempt++
-        Start-Sleep -Seconds 1
-    }
-}
+# Start-NoorCanvasForTests.ps1 internally does:
+# - Direct dotnet.exe launch (no nested PowerShell)
+# - Port binding check + HTTP health check
+# - Exponential backoff (500ms, 1s, 2s, 3s)
+# - Returns process info for cleanup
 
-# 3. Run tests with guaranteed cleanup
+# 2. Run tests with guaranteed cleanup
 try {
     npx playwright test test.spec.ts --headed
 } finally {
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    # Cleanup using returned process ID
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
 }
 ```
 
-**Why Separate Window is Mandatory:**
+**Why Direct dotnet.exe Launch is Mandatory (v3.0):**
+- ✅ Eliminates nested process hierarchies (faster health checks: 1-3 attempts vs 5-15)
 - ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
-- ✅ Visible error messages for debugging (can restore minimized window)
-- ✅ Reliable PID tracking for cleanup
-- ✅ Health check polling prevents race conditions
+- ✅ Reliable PID tracking for cleanup (single process owner)
+- ✅ Port binding validation before HTTP checks (faster detection)
 - ✅ Guaranteed cleanup via `try/finally`
+- ✅ Visible window for debugging (can check logs if tests fail)
 
-**See:** `.github/prompts/shared/test-orchestration-patterns.md` for canonical template and complete pattern explanation
+**See:** 
+- `.github/prompts/shared/test-orchestration-patterns.md` - Canonical template
+- `.github/prompts/shared/app-launch-fix-protocol.md` - v3.0 implementation details
+- `Scripts/Test-Framework/Start-NoorCanvasForTests.ps1` - Canonical launcher
 
 **Manual App Launch (nc.ps1/ncb.ps1) is ONLY for:**
 - Development: Manual testing in browser

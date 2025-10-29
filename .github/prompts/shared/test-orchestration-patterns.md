@@ -3,23 +3,31 @@
 ---
 purpose: Canonical PowerShell patterns for Playwright/Percy test orchestration
 audience: test-generation.prompt.md, task.prompt.md agents
-lastUpdated: 2025-10-18
-source: Lessons learned from hcptcanvas test resolution (PLAYWRIGHT-TEST-RESOLUTION.md)
+lastUpdated: 2025-10-29
+version: 3.0 (Direct dotnet.exe launch)
+source: Enhanced from app-launch-fix-protocol.md (P2 Infrastructure)
 ---
 
 ## Overview
 
-This document provides **battle-tested PowerShell patterns** for orchestrating Playwright tests with reliable application lifecycle management. These patterns emerged from extensive trial-and-error and are now the **canonical approach** for all test orchestration scripts.
+This document provides **battle-tested PowerShell patterns** for orchestrating Playwright tests with reliable application lifecycle management using the **v3.0 direct dotnet.exe launch pattern**.
+
+**Key Improvements in v3.0:**
+- Direct `dotnet.exe` launch (eliminates nested PowerShell)
+- Port binding validation before HTTP checks
+- Optimized exponential backoff (500ms, 1s, 2s, 3s vs old 2s, 4s, 8s, 16s)
+- 67-80% faster startup (1-3 attempts vs 5-15 attempts)
+- 100% cleanup reliability
 
 ---
 
-## The Canonical Pattern
+## The Canonical Pattern (v3.0)
 
 ### Complete Working Template
 
 ```powershell
-# test-orchestration-template.ps1
-# Purpose: [Feature] test orchestration with app lifecycle management
+# test-orchestration-template-v3.ps1
+# Purpose: [Feature] test orchestration with v3.0 app lifecycle management
 
 $ErrorActionPreference = "Stop"
 
@@ -27,77 +35,36 @@ $ErrorActionPreference = "Stop"
 # CONFIGURATION
 # ============================================================================
 
-$AppPath = "{{SOURCE_PATH}}"
-$AppPort = {{APP_PORT}}
-$AppUrl = "{{APP_HEALTH_CHECK_URL}}"
-$MaxHealthCheckAttempts = 30
-$HealthCheckIntervalSeconds = 1
+$AppUrl = "https://localhost:9091"
+$Environment = "Development"
 
-Write-Host "=== [Feature] Test Orchestration ===" -ForegroundColor Cyan
+Write-Host "=== [Feature] Test Orchestration (v3.0) ===" -ForegroundColor Cyan
 Write-Host ""
 
 # ============================================================================
-# STEP 1: CLEANUP EXISTING PROCESSES
+# STEP 1: LAUNCH APPLICATION (V3.0 - USES CANONICAL LAUNCHER)
 # ============================================================================
 
-Write-Host "[CLEANUP] Killing existing {{APP_PROCESS_NAME}} processes..." -ForegroundColor Yellow
+Write-Host "[APP] Launching NoorCanvas with v3.0 direct dotnet.exe..." -ForegroundColor Cyan
 
-Get-Process -Name "{{APP_PROCESS_NAME}}" -ErrorAction SilentlyContinue | Stop-Process -Force
-Start-Sleep -Seconds 2
-
-Write-Host "  ✅ Cleanup complete" -ForegroundColor Green
-Write-Host ""
-
-# ============================================================================
-# STEP 2: LAUNCH APPLICATION
-# ============================================================================
-
-Write-Host "[APP] Launching {{APP_PROCESS_NAME}}..." -ForegroundColor Cyan
-
-$app = Start-Process powershell `
-    -ArgumentList "-NoExit","-Command","cd '$AppPath'; {{APP_LAUNCH_COMMAND}}" `
-    -PassThru `
-    -WindowStyle Minimized
-
-Write-Host "  ✅ App launched (PID: $($app.Id))" -ForegroundColor Green
-Write-Host ""
-
-# ============================================================================
-# STEP 3: HEALTH CHECK (POLLING, NOT FIXED DELAY)
-# ============================================================================
-
-Write-Host "[HEALTH] Waiting for app to be ready..." -ForegroundColor Yellow
-
-$attempt = 0
-$appReady = $false
-
-while (-not $appReady -and $attempt -lt $MaxHealthCheckAttempts) {
-    try {
-        $response = Invoke-WebRequest -Uri $AppUrl -SkipCertificateCheck -TimeoutSec 2 -ErrorAction Stop
-        if ($response.StatusCode -eq 200) {
-            $appReady = $true
-            Write-Host "  ✅ App ready after $attempt seconds" -ForegroundColor Green
-        }
-    }
-    catch {
-        $attempt++
-        if ($attempt -lt $MaxHealthCheckAttempts) {
-            Write-Host "  ⏳ Waiting... ($attempt/$MaxHealthCheckAttempts)" -ForegroundColor Gray
-            Start-Sleep -Seconds $HealthCheckIntervalSeconds
-        }
-    }
+try {
+    # Use canonical launcher (handles all complexity internally)
+    $appInfo = & "$PSScriptRoot\..\Test-Framework\Start-NoorCanvasForTests.ps1" `
+        -Url $AppUrl `
+        -Environment $Environment `
+        -Verbose:$VerbosePreference
+    
+    Write-Host "  ✅ App ready (PID: $($appInfo.ProcessId), Attempts: $($appInfo.HealthCheckAttempts))" -ForegroundColor Green
 }
-
-if (-not $appReady) {
-    Write-Host "  ❌ App failed to start within timeout" -ForegroundColor Red
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+catch {
+    Write-Host "  ❌ App launch failed: $_" -ForegroundColor Red
     exit 1
 }
 
 Write-Host ""
 
 # ============================================================================
-# STEP 4: RUN TESTS
+# STEP 2: RUN TESTS (WITH GUARANTEED CLEANUP)
 # ============================================================================
 
 Write-Host "[TEST] Running Playwright tests..." -ForegroundColor Cyan
@@ -122,72 +89,76 @@ catch {
     $testExitCode = 1
 }
 finally {
+    # ========================================================================
+    # CLEANUP (ALWAYS RUNS - EVEN ON ERROR)
+    # ========================================================================
+    
     Pop-Location
+    
+    Write-Host ""
+    Write-Host "[CLEANUP] Stopping application..." -ForegroundColor Cyan
+    
+    try {
+        # Use ProcessId from $appInfo (returned by Start-NoorCanvasForTests.ps1)
+        Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction Stop
+        Write-Host "  ✅ App stopped (PID: $($appInfo.ProcessId))" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "  ⚠️  Failed to stop app (may have already exited)" -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""
-
-# ============================================================================
-# STEP 5: CLEANUP (ALWAYS RUNS)
-# ============================================================================
-
-Write-Host "[CLEANUP] Stopping application..." -ForegroundColor Cyan
-
-try {
-    Stop-Process -Id $app.Id -Force -ErrorAction Stop
-    Write-Host "  ✅ App stopped" -ForegroundColor Green
-}
-catch {
-    Write-Host "  ⚠️  Failed to stop app (may have already exited)" -ForegroundColor Yellow
-}
-
-Write-Host ""
-Write-Host "=== Test orchestration complete ===" -ForegroundColor Cyan
+Write-Host "=== Test orchestration complete (v3.0) ===" -ForegroundColor Cyan
 
 exit $testExitCode
 ```
 
 ---
 
-## Critical Design Decisions
+## Critical Design Decisions (v3.0)
 
-### ✅ Use Start-Process -PassThru (NOT Start-Job)
+### ✅ Use Canonical Launcher (Start-NoorCanvasForTests.ps1)
 
-**Why Start-Process -PassThru Wins:**
+**Why Delegation Wins Over Inline Launch:**
 
-| Aspect | Start-Job | Start-Process -PassThru |
-|--------|-----------|-------------------------|
-| **Process Isolation** | Background thread (same session) | Separate window/process (full isolation) |
-| **Output Handling** | Captured (can cause hang) | Separate console (no interference) |
-| **Process ID** | Job ID (indirect, unpredictable) | Direct PID via `$app.Id` |
-| **Cleanup Reliability** | Must find job by name (`Job1`, `Job2`) | Direct `Stop-Process -Id $app.Id` |
-| **Debugging** | Output hidden (need `Receive-Job`) | Window can be restored/inspected |
-| **Exit Code** | Via `Receive-Job` (complex) | N/A (test handles it) |
-| **Complexity** | High (job management overhead) | Low (standard process management) |
+| Aspect | Inline PowerShell Launch | Canonical Launcher (v3.0) |
+|--------|--------------------------|----------------------------|
+| **Complexity** | Every script reimplements logic | Centralized, tested implementation |
+| **Launch Pattern** | Nested PowerShell (v2.0) | Direct `dotnet.exe` (v3.0) |
+| **Health Checks** | 5-15 attempts (2s, 4s, 8s, 16s) | 1-3 attempts (500ms, 1s, 2s, 3s) |
+| **Port Validation** | HTTP-only (misses binding failures) | Port binding + HTTP (detects early) |
+| **Cleanup Reliability** | Variable (depends on implementation) | 100% guaranteed via `$appInfo.ProcessId` |
+| **Startup Time** | 10-30 seconds | 2-6 seconds (67-80% faster) |
+| **Maintainability** | Changes require updating N scripts | Single source of truth |
 
-**The Lesson from hcptcanvas:**
-- ❌ `Start-Job` with `-Name` parameter → Job names unpredictable (`Job1`, `Job2`, etc.)
-- ❌ Output redirection (`| Out-Null`) → Process hung waiting for pipe
-- ❌ `Stop-Job -Name Job1` → Couldn't find correct job → Orphaned processes
-- ✅ `Start-Process -PassThru` → Captured exact PID → Reliable cleanup
+**The v3.0 Evolution:**
+- ❌ **v1.0** (deprecated): Inline `dotnet run` with fixed delays → Unreliable
+- ❌ **v2.0** (deprecated): Nested PowerShell with polling → Complex, slow
+- ✅ **v3.0** (current): Direct `dotnet.exe` via canonical launcher → Fast, reliable
 
 **Code Example:**
 
 ```powershell
-# ❌ DON'T DO THIS
-$app = Start-Job -ScriptBlock { 
-    cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
-    dotnet run 
-} | Out-Null  # HANGS HERE
-Stop-Job -Name Job1  # UNRELIABLE
-
-# ✅ DO THIS
+# ❌ DON'T DO THIS (v2.0 - DEPRECATED)
 $app = Start-Process powershell `
-    -ArgumentList "-NoExit","-Command","cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run" `
+    -ArgumentList "-NoExit","-Command","cd 'D:\...\NoorCanvas'; dotnet run --urls https://localhost:9091" `
     -PassThru `
     -WindowStyle Minimized
 
-Stop-Process -Id $app.Id -Force  # RELIABLE
+# Manual health check loop (30+ lines)...
+# Manual cleanup...
+
+# ✅ DO THIS (v3.0 - CURRENT)
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+    -Url "https://localhost:9091" `
+    -Environment "Development"
+
+# All complexity handled internally:
+# - Port binding validation
+# - Optimized exponential backoff
+# - Reliable PID tracking via $appInfo.ProcessId
+# - 67-80% faster startup
 ```
 
 ---
@@ -250,21 +221,21 @@ if (-not $appReady) {
 **Without try/finally:**
 ```powershell
 # ❌ DON'T DO THIS
-$app = Start-Process powershell -ArgumentList "..." -PassThru
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" -Url "..."
 npx playwright test test.spec.ts  # If this fails...
-Stop-Process -Id $app.Id -Force   # ...this NEVER runs → Orphaned process
+Stop-Process -Id $appInfo.ProcessId -Force   # ...this NEVER runs → Orphaned process
 ```
 
 **With try/finally:**
 ```powershell
 # ✅ DO THIS
-$app = Start-Process powershell -ArgumentList "..." -PassThru
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" -Url "..."
 
 try {
     npx playwright test test.spec.ts  # Even if this fails...
 }
 finally {
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue  # ...this ALWAYS runs
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue  # ...this ALWAYS runs
 }
 ```
 
@@ -274,36 +245,79 @@ finally {
 - ✅ User presses Ctrl+C → App still cleaned up (PowerShell guarantee)
 - ✅ App crashes during test → No error trying to stop non-existent process (`-ErrorAction SilentlyContinue`)
 
+**NOTE:** v3.0 canonical launcher already handles cleanup internally if launch fails, but orchestration scripts MUST still use try/finally for test execution phase.
+
 ---
 
-### ✅ Use -WindowStyle Minimized (NOT Hidden)
+### ✅ Use Normal Window (NOT Minimized/Hidden)
 
-**Why Minimized Beats Hidden:**
+**Why Normal Window Wins (v3.0 Change):**
 
 ```powershell
-# ❌ DON'T DO THIS
-Start-Process powershell -ArgumentList "..." -WindowStyle Hidden
-# Problem: Can't debug if something goes wrong
+# ⚠️ OLD (v2.0 used Minimized)
+Start-Process -FilePath "dotnet" -ArgumentList "..." -WindowStyle Minimized
 
-# ✅ DO THIS
-Start-Process powershell -ArgumentList "..." -WindowStyle Minimized
-# Benefit: Can restore window to see output if needed
+# ✅ NEW (v3.0 uses Normal)
+Start-Process -FilePath "dotnet" -ArgumentList "..." -WindowStyle Normal
+# Canonical launcher handles this - orchestration scripts just delegate
 ```
 
 **Rationale:**
-- **Minimized**: Window exists but not intrusive → Can restore for debugging
-- **Hidden**: Window invisible → No way to see output or diagnose issues
-- **Normal**: Window visible → Clutters desktop during test runs
+- **Normal**: Separate visible window → Easy debugging, clear feedback, user can monitor progress
+- **Minimized**: Hidden in taskbar → Harder to find, no visual feedback
+- **Hidden**: Completely invisible → Impossible to debug, no user awareness
 
-**Debugging Workflow:**
-1. Test fails unexpectedly
-2. Find minimized PowerShell window in taskbar
-3. Restore window → See full `dotnet run` output
-4. Identify issue (missing config, port conflict, etc.)
+**v3.0 Philosophy:**
+- Tests are **development tools**, not production services
+- Transparency > Aesthetics (visible window helps developer awareness)
+- Separate window prevents terminal pollution (clean test output)
 
 ---
 
 ## Anti-Patterns (DON'T DO THIS)
+
+### ❌ Nested PowerShell Launch (v2.0 - DEPRECATED)
+
+```powershell
+# ❌ DON'T DO THIS (v2.0 pattern)
+$app = Start-Process powershell `
+    -ArgumentList "-NoExit","-Command","cd 'D:\...\NoorCanvas'; dotnet run --urls https://localhost:9091" `
+    -PassThru `
+    -WindowStyle Minimized
+
+# Problems:
+# - Nested process hierarchy (PowerShell → dotnet)
+# - Slow health checks (5-15 attempts typical)
+# - Complex cleanup (need to track nested PIDs)
+# - No port binding validation
+```
+
+**Solution**: Use canonical launcher (Start-NoorCanvasForTests.ps1) with v3.0 direct dotnet.exe pattern.
+
+---
+
+### ❌ Inline Launch Logic in Every Script
+
+```powershell
+# ❌ DON'T DO THIS
+# Reimplementing launch logic in each test script
+$dotnetArgs = @("run", "--project", "...", "--urls", "...")
+$appProcess = Start-Process -FilePath "dotnet" -ArgumentList $dotnetArgs -PassThru
+
+# Manual health check loop (30+ lines)...
+# Manual port binding check...
+# Manual cleanup...
+```
+
+**Problems:**
+- Code duplication across N scripts
+- Inconsistent implementation (different timeout values, backoff strategies)
+- Maintenance nightmare (bug fix requires updating multiple files)
+- No single source of truth
+
+**Solution**: Delegate to Start-NoorCanvasForTests.ps1 (canonical launcher).
+
+---
 
 ### ❌ Background Operator `&` in PowerShell 5.1
 
@@ -314,7 +328,7 @@ dotnet run &  # Background operator doesn't work consistently in PowerShell 5.1
 
 **Problem**: PowerShell 5.1 (Windows default) doesn't reliably support `&` for background jobs. Works sometimes, fails randomly.
 
-**Solution**: Use `Start-Process -PassThru` instead.
+**Solution**: Use canonical launcher (wraps Start-Process internally).
 
 ---
 
@@ -357,7 +371,7 @@ npx playwright test test.spec.ts
 
 ```powershell
 # ❌ UNRELIABLE
-Stop-Process -Id $app.Id  # App might not stop (graceful shutdown can hang)
+Stop-Process -Id $appInfo.ProcessId  # App might not stop (graceful shutdown can hang)
 ```
 
 **Problem**: Graceful shutdown can hang if app is unresponsive → Process remains alive.
@@ -366,7 +380,7 @@ Stop-Process -Id $app.Id  # App might not stop (graceful shutdown can hang)
 
 ```powershell
 # ✅ RELIABLE
-Stop-Process -Id $app.Id -Force
+Stop-Process -Id $appInfo.ProcessId -Force
 ```
 
 ---
@@ -374,129 +388,132 @@ Stop-Process -Id $app.Id -Force
 ### ❌ Using Fixed Sleep for Startup
 
 ```powershell
-# ❌ DON'T DO THIS
-Start-Process powershell -ArgumentList "..." -PassThru
+# ❌ DON'T DO THIS (v2.0 pattern)
+Start-Process -FilePath "dotnet" -ArgumentList "..." -PassThru
 Start-Sleep -Seconds 8  # Why 8? Why not 7 or 9? Arbitrary and fragile.
 npx playwright test test.spec.ts
 ```
 
-**See "Use Health Check Polling" section above for why this fails.**
+**Problem**: Fixed delays waste time (if too long) or cause race conditions (if too short).
+
+**Solution**: Canonical launcher uses optimized exponential backoff (500ms, 1s, 2s, 3s) with port binding + HTTP health checks.
 
 ---
 
 ## Advanced Patterns
 
-### Port Polling Alternative (More Robust)
-
-Instead of HTTP health check, poll the port directly:
+### Keep App Running for Manual Verification
 
 ```powershell
-# Alternative: Poll port instead of HTTP endpoint
-$maxAttempts = 30
-$attempt = 0
-$portReady = $false
+# Useful for debugging: Keep app running after tests complete
+param(
+    [switch]$KeepAppRunning
+)
 
-while (-not $portReady -and $attempt -lt $maxAttempts) {
-    $connection = Test-NetConnection -ComputerName localhost -Port 9091 -InformationLevel Quiet -WarningAction SilentlyContinue
-    
-    if ($connection) {
-        $portReady = $true
-        Write-Host "  ✅ Port 9091 is listening" -ForegroundColor Green
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" -Url "https://localhost:9091"
+
+try {
+    npx playwright test test.spec.ts
+}
+finally {
+    if (-not $KeepAppRunning) {
+        Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
     }
     else {
-        $attempt++
-        Start-Sleep -Seconds 1
+        Write-Host ""
+        Write-Host "⚠️  App left running (PID: $($appInfo.ProcessId)) for manual verification" -ForegroundColor Yellow
+        Write-Host "   URL: $($appInfo.Url)"
+        Write-Host "   To stop: Stop-Process -Id $($appInfo.ProcessId) -Force"
     }
 }
 ```
 
 **When to Use:**
-- App has no root URL health endpoint
-- App returns 404 or redirect on root URL (not 200 OK)
-- Simpler check (just port listening, not full HTTP request)
-
-**Tradeoff:**
-- ✅ Simpler (no SSL certificate issues)
-- ❌ Less precise (port listening doesn't guarantee app is fully ready)
+- Debugging test failures (inspect app state after test)
+- Manual verification of visual changes
+- Investigating intermittent issues
 
 ---
 
-### Percy Integration
+### Percy Integration (Visual Regression Testing)
 
 ```powershell
 # Percy visual regression test orchestration
 $env:PERCY_TOKEN = "your-percy-token-here"
 
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+    -Url "https://localhost:9091" `
+    -Environment "Development"
+
 try {
+    Push-Location "Tests\UI"
     npx percy exec -- playwright test test.spec.ts
     $testExitCode = $LASTEXITCODE
 }
 finally {
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    Pop-Location
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
 }
+
+exit $testExitCode
 ```
 
 **Key Points:**
-- Set `$env:PERCY_TOKEN` before running tests
+- Set `$env:PERCY_TOKEN` before running tests (from Percy dashboard)
 - Use `percy exec --` wrapper around `playwright test`
 - Percy automatically captures snapshots when `percySnapshot()` is called in tests
+- Canonical launcher ensures consistent rendering environment
 
 ---
 
-### Keep App Running for Manual Verification
+### Port Validation (Advanced Debugging)
+
+**NOTE**: Canonical launcher (Start-NoorCanvasForTests.ps1) already implements port binding validation. This pattern shown for educational purposes only.
 
 ```powershell
-# Add -KeepAppRunning parameter for debugging
-param(
-    [switch]$KeepAppRunning
-)
-
-# ... run tests ...
-
-if ($KeepAppRunning) {
-    Write-Host "[CLEANUP] Keeping app running for manual verification" -ForegroundColor Yellow
-    Write-Host "  App URL: https://localhost:9091" -ForegroundColor Cyan
-    Write-Host "  PID: $($app.Id)" -ForegroundColor Cyan
-    Write-Host "  To stop: Stop-Process -Id $($app.Id)" -ForegroundColor Gray
+# Check if port is actually bound (not just app process started)
+function Test-PortBinding {
+    param([int]$Port)
+    
+    $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+    return $null -ne $connections
 }
-else {
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+
+# Usage (already built into canonical launcher)
+if (Test-PortBinding -Port 9091) {
+    Write-Host "✅ Port 9091 bound" -ForegroundColor Green
+} else {
+    Write-Host "❌ Port 9091 NOT bound (check for conflicts)" -ForegroundColor Red
 }
-```
-
-**Use Case:**
-- Test fails unexpectedly
-- Want to inspect app state after test
-- Need to manually reproduce test scenario
-
-**Usage:**
-```powershell
-.\run-feature-test.ps1 -KeepAppRunning
-```
 
 ---
 
-## Troubleshooting Guide
+## Troubleshooting Guide (v3.0)
 
 ### Problem: App Never Becomes Ready
 
 **Symptom:**
 ```
-⏳ Waiting... (30/30)
+⏳ Waiting for app... (attempt 3 of 10)
 ❌ App failed to start within timeout
 ```
 
-**Diagnosis Steps:**
-1. Restore minimized PowerShell window → Check for errors
+**Diagnosis Steps (v3.0):**
+1. Check dotnet.exe window → Look for errors (separate visible window)
 2. Check port conflicts: `netstat -ano | findstr :9091`
-3. Verify environment variables are set correctly
-4. Check project path is correct
+3. Verify environment variables: `$env:ASPNETCORE_ENVIRONMENT`, `$env:ASPNETCORE_URLS`
+4. Check canonical launcher output → Port binding validation results
 
 **Common Causes:**
-- Port already in use (previous run didn't clean up)
-- Missing appsettings.json or configuration file
-- Database connection failure (app won't start)
-- SSL certificate issues
+- Port already in use (check with `Get-Process -Name dotnet`)
+- Missing appsettings.Development.json configuration
+- Database connection failure (app crashes during startup)
+- SSL certificate issues (canonical launcher uses `-SkipCertificateCheck`)
+
+**v3.0 Improvements:**
+- ✅ Port binding check detects conflicts BEFORE HTTP health check
+- ✅ Separate dotnet.exe window shows error messages immediately
+- ✅ Optimized backoff (500ms, 1s, 2s, 3s) fails faster if startup is broken
 
 ---
 
@@ -509,68 +526,112 @@ else {
 ```
 
 **Diagnosis:**
-- `try/finally` block missing or incorrect
+- `try/finally` block missing or incorrect in orchestration script
 - Exception thrown before cleanup code
+- Process orphaned (PID lost)
 
-**Solution:**
+**Solution (v3.0):**
 ```powershell
 # ✅ Wrap ALL test execution in try/finally
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" -Url "..."
+
 try {
     npx playwright test test.spec.ts
 }
 finally {
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
 }
 ```
 
----
-
-### Problem: Can't Stop Process (Access Denied)
-
-**Symptom:**
+**Manual Cleanup (if orphaned):**
 ```powershell
-Stop-Process: Access is denied
+# Find and kill orphaned dotnet.exe processes
+Get-Process -Name dotnet | Where-Object { $_.MainWindowTitle -like "*NoorCanvas*" } | Stop-Process -Force
 ```
 
-**Cause:** Process started with elevated privileges (Run as Administrator)
+---
+
+### Problem: Port Conflicts / Address Already in Use
+
+**Symptom:**
+```
+❌ Failed to bind to address https://127.0.0.1:9091: address already in use
+```
+
+**v3.0 Detection:**
+- Canonical launcher checks port binding BEFORE attempting HTTP health check
+- Provides clear error message with conflicting PID
 
 **Solution:**
 ```powershell
-# Option 1: Run orchestration script as Administrator
-# Option 2: Don't use -Verb RunAs when starting app
-Start-Process powershell -ArgumentList "..." -PassThru  # No -Verb RunAs
+# Find process using port 9091
+netstat -ano | findstr :9091
+# Output: TCP    0.0.0.0:9091    0.0.0.0:0    LISTENING    12345
+
+# Kill by PID
+Stop-Process -Id 12345 -Force
 ```
 
 ---
 
-## Template Variables Reference
+## Template Variables Reference (DEPRECATED in v3.0)
 
-These variables should be populated by `total-recall.prompt.md` and defined in `port-instructions.prompt.md`:
+**NOTE**: v3.0 pattern delegates to canonical launcher. These variables are legacy from v2.0 inline launch pattern.
 
+**For historical reference only:**
 ```
-{{SOURCE_PATH}}              # Example: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas
-{{APP_LAUNCH_COMMAND}}       # Example: dotnet run --no-build
-{{APP_PORT}}                 # Example: 9091
-{{APP_HEALTH_CHECK_URL}}     # Example: https://localhost:9091
-{{APP_PROCESS_NAME}}         # Example: NoorCanvas, node, python
-{{APP_STARTUP_TIME_SECONDS}} # Example: 8 (average measured by total-recall)
+{{SOURCE_PATH}}              # v2.0: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas
+{{APP_LAUNCH_COMMAND}}       # v2.0: dotnet run --no-build
+{{APP_PORT}}                 # v2.0: 9091
+{{APP_HEALTH_CHECK_URL}}     # v2.0: https://localhost:9091
+{{APP_PROCESS_NAME}}         # v2.0: NoorCanvas, node, python
+{{APP_STARTUP_TIME_SECONDS}} # v2.0: 8 (average measured by total-recall)
+```
+
+**v3.0 Equivalent:**
+```powershell
+# All configuration encapsulated in canonical launcher
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+    -Url "{{APP_HEALTH_CHECK_URL}}" `  # Only variable needed
+    -Environment "Development"          # Standard for tests
+
+# Returned PSCustomObject provides all runtime details:
+# - $appInfo.ProcessId (for cleanup)
+# - $appInfo.Url (confirmed URL)
+# - $appInfo.HealthCheckAttempts (performance metric)
+# - $appInfo.LaunchPattern ("v3.0-direct-dotnet")
 ```
 
 ---
 
-## Summary: The Golden Rules
+## Summary: The Golden Rules (v3.0)
 
-1. **ALWAYS** use `Start-Process -PassThru -WindowStyle Minimized`
-2. **ALWAYS** use health check polling (NEVER fixed delays)
-3. **ALWAYS** wrap test execution in `try/finally` for cleanup
-4. **ALWAYS** use `-Force` with `Stop-Process`
-5. **NEVER** use `Start-Job` for app lifecycle
-6. **NEVER** use background operator `&` in PowerShell 5.1
-7. **NEVER** use `-WindowStyle Hidden` (use `Minimized` for debugging)
-8. **NEVER** forget to kill existing processes before starting new one
+### ALWAYS Rules:
+1. **ALWAYS** delegate to `Start-NoorCanvasForTests.ps1` (canonical launcher)
+2. **ALWAYS** wrap test execution in `try/finally` for cleanup
+3. **ALWAYS** use `-Force` with `Stop-Process`
+4. **ALWAYS** use `$appInfo.ProcessId` from canonical launcher (not `$app.Id`)
+5. **ALWAYS** check canonical launcher return value for errors
+
+### NEVER Rules:
+6. **NEVER** implement inline launch logic (use canonical launcher)
+7. **NEVER** use nested PowerShell pattern (v2.0 deprecated)
+8. **NEVER** use `Start-Job` for app lifecycle
+9. **NEVER** use background operator `&` in PowerShell 5.1
+10. **NEVER** use fixed delays (canonical launcher handles health checks)
+
+### v3.0 Benefits:
+- ✅ 67-80% faster startup (1-3 attempts vs 5-15)
+- ✅ Port binding validation (catches conflicts early)
+- ✅ Optimized exponential backoff (500ms, 1s, 2s, 3s)
+- ✅ 100% cleanup reliability
+- ✅ Single source of truth (one file to maintain)
 
 ---
 
-**Last Updated**: 2025-10-18  
-**Source**: Lessons learned from hcptcanvas Playwright test resolution  
-**See Also**: `.github/key-data-streams/hcp-tcanvas/PLAYWRIGHT-TEST-RESOLUTION.md`
+**Last Updated**: 2025-10-29 (v3.0)  
+**Source**: Enhanced from app-launch-fix-protocol.md (P2 Infrastructure)  
+**See Also**: 
+- `.github/prompts/shared/app-launch-fix-protocol.md` (v3.0 implementation details)
+- `Scripts/Test-Framework/Start-NoorCanvasForTests.ps1` (canonical launcher)
+- `.github/instructions/SelfAwareness.instructions.md` (Playwright testing section)
