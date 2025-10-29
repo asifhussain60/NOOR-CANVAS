@@ -264,4 +264,45 @@
 
 ---
 
+## Session: Phase 3 Analysis & Test Infrastructure Fix (2025-10-29)
+
+**Objective:** Resume hcp-cleanup refactoring work, validate Phase 3 status, fix test infrastructure
+
+**Problem:** Unclear what Phase 3 work remained after Phase 1 API creation. Test runner had process detection bug.
+
+**Analysis Findings:**
+- **Phase 3 transformation refactoring ALREADY COMPLETE** - Previous session integrated TranscriptProcessingService.TransformTranscriptAsync() (lines 904-916 in HostControlPanel.razor)
+- Service injection pattern correctly implemented per Phase 3 goal: "Replace direct API calls with service injections"
+- Hybrid architecture is intentional:
+  - Session metadata via `/api/host/ksessions/session/{sessionId}/details` (controller)
+  - Transformation business logic via TranscriptProcessingService (service layer ✓)
+  - Future Phase 5 will address API endpoint consolidation
+
+**Work Completed:**
+- **Test runner fix**: Enhanced Start-NoorCanvasForTests.ps1 to detect both NoorCanvas.exe AND `dotnet run` instances
+- **Process detection**: Added WMI CommandLine query to identify dotnet.exe processes running NoorCanvas project
+- **Documentation update**: Updated hcp.plan.md Phase 6 section to reflect accurate Phase 3 status
+- **Work log entry**: Documented analysis findings and architectural decisions
+
+**Build Status:** ✅ Clean build (0 errors, 9 pre-existing warnings)
+
+**Files Modified:**
+- `Scripts/Test-Framework/Start-NoorCanvasForTests.ps1` (process detection enhancement)
+- `.github/key-data-streams/hcp/hcp.plan.md` (Phase 3 status update)
+- `.github/key-data-streams/hcp/work-log.md` (this session entry)
+
+**Commits:** 
+- `46b83b8f` - "fix(test-framework): Detect dotnet run instances in process cleanup"
+
+**Next Steps:** 
+1. Run baseline regression test (hcp-refactor-baseline.spec.ts) to validate Phase 3 changes
+2. Proceed to Phase 4 (JavaScript externalization) if baseline passes
+3. Document baseline test results
+
+**Key Insight:** Phase 3 goal was NOT "use TranscriptController endpoints" but rather "use service injections for business logic". The transformation logic is correctly delegated to the service layer - Phase 3 is essentially complete pending baseline validation.
+
+**Testing Strategy:** Baseline test will confirm no regressions from Phase 1+3 refactoring work.
+
+---
+
 *Work log consolidated from 4 source keys on 2025-10-29*

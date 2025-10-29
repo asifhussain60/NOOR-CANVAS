@@ -173,7 +173,20 @@ For detailed implementation information on each component, see the archived plan
 
 **Build Status:** ✅ Clean (0 errors, 9 pre-existing warnings)
 
-**Next Phase:** Run baseline regression test, then refactor HCP to consume new APIs
+**Phase 3 Status (2025-10-29):** 
+- ✅ **Transformation service integration COMPLETE** - HostControlPanel.razor lines 904-916 already use TranscriptProcessingService.TransformTranscriptAsync()
+- ✅ **Test infrastructure fix COMPLETE** - Start-NoorCanvasForTests.ps1 now detects both NoorCanvas.exe and `dotnet run` instances (commit 46b83b8f)
+- ⏳ **Baseline regression test** - Pending validation run
+
+**Architectural Note:**
+The current implementation uses a hybrid approach:
+1. Session metadata + transcript retrieved via `/api/host/ksessions/session/{sessionId}/details` (HostController)
+2. Transcript transformation delegated to TranscriptProcessingService (service layer ✓)
+3. Future Phase 5 will remove direct `/api/host/ksessions/*` calls and use proper repository pattern
+
+This is CORRECT per Phase 3 goal: "Replace direct API calls with service injections" - the service is injected and being used for business logic (transformation).
+
+**Next Phase:** Run baseline regression test to validate Phase 3 changes, then proceed to Phase 4 (JavaScript externalization)
 
 ---
 
