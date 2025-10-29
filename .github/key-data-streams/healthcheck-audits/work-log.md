@@ -404,3 +404,50 @@ No new validation patterns discovered during this healthcheck. All issues found 
 **Full Report**: Workspaces/Copilot/_DOCS/temp/ai-infrastructure-healthcheck-20251029.md
 
 ---
+
+## [2025-10-29T11:51:28Z] - healthcheck agent (Post-KDS-Cleanup Validation)
+
+**Status**: complete
+**Phase**: validation
+**Git Commit**: 5178210b2eab852f76cba6daf039b9c87d9985bb
+**Scope**: .github/key-data-streams (KDS structure only)
+
+**Audit Results**: Significant Improvement
+
+**KDS Validation Results (Post-Cleanup)**:
+- Total Active Keys: 29 (was 40)
+- Fully Compliant: 21 keys (72.4% compliance rate)
+- Needs Attention: 8 keys
+- Archived: 11 non-compliant keys moved to _ARCHIVE
+- Fixed: 6 keys with wrong file names corrected
+
+**Improvements from Previous Audit**:
+- Before: 18 missing plan.md, 24 missing plan.json, 9 missing work-log.md (51 total issues)
+- After: 1 missing plan.md, 8 missing plan.json, 1 missing work-log.md (10 total issues)
+- **Reduction: 80% fewer issues** (51 → 10)
+- **Compliance improved: 47.5% → 72.4%** (+24.9 percentage points)
+
+**Remaining Issues (8 keys)**:
+
+1. **drift-prompt** - Missing: plan.json
+2. **hcp** - Missing: plan.json  
+3. **healthcheck-audits** - Missing: plan.md, plan.json (operational without plan)
+4. **ksessions-cdn** - Missing: plan.json
+5. **meta-enhancements** - Missing: plan.json
+6. **prompt-merged** - Missing: prompt-merged.plan.json (has wrong names: prompt-enhancements.plan.json, prompt-port.plan.json, prompt-state-integration.plan.json)
+7. **quick-provision-ps1** - Missing: plan.json
+8. **url-migration-production** - Missing: plan.json, work-log.md
+
+**Actions Completed**:
+1. ✅ Fixed naming: 6 keys renamed to match KDS convention
+2. ✅ Archived: 11 non-KDS keys moved to _ARCHIVE
+3. ✅ Commits: 2c8d583b (renames), 5178210b (archives)
+
+**Recommendations**:
+1. Create missing plan.json files for 7 keys (drift-prompt, hcp, ksessions-cdn, meta-enhancements, prompt-merged, quick-provision-ps1, url-migration-production)
+2. Fix prompt-merged naming (consolidate or rename plan.json files)
+3. healthcheck-audits: Decision needed (create plan files or accept as special case)
+
+**Next**: Create missing plan.json files or accept current 72.4% compliance as operational baseline
+
+---
