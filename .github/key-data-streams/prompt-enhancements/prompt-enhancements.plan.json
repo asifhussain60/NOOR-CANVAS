@@ -1,53 +1,38 @@
 {
   "key": "prompt-enhancements",
-  "status": "planning",
+  "status": "in-progress",
   "totalPhases": 4,
-  "completedPhases": 0,
-  "currentPhase": 0,
+  "completedPhases": 1,
+  "currentPhase": 1,
   "phases": [
     {
       "id": 1,
       "title": "Add File Finalization Verification Step",
-      "status": "not-started",
-      "checkpoint": null,
-      "tasks": [
-        "Create shared/file-finalization-verifier.md algorithm",
-        "Update plan.prompt.md Step 5.5 (enforce blocking)",
-        "Update task.prompt.md (add Step 8.25)",
-        "Update todo.prompt.md (add file verification)",
-        "Update route.prompt.md (document no-verification)"
-      ]
+      "status": "complete",
+      "checkpoint": "ab4b569a",
+      "completedAt": "2025-10-29T00:00:00Z",
+      "tasks": []
     },
     {
       "id": 2,
       "title": "Update CONCISE-MANDATE.md",
       "status": "not-started",
       "checkpoint": null,
-      "tasks": [
-        "Add Rule 11: File Finalization Before Response",
-        "Update validation checklist in output-validator.md"
-      ]
+      "tasks": []
     },
     {
       "id": 3,
       "title": "Add Enforcement Tests",
       "status": "not-started",
       "checkpoint": null,
-      "tasks": [
-        "Create test scenarios in prompt-test-validation-framework.md",
-        "Document -test flag examples in prompts"
-      ]
+      "tasks": []
     },
     {
       "id": 4,
       "title": "Update Documentation",
       "status": "not-started",
       "checkpoint": null,
-      "tasks": [
-        "Update version history (all 4 prompts)",
-        "Update execution flow diagrams",
-        "Update SelfAwareness.instructions.md"
-      ]
+      "tasks": []
     }
   ],
   "createdAt": "2025-10-29T00:00:00Z",
