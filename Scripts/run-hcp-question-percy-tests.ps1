@@ -17,14 +17,14 @@ $testPath = "D:\PROJECTS\NOOR CANVAS\Workspaces\TEMP"
 $testFile = "hcp-question-orange-styling.spec.ts"
 $appStartupWaitSeconds = 15
 
-# Step 1: Launch app in separate PowerShell window
-Write-Host "[DEBUG-WORKITEM:hcp-question:percy-visual:TRACE] $testId - Step 1: Launching NoorCanvas app in separate PowerShell window ;CLEANUP_OK" -ForegroundColor Yellow
+# Step 1: Launch app with direct dotnet.exe (v3.0 pattern)
+Write-Host "[DEBUG-WORKITEM:hcp-question:percy-visual:TRACE] $testId - Step 1: Launching NoorCanvas app with direct dotnet.exe ;CLEANUP_OK" -ForegroundColor Yellow
 
-$appProcess = Start-Process powershell.exe -ArgumentList @(
-    "-NoProfile",
-    "-Command",
-    "cd '$appPath'; dotnet run; Read-Host 'Press Enter to close'"
-) -PassThru -WindowStyle Normal
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:7101" `
+    -WorkingDirectory $appPath `
+    -PassThru `
+    -WindowStyle Normal
 
 Write-Host "[DEBUG-WORKITEM:hcp-question:percy-visual:TRACE] $testId - App launched in PID: $($appProcess.Id) ;CLEANUP_OK" -ForegroundColor Green
 

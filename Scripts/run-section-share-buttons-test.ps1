@@ -141,16 +141,16 @@ Write-Host "[STEP 2/5] Cleanup" -ForegroundColor Cyan
 Stop-ExistingApp
 Write-Host ""
 
-# Step 3: Launch application in separate window
+# Step 3: Launch application with direct dotnet.exe (v3.0 pattern)
 Write-Host "[STEP 3/5] Launching application..." -ForegroundColor Cyan
 Write-Host "  URL: $AppUrl" -ForegroundColor Gray
-Write-Host "  Mode: Separate PowerShell window" -ForegroundColor Gray
+Write-Host "  Mode: Direct dotnet.exe launch" -ForegroundColor Gray
 
-$appProcess = Start-Process powershell -ArgumentList @(
-    "-NoExit",
-    "-Command",
-    "cd '$AppProjectPath'; dotnet run --no-build"
-) -PassThru -WindowStyle Normal
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--no-build", "--urls", $AppUrl `
+    -WorkingDirectory $AppProjectPath `
+    -PassThru `
+    -WindowStyle Normal
 
 if (-not $appProcess) {
     Write-Host "❌ Failed to launch application process!" -ForegroundColor Red
@@ -158,7 +158,7 @@ if (-not $appProcess) {
 }
 
 Write-Host "  ✅ Application launched (PID: $($appProcess.Id))" -ForegroundColor Green
-Write-Host "  💡 Watch separate window for application logs" -ForegroundColor Gray
+Write-Host "  Mode: Direct process (v3.0)" -ForegroundColor Gray
 Write-Host ""
 
 # Step 4: Wait for application to be ready

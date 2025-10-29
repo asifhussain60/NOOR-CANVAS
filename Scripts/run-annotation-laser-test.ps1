@@ -17,19 +17,19 @@ Write-Host "Step 1: Cleaning up existing processes..." -ForegroundColor Yellow
 Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 2
 
-# Step 2: Launch app in separate PowerShell window
-Write-Host "Step 2: Launching NoorCanvas application..." -ForegroundColor Yellow
-$startupScript = @"
-cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
-`$env:ASPNETCORE_ENVIRONMENT = 'Development'
-Write-Host 'Starting NoorCanvas for Annotation Laser Test...' -ForegroundColor Green
-dotnet run
-"@
+# Step 2: Launch app with direct dotnet.exe (v3.0 pattern)
+Write-Host "Step 2: Launching NoorCanvas application with direct dotnet.exe..." -ForegroundColor Yellow
 
-$startupScript | Out-File "$env:TEMP\noorcanvas-annotation-laser-startup.ps1" -Encoding UTF8
-$appProcess = Start-Process powershell -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File","$env:TEMP\noorcanvas-annotation-laser-startup.ps1" -PassThru
+# Set environment variable before launch
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
 
-Write-Host "  App launched in separate window (PID: $($appProcess.Id))" -ForegroundColor Green
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:9091" `
+    -WorkingDirectory "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+    -PassThru `
+    -WindowStyle Normal
+
+Write-Host "  App launched (PID: $($appProcess.Id))" -ForegroundColor Green
 
 # Step 3: Health check with retry
 Write-Host "`nStep 3: Waiting for application to be ready..." -ForegroundColor Yellow

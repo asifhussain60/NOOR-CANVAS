@@ -121,13 +121,16 @@ if ($allChecksPass) {
         
         # Try to start the application if it's not running
         if (-not $dotnetProcesses -or -not $port9091) {
-            Write-Host "🚀 Starting NoorCanvas application..." -ForegroundColor Yellow
+            Write-Host "🚀 Starting NoorCanvas application with direct dotnet.exe (v3.0)..." -ForegroundColor Yellow
             try {
-                Set-Location "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
-                Start-Process powershell -ArgumentList "-Command", "dotnet run" -WindowStyle Hidden
+                $appProcess = Start-Process -FilePath "dotnet" `
+                    -ArgumentList "run", "--urls", "https://localhost:9091" `
+                    -WorkingDirectory "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+                    -PassThru `
+                    -WindowStyle Normal
                 Write-Host "⏳ Waiting 30 seconds for application startup..." -ForegroundColor Yellow
                 Start-Sleep 30
-                Write-Host "✅ Application start initiated. Please re-run this check." -ForegroundColor Green
+                Write-Host "✅ Application start initiated (PID: $($appProcess.Id)). Please re-run this check." -ForegroundColor Green
             } catch {
                 Write-Host "❌ Failed to start application: $($_.Exception.Message)" -ForegroundColor Red
             }

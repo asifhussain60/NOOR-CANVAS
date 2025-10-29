@@ -58,8 +58,13 @@ if ($existingProcess) {
     Start-Sleep -Seconds 2
 }
 
-# Start app in new PowerShell window
-$appJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$appPath'; dotnet run" -PassThru -WindowStyle Minimized
+# Start app with direct dotnet.exe launch (v3.0 pattern)
+$appJob = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", $appUrl `
+    -WorkingDirectory $appPath `
+    -PassThru `
+    -WindowStyle Normal
+
 Write-Host "✅ Application started (PID: $($appJob.Id))" -ForegroundColor Green
 Write-Host "⏳ Waiting for app to be ready..." -ForegroundColor Yellow
 

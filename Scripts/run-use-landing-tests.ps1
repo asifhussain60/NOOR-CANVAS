@@ -26,9 +26,13 @@ Write-Host "  $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor Cyan
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Step 1: Start the NoorCanvas app in background
+# Step 1: Start the NoorCanvas app with direct dotnet.exe (v3.0 pattern)
 Write-Host "Step 1: Starting NoorCanvas application..." -ForegroundColor Yellow
-$AppProcess = Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "Set-Location 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run" -PassThru -WindowStyle Normal
+$AppProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:9091" `
+    -WorkingDirectory "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+    -PassThru `
+    -WindowStyle Normal
 Write-Host "App started (PID: $($AppProcess.Id))" -ForegroundColor Green
 Write-Host "Waiting 15 seconds for app to initialize..." -ForegroundColor Gray
 Start-Sleep -Seconds 15

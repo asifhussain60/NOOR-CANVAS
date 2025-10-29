@@ -30,26 +30,17 @@ if (-not $SkipBuild) {
     Write-Host ""
 }
 
-# Step 2: Launch app in SEPARATE PowerShell window (per protocol)
-Write-Host "[STEP 2] Launching application in SEPARATE PowerShell window..." -ForegroundColor Yellow
-Write-Host "  Protocol: task.prompt.md Step 6.1 - Orchestration script requirement" -ForegroundColor Gray
+# Step 2: Launch app with direct dotnet.exe (v3.0 pattern)
+Write-Host "[STEP 2] Launching application with direct dotnet.exe launch..." -ForegroundColor Yellow
+Write-Host "  Protocol: v3.0 direct process launch for reliable health checks" -ForegroundColor Gray
 
-# Create launch script for separate window
-$launchScript = @"
-Set-Location -Path '$workspaceRoot\SPA\NoorCanvas'
-Write-Host 'NoorCanvas Application Starting...' -ForegroundColor Cyan
-Write-Host 'Close this window to stop the application' -ForegroundColor Yellow
-Write-Host ''
-dotnet run --urls 'https://localhost:9091'
-"@
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:9091" `
+    -WorkingDirectory "$workspaceRoot\SPA\NoorCanvas" `
+    -PassThru `
+    -WindowStyle Normal
 
-$launchScriptPath = "$env:TEMP\noorcanvas-launch-temp.ps1"
-$launchScript | Out-File -FilePath $launchScriptPath -Encoding UTF8
-
-# Launch in NEW PowerShell window (not background job)
-$appProcess = Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", $launchScriptPath -PassThru -WindowStyle Normal
-
-Write-Host "[SUCCESS] Application launched in separate window (PID: $($appProcess.Id))" -ForegroundColor Green
+Write-Host "[SUCCESS] Application started (PID: $($appProcess.Id))" -ForegroundColor Green
 Write-Host "  Waiting 20 seconds for application startup..." -ForegroundColor Gray
 Start-Sleep -Seconds 20
 Write-Host ""
@@ -87,17 +78,12 @@ try {
         Write-Host "[STEP 5] Stopping application..." -ForegroundColor Yellow
         
         if ($appProcess -and -not $appProcess.HasExited) {
-            $appProcess.Kill()
+            Stop-Process -Id $appProcess.Id -Force -ErrorAction SilentlyContinue
             Write-Host "[SUCCESS] Application stopped (PID: $($appProcess.Id))" -ForegroundColor Green
-        }
-        
-        # Cleanup temp launch script
-        if (Test-Path $launchScriptPath) {
-            Remove-Item $launchScriptPath -Force
         }
     } else {
         Write-Host "[INFO] Application still running (PID: $($appProcess.Id))" -ForegroundColor Yellow
-        Write-Host "  Close the PowerShell window manually to stop" -ForegroundColor Gray
+        Write-Host "  Use Stop-Process -Id $($appProcess.Id) to stop manually" -ForegroundColor Gray
     }
 }
 

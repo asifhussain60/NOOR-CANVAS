@@ -52,23 +52,21 @@ Write-Host "[DEBUG-WORKITEM:debug-panel:script:TRACE] Killing existing NoorCanva
 Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 2
 
-# Step 3: Start app in SEPARATE PowerShell window with ASPNETCORE_ENVIRONMENT set
-Write-Host "[DEBUG-WORKITEM:debug-panel:script:TRACE] Starting app in separate window with Development environment ;CLEANUP_OK" -ForegroundColor Cyan
+# Step 3: Start app with direct dotnet.exe (v3.0 pattern) with Development environment
+Write-Host "[DEBUG-WORKITEM:debug-panel:script:TRACE] Starting app with direct dotnet.exe and Development environment ;CLEANUP_OK" -ForegroundColor Cyan
 
-$startAppScript = @"
-Set-Location '$appPath'
-`$env:ASPNETCORE_ENVIRONMENT = 'Development'
-Write-Host 'ASPNETCORE_ENVIRONMENT set to: Development' -ForegroundColor Green
-Write-Host 'Starting NoorCanvas...' -ForegroundColor Cyan
-dotnet run
-"@
+# Set environment variable before launch
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+Write-Host "ASPNETCORE_ENVIRONMENT set to: Development" -ForegroundColor Green
 
-$startAppScriptPath = "$env:TEMP\start-noorcanvas-debug.ps1"
-$startAppScript | Out-File -FilePath $startAppScriptPath -Encoding UTF8 -Force
+# Launch with direct dotnet.exe
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:9091" `
+    -WorkingDirectory $appPath `
+    -PassThru `
+    -WindowStyle Normal
 
-# Launch in new window (requires elevation for proper environment handling)
-Start-Process powershell.exe -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", $startAppScriptPath
-
+Write-Host "[DEBUG-WORKITEM:debug-panel:script:TRACE] App started (PID: $($appProcess.Id)) ;CLEANUP_OK" -ForegroundColor Green
 Write-Host "[DEBUG-WORKITEM:debug-panel:script:TRACE] Waiting 20 seconds for app startup... ;CLEANUP_OK" -ForegroundColor Yellow
 Start-Sleep -Seconds 20
 

@@ -11,17 +11,16 @@ Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -For
 Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "*NoorCanvas*" } | Stop-Process -Force
 Start-Sleep -Seconds 2
 
-# Step 2: Launch app in separate elevated PowerShell window
-Write-Host "Step 2: Launching NoorCanvas app in separate window..." -ForegroundColor Yellow
-$appProcess = Start-Process powershell -ArgumentList @(
-    "-NoExit",
-    "-Command",
-    "Set-Location 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; `
-     `$env:ASPNETCORE_ENVIRONMENT = 'Development'; `
-     Write-Host 'ASPNETCORE_ENVIRONMENT = Development' -ForegroundColor Green; `
-     Write-Host 'Starting NoorCanvas...' -ForegroundColor Cyan; `
-     dotnet run"
-) -PassThru
+# Step 2: Launch app with direct dotnet.exe (v3.0 pattern)
+Write-Host "Step 2: Launching NoorCanvas app with direct dotnet.exe..." -ForegroundColor Yellow
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:9091" `
+    -WorkingDirectory "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+    -PassThru `
+    -WindowStyle Normal
+
+# Set environment variable for the launched process
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
 
 # Step 3: Health check with retry logic (extended for Norton antivirus scanning)
 Write-Host "Step 3: Waiting for app to start (health check)..." -ForegroundColor Yellow

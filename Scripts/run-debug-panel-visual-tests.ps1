@@ -13,12 +13,15 @@ $ErrorActionPreference = "Stop"
 Write-Host "=== Debug Panel Visual Regression Test Suite ===" -ForegroundColor Cyan
 Write-Host ""
 
-# Step 1: Launch app in separate PowerShell window
-Write-Host "Step 1: Launching NoorCanvas in separate PowerShell window..." -ForegroundColor Yellow
+# Step 1: Launch app with direct dotnet.exe (v3.0 pattern)
+Write-Host "Step 1: Launching NoorCanvas with direct dotnet.exe..." -ForegroundColor Yellow
 
-$appScriptPath = "D:\PROJECTS\NOOR CANVAS\Scripts\start-with-debug-panel.ps1"
-$appProcess = Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy Bypass", "-File `"$appScriptPath`"" -PassThru
-Write-Host "✅ App launched in PowerShell window (PID: $($appProcess.Id))" -ForegroundColor Green
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", "https://localhost:9091" `
+    -WorkingDirectory "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
+    -PassThru `
+    -WindowStyle Normal
+Write-Host "✅ App launched (PID: $($appProcess.Id))" -ForegroundColor Green
 Write-Host "   Waiting 15 seconds for app to start..." -ForegroundColor Yellow
 Start-Sleep -Seconds 15
 

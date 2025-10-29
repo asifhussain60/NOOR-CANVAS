@@ -76,37 +76,21 @@ if ($existingProcesses) {
     Write-Host "   No existing processes found" -ForegroundColor Green
 }
 
-# Step 3: Launch app in SEPARATE PowerShell window with Development environment
-Write-Host "`n[3/7] Launching NoorCanvas in separate PowerShell window..." -ForegroundColor Yellow
+# Step 3: Launch app with direct dotnet.exe (v3.0 pattern) with Development environment
+Write-Host "`n[3/7] Launching NoorCanvas with direct dotnet.exe..." -ForegroundColor Yellow
 
-# Create startup script with environment variable
-$startupScript = @"
-Write-Host '' -ForegroundColor Cyan
-Write-Host 'NOOR Canvas - Development Mode' -ForegroundColor Cyan
-Write-Host '' -ForegroundColor Cyan
-Write-Host ''
-Write-Host ' Setting ASPNETCORE_ENVIRONMENT = Development' -ForegroundColor Yellow
-`$env:ASPNETCORE_ENVIRONMENT = 'Development'
-Write-Host " Environment variable set: `$env:ASPNETCORE_ENVIRONMENT" -ForegroundColor Green
-Write-Host ''
-Write-Host ' Starting NoorCanvas application...' -ForegroundColor Cyan
-Write-Host ''
-Set-Location '$appPath'
-dotnet run
-"@
+# Set environment variable before launch
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
 
-$startupScriptPath = "$env:TEMP\noorcanvas-devmode-startup.ps1"
-$startupScript | Out-File -FilePath $startupScriptPath -Encoding UTF8 -Force
+Write-Host "   Setting ASPNETCORE_ENVIRONMENT = Development" -ForegroundColor Gray
 
-Write-Host "   Startup script created: $startupScriptPath" -ForegroundColor Gray
-
-# Launch in new window (NOT as background job, separate visible window)
-$appProcess = Start-Process powershell.exe `
-    -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", $startupScriptPath `
+$appProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", $appUrl `
+    -WorkingDirectory $appPath `
     -PassThru `
     -WindowStyle Normal
 
-Write-Host "   App launched in separate window (PID: $($appProcess.Id))" -ForegroundColor Green
+Write-Host "   App launched (PID: $($appProcess.Id))" -ForegroundColor Green
 Write-Host "   Waiting for app to start (max $maxStartupWaitSeconds seconds)..." -ForegroundColor Yellow
 
 # Step 4: Health check with retry logic

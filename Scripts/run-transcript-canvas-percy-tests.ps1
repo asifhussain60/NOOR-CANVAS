@@ -155,22 +155,22 @@ function Build-Application {
 }
 
 function Start-ApplicationInBackground {
-    Write-Host "[LAUNCH] Launching NOOR Canvas in dedicated PowerShell window..." -ForegroundColor Yellow
+    Write-Host "[LAUNCH] Launching NOOR Canvas with direct dotnet.exe (v3.0 pattern)..." -ForegroundColor Yellow
     
     Push-Location $AppProjectPath
     try {
-        # Launch in new PowerShell window (not Terminal) for proper isolation
-        $AppProcess = Start-Process powershell.exe -ArgumentList @(
-            "-NoExit",
-            "-Command",
-            "dotnet run --no-build --configuration Release --urls=$AppUrl"
-        ) -PassThru -WindowStyle Normal
+        # Launch with direct dotnet.exe for reliable process state
+        $AppProcess = Start-Process -FilePath "dotnet" `
+            -ArgumentList "run", "--no-build", "--configuration", "Release", "--urls=$AppUrl" `
+            -WorkingDirectory $AppProjectPath `
+            -PassThru `
+            -WindowStyle Normal
         
-    Write-Host "[OK] Application launched (PID: $($AppProcess.Id))" -ForegroundColor Green
+        Write-Host "[OK] Application launched (PID: $($AppProcess.Id))" -ForegroundColor Green
         $script:StartedApp = $true
         
         # Grace period for application startup
-    Write-Host "[WAIT] Waiting $AppStartupGracePeriodSeconds seconds for application startup..." -ForegroundColor Yellow
+        Write-Host "[WAIT] Waiting $AppStartupGracePeriodSeconds seconds for application startup..." -ForegroundColor Yellow
         Start-Sleep -Seconds $AppStartupGracePeriodSeconds
         
         return $AppProcess

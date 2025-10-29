@@ -149,20 +149,20 @@ if (-not $SkipBuild) {
     Write-Host "[STEP 1/6] Skipping build (using existing binaries)" -ForegroundColor Yellow
 }
 
-# Step 2: Launch application in separate PowerShell window
+# Step 2: Launch application with direct dotnet.exe (v3.0 pattern)
 Write-Host ""
-Write-Host "[STEP 2/6] Launching application in separate PowerShell window..." -ForegroundColor Cyan
+Write-Host "[STEP 2/6] Launching application with direct dotnet.exe..." -ForegroundColor Cyan
 Write-Host "  URL: $AppUrl" -ForegroundColor Gray
 Write-Host "  Path: $AppProjectPath" -ForegroundColor Gray
 
-$AppProcess = Start-Process powershell -ArgumentList @(
-    "-NoExit",
-    "-Command",
-    "cd '$AppProjectPath'; Write-Host 'NOOR Canvas - Debug Panel Test Server' -ForegroundColor Cyan; Write-Host 'Press Ctrl+C to stop server' -ForegroundColor Yellow; dotnet run --no-build"
-) -PassThru -WindowStyle Normal
+$AppProcess = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--no-build", "--urls", $AppUrl `
+    -WorkingDirectory $AppProjectPath `
+    -PassThru `
+    -WindowStyle Normal
 
-Write-Host "✅ Application launched in PID $($AppProcess.Id)" -ForegroundColor Green
-Write-Host "  Window: Separate PowerShell console (not Terminal)" -ForegroundColor Gray
+Write-Host "✅ Application launched (PID: $($AppProcess.Id))" -ForegroundColor Green
+Write-Host "  Mode: Direct dotnet.exe process (v3.0)" -ForegroundColor Gray
 
 # Step 3: Wait for application to be ready
 Write-Host ""

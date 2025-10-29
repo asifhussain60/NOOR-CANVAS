@@ -84,34 +84,15 @@ Write-Host "[DEBUG-WORKITEM:debug-panel:toast-error:TRACE] Launching app in sepa
 
 $AppWindowTitle = "NoorCanvas-Debug-Panel-Toast-Error-Test"
 
-# Create startup script for the separate window
-$StartupScript = @"
-`$Host.UI.RawUI.WindowTitle = '$AppWindowTitle'
-Write-Host '========================================' -ForegroundColor Cyan
-Write-Host 'NOOR CANVAS - Debug Panel Toast Error Test' -ForegroundColor Cyan
-Write-Host '========================================' -ForegroundColor Cyan
-Write-Host ''
-Write-Host 'Application running for Playwright tests...' -ForegroundColor Yellow
-Write-Host 'URL: $AppUrl' -ForegroundColor Green
-Write-Host ''
-Write-Host 'This window will remain open for manual inspection.' -ForegroundColor Gray
-Write-Host ''
-cd '$ProjectPath'
-dotnet run
-"@
+# Launch application with direct dotnet.exe (v3.0 pattern)
+$appJob = Start-Process -FilePath "dotnet" `
+    -ArgumentList "run", "--urls", $AppUrl `
+    -WorkingDirectory $ProjectPath `
+    -PassThru `
+    -WindowStyle Normal
 
-$StartupScriptPath = Join-Path $env:TEMP "noorcanvas-toast-error-test-startup.ps1"
-$StartupScript | Out-File -FilePath $StartupScriptPath -Encoding UTF8
-
-# Launch the separate PowerShell window
-Start-Process powershell.exe -ArgumentList @(
-    "-NoExit",
-    "-ExecutionPolicy", "Bypass",
-    "-File", $StartupScriptPath
-)
-
-Write-Host "✅ Application window launched (Title: $AppWindowTitle)" -ForegroundColor Green
-Write-Host "   Check for separate PowerShell window..." -ForegroundColor Gray
+Write-Host "✅ Application started (PID: $($appJob.Id))" -ForegroundColor Green
+Write-Host "   URL: $AppUrl" -ForegroundColor Gray
 
 # Step 3: Wait for application to be ready
 Write-Host "`n========================================" -ForegroundColor Yellow
