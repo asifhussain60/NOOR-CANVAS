@@ -764,7 +764,54 @@ END IF
 
 ---
 
-### Step 3.5: Commit Message Planning and Parent Linkage (MANDATORY)
+### Step 3.5: Plan Validation Gate (MANDATORY)
+
+**LOAD MODULE:** `.github/prompts/shared/step-3-5-plan-validation-gate.md`
+
+**Purpose:** Write plan to file BEFORE user approval (enforces plan-as-document)
+
+**Trigger:** ALWAYS when lightweight planning used (Step 3B)
+
+**Execute:**
+```powershell
+# Only execute if lightweight planning mode (no comprehensive plan exists)
+IF PlanMode == "Lightweight" THEN
+  
+  # Write plan to .github/key-data-streams/{key}/{key}.plan.md
+  $planResult = PlanValidationGate($key, $planContent)
+  
+  IF $planResult.status == "FAILED" THEN
+    # Plan file write failed - HALT execution
+    SHOW_ERROR($planResult.reason)
+    LOG_FAILURE($planResult)
+    EXIT 1
+  END IF
+  
+  IF $planResult.status == "SUCCESS" THEN
+    # Plan written to file - show user location
+    SHOW_MESSAGE("Plan created: {$planResult.file} ({$planResult.fileSize} bytes)")
+    LOG_SUCCESS("Plan validation gate passed")
+  END IF
+  
+  # If status == "SKIP", comprehensive plan exists (from plan.prompt.md)
+  # Proceed directly to Step 4 (Approval)
+  
+END IF
+
+# Continue to Step 4 (Approval)
+```
+
+**Guardrail:** No approval prompt WITHOUT plan file existing
+
+**Output (based on verbosity):**
+- **Concise:** `"✅ Plan created: {key}.plan.md ({size} bytes)"`
+- **Detailed:** Full plan summary (≤10 bullets) + file location + approval options
+
+**See:** `.github/prompts/shared/step-3-5-plan-validation-gate.md` - Complete protocol
+
+---
+
+### Step 3.6: Commit Message Planning and Parent Linkage (MANDATORY)
 
 Before implementation commits, prepare the commit subject to include rollback metadata and lineage:
 
@@ -1302,15 +1349,22 @@ See: Scripts/Migrations/Prod/README.md for workflow"
    - `tokens`: Session 212 defaults (unless task specifies otherwise)
    - `multiUser`: true if host/participant interaction
    - `testType`: "functional" | "visual" | "both" (based on change type)
-3. Receive generated test files and orchestration script
-4. Document in key-data-stream
+3. **Receive generated test files and orchestration script**
+4. **AUTOMATIC:** test-generation.prompt.md updates test registry (Step 7.5)
+5. **Verify:** Test registry updated in commit
+6. Document in key-data-stream
 
-**See:** `test-generation.prompt.md` and `shared/playwright-test-generation.md` for:
-- Complete test type decision matrix
-- Orchestration script requirement (MANDATORY)
-- Test generation patterns
-- Automatic test type detection & execution
-- Test lifecycle management (creation, execution, promotion, cleanup)
+**Expected Outcome:**
+- Test files created in `.github/key-data-streams/{key}/tests/`
+- Orchestration script created in `.github/key-data-streams/{key}/scripts/`
+- **Test registry updated** in `.github/key-data-streams/{key}/tests/test-registry.md`
+- Single commit includes: tests + scripts + registry
+
+**See:** 
+- `test-generation.prompt.md` - Complete test generation workflow
+- `.github/prompts/shared/step-7-5-test-registry-auto-update.md` - Registry update protocol
+- `.github/prompts/shared/playwright-test-generation.md` - Test generation patterns
+- `.github/prompts/shared/test-orchestration-patterns.md` - Orchestration script requirement (MANDATORY)
 
 **Key Requirements:**
 - **Test Location**: `.github/key-data-streams/{key}/tests/` (within key data stream)
@@ -1395,6 +1449,8 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 
 - **ALWAYS verify branch strategy BEFORE any work** (Step 0 - blocks execution on master)
 - **ALWAYS update documentation BEFORE code changes** (Step 2.5 - document first checkpoint)
+- **ALWAYS write plan to file BEFORE approval** (Step 3.5 - plan validation gate)
+- **ALWAYS update test registry when creating tests** (Step 6.1 delegates to test-generation → Step 7.5)
 - **ALWAYS check for comprehensive plan first** (if key provided, look for {key}.plan.md)
 - **ALWAYS load System Context Pack** (if {key}.plan.md exists - Step 2.12)
 - **ALWAYS update JSON tracking** (if {key}.plan.json exists - Step 8.1 after each phase)
@@ -1416,6 +1472,8 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 - **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
 - **NEVER execute on master branch** unless explicitly authorized (Step 0 enforcement)
 - **NEVER skip documentation updates** when key exists (Step 2.5 blocks code commits)
+- **NEVER show plan only in chat** - must exist as file before approval (Step 3.5 enforcement)
+- **NEVER create tests without registry update** - automatic via test-generation.prompt.md Step 7.5
 - **NEVER implement UI-only mutations** - all CRUD operations MUST have complete data lifecycle (UI → API → DB → Broadcast → UI)
 - **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
 - **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes
