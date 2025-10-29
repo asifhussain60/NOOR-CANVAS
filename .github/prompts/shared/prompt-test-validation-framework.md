@@ -161,6 +161,36 @@ FUNCTION ValidatePlanPrompt(evidence)
   violations = []
   missedRequirements = []
   
+  // Check 0: File Finalization Verification (BLOCKING)
+  // Per file-finalization-verifier.md and Step 5.5
+  requiredFiles = [
+    ".github/key-data-streams/{key}/{key}.plan.md",
+    ".github/key-data-streams/{key}/{key}.plan.json",
+    ".github/key-data-streams/{key}/work-log.md",
+    ".github/key-data-streams/{key}/state.json"
+  ]
+  
+  missingFiles = []
+  FOR EACH file IN requiredFiles
+    IF NOT FileExists(file) THEN
+      missingFiles.APPEND(file)
+    END IF
+  END FOR
+  
+  IF missingFiles.COUNT > 0 THEN
+    violations.APPEND({
+      severity: "critical",
+      rule: "File finalization verification (Step 5.5 - BLOCKING)",
+      description: "Plan must create all required files BEFORE user response",
+      missingFiles: missingFiles,
+      enforcement: "HALT execution - Step 6 and Step 7.5 must not execute",
+      reference: ".github/prompts/shared/file-finalization-verifier.md"
+    })
+    
+    // HALT further validation - no point checking other rules if files don't exist
+    RETURN {violations: violations, missedRequirements: missedRequirements}
+  END IF
+  
   // Check 1: Key Data Stream Created
   IF NOT evidence.keyDataStreams.Contains(currentKey) THEN
     violations.APPEND({
@@ -234,6 +264,42 @@ FUNCTION ValidateTaskPrompt(evidence)
   
   violations = []
   missedRequirements = []
+  
+  // Check 0: File Finalization Verification (work-log.md timestamp check)
+  // Per file-finalization-verifier.md and Step 8.25
+  expectedWorkLog = ".github/key-data-streams/{key}/work-log.md"
+  
+  IF FileExists(expectedWorkLog) THEN
+    lastModified = GetFileLastModified(expectedWorkLog)
+    currentTime = GetCurrentTime()
+    timeDiff = currentTime - lastModified
+    
+    IF timeDiff > 60 THEN  // 60 seconds threshold
+      violations.APPEND({
+        severity: "critical",
+        rule: "File finalization verification (Step 8.25 - timestamp check)",
+        description: "work-log.md must be updated within 60 seconds of task completion",
+        lastModified: lastModified,
+        timeDiff: timeDiff,
+        enforcement: "HALT execution - Step 8.6 (Response Validation) must not execute",
+        reference: ".github/prompts/shared/file-finalization-verifier.md"
+      })
+      
+      // HALT further validation
+      RETURN {violations: violations, missedRequirements: missedRequirements}
+    END IF
+  ELSE
+    violations.APPEND({
+      severity: "critical",
+      rule: "File finalization verification (Step 8.25 - file existence)",
+      description: "work-log.md must exist before task response",
+      enforcement: "HALT execution - Step 8.6 must not execute",
+      reference: ".github/prompts/shared/file-finalization-verifier.md"
+    })
+    
+    // HALT further validation
+    RETURN {violations: violations, missedRequirements: missedRequirements}
+  END IF
   
   // Check 1: Commit Checkpoints
   recentCommits = evidence.commitMessages.Take(10)
@@ -416,6 +482,41 @@ FUNCTION ValidateTodoPrompt(evidence)
   
   violations = []
   missedRequirements = []
+  
+  // Check 0: File Finalization Verification (work-log.md append check)
+  // Per file-finalization-verifier.md and Execution section
+  expectedWorkLog = ".github/key-data-streams/{key}/work-log.md"
+  
+  IF FileExists(expectedWorkLog) THEN
+    previousSize = GetFileSizeBeforeWork(expectedWorkLog)
+    currentSize = GetCurrentFileSize(expectedWorkLog)
+    
+    IF currentSize <= previousSize THEN
+      violations.APPEND({
+        severity: "critical",
+        rule: "File finalization verification (todo - append check)",
+        description: "work-log.md must be appended during todo execution",
+        previousSize: previousSize,
+        currentSize: currentSize,
+        enforcement: "HALT execution - Response validation must not execute",
+        reference: ".github/prompts/shared/file-finalization-verifier.md"
+      })
+      
+      // HALT further validation
+      RETURN {violations: violations, missedRequirements: missedRequirements}
+    END IF
+  ELSE
+    violations.APPEND({
+      severity: "critical",
+      rule: "File finalization verification (todo - file existence)",
+      description: "work-log.md must exist for todo to extend work",
+      enforcement: "HALT execution - Response validation must not execute",
+      reference: ".github/prompts/shared/file-finalization-verifier.md"
+    })
+    
+    // HALT further validation
+    RETURN {violations: violations, missedRequirements: missedRequirements}
+  END IF
   
   // Check 1: Key Preserved
   activeKey = DetectActiveKey(evidence.gitHistory)
@@ -1265,6 +1366,152 @@ Agent: [Executes healthcheck.prompt.md normally]
        B. Generate minor improvement plan for low-priority finding
        C. Re-run with enhanced scope
        D. Continue to next healthcheck scope
+```
+
+### Example 4: plan.prompt.md File Finalization Failure
+
+```
+User: @workspace /plan key=user-dashboard -test "Create user dashboard"
+
+Agent: [Executes plan.prompt.md]
+       - Analyzes request
+       - Creates key data stream directory
+       - Generates plan.md ✅
+       - Generates plan.json ✅
+       - (SKIPPED: work-log.md creation) ❌
+       - (SKIPPED: state.json creation) ❌
+       
+       [Step 5.5: FILE FINALIZATION VERIFICATION - BLOCKING]
+       
+       🚨 CRITICAL VIOLATION DETECTED
+       
+       Missing Files (2):
+       - .github/key-data-streams/user-dashboard/work-log.md
+       - .github/key-data-streams/user-dashboard/state.json
+       
+       ⛔ HALT EXECUTION
+       
+       Step 6 (Response to User) and Step 7.5 (Response Validation) 
+       will NOT execute until files are created.
+       
+       Per file-finalization-verifier.md:
+       - Plan must create ALL required files before showing response
+       - This is a BLOCKING requirement
+       
+       🔄 Auto-fix attempt:
+       - Creating work-log.md...
+       - Creating state.json...
+       
+       ✅ Files created. Resuming validation...
+       
+       [Continuing to Step 6]
+       
+       Quality Score: 75/100 (Good - auto-recovered from critical violation)
+       
+       What would you like to do next?
+       
+       **A. PROCEED** with plan execution  
+       **B.** Review file finalization details  
+       **C.** Generate improvement plan (enforce Step 5.5 compliance)  
+       **D.** Cancel and restart with correct workflow
+```
+
+### Example 5: task.prompt.md Stale Work Log Failure
+
+```
+User: @workspace /task key=admin-panel -test tasks="Implement Phase 1"
+
+Agent: [Executes task.prompt.md]
+       - Implements admin panel UI
+       - Creates database migrations
+       - Updates API endpoints
+       - Commits changes ✅
+       - (FORGOT: work-log.md update) ❌
+       
+       [Step 8.25: FILE FINALIZATION VERIFICATION]
+       
+       🚨 CRITICAL VIOLATION DETECTED
+       
+       work-log.md timestamp check:
+       - Last Modified: 2025-10-29 14:30:22 (125 seconds ago)
+       - Threshold: 60 seconds
+       - Status: STALE ❌
+       
+       ⛔ HALT EXECUTION
+       
+       Step 8.6 (Response Validation) will NOT execute until 
+       work-log.md is updated.
+       
+       Per file-finalization-verifier.md:
+       - work-log.md must be modified within 60 seconds of completion
+       - This ensures documentation happens DURING execution, not after
+       
+       🔄 Auto-fix attempt:
+       - Appending execution summary to work-log.md...
+       - Timestamp: 2025-10-29 14:32:30 ✅
+       
+       ✅ work-log.md updated. Resuming validation...
+       
+       [Continuing to Step 8.6]
+       
+       Quality Score: 70/100 (Acceptable - auto-recovered from critical violation)
+       
+       What would you like to do next?
+       
+       **A. PROCEED** with next phase  
+       **B.** Review work-log.md updates  
+       **C.** Generate improvement plan (enforce Step 8.25 compliance)  
+       **D.** Rollback and restart with correct workflow
+```
+
+### Example 6: todo.prompt.md No Append Failure
+
+```
+User: @workspace /todo -test "Add error handling to admin panel"
+
+Agent: [Executes todo.prompt.md]
+       - Detects active key: admin-panel
+       - Analyzes existing work
+       - Adds error handling code
+       - Commits changes ✅
+       - (FORGOT: work-log.md append) ❌
+       
+       [Execution: FILE FINALIZATION VERIFICATION]
+       
+       🚨 CRITICAL VIOLATION DETECTED
+       
+       work-log.md append check:
+       - Previous Size: 4,521 bytes
+       - Current Size: 4,521 bytes
+       - Change: 0 bytes ❌
+       
+       ⛔ HALT EXECUTION
+       
+       Response validation will NOT execute until work-log.md 
+       is appended with todo execution details.
+       
+       Per file-finalization-verifier.md:
+       - todo must APPEND to work-log.md (file size must increase)
+       - This preserves execution history and context
+       
+       🔄 Auto-fix attempt:
+       - Appending todo execution summary...
+       - Previous Size: 4,521 bytes
+       - New Size: 4,892 bytes
+       - Change: +371 bytes ✅
+       
+       ✅ work-log.md appended. Resuming validation...
+       
+       [Continuing to Response Validation]
+       
+       Quality Score: 72/100 (Acceptable - auto-recovered from critical violation)
+       
+       What would you like to do next?
+       
+       **A. PROCEED** with next todo  
+       **B.** Review work-log.md append details  
+       **C.** Generate improvement plan (enforce append verification)  
+       **D.** Mark admin-panel complete and close key
 ```
 
 ---

@@ -2,8 +2,8 @@
   "key": "prompt-enhancements",
   "status": "in-progress",
   "totalPhases": 4,
-  "completedPhases": 2,
-  "currentPhase": 2,
+  "completedPhases": 3,
+  "currentPhase": 3,
   "phases": [
     {
       "id": 1,
@@ -17,15 +17,16 @@
       "id": 2,
       "title": "Update CONCISE-MANDATE.md",
       "status": "complete",
-      "checkpoint": null,
+      "checkpoint": "247fb62e",
       "completedAt": "2025-10-29T00:00:00Z",
       "tasks": []
     },
     {
       "id": 3,
       "title": "Add Enforcement Tests",
-      "status": "not-started",
+      "status": "complete",
       "checkpoint": null,
+      "completedAt": "2025-10-29T00:00:00Z",
       "tasks": []
     },
     {
