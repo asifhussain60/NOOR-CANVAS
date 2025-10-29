@@ -20,10 +20,12 @@
     - **Enforcement**: HALT if files missing, BLOCK subsequent steps, show error message
     - **See**: `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm
 12. **DEFAULT TO E2E EXECUTION** - After plan finalized, recommend auto-chain mode
-    - **plan.prompt.md**: Show Option E (**AUTO-EXECUTE ALL PHASES**) as RECOMMENDED
+    - **plan.prompt.md**: Show Option A (**AUTO-EXECUTE ALL PHASES**) as RECOMMENDED with 5s countdown
+    - **Default behavior**: `auto-chain=true` (user must actively choose Option B for manual mode)
     - **Behavior**: Execute all phases automatically without approval gates
     - **Manual intervention**: Halt only when user action required (tests, migrations, failures)
     - **Rationale**: User approves plan once, execution proceeds end-to-end
+    - **User control**: 5-second countdown allows abort/switch to manual mode
     - **See**: plan.prompt.md auto-chain parameter documentation
 
 ## What Code Means
@@ -99,23 +101,23 @@
 
 ## Letter-Based Actions
 Always provide 2-5 options with **RECOMMENDED option in ALL CAPS**:
-- **A.** **EXECUTE / PROCEED** (for single-phase or step-by-step)
-- **B.** Review Plan / Details
-- **C.** Modify Approach
-- **D.** Cancel / Skip
-- **E.** **AUTO-EXECUTE ALL PHASES** (recommended for multi-phase plans - E2E execution)
+- **A.** **AUTO-EXECUTE ALL PHASES** (for multi-phase plans - recommended, auto-starts in 5s)
+- **B.** Manual mode (step-by-step with approval gates)
+- **C.** Review Plan / Details
+- **D.** Modify Approach
+- **E.** Cancel / Skip
 
 **Formatting:**
 - Recommended option: Use **bold** + **ALL CAPS** for prominence
-- For multi-phase plans: Option E (auto-chain) is RECOMMENDED
+- For multi-phase plans: Option A (auto-chain) is RECOMMENDED with 5s countdown
 - For single actions: Option A is RECOMMENDED
-- Alternative: Increase font size using heading (e.g., `### E. AUTO-EXECUTE ALL PHASES`)
-- User replies: "A", "E", "A, C", or "all"
+- Alternative: Increase font size using heading (e.g., `### A. AUTO-EXECUTE ALL PHASES`)
+- User replies: "A", "manual", "cancel", or waits 5s for auto-execution
 
 **Auto-Chain Preference:**
-- When plan.prompt.md shows final plan: Recommend Option E (E2E execution)
+- When plan.prompt.md shows final plan: Default to Option A with 5s countdown
 - When task.prompt.md shows phase completion: Use auto-chain flag from plan
-- User approves plan ONCE, execution proceeds automatically
+- User approves plan ONCE, execution proceeds automatically (can abort with "manual" or "cancel")
 
 ## File Locations
 All output → `.github/key-data-streams/{key}/` (authoritative location)

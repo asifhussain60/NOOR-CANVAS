@@ -109,10 +109,11 @@ Target branch per SelfAwareness.instructions.md
 Create git commit after each task completion (MANDATORY)
 See: `.github/prompts/shared/commit-checkpoint-protocol.md`
 
-### auto-chain *(default=`false`)*
+### auto-chain *(default=`true`)*
 Enable automatic phase-to-phase execution without user intervention
-- `true` - Auto-invoke next phase after current completes
-- `false` - Wait for user approval between phases
+- `true` - Auto-invoke next phase after current completes (DEFAULT)
+- `false` - Wait for user approval between phases (manual mode)
+- Passed from plan.prompt.md (user can override with Option B)
 
 ### phase *(optional)*
 Specific phase number to execute (used with auto-chain)

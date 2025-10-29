@@ -10,13 +10,15 @@ stateTracking: enabled
 changelog: |
   v1.7 (2025-10-29): E2E PHASE EXECUTION & RESPONSE FORMAT IMPROVEMENTS
   - Added auto-chain parameter for end-to-end multi-phase execution
-  - Option E (**AUTO-EXECUTE ALL PHASES**) shown as RECOMMENDED for finalized plans
-  - Updated Step 6 with auto-chain handoff logic (automatic vs manual approval)
+  - **DEFAULT BEHAVIOR CHANGED**: auto-chain now defaults to TRUE (autocomplete enabled)
+  - Option A (**AUTO-EXECUTE ALL PHASES**) shown as RECOMMENDED with 5s countdown
+  - Updated Step 6 with auto-chain handoff logic (default auto vs manual override)
   - Added 📋 Phases & Tasks section to OUTPUT FORMAT (shows task breakdown)
-  - Updated 📌 Plan Overview to show task counts per phase
+  - Updated 📌 Plan Overview to show AUTO-CONTINUE markers between phases
   - Reduced 🧠 Analysis to ≤5 bullets (allocate space for task lists)
   - Users approve plan ONCE, execution proceeds E2E (halts only for manual intervention)
   - References CONCISE-MANDATE.md Rule 12 (default to E2E execution)
+  - Phase templates include explicit AUTO-CONTINUE instructions for task agent
   
   v1.6 (2025-10-29): Added Step 5.5 FILE FINALIZATION VERIFICATION (BLOCKING)
   - Enforces "Document First, Respond Later" protocol
@@ -56,12 +58,12 @@ Technical or business constraints
 - `lightweight-mode` - Skip questionnaires for simple features
 - `full-detail` - Use questionnaires for all features
 
-### auto-chain *(optional)*
-- `true` - Automatically execute all phases end-to-end without user approval between phases
-- `false` - Wait for user approval after each phase (default)
+### auto-chain *(default=`true`)*
+- `true` - Automatically execute all phases end-to-end without user approval between phases (DEFAULT, RECOMMENDED)
+- `false` - Wait for user approval after each phase (manual mode)
 - When enabled: Executes Phase 1 → Phase 2 → ... → Phase N automatically
 - Halts only for manual intervention (test validation, migration review, failures)
-- **Recommended for finalized plans** - Set during plan approval (Option E)
+- User can override to manual mode by selecting Option B during plan approval
 
 ---
 
@@ -246,8 +248,23 @@ Reply: A, B, or C
 **Tasks:**
 1. {task} - {file} - {debug-marker}
 2. {task} - {file} - {debug-marker}
+3. **AUTO-CONTINUE:** Upon successful completion, automatically proceed to Phase 2
 
 ### Phase 2: {Title}
+**Dependencies:** Phase 1 must be complete
+**Goal:** {one-liner}
+**Tasks:**
+1. {task} - {file} - {debug-marker}
+2. {task} - {file} - {debug-marker}
+3. **AUTO-CONTINUE:** Upon successful completion, automatically proceed to Phase 3
+
+### Phase N: {Title} (Final Phase)
+**Dependencies:** Phase N-1 must be complete
+**Goal:** {one-liner}
+**Tasks:**
+1. {task} - {file} - {debug-marker}
+2. {task} - {file} - {debug-marker}
+3. **FINAL PHASE:** Mark work as complete upon successful validation
 ...
 
 ## Test Strategy
@@ -406,22 +423,19 @@ VerifyFileFinalization(key):
 - `phase=1` - Start with Phase 1
 - `github-branch=development` - Target branch
 - `commit-checkpoints=true` - Checkpoint after each phase
-- `auto-chain={true|false}` - Pass auto-chain mode to task agent
+- `auto-chain=true` - **DEFAULT: Auto-continue phases (user can override with Option B)**
 
 **3. Auto-chain execution logic:**
 ```
-IF auto-chain == true THEN
-  // Automatic E2E execution mode
-  InvokeTaskPrompt(key, phase=1, auto-chain=true)
-  // task.prompt.md will continue to phase 2, 3, ... N automatically
-  // Returns here only on completion or manual intervention required
+IF user selects Option B (Manual Mode) THEN
+  // Manual approval mode
+  InvokeTaskPrompt(key, phase=1, auto-chain=false)
+  // Will wait for user approval after each phase
 ELSE
-  // Manual approval mode (current behavior)
-  ShowUserApprovalOptions()
-  WaitForUserChoice()
-  IF user chooses "Execute" THEN
-    InvokeTaskPrompt(key, phase=1, auto-chain=false)
-  END IF
+  // DEFAULT: Auto-execute (Option A or 5s timeout)
+  InvokeTaskPrompt(key, phase=1, auto-chain=true)
+  // Phases execute automatically until completion or manual intervention
+  // Returns here only on completion or error
 END IF
 ```
 
@@ -559,16 +573,16 @@ Reply: Done (after answering)
 - Ready for execution via task.prompt.md (manual or auto-chain)
 
 **📌 Plan Overview (≤10 bullets)**
-1. **Phase 1:** {phase-title} ({task-count} tasks, {file-count} files)
-2. **Phase 2:** {phase-title} ({task-count} tasks, {file-count} files)
-3. **Phase 3:** {phase-title} ({task-count} tasks, {file-count} files)
+1. **Phase 1:** {phase-title} ({task-count} tasks, {file-count} files) → **AUTO-CONTINUE to Phase 2**
+2. **Phase 2:** {phase-title} ({task-count} tasks, {file-count} files) → **AUTO-CONTINUE to Phase 3**
+3. **Phase 3:** {phase-title} ({task-count} tasks, {file-count} files) → **FINAL PHASE**
 4. **Test Strategy:** {test-types-list}
 5. **Rollback:** Checkpoint commits enabled for each phase
 6. **Handoff:** task.prompt.md (execution) + test-generation.prompt.md (tests)
 7. **First Phase:** {phase-1-title}
 8. **Estimated Scope:** {affected-layers-summary}
 9. **Dependencies:** {any-dependencies-or-none}
-10. **Next Step:** Review task breakdown below, then choose execution mode
+10. **Next Step:** Auto-executing in 5 seconds (say "manual" or "cancel" to abort)
 
 **📋 Phases & Tasks** (phase headers use bold, tasks use bullets)
 
@@ -587,18 +601,20 @@ Reply: Done (after answering)
 - Task 3.3: {action} - {expected-outcome}
 
 **⚡ Options**
-**A.** Execute Phase 1 only (manual approval for each phase)  
-**B.** Review plan files first  
-**C.** Modify plan scope  
-**D.** Cancel planning  
-**E. AUTO-EXECUTE ALL PHASES** (recommended - E2E execution with auto-chain)
+**A. AUTO-EXECUTE ALL PHASES** (RECOMMENDED - starts in 5s)  
+**B.** Manual mode (approve each phase individually)  
+**C.** Review plan files first  
+**D.** Modify plan scope  
+**E.** Cancel planning
 
-Reply: A, B, C, D, or E
+**Auto-executing in 5 seconds... Say "manual" or "cancel" to abort.**
+
+Reply: A (or wait 5s), B, C, D, or E
 
 **Behavior:** 
-- If E selected: Set `auto-chain=true` and invoke task.prompt.md for automatic E2E execution
-- If A selected: Set `auto-chain=false` and wait for approval after each phase
-- If B/C/D selected: Wait for user action
+- **Default (no reply or A):** Set `auto-chain=true` and invoke task.prompt.md for automatic E2E execution
+- **If B selected:** Set `auto-chain=false` and wait for approval after each phase
+- If C/D/E selected: Wait for user action
 
 ---
 
