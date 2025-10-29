@@ -108,19 +108,106 @@ Before returning key:
 
 **Todo/Drift Auto-Detection:**
 - Search git history for recent commits
-- Extract key from commit messages (format: `[key] message`)
-- Validate key still active
-- If no active key found, generate new
+- Extract key from commit messages (formats: `ckpt({key}):`, `[DEBUG-WORKITEM:{key}:*]`)
+- Validate key still active in `.github/key-data-streams/`
+- **If no active key found after 3 attempts:**
+  - Display clear error message (see Error Handling below)
+  - Request manual key specification
+  - DO NOT proceed with auto-generated key
+  - DO NOT fail silently
 
 **User-Provided Key:**
 - Validate format (kebab-case, 2-4 words)
-- Check collision
+- Check collision with existing keys
 - Accept if valid
 
 **Multi-Component Work:**
 - Prioritize primary component
 - Use feature area if multiple components
 - Example: "Fix SessionCanvas and AssetSidebar" → `canvas-sidebar-fix`
+
+---
+
+## Error Handling
+
+### Auto-Detection Failure (After 3 Attempts)
+
+**Display to User:**
+```
+⚠️ Key Auto-Detection Failed
+
+Could not detect active key from git history after 3 attempts.
+
+**Possible Causes:**
+- No recent commits with key markers (ckpt:, DEBUG-WORKITEM:)
+- Working on new feature without existing key
+- Git history unavailable or incomplete
+
+**Next Steps:**
+1. Specify key manually: @workspace /todo key=your-feature-name
+2. Use /route to create new key: @workspace /route "your request"
+3. Check active keys: .github/key-data-streams/active.keys.log
+4. Review recent commits: git log --oneline --grep="ckpt" -10
+
+**Example:**
+@workspace /todo key=session-canvas-fix "Your task description"
+```
+
+**DO NOT:**
+- Proceed with auto-generated key (creates orphaned keys)
+- Fail silently without user notification
+- Guess or assume key name
+
+**DO:**
+- Show clear error message with remediation steps
+- Halt execution until user provides key
+- Log failure for debugging (if logging enabled)
+
+### Invalid User-Provided Key
+
+**Display to User:**
+```
+❌ Invalid Key Format
+
+Key "{provided-key}" does not follow naming conventions.
+
+**Requirements:**
+- Format: lowercase-with-hyphens (kebab-case)
+- Length: 2-4 words maximum
+- No special characters except hyphens
+- Semantic meaning (describes feature/fix)
+
+**Examples of Valid Keys:**
+- user-dashboard
+- button-layout-fix
+- debug-panel-enhancement
+
+**Your Key:** {provided-key}
+**Suggestion:** {auto-corrected-key}
+
+Please provide a valid key or use the suggestion above.
+```
+
+### Key Collision Detected
+
+**Display to User:**
+```
+⚠️ Key Already Exists
+
+Key "{key}" is already in use.
+
+**Existing Key Location:**
+.github/key-data-streams/{key}/
+
+**Status:** {status} ({X}/{Y} phases complete)
+
+**Options:**
+A. Use existing key (continue related work)
+B. Create variant: {key}-v2, {key}-enhanced
+C. Choose different key name
+
+Reply: A, B, or C
+```
 
 ---
 
