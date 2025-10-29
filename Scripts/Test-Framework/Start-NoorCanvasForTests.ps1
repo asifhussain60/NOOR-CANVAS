@@ -209,42 +209,8 @@ if (-not (Test-Path $csprojPath)) {
 
 Write-TestLog "Project validated" -Level Success
 
-# Create startup script with correct PowerShell syntax
 # ============================================================================
-
-Write-TestLog "Creating startup script..." -Level Info
-
-$startupScriptContent = @"
-# NoorCanvas Test Startup Script
-# Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
-
-`$ErrorActionPreference = 'Continue'
-
-# Set environment variables using PowerShell syntax
-`$env:ASPNETCORE_ENVIRONMENT = '$Environment'
-`$env:ASPNETCORE_URLS = '$Url'
-
-Write-Host "===================================================================" -ForegroundColor Cyan
-Write-Host "  NoorCanvas Test Server" -ForegroundColor Cyan
-Write-Host "===================================================================" -ForegroundColor Cyan
-Write-Host "  Environment: `$env:ASPNETCORE_ENVIRONMENT" -ForegroundColor White
-Write-Host "  URL:         `$env:ASPNETCORE_URLS" -ForegroundColor White
-Write-Host "  Path:        $fullProjectPath" -ForegroundColor Gray
-Write-Host ""
-Write-Host "  WARNING: This is a TEST SERVER - Press Ctrl+C to stop" -ForegroundColor Yellow
-Write-Host ""
-
-Set-Location '$fullProjectPath'
-dotnet run
-"@
-
-$tempScriptPath = Join-Path $env:TEMP "noorcanvas-test-startup-$(Get-Date -Format 'yyyyMMddHHmmss').ps1"
-$startupScriptContent | Out-File -FilePath $tempScriptPath -Encoding UTF8 -Force
-
-Write-TestLog "Startup script created: $tempScriptPath" -Level Success
-
-# ============================================================================
-# STEP 4: LAUNCH APPLICATION IN SEPARATE WINDOW
+# STEP 3: LAUNCH APPLICATION DIRECTLY (NO NESTED POWERSHELL)
 # ============================================================================
 
 Write-TestLog "Launching application..." -Level Info
@@ -252,16 +218,22 @@ Write-TestLog "  URL: $Url" -Level Info
 Write-TestLog "  Environment: $Environment" -Level Info
 
 try {
+    # Launch dotnet.exe DIRECTLY in separate window for reliable PID tracking
+    # Previous approach used nested PowerShell which caused health check delays
     $processArgs = @{
-        FilePath = "powershell.exe"
+        FilePath = "dotnet"
         ArgumentList = @(
-            "-NoProfile",
-            "-ExecutionPolicy", "Bypass",
-            "-File", $tempScriptPath
+            "run",
+            "--urls", $Url
         )
+        WorkingDirectory = $fullProjectPath
         PassThru = $true
         WindowStyle = "Normal"
     }
+    
+    # Set environment variables for the new process
+    $env:ASPNETCORE_ENVIRONMENT = $Environment
+    $env:ASPNETCORE_URLS = $Url
     
     $appProcess = Start-Process @processArgs
     
@@ -338,7 +310,6 @@ $result = [PSCustomObject]@{
     StartTime = $startTime
     HealthCheckAttempts = $attempt
     Success = $true
-    TempScriptPath = $tempScriptPath
 }
 
 Write-Host ""
