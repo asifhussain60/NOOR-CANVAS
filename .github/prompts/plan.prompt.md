@@ -286,13 +286,69 @@ Reply: A, B, or C
 
 ---
 
+## 🔍 Step 5.5: FILE FINALIZATION VERIFICATION (BLOCKING)
+
+**Purpose:** Ensure all key data stream files created before user output
+
+**⚠️ BLOCKING REQUIREMENT:** Do NOT proceed to response validation or user output until ALL files verified.
+
+**Verification Checklist:**
+1. `.github/key-data-streams/{key}/{key}.plan.md` exists
+2. `.github/key-data-streams/{key}/{key}.plan.json` exists  
+3. `.github/key-data-streams/{key}/work-log.md` exists
+4. `.github/key-data-streams/{key}/state.json` exists (if state tracking enabled)
+
+**Verification Algorithm:**
+```
+VerifyFileFinalization(key):
+  files = [
+    ".github/key-data-streams/{key}/{key}.plan.md",
+    ".github/key-data-streams/{key}/{key}.plan.json",
+    ".github/key-data-streams/{key}/work-log.md",
+    ".github/key-data-streams/{key}/state.json"  // optional
+  ]
+  
+  FOR EACH file IN files:
+    IF NOT FileExists(file) AND file != "state.json":
+      HALT_EXECUTION()
+      LOG_ERROR("File finalization incomplete: {file} missing")
+      RETURN FALSE
+    END IF
+  END FOR
+  
+  RETURN TRUE
+```
+
+**If ANY required file missing:**
+- **HALT execution immediately**
+- Log error with missing file path
+- **DO NOT proceed to Step 7.5** (Response Validation)
+- **DO NOT show user output**
+- Request manual file creation or restart process
+
+**If ALL files verified:**
+- Log success: "File finalization complete"
+- Proceed to Step 6 (Handoff Preparation)
+
+**Critical:** This step enforces document-first protocol. No user-facing output until documentation complete.
+
+---
+
 ## 🔍 Step 6: HANDOFF PREPARATION
 
 **Prepare handoff to task.prompt.md and test-generation.prompt.md:**
 
-**1. Log handoff to state tracking:**
-```powershell
-Update-StateHandoff -Key $key -From "plan" -To "task" -Parameters @{ key = $key; phase = 1 } -Reason "Plan approved, beginning Phase 1 execution"
+**1. Log handoff to state tracking (file-based):**
+- Update `.github/key-data-streams/{key}/state.json`
+- Append to `promptHandoffs[]` array:
+```json
+{
+  "timestamp": "2025-10-29T...",
+  "from": "plan",
+  "to": "task",
+  "parameters": {"key": "{key}", "phase": 1},
+  "reason": "Plan approved, beginning Phase 1 execution"
+}
 ```
 
 **2. Prepare task handoff parameters:**
