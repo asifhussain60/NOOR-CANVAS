@@ -271,7 +271,7 @@ Reply: A, B, or C
   - Test Data: `.github/instructions/Links/PlaywrightQuickRef.md` (Session 212)
 
 ## Rollback Plan
-- Checkpoint commits, rollback steps
+- Checkpoint commits (see `.github/prompts/shared/task-exec/checkpoint-protocol.md`), rollback steps
 ```
 
 **Algorithm:** See `.github/prompts/shared/plan-generator.md`

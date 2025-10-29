@@ -8,6 +8,16 @@ Scan the `.github/key-data-streams/` directory for all folders whose names match
 
 ---
 
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
+- Use "📌 Summary for You" for user-facing bullets only.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D).
+- MAX 15 bullets total per response.
+
+---
+
 ## Syntax
 
 ```

@@ -374,7 +374,8 @@ END IF
 ## Execution
 - **Preserve execution context** - Continue from current phase
 - **NO approval needed** between existing phases
-- **MANDATORY**: Create git commit after EVERY new phase
+- **MANDATORY**: Create git commit after EVERY new phase (see checkpoint protocol)
+- **Checkpoint creation**: LOAD MODULE `.github/prompts/shared/task-exec/checkpoint-protocol.md`
 - **Commit format**: `ckpt({key}): Phase {N} - {extension-summary}`
 - **State tracking**: Log all commits with Update-StateCommit after each checkpoint
 - **Auto-execute behavior:**

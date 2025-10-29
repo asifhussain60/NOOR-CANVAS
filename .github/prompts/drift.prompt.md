@@ -17,6 +17,18 @@ stateTracking: enabled
 **Changelog:**
 - **v1.3.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration with Update-StateDriftKey for automatic drift key tracking in parent state.json
 
+---
+
+## User-Facing Output Style (MANDATORY)
+Must follow `.github/prompts/shared/output-style-mandate.md`.
+
+- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
+- Use "📌 Summary for You" for user-facing bullets only.
+- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D).
+- MAX 15 bullets total per response.
+
+---
+
 ## Parameters
 
 ### parent_key *(required)*
