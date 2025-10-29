@@ -5,12 +5,13 @@ description: Extend or modify current active work while preserving context, key,
 
 # Todo — Extend Current Work with Same Key
 
-**Version**: 2.2.0  
+**Version**: 2.3.0  
 **Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow. Renamed from continue.prompt.md to better reflect "todo item" workflow pattern.
 
 **Rename Note**: Previously `continue.prompt.md` (v1.0.0). Renamed to `todo.prompt.md` (v2.0.0) on 2025-10-25 to align with todo-based workflow terminology. All agent references updated accordingly.
 
 **Changelog**:
+- **v2.3.0 (2025-10-29)**: FILE FINALIZATION VERIFICATION - Added work-log.md append verification in Execution section. Enforces "Document First, Respond Later" protocol. Verifies file size increased (append occurred). HALT if unchanged. References file-finalization-verifier.md.
 - **v2.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/handoff/commit logging. Added Step -1 for state tracking initialization. Enables timeline reconstruction.
 - **v2.1.0 (2025-10-27)**: Added `from-build` parameter to prevent dual approval gates when invoked from build.prompt.md. Approval behavior now conditional based on source agent.
 - **v2.0.0 (2025-10-25)**: Renamed from continue.prompt.md to todo.prompt.md

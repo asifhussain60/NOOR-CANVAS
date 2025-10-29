@@ -7,7 +7,9 @@ description: Canonical execution engine that breaks down requests, validates out
 > purpose: Execute planned work, validate outcomes, update key data stream progressively
 > inputs: key, tasks, -test, github-branch, commit-checkpoints, auto-chain, phase, debug-level, verbosity
 > outputs: phase execution results, checkpoints, updated work-log and artifacts
-> lastUpdated: 2025-10-28
+> lastUpdated: 2025-10-29
+> version: 1.6
+> changelog: v1.6 (2025-10-29) - Added Step 8.25 FILE FINALIZATION VERIFICATION - Enforces Document First Respond Later protocol - Verifies work-log.md updated within 60 seconds - HALT if timestamp fails (blocks Step 8.6) - Renumbered Step 8.5 to 8.6 - References file-finalization-verifier.md
 > stateTracking: enabled
 > acceptsFrom: [plan]
 > calls: [test-generation]

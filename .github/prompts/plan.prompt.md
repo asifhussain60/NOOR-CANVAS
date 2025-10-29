@@ -1,12 +1,18 @@
-# plan.prompt.md (Feature Planning Agent v1.5)
+=# plan.prompt.md (Feature Planning Agent v1.6)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-28
+lastUpdated: 2025-10-29
 stateTracking: enabled
+changelog: |
+  v1.6 (2025-10-29): Added Step 5.5 FILE FINALIZATION VERIFICATION (BLOCKING)
+  - Enforces "Document First, Respond Later" protocol
+  - Verifies plan.md, plan.json, work-log.md, state.json exist before user response
+  - HALT execution if files missing (blocks Step 6 and Step 7.5)
+  - References .github/prompts/shared/file-finalization-verifier.md
 ---
 
 <!-- Metadata (non-frontmatter, lint-safe) -->

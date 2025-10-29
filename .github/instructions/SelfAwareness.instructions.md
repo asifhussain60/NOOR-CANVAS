@@ -98,7 +98,40 @@ Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/
 ### Shortcut Expansion Policy (MANDATORY)
 - During the analysis phase of ANY prompt, automatically evaluate `.github/prompts/shared/UserDictionary.md` and expand all detected shortcut tokens in the user request and context (e.g., "hcp" → Host Control Panel → file: HostControlPanel.razor).
 - Treat the dictionary as authoritative; if a shortcut is missing, prefer asking once or proceeding with a clearly stated assumption and then add it to the dictionary.
-- When generating summaries, preserve the user’s shorthand but include the resolved canonical names in parentheses on first mention.
+- When generating summaries, preserve the user's shorthand but include the resolved canonical names in parentheses on first mention.
+
+## 📝 Document First, Respond Later Protocol (MANDATORY)
+
+**PURPOSE**: Ensure all key data stream files are created/updated BEFORE showing responses to users.
+
+**ENFORCEMENT**: All prompts that create/update key data streams MUST verify file finalization before user output.
+
+**PROTOCOL**:
+
+1. **plan.prompt.md** - Step 5.5 (BLOCKING)
+   - Verify 4 files exist: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`, `state.json`
+   - HALT if any missing
+   - Block Step 6 (Handoff) and Step 7.5 (Response Validation)
+
+2. **task.prompt.md** - Step 8.25 (BLOCKING)
+   - Verify `work-log.md` modified within 60 seconds
+   - HALT if stale or missing
+   - Block Step 8.6 (Response Validation)
+
+3. **todo.prompt.md** - Execution Section (BLOCKING)
+   - Verify `work-log.md` file size increased (append occurred)
+   - HALT if unchanged
+   - Block Response Validation
+
+**ALGORITHM**: See `.github/prompts/shared/file-finalization-verifier.md`
+
+**TESTING**: Use `-test` flag with any prompt to validate file finalization compliance (see `.github/prompts/shared/prompt-test-validation-framework.md`)
+
+**RATIONALE**:
+- Documentation happens during work, not after
+- Users see complete context when reviewing work
+- Preserves execution history for future reference
+- Prevents incomplete key data streams
 
 ## 🗄️ Database Access Rules (MANDATORY)
 

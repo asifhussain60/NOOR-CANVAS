@@ -1,14 +1,18 @@
 # route.prompt.md (Request Router Agent)
 
-**Version:** 1.6.0  
+**Version:** 1.7.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
+
+**Changelog:**
+- **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
+- **v1.6.0**: Previous version with state tracking
 
 ---
 mode: agent
 purpose: Analyzes user requests and context to intelligently route to specialized agents (plan, task, todo, ask, test-generation, etc.)
 inputs: target, request, key, context, auto-execute
 outputs: Handoff to target agent with optimized parameters
-lastUpdated: 2025-10-28
+lastUpdated: 2025-10-29
 stateTracking: enabled
 ---
 
