@@ -109,8 +109,43 @@ Update-StateRequest -Key $key -Type "continuation" -UserRequest $request -Prompt
 ## Context Detection
 1. **Find current key** from recent git commits (ckpt messages)
 2. **Load current plan** from `.github/key-data-streams/{key}/{key}.plan.md` (authoritative source of truth)
-3. **Check execution status** from recent commits and file changes
-4. **Identify completion state** of current phases
+3. **Validate branch matches plan** - Extract `**Branch**` field and verify current branch
+4. **Check execution status** from recent commits and file changes
+5. **Identify completion state** of current phases
+
+## Branch Validation (EXECUTE AFTER LOADING PLAN)
+
+**⚠️ CRITICAL: After loading `{key}.plan.md`, validate branch consistency:**
+
+**Process:**
+1. Extract `**Branch**` field from plan frontmatter
+2. Check current git branch: `git branch --show-current`
+3. Compare current branch with plan's recorded branch
+
+**Branch Mismatch Handling:**
+```
+⚠️ CRITICAL: Branch locked by plan file
+
+Plan branch: {planBranch} (from {key}.plan.md)
+Current branch: {current-branch}
+
+This key's work MUST remain on {planBranch} (recorded in plan).
+
+ACTION REQUIRED: Switch to {planBranch} branch
+Command: git checkout {planBranch}
+
+❌ ABORTING todo execution
+```
+
+**Branch Match (Success):**
+```
+✓ Branch verified: {current-branch} (matches plan)
+```
+
+**Enforcement:**
+- 🔒 **ABORT** (no override) if current branch ≠ plan branch
+- ✅ **PROCEED** only if current branch matches plan's branch
+- **NO user override allowed** - plan branch is authoritative
 
 ## Mode Detection (Auto-Select Best Workflow)
 

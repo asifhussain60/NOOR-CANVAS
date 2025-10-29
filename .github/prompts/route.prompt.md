@@ -177,12 +177,16 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 1. Load global index (`.github/key-data-streams/index.md`)
 2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
 3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
-4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
+4. **If plan file exists:**
+   - **Extract `**Branch**` field** from plan frontmatter (e.g., `**Branch**: development`)
+   - Store as `planBranch` variable for handoff
+   - **Route to task or todo** (NOT plan) - plan is source of truth
 5. If related keys found but no plan → present options to user and HALT
 6. If no related keys and no plan → proceed with new key creation
 
 **Routing Logic Based on Plan File:**
 - **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
+  - Pass `github-branch={planBranch}` from plan file to target prompt
 - **No plan exists** → Route to `plan` (create plan)
 - This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
 
@@ -302,15 +306,21 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 2. Add context from analysis (visual, error, file packages)
 3. Set agent-specific parameters based on target
 4. Preserve all analyzed context for target agent
+5. **If plan file exists (from Step 0):** Include `github-branch={planBranch}` in handoff parameters
 
 **Agent-specific parameters:**
 - `plan`: user_request, scope, constraints, include_suggestions
-- `task`: tasks, github-branch, commit-checkpoints, verbosity
-- `todo`: auto-chain, current work context
+- `task`: tasks, github-branch (from plan file if exists, else default), commit-checkpoints, verbosity
+- `todo`: auto-chain, current work context, github-branch (from plan file if exists)
 - `test-generation`: scenario, auto-execute, key (from plan or request)
 - `ask`: question, depth, verbosity, offer_actionable_handoff=true
 - `healthcheck`: scope, level
 - `drift`: parent_key, drift_description, severity
+
+**Branch Parameter Priority:**
+1. **Plan file branch** (if `{key}.plan.md` exists) - HIGHEST PRIORITY
+2. User-provided `github-branch` parameter
+3. Default: `development`
 
 **Post-Answer Handoff Protocol (for ask and test-generation):**
 - After answering/generating, these agents MUST offer actionable options

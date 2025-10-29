@@ -87,7 +87,7 @@ Update-StateRequest -Key $key -Type "refinement" -UserRequest $user_request -Pro
 4. **If plan exists**: Load it as source of truth, skip to Step 5 (plan update/refinement)
 5. Load context for each related key (plan file, work log, status, phases)
 6. If related keys found, present options to user and **HALT**
-7. If no related keys, proceed to Step 0.1 (key spelling validation)
+7. If no related keys, proceed to Step 0.2 (key spelling validation)
 
 **Critical: If `{key}.plan.md` exists, treat it as authoritative source of truth:**
 - Load existing plan structure
@@ -116,7 +116,60 @@ Reply: A, B, or C
 
 ---
 
-## 🔍 Step 0.1: KEY SPELLING VALIDATION
+## 🔍 Step 0.1: BRANCH VALIDATION (If Existing Plan)
+
+**⚠️ CRITICAL: If `{key}.plan.md` exists, validate and preserve branch:**
+
+**Process:**
+1. Extract `**Branch**` field from plan frontmatter
+2. Check current git branch: `git branch --show-current`
+3. Compare current branch with plan's recorded branch
+
+**Branch Mismatch Handling:**
+```markdown
+⚠️ CRITICAL: Plan exists on different branch
+
+Plan branch: {plan-branch} (from {key}.plan.md)
+Current branch: {current-branch}
+
+This key's work MUST remain on {plan-branch}.
+
+Would you like to:
+**A.** Switch to {plan-branch} (required to continue)
+**B.** Update plan to use {current-branch} (requires explicit approval)
+**C.** Cancel
+
+Reply: A, B, or C
+```
+
+**If user chooses A:**
+- Execute: `git checkout {plan-branch}`
+- Verify switch successful
+- Proceed with plan update
+
+**If user chooses B:**
+- Show warning: "⚠️ Changing plan branch. All future work will use {current-branch}"
+- Update `**Branch**` field in `{key}.plan.md`
+- Log change in work-log.md: "Branch changed from {plan-branch} to {current-branch} (user approved)"
+- Proceed with plan update
+
+**If user chooses C:**
+- Abort plan execution
+- Show message: "Cancelled. Switch to {plan-branch} to work on this key."
+
+**Branch Match (Success):**
+```
+✓ Branch verified: {current-branch} (matches plan)
+```
+
+**Enforcement:**
+- **ABORT** if mismatch and user doesn't approve switch/update
+- **PRESERVE** original branch unless user explicitly approves change
+- **LOG** all branch changes in work-log.md with timestamp and reason
+
+---
+
+## 🔍 Step 0.2: KEY SPELLING VALIDATION
 
 **Validate key follows naming conventions:**
 - Format: lowercase-with-hyphens (kebab-case)
@@ -133,7 +186,7 @@ Reply: A, B, or C
 
 ---
 
-## 🔍 Step 0.5: KEY DETECTION (if no key provided)
+## 🔍 Step 0.3: KEY DETECTION (if no key provided)
 
 **Auto-detect active key from git history:**
 1. Check recent commits for `ckpt({key}):` or `[DEBUG-WORKITEM:{key}:*]` patterns
@@ -207,9 +260,17 @@ Reply: A, B, or C
 
 **Generate comprehensive technical plan:**
 
-**Plan structure:**
-```
+**Plan structure with frontmatter:**
+```markdown
 # {key}.plan.md
+
+---
+**Key**: {key}  
+**Branch**: {github-branch}  
+**Created**: {date}  
+**Status**: Planning  
+**Plan Version**: v1.0
+---
 
 ## Executive Summary
 - Purpose, complexity, estimated time, priority
@@ -234,6 +295,11 @@ Reply: A, B, or C
 ## Rollback Plan
 - Checkpoint commits, rollback steps
 ```
+
+**Branch Recording:**
+- Use current git branch: `git branch --show-current`
+- Record in `**Branch**` field of plan frontmatter
+- This branch becomes the locked branch for all work on this key
 
 **Algorithm:** See `.github/prompts/shared/plan-generator.md`
 

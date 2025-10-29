@@ -358,23 +358,47 @@ Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain
 
 **Verification Process:**
 
-1. **Check current git branch:**
+1. **Load branch from plan file (HIGHEST PRIORITY):**
    ```bash
-   git branch --show-current
-   # Expected: development (or github-branch parameter value)
+   # Read .github/key-data-streams/{key}/{key}.plan.md
+   # Extract **Branch** field from frontmatter
+   planBranch=$(grep "^\*\*Branch\*\*:" .github/key-data-streams/{key}/{key}.plan.md | cut -d':' -f2 | xargs)
    ```
 
-2. **Validate against github-branch parameter:**
-   - **If `github-branch` parameter provided:** Verify current branch matches parameter
-   - **If `github-branch` NOT provided:** Default to `development`, verify current branch is `development`
+2. **Check current git branch:**
+   ```bash
+   git branch --show-current
+   # Expected: {planBranch} (from plan file) OR github-branch parameter OR development (default)
+   ```
 
-3. **Branch Mismatch Handling:**
-   - **Current branch = `master` AND github-branch = `development` (or not specified):**
+3. **Branch Priority (source of truth):**
+   - **1st Priority:** `{planBranch}` from `{key}.plan.md` frontmatter (if plan exists)
+   - **2nd Priority:** `github-branch` parameter (if provided)
+   - **3rd Priority:** `development` (default)
+
+4. **Branch Mismatch Handling:**
+   - **If plan file exists AND current branch ≠ plan branch:**
+     ```
+     ⚠️ CRITICAL: Branch locked by plan file
+     
+     Plan branch: {planBranch} (from {key}.plan.md)
+     Current branch: {current-branch}
+     
+     This key's work MUST remain on {planBranch} (recorded in plan).
+     
+     ACTION REQUIRED: Switch to {planBranch} branch
+     Command: git checkout {planBranch}
+     
+     ❌ ABORTING task execution
+     ```
+     **EXIT with error - NO override allowed when plan exists**
+   
+   - **Current branch = `master` AND required branch = `development`:**
      ```
      ⚠️ CRITICAL: Cannot execute on master branch
      
      Current branch: master
-     Required branch: development (per github-branch parameter)
+     Required branch: development
      
      Per SelfAwareness.instructions.md, ALL development work occurs in 'development' branch.
      
@@ -385,7 +409,7 @@ Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain
      ```
      **EXIT with error - do NOT proceed**
    
-   - **Current branch ≠ github-branch parameter:**
+   - **Current branch ≠ github-branch parameter (and no plan file):**
      ```
      ⚠️ WARNING: Branch mismatch detected
      
@@ -401,16 +425,17 @@ Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain
      - If user chooses "1" → Switch branch: `git checkout {github-branch}`
      - If user chooses "2" → Warn and document override in work log
 
-4. **Branch Validation Success:**
+5. **Branch Validation Success:**
    ```
    ✓ Branch verified: {current-branch}
-   (Matches github-branch parameter: {github-branch})
+   (Matches plan file: {planBranch})
    ```
 
 **Enforcement:**
+- 🔒 **ABORT** (no override) if plan file exists and current branch ≠ plan branch
 - ⚠️ **ABORT** task execution if on `master` branch (unless github-branch explicitly set to `master`)
-- ✅ **PROCEED** if current branch matches github-branch parameter
-- ⚠️ **PROMPT** user if mismatch detected (allow override with warning)
+- ✅ **PROCEED** if current branch matches plan file's branch
+- ⚠️ **PROMPT** user if mismatch detected and no plan file exists (allow override with warning)
 
 **See:** `SelfAwareness.instructions.md` - Branch Strategy section
 
