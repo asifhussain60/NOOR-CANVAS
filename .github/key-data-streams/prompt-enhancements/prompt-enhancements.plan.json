@@ -1,40 +1,41 @@
 {
-    "key": "prompt-enhancements",
-    "status": "in-progress",
-    "totalPhases": 4,
-    "completedPhases": 1,
-    "currentPhase": 1,
-    "phases": [
-        {
-            "id": 1,
-            "title": "Add File Finalization Verification Step",
-            "status": "complete",
-            "checkpoint": "ab4b569a",
-            "completedAt": "2025-10-29T00:00:00Z",
-            "tasks": []
-        },
-        {
-            "id": 2,
-            "title": "Update CONCISE-MANDATE.md",
-            "status": "not-started",
-            "checkpoint": null,
-            "tasks": []
-        },
-        {
-            "id": 3,
-            "title": "Add Enforcement Tests",
-            "status": "not-started",
-            "checkpoint": null,
-            "tasks": []
-        },
-        {
-            "id": 4,
-            "title": "Update Documentation",
-            "status": "not-started",
-            "checkpoint": null,
-            "tasks": []
-        }
-    ],
-    "createdAt": "2025-10-29T00:00:00Z",
-    "updatedAt": "2025-10-29T00:00:00Z"
+  "key": "prompt-enhancements",
+  "status": "in-progress",
+  "totalPhases": 4,
+  "completedPhases": 2,
+  "currentPhase": 2,
+  "phases": [
+    {
+      "id": 1,
+      "title": "Add File Finalization Verification Step",
+      "status": "complete",
+      "checkpoint": "ab4b569a",
+      "completedAt": "2025-10-29T00:00:00Z",
+      "tasks": []
+    },
+    {
+      "id": 2,
+      "title": "Update CONCISE-MANDATE.md",
+      "status": "complete",
+      "checkpoint": null,
+      "completedAt": "2025-10-29T00:00:00Z",
+      "tasks": []
+    },
+    {
+      "id": 3,
+      "title": "Add Enforcement Tests",
+      "status": "not-started",
+      "checkpoint": null,
+      "tasks": []
+    },
+    {
+      "id": 4,
+      "title": "Update Documentation",
+      "status": "not-started",
+      "checkpoint": null,
+      "tasks": []
+    }
+  ],
+  "createdAt": "2025-10-29T00:00:00Z",
+  "updatedAt": "2025-10-29T00:00:00Z"
 }

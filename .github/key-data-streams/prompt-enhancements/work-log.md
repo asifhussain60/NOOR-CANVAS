@@ -38,5 +38,57 @@
 - ab4b569a - ckpt(prompt-enhancements): Phase 1 - file finalization verification
 - e5b8cd68 - fix(prompt-enhancements): Correct plan.json formatting
 
-**Next:** Phase 2 - Update CONCISE-MANDATE.md with Rule 11
+**Next:** Phase 3 - Add Enforcement Tests
+
+---
+
+### Phase 2: Update CONCISE-MANDATE.md ✅ COMPLETE
+
+**Status:** Complete  
+**Activity:** Updated CONCISE-MANDATE.md with revised rules and Rule 11
+
+**Files Modified:**
+- shared/CONCISE-MANDATE.md (updated Hard Limits, Response Structure, Letter-Based Actions, Enforcement)
+
+**Changes Implemented:**
+
+1. **Hard Limits Section (Updated to Numbered List):**
+   - Rule 1-10: Existing rules (with revisions)
+   - Rule 2: MAX 3 lines per bullet (was 2)
+   - Rule 3: Clarified "no code snippets" (not just blocks)
+   - Rule 9: **Letter-based actions** - Recommended option in ALL CAPS
+   - **Rule 11 (NEW)**: VERIFY FILE FINALIZATION
+     - plan.prompt.md: Step 5.5 verification
+     - task.prompt.md: Step 8.25 verification
+     - todo.prompt.md: pre-response verification
+     - Enforcement: HALT if missing, BLOCK subsequent steps
+     - Reference: file-finalization-verifier.md
+
+2. **Response Structure Section:**
+   - Updated from "2 lines each" to "3 lines each"
+   - Applies to Analysis, Summary sections
+
+3. **Letter-Based Actions Section:**
+   - Added formatting requirement: Recommended option in **ALL CAPS**
+   - Added alternative: Use heading for prominence
+   - Example: **A. EXECUTE / PROCEED** (recommended)
+
+4. **Enforcement Section:**
+   - Added step 2: Check line length (≤3 lines per bullet)
+   - Added step 4: Scan for code snippets (inline examples)
+   - Added step 7: **Verify file finalization** (Rule 11)
+   - Added step 8: Check letter-based actions formatting
+   - Updated auto-fail triggers: Include code snippets, missing files
+
+**Testing Results:**
+- ✅ Rules now numbered 1-11 for clarity
+- ✅ File finalization documented as critical rule
+- ✅ Recommended option formatting specified
+- ✅ 3 lines per bullet allows more detail
+- ✅ Code snippets explicitly prohibited (not just blocks)
+
+**Commits:**
+- (pending) ckpt(prompt-enhancements): Phase 2 - CONCISE-MANDATE update
+
+**Next:** Phase 3 - Add Enforcement Tests
 
