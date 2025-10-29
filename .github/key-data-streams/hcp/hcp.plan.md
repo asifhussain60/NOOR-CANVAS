@@ -137,6 +137,46 @@ For detailed implementation information on each component, see the archived plan
 
 ---
 
+### 6. API Layer Consolidation (Phase 1) ✅
+
+**Source:** `hcp-cleanup` refactoring work (2025-10-29)  
+**Status:** Complete  
+**Commit:** `316a093f`
+
+**Objective:** Extract transcript processing logic from HostControlPanel.razor into dedicated API layer for better separation of concerns.
+
+**Key Features:**
+- Created TranscriptController with 3 RESTful endpoints
+- Extracted TranscriptProcessingService for business logic  
+- Implemented test-first approach (11 integration tests)
+- Registered service in DI container (Program.cs)
+- Fixed test runner path bug (Invoke-PlaywrightTest.ps1)
+
+**API Endpoints:**
+- `GET /api/transcript/{sessionId}` - Retrieve transcript HTML from KSESSIONS
+- `POST /api/transcript/{sessionId}/transform` - Remove delete/share buttons, clean attributes
+- `POST /api/transcript/{sessionId}/detect-assets` - CSS selector-based asset detection
+
+**Files Created:**
+- `SPA/NoorCanvas/Controllers/TranscriptController.cs` (216 lines)
+- `SPA/NoorCanvas/Services/TranscriptProcessingService.cs` (437 lines)
+- `Tests/Integration/TranscriptApiTests.cs` (361 lines)
+
+**Files Modified:**
+- `SPA/NoorCanvas/Program.cs` (service registration)
+- `Scripts/Test-Framework/Invoke-PlaywrightTest.ps1` (path fix)
+
+**Service Methods:**
+- `GetTranscriptAsync()` - Database retrieval from KSESSIONS.SessionTranscripts
+- `TransformTranscriptAsync()` - Regex-based HTML transformation (4 modes)
+- `DetectAssetsAsync()` - AngleSharp CSS selector detection with AssetLookup API
+
+**Build Status:** ✅ Clean (0 errors, 9 pre-existing warnings)
+
+**Next Phase:** Run baseline regression test, then refactor HCP to consume new APIs
+
+---
+
 ## Consolidated File Structure
 
 ```

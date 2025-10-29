@@ -202,6 +202,56 @@
 
 ---
 
+---
+
+## Session: Phase 1 API Layer Consolidation (2025-10-29)
+
+**Objective:** Extract transcript processing logic from HostControlPanel.razor into API layer
+
+**Problem:** HostControlPanel.razor contains 5,127 lines with mixed concerns (UI + business logic + database access)
+
+**Solution:** Create TranscriptController + TranscriptProcessingService for clean separation
+
+**Work Completed:**
+- Designed 3-endpoint RESTful API (GET transcript, POST transform, POST detect-assets)
+- Created TranscriptProcessingService with transcript retrieval, transformation, asset detection
+- Wrote 11 integration test cases using test-first approach
+- Registered TranscriptProcessingService in DI container (Program.cs)
+- Fixed test runner path bug in Invoke-PlaywrightTest.ps1 (double-nested path)
+
+**Architecture:**
+- Controller: TranscriptController (3 endpoints with XML docs)
+- Service: TranscriptProcessingService (async methods, AngleSharp for CSS selectors)
+- Tests: TranscriptApiTests (11 test cases, currently non-executable)
+- Integration: Uses existing KSessionsDbContext, AssetLookup API
+
+**Build Status:** ✅ Clean build (0 errors, 9 pre-existing warnings, 0 new warnings)
+
+**Files Created:**
+- `SPA/NoorCanvas/Controllers/TranscriptController.cs` (216 lines)
+- `SPA/NoorCanvas/Services/TranscriptProcessingService.cs` (437 lines)  
+- `Tests/Integration/TranscriptApiTests.cs` (361 lines)
+
+**Files Modified:**
+- `SPA/NoorCanvas/Program.cs` (added TranscriptProcessingService registration)
+- `Scripts/Test-Framework/Invoke-PlaywrightTest.ps1` (fixed path construction bug)
+
+**Commits:** `316a093f` - "[PHASE-1:hcp-cleanup] API Layer Consolidation"
+
+**Next Steps:** 
+1. Run baseline regression test (hcp-refactor-baseline.spec.ts)
+2. Refactor HostControlPanel to consume new APIs (Phase 3)
+3. Migrate integration tests to Playwright or create test project
+
+**Testing Strategy:** Test-first approach - 11 tests define expected API contracts before implementation
+
+**Lessons Learned:**
+- Test-first approach caught design issues early
+- Service layer extraction improves testability
+- Pre-existing warnings acceptable (per WARNING-HANDLING-MANDATE)
+
+---
+
 ## Related Keys
 
 **Prompt System:**
