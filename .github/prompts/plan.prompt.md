@@ -1,13 +1,23 @@
-=# plan.prompt.md (Feature Planning Agent v1.6)
+=# plan.prompt.md (Feature Planning Agent v1.7)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
-inputs: key, user_request, context, scope, constraints, include_suggestions, -test
+inputs: key, user_request, context, scope, constraints, include_suggestions, auto-chain, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
 lastUpdated: 2025-10-29
 stateTracking: enabled
 changelog: |
+  v1.7 (2025-10-29): E2E PHASE EXECUTION & RESPONSE FORMAT IMPROVEMENTS
+  - Added auto-chain parameter for end-to-end multi-phase execution
+  - Option E (**AUTO-EXECUTE ALL PHASES**) shown as RECOMMENDED for finalized plans
+  - Updated Step 6 with auto-chain handoff logic (automatic vs manual approval)
+  - Added 📋 Phases & Tasks section to OUTPUT FORMAT (shows task breakdown)
+  - Updated 📌 Plan Overview to show task counts per phase
+  - Reduced 🧠 Analysis to ≤5 bullets (allocate space for task lists)
+  - Users approve plan ONCE, execution proceeds E2E (halts only for manual intervention)
+  - References CONCISE-MANDATE.md Rule 12 (default to E2E execution)
+  
   v1.6 (2025-10-29): Added Step 5.5 FILE FINALIZATION VERIFICATION (BLOCKING)
   - Enforces "Document First, Respond Later" protocol
   - Verifies plan.md, plan.json, work-log.md, state.json exist before user response
@@ -45,6 +55,13 @@ Technical or business constraints
 ### include_suggestions *(optional)*
 - `lightweight-mode` - Skip questionnaires for simple features
 - `full-detail` - Use questionnaires for all features
+
+### auto-chain *(optional)*
+- `true` - Automatically execute all phases end-to-end without user approval between phases
+- `false` - Wait for user approval after each phase (default)
+- When enabled: Executes Phase 1 → Phase 2 → ... → Phase N automatically
+- Halts only for manual intervention (test validation, migration review, failures)
+- **Recommended for finalized plans** - Set during plan approval (Option E)
 
 ---
 
@@ -389,8 +406,26 @@ VerifyFileFinalization(key):
 - `phase=1` - Start with Phase 1
 - `github-branch=development` - Target branch
 - `commit-checkpoints=true` - Checkpoint after each phase
+- `auto-chain={true|false}` - Pass auto-chain mode to task agent
 
-**3. Prepare test handoff parameters (if UI/API changes):**
+**3. Auto-chain execution logic:**
+```
+IF auto-chain == true THEN
+  // Automatic E2E execution mode
+  InvokeTaskPrompt(key, phase=1, auto-chain=true)
+  // task.prompt.md will continue to phase 2, 3, ... N automatically
+  // Returns here only on completion or manual intervention required
+ELSE
+  // Manual approval mode (current behavior)
+  ShowUserApprovalOptions()
+  WaitForUserChoice()
+  IF user chooses "Execute" THEN
+    InvokeTaskPrompt(key, phase=1, auto-chain=false)
+  END IF
+END IF
+```
+
+**4. Prepare test handoff parameters (if UI/API changes):**
 - `key={key}` - Key identifier
 - `scenario={test-scenarios}` - Extracted from plan
 - `test-type={unit|e2e|visual}` - Based on affected layers
@@ -521,29 +556,49 @@ Reply: Done (after answering)
 - Total phases: {count} ({simple|moderate|complex} complexity)
 - Files created: `{key}.plan.md`, `{key}.plan.json`, `work-log.md`
 - Location: `.github/key-data-streams/{key}/`
-- Ready for execution via task.prompt.md
+- Ready for execution via task.prompt.md (manual or auto-chain)
 
 **📌 Plan Overview (≤10 bullets)**
-1. **Phase 1:** {phase-title} - {file-count} files affected
-2. **Phase 2:** {phase-title} - {file-count} files affected
-3. **Phase 3:** {phase-title} - {file-count} files affected
+1. **Phase 1:** {phase-title} ({task-count} tasks, {file-count} files)
+2. **Phase 2:** {phase-title} ({task-count} tasks, {file-count} files)
+3. **Phase 3:** {phase-title} ({task-count} tasks, {file-count} files)
 4. **Test Strategy:** {test-types-list}
 5. **Rollback:** Checkpoint commits enabled for each phase
 6. **Handoff:** task.prompt.md (execution) + test-generation.prompt.md (tests)
 7. **First Phase:** {phase-1-title}
 8. **Estimated Scope:** {affected-layers-summary}
 9. **Dependencies:** {any-dependencies-or-none}
-10. **Next Step:** Execute Phase 1 or review plan files
+10. **Next Step:** Review task breakdown below, then choose execution mode
+
+**📋 Phases & Tasks** (phase headers use bold, tasks use bullets)
+
+**Phase 1: {Title}**
+- Task 1.1: {action} - {expected-outcome}
+- Task 1.2: {action} - {expected-outcome}
+- Task 1.3: {action} - {expected-outcome}
+
+**Phase 2: {Title}**
+- Task 2.1: {action} - {expected-outcome}
+- Task 2.2: {action} - {expected-outcome}
+
+**Phase 3: {Title}**
+- Task 3.1: {action} - {expected-outcome}
+- Task 3.2: {action} - {expected-outcome}
+- Task 3.3: {action} - {expected-outcome}
 
 **⚡ Options**
-**A.** Execute Phase 1 now  
+**A.** Execute Phase 1 only (manual approval for each phase)  
 **B.** Review plan files first  
 **C.** Modify plan scope  
-**D.** Cancel planning
+**D.** Cancel planning  
+**E. AUTO-EXECUTE ALL PHASES** (recommended - E2E execution with auto-chain)
 
-Reply: A, B, C, or D
+Reply: A, B, C, D, or E
 
-**Behavior:** Wait for user approval before handoff to task.prompt.md.
+**Behavior:** 
+- If E selected: Set `auto-chain=true` and invoke task.prompt.md for automatic E2E execution
+- If A selected: Set `auto-chain=false` and wait for approval after each phase
+- If B/C/D selected: Wait for user action
 
 ---
 

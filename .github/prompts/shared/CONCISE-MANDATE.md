@@ -19,6 +19,12 @@
     - **todo.prompt.md**: Verify `work-log.md` appended (file size increased) before response
     - **Enforcement**: HALT if files missing, BLOCK subsequent steps, show error message
     - **See**: `.github/prompts/shared/file-finalization-verifier.md` for complete algorithm
+12. **DEFAULT TO E2E EXECUTION** - After plan finalized, recommend auto-chain mode
+    - **plan.prompt.md**: Show Option E (**AUTO-EXECUTE ALL PHASES**) as RECOMMENDED
+    - **Behavior**: Execute all phases automatically without approval gates
+    - **Manual intervention**: Halt only when user action required (tests, migrations, failures)
+    - **Rationale**: User approves plan once, execution proceeds end-to-end
+    - **See**: plan.prompt.md auto-chain parameter documentation
 
 ## What Code Means
 
@@ -90,16 +96,24 @@
 ```
 
 ## Letter-Based Actions
-Always provide 2-4 options with **RECOMMENDED option in ALL CAPS**:
-- **A.** **EXECUTE / PROCEED** (recommended - shown in ALL CAPS)
+Always provide 2-5 options with **RECOMMENDED option in ALL CAPS**:
+- **A.** **EXECUTE / PROCEED** (for single-phase or step-by-step)
 - **B.** Review Plan / Details
 - **C.** Modify Approach
 - **D.** Cancel / Skip
+- **E.** **AUTO-EXECUTE ALL PHASES** (recommended for multi-phase plans - E2E execution)
 
 **Formatting:**
 - Recommended option: Use **bold** + **ALL CAPS** for prominence
-- Alternative: Increase font size using heading (e.g., `### A. EXECUTE`)
-- User replies: "A", "A, C", or "all"
+- For multi-phase plans: Option E (auto-chain) is RECOMMENDED
+- For single actions: Option A is RECOMMENDED
+- Alternative: Increase font size using heading (e.g., `### E. AUTO-EXECUTE ALL PHASES`)
+- User replies: "A", "E", "A, C", or "all"
+
+**Auto-Chain Preference:**
+- When plan.prompt.md shows final plan: Recommend Option E (E2E execution)
+- When task.prompt.md shows phase completion: Use auto-chain flag from plan
+- User approves plan ONCE, execution proceeds automatically
 
 ## File Locations
 All output → `.github/key-data-streams/{key}/` (authoritative location)
@@ -129,7 +143,8 @@ Before responding:
 6. Check for {key}.plan.md reference → Must point to docs for implementation details
 7. **Verify file finalization** → All key data stream files must exist (see Rule 11)
 8. Check letter-based actions → Recommended option must be in **ALL CAPS**
-9. Violations → AUTO-BLOCK response, rewrite without code/snippets
+9. **Check auto-chain recommendation** → For multi-phase plans, Option E should be RECOMMENDED
+10. Violations → AUTO-BLOCK response, rewrite without code/snippets
 
 **Auto-fail triggers:**
 - Any ```csharp, ```javascript, ```html, ```css, ```razor, ```sql, ```typescript block

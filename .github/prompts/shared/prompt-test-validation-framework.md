@@ -1516,6 +1516,110 @@ Agent: [Executes todo.prompt.md]
 
 ---
 
+### Example 7: plan.prompt.md Auto-Chain E2E Execution
+
+**Scenario:** Multi-phase plan finalized, user selects Option E (auto-execute all phases)
+
+**Execution:**
+1. User approves plan with `auto-chain=true`
+2. plan.prompt.md hands off to task.prompt.md with `auto-chain=true`, `phase=1`
+3. task.prompt.md completes Phase 1, automatically proceeds to Phase 2
+4. Phase 2 encounters test failure (manual intervention required)
+5. Auto-chain pauses, waits for user to fix tests
+6. User replies "Continue", auto-chain resumes from Phase 3
+7. Phases 3-5 execute automatically to completion
+
+**Expected Validation:**
+
+```markdown
+**🧠 Auto-Chain Validation (≤5 bullets)**
+- Test: plan.prompt.md multi-phase auto-chain execution
+- Phases: 5 total (Phase 1-2 auto, Phase 2 paused, Phase 3-5 auto)
+- Auto-chain: Successfully paused for manual intervention (test failure)
+- Resume: User replied "Continue", execution resumed correctly
+- Result: All phases completed with 1 manual intervention
+
+**📌 Validation Checks (≤10 bullets)**
+1. ✅ Option E (**AUTO-EXECUTE ALL PHASES**) shown as RECOMMENDED
+2. ✅ `auto-chain=true` passed to task.prompt.md in handoff parameters
+3. ✅ Phases 1-2 executed without user approval gates
+4. ✅ Phase 2 test failure detected → auto-chain PAUSED
+5. ✅ User notified: "Auto-chain paused - test failure in Phase 2"
+6. ✅ User action: "Continue" → auto-chain resumed from Phase 3
+7. ✅ Phases 3-5 executed without further approval
+8. ✅ No approval gates between successful phases
+9. ✅ Total execution time: Reduced by 80% (vs manual approval)
+10. ✅ Quality score: 95/100 (Excellent - smart pause/resume)
+
+**⚡ Options**
+**A. PROCEED** with next test case  
+**B.** Review auto-chain execution logs  
+**C.** Test manual intervention scenarios (migrations, Percy)  
+**D.** Mark validation framework tests complete
+```
+
+**Quality Score:** 95/100 (Excellent)
+- Auto-chain enabled as RECOMMENDED ✅
+- Proper handoff with auto-chain flag ✅
+- Smart pause on manual intervention ✅
+- Clean resume after user action ✅
+- Significant efficiency improvement ✅
+
+---
+
+### Example 8: plan.prompt.md Missing Auto-Chain Recommendation
+
+**Scenario:** Multi-phase plan (4 phases) shown to user WITHOUT Option E
+
+**Execution:**
+1. User requests plan with 4 phases
+2. plan.prompt.md generates plan successfully
+3. Output shows Options A-D but NOT Option E
+4. Validation detects missing auto-chain recommendation
+
+**Expected Validation:**
+
+```markdown
+**🧠 Validation Failure (≤5 bullets)**
+- Test: plan.prompt.md output format validation
+- Issue: Multi-phase plan missing auto-chain recommendation
+- Phases: 4 (should trigger Option E display)
+- Violation: CONCISE-MANDATE.md Rule 12 (default to E2E execution)
+- Severity: WARNING (user can still proceed but suboptimal UX)
+
+**📌 Validation Checks (≤10 bullets)**
+1. ✅ Plan generated correctly (4 phases, tasks defined)
+2. ✅ 📋 Phases & Tasks section present
+3. ✅ File finalization verified (plan.md, plan.json, work-log.md)
+4. ❌ **Option E missing** - Multi-phase plan MUST show auto-chain option
+5. ❌ **Recommended option unclear** - No option shown in ALL CAPS
+6. ⚠️ User defaults to Option A (manual phase-by-phase)
+7. ⚠️ Execution will require 4 approval cycles (inefficient)
+8. ⚠️ Violates CONCISE-MANDATE.md Rule 12
+9. ⚠️ output-validator.md Check 9 should have caught this
+10. ❌ Quality score: 70/100 (Acceptable but needs improvement)
+
+**⚡ Options**
+**A.** Auto-fix output (add Option E, mark as RECOMMENDED)  
+**B.** Report to improvement plan  
+**C.** Update output-validator.md to catch this earlier  
+**D. ALL OF THE ABOVE** (recommended)
+```
+
+**Quality Score:** 70/100 (Acceptable)
+- Plan structure correct ✅
+- Tasks and file finalization verified ✅
+- **Missing auto-chain option** ❌
+- **No RECOMMENDED guidance** ❌
+- Inefficient user experience ⚠️
+
+**Improvement Actions:**
+1. Add Option E to output template
+2. Update output-validator.md Check 8 enforcement
+3. Test with multi-phase plans to verify
+
+---
+
 ## Best Practices
 
 ### For Prompt Authors
