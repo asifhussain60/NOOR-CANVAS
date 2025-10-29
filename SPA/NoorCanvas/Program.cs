@@ -182,6 +182,9 @@ builder.Services.AddScoped<AssetHtmlProcessingService>(); // Advanced asset dete
 // AssetProcessingService - Extracted from HostControlPanel for HTML transformation and asset sharing
 builder.Services.AddScoped<AssetProcessingService>(); // HTML transformation service with asset sharing buttons
 
+// [PHASE-1:hcp-cleanup] TranscriptProcessingService - API layer for transcript operations
+builder.Services.AddScoped<TranscriptProcessingService>(); // Transcript retrieval, transformation, and asset detection
+
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks
