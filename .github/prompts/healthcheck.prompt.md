@@ -7,13 +7,24 @@ description: Read-only system health auditor and prompt optimization analyzer (n
 > purpose: Validate system and prompt infrastructure health without modifying code; analyze prompt optimization opportunities
 > inputs: scope, level, notes, -test
 > outputs: health audit report, violations by severity, optimization recommendations; updates SYSTEM-REGISTRY.md when changes detected
-> lastUpdated: 2025-10-28
+> lastUpdated: 2025-10-29
 > stateTracking: enabled
 > calls: [update-registry]
 
-**Version:** 1.2.0  
-**Last Updated:** 2025-10-28  
+**Version:** 1.3.0  
+**Last Updated:** 2025-10-29  
 **Changelog:**
+- **v1.3.0 (2025-10-29)**: KDS INTEGRITY VALIDATION - Added comprehensive Key Data Stream validation algorithms addressing lessons from CopilotChats.md analysis
+  - Document-First Protocol compliance checking (detects 60% violation rate)
+  - Work Log Continuity validation (gaps, staleness, orphaned keys)
+  - Test Registry Completeness (addresses 33% undocumented test gap)
+  - Plan-to-Implementation mapping (phase tracking validation)
+  - Directory Structure enforcement (required/optional/prohibited files)
+  - Cross-Key Dependency validation (circular refs, broken links)
+  - Added 6 comprehensive KDS validation algorithms with drift registration
+  - Integrated KDS validation into Standard Audit Execution (Step 3b)
+  - Updated Auto-Drift Detection triggers with KDS-specific issues
+  - Enhanced Validation Scope with KDS integrity mandate
 - **v1.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for healthcheck request logging (uses "healthcheck-audit" key)
 - Add quick banner with Prompt Optimization Mode pointer and shared references
 - Align early output-style and execution-flow cross-links
@@ -151,6 +162,13 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - **AnalyzerConfig.MD** - Analyzer and linter compliance enforcement
 - **PlaywrightConfig.MD** - Test coverage validation
 - **ValidationFramework.md** - Comprehensive 6-level validation (read-only verification)
+- **Key Data Streams (KDS) Integrity** - Validate .github/key-data-streams/ structure and compliance
+  - Document-First Protocol: plan.md/work-log.md updated before code commits
+  - Work Log Continuity: No gaps >7 days, no orphaned keys
+  - Test Registry Completeness: All test files documented in test-registry.md
+  - Plan-to-Implementation: All plan phases tracked in work-log.md
+  - Directory Structure: Required files exist, no prohibited files
+  - Cross-Key Dependencies: No circular dependencies, all refs valid
 
 ### Learning Integration
 - **Cross-Agent Learning:** Query `.github/learning/patterns/validation-patterns.json` for known issues
@@ -535,6 +553,15 @@ During healthcheck analysis, automatically detect and register unrelated system-
 - Missing/invalid parameters in prompt definitions
 - Execution flow inconsistencies
 
+**Key Data Stream (KDS) Integrity**:
+- Missing or outdated {key}.plan.md files
+- Gaps in work-log.md session entries (>7 days without update)
+- Undocumented tests in test-registry.md
+- Plan files without corresponding work-log entries
+- Test files created without test-registry.md updates
+- Documentation lag: code committed before plan.md/work-log.md updates
+- Orphaned KDS directories (no active plan or recent work-log entries)
+
 **Documentation Drift**:
 - Outdated documentation vs. actual code
 - Missing documentation for new features
@@ -747,6 +774,271 @@ D) Continue with another healthcheck scope
   - Security: Input validation, SQL injection risks, XSS vulnerabilities
   - Performance: N+1 queries, inefficient loops, memory leaks
 
+**Key Data Stream (KDS) Validation** (MANDATORY for scope=all, scope=.github, or scope=prompts):
+
+**1. Document-First Protocol Compliance:**
+```powershell
+# Algorithm: Detect Documentation Lag Violations
+FOR EACH active key in .github/key-data-streams/:
+  
+  # Get all commits affecting this key
+  $keyCommits = git log --all --oneline --name-status -- .github/key-data-streams/{key}/
+  
+  # For each code commit, verify doc commit came first
+  FOR EACH commit in $keyCommits:
+    IF commit modifies code files (Controllers/, Services/, Components/) THEN
+      $docCommit = Find prior commit updating {key}.plan.md OR work-log.md
+      
+      IF NOT $docCommit EXISTS THEN
+        REGISTER DRIFT:
+          key: "kds-doc-lag-{key}"
+          severity: "high"
+          description: "Code committed without prior documentation update"
+          violation: "Document-First Protocol (SelfAwareness.instructions.md)"
+          files: {list of code files committed}
+          recommendation: "Update {key}.plan.md and work-log.md before code commits"
+      END IF
+    END IF
+  END FOR
+END FOR
+```
+
+**2. Work Log Continuity Validation:**
+```powershell
+# Algorithm: Detect Stale or Orphaned Keys
+FOR EACH key in .github/key-data-streams/:
+  
+  $workLog = "{key}/work-log.md"
+  
+  IF NOT EXISTS($workLog) THEN
+    REGISTER DRIFT:
+      key: "kds-missing-worklog-{key}"
+      severity: "critical"
+      description: "Key exists without work-log.md"
+      recommendation: "Create work-log.md or remove orphaned key directory"
+  ELSE
+    $lastEntry = Parse last session date from work-log.md
+    $daysSinceUpdate = (Today - $lastEntry).Days
+    
+    IF $daysSinceUpdate > 30 THEN
+      REGISTER DRIFT:
+        key: "kds-stale-{key}"
+        severity: "medium"
+        description: "No work-log.md updates in {days} days (potentially stale key)"
+        recommendation: "Archive key or resume work with fresh session entry"
+    END IF
+    
+    # Check for session gaps > 7 days
+    $sessionGaps = Find gaps between consecutive work-log.md entries > 7 days
+    IF $sessionGaps.Count > 0 THEN
+      REGISTER DRIFT:
+        key: "kds-worklog-gaps-{key}"
+        severity: "low"
+        description: "Work log has {count} gaps > 7 days"
+        recommendation: "Ensure continuous documentation during active development"
+    END IF
+  END IF
+END FOR
+```
+
+**3. Test Registry Completeness Validation:**
+```powershell
+# Algorithm: Detect Undocumented Tests (addresses 33% violation rate)
+FOR EACH key in .github/key-data-streams/:
+  
+  $testDirectory = "{key}/tests/"
+  $testRegistry = "{key}/tests/test-registry.md"
+  
+  IF EXISTS($testDirectory) THEN
+    $testFiles = Get all *.spec.ts, *Tests.cs files in $testDirectory
+    
+    IF NOT EXISTS($testRegistry) THEN
+      REGISTER DRIFT:
+        key: "kds-missing-registry-{key}"
+        severity: "high"
+        description: "{count} test files exist without test-registry.md"
+        files: $testFiles
+        recommendation: "Create test-registry.md documenting all test files"
+    ELSE
+      $documentedTests = Parse test file paths from test-registry.md
+      $undocumentedTests = $testFiles - $documentedTests
+      
+      IF $undocumentedTests.Count > 0 THEN
+        REGISTER DRIFT:
+          key: "kds-undocumented-tests-{key}"
+          severity: "medium"
+          description: "{count} test files not in test-registry.md"
+          files: $undocumentedTests
+          recommendation: "Update test-registry.md with missing test entries"
+      END IF
+    END IF
+  END IF
+END FOR
+```
+
+**4. Plan-to-Implementation Mapping:**
+```powershell
+# Algorithm: Validate Plan Execution Tracking
+FOR EACH key in .github/key-data-streams/:
+  
+  $planFile = "{key}/{key}.plan.md"
+  $workLog = "{key}/work-log.md"
+  
+  IF EXISTS($planFile) THEN
+    $planPhases = Parse all phases from plan.md
+    
+    IF NOT EXISTS($workLog) THEN
+      REGISTER DRIFT:
+        key: "kds-plan-no-worklog-{key}"
+        severity: "high"
+        description: "Plan exists without work-log.md tracking"
+        recommendation: "Create work-log.md and document plan execution"
+    ELSE
+      $workLogPhases = Parse completed phases from work-log.md
+      $unmappedPhases = $planPhases - $workLogPhases
+      
+      IF $unmappedPhases.Count > 0 THEN
+        REGISTER DRIFT:
+          key: "kds-incomplete-phases-{key}"
+          severity: "medium"
+          description: "{count} plan phases without work-log sessions"
+          phases: $unmappedPhases
+          recommendation: "Document phase execution in work-log.md or update plan status"
+      END IF
+    END IF
+    
+    # Verify plan.md references actual files
+    $referencedFiles = Parse file references from plan.md
+    FOR EACH file in $referencedFiles:
+      IF NOT EXISTS(file) THEN
+        REGISTER DRIFT:
+          key: "kds-broken-plan-refs-{key}"
+          severity: "low"
+          description: "Plan references non-existent file: {file}"
+          recommendation: "Update plan.md or create referenced file"
+      END IF
+    END FOR
+  END IF
+END FOR
+```
+
+**5. KDS Directory Structure Validation:**
+```powershell
+# Algorithm: Enforce Canonical KDS Structure
+$canonicalStructure = @{
+  required = @("{key}.plan.md", "work-log.md")
+  optional = @("tests/test-registry.md", "drift-log.md", "metadata.json")
+  prohibited = @("*.tmp", "*.backup", "*.bak") # Only allowed in root .github/prompts/
+}
+
+FOR EACH key in .github/key-data-streams/:
+  
+  # Check required files
+  FOR EACH requiredFile in $canonicalStructure.required:
+    IF NOT EXISTS("{key}/{requiredFile}") THEN
+      REGISTER DRIFT:
+        key: "kds-missing-required-{key}"
+        severity: "critical"
+        description: "Missing required file: {requiredFile}"
+        recommendation: "Create {requiredFile} following KDS protocol"
+    END IF
+  END FOR
+  
+  # Check for prohibited files
+  $prohibitedFiles = Find files matching $canonicalStructure.prohibited in {key}/
+  IF $prohibitedFiles.Count > 0 THEN
+    REGISTER DRIFT:
+      key: "kds-prohibited-files-{key}"
+      severity: "low"
+      description: "Found {count} prohibited files in KDS directory"
+      files: $prohibitedFiles
+      recommendation: "Move .backup files to .github/prompts/ or delete temp files"
+  END IF
+  
+  # Validate tests/ directory if exists
+  IF EXISTS("{key}/tests/") THEN
+    IF NOT EXISTS("{key}/tests/test-registry.md") THEN
+      REGISTER DRIFT:
+        key: "kds-tests-no-registry-{key}"
+        severity: "high"
+        description: "tests/ directory exists without test-registry.md"
+        recommendation: "Create test-registry.md following protocol"
+    END IF
+  END IF
+END FOR
+```
+
+**6. Cross-Key Dependency Validation:**
+```powershell
+# Algorithm: Detect Circular or Broken Key Dependencies
+FOR EACH key in .github/key-data-streams/:
+  
+  $planFile = "{key}/{key}.plan.md"
+  IF EXISTS($planFile) THEN
+    $dependencies = Parse "Depends on:" or "Related to:" from plan.md
+    
+    FOR EACH dependency in $dependencies:
+      IF NOT EXISTS(".github/key-data-streams/{dependency}/") THEN
+        REGISTER DRIFT:
+          key: "kds-broken-dependency-{key}"
+          severity: "medium"
+          description: "Plan references non-existent key: {dependency}"
+          recommendation: "Update plan.md or create dependent key"
+      ELSE
+        # Check for circular dependencies
+        $depPlan = "{dependency}/{dependency}.plan.md"
+        IF EXISTS($depPlan) THEN
+          $depDependencies = Parse dependencies from $depPlan
+          IF $key IN $depDependencies THEN
+            REGISTER DRIFT:
+              key: "kds-circular-dependency-{key}"
+              severity: "high"
+              description: "Circular dependency: {key} ↔ {dependency}"
+              recommendation: "Refactor to remove circular dependency"
+          END IF
+        END IF
+      END IF
+    END FOR
+  END IF
+END FOR
+```
+
+**KDS Validation Summary:**
+After all KDS validations, generate summary:
+```markdown
+## 🗂️ Key Data Stream (KDS) Health Report
+
+**Total Active Keys:** {count}
+**Healthy Keys:** {count} (100% compliant)
+**Keys with Issues:** {count}
+
+### Critical Issues
+- Missing required files: {count keys}
+- Plan without work-log: {count keys}
+
+### High Priority
+- Documentation lag violations: {count keys}
+- Tests without registry: {count keys}
+- Broken dependencies: {count keys}
+
+### Medium Priority
+- Stale keys (>30 days): {count keys}
+- Incomplete phase tracking: {count keys}
+- Undocumented tests: {count files}
+
+### Low Priority
+- Work log gaps: {count keys}
+- Prohibited files: {count files}
+- Broken plan references: {count refs}
+
+**Recommendations:**
+1. Address critical issues immediately (missing files, structure violations)
+2. Fix documentation lag (enforce Document-First Protocol)
+3. Update test registries (prevent 33% gap recurrence)
+4. Archive or resume stale keys
+5. Clean up orphaned files
+```
+
 **AI Infrastructure Validation:**
 - **If scope includes prompts, instructions, or .github:**
   - **Prompt file syntax:** Validate markdown structure, code fences, parameter definitions
@@ -758,6 +1050,29 @@ D) Continue with another healthcheck scope
   - **Shared library usage:** Check for duplicate content that should be extracted to shared/
   - **Version tracking:** Ensure changelog entries present for modified prompts
   - **Learning pattern references:** Validate references to `.github/learning/` exist
+  - **KDS (Key Data Stream) Integrity Validation:**
+    - **Document-First Protocol Compliance:**
+      - Verify all active keys have {key}.plan.md files
+      - Check for code commits without prior plan.md/work-log.md updates
+      - Detect documentation lag (commits should be: doc → code, not code → doc)
+      - Validate plan.md has corresponding work-log.md entries
+    - **Work Log Continuity:**
+      - Identify gaps in work-log.md (sessions >7 days apart = potential stale key)
+      - Verify work-log.md entries match git commit timeline
+      - Check for orphaned KDS directories (no recent work-log activity)
+    - **Test Registry Completeness:**
+      - Cross-reference test files in {key}/tests/ with test-registry.md entries
+      - Detect test files created without registry documentation (33% violation rate from analysis)
+      - Validate test-registry.md status fields match actual test execution results
+    - **Plan-to-Implementation Mapping:**
+      - Verify plan.md phases have corresponding work-log.md session entries
+      - Check for plan.md without implementation (stale/incomplete keys)
+      - Validate plan.md references actual files created/modified
+    - **KDS Directory Structure:**
+      - Validate required files: {key}.plan.md, work-log.md
+      - Check optional files: tests/test-registry.md (if tests exist)
+      - Detect prohibited files: temp files, .backup files not in root
+      - Verify .github/key-data-streams/{key}/ follows canonical structure
   - **Modular structure compliance (Phase 3 Validation):**
     - **Output-Style-Mandate:** All 10 root agents LOAD MODULE `output-style-mandate.md`
       - Check: plan.prompt.md, task.prompt.md, todo.prompt.md, test-generation.prompt.md, healthcheck.prompt.md, ask.prompt.md, cohesion.prompt.md, drift.prompt.md, route.prompt.md, collapse-keys.prompt.md

@@ -133,6 +133,225 @@ Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/
 - Preserves execution history for future reference
 - Prevents incomplete key data streams
 
+---
+
+## 🗂️ Key Data Stream (KDS) Architecture - Lessons Learned (2025-10-29)
+
+**SOURCE**: CopilotChats.md analysis - identified 5 protocol violations with KDS-related root causes
+
+### KDS Canonical Structure (MANDATORY)
+
+**Every key in `.github/key-data-streams/{key}/` MUST have:**
+
+```
+.github/key-data-streams/{key}/
+├── {key}.plan.md          # REQUIRED - Phase plan, tasks, acceptance criteria
+├── work-log.md            # REQUIRED - Session-by-session execution history
+├── tests/                 # OPTIONAL - If tests exist for this key
+│   ├── test-registry.md   # REQUIRED if tests/ exists - Inventory of all test files
+│   └── *.spec.ts          # Actual test files
+├── drift-log.md           # OPTIONAL - If drift detected during execution
+└── metadata.json          # OPTIONAL - Key metadata (status, priority, tags)
+```
+
+**PROHIBITED in KDS directories:**
+- ❌ `.tmp`, `.backup`, `.bak` files (backup files belong in `.github/prompts/` root only)
+- ❌ Orphaned directories (keys without plan.md or work-log.md)
+- ❌ Undocumented test files (tests exist but not in test-registry.md)
+
+### Critical KDS Violations Identified (Analysis: CopilotChats.md)
+
+#### 1. Document-First Rule Violation (60% of sessions - HIGH SEVERITY)
+
+**Evidence:** Lines 125-400 - TranscriptController.cs created without prior plan.md/work-log.md updates
+
+**Root Cause:** Code implementation before documentation update
+
+**Fix Applied:** Enhancement 1 (P0) - step-2-5-document-first-checkpoint.md
+- **Step 2.5** in task.prompt.md now MANDATORY
+- Updates plan.md + work-log.md BEFORE any code changes
+- Commits documentation first (separate commit)
+- HALTS execution if documentation update fails
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. Update {key}.plan.md with phase details
+2. Append session entry to work-log.md
+3. Commit documentation (separate commit)
+4. THEN implement code
+5. Commit code (references doc commit)
+
+VIOLATION (60% rate before fix):
+1. Implement code directly
+2. Create commits
+3. Document AFTER (if at all)
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - KDS Document-First validation algorithm
+
+---
+
+#### 2. Plan Approval Without File Artifact (33% of sessions - MEDIUM SEVERITY)
+
+**Evidence:** User said "A" (approve) → immediate code generation without plan.md file written
+
+**Root Cause:** Plan shown in chat but not persisted to disk before execution
+
+**Fix Applied:** Enhancement 3 (P1) - step-3-5-plan-validation-gate.md
+- **Step 3.5** writes plan to {key}.plan.md BEFORE user approval
+- User reviews actual file (not just chat message)
+- Approval gate references file location
+- Plan modifications tracked in git
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. Generate plan in memory
+2. WRITE to {key}.plan.md
+3. SHOW file path to user
+4. PROMPT approval with file reference
+5. User reviews file, can edit
+6. On approval, proceed with execution
+
+VIOLATION (33% rate before fix):
+1. Generate plan in chat
+2. Show to user
+3. User approves
+4. Execute immediately (no file artifact)
+```
+
+**Enforcement:** plan.prompt.md updated - Step 3.5 integration
+
+---
+
+#### 3. Test Registry Gaps (33% of test creations - MEDIUM SEVERITY)
+
+**Evidence:** TranscriptApiTests.cs created without test-registry.md entry
+
+**Root Cause:** Test creation not atomic with registry update
+
+**Fix Applied:** Enhancement 4 (P1) - step-7-5-test-registry-auto-update.md
+- test-generation.prompt.md Step 7.5 auto-updates registry
+- Each test gets entry: file, type, status, run command, coverage
+- Registry committed atomically with test files
+- Violation detection in healthcheck
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. Generate test file
+2. IF test-registry.md doesn't exist THEN create from template
+3. ADD test entry to registry (file, type, status, command)
+4. git add test-file.spec.ts test-registry.md
+5. git commit (atomic)
+
+VIOLATION (33% rate before fix):
+1. Generate test file
+2. git add test-file.spec.ts
+3. git commit
+4. Forget to update test-registry.md (or update later in separate commit)
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - Test Registry Completeness validation
+
+---
+
+#### 4. Work Log Gaps (Stale Keys - LOW SEVERITY but common)
+
+**Evidence:** Keys with >7 day gaps between work-log.md sessions
+
+**Root Cause:** Resuming work without documenting session start
+
+**Protocol:**
+```
+CORRECT SEQUENCE (Resume work on existing key):
+1. git checkout development
+2. Read {key}.plan.md for context
+3. APPEND new session to work-log.md:
+   ---
+   ## [ISO-8601-Timestamp] - [agent-name]
+   **Status**: in-progress
+   **Phase**: [current-phase]
+   **Resume Context**: [What you're continuing]
+   ---
+4. THEN proceed with implementation
+
+VIOLATION:
+1. Resume coding without work-log.md session entry
+2. Results in multi-day gaps in work-log.md timeline
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - Work Log Continuity validation
+- Detects gaps >7 days
+- Flags stale keys (>30 days no activity)
+- Identifies orphaned directories
+
+---
+
+#### 5. Plan-to-Implementation Drift (MEDIUM SEVERITY)
+
+**Evidence:** Plan phases completed without work-log.md tracking
+
+**Root Cause:** Phase completion not documented in work-log.md
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. plan.md Phase 1: "Implement API endpoints"
+2. work-log.md session entry:
+   **Phase**: 1 - Implement API endpoints
+   **Status**: in-progress
+3. Complete implementation
+4. work-log.md update:
+   **Phase**: 1 - Implement API endpoints
+   **Status**: complete
+   **Tasks completed**: [list]
+5. Move to Phase 2
+
+VIOLATION:
+1. plan.md has Phases 1-3
+2. work-log.md only has Phase 1 entry
+3. Code shows Phases 2-3 implemented but not documented
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - Plan-to-Implementation Mapping
+- Cross-references plan phases with work-log sessions
+- Flags unmapped phases (in plan but not in work-log)
+- Validates plan.md file references exist
+
+---
+
+### KDS Best Practices (2025-10-29)
+
+**From Analysis (CopilotChats.md violations):**
+
+1. **ALWAYS Document BEFORE Code** (60% violation fix)
+   - Update plan.md/work-log.md in separate commit before code changes
+   - Commit message: `docs({key}): update plan for Phase X` THEN `feat({key}): implement Phase X`
+
+2. **ALWAYS Persist Plans Before Approval** (33% violation fix)
+   - Write plan.md to disk before showing user
+   - User can review/edit file, not just chat message
+
+3. **ALWAYS Update Test Registry Atomically** (33% violation fix)
+   - Test file + test-registry.md in same commit
+   - Use template for new registries
+
+4. **ALWAYS Log Session Start When Resuming** (stale key prevention)
+   - First action: append to work-log.md
+   - Document resume context and current phase
+
+5. **ALWAYS Map Plan Phases to Work Log** (drift prevention)
+   - Each plan phase gets work-log session(s)
+   - Mark phases complete in work-log when done
+
+6. **NEVER Leave Orphaned Keys** (cleanup enforcement)
+   - Keys with plan.md but no work-log.md = violation
+   - Keys with no activity >30 days = archive candidate
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 validates all 6 best practices
+
 ## 🗄️ Database Access Rules (MANDATORY)
 
 **PRIMARY DATABASE: KSESSIONS_DEV**
