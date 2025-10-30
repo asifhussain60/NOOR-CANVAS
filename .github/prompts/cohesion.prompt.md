@@ -3,7 +3,7 @@
 ---
 mode: agent
 purpose: Meta-agent that validates/harmonizes all prompts/instructions AND manages .github/ KDS structure and cleanup
-inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full|kds-cleanup), auto-fix, cleanup-mode, -test
+inputs: scope (prompts|instructions|all|copilot-workspace|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full|kds-cleanup), auto-fix, cleanup-mode, -test
 outputs: Cohesion report with violations, conflicts, KDS cleanup results, and auto-fix recommendations
 lastUpdated: 2025-10-30
 stateTracking: enabled
@@ -41,6 +41,7 @@ What to validate:
 - `prompts` - All prompt files in .github/prompts/
 - `instructions` - All instruction files in .github/instructions/
 - `all` - Complete AI infrastructure (prompts + instructions)
+- `copilot-workspace` - **NEW v2.1** - Validate .copilot/CONTEXT/ for MANDATORY.md violations
 - `{filename}` - Specific file to validate
 
 ### key *(optional, auto-generated)*
@@ -479,7 +480,8 @@ FUNCTION ValidateKDSStructure():
     temporary: [],
     kdsViolations: [],
     orphanedTests: [],
-    deprecatedRefs: []
+    deprecatedRefs: [],
+    copilotWorkspace: []  // NEW v2.1 - MANDATORY.md violations in .copilot/CONTEXT/
   }
   
   // Safe Harbor Files - NEVER modify these
@@ -639,6 +641,86 @@ FUNCTION ValidateKDSStructure():
       END IF
     END FOR
   END FOR
+  
+  // 7. Scan .copilot/CONTEXT/ for MANDATORY.md violations **NEW v2.1**
+  copilotContextPath = ".copilot/CONTEXT/"
+  
+  IF DirectoryExists(copilotContextPath) THEN
+    chatFiles = GetFiles(copilotContextPath + "*.md")
+    
+    FOR EACH chatFile IN chatFiles:
+      content = ReadFile(chatFile)
+      chatViolations = []
+      
+      // NO-CODE-IN-CHAT violations
+      codeBlockPattern = '```(csharp|javascript|typescript|html|css|sql|razor)\s*\r?\n([\s\S]*?)```'
+      codeBlocks = Regex.Matches(content, codeBlockPattern)
+      
+      IF codeBlocks.Count > 10 THEN  // Threshold: >10 blocks
+        totalLines = 0
+        FOR EACH block IN codeBlocks:
+          language = block.Groups[1].Value
+          codeContent = block.Groups[2].Value
+          totalLines += (codeContent.Split('\n').Length)
+        END FOR
+        
+        chatViolations.Add({
+          type: "NO-CODE-IN-CHAT",
+          count: codeBlocks.Count,
+          lines: totalLines,
+          severity: "CRITICAL"
+        })
+      END IF
+      
+      // METHOD-IMPLEMENTATION violations
+      methodPatterns = [
+        'public .* \{', 'private .* \{', 'async .* \{',
+        'function .* \{', 'const .* => \{', 'class .* \{'
+      ]
+      
+      methodCount = 0
+      FOR EACH pattern IN methodPatterns:
+        methodCount += Regex.Matches(content, pattern).Count
+      END FOR
+      
+      IF methodCount > 0 THEN
+        chatViolations.Add({
+          type: "METHOD-IMPLEMENTATION",
+          count: methodCount,
+          severity: "CRITICAL"
+        })
+      END IF
+      
+      // PLAYWRIGHT-ORCHESTRATION violations
+      deprecatedPatterns = [
+        'dotnet run', 'PW_MODE=standalone', 'webServer',
+        'Start-Job.*dotnet', 'Start-Process powershell.*dotnet'
+      ]
+      
+      deprecatedCount = 0
+      FOR EACH pattern IN deprecatedPatterns:
+        deprecatedCount += Regex.Matches(content, pattern).Count
+      END FOR
+      
+      IF deprecatedCount > 0 THEN
+        chatViolations.Add({
+          type: "PLAYWRIGHT-ORCHESTRATION",
+          count: deprecatedCount,
+          severity: "CRITICAL"
+        })
+      END IF
+      
+      // Add to violations if any found
+      IF chatViolations.Count > 0 THEN
+        violations.copilotWorkspace.Add({
+          file: chatFile,
+          violations: chatViolations,
+          autoFix: "Scripts/fix-copilotchats-violations.ps1",
+          risk: "critical"
+        })
+      END IF
+    END FOR
+  END IF
   
   RETURN violations
   

@@ -1123,6 +1123,168 @@ FOR EACH key in .github/key-data-streams/:
 END FOR
 ```
 
+**7. Copilot Workspace Compliance Validation:**
+```powershell
+# Algorithm: Validate .copilot/CONTEXT/ for MANDATORY.md Violations
+# Reference: .github/MANDATORY.md (NO-CODE-IN-CHAT, DOCUMENT-FIRST rules)
+
+$copilotContext = ".copilot/CONTEXT/"
+$chatViolations = @()
+
+IF FolderExists($copilotContext) THEN
+  $chatFiles = Get files matching "*.md" in $copilotContext
+  
+  FOR EACH chatFile in $chatFiles:
+    $content = ReadFile(chatFile)
+    
+    # Violation 1: NO-CODE-IN-CHAT (54+ code blocks detected in CopilotChats.md)
+    $codeBlockPattern = '```(csharp|javascript|typescript|html|css|sql|razor)\s*\r?\n([\s\S]*?)```'
+    $codeBlocks = [regex]::Matches($content, $codeBlockPattern)
+    
+    IF $codeBlocks.Count > 0 THEN
+      # Count lines in code blocks
+      $totalLines = 0
+      $blocksByLanguage = @{}
+      
+      FOR EACH block in $codeBlocks:
+        $language = block.Groups[1].Value
+        $codeContent = block.Groups[2].Value
+        $lineCount = ($codeContent -split '\r?\n').Count
+        $totalLines += $lineCount
+        
+        IF NOT $blocksByLanguage.ContainsKey($language) THEN
+          $blocksByLanguage[$language] = @{ Count = 0; Lines = 0 }
+        END IF
+        
+        $blocksByLanguage[$language].Count++
+        $blocksByLanguage[$language].Lines += $lineCount
+      END FOR
+      
+      # Violation threshold: >10 config JSON lines OR any implementation code
+      $configOnly = $codeBlocks.Count == 1 AND 
+                    $blocksByLanguage['json'] AND 
+                    $blocksByLanguage['json'].Lines <= 10
+      
+      IF NOT $configOnly THEN
+        $chatViolations.Add(@{
+          File = chatFile
+          Type = "NO-CODE-IN-CHAT"
+          Severity = "CRITICAL"
+          Count = $codeBlocks.Count
+          TotalLines = $totalLines
+          Languages = $blocksByLanguage
+          Message = "Implementation code in chat (should be in KDS work-log.md)"
+          AutoFix = "Scripts/fix-copilotchats-violations.ps1"
+        })
+      END IF
+    END IF
+    
+    # Violation 2: Method implementations in chat
+    $methodPatterns = @(
+      'public .* \{', 'private .* \{', 'async .* \{',
+      'function .* \{', 'const .* => \{', 'class .* \{'
+    )
+    
+    $methodCount = 0
+    FOR EACH pattern in $methodPatterns:
+      $methodCount += ($content | Select-String -Pattern $pattern -AllMatches).Matches.Count
+    END FOR
+    
+    IF $methodCount > 0 THEN
+      $chatViolations.Add(@{
+        File = chatFile
+        Type = "METHOD-IMPLEMENTATION"
+        Severity = "CRITICAL"
+        Count = $methodCount
+        Message = "Method implementations in chat (should be architectural descriptions only)"
+        AutoFix = "Scripts/fix-copilotchats-violations.ps1"
+      })
+    END IF
+    
+    # Violation 3: Deprecated test patterns (PLAYWRIGHT-ORCHESTRATION)
+    $deprecatedPatterns = @(
+      'dotnet run',
+      'PW_MODE=standalone',
+      'webServer',
+      'Start-Job.*dotnet',
+      'Start-Process powershell.*dotnet'
+    )
+    
+    $deprecatedCount = 0
+    $deprecatedMatches = @()
+    FOR EACH pattern in $deprecatedPatterns:
+      $matches = ($content | Select-String -Pattern $pattern -AllMatches).Matches
+      IF $matches.Count > 0 THEN
+        $deprecatedCount += $matches.Count
+        $deprecatedMatches.Add(@{
+          Pattern = $pattern
+          Count = $matches.Count
+        })
+      END IF
+    END FOR
+    
+    IF $deprecatedCount > 0 THEN
+      $chatViolations.Add(@{
+        File = chatFile
+        Type = "PLAYWRIGHT-ORCHESTRATION"
+        Severity = "CRITICAL"
+        Count = $deprecatedCount
+        Patterns = $deprecatedMatches
+        Message = "Deprecated test patterns (should use Scripts/run-*-tests.ps1 orchestration)"
+        AutoFix = "Create orchestration scripts per playwright-orchestration/rule.md"
+      })
+    END IF
+    
+    # Violation 4: DOCUMENT-FIRST - Check if work-log.md was updated
+    IF $codeBlocks.Count > 50 THEN
+      # Extract key names from content
+      $keyPattern = 'key[:\s]+([a-z0-9-]+)'
+      $keyMatches = [regex]::Matches($content, $keyPattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+      
+      FOR EACH keyMatch in $keyMatches:
+        $key = $keyMatch.Groups[1].Value.ToLower()
+        $workLogPath = ".github/key-data-streams/$key/work-log.md"
+        
+        IF FileExists($workLogPath) THEN
+          $workLog = ReadFile($workLogPath)
+          $workLogCodeBlocks = [regex]::Matches($workLog, '```(csharp|javascript|typescript)').Count
+          
+          IF $workLogCodeBlocks < ($codeBlocks.Count * 0.5) THEN
+            $chatViolations.Add(@{
+              File = chatFile
+              Type = "DOCUMENT-FIRST"
+              Severity = "MEDIUM"
+              Key = $key
+              ChatBlocks = $codeBlocks.Count
+              WorkLogBlocks = $workLogCodeBlocks
+              Coverage = [math]::Round(($workLogCodeBlocks / $codeBlocks.Count) * 100, 0)
+              Message = "Implementation code in chat not fully documented in work-log.md"
+              AutoFix = "Scripts/fix-copilotchats-violations.ps1"
+            })
+          END IF
+        END IF
+      END FOR
+    END IF
+  END FOR
+END IF
+
+# Generate Copilot Workspace Compliance Drift
+IF $chatViolations.Count > 0 THEN
+  RegisterDrift(
+    key: "copilot-workspace-violations",
+    description: "MANDATORY.md violations in .copilot/CONTEXT/ chat files",
+    severity: "CRITICAL",
+    phase: "copilot-workspace",
+    details: @{
+      Files = $chatViolations.Count
+      TotalViolations = ($chatViolations | Measure-Object -Property Count -Sum).Sum
+      Types = ($chatViolations | Group-Object -Property Type | Select-Object Name, Count)
+      AutoFixAvailable = "Scripts/fix-copilotchats-violations.ps1"
+    }
+  )
+END IF
+```
+
 **KDS Validation Summary:**
 After all KDS validations, generate summary:
 ```markdown
