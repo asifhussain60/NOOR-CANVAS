@@ -3,79 +3,13 @@
 ---
 purpose: Canonical PowerShell patterns for Playwright/Percy test orchestration
 audience: test-generation.prompt.md, task.prompt.md agents
-lastUpdated: 2025-10-29
-source: Proven direct dotnet.exe launch pattern (commit 9448e8cd), hcptcanvas test resolution
+lastUpdated: 2025-10-18
+source: Lessons learned from hcptcanvas test resolution (PLAYWRIGHT-TEST-RESOLUTION.md)
 ---
 
 ## Overview
 
-This document provides **battle-tested PowerShell patterns** for orchestrating Playwright tests with reliable application lifecycle management. These patterns use **direct `dotnet.exe` process launch** for fastest startup and most reliable health checks.
-
-**CRITICAL UPDATE (2025-10-29)**: Previous nested PowerShell approach deprecated. Direct `dotnet.exe` launch is now the ONLY approved pattern.
-
----
-
-## 🚨 BREAKING CHANGE: Direct dotnet.exe Launch (v3.0)
-
-**Effective Date**: 2025-10-29  
-**Commit**: 9448e8cd  
-**Severity**: HIGH - All existing test scripts must be updated
-
-### What Changed
-
-**DEPRECATED (v2.0 - DO NOT USE):**
-```powershell
-# ❌ Nested PowerShell approach (SLOW, UNRELIABLE)
-$app = Start-Process powershell `
-    -ArgumentList "-NoExit","-Command","cd '$AppPath'; dotnet run" `
-    -PassThru `
-    -WindowStyle Minimized
-```
-
-**NEW MANDATORY (v3.0):**
-```powershell
-# ✅ Direct dotnet.exe launch (FAST, RELIABLE)
-$app = Start-Process -FilePath "dotnet" `
-    -ArgumentList "run", "--urls", "https://localhost:9091" `
-    -WorkingDirectory "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
-    -PassThru `
-    -WindowStyle Normal
-```
-
-### Why This Change
-
-**Production Evidence (Baseline Test Results):**
-- **Nested PowerShell**: App ready at attempt 5/15 but not detected → 10+ second delay
-- **Direct dotnet.exe**: App ready at attempt 1-3 → 2-3 second delay ⚡
-
-**Root Cause**: Nested shell creates process hierarchy where health checks fire before inner `dotnet run` completes initialization.
-
-**Impact**:
-- ✅ **3-5x faster** test execution
-- ✅ **Reliable** health check detection
-- ✅ **Accurate** PID tracking for cleanup
-- ✅ **Simpler** process management (no nested shells)
-
-### Migration Guide for Existing Scripts
-
-**Find All Affected Files:**
-```powershell
-grep -r "Start-Process powershell.*dotnet run" Scripts/
-```
-
-**Replace Pattern:**
-```powershell
-# OLD
-$app = Start-Process powershell -ArgumentList "-NoExit","-Command","cd '$AppPath'; dotnet run" -PassThru -WindowStyle Minimized
-
-# NEW  
-$app = Start-Process -FilePath "dotnet" -ArgumentList "run", "--urls", "$AppUrl" -WorkingDirectory $AppPath -PassThru -WindowStyle Normal
-```
-
-**Files Requiring Update** (as of 2025-10-29):
-- `Scripts/run-*.ps1` (18+ orchestration scripts)
-- All scripts using `Start-Process powershell.*dotnet run` pattern
-- See grep results above for complete list
+This document provides **battle-tested PowerShell patterns** for orchestrating Playwright tests with reliable application lifecycle management. These patterns emerged from extensive trial-and-error and are now the **canonical approach** for all test orchestration scripts.
 
 ---
 
@@ -115,22 +49,15 @@ Write-Host "  ✅ Cleanup complete" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================================
-# STEP 2: LAUNCH APPLICATION (DIRECT dotnet.exe - MANDATORY)
+# STEP 2: LAUNCH APPLICATION
 # ============================================================================
 
 Write-Host "[APP] Launching {{APP_PROCESS_NAME}}..." -ForegroundColor Cyan
 
-# CRITICAL: Launch dotnet.exe DIRECTLY (not via nested PowerShell)
-# Proven pattern from commit 9448e8cd - eliminates health check delays
-$app = Start-Process -FilePath "dotnet" `
-    -ArgumentList "run", "--urls", "{{APP_URL}}" `
-    -WorkingDirectory "{{SOURCE_PATH}}" `
+$app = Start-Process powershell `
+    -ArgumentList "-NoExit","-Command","cd '$AppPath'; {{APP_LAUNCH_COMMAND}}" `
     -PassThru `
-    -WindowStyle Normal
-
-# Set environment variables (optional, if needed)
-# $env:ASPNETCORE_ENVIRONMENT = "Development"
-# $env:ASPNETCORE_URLS = "{{APP_URL}}"
+    -WindowStyle Minimized
 
 Write-Host "  ✅ App launched (PID: $($app.Id))" -ForegroundColor Green
 Write-Host ""
@@ -377,26 +304,6 @@ Start-Process powershell -ArgumentList "..." -WindowStyle Minimized
 ---
 
 ## Anti-Patterns (DON'T DO THIS)
-
-### ❌ Nested PowerShell Launch (DEPRECATED as of 2025-10-29)
-
-```powershell
-# ❌ DEPRECATED - DO NOT USE
-$app = Start-Process powershell `
-    -ArgumentList "-NoExit","-Command","cd '$AppPath'; dotnet run" `
-    -PassThru `
-    -WindowStyle Minimized
-```
-
-**Problem**: Creates nested process hierarchy (powershell → powershell → dotnet) causing health check delays.
-
-**Evidence**: Production testing showed app ready at attempt 5/15 (10+ seconds) but should be 1-3 attempts (2-3 seconds).
-
-**Solution**: Use direct `dotnet.exe` launch (see v3.0 pattern above).
-
-**Migration Required**: All existing scripts using this pattern must be updated.
-
----
 
 ### ❌ Background Operator `&` in PowerShell 5.1
 

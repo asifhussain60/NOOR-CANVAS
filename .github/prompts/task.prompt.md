@@ -349,50 +349,69 @@ Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain
 
 ### Step 0: Branch Verification (MANDATORY)
 
-**LOAD MODULE:** `.github/prompts/shared/step-0-branch-verification.md`
-
 ⚠️ **ALWAYS verify you're in the correct branch before starting any work.**
 
 **Branch Strategy:**
 - **`master`** - Production only (PROTECTED - deploy target)
 - **`development`** - ALL development work (DEFAULT)
 
-**Execute:**
-```powershell
-# Verify branch strategy compliance
-$githubBranch = $parameters.githubBranch ?? "development"
-$branchCheck = VerifyBranchStrategy($githubBranch)
+**Verification Process:**
 
-IF $branchCheck.status == "BLOCKED" THEN
-  # CRITICAL: Cannot execute on master
-  SHOW_MESSAGE($branchCheck.message)
-  EXIT 1  # HALT execution
-END IF
+1. **Check current git branch:**
+   ```bash
+   git branch --show-current
+   # Expected: development (or github-branch parameter value)
+   ```
 
-IF $branchCheck.status == "WARNING" THEN
-  # Branch mismatch - prompt user
-  SHOW_MESSAGE($branchCheck.message)
-  WAIT_FOR_USER_CHOICE()  # A or B
-  
-  IF userChoice == "A" THEN
-    ExecuteCommand("git checkout {$branchCheck.expectedBranch}")
-    VERIFY_BRANCH_SWITCH()
-  ELSE IF userChoice == "B" THEN
-    LOG_OVERRIDE_TO_WORK_LOG($branchCheck)
-  END IF
-END IF
+2. **Validate against github-branch parameter:**
+   - **If `github-branch` parameter provided:** Verify current branch matches parameter
+   - **If `github-branch` NOT provided:** Default to `development`, verify current branch is `development`
 
-# Proceed to Step 1 (checkpoint commit)
-```
+3. **Branch Mismatch Handling:**
+   - **Current branch = `master` AND github-branch = `development` (or not specified):**
+     ```
+     ⚠️ CRITICAL: Cannot execute on master branch
+     
+     Current branch: master
+     Required branch: development (per github-branch parameter)
+     
+     Per SelfAwareness.instructions.md, ALL development work occurs in 'development' branch.
+     
+     ACTION REQUIRED: Switch to development branch
+     Command: git checkout development
+     
+     ❌ ABORTING task execution
+     ```
+     **EXIT with error - do NOT proceed**
+   
+   - **Current branch ≠ github-branch parameter:**
+     ```
+     ⚠️ WARNING: Branch mismatch detected
+     
+     Current branch: {current-branch}
+     Expected branch: {github-branch} (from parameter)
+     
+     Would you like to:
+     1. Switch to {github-branch} branch (recommended)
+     2. Proceed on {current-branch} anyway (override)
+     
+     Respond with "1" or "2"
+     ```
+     - If user chooses "1" → Switch branch: `git checkout {github-branch}`
+     - If user chooses "2" → Warn and document override in work log
+
+4. **Branch Validation Success:**
+   ```
+   ✓ Branch verified: {current-branch}
+   (Matches github-branch parameter: {github-branch})
+   ```
 
 **Enforcement:**
 - ⚠️ **ABORT** task execution if on `master` branch (unless github-branch explicitly set to `master`)
 - ✅ **PROCEED** if current branch matches github-branch parameter
 - ⚠️ **PROMPT** user if mismatch detected (allow override with warning)
 
-**See:** 
-- `.github/prompts/shared/step-0-branch-verification.md` - Complete verification algorithm
-- `SelfAwareness.instructions.md` - Branch Strategy section
+**See:** `SelfAwareness.instructions.md` - Branch Strategy section
 
 ---
 
@@ -646,64 +665,6 @@ Build comprehensive context before planning through conditional, intelligent sub
 
 ---
 
-### Step 2.5: Document First Checkpoint (MANDATORY)
-
-**LOAD MODULE:** `.github/prompts/shared/step-2-5-document-first-checkpoint.md`
-
-**Purpose:** Update key documentation BEFORE any code implementation
-
-**Trigger:** ALWAYS when `key` parameter exists
-
-**Execute:**
-```powershell
-IF KeyExists($key) THEN
-  
-  # Update plan and work log with session details
-  $docResult = DocumentFirstCheckpoint($key, $userRequest, $phase)
-  
-  IF $docResult.status == "FAILED" THEN
-    # Documentation update failed - HALT execution
-    SHOW_ERROR($docResult.reason)
-    LOG_FAILURE($docResult)
-    EXIT 1
-  END IF
-  
-  IF $docResult.status == "SUCCESS" THEN
-    # Documentation committed - proceed to planning
-    LOG_SUCCESS("Documentation updated: {$docResult.filesUpdated} files")
-    LOG_COMMIT("Checkpoint SHA: {$docResult.commitSha}")
-  END IF
-  
-  # If status == "SKIP", key folder doesn't exist yet (first-time execution)
-  # Proceed to Step 3 for lightweight planning
-  
-END IF
-
-# Continue to Step 3 (Planning)
-```
-
-**Guardrail:** Code commits WITHOUT prior documentation updates = VIOLATION
-
-**Output (based on verbosity):**
-- **Concise:** `"✅ Documentation checkpoint: {file-count} files updated, committed {short-sha}"`
-- **Detailed:** 
-  ```
-  ✅ Documentation First Checkpoint
-  
-  Files Updated: {count}
-  - {key}.plan.md (session context added)
-  - work-log.md (session entry created)
-  
-  Commit: {short-sha}
-  Message: doc({key}): session start documentation
-  
-  Status: Ready for implementation (Step 5)
-  ```
-
-**See:** `.github/prompts/shared/step-2-5-document-first-checkpoint.md` - Complete protocol
-
----
-
 ### Step 3: Plan
 
 **Execution Context Detection:**
@@ -764,54 +725,7 @@ END IF
 
 ---
 
-### Step 3.5: Plan Validation Gate (MANDATORY)
-
-**LOAD MODULE:** `.github/prompts/shared/step-3-5-plan-validation-gate.md`
-
-**Purpose:** Write plan to file BEFORE user approval (enforces plan-as-document)
-
-**Trigger:** ALWAYS when lightweight planning used (Step 3B)
-
-**Execute:**
-```powershell
-# Only execute if lightweight planning mode (no comprehensive plan exists)
-IF PlanMode == "Lightweight" THEN
-  
-  # Write plan to .github/key-data-streams/{key}/{key}.plan.md
-  $planResult = PlanValidationGate($key, $planContent)
-  
-  IF $planResult.status == "FAILED" THEN
-    # Plan file write failed - HALT execution
-    SHOW_ERROR($planResult.reason)
-    LOG_FAILURE($planResult)
-    EXIT 1
-  END IF
-  
-  IF $planResult.status == "SUCCESS" THEN
-    # Plan written to file - show user location
-    SHOW_MESSAGE("Plan created: {$planResult.file} ({$planResult.fileSize} bytes)")
-    LOG_SUCCESS("Plan validation gate passed")
-  END IF
-  
-  # If status == "SKIP", comprehensive plan exists (from plan.prompt.md)
-  # Proceed directly to Step 4 (Approval)
-  
-END IF
-
-# Continue to Step 4 (Approval)
-```
-
-**Guardrail:** No approval prompt WITHOUT plan file existing
-
-**Output (based on verbosity):**
-- **Concise:** `"✅ Plan created: {key}.plan.md ({size} bytes)"`
-- **Detailed:** Full plan summary (≤10 bullets) + file location + approval options
-
-**See:** `.github/prompts/shared/step-3-5-plan-validation-gate.md` - Complete protocol
-
----
-
-### Step 3.6: Commit Message Planning and Parent Linkage (MANDATORY)
+### Step 3.5: Commit Message Planning and Parent Linkage (MANDATORY)
 
 Before implementation commits, prepare the commit subject to include rollback metadata and lineage:
 
@@ -1349,22 +1263,15 @@ See: Scripts/Migrations/Prod/README.md for workflow"
    - `tokens`: Session 212 defaults (unless task specifies otherwise)
    - `multiUser`: true if host/participant interaction
    - `testType`: "functional" | "visual" | "both" (based on change type)
-3. **Receive generated test files and orchestration script**
-4. **AUTOMATIC:** test-generation.prompt.md updates test registry (Step 7.5)
-5. **Verify:** Test registry updated in commit
-6. Document in key-data-stream
+3. Receive generated test files and orchestration script
+4. Document in key-data-stream
 
-**Expected Outcome:**
-- Test files created in `.github/key-data-streams/{key}/tests/`
-- Orchestration script created in `.github/key-data-streams/{key}/scripts/`
-- **Test registry updated** in `.github/key-data-streams/{key}/tests/test-registry.md`
-- Single commit includes: tests + scripts + registry
-
-**See:** 
-- `test-generation.prompt.md` - Complete test generation workflow
-- `.github/prompts/shared/step-7-5-test-registry-auto-update.md` - Registry update protocol
-- `.github/prompts/shared/playwright-test-generation.md` - Test generation patterns
-- `.github/prompts/shared/test-orchestration-patterns.md` - Orchestration script requirement (MANDATORY)
+**See:** `test-generation.prompt.md` and `shared/playwright-test-generation.md` for:
+- Complete test type decision matrix
+- Orchestration script requirement (MANDATORY)
+- Test generation patterns
+- Automatic test type detection & execution
+- Test lifecycle management (creation, execution, promotion, cleanup)
 
 **Key Requirements:**
 - **Test Location**: `.github/key-data-streams/{key}/tests/` (within key data stream)
@@ -1447,10 +1354,6 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 
 ## Guardrails
 
-- **ALWAYS verify branch strategy BEFORE any work** (Step 0 - blocks execution on master)
-- **ALWAYS update documentation BEFORE code changes** (Step 2.5 - document first checkpoint)
-- **ALWAYS write plan to file BEFORE approval** (Step 3.5 - plan validation gate)
-- **ALWAYS update test registry when creating tests** (Step 6.1 delegates to test-generation → Step 7.5)
 - **ALWAYS check for comprehensive plan first** (if key provided, look for {key}.plan.md)
 - **ALWAYS load System Context Pack** (if {key}.plan.md exists - Step 2.12)
 - **ALWAYS update JSON tracking** (if {key}.plan.json exists - Step 8.1 after each phase)
@@ -1470,10 +1373,6 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 - **ALWAYS infer key from recent work** if not explicitly provided
 - **ALWAYS enforce re-evaluation iteration limit** (max 3 iterations at Step 4 approval gate)
 - **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
-- **NEVER execute on master branch** unless explicitly authorized (Step 0 enforcement)
-- **NEVER skip documentation updates** when key exists (Step 2.5 blocks code commits)
-- **NEVER show plan only in chat** - must exist as file before approval (Step 3.5 enforcement)
-- **NEVER create tests without registry update** - automatic via test-generation.prompt.md Step 7.5
 - **NEVER implement UI-only mutations** - all CRUD operations MUST have complete data lifecycle (UI → API → DB → Broadcast → UI)
 - **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
 - **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes

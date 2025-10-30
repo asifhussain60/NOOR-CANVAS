@@ -778,45 +778,6 @@ D) Continue with another healthcheck scope
       - Register prompt structure violations as drifts (auto mode)
       - Example drift keys: `drift-output-mandate-missing`, `drift-checkpoint-inline`, `drift-handoff-undocumented`
       - Log severity and affected files for post-healthcheck resolution
-  - **Key Data Stream (KDS) Structure Validation:**
-    - **Index Validation:** Verify `.github/key-data-streams/index.md` exists and is up-to-date
-      - Check: All active keys documented with status, phase count, location
-      - Detect: Missing keys (folders exist but not in index), orphaned index entries (in index but folder missing)
-      - Drift severity: **medium** (index out of sync reduces discoverability)
-    - **Key Folder Structure:** For each key in `.github/key-data-streams/*/`
-      - **Required Files Check:**
-        - `{key}.plan.md` - Plan file exists (authoritative source of truth)
-        - `{key}.plan.json` - Phase tracking metadata exists
-        - `work-log.md` - Work log exists with proper session entries
-        - `state.json` - State tracking file exists (if state tracking enabled globally)
-      - **File Content Validation:**
-        - `{key}.plan.md`: Contains plan structure (Executive Summary, Implementation Plan with phases, Test Strategy, Rollback Plan)
-        - `{key}.plan.json`: Valid JSON with required fields (key, status, totalPhases, completedPhases, phases array)
-        - `work-log.md`: Contains session entries with timestamp, status, phase tracking
-        - `state.json`: Valid JSON with promptRequests, promptHandoffs, commits arrays
-      - **Cross-File Consistency:**
-        - Phase count in `{key}.plan.json` matches phases defined in `{key}.plan.md`
-        - Status in `{key}.plan.json` consistent with latest work-log entry
-        - Key name consistent across all files in folder
-      - **Drift Registration:**
-        - Missing required file → Severity: **high** (KDS incomplete, plan execution may fail)
-        - Invalid JSON structure → Severity: **critical** (parsing failures in task/todo agents)
-        - Phase count mismatch → Severity: **medium** (metadata drift, confusing execution state)
-        - Missing index entry → Severity: **medium** (key not discoverable)
-    - **KDS Naming Conventions:**
-      - Validate key names: lowercase-kebab-case, 2-4 words, no underscores
-      - Validate folder name matches key name (no typos/inconsistencies)
-      - Drift severity: **low** (naming inconsistencies reduce clarity)
-    - **Orphaned Files Detection:**
-      - Check for questionnaire files without corresponding plan file
-      - Check for backup files (*.backup.md) not cleaned up
-      - Check for temporary analysis files in key folders
-      - Drift severity: **low** (cleanup needed but not blocking)
-    - **State Tracking Validation (if enabled):**
-      - Verify state-tracker.ps1 exists in `.github/prompts/shared/`
-      - Check state.json format matches state-tracker schema
-      - Validate promptRequests, promptHandoffs, commits arrays are properly structured
-      - Drift severity: **high** (state tracking failures break timeline reconstruction)
 
 ### 4. Validate
 
@@ -930,19 +891,6 @@ After completing healthcheck (either mode):
 **Configuration Issues** ([N issues]):
 - appsettings.json: [Missing or incorrect settings]
 - Dependency versions: [Outdated or conflicting packages]
-
-**Key Data Stream (KDS) Validation** (if AI infrastructure scope):
-- Keys Validated: [N keys in .github/key-data-streams/]
-- Index Status: [✅ Up-to-date | ⚠️ Missing entries | ❌ Orphaned entries]
-- Structure Issues: [N issues found]
-  - Missing plan.md: [list of keys]
-  - Missing plan.json: [list of keys]
-  - Missing work-log.md: [list of keys]
-  - Invalid JSON: [list of keys with parse errors]
-  - Phase count mismatches: [list of keys]
-  - Naming violations: [list of keys with invalid names]
-- Orphaned Files: [N temporary/backup files found]
-- State Tracking: [✅ Enabled and valid | ⚠️ Inconsistent | ❌ Missing]
 
 **Validation Patterns Updated**:
 - Added pattern: [pattern-id] - [Common issue found and resolution]

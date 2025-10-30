@@ -291,12 +291,12 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 - **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
 
 ### For Playwright Testing
-**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with direct `dotnet.exe` app launch!
+**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with separate window app launch!
 
 **⚠️ ABSOLUTE REQUIREMENT: Use Orchestration Scripts**
 
 - **ALWAYS** use orchestration scripts in `Scripts/run-{feature}-test.ps1`
-- **ALWAYS** launch the app with direct `Start-Process -FilePath "dotnet"` (no nested PowerShell windows)
+- **ALWAYS** launch app in SEPARATE PowerShell window (not background, not hidden)
 - **ALWAYS** use health check polling (not fixed delays)
 - **ALWAYS** use `try/finally` for guaranteed cleanup
 - **NEVER** use `PW_MODE=standalone` or `webServer` config (DEPRECATED approach)
@@ -306,39 +306,39 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 
 **Orchestration Script Pattern (MANDATORY):**
 ```powershell
-# 1. Launch app via direct dotnet.exe process (v3.0 pattern)
-$app = Start-Process -FilePath "dotnet" `
-  -ArgumentList "run", "--urls", "https://localhost:9091" `
-  -WorkingDirectory "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" `
-  -PassThru `
-  -WindowStyle Normal
+# 1. Launch app in SEPARATE window
+$app = Start-Process powershell -ArgumentList "-NoExit", "-Command", 
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
+     dotnet run" -WindowStyle Minimized -PassThru
 
 # 2. Health check with polling (not fixed delay)
 $maxAttempts = 30
 $attempt = 0
 $appReady = $false
 while (-not $appReady -and $attempt -lt $maxAttempts) {
-  try {
-    $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
-    if ($response.StatusCode -eq 200) { $appReady = $true }
-  } catch {
-    $attempt++
-    Start-Sleep -Seconds 1
-  }
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
+        if ($response.StatusCode -eq 200) { $appReady = $true }
+    } catch {
+        $attempt++
+        Start-Sleep -Seconds 1
+    }
 }
 
 # 3. Run tests with guaranteed cleanup
 try {
-  npx playwright test test.spec.ts --headed
+    npx playwright test test.spec.ts --headed
 } finally {
-  Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
 }
 ```
 
-**Why Direct dotnet.exe Launch is Mandatory (v3.0):**
-- ✅ Eliminates nested process hierarchies that delayed health checks (5–15 attempts → 1–3 attempts)
+**Why Separate Window is Mandatory:**
 - ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
-- ✅ Reliable PID tracking for cleanup (single process owner)
+- ✅ Visible error messages for debugging (can restore minimized window)
+- ✅ Reliable PID tracking for cleanup
 - ✅ Health check polling prevents race conditions
 - ✅ Guaranteed cleanup via `try/finally`
 
@@ -473,7 +473,7 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 #### IIS Express & Port Management
 - Default app port: 9091 (avoid system reserved)
 - **For Development**: Use nc.ps1/ncb.ps1 for port cleanup and dynamic assignment
-- **For Playwright Tests**: Use orchestration scripts with direct `dotnet run --urls` pattern (v3.0)
+- **For Playwright Tests**: Use webServer configuration (`PW_MODE=standalone`) for automatic management
 - Always check for orphaned IIS Express processes before launch (development only)
 
 #### Entity Framework
@@ -483,10 +483,10 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 #### Playwright Test Infrastructure
 - Centralized under PlayWright/ (tests, reports, results, artifacts)
 - **Main config**: `config/testing/playwright.config.cjs` (centralized configuration)
-- **Launch Pattern (v3.0)**: Orchestration scripts start the app with direct `Start-Process -FilePath "dotnet"` and explicit `--urls` targeting test ports
+- **webServer Configuration**: Handles automatic .NET app startup/shutdown for tests
 - **Usage Context**:
   - **Development/Implementation**: Use PowerShell scripts (nc.ps1/ncb.ps1)
-  - **Playwright Testing**: Use `Scripts/run-*.ps1` orchestration scripts (no `webServer`, no nested PowerShell windows)
+  - **Playwright Testing**: Use webServer (`PW_MODE=standalone`) - never PowerShell scripts
 - Legacy configs: PlayWright/config/ and root (for backward compatibility)
 - All npm scripts reference the centralized config location
 
