@@ -1,0 +1,78 @@
+{
+    "archiveDate": "2025-10-30",
+    "archivedBy": "cohesion-cleanup-consolidation",
+    "reason": "Consolidated into cohesion.prompt.md v2.0",
+    "files": [
+        {
+            "name": "cleanup-copilot-mess.prompt.md",
+            "originalPath": ".github/prompts/cleanup-copilot-mess.prompt.md",
+            "archivedPath": ".github/prompts/shared/archive/deprecated-2025-10-30/cleanup-copilot-mess.prompt.md",
+            "version": "v1.0",
+            "replacement": "cohesion.prompt.md with validation-level=kds-cleanup",
+            "functionalityMigrated": [
+                "KDS structure validation",
+                "Deprecated file detection",
+                "Internal prompt relocation",
+                "Temporary file cleanup",
+                "Test registry management",
+                "Deprecated reference replacement",
+                "Auto-fix capability"
+            ],
+            "callers": [
+                {
+                    "file": "plan.prompt.md",
+                    "step": "Step 7.25 (proposed, not yet implemented)",
+                    "status": "Future enhancement - auto-invoke cohesion with validation-level=kds-cleanup",
+                    "update": "When implemented, will call cohesion instead of cleanup-copilot-mess"
+                },
+                {
+                    "file": "task.prompt.md",
+                    "step": "Step 9.15 (proposed, not yet implemented)",
+                    "status": "Future enhancement - auto-invoke cohesion with validation-level=kds-cleanup",
+                    "update": "When implemented, will call cohesion instead of cleanup-copilot-mess"
+                }
+            ]
+        }
+    ],
+    "migrationPlan": {
+        "kdsPath": ".github/key-data-streams/cohesion-cleanup-consolidation",
+        "deliverables": [
+            "responsibility-matrix.md",
+            "architecture-design.md",
+            "work-log.md"
+        ],
+        "promptUpdates": [
+            {
+                "file": "cohesion.prompt.md",
+                "version": "v1.2 → v2.0",
+                "changes": [
+                    "Added validation-level=kds-cleanup parameter",
+                    "Added auto-fix parameter (default=false)",
+                    "Added cleanup-mode parameter (full/archive-only/organize-only/validate-only)",
+                    "Inserted 12 KDS cleanup algorithm functions",
+                    "Updated output format to include KDS cleanup results",
+                    "Added Level 6: KDS-Cleanup validation level"
+                ]
+            },
+            {
+                "file": "cleanup.prompt.md",
+                "version": "v1.0 → v1.1",
+                "location": ".github/prompts/internal/util/cleanup.prompt.md",
+                "changes": [
+                    "Updated header metadata with scope exclusion",
+                    "Updated scope clarification to exclude .github/",
+                    "Added Step 0.0: Scope Boundary Enforcement",
+                    "Rejects if target_folders contains '.github'"
+                ]
+            }
+        ]
+    },
+    "testingRequired": [
+        "cohesion validation-level=kds-cleanup auto-fix=false (dry run)",
+        "cohesion validation-level=kds-cleanup auto-fix=true (execute)",
+        "cleanup target_folders='.github' (should reject)",
+        "plan.prompt.md auto-invocation at Step 7.25",
+        "task.prompt.md auto-invocation at Step 9.15"
+    ],
+    "notes": "All functionality from cleanup-copilot-mess.prompt.md has been migrated to cohesion.prompt.md v2.0. The scope separation is now enforced: cohesion handles .github/ folder, cleanup handles workspace folders."
+}

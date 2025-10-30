@@ -1,0 +1,49 @@
+{
+    "key": "prompt-efficiency-fix",
+    "status": "not-started",
+    "createdAt": "2025-10-29T00:00:00Z",
+    "updatedAt": "2025-10-29T00:00:00Z",
+    "branch": "noorcanvas/prompt-enhancements",
+    "phases": [
+        {
+            "phaseNumber": 1,
+            "title": "File-Based State Tracking",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 2,
+            "title": "Document-First Enforcement",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 3,
+            "title": "Efficiency Enhancements Registry",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 4,
+            "title": "Key Auto-Detection Error Handling",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 5,
+            "title": "State Tracking Adoption Verification",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        }
+    ]
+}
