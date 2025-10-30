@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Configuration;
 using NoorCanvas.Controllers;
 using NoorCanvas.Data;
+using NoorCanvas.Factories;
 using NoorCanvas.Hubs;
+using NoorCanvas.Middleware;
 using NoorCanvas.Services;
 using NoorCanvas.Services.Development;
 using Serilog;
@@ -194,6 +196,9 @@ builder.Services.AddScoped<HtmlParsingService>(); // [DEBUG-WORKITEM:signalcomm:
 builder.Services.AddScoped<IMediaUrlTransformService, MediaUrlTransformService>(); // Environment-aware media URL transformation for transcript images
 builder.Services.AddScoped<UnifiedHtmlTransformService>(); // Unified HTML transformation for host and participant views
 builder.Services.AddScoped<IScreenshotAnalysisService, ScreenshotAnalysisService>(); // AI-powered screenshot annotation extraction
+// [hcp-refactor:phase2] SignalR Infrastructure - Extracted from HostControlPanel.razor
+builder.Services.AddScoped<IHubConnectionFactory, HubConnectionFactory>(); // Factory for creating SignalR connections with reconnection policy
+builder.Services.AddScoped<SignalRMiddleware>(); // Middleware for managing SignalR connections with health monitoring
 // [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcastService removed ;CLEANUP_OK
 // [DEBUG-WORKITEM:canvascleanup:impl] DatabaseMigrator removed ;CLEANUP_OK
 

@@ -275,17 +275,17 @@ public class SessionHub : Hub
             var payload = new
             {
                 sessionId = sessionId,
-                sectionHtml = sectionHtml,
+                htmlContent = sectionHtml, // Changed from sectionHtml to htmlContent to match receiver
                 h2Text = h2Text,
                 timestamp = DateTime.UtcNow,
                 sharedBy = Context.ConnectionId,
                 trackingId = trackingId
             };
 
-            _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] Sending ReceiveTranscriptSection to group {GroupName} ;CLEANUP_OK",
+            _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] Sending HtmlContentReceived to group {GroupName} ;CLEANUP_OK",
                 trackingId, groupName);
 
-            await Clients.Group(groupName).SendAsync("ReceiveTranscriptSection", payload);
+            await Clients.Group(groupName).SendAsync("HtmlContentReceived", payload);
 
             _logger.LogInformation("[TRACE:hcp-tcanvas:broadcast] [{TrackingId}] ✅ Section broadcasted successfully to {GroupName} ;CLEANUP_OK",
                 trackingId, groupName);
@@ -596,8 +596,15 @@ public class SessionHub : Hub
         var requestId = Guid.NewGuid().ToString("N")[..8];
         var groupName = $"session_{sessionId}";
 
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] BroadcastHtml called: SessionId {SessionId}, ContentType {ContentType}, ContentLength {Length}, From {ConnectionId}",
-            requestId, sessionId, contentType, htmlContent?.Length ?? 0, Context.ConnectionId);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] ════════ BROADCAST HTML FLOW START ════════", requestId);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Method: BroadcastHtml", requestId);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] SessionId: {SessionId}", requestId, sessionId);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] GroupName: {GroupName}", requestId, groupName);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] ContentType: {ContentType}", requestId, contentType);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] ContentLength: {Length} chars", requestId, htmlContent?.Length ?? 0);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Sender ConnectionId: {ConnectionId}", requestId, Context.ConnectionId);
+        _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] HTML Preview (first 200 chars): {Preview}", requestId, 
+            htmlContent?.Substring(0, Math.Min(200, htmlContent.Length)) ?? "NULL");
 
         var broadcastData = new
         {
@@ -611,12 +618,15 @@ public class SessionHub : Hub
 
         try
         {
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Broadcasting HtmlContentReceived to group {GroupName}", requestId, groupName);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Broadcasting HtmlContentReceived to group {GroupName}", requestId, groupName);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Event name: HtmlContentReceived", requestId);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Payload structure: {{htmlContent: string, contentType: string, ...}}", requestId);
 
             // Send to all clients in the session group 
             await Clients.Group(groupName).SendAsync("HtmlContentReceived", broadcastData);
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Successfully sent HtmlContentReceived to group {GroupName}", requestId, groupName);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] ✅ HtmlContentReceived SENT to group {GroupName}", requestId, groupName);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Receivers should now process the HTML", requestId);
 
             // Send confirmation back to sender for debugging
             await Clients.Caller.SendAsync("HtmlBroadcastConfirmed", new
@@ -629,11 +639,13 @@ public class SessionHub : Hub
                 groupName = groupName
             });
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] HTML broadcast confirmation sent to sender {ConnectionId}", requestId, Context.ConnectionId);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] Confirmation sent to sender {ConnectionId}", requestId, Context.ConnectionId);
+            _logger.LogInformation("[hcp-refactor:logs] [{RequestId}] ════════ BROADCAST HTML FLOW COMPLETE ════════", requestId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Failed to broadcast HTML content to session {SessionId}", requestId, sessionId);
+            _logger.LogError(ex, "[hcp-refactor:logs] [{RequestId}] ❌ BROADCAST FAILED: {Message}", requestId, ex.Message);
+            _logger.LogError("[hcp-refactor:logs] [{RequestId}] StackTrace: {StackTrace}", requestId, ex.StackTrace);
             throw;
         }
     }
