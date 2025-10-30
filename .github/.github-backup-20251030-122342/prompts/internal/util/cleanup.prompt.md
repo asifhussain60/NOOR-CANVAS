@@ -1,33 +1,39 @@
-# cleanup.prompt.md (Workspace Cleanup Agent v1.0)
+# cleanup.prompt.md (Workspace Cleanup Agent v1.1)
 
 ---
 mode: agent
-description: Intelligent workspace reorganization and cleanup agent that systematically removes unneeded files, consolidates duplicates, reorganizes folder structures, and updates all references while preserving functionality.
+description: Intelligent workspace reorganization and cleanup agent that systematically removes unneeded files, consolidates duplicates, reorganizes folder structures, and updates all references while preserving functionality. Handles ALL workspace folders EXCEPT .github/.
+version: 1.1
+updated: 2025-10-30
+scope: workspace folders only (excludes .github/)
 ---
 
-## � Scope Clarification (vs cleanup-copilot-mess.prompt.md)
+## Scope Clarification **UPDATED v1.1**
 
-**This prompt (cleanup.prompt.md)**:
-- ✅ **User-initiated** workspace cleanup
-- ✅ **ALL folders** (Scripts/, Docs/, Workspaces/, PlayWright/, SPA/, etc.)
+**This prompt (cleanup.prompt.md) handles:**
+- ✅ **ALL workspace folders** (Scripts/, Docs/, Workspaces/, PlayWright/, SPA/, Tools/, etc.)
+- ❌ **EXCLUDES `.github/` folder** → Use cohesion.prompt.md with validation-level=kds-cleanup for .github/ cleanup
+- ✅ **User-initiated** comprehensive cleanup
 - ✅ **Comprehensive reorganization** with build/test validation
 - ✅ **Requires user approval** for changes
 - ✅ **Complex validation** (build, tests, references, git integrity)
 - ✅ **Manual invocation** or plan final phase
 
-**cleanup-copilot-mess.prompt.md** (Separate Prompt):
-- ✅ **Auto-invoked** by plan/task agents after execution
+**cohesion.prompt.md with validation-level=kds-cleanup** (For .github/ folder):
 - ✅ **`.github/` folder only** (prompts, instructions, KDS, audits)
-- ✅ **File organization only** (no logic/content changes)
-- ✅ **Automatic execution** with concise output
-- ✅ **Lightweight validation** (file operations only)
-- ✅ **Focused on** prompt/instruction cleanup
+- ✅ **Auto-invoked** by plan/task agents after execution
+- ✅ **File organization + validation** (deprecated files, internal prompts, KDS structure)
+- ✅ **Automatic or manual execution** with auto-fix parameter
+- ✅ **Focused on** prompt system health and KDS efficiency
 
 **When to use which**:
-- **Use this cleanup.prompt.md**: For workspace-wide cleanup (manual invocation)
-- **Use cleanup-copilot-mess.prompt.md**: After plan/task completion (automatic)
-- **Both can run**: cleanup-copilot-mess handles `.github/`, this handles everything else
-- **No conflict**: Separate scopes, different invocation patterns
+- **Use cleanup.prompt.md**: For workspace folders (Scripts/, Docs/, SPA/, etc.)
+- **Use cohesion validation-level=kds-cleanup**: For .github/ folder cleanup
+- **Both can run**: cohesion handles `.github/`, cleanup handles everything else
+- **No overlap**: Enforced scope boundaries, reject if target_folders contains '.github'
+
+**Deprecated as of v1.1**:
+- ❌ cleanup-copilot-mess.prompt.md → Consolidated into cohesion.prompt.md v2.0
 
 ---
 
@@ -127,6 +133,14 @@ Target branch for cleanup work. Follows same branch validation as feature planni
 
 **Actions:**
 
+0. **Scope Boundary Enforcement** **NEW v1.1**:
+   - Check if target_folders contains `.github` or `.github/`
+   - **If found**: REJECT with error message
+   - **Error**: "`.github/` folder cleanup must use cohesion.prompt.md with validation-level=kds-cleanup. This prompt handles workspace folders only."
+   - **Redirect**: "Execute: `cohesion validation-level=kds-cleanup auto-fix=true`"
+   - **ABORT EXECUTION** if `.github/` detected in target_folders
+
+1. **Branch Validation** (same as plan.prompt.md Step 0.1):
 1. **Branch Validation** (same as plan.prompt.md Step 0.1):
    - Check github-branch parameter (defaults to `development`)
    - Warn if `master` branch specified

@@ -1,13 +1,14 @@
-# cohesion.prompt.md (System Cohesion Agent v1.2)
+# cohesion.prompt.md (System Cohesion & KDS Management Agent v2.0)
 
 ---
 mode: agent
-purpose: Meta-agent that validates and harmonizes all prompts and instructions for unified system operation
-inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full), -test
-outputs: Cohesion report with violations, conflicts, and auto-fix recommendations
-lastUpdated: 2025-10-28
+purpose: Meta-agent that validates/harmonizes all prompts/instructions AND manages .github/ KDS structure and cleanup
+inputs: scope (prompts|instructions|all|specific-file), validation-level (syntax|cross-ref|rules|conflicts|full|kds-cleanup), auto-fix, cleanup-mode, -test
+outputs: Cohesion report with violations, conflicts, KDS cleanup results, and auto-fix recommendations
+lastUpdated: 2025-10-30
 stateTracking: enabled
 calls: [.github/prompts/internal/enhance-prompts.prompt.md]
+supersedes: [.github/prompts/cleanup-copilot-mess.prompt.md]
 relatedFiles: [
   .github/prompts/internal/enhance-prompts.prompt.md,
   .github/prompts/shared/validation-engine.md,
@@ -15,14 +16,22 @@ relatedFiles: [
 ]
 ---
 
-# cohesion.prompt.md (System Cohesion)
+# cohesion.prompt.md (System Cohesion & KDS Management)
 
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
-**Mode:** Agent | **Purpose:** Ensure all prompts/instructions work as unified, conflict-free system
+**Mode:** Agent | **Purpose:** Ensure all prompts/instructions work as unified, conflict-free system + manage .github/ KDS structure and cleanup
 
-**Version:** 1.2.0  
+**Version:** 2.0.0  
 **Changelog:**
+- **v2.0.0 (2025-10-30)**: KDS CLEANUP INTEGRATION - Merged cleanup-copilot-mess.prompt.md functionality
+  - Added `validation-level=kds-cleanup` for KDS structure validation + cleanup execution
+  - Added `auto-fix` parameter for cleanup execution control
+  - Added `cleanup-mode` parameter for granular cleanup control (full/archive-only/organize-only)
+  - Integrated 7 cleanup functions: KDS validation, deprecated archiving, internal prompt organization, temp cleanup, test registry management
+  - Scope: .github/ folder only (prompts, instructions, key-data-streams, audits)
+  - Auto-invoked from plan.prompt.md Step 7.25 and task.prompt.md Step 9.15 (replaces cleanup-copilot-mess)
+  - Safety: Safe harbor files, risk-based approval, git rollback support
 - **v1.2.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for cohesion audit logging (uses "cohesion-audit" key)
 
 ## Parameters
@@ -55,7 +64,19 @@ Depth of validation:
 - `cross-ref` - Reference checking
 - `rules` - Compliance validation
 - `conflicts` - Deep conflict detection
-- `full` - All validation levels
+- `full` - All validation levels (1-5)
+- `kds-cleanup` - **NEW v2.0** - KDS structure validation + cleanup execution (includes all levels 1-5 + KDS operations)
+
+**KDS-Cleanup Mode** (validation-level=kds-cleanup):
+- Validates `.github/` folder structure (prompts, instructions, key-data-streams, audits)
+- Detects: deprecated files, misplaced docs, internal prompts in wrong location, temp files, KDS violations, orphaned tests, deprecated references
+- Executes cleanup if `auto-fix=true` (archive, move, delete, create, update operations)
+- Scope: `.github/` folder ONLY (workspace cleanup handled by cleanup.prompt.md)
+
+**Example:**
+```bash
+@workspace /cohesion scope=all validation-level=kds-cleanup auto-fix=true
+```
 
 ### -test *(flag, optional)*
 Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
@@ -101,7 +122,39 @@ D. Generate improvement plan
 
 **See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
-### validation-level *(optional, default=syntax)*
+### auto-fix *(optional, default=false)* **NEW v2.0**
+
+Control cleanup execution behavior when `validation-level=kds-cleanup`
+
+**Values:**
+- `false` (default) - Report issues only, no file modifications
+- `true` - Execute cleanup automatically with safety checks
+
+**Safety Rules:**
+- Low-risk operations: Automatic (temp files `*.tmp`, `*.bak`, deprecated reference updates)
+- Medium-risk operations: Automatic with logging (archive deprecated files, move internal prompts)
+- High-risk operations: User approval required (delete active prompts, modify critical files)
+- **Safe Harbor Protection**: NEVER modifies `.github/MANDATORY.md`, `*-mandate.md`, `*-protocol.md`, `context-*.md`, `validation-*.md`, `step-*.md`
+
+**Example:**
+```bash
+@workspace /cohesion validation-level=kds-cleanup auto-fix=true
+```
+
+### cleanup-mode *(optional, default=full)* **NEW v2.0**
+
+Fine-tune KDS cleanup behavior when `validation-level=kds-cleanup` and `auto-fix=true`
+
+**Values:**
+- `full` (default) - All cleanup operations (archive, move, delete, create, update)
+- `archive-only` - Archive deprecated files only, skip moves/deletes
+- `organize-only` - Move internal prompts and misplaced docs, skip archive/delete
+- `validate-only` - Detect violations without execution (same as auto-fix=false)
+
+**Example:**
+```bash
+@workspace /cohesion validation-level=kds-cleanup auto-fix=true cleanup-mode=archive-only
+```
 
 ## Critical Rules
 **LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
@@ -148,6 +201,25 @@ D. Generate improvement plan
 - **healthcheck.prompt.md** prompt optimization mode
 - **todo.prompt.md** key detection from git history
 
+### 6. KDS Structure Management **NEW v2.0** (validation-level=kds-cleanup)
+- **Scope**: `.github/` folder ONLY (prompts, instructions, key-data-streams, audits)
+- **Deprecated File Archiving**: Archive files marked "DEPRECATED", "DO NOT UPDATE", "obsolete" with metadata
+- **Internal Prompt Organization**: Auto-detect and move prompts called by other agents to `.github/prompts/internal/shared/`
+- **Misplaced Documentation**: Move informational docs from `.github/` to `Workspaces/Documentation/`
+- **Temporary File Cleanup**: Delete `*.tmp`, `*.bak`, `temp-*.md`, `*-backup.md` files
+- **KDS Violation Detection**: Validate key structure (required files: plan.md, work-log.md), detect stale keys (>90 days), orphaned directories
+- **Test Registry Management**: Create/update `test-registry.md` for orphaned test files
+- **Deprecated Reference Replacement**: Auto-replace deprecated file references (CONCISE-MANDATE → MANDATORY, etc.)
+- **Audit Log Archiving**: Archive audit logs older than 30 days to `.github/audits/_archive/`
+
+**Execution**: Only when `validation-level=kds-cleanup` AND `auto-fix=true`
+
+**Safety**: 
+- Safe Harbor files NEVER modified (MANDATORY.md, *-mandate.md, *-protocol.md, context-*.md, validation-*.md, step-*.md)
+- High-risk operations require user approval
+- Git checkpoint created before cleanup
+- Rollback command provided in report
+
 ## Validation Levels
 
 ### Level 1: Syntax (Quick)
@@ -182,6 +254,35 @@ D. Generate improvement plan
 - Performance optimization recommendations
 - Documentation completeness
 
+### Level 6: KDS-Cleanup **NEW v2.0** (KDS Structure Validation + Cleanup Execution)
+**Scope:** `.github/` folder only
+
+**Phase A: Scan & Categorize**
+- Deprecated files in `.github/prompts/shared/` (marked "DEPRECATED" or "obsolete")
+- Misplaced documentation (informational docs in prompts/instructions folders)
+- Internal prompts in wrong location (auto-invoked prompts not in `internal/shared/`)
+- Temporary files (`*.tmp`, `*.bak`, `temp-*.md`, `*-backup.md`)
+- KDS violations (missing plan.md/work-log.md, stale keys >90 days, orphaned directories)
+- Orphaned tests (test files without registry entries)
+- Deprecated references (CONCISE-MANDATE.md, snippet-handling-policy.md, output-style-mandate.md)
+
+**Phase B: Propose Actions**
+- Archive plan (deprecated files → archive/ with metadata)
+- Move plan (internal prompts → internal/shared/, docs → Workspaces/)
+- Delete plan (temporary files)
+- Fix plan (create work-log.md, test-registry.md, replace deprecated refs)
+
+**Phase C: Execute** (if `auto-fix=true`)
+- Archive deprecated files with metadata
+- Move internal prompts + update references in calling prompts
+- Move misplaced documentation
+- Delete temporary files
+- Fix KDS violations (create missing files, archive stale keys)
+- Create/update test registries
+- Replace deprecated references
+
+**Output:** Unified report with validation results (Levels 1-5) + KDS cleanup results
+
 ## How to Invoke
 
 ```bash
@@ -199,6 +300,25 @@ D. Generate improvement plan
 
 # Auto-fix mode (requires approval)
 @workspace /cohesion scope=all validation-level=full auto-fix=true
+
+# KDS cleanup with validation (report only)
+@workspace /cohesion scope=all validation-level=kds-cleanup
+
+# KDS cleanup with auto-fix
+@workspace /cohesion scope=all validation-level=kds-cleanup auto-fix=true
+
+# KDS cleanup (archive deprecated files only)
+@workspace /cohesion validation-level=kds-cleanup auto-fix=true cleanup-mode=archive-only
+
+# Auto-invoked from plan/task (end of workflow)
+Execute("cohesion.prompt.md", {
+  scope: "all",
+  validation-level: "kds-cleanup",
+  auto-fix: true,
+  cleanup-mode: "full",
+  key: CurrentKey,
+  verbosity: "concise"
+})
 ```
 
 ## Validation Algorithm (Pseudocode)
@@ -342,6 +462,538 @@ FUNCTION DetectContradictions(files)
   END FOR
   
   RETURN contradictions
+END FUNCTION
+```
+
+## KDS Cleanup Algorithms **NEW v2.0**
+
+### Step 6: KDS Structure Validation (validation-level=kds-cleanup)
+
+```
+FUNCTION ValidateKDSStructure():
+  
+  violations = {
+    deprecated: [],
+    misplaced: [],
+    internalPrompts: [],
+    temporary: [],
+    kdsViolations: [],
+    orphanedTests: [],
+    deprecatedRefs: []
+  }
+  
+  // Safe Harbor Files - NEVER modify these
+  safeHarborFiles = [
+    ".github/MANDATORY.md",
+    ".github/instructions/SelfAwareness.instructions.md"
+  ]
+  
+  safeHarborPatterns = [
+    "*-mandate.md",
+    "*-protocol.md",
+    "context-*.md",
+    "validation-*.md",
+    "step-*.md"
+  ]
+  
+  // 1. Scan .github/prompts/shared/ for deprecated files
+  sharedFiles = GetFiles(".github/prompts/shared/*.md")
+  FOR EACH file IN sharedFiles:
+    IF IsSafeHarbor(file, safeHarborFiles, safeHarborPatterns) THEN
+      CONTINUE  // Protected file - skip
+    END IF
+    
+    content = ReadFile(file)
+    
+    IF content.Contains("DEPRECATED") OR 
+       content.Contains("DO NOT UPDATE") OR 
+       content.Contains("obsolete") THEN
+      violations.deprecated.Add({
+        file: file,
+        reason: "Marked as deprecated/obsolete",
+        target: ".github/prompts/shared/archive/deprecated-" + Now().ToString("yyyy-MM-dd") + "/",
+        risk: "low"
+      })
+    END IF
+    
+    // Check for informational docs (should be in Workspaces/)
+    fileName = Path.GetFileName(file)
+    IF (fileName.EndsWith("-guide.md") OR fileName.EndsWith("-reference.md")) AND
+       NOT IsProtocolOrAlgorithm(content) THEN
+      violations.misplaced.Add({
+        file: file,
+        reason: "Informational doc in shared/ folder",
+        target: "Workspaces/Documentation/GitHub/",
+        risk: "low"
+      })
+    END IF
+  END FOR
+  
+  // 2. Scan for internal prompts in wrong location
+  allPrompts = GetFiles(".github/prompts/**/*.prompt.md")
+  FOR EACH promptFile IN allPrompts:
+    IF promptFile.Contains("/internal/") OR promptFile.Contains("/shared/") THEN
+      CONTINUE
+    END IF
+    
+    content = ReadFile(promptFile)
+    
+    // Check for manual override
+    IF content.Contains("location: root") THEN
+      CONTINUE
+    END IF
+    
+    // Detect auto-invocation indicators
+    IF content.Contains("invoked by") OR
+       content.Contains("Called by") OR
+       content.Contains("Do not call directly") THEN
+      
+      invokers = ExtractInvokers(content)
+      
+      violations.internalPrompts.Add({
+        file: promptFile,
+        reason: "Internal prompt called by: " + Join(invokers, ", "),
+        target: ".github/prompts/internal/shared/",
+        risk: "medium",
+        invokers: invokers
+      })
+    END IF
+  END FOR
+  
+  // 3. Scan for temporary files
+  tempPatterns = ["*.tmp", "*.bak", "temp-*.md", "*-backup.md"]
+  FOR EACH pattern IN tempPatterns:
+    tempFiles = GetFiles(".github/**/" + pattern)
+    FOR EACH file IN tempFiles:
+      violations.temporary.Add({
+        file: file,
+        reason: "Temporary file pattern",
+        action: "DELETE",
+        risk: "low"
+      })
+    END FOR
+  END FOR
+  
+  // 4. Validate key-data-streams structure
+  keys = GetDirectories(".github/key-data-streams/*")
+  FOR EACH keyPath IN keys:
+    IF keyPath.StartsWith("_") THEN CONTINUE  // Skip _ARCHIVE, _SCHEMA
+    
+    keyViolations = ValidateKeyStructure(keyPath)
+    IF keyViolations.Count > 0 THEN
+      violations.kdsViolations.Add({
+        key: Path.GetFileName(keyPath),
+        violations: keyViolations
+      })
+    END IF
+  END FOR
+  
+  // 5. Scan for orphaned test files
+  testFiles = GetFiles(".github/key-data-streams/*/tests/*.spec.ts")
+  FOR EACH testFile IN testFiles:
+    registryFile = Path.Combine(Path.GetDirectoryName(testFile), "test-registry.md")
+    
+    IF NOT FileExists(registryFile) THEN
+      violations.orphanedTests.Add({
+        file: testFile,
+        reason: "Missing test-registry.md",
+        action: "CREATE_REGISTRY",
+        risk: "low"
+      })
+    ELSE
+      registry = ReadFile(registryFile)
+      IF NOT registry.Contains(Path.GetFileName(testFile)) THEN
+        violations.orphanedTests.Add({
+          file: testFile,
+          reason: "Not in test-registry.md",
+          action: "ADD_TO_REGISTRY",
+          risk: "low"
+        })
+      END IF
+    END IF
+  END FOR
+  
+  // 6. Scan for deprecated references (auto-replace)
+  deprecatedRefs = {
+    "CONCISE-MANDATE.md": "MANDATORY.md",
+    "snippet-handling-policy.md": "MANDATORY.md",
+    "output-style-mandate.md": "MANDATORY.md"
+  }
+  
+  filesToScan = GetFiles(".github/prompts/**/*.md") + 
+                GetFiles(".github/instructions/**/*.md")
+  
+  FOR EACH file IN filesToScan:
+    IF file.Contains("/archive/") THEN CONTINUE
+    
+    content = ReadFile(file)
+    
+    FOR EACH oldRef, newRef IN deprecatedRefs:
+      IF content.Contains(oldRef) THEN
+        violations.deprecatedRefs.Add({
+          file: file,
+          oldRef: oldRef,
+          newRef: newRef,
+          risk: "low"
+        })
+      END IF
+    END FOR
+  END FOR
+  
+  RETURN violations
+  
+END FUNCTION
+
+
+FUNCTION ValidateKeyStructure(keyPath):
+  violations = []
+  
+  keyName = Path.GetFileName(keyPath)
+  planFile = Path.Combine(keyPath, keyName + ".plan.md")
+  workLogFile = Path.Combine(keyPath, "work-log.md")
+  
+  // Required file checks
+  IF NOT FileExists(planFile) THEN
+    violations.Add({
+      type: "MISSING_PLAN",
+      severity: "HIGH",
+      action: "CREATE_FROM_TEMPLATE"
+    })
+  END IF
+  
+  IF NOT FileExists(workLogFile) THEN
+    violations.Add({
+      type: "MISSING_WORKLOG",
+      severity: "HIGH",
+      action: "CREATE_FROM_TEMPLATE"
+    })
+  END IF
+  
+  // Staleness check
+  IF FileExists(workLogFile) THEN
+    lastModified = GetFileModifiedDate(workLogFile)
+    daysSinceUpdate = (Now() - lastModified).TotalDays
+    
+    IF daysSinceUpdate > 90 THEN
+      violations.Add({
+        type: "STALE_KEY",
+        severity: "LOW",
+        daysSinceUpdate: daysSinceUpdate,
+        action: "ARCHIVE_TO_ARCHIVE_FOLDER"
+      })
+    END IF
+  END IF
+  
+  // Orphaned directory check
+  allFiles = GetFiles(keyPath + "/*.*")
+  IF allFiles.Count == 0 THEN
+    violations.Add({
+      type: "ORPHANED_DIRECTORY",
+      severity: "MEDIUM",
+      action: "DELETE_OR_ARCHIVE"
+    })
+  END IF
+  
+  RETURN violations
+  
+END FUNCTION
+
+
+FUNCTION IsSafeHarbor(filePath, safeHarborFiles, safeHarborPatterns):
+  // Check exact matches
+  FOR EACH safeFile IN safeHarborFiles:
+    IF filePath.EndsWith(safeFile) OR filePath == safeFile THEN
+      RETURN true
+    END IF
+  END FOR
+  
+  // Check pattern matches
+  fileName = Path.GetFileName(filePath)
+  FOR EACH pattern IN safeHarborPatterns:
+    IF MatchesPattern(fileName, pattern) THEN
+      RETURN true
+    END IF
+  END FOR
+  
+  RETURN false
+  
+END FUNCTION
+
+
+FUNCTION IsProtocolOrAlgorithm(content):
+  // Check if file contains implementation logic vs pure docs
+  indicators = [
+    "FUNCTION ",
+    "```",
+    "**Purpose:**",
+    "**Algorithm:**",
+    "**Protocol:**",
+    "IF ",
+    "FOR EACH",
+    "RETURN"
+  ]
+  
+  matchCount = 0
+  FOR EACH indicator IN indicators:
+    IF content.Contains(indicator) THEN
+      matchCount += 1
+    END IF
+  END FOR
+  
+  RETURN matchCount >= 3  // If 3+ indicators, it's protocol/algorithm
+  
+END FUNCTION
+
+
+FUNCTION ExtractInvokers(content):
+  invokers = []
+  lines = content.Split("\n")
+  
+  FOR EACH line IN lines:
+    // Pattern: "invoked by X" or "Called by X"
+    IF line.Contains("invoked by") OR line.Contains("Called by") THEN
+      matches = Regex.Matches(line, @"(\w+(-\w+)*\.prompt\.md)")
+      FOR EACH match IN matches:
+        invokers.Add(match.Value)
+      END FOR
+    END IF
+    
+    // Pattern: "Do not call directly. Use X"
+    IF line.Contains("Do not call directly") THEN
+      matches = Regex.Matches(line, @"(\w+(-\w+)*\.prompt\.md)")
+      FOR EACH match IN matches:
+        invokers.Add(match.Value)
+      END FOR
+    END IF
+  END FOR
+  
+  RETURN invokers.Distinct()
+  
+END FUNCTION
+```
+
+### Step 7: KDS Cleanup Execution (if auto-fix=true)
+
+```
+FUNCTION ExecuteKDSCleanup(violations, cleanup-mode):
+  
+  results = {
+    archived: [],
+    moved: [],
+    deleted: [],
+    created: [],
+    updated: []
+  }
+  
+  // 1. Archive deprecated files
+  IF cleanup-mode IN ["full", "archive-only"] THEN
+    FOR EACH item IN violations.deprecated:
+      archivePath = ArchiveDeprecatedFile(item.file, item.target)
+      results.archived.Add({
+        file: item.file,
+        destination: archivePath,
+        reason: item.reason
+      })
+    END FOR
+  END IF
+  
+  // 2. Move internal prompts to internal/shared/
+  IF cleanup-mode IN ["full", "organize-only"] THEN
+    FOR EACH item IN violations.internalPrompts:
+      newPath = MoveInternalPrompt(item.file, item.target)
+      
+      // Update references in calling prompts
+      updatedFiles = UpdatePromptReferences(item.file, newPath)
+      
+      results.moved.Add({
+        file: item.file,
+        destination: newPath,
+        invokers: item.invokers,
+        referencesUpdated: updatedFiles.Count
+      })
+    END FOR
+  END IF
+  
+  // 3. Move misplaced documentation
+  IF cleanup-mode IN ["full", "organize-only"] THEN
+    FOR EACH item IN violations.misplaced:
+      newPath = MoveFile(item.file, item.target)
+      results.moved.Add({
+        file: item.file,
+        destination: newPath,
+        reason: item.reason
+      })
+    END FOR
+  END IF
+  
+  // 4. Delete temporary files
+  IF cleanup-mode == "full" THEN
+    FOR EACH item IN violations.temporary:
+      DeleteFile(item.file)
+      results.deleted.Add({
+        file: item.file,
+        reason: item.reason
+      })
+    END FOR
+  END IF
+  
+  // 5. Fix KDS violations
+  IF cleanup-mode == "full" THEN
+    FOR EACH item IN violations.kdsViolations:
+      keyPath = ".github/key-data-streams/" + item.key
+      
+      FOR EACH violation IN item.violations:
+        
+        IF violation.type == "MISSING_WORKLOG" THEN
+          filePath = CreateWorkLog(keyPath, item.key)
+          results.created.Add({
+            file: filePath,
+            reason: "Missing work-log.md"
+          })
+          
+        ELSE IF violation.type == "MISSING_PLAN" THEN
+          filePath = CreatePlanFile(keyPath, item.key)
+          results.created.Add({
+            file: filePath,
+            reason: "Missing plan file"
+          })
+          
+        ELSE IF violation.type == "STALE_KEY" THEN
+          archivePath = ArchiveStaleKey(keyPath, item.key)
+          results.archived.Add({
+            file: keyPath,
+            destination: archivePath,
+            reason: "Stale (>" + violation.daysSinceUpdate + " days)"
+          })
+          
+        ELSE IF violation.type == "ORPHANED_DIRECTORY" THEN
+          DeleteDirectory(keyPath)
+          results.deleted.Add({
+            file: keyPath,
+            reason: "Orphaned directory"
+          })
+        END IF
+        
+      END FOR
+    END FOR
+  END IF
+  
+  // 6. Fix orphaned tests
+  IF cleanup-mode == "full" THEN
+    FOR EACH item IN violations.orphanedTests:
+      
+      IF item.action == "CREATE_REGISTRY" THEN
+        filePath = CreateTestRegistry(item.file)
+        results.created.Add({
+          file: filePath,
+          reason: "Missing test registry"
+        })
+        
+      ELSE IF item.action == "ADD_TO_REGISTRY" THEN
+        filePath = AddToTestRegistry(item.file)
+        results.updated.Add({
+          file: filePath,
+          reason: "Added orphaned test"
+        })
+      END IF
+      
+    END FOR
+  END IF
+  
+  // 7. Replace deprecated references
+  IF cleanup-mode == "full" THEN
+    FOR EACH item IN violations.deprecatedRefs:
+      ReplaceDeprecatedReference(item.file, item.oldRef, item.newRef)
+      results.updated.Add({
+        file: item.file,
+        reason: "Replaced " + item.oldRef + " → " + item.newRef
+      })
+    END FOR
+  END IF
+  
+  RETURN results
+  
+END FUNCTION
+
+
+// Helper Functions (placeholders - full implementation in architecture-design.md)
+
+FUNCTION ArchiveDeprecatedFile(filePath, targetDir):
+  CreateDirectory(targetDir)
+  fileName = Path.GetFileName(filePath)
+  archivePath = Path.Combine(targetDir, fileName)
+  metadata = {originalPath: filePath, archivedDate: Now(), reason: "Deprecated"}
+  MoveFile(filePath, archivePath)
+  WriteFile(archivePath + ".metadata.json", ToJson(metadata))
+  RETURN archivePath
+END FUNCTION
+
+FUNCTION MoveInternalPrompt(promptFile, targetDir):
+  CreateDirectory(targetDir)
+  fileName = Path.GetFileName(promptFile)
+  newPath = Path.Combine(targetDir, fileName)
+  MoveFile(promptFile, newPath)
+  RETURN newPath
+END FUNCTION
+
+FUNCTION UpdatePromptReferences(oldPath, newPath):
+  fileName = Path.GetFileName(oldPath)
+  newRelativePath = "internal/shared/" + fileName
+  allPrompts = GetFiles(".github/prompts/**/*.prompt.md")
+  updatedFiles = []
+  FOR EACH promptFile IN allPrompts:
+    IF promptFile == newPath THEN CONTINUE
+    content = ReadFile(promptFile)
+    originalContent = content
+    content = Regex.Replace(content, "Execute\\([\"']" + fileName + "[\"']", "Execute(\"" + newRelativePath + "\"")
+    content = content.Replace("calls: [" + fileName + "]", "calls: [" + newRelativePath + "]")
+    IF content != originalContent THEN
+      WriteFile(promptFile, content)
+      updatedFiles.Add(promptFile)
+    END IF
+  END FOR
+  RETURN updatedFiles
+END FUNCTION
+
+FUNCTION CreateWorkLog(keyPath, keyName):
+  template = "# Work Log: " + keyName + "\n\n**Created:** " + Now() + "\n**Agent:** cohesion.prompt.md (auto-created)\n"
+  filePath = Path.Combine(keyPath, "work-log.md")
+  WriteFile(filePath, template)
+  RETURN filePath
+END FUNCTION
+
+FUNCTION CreatePlanFile(keyPath, keyName):
+  template = "# Plan: " + keyName + "\n\n**Created:** " + Now() + "\n**Status:** Draft\n"
+  filePath = Path.Combine(keyPath, keyName + ".plan.md")
+  WriteFile(filePath, template)
+  RETURN filePath
+END FUNCTION
+
+FUNCTION CreateTestRegistry(testFile):
+  testDir = Path.GetDirectoryName(testFile)
+  registryFile = Path.Combine(testDir, "test-registry.md")
+  fileName = Path.GetFileName(testFile)
+  template = "# Test Registry\n\n| Test File | Type | Status |\n|-----------|------|--------|\n| " + fileName + " | E2E | Active |\n"
+  WriteFile(registryFile, template)
+  RETURN registryFile
+END FUNCTION
+
+FUNCTION AddToTestRegistry(testFile):
+  testDir = Path.GetDirectoryName(testFile)
+  registryFile = Path.Combine(testDir, "test-registry.md")
+  fileName = Path.GetFileName(testFile)
+  content = ReadFile(registryFile)
+  newRow = "| " + fileName + " | E2E | Active |"
+  content += "\n" + newRow
+  WriteFile(registryFile, content)
+  RETURN registryFile
+END FUNCTION
+
+FUNCTION ReplaceDeprecatedReference(filePath, oldRef, newRef):
+  content = ReadFile(filePath)
+  content = content.Replace(oldRef, newRef)
+  WriteFile(filePath, content)
+  RETURN filePath
 END FUNCTION
 ```
 
@@ -845,17 +1497,20 @@ Create comprehensive report (see "Report Structure" section below).
 - Issues found: {count} ({CRITICAL}/{HIGH}/{MEDIUM}/{LOW})
 - Auto-fixable: {count}
 - Manual fixes: {count}
+- KDS cleanup: {archived}/{moved}/{deleted} files (if validation-level=kds-cleanup)
 
 📌 Summary (≤10 bullets)
 1. ✅ Compliant: {area}
 2. ❌ Critical: {violation} → Fix: {action}
 3. ⚠️ Warning: {issue} → Recommend: {action}
 4. 🔧 Auto-fix: {fixable-issue}
+5. 📦 KDS cleanup: {archived} archived, {moved} moved, {deleted} deleted (if kds-cleanup)
 ...
 10. Next: **A.** Apply fixes | **B.** Export report | **C.** Deep scan
 
 📊 Final
 - Status: {N} issues, {M} auto-fixable
+- KDS status: {N} deprecated, {M} misplaced, {K} temporary (if kds-cleanup)
 - Severity: {highest-level}
 - Report: cohesion-report-{timestamp}.md
 - Next: {primary-action}
@@ -904,7 +1559,15 @@ Generates comprehensive report at:
    - Approval required
    - Execution command
 
-7. **Recommendations**
+7. **KDS Cleanup Results** (if validation-level=kds-cleanup)
+   - Deprecated files archived
+   - Internal prompts relocated
+   - Temporary files deleted
+   - Missing work-logs/plans created
+   - Deprecated references updated
+   - Test registry updates
+
+8. **Recommendations**
    - Architectural improvements
    - Workflow optimizations
    - Documentation updates

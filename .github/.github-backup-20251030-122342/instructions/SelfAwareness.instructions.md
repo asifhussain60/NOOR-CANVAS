@@ -1,13 +1,16 @@
 # SelfAwareness – Global Operating Guardrails (2.10.0)
 
-> **⚠️ MANDATORY RULES:** Load `.github/MANDATORY.md` FIRST - Contains 3 critical validation gates ALL prompts must enforce  
+> **⚠️ MANDATORY RULES:** Load `.github/MANDATORY.md` FIRST - Rule index + referenced implementation files  
 > Canonical operating rules for all agents. Keep **.github/prompts/** as the source of truth.  
 > Everything else lives under **Workspaces/Copilot/**.
 
 ## 📚 Essential Reading (START HERE)
 
 **CRITICAL - Load before ANY work:**
-- **`.github/MANDATORY.md`** - 3 ABSOLUTE RULES (No code in chat | Document first | Playwright orchestration)
+- **`.github/MANDATORY.md`** - 3 ABSOLUTE RULES (index + rule files in `.github/instructions/rules/`)
+  - Rule 1: [No Code in Chat](instructions/rules/no-code-in-chat/rule.md)
+  - Rule 2: [Document First](instructions/rules/document-first/rule.md)
+  - Rule 3: [Playwright Orchestration](instructions/rules/playwright-orchestration/rule.md)
 
 **Before making any changes, ALWAYS consult:**
 - **`.github/prompts/shared/UserDictionary.md`** - Canonical shortcut lookup (expand all shorthand)

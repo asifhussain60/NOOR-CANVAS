@@ -361,10 +361,12 @@ END IF
 2. Task Nb-Nx: Implementation Tasks
 3. Task Ny: Run & Fix Test
 4. Task Nz: Phase Validation & Checkpoint
-5. **Task N+1: Run Cleanup** (cleanup-copilot-mess.prompt.md)
+5. **Task N+1: Run KDS Cleanup** (cohesion.prompt.md v2.0)
+   - Execute: `cohesion validation-level=kds-cleanup auto-fix=true`
    - Target: `.github/key-data-streams/{key}/`
-   - Purpose: Archive temp files, consolidate logs
+   - Purpose: Validate KDS structure, archive deprecated files, organize internal prompts
    - Handoff File: Auto-invoked by task agent
+   - **Note**: Replaces cleanup-copilot-mess.prompt.md (deprecated 2025-10-30)
 6. **Task N+2: Mark Key Complete**
    - Update {key}.plan.json status to "complete"
    - Final commit: `complete({key}): All phases finished`
