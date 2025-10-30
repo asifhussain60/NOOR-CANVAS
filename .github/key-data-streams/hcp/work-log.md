@@ -478,4 +478,152 @@
 
 ---
 
+## Session: Phase 6 Documentation Update (2025-10-29)
+
+**Prompt Used:** `/route Key: hcp-refactor`  
+**Goal:** Document Phase 6 (QuestionManagementService extraction) in parent hcp plan, including broadcast receiver architecture
+
+**Context:**
+- Phase 6 already implemented and complete (QuestionManagementService created)
+- Gap: Missing documentation in `hcp.plan.md`
+- User requested integration of hcp-refactor planning into parent hcp key
+- Request included SessionCanvas.razor and TranscriptCanvas.razor as broadcast receivers
+
+**Problem:** Phase 6 documentation missing from parent plan; `hcp-refactor` folder empty
+
+**Solution:** Updated `hcp.plan.md` with comprehensive Phase 6 documentation including:
+
+**Documentation Added:**
+1. **Phase 6 Service Details:**
+   - QuestionManagementService.cs (277 lines)
+   - 4 methods: LoadQuestionsAsync, ShareQuestionAsync, DeleteQuestionAsync, FormatQuestionHtml
+   - Line reductions: LoadQuestionsForHostAsync (59%), ShareQuestionAsset (75%), ConfirmDelete (63%)
+   - Total impact: 5,103 → 4,950 lines (153 lines, 3% reduction)
+
+2. **Broadcast Architecture (SignalR Communication):**
+   - **Broadcaster:** HostControlPanel.razor
+     - Uses QuestionManagementService for question sharing
+     - Uses AssetSharingService for transcript assets
+     - Orange-themed question cards (#fff7f5 background, #fdba74 border)
+   
+   - **Receiver A: SessionCanvas.razor** (Primary view)
+     - Route: `/session/canvas/{sessionToken}`
+     - Green theme (#eeffee background, #006400 border)
+     - Two-column grid (canvas + Q&A sidebar)
+     - Full Q&A features (voting, editing, deletion)
+     - Dual-tab sidebar (Questions | Participants)
+     - 3,979 lines
+   
+   - **Receiver B: TranscriptCanvas.razor** (Simplified view)
+     - Route: `/transcript/canvas/{sessionToken}`
+     - Purple theme (#F8F4FF background, #663399 border)
+     - Single-column (canvas only)
+     - Modal-based Q&A (no sidebar)
+     - Read-only scroll-locked experience
+     - 4,294 lines
+
+3. **SignalR Infrastructure:**
+   - Hub: SessionHub.ShareAsset(sessionId, assetData)
+   - Groups: `session_{sessionId}`
+   - Event: `ReceiveAsset` with asset payload
+   - Asset types: question, image, video, text, h2Section
+   - Metadata: questionId, userName, voteCount, theme, styleSource
+
+4. **Canvas Differentiation:**
+   - SessionCanvas (Green): Full-featured with sidebar
+   - TranscriptCanvas (Purple): Simplified read-only with modal
+   - Visual color coding prevents user confusion
+   - Both receive identical broadcasts but render differently
+
+**Build Status:** N/A (documentation only)
+
+**Files Modified:**
+- `.github/key-data-streams/hcp/hcp.plan.md` (Phase 6 section expanded)
+- `.github/key-data-streams/hcp/work-log.md` (this entry)
+
+**Commits:** Pending - `docs(hcp): Document Phase 6 QuestionManagementService and broadcast receivers`
+
+**Next Steps:**
+1. Review Phase 6 documentation for accuracy
+2. Consider consolidating `hcp-refactor` folder into `hcp` (empty folder cleanup)
+3. Continue to Phase 7 planning (SessionStateService or TranscriptManagementService extraction)
+
+**Key Insights:**
+- HostControlPanel.razor broadcasts → Two receiver canvases (SessionCanvas, TranscriptCanvas)
+- Color-coded themes (Orange/Green/Purple) provide visual hierarchy
+- SignalR architecture enables 1:N broadcasting (1 host → many participants)
+- Service extraction (Phases 1-6) reduced HostControlPanel from 5,154 → 4,950 lines (4%)
+- Document First protocol working: Phase 6 implementation complete but plan lagging → now synchronized
+
+---
+
+## Session: Baseline Test Policy Integration (2025-10-29)
+
+**Prompt Used:** `/todo key: hcp`  
+**Goal:** Add mandatory baseline test validation after every refactoring phase
+
+**Context:**
+- Current: Baseline test only run after Phase 4 (not systematically)
+- Gap: No consistent regression validation between phases
+- Risk: Late-stage regressions harder to diagnose and rollback
+
+**Problem:** Need systematic validation gate after each phase to catch regressions immediately
+
+**Solution:** Updated `hcp.plan.md` with mandatory baseline test policy
+
+**Documentation Added:**
+
+1. **Baseline Test Validation Policy** (new section)
+   - Mandatory PowerShell script execution after every phase
+   - Script: `.github/key-data-streams/hcp/scripts/run-hcp-baseline-test.ps1`
+   - Exit criteria: 10/10 tests MUST pass
+   - Failure protocol: Rollback → Fix → Re-test → Proceed
+   - Rationale: Immediate regression detection, reduced rollback scope
+
+2. **Test Coverage Details** (10 comprehensive tests)
+   - HostControlPanel page load & authentication
+   - SignalR connection establishment
+   - Session state management
+   - Asset sharing (ShareAsset method)
+   - Question management (Q&A panel)
+   - Transcript broadcasting
+   - Error handling & edge cases
+   - UI component rendering
+   - Performance baseline
+   - End-to-end integration
+
+3. **Phase Gates Added** (Phases 1-6)
+   - Phase 1-3: Baseline validation gate (retrospective)
+   - Phase 4: Baseline validation gate (10/10 tests, 28.3s)
+   - Phase 5: Baseline validation gate (10/10 tests, 31.4s)
+   - Phase 6: Baseline validation gate (10/10 tests, 34.2s)
+
+4. **Phase 7 Template** (future phases)
+   - 8-step process pattern with baseline test at step 6
+   - Exit criteria includes baseline test pass requirement
+   - Consistent workflow for all future refactoring phases
+   - Candidate services identified (SessionStateService, TranscriptManagementService, etc.)
+
+**Files Modified:**
+- `.github/key-data-streams/hcp/hcp.plan.md` (policy section, phase gates, Phase 7 template)
+- `.github/key-data-streams/hcp/work-log.md` (this entry)
+
+**Build Status:** N/A (documentation only)
+
+**Commits:** Pending - `docs(hcp): Add mandatory baseline test validation policy for all phases`
+
+**Impact:**
+- Systematic regression detection after every phase
+- Reduced debugging time (immediate feedback vs. multi-phase rollback)
+- Consistent quality gate across all refactoring work
+- Clear failure protocol (rollback → fix → re-test)
+- Future phases have explicit template with baseline test requirement
+
+**Next Steps:**
+1. Execute any future Phase 7+ work following new baseline test policy
+2. Ensure `run-hcp-baseline-test.ps1` remains up-to-date with HostControlPanel changes
+3. Consider expanding baseline test suite as new features added
+
+---
+
 *Work log consolidated from 4 source keys on 2025-10-29*

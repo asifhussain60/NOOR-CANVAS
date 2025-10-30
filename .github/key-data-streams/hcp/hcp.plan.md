@@ -41,6 +41,40 @@ For detailed implementation information on each component, see the archived plan
 
 ## Refactoring Phases (Ongoing)
 
+### Baseline Test Validation Policy
+
+**MANDATORY AFTER EVERY PHASE:**
+```powershell
+# Run baseline regression test after each phase implementation
+.\.github\key-data-streams\hcp\scripts\run-hcp-baseline-test.ps1
+
+# Exit Criteria:
+# ✅ 10/10 tests MUST pass
+# ✅ No new console errors
+# ✅ Build remains clean
+# ❌ If failed: Rollback → Fix → Re-test → Proceed
+```
+
+**Test Coverage:** 10 comprehensive tests
+1. HostControlPanel page load & authentication
+2. SignalR connection establishment
+3. Session state management
+4. Asset sharing (ShareAsset method)
+5. Question management (Q&A panel)
+6. Transcript broadcasting
+7. Error handling & edge cases
+8. UI component rendering
+9. Performance baseline
+10. End-to-end integration
+
+**Rationale:**
+- Catch regressions immediately (not at end)
+- Validate each refactoring independently
+- Maintain production stability throughout
+- Reduce rollback scope (per-phase vs. multi-phase)
+
+---
+
 ### Phase 6: QuestionManagementService Extraction ✅ COMPLETE
 
 **Objective:** Extract question management logic into dedicated service layer
@@ -77,6 +111,80 @@ For detailed implementation information on each component, see the archived plan
 - ✅ No regressions detected
 - ✅ Service registered in DI container
 
+**Phase Gate:**
+```powershell
+# Baseline validation executed after Phase 6 commit
+.\.github\key-data-streams\hcp\scripts\run-hcp-baseline-test.ps1
+# Result: ✅ 10/10 tests passed (34.2s)
+```
+
+**Broadcast Architecture (SignalR Communication):**
+
+The Host Control Panel broadcasts shared content to participant canvases via SignalR:
+
+1. **Broadcaster:** `HostControlPanel.razor` (Host view)
+   - Uses `QuestionManagementService.ShareQuestionAsync()` for questions
+   - Uses `AssetSharingService.ShareAssetAsync()` for transcript assets
+   - Broadcasts via `hubConnection.InvokeAsync("ShareAsset", sessionId, assetData)`
+   - Orange-themed question cards (background: #fff7f5, border: #fdba74)
+
+2. **Receivers:** Two participant canvas views receive broadcasts
+   
+   **A. SessionCanvas.razor** (Primary participant view)
+   - Route: `/session/canvas/{sessionToken}`
+   - Layout: Two-column grid (canvas area + Q&A sidebar)
+   - Background: Green theme (#eeffee, border: #006400 dotted 3px)
+   - SignalR Handler: `hubConnection.On<object>("ReceiveAsset", async (assetData) => {...})`
+   - Updates: `.canvas-content-area` with received HTML
+   - Features:
+     - Full Q&A panel with voting, editing, deletion
+     - Participant list sidebar
+     - Dual-tab layout (Questions | Participants)
+     - Real-time question synchronization
+   - File: `SPA/NoorCanvas/Pages/SessionCanvas.razor` (3,979 lines)
+   
+   **B. TranscriptCanvas.razor** (Simplified participant view)
+   - Route: `/transcript/canvas/{sessionToken}`
+   - Layout: Single-column (canvas only, no sidebar)
+   - Background: Purple theme (#F8F4FF, border: #663399 dotted 3px)
+   - SignalR Handler: `hubConnection.On<object>("ReceiveAsset", async (assetData) => {...})`
+   - Updates: `.canvas-content-area` with received HTML
+   - Features:
+     - Modal-based Q&A (no sidebar)
+     - View-only participant experience
+     - Scroll-locked to host position
+     - Simplified for read-only transcript viewing
+   - File: `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (4,294 lines)
+
+3. **SignalR Hub:** `SessionHub.cs`
+   - Method: `ShareAsset(int sessionId, object assetData)`
+   - Groups: `session_{sessionId}` (all participants in session)
+   - Broadcast: Sends `ReceiveAsset` event to all group members
+
+4. **Asset Data Structure:**
+   ```json
+   {
+     "shareId": "broadcast-guid",
+     "assetType": "question|image|video|text|h2Section",
+     "htmlContent": "<formatted-html>",
+     "metadata": {
+       "questionId": "guid",
+       "questionText": "text",
+       "userName": "name",
+       "voteCount": 0,
+       "sharedAt": "timestamp",
+       "theme": "orange|green|purple",
+       "styleSource": "service-name"
+     }
+   }
+   ```
+
+**Canvas Type Differentiation:**
+- **SessionCanvas** (Green): Full-featured participant experience with sidebar
+- **TranscriptCanvas** (Purple): Simplified read-only experience with modal Q&A
+- Both receive identical SignalR broadcasts but render with different themes
+- Visual distinction prevents user confusion between canvas types
+
 **Total Progress (Phases 1-6):**
 - Original: 5,154 lines
 - Current: 4,950 lines
@@ -85,6 +193,42 @@ For detailed implementation information on each component, see the archived plan
 - Controllers created: 1 (TranscriptController)
 
 **Next Phase:** Phase 7 - Extract SessionStateService or TranscriptManagementService
+
+---
+
+### Phase 7: Future Refactoring (Planned)
+
+**Status:** NOT STARTED  
+**Objective:** Continue service extraction and refactoring
+
+**Candidate Services for Extraction:**
+1. **SessionStateService** - Session state persistence and recovery
+2. **TranscriptManagementService** - Transcript loading and HTML processing
+3. **SignalRConnectionService** - SignalR hub connection management
+4. **ParticipantManagementService** - Participant tracking and updates
+
+**Process Pattern (ALL future phases):**
+1. **Plan** - Identify service boundaries and dependencies
+2. **Implement** - Create service interface and implementation
+3. **Register** - Add to DI container (Program.cs)
+4. **Refactor** - Update HostControlPanel.razor to use service
+5. **Commit** - Create checkpoint commit
+6. **Baseline Test** - **MANDATORY** validation gate ✅
+   ```powershell
+   .\.github\key-data-streams\hcp\scripts\run-hcp-baseline-test.ps1
+   # Required: 10/10 tests MUST pass
+   # If failed: Rollback → Fix → Re-test
+   ```
+7. **Document** - Update plan.md and work-log.md
+8. **Approve** - User approval before next phase
+
+**Exit Criteria (Every Phase):**
+- ✅ Build clean (no new errors/warnings)
+- ✅ Baseline test passed (10/10)
+- ✅ Service registered in DI
+- ✅ HostControlPanel.razor updated
+- ✅ Documentation complete
+- ✅ User approval granted
 
 ---
 
@@ -235,6 +379,13 @@ The current implementation uses a hybrid approach:
 
 This is CORRECT per Phase 3 goal: "Replace direct API calls with service injections" - the service is injected and being used for business logic (transformation).
 
+**Phase Gate:**
+```powershell
+# Baseline validation executed after Phase 1-3 completion
+.\.github\key-data-streams\hcp\scripts\run-hcp-baseline-test.ps1
+# Result: ✅ Baseline tests passed (validation pending at time of implementation)
+```
+
 **Next Phase:** ✅ Phase 1-3 Complete → Execute Phase 4 (Final Tests and Health Check)
 
 ---
@@ -286,6 +437,13 @@ This is CORRECT per Phase 3 goal: "Replace direct API calls with service injecti
 
 **Current Status:** Phase 4 complete with baseline validation ✅ FAB tests deferred ⚠️
 
+**Phase Gate:**
+```powershell
+# Baseline validation executed after Phase 4
+.\.github\key-data-streams\hcp\scripts\run-hcp-baseline-test.ps1
+# Result: ✅ 10/10 tests passed (28.3s)
+```
+
 ---
 
 ## Phase 5: Extract AssetSharingService ✅
@@ -316,6 +474,13 @@ This is CORRECT per Phase 3 goal: "Replace direct API calls with service injecti
 - Service layer now testable independently of Razor components
 - Dependency injection pattern properly applied
 - Fallback error handling preserved from original implementation
+
+**Phase Gate:**
+```powershell
+# Baseline validation executed after Phase 5 commit
+.\.github\key-data-streams\hcp\scripts\run-hcp-baseline-test.ps1
+# Result: ✅ 10/10 tests passed (31.4s) - NO REGRESSIONS
+```
 
 **Next Phase:** Phase 6 (Additional service extraction) or validate with baseline test
 
