@@ -5,7 +5,33 @@ mode: agent
 description: Intelligent workspace reorganization and cleanup agent that systematically removes unneeded files, consolidates duplicates, reorganizes folder structures, and updates all references while preserving functionality.
 ---
 
-## 🔴 CRITICAL SAFETY PROTOCOLS
+## � Scope Clarification (vs cleanup-copilot-mess.prompt.md)
+
+**This prompt (cleanup.prompt.md)**:
+- ✅ **User-initiated** workspace cleanup
+- ✅ **ALL folders** (Scripts/, Docs/, Workspaces/, PlayWright/, SPA/, etc.)
+- ✅ **Comprehensive reorganization** with build/test validation
+- ✅ **Requires user approval** for changes
+- ✅ **Complex validation** (build, tests, references, git integrity)
+- ✅ **Manual invocation** or plan final phase
+
+**cleanup-copilot-mess.prompt.md** (Separate Prompt):
+- ✅ **Auto-invoked** by plan/task agents after execution
+- ✅ **`.github/` folder only** (prompts, instructions, KDS, audits)
+- ✅ **File organization only** (no logic/content changes)
+- ✅ **Automatic execution** with concise output
+- ✅ **Lightweight validation** (file operations only)
+- ✅ **Focused on** prompt/instruction cleanup
+
+**When to use which**:
+- **Use this cleanup.prompt.md**: For workspace-wide cleanup (manual invocation)
+- **Use cleanup-copilot-mess.prompt.md**: After plan/task completion (automatic)
+- **Both can run**: cleanup-copilot-mess handles `.github/`, this handles everything else
+- **No conflict**: Separate scopes, different invocation patterns
+
+---
+
+## �🔴 CRITICAL SAFETY PROTOCOLS
 
 ### The number one rule: SAFETY FIRST — Never break working code
 

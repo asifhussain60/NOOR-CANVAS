@@ -1,0 +1,33 @@
+{
+    "key": "drift-prompt-efficiency",
+    "status": "completed",
+    "createdAt": "2025-10-28T00:00:00Z",
+    "updatedAt": "2025-10-28T00:00:00Z",
+    "branch": "development",
+    "phases": [
+        {
+            "phaseNumber": 1,
+            "title": "Pattern Documentation",
+            "status": "completed",
+            "commit": null,
+            "startedAt": "2025-10-28T00:00:00Z",
+            "completedAt": "2025-10-28T00:00:00Z"
+        },
+        {
+            "phaseNumber": 2,
+            "title": "Prompt System Improvements",
+            "status": "completed",
+            "commit": null,
+            "startedAt": "2025-10-28T00:00:00Z",
+            "completedAt": "2025-10-28T00:00:00Z"
+        },
+        {
+            "phaseNumber": 3,
+            "title": "Knowledge Capture",
+            "status": "completed",
+            "commit": null,
+            "startedAt": "2025-10-28T00:00:00Z",
+            "completedAt": "2025-10-28T00:00:00Z"
+        }
+    ]
+}

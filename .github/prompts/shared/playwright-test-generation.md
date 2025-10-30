@@ -75,52 +75,58 @@ Automatically generate appropriate test coverage for UI changes following establ
 **Script MUST include these components:**
 
 ```powershell
-# 1. Kill existing processes (adjust process name for your app)
-Get-Process -Name "YourAppName" -ErrorAction SilentlyContinue | Stop-Process -Force
-# Or for dotnet processes:
-# Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' } | Stop-Process -Force
+# Launch app using canonical launcher (v3.0 direct dotnet.exe pattern)
+Write-Host "[APP] Launching application..." -ForegroundColor Cyan
 
-# 2. Launch app in separate elevated PowerShell window
-Start-Process powershell -ArgumentList @(
-    "-NoExit",
-    "-Command",
-    "cd 'C:\Path\To\Your\Project'; `
-     `$env:ASPNETCORE_ENVIRONMENT = 'Development'; `
-     `$env:ASPNETCORE_URLS = 'https://localhost:5001'; `
-     Write-Host 'ASPNETCORE_ENVIRONMENT = `$env:ASPNETCORE_ENVIRONMENT' -ForegroundColor Green; `
-     dotnet run"
-) -Verb RunAs
-
-# 3. Health check with retry logic
-Write-Host "Waiting for app to start..." -ForegroundColor Yellow
-$maxRetries = 30
-$retryCount = 0
-$appReady = $false
-
-while (-not $appReady -and $retryCount -lt $maxRetries) {
-    try {
-        $response = Invoke-WebRequest -Uri "https://localhost:5001" -SkipCertificateCheck -TimeoutSec 2
-        if ($response.StatusCode -eq 200) {
-            $appReady = $true
-        }
-    } catch {
-        $retryCount++
-        Start-Sleep -Seconds 1
-    }
+try {
+    # NOTE: Adjust path and URL for your project
+    $appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+        -Url "https://localhost:5001" `
+        -Environment "Development" `
+        -Verbose:$VerbosePreference
+    
+    Write-Host "  ✅ App ready (PID: $($appInfo.ProcessId))" -ForegroundColor Green
 }
-
-if (-not $appReady) {
-    Write-Host "App failed to start within timeout" -ForegroundColor Red
+catch {
+    Write-Host "  ❌ App launch failed: $_" -ForegroundColor Red
     exit 1
 }
 
-# 4. Run Playwright tests
-cd "C:\Path\To\Your\Tests"
-npx playwright test {test-file}.spec.ts --headed --reporter=list
+# Run Playwright tests (with guaranteed cleanup)
+try {
+    Push-Location "Tests\UI"  # Adjust path for your project
+    
+    Write-Host "[TEST] Running tests..." -ForegroundColor Cyan
+    npx playwright test {test-file}.spec.ts --headed --reporter=list
+    $testExitCode = $LASTEXITCODE
+    
+    if ($testExitCode -eq 0) {
+        Write-Host "  ✅ Tests PASSED" -ForegroundColor Green
+    }
+    else {
+        Write-Host "  ❌ Tests FAILED" -ForegroundColor Red
+    }
+}
+finally {
+    # GUARANTEED cleanup (always runs - even on error)
+    Pop-Location
+    
+    Write-Host "[CLEANUP] Stopping app..." -ForegroundColor Cyan
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
+    Write-Host "  ✅ Cleanup complete" -ForegroundColor Green
+}
 
-# 5. Cleanup
-Get-Process -Name "YourAppName" -ErrorAction SilentlyContinue | Stop-Process -Force
+exit $testExitCode
 ```
+
+**v3.0 Benefits:**
+- ✅ Delegates to canonical launcher (Start-NoorCanvasForTests.ps1)
+- ✅ Direct `dotnet.exe` launch (67-80% faster startup)
+- ✅ Port binding + HTTP health checks (optimized exponential backoff)
+- ✅ 100% cleanup reliability via `$appInfo.ProcessId`
+- ✅ Single source of truth (one file maintains launch logic)
+
+**See Also**: `.github/prompts/shared/app-launch-fix-protocol.md` for v3.0 implementation details
 
 ### Execution Method
 

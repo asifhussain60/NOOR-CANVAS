@@ -26,6 +26,7 @@ Views (Blazor Components)
 - hl: Host Landing — view: #file:HostLanding.razor
 - sdiag: Session Diagnostics — view: #file:SessionDiagnostics.razor
 - send: Session Ended — view: #file:SessionEnded.razor
+- kds: Key Data Stream — The key based documentation system used throughout the project used by agent prompts to manage copilot context.
 
 API Controllers
 - hctrl: HostController — #file:HostController.cs

@@ -81,7 +81,7 @@ Located in `.github/prompts/shared/`
 | **Commit Checkpoint Protocol** | `commit-checkpoint-protocol.md` | Git commit workflow and checkpoint standards |
 | **Commit Message Format** | `commit-message-format.md` | Standardized commit message formatting |
 | **Completion Workflow Template** | `completion-workflow-template.md` | Template for task completion workflows |
-| **Concise Mandate** | `CONCISE-MANDATE.md` | Output formatting rules (max 15 bullets, no code blocks) |
+| **Mandatory Rules** | `MANDATORY.md` | Critical rules: No Code in Chat, Document First, Playwright Orchestration |
 | **Context Gathering Phases** | `context-gathering-phases.md` | Structured context collection process |
 | **Context Loader** | `context-loader.md` | Context loading and management utilities |
 | **Debug Logging Mandate** | `debug-logging-mandate.md` | Standards for debug logging insertion |
@@ -93,7 +93,6 @@ Located in `.github/prompts/shared/`
 | **Loop Prevention** | `loop-prevention.md` | Prevents infinite loops in agent workflows |
 | **Mac Development Environment** | `mac-development-environment.md` | macOS-specific development setup |
 | **Mandatory Lint Validation** | `mandatory-lint-validation.md` | Linting requirements and enforcement |
-| **Output Style Mandate** | `output-style-mandate.md` | Standardized output formatting (2-section format) |
 | **Output Validator** | `output-validator.md` | Validates agent output compliance |
 | **Pattern Library Update Guide** | `pattern-library-update-guide.md` | Guides for updating pattern libraries |
 | **Phase Breakdown Patterns** | `phase-breakdown-patterns.md` | Patterns for breaking work into phases |

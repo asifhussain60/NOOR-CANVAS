@@ -1,13 +1,31 @@
-=# plan.prompt.md (Feature Planning Agent v1.7)
+=# plan.prompt.md (Feature Planning Agent v1.8)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions, auto-chain, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-29
+lastUpdated: 2025-10-30
 stateTracking: enabled
-changelog: |
+**Changelog:**
+- **v1.8 (2025-10-30)**: TEST-FIRST WORKFLOW & AUTOMATED JSON HANDOFFS
+  - **Step 4 ENHANCED**: Plan generation now includes test-first workflow
+    - Each phase: Task {N}a (create test) → Task {N}b-x (implement) → Task {N}y (run test) → Task {N}z (checkpoint)
+    - Added complexity threshold: monolithic (≤3 phases) vs granular (>5 phases) structure
+    - Final phase includes cleanup and mark-complete tasks
+  - **Step 4.25 NEW**: Generate handoff JSON files for automated task execution
+    - Creates `handoffs/phase-{N}-test.json` for test-generation.prompt.md
+    - Creates `handoffs/phase-{N}-todo-{task}.json` for each implementation task
+    - All handoff files saved to KDS before user approval
+    - Eliminates manual parameter construction errors
+  - **Step 6 ENHANCED**: Handoff preparation now references JSON files
+    - Instead of manual parameters: `@workspace /test-generation #file:handoffs/phase-1-test.json`
+    - Auto-chain enabled via "nextTask" field in JSON files
+    - Traceable handoff chain for debugging
+  - **Test Strategy**: Explicit test-first approach documented in plan
+  - **Estimated Durations**: Added to each task for better tracking
+  - **Auto-Continue Logic**: Refined with explicit conditions and rollback plans
+  
   v1.7 (2025-10-29): E2E PHASE EXECUTION & RESPONSE FORMAT IMPROVEMENTS
   - Added auto-chain parameter for end-to-end multi-phase execution
   - **DEFAULT BEHAVIOR CHANGED**: auto-chain now defaults to TRUE (autocomplete enabled)
@@ -17,7 +35,7 @@ changelog: |
   - Updated 📌 Plan Overview to show AUTO-CONTINUE markers between phases
   - Reduced 🧠 Analysis to ≤5 bullets (allocate space for task lists)
   - Users approve plan ONCE, execution proceeds E2E (halts only for manual intervention)
-  - References CONCISE-MANDATE.md Rule 12 (default to E2E execution)
+  - References MANDATORY.md (default to E2E execution)
   - Phase templates include explicit AUTO-CONTINUE instructions for task agent
   
   v1.6 (2025-10-29): Added Step 5.5 FILE FINALIZATION VERIFICATION (BLOCKING)
@@ -31,7 +49,12 @@ changelog: |
 > acceptsFrom: [build, ask, drift]
 > calls: [task, test-generation]
 
-# plan.prompt.md (Feature Planning)
+# plan.prompt.md (Feature Planning Agent)
+
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
+## Output Format
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
 
@@ -67,15 +90,13 @@ Technical or business constraints
 
 ---
 
-## 🔒 Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
+## Critical Rules
+**LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
 
-1. **MAX 15 bullets** per response
-2. **NO code blocks** - Details go in `{key}.plan.md`
-3. **NO nested lists** - Flat bullets only
-4. **Show summary** - Not full plan content
-5. **Letter-based options** - A/B/C/D for user choices
-6. **All output → `.github/key-data-streams/{key}/`** - NEVER in chat
-7. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Step 7.5)
+**Agent-Specific:**
+- All output → `.github/key-data-streams/{key}/` (never in chat)
+- Show summary, not full plan content
+- Validate before responding (Step 7.5)
 
 ---
 
@@ -228,57 +249,144 @@ Reply: A, B, or C
 
 ---
 
-## 🔍 Step 4: PLAN GENERATION
+## 🔍 Step 4: PLAN GENERATION WITH TEST-FIRST WORKFLOW
 
-**Generate comprehensive technical plan:**
+**Generate comprehensive technical plan with test-first phases:**
 
-**Plan structure:**
+**Determine Directory Structure:**
+```
+IF total_phases > 5 OR total_tasks > 20 THEN
+  use_granular_structure = true  # Create phases/, handoffs/ directories
+ELSE
+  use_monolithic_plan = true     # Single {key}.plan.md file
+END IF
+```
+
+**Plan structure (Test-First Workflow):**
 ```
 # {key}.plan.md
 
 ## Executive Summary
 - Purpose, complexity, estimated time, priority
+- Total Phases: {N}
+- Total Tasks: {count}
+- Estimated Duration: {total time}
 
 ## Current State Analysis
 - Existing implementation, issues, constraints
 
 ## Implementation Plan
+
 ### Phase 1: {Title}
 **Goal:** {one-liner}
+**Dependencies:** None
+**Estimated Duration:** {timeframe}
+
 **Tasks:**
-1. {task} - {file} - {debug-marker}
-2. {task} - {file} - {debug-marker}
-3. **AUTO-CONTINUE:** Upon successful completion, automatically proceed to Phase 2
+1. **Task 1a: Create Passing Test** (test-generation.prompt.md handoff)
+   - Purpose: Generate headless test for phase functionality
+   - Test File: `.github/key-data-streams/{key}/tests/phase-1-test.spec.ts`
+   - Coverage: {test scenarios}
+   - Success Criteria: Test passes with current implementation (baseline)
+   - Estimated Duration: {timeframe}
+   - Handoff File: `handoffs/phase-1-test.json`
+
+2. **Task 1b: {Implementation Task 1}** (todo.prompt.md handoff)
+   - Action: {specific task description}
+   - Files: {affected files}
+   - Debug Marker: `[DEBUG-WORKITEM:{key}:phase-1-task-1]`
+   - Success Criteria: {acceptance criteria}
+   - Estimated Duration: {timeframe}
+   - Handoff File: `handoffs/phase-1-todo-1.json`
+   - On Completion: Auto-invoke Task 1c
+
+3. **Task 1c: {Implementation Task 2}** (todo.prompt.md handoff)
+   - Action: {specific task description}
+   - Files: {affected files}
+   - Debug Marker: `[DEBUG-WORKITEM:{key}:phase-1-task-2]`
+   - Success Criteria: {acceptance criteria}
+   - Estimated Duration: {timeframe}
+   - Handoff File: `handoffs/phase-1-todo-2.json`
+   - On Completion: Auto-invoke Task 1d
+
+4. **Task 1d: Run & Fix Test**
+   - Action: Execute phase-1-test.spec.ts and make it pass
+   - Test Command: `npx playwright test tests/phase-1-test.spec.ts`
+   - Success Criteria: All tests green
+   - Estimated Duration: {timeframe}
+   - On Success: Auto-invoke Task 1e
+   - On Failure: Debug and fix until passing
+
+5. **Task 1e: Phase Validation & Checkpoint**
+   - Update work-log.md with phase completion
+   - Update {key}.plan.json phase status to "complete"
+   - Commit checkpoint: `ckpt({key}): Phase 1 complete`
+   - **AUTO-CONTINUE:** Proceed to Phase 2
+
+**Auto-Continue Conditions:**
+- ✅ All tasks complete
+- ✅ All tests passing
+- ✅ Build succeeds
+- ✅ Documentation updated
+- ❌ HALT if: Test fails, build breaks, user intervention required
+
+**Rollback Plan:**
+- Checkpoint: `ckpt({key}): Before Phase 1`
+- Rollback: `git reset --hard {checkpoint-sha}`
+
+---
 
 ### Phase 2: {Title}
-**Dependencies:** Phase 1 must be complete
 **Goal:** {one-liner}
+**Dependencies:** Phase 1 must be complete
+**Estimated Duration:** {timeframe}
+
 **Tasks:**
-1. {task} - {file} - {debug-marker}
-2. {task} - {file} - {debug-marker}
-3. **AUTO-CONTINUE:** Upon successful completion, automatically proceed to Phase 3
+[Same test-first structure as Phase 1]
+1. Task 2a: Create Passing Test
+2. Task 2b-2x: Implementation Tasks
+3. Task 2y: Run & Fix Test
+4. Task 2z: Phase Validation & Checkpoint
+5. **AUTO-CONTINUE:** Proceed to Phase 3
+
+---
 
 ### Phase N: {Title} (Final Phase)
-**Dependencies:** Phase N-1 must be complete
 **Goal:** {one-liner}
+**Dependencies:** Phase N-1 must be complete
+**Estimated Duration:** {timeframe}
+
 **Tasks:**
-1. {task} - {file} - {debug-marker}
-2. {task} - {file} - {debug-marker}
-3. **FINAL PHASE:** Mark work as complete upon successful validation
-...
+1. Task Na: Create Passing Test
+2. Task Nb-Nx: Implementation Tasks
+3. Task Ny: Run & Fix Test
+4. Task Nz: Phase Validation & Checkpoint
+5. **Task N+1: Run Cleanup** (cleanup-copilot-mess.prompt.md)
+   - Target: `.github/key-data-streams/{key}/`
+   - Purpose: Archive temp files, consolidate logs
+   - Handoff File: Auto-invoked by task agent
+6. **Task N+2: Mark Key Complete**
+   - Update {key}.plan.json status to "complete"
+   - Final commit: `complete({key}): All phases finished`
+
+**FINAL PHASE:** No auto-continue after completion
+
+---
 
 ## Test Strategy
-- Test types required (unit, E2E, visual)
-- Test scenarios and coverage
+- Test types required: {unit, E2E, visual}
+- Test-first approach: Create test BEFORE implementation for each phase
+- Test scenarios and coverage per phase
 - **CRITICAL**: If Playwright tests required, include:
-  - Orchestration script phase: `Scripts/run-{key}-test.ps1`
+  - Orchestration script creation in Task {N}a
+  - Script path: `Scripts/run-{key}-phase-{N}-test.ps1`
   - Template reference: `.github/prompts/shared/test-orchestration-patterns.md`
   - Required pattern: Separate window + health check + try/finally cleanup
   - Prohibited: webServer config, direct npx execution, Start-Job
 
 ## Test Execution Requirements (if Playwright/Percy tests)
-- **Method**: Orchestration script (MANDATORY)
-- **Script Location**: `Scripts/run-{key}-test.ps1`
+- **Method**: Orchestration script (MANDATORY per MANDATORY.md Rule 3)
+- **Script Location**: `Scripts/run-{key}-test.ps1` (one per phase if needed)
 - **Template**: `.github/prompts/shared/test-orchestration-patterns.md`
 - **Launch Pattern**: Separate PowerShell window with health check polling
 - **Cleanup**: Guaranteed via try/finally with Stop-Process -Force
@@ -288,12 +396,125 @@ Reply: A, B, or C
   - Test Data: `.github/instructions/Links/PlaywrightQuickRef.md` (Session 212)
 
 ## Rollback Plan
-- Checkpoint commits (see `.github/prompts/shared/task-exec/checkpoint-protocol.md`), rollback steps
+- Checkpoint commits after each phase: `ckpt({key}): Phase {N} complete`
+- Rollback to specific phase: `git reset --hard {phase-checkpoint-sha}`
+- See `.github/prompts/shared/task-exec/checkpoint-protocol.md` for protocol
 ```
 
 **Algorithm:** See `.github/prompts/shared/plan-generator.md`
 
 **Output:** Save to `.github/key-data-streams/{key}/{key}.plan.md`
+
+---
+
+## 🔍 Step 4.25: GENERATE HANDOFF JSON FILES
+
+**Purpose:** Create programmatic handoff parameters for automated task execution
+
+**Directory Setup:**
+```powershell
+# Create handoffs directory
+$keyPath = ".github/key-data-streams/{key}"
+New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
+```
+
+**For Each Phase, Generate:**
+
+### 1. Test Generation Handoff
+
+**File:** `handoffs/phase-{N}-test.json`
+
+**Format:**
+```json
+{
+  "handoffType": "test-generation",
+  "key": "{key}",
+  "phase": {N},
+  "scenario": "{test scenario description}",
+  "testType": "{unit|e2e|visual}",
+  "testFile": "tests/phase-{N}-test.spec.ts",
+  "coverage": {
+    "components": ["{component1}", "{component2}"],
+    "interactions": ["{interaction1}", "{interaction2}"],
+    "validations": ["{validation1}", "{validation2}"]
+  },
+  "testData": {
+    "sessionId": 212,
+    "assetType": "{type}",
+    "user": "GitHub Copilot Test"
+  },
+  "orchestration": {
+    "required": true,
+    "scriptPath": "Scripts/run-{key}-phase-{N}-test.ps1",
+    "templateRef": ".github/prompts/shared/test-orchestration-patterns.md"
+  },
+  "estimatedDuration": "{timeframe}",
+  "nextTask": "phase-{N}-todo-1"
+}
+```
+
+### 2. Implementation Task Handoffs
+
+**File:** `handoffs/phase-{N}-todo-{task}.json`
+
+**Format:**
+```json
+{
+  "handoffType": "todo",
+  "key": "{key}",
+  "phase": {N},
+  "task": {task_number},
+  "description": "{specific implementation task}",
+  "files": [
+    "{file1}",
+    "{file2}"
+  ],
+  "debugMarker": "[DEBUG-WORKITEM:{key}:phase-{N}-task-{task}]",
+  "acceptanceCriteria": [
+    "{criterion1}",
+    "{criterion2}"
+  ],
+  "estimatedDuration": "{timeframe}",
+  "dependencies": ["{previous_task_id}"],
+  "autoChain": true,
+  "nextTask": "phase-{N}-todo-{next_task_number}",
+  "testFile": "tests/phase-{N}-test.spec.ts"
+}
+```
+
+### 3. Final Task (Last Phase Only)
+
+**File:** `handoffs/phase-{N}-cleanup.json`
+
+**Format:**
+```json
+{
+  "handoffType": "cleanup",
+  "key": "{key}",
+  "targetFolders": ".github/key-data-streams/{key}/",
+  "scope": "kds-cleanup",
+  "autoApprove": true,
+  "estimatedDuration": "5 minutes"
+}
+```
+
+**Save All Handoff Files Before User Approval:**
+```powershell
+# Generate and save each handoff JSON
+foreach ($phase in $phases) {
+  # Test handoff
+  $testHandoff = Generate-TestHandoff -Phase $phase -Key $key
+  Save-Json -Path "$keyPath/handoffs/phase-$($phase.id)-test.json" -Content $testHandoff
+  
+  # Todo handoffs (one per implementation task)
+  foreach ($task in $phase.tasks) {
+    $todoHandoff = Generate-TodoHandoff -Phase $phase -Task $task -Key $key
+    Save-Json -Path "$keyPath/handoffs/phase-$($phase.id)-todo-$($task.id).json" -Content $todoHandoff
+  }
+}
+```
+
+**Output:** All handoff files saved to `.github/key-data-streams/{key}/handoffs/`
 
 ---
 
@@ -401,48 +622,72 @@ VerifyFileFinalization(key):
 
 ---
 
-## 🔍 Step 6: HANDOFF PREPARATION
+## 🔍 Step 6: HANDOFF PREPARATION WITH AUTOMATED JSON PARAMETERS
 
-**Prepare handoff to task.prompt.md and test-generation.prompt.md:**
+**Prepare automated handoffs using generated JSON files:**
 
 **1. Log handoff to state tracking (file-based):**
 - Update `.github/key-data-streams/{key}/state.json`
 - Append to `promptHandoffs[]` array:
 ```json
 {
-  "timestamp": "2025-10-29T...",
+  "timestamp": "2025-10-30T...",
   "from": "plan",
-  "to": "task",
-  "parameters": {"key": "{key}", "phase": 1},
-  "reason": "Plan approved, beginning Phase 1 execution"
+  "to": "test-generation",
+  "handoffFile": "handoffs/phase-1-test.json",
+  "reason": "Plan approved, creating Phase 1 test"
 }
 ```
 
-**2. Prepare task handoff parameters:**
-- `key={key}` - Key identifier
-- `phase=1` - Start with Phase 1
-- `github-branch=development` - Target branch
-- `commit-checkpoints=true` - Checkpoint after each phase
-- `auto-chain=true` - **DEFAULT: Auto-continue phases (user can override with Option B)**
+**2. Handoff Execution Chain:**
+
+Instead of manual parameter construction, use generated JSON files:
+
+```markdown
+# Phase 1 Test Creation (First Task)
+@workspace /test-generation #file:.github/key-data-streams/{key}/handoffs/phase-1-test.json
+
+# Upon test creation completion, auto-chain invokes:
+@workspace /todo #file:.github/key-data-streams/{key}/handoffs/phase-1-todo-1.json
+
+# Upon task completion, auto-chain invokes:
+@workspace /todo #file:.github/key-data-streams/{key}/handoffs/phase-1-todo-2.json
+
+# Chain continues automatically until all tasks in phase complete
+# Then executes test validation and phase checkpoint
+# Then auto-continues to Phase 2 (unless manual mode selected)
+```
 
 **3. Auto-chain execution logic:**
 ```
 IF user selects Option B (Manual Mode) THEN
   // Manual approval mode
-  InvokeTaskPrompt(key, phase=1, auto-chain=false)
+  auto_chain = false
+  InvokeHandoff("handoffs/phase-1-test.json", auto_chain=false)
   // Will wait for user approval after each phase
 ELSE
   // DEFAULT: Auto-execute (Option A or 5s timeout)
-  InvokeTaskPrompt(key, phase=1, auto-chain=true)
-  // Phases execute automatically until completion or manual intervention
+  auto_chain = true
+  InvokeHandoff("handoffs/phase-1-test.json", auto_chain=true)
+  // Phases execute automatically via JSON handoff chain
+  // Each JSON file includes "nextTask" parameter
   // Returns here only on completion or error
 END IF
 ```
 
-**4. Prepare test handoff parameters (if UI/API changes):**
-- `key={key}` - Key identifier
-- `scenario={test-scenarios}` - Extracted from plan
-- `test-type={unit|e2e|visual}` - Based on affected layers
+**4. Handoff File References:**
+
+All handoff parameters pre-generated and saved:
+- Test handoffs: `handoffs/phase-{N}-test.json`
+- Implementation handoffs: `handoffs/phase-{N}-todo-{task}.json`
+- Cleanup handoff: `handoffs/phase-{N}-cleanup.json` (final phase only)
+
+**Benefits:**
+- ✅ No manual parameter construction
+- ✅ Consistent parameter format
+- ✅ Traceable handoff chain
+- ✅ Easy to modify parameters before execution
+- ✅ Supports automated testing of prompt workflows
 
 **Algorithm:** See `.github/prompts/shared/handoff-protocol.md`
 
@@ -468,40 +713,13 @@ END IF
 
 ---
 
-## � Step 7.5: RESPONSE VALIDATION (MANDATORY - EXECUTE BEFORE RESPONDING)
-
-**Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
-
-**When:** ALWAYS execute immediately before any user-facing output (Steps 0-7)
-
-**Algorithm:** See `.github/prompts/shared/output-validator.md`
-
-**Quick Validation:**
-```
-BEFORE responding to user:
-  1. Count bullets (including nested) → Must be ≤15
-  2. Detect code blocks (```language markers) → Prohibit implementation code
-  3. Check nested lists (indentation >2 spaces) → Flatten to single level
-  4. Verify next actions present → Must have letter-based options (A/B/C/D)
-  5. If violations → Auto-fix or BLOCK response
-
-IF critical violations cannot be auto-fixed:
-  - Log violation details
-  - TERMINATE with error (do not send to user)
-  - Show developer message with remediation steps
-
-IF warnings only:
-  - Log for monitoring
-  - Allow response (optionally append warning note)
-```
+## � Step 7.5: Response Validation
+**LOAD:** `.github/prompts/shared/output-validator.md` (enforce before all user-facing output)
 
 **Exempt from validation:**
-- Plan file contents (goes to .github/key-data-streams/{key}/{key}.plan.md)
+- Plan file contents (goes to {key}.plan.md)
 - Questionnaire content (goes to questionnaire-{timestamp}.md)
 - Work log entries (goes to work-log.md)
-- Handoff invocations (system commands, not user analysis)
-
-**See:** `.github/prompts/shared/output-validator.md` for complete algorithm
 
 **See:** `.github/prompts/shared/loop-prevention.md` for preventing plan re-generation loops
 

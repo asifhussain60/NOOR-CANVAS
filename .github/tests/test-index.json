@@ -1,0 +1,1288 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2025-10-29T17:36:16Z",
+    "totalTests": 64,
+    "reusableTests": 12,
+    "testsByType": {
+      "withOrchestration": 12,
+      "withoutOrchestration": 63
+    }
+  },
+  "tests": [
+    {
+      "id": "test-1",
+      "key": "unknown",
+      "file": "Tests/UI/annotation-demo-percy.spec.ts",
+      "feature": "Annotation Demo Percy",
+      "scenarios": [],
+      "tags": [
+        "annotation",
+        "demo",
+        "percy.spec",
+        "regression",
+        "tests"
+      ],
+      "similarityHash": "annotationdemopercy-annotation-demo-percy.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-2",
+      "key": "unknown",
+      "file": "Tests/UI/asset-grouping-redesign-validation.spec.ts",
+      "feature": "Asset Grouping Redesign Validation",
+      "scenarios": [],
+      "tags": [
+        "asset",
+        "grouping",
+        "redesign",
+        "validation",
+        "validation.spec"
+      ],
+      "similarityHash": "assetgroupingredesignvalidation-asset-grouping-redesign",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-3",
+      "key": "unknown",
+      "file": "Tests/UI/assetlookup-database-detection.spec.ts",
+      "feature": "Assetlookup Database Detection",
+      "scenarios": [],
+      "tags": [
+        "asset",
+        "assetlookup",
+        "database",
+        "database-driven",
+        "detection"
+      ],
+      "similarityHash": "assetlookupdatabasedetection-asset-assetlookup-database",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-4",
+      "key": "unknown",
+      "file": "Tests/UI/basic-connection-test.spec.ts",
+      "feature": "Basic Connection Test",
+      "scenarios": [],
+      "tags": [
+        "basic",
+        "connection",
+        "test",
+        "test.spec"
+      ],
+      "similarityHash": "basicconnectiontest-basic-connection-test",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-5",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-portrait-orientation-blocking.spec.ts",
+      "feature": "Canvas Portrait Orientation Blocking",
+      "scenarios": [],
+      "tags": [
+        "blocking",
+        "blocking.spec",
+        "canvas",
+        "orientation",
+        "portrait"
+      ],
+      "similarityHash": "canvasportraitorientationblocking-blocking-blocking.spec-canvas",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-6",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-questions-delete-propagation.spec.ts",
+      "feature": "Canvas Questions Delete Propagation",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "delete",
+        "propagation",
+        "propagation.spec",
+        "question"
+      ],
+      "similarityHash": "canvasquestionsdeletepropagation-canvas-delete-propagation",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-7",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-questions-delete-trace.spec.ts",
+      "feature": "Canvas Questions Delete Trace",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "delete",
+        "deletion",
+        "question",
+        "questions"
+      ],
+      "similarityHash": "canvasquestionsdeletetrace-canvas-delete-deletion",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-8",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-questions-orange-card-structure.spec.ts",
+      "feature": "Canvas Questions Orange Card Structure",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "canvas-questions",
+        "card",
+        "html",
+        "orange"
+      ],
+      "similarityHash": "canvasquestionsorangecardstructure-canvas-canvas-questions-card",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-9",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
+      "feature": "Canvas Questions Orange Card Visual",
+      "scenarios": [],
+      "tags": [
+        "(percy)",
+        "canvas",
+        "canvas-questions",
+        "card",
+        "orange"
+      ],
+      "similarityHash": "canvasquestionsorangecardvisual-(percy)-canvas-canvas-questions",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-10",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-questions-ownership-bug.spec.ts",
+      "feature": "Canvas Questions Ownership Bug",
+      "scenarios": [],
+      "tags": [
+        "bug.spec",
+        "canvas",
+        "ownership",
+        "questions",
+        "session"
+      ],
+      "similarityHash": "canvasquestionsownershipbug-bug.spec-canvas-ownership",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-11",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-questions-upvote-test.spec.ts",
+      "feature": "Canvas Questions Upvote Test",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "canvas-questions",
+        "functionality",
+        "questions",
+        "session"
+      ],
+      "similarityHash": "canvasquestionsupvotetest-canvas-canvas-questions-functionality",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-12",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-session-212-full-test.spec.ts",
+      "feature": "Canvas Session 212 Full Test",
+      "scenarios": [],
+      "tags": [
+        "212",
+        "canvas",
+        "full",
+        "question",
+        "session"
+      ],
+      "similarityHash": "canvassession212fulltest-212-canvas-full",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-13",
+      "key": "unknown",
+      "file": "Tests/UI/canvas-welcome-panel-layout-visual.spec.ts",
+      "feature": "Canvas Welcome Panel Layout Visual",
+      "scenarios": [],
+      "tags": [
+        "(percy)",
+        "canvas",
+        "layout",
+        "panel",
+        "regression"
+      ],
+      "similarityHash": "canvaswelcomepanellayoutvisual-(percy)-canvas-layout",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-14",
+      "key": "unknown",
+      "file": "Tests/UI/cdn-cors-development-test.spec.ts",
+      "feature": "Cdn Cors Development Test",
+      "scenarios": [],
+      "tags": [
+        "access",
+        "cdn",
+        "cors",
+        "development",
+        "test.spec"
+      ],
+      "similarityHash": "cdncorsdevelopmenttest-access-cdn-cors",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-15",
+      "key": "unknown",
+      "file": "Tests/UI/continue-assetshare-comprehensive-silent-test.spec.ts",
+      "feature": "Continue Assetshare Comprehensive Silent Test",
+      "scenarios": [],
+      "tags": [
+        "asset",
+        "assetshare",
+        "button",
+        "comprehensive",
+        "continue"
+      ],
+      "similarityHash": "continueassetsharecomprehensivesilenttest-asset-assetshare-button",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-16",
+      "key": "unknown",
+      "file": "Tests/UI/css-theme-consistency-percy.spec.ts",
+      "feature": "Css Theme Consistency Percy",
+      "scenarios": [],
+      "tags": [
+        "consistency",
+        "css",
+        "percy.spec",
+        "regression",
+        "tests"
+      ],
+      "similarityHash": "cssthemeconsistencypercy-consistency-css-percy.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-17",
+      "key": "unknown",
+      "file": "Tests/UI/debug-console-logs.spec.ts",
+      "feature": "Debug Console Logs",
+      "scenarios": [],
+      "tags": [
+        "console",
+        "debug",
+        "logs.spec"
+      ],
+      "similarityHash": "debugconsolelogs-console-debug-logs.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-18",
+      "key": "unknown",
+      "file": "Tests/UI/debug-panel-automated-diagnostics.spec.ts",
+      "feature": "Debug Panel Automated Diagnostics",
+      "scenarios": [],
+      "tags": [
+        "automated",
+        "debug",
+        "debug-panel",
+        "diagnostics",
+        "diagnostics.spec"
+      ],
+      "similarityHash": "debugpanelautomateddiagnostics-automated-debug-debug-panel",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-19",
+      "key": "unknown",
+      "file": "Tests/UI/debug-panel-click-validation.spec.ts",
+      "feature": "Debug Panel Click Validation",
+      "scenarios": [],
+      "tags": [
+        "click",
+        "debug",
+        "panel",
+        "validation",
+        "validation.spec"
+      ],
+      "similarityHash": "debugpanelclickvalidation-click-debug-panel",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-20",
+      "key": "unknown",
+      "file": "Tests/UI/debug-panel-direct-visibility.spec.ts",
+      "feature": "Debug Panel Direct Visibility",
+      "scenarios": [],
+      "tags": [
+        "debug",
+        "direct",
+        "panel",
+        "test",
+        "visibility"
+      ],
+      "similarityHash": "debugpaneldirectvisibility-debug-direct-panel",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-21",
+      "key": "unknown",
+      "file": "Tests/UI/debug-panel-simple-visibility.spec.ts",
+      "feature": "Debug Panel Simple Visibility",
+      "scenarios": [],
+      "tags": [
+        "debug",
+        "debug-panel",
+        "panel",
+        "simple",
+        "test"
+      ],
+      "similarityHash": "debugpanelsimplevisibility-debug-debug-panel-panel",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-22",
+      "key": "unknown",
+      "file": "Tests/UI/debug-panel-user-landing-visual.spec.ts",
+      "feature": "Debug Panel User Landing Visual",
+      "scenarios": [],
+      "tags": [
+        "(percy)",
+        "auto-fill",
+        "debug",
+        "debug-panel",
+        "landing"
+      ],
+      "similarityHash": "debugpaneluserlandingvisual-(percy)-auto-fill-debug",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-23",
+      "key": "unknown",
+      "file": "Tests/UI/debug-panel-visual-regression.spec.ts",
+      "feature": "Debug Panel Visual Regression",
+      "scenarios": [],
+      "tags": [
+        "debug",
+        "panel",
+        "regression",
+        "regression.spec",
+        "tests"
+      ],
+      "similarityHash": "debugpanelvisualregression-debug-panel-regression",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-24",
+      "key": "unknown",
+      "file": "Tests/UI/debug-stepwise-analysis.spec.ts",
+      "feature": "Debug Stepwise Analysis",
+      "scenarios": [],
+      "tags": [
+        "analysis",
+        "analysis.spec",
+        "asset",
+        "debug",
+        "share"
+      ],
+      "similarityHash": "debugstepwiseanalysis-analysis-analysis.spec-asset",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-25",
+      "key": "unknown",
+      "file": "Tests/UI/focused-assetshare-test.spec.ts",
+      "feature": "Focused Assetshare Test",
+      "scenarios": [],
+      "tags": [
+        "asset",
+        "assetshare",
+        "button",
+        "focused",
+        "matching"
+      ],
+      "similarityHash": "focusedassetsharetest-asset-assetshare-button",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-26",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-click-test.spec.ts",
+      "feature": "Hcp Fab Button Click Test",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "click",
+        "fab",
+        "functionality",
+        "hcp"
+      ],
+      "similarityHash": "hcpfabbuttonclicktest-button-click-fab",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-27",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-click-validation.spec.ts",
+      "feature": "Hcp Fab Button Click Validation",
+      "scenarios": [],
+      "tags": [
+        "(hcp-fab-button)",
+        "assetshare",
+        "button",
+        "click",
+        "fab"
+      ],
+      "similarityHash": "hcpfabbuttonclickvalidation-(hcp-fab-button)-assetshare-button",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-28",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-console-check.spec.ts",
+      "feature": "Hcp Fab Button Console Check",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "check.spec",
+        "console",
+        "fab",
+        "hcp"
+      ],
+      "similarityHash": "hcpfabbuttonconsolecheck-button-check.spec-console",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-29",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-verification.spec.ts",
+      "feature": "Hcp Fab Button Verification",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "fab",
+        "hcp",
+        "verification",
+        "verification.spec"
+      ],
+      "similarityHash": "hcpfabbuttonverification-button-fab-hcp",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-30",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-visual.spec.ts",
+      "feature": "Hcp Fab Button Visual",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "fab",
+        "hcp",
+        "implementation",
+        "visual.spec"
+      ],
+      "similarityHash": "hcpfabbuttonvisual-button-fab-hcp",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-31",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-refactor-baseline.spec.ts",
+      "feature": "Hcp Refactor Baseline",
+      "scenarios": [],
+      "tags": [
+        "[hcp-cleanup]",
+        "baseline",
+        "baseline.spec",
+        "hcp",
+        "hcp-cleanup"
+      ],
+      "similarityHash": "hcprefactorbaseline-[hcp-cleanup]-baseline-baseline.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-32",
+      "key": "unknown",
+      "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
+      "feature": "Host Provisioner Visual Regression",
+      "scenarios": [],
+      "tags": [
+        "host",
+        "provisioner",
+        "regression",
+        "regression.spec",
+        "tests"
+      ],
+      "similarityHash": "hostprovisionervisualregression-host-provisioner-regression",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-33",
+      "key": "unknown",
+      "file": "Tests/UI/inserted-hadees-rendering.spec.ts",
+      "feature": "Inserted Hadees Rendering",
+      "scenarios": [],
+      "tags": [
+        "hadees",
+        "inserted",
+        "regression",
+        "rendering",
+        "rendering.spec"
+      ],
+      "similarityHash": "insertedhadeesrendering-hadees-inserted-regression",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-34",
+      "key": "unknown",
+      "file": "Tests/UI/issue-use-landing-textbox-js-errors.spec.ts",
+      "feature": "Issue Use Landing Textbox Js Errors",
+      "scenarios": [],
+      "tags": [
+        "errors",
+        "errors.spec",
+        "issue",
+        "javascript",
+        "landing"
+      ],
+      "similarityHash": "issueuselandingtextboxjserrors-errors-errors.spec-issue",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-35",
+      "key": "unknown",
+      "file": "Tests/UI/multi-browser-participant-isolation.spec.ts",
+      "feature": "Multi Browser Participant Isolation",
+      "scenarios": [],
+      "tags": [
+        "browser",
+        "isolation",
+        "isolation.spec",
+        "multi",
+        "multi-browser"
+      ],
+      "similarityHash": "multibrowserparticipantisolation-browser-isolation-isolation.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-36",
+      "key": "unknown",
+      "file": "Tests/UI/participant-name-broadcast-test.spec.ts",
+      "feature": "Participant Name Broadcast Test",
+      "scenarios": [],
+      "tags": [
+        "broadcast",
+        "broadcasting",
+        "control",
+        "host",
+        "name"
+      ],
+      "similarityHash": "participantnamebroadcasttest-broadcast-broadcasting-control",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-37",
+      "key": "unknown",
+      "file": "Tests/UI/participant-registration-flow-complete.spec.ts",
+      "feature": "Participant Registration Flow Complete",
+      "scenarios": [],
+      "tags": [
+        "complete",
+        "complete.spec",
+        "flow",
+        "journey",
+        "participant"
+      ],
+      "similarityHash": "participantregistrationflowcomplete-complete-complete.spec-flow",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-38",
+      "key": "unknown",
+      "file": "Tests/UI/phase1-session-waiting-guard.spec.ts",
+      "feature": "Phase1 Session Waiting Guard",
+      "scenarios": [],
+      "tags": [
+        "guard",
+        "guard.spec",
+        "phase",
+        "phase1",
+        "registration"
+      ],
+      "similarityHash": "phase1sessionwaitingguard-guard-guard.spec-phase",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-39",
+      "key": "unknown",
+      "file": "Tests/UI/phase10-debug-panel-clear-storage.spec.ts",
+      "feature": "Phase10 Debug Panel Clear Storage",
+      "scenarios": [],
+      "tags": [
+        "clear",
+        "debug",
+        "localstorage",
+        "panel",
+        "phase"
+      ],
+      "similarityHash": "phase10debugpanelclearstorage-clear-debug-localstorage",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-40",
+      "key": "unknown",
+      "file": "Tests/UI/phase2-session-canvas-guard.spec.ts",
+      "feature": "Phase2 Session Canvas Guard",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "guard",
+        "guard.spec",
+        "phase",
+        "phase2"
+      ],
+      "similarityHash": "phase2sessioncanvasguard-canvas-guard-guard.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-41",
+      "key": "unknown",
+      "file": "Tests/UI/phase3-transcript-canvas-guard.spec.ts",
+      "feature": "Phase3 Transcript Canvas Guard",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "guard",
+        "guard.spec",
+        "phase",
+        "phase3"
+      ],
+      "similarityHash": "phase3transcriptcanvasguard-canvas-guard-guard.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-42",
+      "key": "unknown",
+      "file": "Tests/UI/phase4-registration-bypass-flag.spec.ts",
+      "feature": "Phase4 Registration Bypass Flag",
+      "scenarios": [],
+      "tags": [
+        "bypass",
+        "flag",
+        "flag.spec",
+        "phase",
+        "phase4"
+      ],
+      "similarityHash": "phase4registrationbypassflag-bypass-flag-flag.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-43",
+      "key": "unknown",
+      "file": "Tests/UI/phase5-session-ended-redirect.spec.ts",
+      "feature": "Phase5 Session Ended Redirect",
+      "scenarios": [],
+      "tags": [
+        "ended",
+        "phase",
+        "phase5",
+        "redirect",
+        "redirect.spec"
+      ],
+      "similarityHash": "phase5sessionendedredirect-ended-phase-phase5",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-44",
+      "key": "unknown",
+      "file": "Tests/UI/phase6-localstorage-infrastructure.spec.ts",
+      "feature": "Phase6 Localstorage Infrastructure",
+      "scenarios": [],
+      "tags": [
+        "infrastructure",
+        "infrastructure.spec",
+        "localstorage",
+        "phase",
+        "phase6"
+      ],
+      "similarityHash": "phase6localstorageinfrastructure-infrastructure-infrastructure.spec-localstorage",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-45",
+      "key": "unknown",
+      "file": "Tests/UI/phase7-localstorage-expiration-extension.spec.ts",
+      "feature": "Phase7 Localstorage Expiration Extension",
+      "scenarios": [],
+      "tags": [
+        "expiration",
+        "extension",
+        "extension.spec",
+        "localstorage",
+        "phase"
+      ],
+      "similarityHash": "phase7localstorageexpirationextension-expiration-extension-extension.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-46",
+      "key": "unknown",
+      "file": "Tests/UI/phase8-localstorage-validation.spec.ts",
+      "feature": "Phase8 Localstorage Validation",
+      "scenarios": [],
+      "tags": [
+        "data",
+        "localstorage",
+        "phase",
+        "phase8",
+        "validation"
+      ],
+      "similarityHash": "phase8localstoragevalidation-data-localstorage-phase",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-47",
+      "key": "unknown",
+      "file": "Tests/UI/phase9-save-load-auto-navigation.spec.ts",
+      "feature": "Phase9 Save Load Auto Navigation",
+      "scenarios": [],
+      "tags": [
+        "auto",
+        "auto-navigation",
+        "integration",
+        "load",
+        "navigation.spec"
+      ],
+      "similarityHash": "phase9saveloadautonavigation-auto-auto-navigation-integration",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-48",
+      "key": "unknown",
+      "file": "Tests/UI/registration-guard-enforcement.spec.ts",
+      "feature": "Registration Guard Enforcement",
+      "scenarios": [],
+      "tags": [
+        "enforcement",
+        "enforcement.spec",
+        "guard",
+        "phase",
+        "registration"
+      ],
+      "similarityHash": "registrationguardenforcement-enforcement-enforcement.spec-guard",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-49",
+      "key": "unknown",
+      "file": "Tests/UI/share-button-click-fix.spec.ts",
+      "feature": "Share Button Click Fix",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "click",
+        "fix.spec",
+        "functionality",
+        "share"
+      ],
+      "similarityHash": "sharebuttonclickfix-button-click-fix.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-50",
+      "key": "unknown",
+      "file": "Tests/UI/simplified-participant-name-test.spec.ts",
+      "feature": "Simplified Participant Name Test",
+      "scenarios": [],
+      "tags": [
+        "broadcasting",
+        "name",
+        "participant",
+        "simplified",
+        "test.spec"
+      ],
+      "similarityHash": "simplifiedparticipantnametest-broadcasting-name-participant",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-51",
+      "key": "unknown",
+      "file": "Tests/UI/start-time-dropdown-visual.spec.ts",
+      "feature": "Start Time Dropdown Visual",
+      "scenarios": [],
+      "tags": [
+        "dropdown",
+        "regression",
+        "start",
+        "time",
+        "visual"
+      ],
+      "similarityHash": "starttimedropdownvisual-dropdown-regression-start",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-52",
+      "key": "unknown",
+      "file": "Tests/UI/start-time-dropdown.spec.ts",
+      "feature": "Start Time Dropdown",
+      "scenarios": [],
+      "tags": [
+        "dropdown",
+        "dropdown.spec",
+        "start",
+        "time"
+      ],
+      "similarityHash": "starttimedropdown-dropdown-dropdown.spec-start",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-53",
+      "key": "unknown",
+      "file": "Tests/UI/table-asset-share-validation.spec.ts",
+      "feature": "Table Asset Share Validation",
+      "scenarios": [],
+      "tags": [
+        "asset",
+        "session",
+        "share",
+        "table",
+        "validation"
+      ],
+      "similarityHash": "tableassetsharevalidation-asset-session-share",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-54",
+      "key": "unknown",
+      "file": "Tests/UI/table-asset-share.spec.ts",
+      "feature": "Table Asset Share",
+      "scenarios": [],
+      "tags": [
+        "asset",
+        "end-to-end",
+        "share.spec",
+        "sharing",
+        "table"
+      ],
+      "similarityHash": "tableassetshare-asset-end-to-end-share.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-55",
+      "key": "unknown",
+      "file": "Tests/UI/test-section-share-buttons.spec.ts",
+      "feature": "Test Section Share Buttons",
+      "scenarios": [],
+      "tags": [
+        "buttons",
+        "buttons.spec",
+        "section",
+        "share",
+        "test"
+      ],
+      "similarityHash": "testsectionsharebuttons-buttons-buttons.spec-section",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-56",
+      "key": "unknown",
+      "file": "Tests/UI/toastr-notyf-validation.spec.ts",
+      "feature": "Toastr Notyf Validation",
+      "scenarios": [],
+      "tags": [
+        "notification",
+        "notyf",
+        "system",
+        "toast",
+        "toastr"
+      ],
+      "similarityHash": "toastrnotyfvalidation-notification-notyf-system",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-57",
+      "key": "unknown",
+      "file": "Tests/UI/transcript-canvas-html-structure.spec.ts",
+      "feature": "Transcript Canvas Html Structure",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "html",
+        "regression",
+        "structure",
+        "structure.spec"
+      ],
+      "similarityHash": "transcriptcanvashtmlstructure-canvas-html-regression",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-58",
+      "key": "unknown",
+      "file": "Tests/UI/transcript-canvas-width-visual.spec.ts",
+      "feature": "Transcript Canvas Width Visual",
+      "scenarios": [],
+      "tags": [
+        "canvas",
+        "transcript",
+        "visual.spec",
+        "width"
+      ],
+      "similarityHash": "transcriptcanvaswidthvisual-canvas-transcript-visual.spec",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-59",
+      "key": "unknown",
+      "file": "Tests/UI/url-migration-validation.spec.ts",
+      "feature": "Url Migration Validation",
+      "scenarios": [],
+      "tags": [
+        "migration",
+        "url",
+        "validation",
+        "validation.spec"
+      ],
+      "similarityHash": "urlmigrationvalidation-migration-url-validation",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-60",
+      "key": "unknown",
+      "file": "Tests/UI/user-landing-manual-navigation.spec.ts",
+      "feature": "User Landing Manual Navigation",
+      "scenarios": [],
+      "tags": [
+        "landing",
+        "manual",
+        "navigation",
+        "navigation.spec",
+        "user"
+      ],
+      "similarityHash": "userlandingmanualnavigation-landing-manual-navigation",
+      "reusable": true,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": "Scripts/run-user-landing-manual-navigation-test.ps1",
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-61",
+      "key": "unknown",
+      "file": "Tests/UI/verify-asset-width-and-overflow-fix.spec.ts",
+      "feature": "Verify Asset Width And Overflow Fix",
+      "scenarios": [],
+      "tags": [
+        "and",
+        "asset",
+        "container",
+        "fix.spec",
+        "overflow"
+      ],
+      "similarityHash": "verifyassetwidthandoverflowfix-and-asset-container",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-62",
+      "key": "unknown",
+      "file": "Tests/UI/verify-cdn-transform-session2343.spec.ts",
+      "feature": "Verify Cdn Transform Session2343",
+      "scenarios": [],
+      "tags": [
+        "2343",
+        "cdn",
+        "mediaurltransform",
+        "session",
+        "session2343.spec"
+      ],
+      "similarityHash": "verifycdntransformsession2343-2343-cdn-mediaurltransform",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-63",
+      "key": "unknown",
+      "file": "Tests/UI/verify-example-quote-width-styling.spec.ts",
+      "feature": "Verify Example Quote Width Styling",
+      "scenarios": [],
+      "tags": [
+        "element",
+        "example",
+        "quote",
+        "styling",
+        "styling.spec"
+      ],
+      "similarityHash": "verifyexamplequotewidthstyling-element-example-quote",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-64",
+      "key": "unknown",
+      "file": "Tests/UI/verify-plain-text-button-removal.spec.ts",
+      "feature": "Verify Plain Text Button Removal",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "plain",
+        "removal",
+        "removal.spec",
+        "text"
+      ],
+      "similarityHash": "verifyplaintextbuttonremoval-button-plain-removal",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    }
+  ]
+}

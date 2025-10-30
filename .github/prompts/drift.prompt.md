@@ -11,6 +11,8 @@ stateTracking: enabled
 
 # drift.prompt.md (Drift Management)
 
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
 **Mode:** Agent | **Purpose:** Multi-threaded workflow management via drift stack (dual-mode support)
 
 **Version:** 1.3.0  
@@ -19,13 +21,8 @@ stateTracking: enabled
 
 ---
 
-## User-Facing Output Style (MANDATORY)
-Must follow `.github/prompts/shared/output-style-mandate.md`.
-
-- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
-- Use "📌 Summary for You" for user-facing bullets only.
-- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D).
-- MAX 15 bullets total per response.
+## User-Facing Output Style
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
 
 ---
 
@@ -117,15 +114,14 @@ D. Accept findings and proceed
 
 **See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
-## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
-1. **MAX 15 bullets** per response
-2. **NO code blocks** - Use brief pseudocode only
-3. **NO nested lists** - Flat bullets only
-4. **Auto-commit** at each drift resolution
-5. **Max stack depth: 3** levels
-6. **Severity levels**: critical, high, medium, low, informational
-7. **Queue limit**: Max 10 auto-detected drifts per parent key
-8. **Always preserve parent key context**
+## Critical Rules
+**LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
+
+**Agent-Specific:**
+- Auto-commit at each drift resolution
+- Max stack depth: 3 levels
+- Queue limit: Max 10 auto-detected drifts per parent key
+- Always preserve parent key context
 
 ## Dual-Mode Operation
 

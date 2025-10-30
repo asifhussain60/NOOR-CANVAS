@@ -1,7 +1,37 @@
-# SelfAwareness – Global Operating Guardrails (2.5.0)
+# SelfAwareness – Global Operating Guardrails (2.10.0)
 
+> **⚠️ MANDATORY RULES:** Load `.github/MANDATORY.md` FIRST - Contains 3 critical validation gates ALL prompts must enforce  
 > Canonical operating rules for all agents. Keep **.github/prompts/** as the source of truth.  
 > Everything else lives under **Workspaces/Copilot/**.
+
+## 📚 Essential Reading (START HERE)
+
+**CRITICAL - Load before ANY work:**
+- **`.github/MANDATORY.md`** - 3 ABSOLUTE RULES (No code in chat | Document first | Playwright orchestration)
+
+**Before making any changes, ALWAYS consult:**
+- **`.github/prompts/shared/UserDictionary.md`** - Canonical shortcut lookup (expand all shorthand)
+- **`.github/instructions/Links/SystemIndex.md`** - Central navigation hub for all architecture
+- **`.github/instructions/Links/InfrastructureQuickRef.md`** - Database connections & schema rules
+- **`.github/instructions/CDN-Architecture.md`** - Media/resource URL patterns & CDN usage
+- **`.github/instructions/Cloudflare-Configuration.md`** - Tunnel/networking configuration
+- **`.github/instructions/Links/Architecture.md`** - Complete API, Razor, service, SignalR inventory
+
+## 📖 Table of Contents
+
+1. [Essential Reading](#-essential-reading-start-here)
+2. [Branch Strategy](#-branch-strategy-critical)
+3. [File Organization Rules](#-file-organization-rules-critical)
+4. [Document First, Respond Later Protocol](#-document-first-respond-later-protocol-mandatory)
+5. [Key Data Stream (KDS) Architecture](#️-key-data-stream-kds-architecture---lessons-learned-2025-10-29)
+6. [Database Access Rules](#️-database-access-rules-mandatory)
+7. [Core Principles](#core-principles)
+8. [Phase Prompt Processing](#phase-prompt-processing)
+9. [Absolute Runtime Rules](#absolute-runtime-rules)
+10. [Debug Logging Rules](#debug-logging-rules)
+11. [Analyzer & Linter Enforcement](#analyzer--linter-enforcement-post-cleanup--sept-27-2025)
+12. [Quick Reference Card](#-quick-reference-card)
+13. [Version History](#-version-history)
 
 ## 🔀 Branch Strategy (CRITICAL)
 
@@ -133,18 +163,242 @@ Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/
 - Preserves execution history for future reference
 - Prevents incomplete key data streams
 
+---
+
+## 🗂️ Key Data Stream (KDS) Architecture - Lessons Learned (2025-10-29)
+
+**SOURCE**: CopilotChats.md analysis - identified 5 protocol violations with KDS-related root causes
+
+### KDS Canonical Structure (MANDATORY)
+
+**Every key in `.github/key-data-streams/{key}/` MUST have:**
+
+```
+.github/key-data-streams/{key}/
+├── {key}.plan.md          # REQUIRED - Phase plan, tasks, acceptance criteria
+├── work-log.md            # REQUIRED - Session-by-session execution history
+├── tests/                 # OPTIONAL - If tests exist for this key
+│   ├── test-registry.md   # REQUIRED if tests/ exists - Inventory of all test files
+│   └── *.spec.ts          # Actual test files
+├── drift-log.md           # OPTIONAL - If drift detected during execution
+└── metadata.json          # OPTIONAL - Key metadata (status, priority, tags)
+```
+
+**PROHIBITED in KDS directories:**
+- ❌ `.tmp`, `.backup`, `.bak` files (backup files belong in `.github/prompts/` root only)
+- ❌ Orphaned directories (keys without plan.md or work-log.md)
+- ❌ Undocumented test files (tests exist but not in test-registry.md)
+
+### Critical KDS Violations Identified (Analysis: CopilotChats.md)
+
+#### 1. Document-First Rule Violation (60% of sessions - HIGH SEVERITY)
+
+**Evidence:** Lines 125-400 - TranscriptController.cs created without prior plan.md/work-log.md updates
+
+**Root Cause:** Code implementation before documentation update
+
+**Fix Applied:** Enhancement 1 (P0) - step-2-5-document-first-checkpoint.md
+- **Step 2.5** in task.prompt.md now MANDATORY
+- Updates plan.md + work-log.md BEFORE any code changes
+- Commits documentation first (separate commit)
+- HALTS execution if documentation update fails
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. Update {key}.plan.md with phase details
+2. Append session entry to work-log.md
+3. Commit documentation (separate commit)
+4. THEN implement code
+5. Commit code (references doc commit)
+
+VIOLATION (60% rate before fix):
+1. Implement code directly
+2. Create commits
+3. Document AFTER (if at all)
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - KDS Document-First validation algorithm
+
+---
+
+#### 2. Plan Approval Without File Artifact (33% of sessions - MEDIUM SEVERITY)
+
+**Evidence:** User said "A" (approve) → immediate code generation without plan.md file written
+
+**Root Cause:** Plan shown in chat but not persisted to disk before execution
+
+**Fix Applied:** Enhancement 3 (P1) - step-3-5-plan-validation-gate.md
+- **Step 3.5** writes plan to {key}.plan.md BEFORE user approval
+- User reviews actual file (not just chat message)
+- Approval gate references file location
+- Plan modifications tracked in git
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. Generate plan in memory
+2. WRITE to {key}.plan.md
+3. SHOW file path to user
+4. PROMPT approval with file reference
+5. User reviews file, can edit
+6. On approval, proceed with execution
+
+VIOLATION (33% rate before fix):
+1. Generate plan in chat
+2. Show to user
+3. User approves
+4. Execute immediately (no file artifact)
+```
+
+**Enforcement:** plan.prompt.md updated - Step 3.5 integration
+
+---
+
+#### 3. Test Registry Gaps (33% of test creations - MEDIUM SEVERITY)
+
+**Evidence:** TranscriptApiTests.cs created without test-registry.md entry
+
+**Root Cause:** Test creation not atomic with registry update
+
+**Fix Applied:** Enhancement 4 (P1) - step-7-5-test-registry-auto-update.md
+- test-generation.prompt.md Step 7.5 auto-updates registry
+- Each test gets entry: file, type, status, run command, coverage
+- Registry committed atomically with test files
+- Violation detection in healthcheck
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. Generate test file
+2. IF test-registry.md doesn't exist THEN create from template
+3. ADD test entry to registry (file, type, status, command)
+4. git add test-file.spec.ts test-registry.md
+5. git commit (atomic)
+
+VIOLATION (33% rate before fix):
+1. Generate test file
+2. git add test-file.spec.ts
+3. git commit
+4. Forget to update test-registry.md (or update later in separate commit)
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - Test Registry Completeness validation
+
+---
+
+#### 4. Work Log Gaps (Stale Keys - LOW SEVERITY but common)
+
+**Evidence:** Keys with >7 day gaps between work-log.md sessions
+
+**Root Cause:** Resuming work without documenting session start
+
+**Protocol:**
+```
+CORRECT SEQUENCE (Resume work on existing key):
+1. git checkout development
+2. Read {key}.plan.md for context
+3. APPEND new session to work-log.md:
+   ---
+   ## [ISO-8601-Timestamp] - [agent-name]
+   **Status**: in-progress
+   **Phase**: [current-phase]
+   **Resume Context**: [What you're continuing]
+   ---
+4. THEN proceed with implementation
+
+VIOLATION:
+1. Resume coding without work-log.md session entry
+2. Results in multi-day gaps in work-log.md timeline
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - Work Log Continuity validation
+- Detects gaps >7 days
+- Flags stale keys (>30 days no activity)
+- Identifies orphaned directories
+
+---
+
+#### 5. Plan-to-Implementation Drift (MEDIUM SEVERITY)
+
+**Evidence:** Plan phases completed without work-log.md tracking
+
+**Root Cause:** Phase completion not documented in work-log.md
+
+**Protocol:**
+```
+CORRECT SEQUENCE:
+1. plan.md Phase 1: "Implement API endpoints"
+2. work-log.md session entry:
+   **Phase**: 1 - Implement API endpoints
+   **Status**: in-progress
+3. Complete implementation
+4. work-log.md update:
+   **Phase**: 1 - Implement API endpoints
+   **Status**: complete
+   **Tasks completed**: [list]
+5. Move to Phase 2
+
+VIOLATION:
+1. plan.md has Phases 1-3
+2. work-log.md only has Phase 1 entry
+3. Code shows Phases 2-3 implemented but not documented
+```
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 - Plan-to-Implementation Mapping
+- Cross-references plan phases with work-log sessions
+- Flags unmapped phases (in plan but not in work-log)
+- Validates plan.md file references exist
+
+---
+
+### KDS Best Practices (2025-10-29)
+
+**From Analysis (CopilotChats.md violations):**
+
+1. **ALWAYS Document BEFORE Code** (60% violation fix)
+   - Update plan.md/work-log.md in separate commit before code changes
+   - Commit message: `docs({key}): update plan for Phase X` THEN `feat({key}): implement Phase X`
+
+2. **ALWAYS Persist Plans Before Approval** (33% violation fix)
+   - Write plan.md to disk before showing user
+   - User can review/edit file, not just chat message
+
+3. **ALWAYS Update Test Registry Atomically** (33% violation fix)
+   - Test file + test-registry.md in same commit
+   - Use template for new registries
+
+4. **ALWAYS Log Session Start When Resuming** (stale key prevention)
+   - First action: append to work-log.md
+   - Document resume context and current phase
+
+5. **ALWAYS Map Plan Phases to Work Log** (drift prevention)
+   - Each plan phase gets work-log session(s)
+   - Mark phases complete in work-log when done
+
+6. **NEVER Leave Orphaned Keys** (cleanup enforcement)
+   - Keys with plan.md but no work-log.md = violation
+   - Keys with no activity >30 days = archive candidate
+
+**Enforcement:** healthcheck.prompt.md v1.3.0 validates all 6 best practices
+
 ## 🗄️ Database Access Rules (MANDATORY)
 
 **PRIMARY DATABASE: KSESSIONS_DEV**
-- When user mentions "database", assume **KSESSIONS_DEV** unless specified otherwise
-- Server: AHHOME
+- Default database: **KSESSIONS_DEV** (assume unless specified otherwise)
+- Server: **AHHOME**
 - Connection: Always use `_configuration.GetConnectionString("DefaultConnection")`
+- Connection String Format:
+  ```
+  Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;
+  Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+  ```
 
 **SCHEMA ACCESS CONTROL**:
-- ✅ **`canvas.*` schema**: READ-WRITE allowed
+- ✅ **`canvas.*` schema**: **READ-WRITE** allowed
   - canvas.Questions, canvas.QuestionVotes, canvas.Participants, canvas.AssetLookup, canvas.Sessions
   
-- ❌ **`dbo.*` schema**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
+- ❌ **`dbo.*` schema**: **READ-ONLY** - NO INSERT, UPDATE, DELETE
   - dbo.Groups (Albums), dbo.Categories, dbo.Sessions (LEGACY), dbo.Speakers, dbo.SessionTranscripts
   - dbo.GetAllGroups (stored procedure), dbo.GetCategoriesForGroup (stored procedure)
   
@@ -153,19 +407,28 @@ Governs `/workitem`, `/todo`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/
   
 - ❌ **All other schemas**: **READ-ONLY**
 
+**CRITICAL PROHIBITIONS**:
+- ❌ **NEVER use LocalDB** - Prohibited for all workflows (development, testing, production)
+- ❌ **NEVER modify dbo.* schema** - READ-ONLY enforced
+- ❌ **NEVER inject DbContext in UI** - Use HTTP APIs only (see Database Access Architecture below)
+
+**UI-DATABASE MAPPING**:
+- In UI layer, `albumID` corresponds to `GroupID` in SQL table `dbo.Sessions.Groups`
+
 **VIOLATION CONSEQUENCES**:
-- Any attempt to modify `dbo.*` or other READ-ONLY schemas will result in:
-  - Immediate task failure
-  - Rollback to checkpoint
-  - User notification of violation
+- Immediate task failure
+- Rollback to checkpoint
+- User notification of violation
 
 **See**: `.github/instructions/Links/InfrastructureQuickRef.md` for complete database documentation
 
 ## Core Principles
-- **Deterministic rails**: follow these rules exactly; do not invent new flows.  
-- **Single source of truth**: prompts here; configs and state under `Workspaces/Copilot/`.  
-- **Evidence-first**: factor terminal logs, analyzers, and artifacts into analysis and summaries.  
-- **Small steps**: change one thing at a time, accumulate tests, and stabilize before moving on.
+- **Deterministic rails**: Follow these rules exactly; do not invent new flows
+- **Single source of truth**: Prompts in `.github/prompts/`; configs and state under `Workspaces/Copilot/`
+- **Evidence-first**: Factor terminal logs, analyzers, and artifacts into analysis and summaries
+- **Small steps**: Change one thing at a time, accumulate tests, and stabilize before moving on
+- **Shortcut expansion**: Always expand user shorthand via UserDictionary.md during analysis phase
+- **Document before code**: Update plan.md/work-log.md BEFORE implementing changes
 
 ## Phase Prompt Processing
 All agents must handle `---` delimited input as separate todo items:
@@ -291,58 +554,54 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 - **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
 
 ### For Playwright Testing
-**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with separate window app launch!
+**CRITICAL**: ALL Playwright tests MUST use orchestration scripts with direct dotnet.exe launch!
 
 **⚠️ ABSOLUTE REQUIREMENT: Use Orchestration Scripts**
 
 - **ALWAYS** use orchestration scripts in `Scripts/run-{feature}-test.ps1`
-- **ALWAYS** launch app in SEPARATE PowerShell window (not background, not hidden)
-- **ALWAYS** use health check polling (not fixed delays)
+- **ALWAYS** launch app with direct `Start-Process -FilePath "dotnet"` (v3.0 pattern)
+- **ALWAYS** use health check polling with port binding validation (not fixed delays)
 - **ALWAYS** use `try/finally` for guaranteed cleanup
 - **NEVER** use `PW_MODE=standalone` or `webServer` config (DEPRECATED approach)
 - **NEVER** use `Start-Job` for app startup (unreliable)
+- **NEVER** use nested PowerShell windows (slow health checks, unreliable cleanup)
 - **NEVER** use direct `npx playwright test` without orchestration script
 - **NEVER** use PowerShell background operator `&` (doesn't work in PowerShell 5.1)
 
-**Orchestration Script Pattern (MANDATORY):**
+**Orchestration Script Pattern v3.0 (MANDATORY):**
 ```powershell
-# 1. Launch app in SEPARATE window
-$app = Start-Process powershell -ArgumentList "-NoExit", "-Command", 
-    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
-     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
-     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
-     dotnet run" -WindowStyle Minimized -PassThru
+# 1. Launch app with direct dotnet.exe (SEPARATE WINDOW)
+$appInfo = & "Scripts\Test-Framework\Start-NoorCanvasForTests.ps1" `
+    -Url "https://localhost:9091" `
+    -Environment "Development"
 
-# 2. Health check with polling (not fixed delay)
-$maxAttempts = 30
-$attempt = 0
-$appReady = $false
-while (-not $appReady -and $attempt -lt $maxAttempts) {
-    try {
-        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
-        if ($response.StatusCode -eq 200) { $appReady = $true }
-    } catch {
-        $attempt++
-        Start-Sleep -Seconds 1
-    }
-}
+# Start-NoorCanvasForTests.ps1 internally does:
+# - Direct dotnet.exe launch (no nested PowerShell)
+# - Port binding check + HTTP health check
+# - Exponential backoff (500ms, 1s, 2s, 3s)
+# - Returns process info for cleanup
 
-# 3. Run tests with guaranteed cleanup
+# 2. Run tests with guaranteed cleanup
 try {
     npx playwright test test.spec.ts --headed
 } finally {
-    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    # Cleanup using returned process ID
+    Stop-Process -Id $appInfo.ProcessId -Force -ErrorAction SilentlyContinue
 }
 ```
 
-**Why Separate Window is Mandatory:**
+**Why Direct dotnet.exe Launch is Mandatory (v3.0):**
+- ✅ Eliminates nested process hierarchies (faster health checks: 1-3 attempts vs 5-15)
 - ✅ Proper environment isolation (`ASPNETCORE_ENVIRONMENT=Development`)
-- ✅ Visible error messages for debugging (can restore minimized window)
-- ✅ Reliable PID tracking for cleanup
-- ✅ Health check polling prevents race conditions
+- ✅ Reliable PID tracking for cleanup (single process owner)
+- ✅ Port binding validation before HTTP checks (faster detection)
 - ✅ Guaranteed cleanup via `try/finally`
+- ✅ Visible window for debugging (can check logs if tests fail)
 
-**See:** `.github/prompts/shared/test-orchestration-patterns.md` for canonical template and complete pattern explanation
+**See:** 
+- `.github/prompts/shared/test-orchestration-patterns.md` - Canonical template
+- `.github/prompts/shared/app-launch-fix-protocol.md` - v3.0 implementation details
+- `Scripts/Test-Framework/Start-NoorCanvasForTests.ps1` - Canonical launcher
 
 **Manual App Launch (nc.ps1/ncb.ps1) is ONLY for:**
 - Development: Manual testing in browser
@@ -431,9 +690,80 @@ Agents must **record and respect failed approaches**:
 - Summaries must include both successes and failures so future generations don’t repeat mistakes.
 
 ## Version Control Rules
-- Always operate within Git.  
-- On completion: ensure `git status` is clean.  
-- Commits must include RUN_ID in the message for traceability.
+- Always operate within Git
+- On completion: ensure `git status` is clean
+- Commits must include RUN_ID in the message for traceability
+- **Backup discipline**: Create backup commit before /workitem or /todo
+- **Rollback support**: Store commit hashes in undo logs; use `git reset --hard <hash>`
+- **Squash on lock**: On /keylock, squash backup commits into one final commit
+
+---
+
+## 🎯 Quick Reference Card
+
+### Most Common Rules (Copy-Paste Reference)
+
+**Database:**
+- Server: `AHHOME` | Database: `KSESSIONS_DEV`
+- ✅ canvas.* = READ-WRITE | ❌ dbo.* = READ-ONLY | ❌ Never use LocalDB
+
+**Branches:**
+- ✅ development (DEFAULT - all work here) | ❌ master (PROTECTED - deploy only)
+
+**File Organization:**
+- ✅ Docs → `Workspaces/Copilot/_DOCS/` | ❌ Never in `.github/prompts/` root
+- ✅ Tests → `Workspaces/TEMP/` (temporary) or proper structure (permanent)
+
+**Playwright Testing:**
+- ✅ Use orchestration scripts (`Scripts/run-{feature}-test.ps1`)
+- ✅ Direct dotnet.exe launch with health checks
+- ❌ Never use `PW_MODE=standalone` or `webServer` config
+
+**Document First Protocol:**
+- 1️⃣ Update plan.md + work-log.md | 2️⃣ Commit docs | 3️⃣ Implement code | 4️⃣ Commit code
+
+**Debug Logging:**
+```
+[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+```
+
+**Essential Files to Read First:**
+- UserDictionary.md (shortcuts) | SystemIndex.md (navigation) | InfrastructureQuickRef.md (database)
+
+---
+
+## 📜 Version History
+
+### v2.10.0 (2025-10-30)
+- 🚨 **CRITICAL**: Added reference to `.github/MANDATORY.md` as first item in Essential Reading
+- 🚨 **CRITICAL**: All prompts now load MANDATORY.md before any work (enforces 3 absolute rules)
+- 📋 MANDATORY.md consolidates 3 critical violations into single entry point:
+  1. No code in chat (merged from CONCISE-MANDATE.md, snippet-handling-policy.md)
+  2. Document first (enforces step-2-5-document-first-checkpoint.md protocol)
+  3. Playwright orchestration (enforces PlaywrightTestOrchestration.md pattern)
+- ✅ All 10 prompt files updated with `**LOAD FIRST:** .github/MANDATORY.md` header
+- 📊 Violations now logged to `.github/audits/mandate-violations.log`
+- 🔧 Auto-enforcement algorithms with HALT on violation detection
+
+### v2.9.0 (2025-10-30)
+- ✨ Added Table of Contents for easier navigation
+- ✨ Added Essential Reading section at top with cross-references
+- ✨ Added Quick Reference Card for most common rules
+- ✨ Added Version History section
+- 🔧 Consolidated duplicate database information into single section
+- 🔧 Enhanced Database Access Rules with connection string and prohibitions
+- 🔧 Added backup discipline and rollback rules to Version Control
+- 🔧 Enhanced Core Principles with shortcut expansion and document-first rules
+
+### v2.8.0 (2025-09-27)
+- Documentation Organization & File Placement Rules
+- npm Script Enforcement updates
+
+### v2.5.0 (Previous baseline)
+- KDS Architecture lessons learned
+- Document First, Respond Later Protocol
+- File Organization Rules
+- Branch Strategy enforcement
 
 ---
 
@@ -462,13 +792,7 @@ config/
 
 ### Database Connectivity
 
-#### KSESSIONS_DEV SQL Connection String
-```
-Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
-```
-
-**Never use localdb for any database operations.**
-All agents and scripts must connect only to the specified SQL Server instance above. LocalDB is strictly prohibited for development, testing, or production workflows.
+> **Note**: Database connection details consolidated in [Database Access Rules](#️-database-access-rules-mandatory) section above.
 
 #### IIS Express & Port Management
 - Default app port: 9091 (avoid system reserved)
@@ -495,13 +819,12 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 - Use resilient serialization formats for real-time updates
 
 #### API Endpoints
-- Token validation: `/api/host/token/{token}/validate` for friendly tokens
-- **Connection String Standard**: Always use identical connection strings across all applications
-- **Timeout Configuration**: Use Connection Timeout=3600 for long-running operations
+- **Token Validation**: `/api/host/token/{token}/validate` for friendly tokens
 - **Route Conflicts**: Always check for ambiguous route patterns during development
-- **Token Validation**: Use correct API endpoints: `/api/host/token/{token}/validate` for friendly tokens
 - **SignalR Integration**: Handle InvalidDataException during data parsing; verify message serialization
 - **Authentication Flows**: Validate token formats match expected endpoint requirements
+
+**See**: `.github/instructions/Links/Architecture.md` for complete API endpoint catalog (52 endpoints across 11 controllers)
 
 ### Playwright Test Infrastructure
 - **Centralized Structure**: All test artifacts under PlayWright/ directory
@@ -538,19 +861,5 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 
 ---
 
-**Version:** 2.8.0  
-**Last Updated:** Documentation Organization & File Placement Rules – Sept 27, 2025  
-
-```
-
----
-
 ## Reference: System Index
 This instruction set references the central `SystemIndex.md`. Any structural changes must be reflected there.
-
-
-## Git Backup & Rollback Discipline
-- Every /workitem and /todo must begin by creating a backup commit.
-- Undo logs must store commit hashes for rollback.
-- Rollback uses `git reset --hard <hash>`.
-- On /keylock, squash backup commits into one final commit.

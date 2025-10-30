@@ -17,6 +17,8 @@ relatedFiles: [
 
 # cohesion.prompt.md (System Cohesion)
 
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
 **Mode:** Agent | **Purpose:** Ensure all prompts/instructions work as unified, conflict-free system
 
 **Version:** 1.2.0  
@@ -101,12 +103,14 @@ D. Generate improvement plan
 
 ### validation-level *(optional, default=syntax)*
 
-## Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
-1. **MAX 15 bullets** per response
-2. **Read-only validation** (auto-fix requires approval)
-3. **Cross-reference all agents** for handoff compatibility
-4. **Report conflicts** with severity levels
-5. **Track validation history** in work-log.md
+## Critical Rules
+**LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
+
+**Agent-Specific:**
+- Read-only validation (auto-fix requires approval)
+- Cross-reference all agents for handoff compatibility
+- Report conflicts with severity levels
+- Track validation history in work-log.md
 
 ## Core Responsibilities
 
@@ -125,8 +129,7 @@ D. Generate improvement plan
 - Multi-agent workflow coordination rules
 
 ### 3. Universal Standards Enforcement
-- **CONCISE-MANDATE.md** (15 bullet max, no code in chat)
-- **output-style-mandate.md** (🧠/📌/📊 format, letter-based actions)
+- **MANDATORY.md** - 3 global rules (no code, document first, Playwright orchestration)
 - **commit-checkpoint-protocol.md** (execution agents only)
 - **SelfAwareness.instructions.md** (branch rules, database access, required reading)
 - **agent-handoff-protocol.md** (handoff format, context carried)
@@ -160,8 +163,7 @@ D. Generate improvement plan
 - Parameter definitions consistent
 
 ### Level 3: Rules (Detailed)
-- CONCISE-MANDATE compliance
-- Output format adherence
+- MANDATORY.md compliance (3 global rules)
 - Commit checkpoint usage (execution agents)
 - Branch strategy compliance
 - Database access rules
@@ -242,8 +244,7 @@ FUNCTION ValidateCohesion(scope, level)
   IF level >= RULES THEN
     mandatoryRules = LoadMandatoryRules()
     FOR EACH file IN files
-      issues += ValidateConciseMandate(file)
-      issues += ValidateOutputStyle(file)
+      issues += ValidateMandatoryCompliance(file)
       
       IF IsExecutionAgent(file) THEN
         issues += ValidateCheckpointProtocol(file)
@@ -275,27 +276,43 @@ FUNCTION ValidateCohesion(scope, level)
   
 END FUNCTION
 
-FUNCTION ValidateConciseMandate(file)
+FUNCTION ValidateMandatoryCompliance(file)
   content = ReadFile(file)
   violations = []
   
+  // Check for MANDATORY.md load directive
+  IF NOT Contains(content, "**⚠️ LOAD FIRST:** `.github/MANDATORY.md`") THEN
+    violations += {type: "missing-mandatory-load", severity: CRITICAL}
+  END IF
+  
   // Check for response structure
-  IF NOT HasSection(content, "🧠 Analysis") THEN
+  IF NOT HasSection(content, "🧠 Analysis") AND IsUserFacingAgent(file) THEN
     violations += {type: "missing-analysis-section", severity: MEDIUM}
   END IF
   
-  IF NOT HasSection(content, "📌 Summary") THEN
+  IF NOT HasSection(content, "� Summary") AND IsUserFacingAgent(file) THEN
     violations += {type: "missing-summary-section", severity: MEDIUM}
   END IF
   
-  IF NOT HasSection(content, "📊 Final") THEN
-    violations += {type: "missing-final-section", severity: LOW}
-  END IF
+  // Check for deprecated references
+  deprecatedRefs = [
+    "CONCISE-MANDATE.md",
+    "snippet-handling-policy.md",
+    "output-style-mandate.md"
+  ]
   
-  // Check for bullet limits reference
-  IF NOT Contains(content, "MAX 15 bullets") AND NOT Contains(content, "CONCISE-MANDATE") THEN
-    violations += {type: "missing-concise-mandate-ref", severity: HIGH}
-  END IF
+  FOR EACH ref IN deprecatedRefs
+    IF Contains(content, ref) THEN
+      violations += {
+        type: "deprecated-reference",
+        reference: ref,
+        replacement: "MANDATORY.md",
+        severity: HIGH
+      }
+    END IF
+  END FOR
+  
+  RETURN violations
   
   // Check for code in chat warnings
   IF NOT Contains(content, "NO code") AND NOT Contains(content, "pseudocode") THEN

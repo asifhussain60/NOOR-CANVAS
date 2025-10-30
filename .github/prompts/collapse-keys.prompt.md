@@ -1,5 +1,7 @@
 # /collapse-keys
 
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
 Scan the `.github/key-data-streams/` directory for all folders whose names match `<key-pattern>` and consolidate both folders AND files into a clean, standardized key structure.
 
 **Two Modes:**

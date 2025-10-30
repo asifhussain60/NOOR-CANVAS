@@ -5,6 +5,8 @@ description: Extend or modify current active work while preserving context, key,
 
 # Todo — Extend Current Work with Same Key
 
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
 **Version**: 2.3.0  
 **Purpose**: Extend or modify the current active work request while preserving context, key, and execution flow. Renamed from continue.prompt.md to better reflect "todo item" workflow pattern.
 
@@ -19,14 +21,12 @@ description: Extend or modify current active work while preserving context, key,
 ---
 
 ## Critical Rules
-1. MAX 15 bullets per response (see `.github/prompts/shared/CONCISE-MANDATE.md`)
-2. **NO code blocks** - Use brief pseudocode only
-3. **NO nested lists** - Flat bullets only
-4. **Preserve current key** - Use same key from most recent handoff/task
-5. **Extend, don't replace** - Add to existing plan, don't restart
-6. **Approval behavior:** Auto-execute after 5s unless "review"/"cancel" (skipped if `from-build=true`)
-7. **State tracking enabled** - Log all requests, handoffs, and commits
-8. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Execution Step 7)
+**LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
+
+**Agent-Specific:**
+- Preserve current key from git history
+- Extend plan, don't replace
+- Auto-execute after 5s unless "review"/"cancel" (skipped if from-build=true)
 
 ## Parameters
 
@@ -118,6 +118,47 @@ Update-StateRequest -Key $key -Type "continuation" -UserRequest $request -Prompt
 When invoked, determine optimal workflow:
 
 ### If Active Key Detected
+
+**Step 1: Run Drift Detection** (MANDATORY)
+- Load drift detection algorithm: `.github/prompts/shared/drift-detection-algorithm.md`
+- Execute classification on request + active key context
+- Calculate drift confidence: HIGH / MEDIUM / LOW
+
+**Step 2: Handle Drift Detection Results**
+
+**IF HIGH confidence drift detected:**
+- **HALT** execution immediately
+- Present drift creation options
+- Require explicit user decision:
+  ```markdown
+  ## 🔍 Drift Detected (High Confidence)
+  
+  **Current Key**: `{current-key}`
+  **Request Analysis**: Different scope/layers detected
+  
+  **Drift Signals**:
+  - ❌ {signal-1}
+  - ❌ {signal-2}
+  - ⚠️ {signal-3}
+  
+  **A.** Create drift key `{current-key}-drift-001` (recommended)
+  **B.** Expand current key scope (update plan)
+  **C.** Create new independent key
+  **D.** Continue anyway (no drift tracking)
+  
+  Reply: A, B, C, or D
+  ```
+
+**IF MEDIUM confidence drift detected:**
+- **RECOMMEND** drift creation
+- Show detected signals
+- Allow override with default to extension after 10s
+- User can reply "drift" to create or "continue" to proceed
+
+**IF LOW confidence / Extension confirmed:**
+- **PROCEED** with extension workflow below
+
+**Step 3: Execute Extension Workflow** (if drift not detected or user chose option B/D)
 - **EXTEND** existing work (primary todo.prompt.md behavior)
 - Load existing plan and context
 - Append new phases or modify existing ones

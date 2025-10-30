@@ -1,5 +1,7 @@
 # route.prompt.md (Request Router Agent)
 
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
 **Version:** 1.7.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
@@ -22,13 +24,8 @@ stateTracking: enabled
 
 ---
 
-## User-Facing Output Style (MANDATORY)
-Must follow `.github/prompts/shared/output-style-mandate.md`.
-
-- Use "🧠 Copilot Analysis" for internal reasoning (concise, no code).
-- Use "📌 Summary for You" for user-facing bullets only.
-- **MANDATORY**: Always end with "**What would you like to do next?**" with letter-based options (A, B, C, D).
-- MAX 15 bullets total per response.
+## User-Facing Output Style
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
 
 ---
 
@@ -134,17 +131,13 @@ Whether to automatically execute after building prompt
 
 ---
 
-## 🔒 Critical Rules (see `.github/prompts/shared/CONCISE-MANDATE.md`)
-1. **MAX 15 bullets** per response
-2. **NO code blocks** - NEVER show implementation code in route responses
-3. **NO nested lists** - Flat bullets only
-4. **Show handoff summary** - Not full target agent output
-5. **Transition control** - Actually load and execute target prompt
-6. **Search before create** - Consult key data streams first
-7. **Intelligent routing** - Single task → todo, Multiple → plan
-8. **VALIDATE BEFORE RESPONDING** - All user-facing output must pass validation (see Step 7.5)
-9. **STEP DESCRIPTIONS ONLY** - Show "Step X: [action description]" with file paths, NO code snippets
-10. **CONCISE FILE UPDATES** - List only file paths and high-level changes (e.g., "Update button HTML generation")
+## Critical Rules
+**LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
+
+**Agent-Specific:**
+- Show handoff summary (not full target output)
+- Search key data streams before creating new keys
+- Intelligent routing: Single task → todo, Multiple → plan
 
 ---
 
@@ -246,6 +239,64 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 
 ---
 
+### Step 1.6: Drift Detection (if active key exists)
+
+**⚠️ CONDITIONAL**: Execute only if active key detected from git history
+
+**Purpose**: Detect if user request represents drift from current work vs. extension
+
+**Process:**
+1. Load drift detection algorithm: `.github/prompts/shared/drift-detection-algorithm.md`
+2. Execute classification on request + current key context
+3. Calculate drift confidence: HIGH / MEDIUM / LOW
+4. Handle based on confidence level
+
+**Behavior by Confidence:**
+
+**HIGH Confidence Drift**:
+- **HALT** execution immediately
+- Present drift creation options to user
+- Require explicit decision before proceeding
+- Options: Create drift key (A) | Expand scope (B) | New key (C) | Continue anyway (D)
+
+**MEDIUM Confidence Drift**:
+- **RECOMMEND** drift creation
+- Show drift signals detected
+- Allow user override
+- Default: Continue as extension (if no response in 10s)
+
+**LOW Confidence / Extension**:
+- **AUTO-PROCEED** as normal extension
+- No user interruption
+- Log classification decision to work-log.md
+
+**Output Format (if HIGH confidence drift):**
+
+```markdown
+## 🔍 Drift Detected (High Confidence)
+
+**Current Key**: `{current-key}`  
+**Request Analysis**: Different scope/layers detected
+
+**Drift Signals**:
+- ❌ {signal-1-description}
+- ❌ {signal-2-description}
+- ⚠️ {signal-3-description}
+
+**Recommendation**: Create drift key
+
+**A.** Create drift key `{current-key}-drift-001` (recommended)  
+**B.** Expand current key scope (update plan)  
+**C.** Create new independent key  
+**D.** Continue anyway (no drift tracking)
+
+Reply: A, B, C, or D
+```
+
+**Algorithm:** See `.github/prompts/shared/drift-detection-algorithm.md`
+
+---
+
 ### Step 2: Work Classification
 
 **Classify work type and determine optimal target:**
@@ -255,6 +306,7 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 - Detects continuation indicators + active key → suggests `todo`
 - Detects validation indicators → suggests `healthcheck`
 - Detects drift indicators → suggests `drift`
+- **NEW**: Drift detection results from Step 1.6 influence routing decision
 - For all other cases (new features, bug fixes, architectural changes), uses `plan`
 
 **Question Detection Keywords:**
@@ -377,55 +429,10 @@ ExecuteBuildPrompt(rawInput)
 
 ---
 
-## 🔍 Step 7.5: Response Validation (MANDATORY - EXECUTE BEFORE RESPONDING)
+## 🔍 Step 7.5: Response Validation
+**LOAD:** `.github/prompts/shared/output-validator.md` (enforce before all user-facing output)
 
-**Purpose:** Enforce CONCISE-MANDATE.md rules before sending response to user
-
-**When:** ALWAYS execute immediately before any user-facing output (after Step 6, before handoff message)
-
-**Note on File Finalization:** Route prompt delegates file creation to target agents (plan, task, todo). File finalization verification is performed by target agents, not route. See `.github/prompts/shared/file-finalization-verifier.md` for target agent requirements.
-
-**Algorithm:** See `.github/prompts/shared/output-validator.md`
-
-**Quick Validation:**
-```
-BEFORE responding to user:
-  1. Count bullets (including nested) → Must be ≤15
-  2. Detect code blocks (```language markers) → Prohibit implementation code
-  3. Check nested lists (indentation >2 spaces) → Flatten to single level
-  4. Verify next actions present → Must have letter-based options (A/B/C/D)
-  5. If violations → Auto-fix or BLOCK response
-
-IF critical violations cannot be auto-fixed:
-  - Log violation details
-  - TERMINATE with error (do not send to user)
-  - Show developer message with remediation steps
-
-IF warnings only:
-  - Log for monitoring
-  - Allow response (optionally append warning note)
-```
-
-**Validation Report (if violations):**
-```markdown
-⚠️ VALIDATION FAILED
-- Bullets: {count}/15 {EXCEEDED|OK}
-- Code blocks: {count} implementation {PROHIBITED|OK}
-- Nested lists: {count} {FLATTEN|OK}
-- Next actions: {MISSING|OK}
-
-→ Auto-fix attempted: {SUCCESS|FAILED}
-→ Action: {RESPONSE BLOCKED|RESPONSE ALLOWED WITH WARNINGS}
-```
-
-**Integration:**
-- All Steps 0-7 must validate their output before showing to user
-- Handoff messages exempt from validation (system output, not user-facing analysis)
-- Error messages exempt (diagnostic output)
-
-**See:** `.github/prompts/shared/output-validator.md` for complete algorithm
-
-**See:** `.github/prompts/shared/loop-prevention.md` for handoff chain tracking
+**Note:** Route prompt delegates file creation to target agents (plan, task, todo). File finalization verification performed by target agents, not route. See `.github/prompts/shared/file-finalization-verifier.md`.
 
 ---
 
