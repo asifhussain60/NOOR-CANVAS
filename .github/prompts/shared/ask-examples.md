@@ -34,3 +34,36 @@ This file contains bash command example extracted from `ask.prompt.md` for Rule 
 - Output Format: `.github/MANDATORY.md` Rule #1
 
 ---
+
+## Command 2: State Tracking - Question Logging (PowerShell)
+
+**Source:** Step -1: Initialize State Tracking (Internal Implementation)
+
+**Purpose:** Log question request and handoff to state tracking
+
+```powershell
+# Source the state-tracker utility
+. .github/prompts/shared/state-tracker.ps1
+
+# Log the question request (no key needed for ask, uses "ask-session")
+Update-StateRequest -Key "ask-session" -Type "question" -UserRequest $question -PromptChain @("route", "ask")
+```
+
+**Usage Context:**
+- Execute FIRST before answering question (internal step)
+- Tracks question history and handoffs
+- Enables investigation timeline reconstruction
+
+**After handoff to actionable agent:**
+```powershell
+# If user chooses to convert to plan/todo/task
+Update-StateHandoff -Key $targetKey -From "ask" -To $targetAgent -Parameters @{ question = $question } -Reason "Converting question to actionable work"
+```
+
+**Note:** This is an **internal implementation command**, not shown to users in chat output.
+
+**References:**
+- State Tracker: `.github/prompts/shared/state-tracker.ps1`
+- Handoff Protocol: `.github/prompts/shared/handoff-protocol.md`
+
+---
