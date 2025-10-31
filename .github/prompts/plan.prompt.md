@@ -104,14 +104,7 @@ Technical or business constraints
 
 **Load state-tracker utility and log incoming request:**
 
-```powershell
-# Source the state-tracker utility
-. .github/prompts/shared/state-tracker.ps1
-
-# Log the incoming request (if this is an original request routed from route.prompt)
-# OR log as a refinement request if this is a follow-up
-Update-StateRequest -Key $key -Type "refinement" -UserRequest $user_request -PromptChain @("route", "plan")
-```
+**Algorithm:** See `.github/prompts/shared/plan-commands.md` - Command 1 (State Tracking Initialization)
 
 **Purpose:**
 - Track plan agent invocations
@@ -414,11 +407,8 @@ END IF
 **Purpose:** Create programmatic handoff parameters for automated task execution
 
 **Directory Setup:**
-```powershell
-# Create handoffs directory
-$keyPath = ".github/key-data-streams/{key}"
-New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
-```
+
+**Algorithm:** See `.github/prompts/shared/plan-commands.md` - Command 2 (Handoffs Directory Setup)
 
 **For Each Phase, Generate:**
 
@@ -501,20 +491,8 @@ New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
 ```
 
 **Save All Handoff Files Before User Approval:**
-```powershell
-# Generate and save each handoff JSON
-foreach ($phase in $phases) {
-  # Test handoff
-  $testHandoff = Generate-TestHandoff -Phase $phase -Key $key
-  Save-Json -Path "$keyPath/handoffs/phase-$($phase.id)-test.json" -Content $testHandoff
-  
-  # Todo handoffs (one per implementation task)
-  foreach ($task in $phase.tasks) {
-    $todoHandoff = Generate-TodoHandoff -Phase $phase -Task $task -Key $key
-    Save-Json -Path "$keyPath/handoffs/phase-$($phase.id)-todo-$($task.id).json" -Content $todoHandoff
-  }
-}
-```
+
+**Algorithm:** See `.github/prompts/shared/plan-commands.md` - Command 3 (Handoff JSON Generation Loop)
 
 **Output:** All handoff files saved to `.github/key-data-streams/{key}/handoffs/`
 
