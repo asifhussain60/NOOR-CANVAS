@@ -7,6 +7,12 @@
     to the development branch. Supports individual commits, commit ranges, or
     pattern-based selection (e.g., all kds-related commits).
     
+    GOVERNANCE FILE HANDLING:
+    When conflicts occur in .github/governance/, .github/prompts/, or .github/instructions/
+    files, the script automatically uses the SOURCE version (--theirs) since the feature
+    branch always has the latest governance changes. This prevents merge conflicts and
+    ensures governance files are replaced, not merged.
+    
 .PARAMETER Commits
     Array of commit hashes to cherry-pick
     
@@ -23,7 +29,7 @@
     Show what would be cherry-picked without making changes
     
 .PARAMETER Auto
-    Run automatically without prompting for confirmations (auto-stash, auto-skip conflicts)
+    Run automatically without prompting for confirmations (auto-stash, auto-resolve governance conflicts)
     
 .EXAMPLE
     .\cherry-pick-to-dev.ps1 -Commits @("abc123", "def456")
@@ -44,6 +50,10 @@
 .EXAMPLE
     .\cherry-pick-to-dev.ps1 -Pattern "kds" -Count 10 -Auto
     Automatically cherry-pick last 10 KDS commits without prompts
+    
+.EXAMPLE
+    .\cherry-pick-to-dev.ps1 -Count 1 -Auto
+    Cherry-pick last commit with automatic governance file replacement
 #>
 
 param(
@@ -193,29 +203,90 @@ try {
         Write-Info "Cherry-picking: $commit - $commitMsg"
         
         try {
-            git cherry-pick $commit
-            $successCount++
-            Write-Success "  ✓ Success"
-        }
-        catch {
-            Write-Error-Custom "  ✗ Failed - Conflict detected"
-            $failedCommits += $commit
+            git cherry-pick $commit 2>&1 | Out-Null
+            $cherryPickResult = $LASTEXITCODE
             
-            if (-not $Auto) {
-                Write-Warning-Custom "Conflict in cherry-pick. Options:"
-                Write-Host "  1. Resolve conflicts manually, then: git cherry-pick --continue"
-                Write-Host "  2. Skip this commit: git cherry-pick --skip"
-                Write-Host "  3. Abort cherry-pick: git cherry-pick --abort"
-                
-                $response = Read-Host "Abort remaining cherry-picks? (y/N)"
-                if ($response -eq 'y') {
-                    git cherry-pick --abort
-                    break
-                }
+            if ($cherryPickResult -eq 0) {
+                $successCount++
+                Write-Success "  ✓ Success"
             }
             else {
-                Write-Warning-Custom "Auto mode: Skipping conflicted commit"
-                git cherry-pick --skip
+                # Conflict detected - check if it's in governance files
+                $conflictedFiles = git diff --name-only --diff-filter=U
+                $governanceConflicts = $conflictedFiles | Where-Object { $_ -match "\.github/(governance|prompts|instructions)" }
+                
+                if ($governanceConflicts) {
+                    Write-Warning-Custom "  ⚠️  Governance file conflicts detected - using source version (latest)"
+                    
+                    # For governance files, always take the incoming version (--theirs)
+                    foreach ($file in $governanceConflicts) {
+                        Write-Info "    Replacing: $file"
+                        git checkout --theirs $file
+                        git add $file
+                    }
+                    
+                    # Check if there are non-governance conflicts
+                    $remainingConflicts = git diff --name-only --diff-filter=U
+                    
+                    if ($remainingConflicts) {
+                        Write-Warning-Custom "  ⚠️  Non-governance conflicts remain:"
+                        foreach ($file in $remainingConflicts) {
+                            Write-Host "    - $file"
+                        }
+                        
+                        if (-not $Auto) {
+                            $response = Read-Host "    Abort cherry-pick? (y/N)"
+                            if ($response -eq 'y') {
+                                git cherry-pick --abort
+                                throw "Cherry-pick aborted by user"
+                            }
+                        }
+                        else {
+                            Write-Warning-Custom "Auto mode: Aborting due to non-governance conflicts"
+                            git cherry-pick --abort
+                            $failedCommits += $commit
+                            continue
+                        }
+                    }
+                    else {
+                        # All conflicts resolved, continue cherry-pick
+                        git cherry-pick --continue --no-edit
+                        $successCount++
+                        Write-Success "  ✓ Completed with governance file replacement"
+                    }
+                }
+                else {
+                    # Non-governance conflicts
+                    Write-Error-Custom "  ✗ Failed - Conflict detected"
+                    $failedCommits += $commit
+                    
+                    if (-not $Auto) {
+                        Write-Warning-Custom "Conflict in cherry-pick. Options:"
+                        Write-Host "  1. Resolve conflicts manually, then: git cherry-pick --continue"
+                        Write-Host "  2. Skip this commit: git cherry-pick --skip"
+                        Write-Host "  3. Abort cherry-pick: git cherry-pick --abort"
+                        
+                        $response = Read-Host "Abort remaining cherry-picks? (y/N)"
+                        if ($response -eq 'y') {
+                            git cherry-pick --abort
+                            break
+                        }
+                    }
+                    else {
+                        Write-Warning-Custom "Auto mode: Skipping conflicted commit"
+                        git cherry-pick --skip
+                    }
+                }
+            }
+        }
+        catch {
+            Write-Error-Custom "  ✗ Failed - Error: $_"
+            $failedCommits += $commit
+            
+            # Try to abort cherry-pick if in progress
+            $cherryPickStatus = git status --porcelain 2>$null
+            if ($cherryPickStatus -match "UU") {
+                git cherry-pick --abort 2>$null
             }
         }
     }
