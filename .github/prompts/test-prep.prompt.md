@@ -30,11 +30,12 @@ Automate preparation of Razor components for Playwright test generation via dual
 **Examples**:
 ```
 @workspace /test-prep Prepare HostControlPanel for asset sharing test
+@workspace /test-prep Review logs and suggest tests
 @workspace /test-prep Generate tests from session 212, focus on annotation sync
 @workspace /test-prep Clean up all logging markers from last session
 ```
 
-**Agent parses natural language** to determine action (prep/generate/cleanup) and extract parameters.
+**Agent parses natural language** to determine action (prep/review/generate/cleanup) and extract parameters.
 
 ### Direct File Mode
 ```
@@ -85,36 +86,205 @@ Automate preparation of Razor components for Playwright test generation via dual
 
 ---
 
-### 2. Generate Tests from Logs
+### 2. Review Logs & Report Test Potential
+
+**Invocation (Structured)**:
+```
+@workspace /test-prep action=review session=212
+```
+
+**Invocation (Natural Language)**:
+```
+@workspace /test-prep Review logs and suggest tests
+@workspace /test-prep Analyze captured interactions and report coverage
+@workspace /test-prep What tests can I create from the logs?
+```
+
+**Actions**:
+1. **Verify Log Files Exist**:
+   - Check `SPA/NoorCanvas/playwright-server-logs.txt` (Blazor server logs)
+   - Check browser console logs via DevTools Protocol or manual export
+   - Report which logs are missing
+
+2. **Read & Parse Server Logs**:
+   - Extract SignalR events (hub invocations, broadcasts)
+   - Extract API calls (controllers, endpoints, response codes)
+   - Extract database operations (EF Core queries, inserts, updates)
+   - Extract component lifecycle (OnInitialized, OnParametersSet, renders)
+
+3. **Read & Parse Client Logs** (Browser Console):
+   - **CRITICAL**: Browser console logs are NOT automatically captured
+   - **Manual Export Required**: User must open DevTools → Console → Right-click → "Save as..."
+   - **Alternative**: Inject console.log interceptor in PlaywrightLogger.js
+   - Extract client-side events (button clicks, form submissions, navigation)
+   - Extract JavaScript errors, warnings, and custom log messages
+
+4. **Correlate Interactions**:
+   - Match client actions to server responses (by timestamp ±2s window)
+   - Identify complete flows (e.g., button click → API call → SignalR broadcast → UI update)
+   - Detect incomplete flows (client action with no server response = potential bug)
+
+5. **Generate Test Potential Report**:
+   - **Format**: Markdown table with test scenarios
+   - **Columns**: Test Name | Client Action | Server Events | Assertions Possible | Quality Score
+   - **Prioritization**: Sort by completeness (flows with both client + server events first)
+
+6. **Request User Approval**:
+   - Display report with test count and coverage summary
+   - Ask: "Generate all tests?" or "Select specific tests?"
+   - Allow filtering by component, feature, or quality score threshold
+
+**Output**:
+- Log validation status (✅ both logs present, ⚠️ client logs missing, ❌ no logs found)
+- Test potential report (table format, ≤20 rows for readability)
+- Recommended next action (approve generation, capture missing logs, or cleanup)
+
+**Example Output**:
+
+**📊 Test Potential Report**
+
+**Session**: 212  
+**Server Logs**: ✅ Found (2088 lines, 638KB)  
+**Client Logs**: ⚠️ **NOT FOUND** - Browser console logs not captured
+
+**⚠️ Client Log Capture Required**:
+
+**Option A - Manual Export** (Recommended for this session):
+1. Open browser DevTools (F12)
+2. Go to Console tab
+3. Right-click in console → "Save as..." → Save to `SPA/NoorCanvas/playwright-interaction-logs.txt`
+4. Re-run `@workspace /test-prep action=review session=212`
+
+**Option B - Automated Capture** (For future sessions):
+1. Inject console interceptor in PlaywrightLogger.js
+2. Logs will auto-save to `playwright-interaction-logs.txt`
+3. See `.github/prompts/shared/kds-validation-algorithms.md` Algorithm 10
+
+**Testable Flows** (Server-side only, limited without client logs):
+
+| # | Test Name | Client Action | Server Events | Assertions | Score |
+|---|-----------|---------------|---------------|------------|-------|
+| 1 | HCP: Broadcast Transcript Section | *(Unknown - no client logs)* | BroadcastTranscriptSection invoked, HtmlContentReceived sent to session_212, 7422 chars | Verify section HTML received, verify asset count (3 assets detected) | 60% |
+| 2 | HCP: SignalR Connection Establishment | *(Unknown - no client logs)* | Connection handshake, ConnectionId assigned (Zp_V0Nr6zRJ9M9zQC9hS3g), Timeout configured (60s) | Verify connection state, verify ConnectionId format | 75% |
+| 3 | HCP: Join Session Groups | *(Unknown - no client logs)* | JoinSession invoked (SessionId=212, Role=host), JoinHostGroup invoked | Verify group membership (session_212, Host_212) | 70% |
+| 4 | TC: Participant Verification | *(Unknown - no client logs)* | API call /api/participant/session/KJAHA99L/validate, UserGuid found (fe79bb17...) | Verify participant exists, verify registration check passes | 65% |
+| 5 | TC: Asset Reception | *(Likely broadcast received)* | HtmlContentReceived event (7422 chars), HTML transformation (7422→7443 chars), 3 assets detected | Verify asset content rendered, verify share buttons present | 55% |
+
+**Total Tests Possible**: 8 complete flows, 12 partial flows (20 total)  
+**Coverage**: SignalR (100%), API calls (85%), Database ops (40%), UI interactions (0% - no client logs)
+
+**⚡ Next Steps**:
+
+**A.** Capture client logs (manual export) and re-run review → **Unlock 12 additional tests**  
+**B.** Generate ALL 8 server-only tests now (limited assertions, 60-75% quality)  
+**C.** Cherry-pick specific tests to generate (select by test number)  
+**D.** Cancel and re-do manual testing with automated logging enabled  
+
+**Choose Action**: [A/B/C/D]
+
+---
+
+**If User Selects B (Generate All Tests)**:
+- Proceed directly to `action=generate` with all 8 tests
+- Generate files: `Tests/UI/hcp-broadcast-section.spec.ts`, `Tests/UI/hcp-signalr-connection.spec.ts`, etc.
+- Report: "✅ Generated 8 tests. Quality scores: 60-75%. Run tests: `npx playwright test`"
+
+**If User Selects C (Cherry-Pick Tests)**:
+- Prompt: "Enter test numbers to generate (comma-separated, e.g., 1,2,5): "
+- User input: `1,2,5`
+- Generate only selected tests (3 files in this example)
+- Report: "✅ Generated 3 tests: #1 (HCP: Broadcast Section), #2 (SignalR Connection), #5 (Asset Reception)"
+
+**Flow After Cherry-Pick Selection**:
+```
+User: @workspace /test-prep Review logs
+
+Copilot: [Displays report with 8 testable flows]
+         Choose Action: [A/B/C/D]
+
+User: C
+
+Copilot: Enter test numbers to generate (comma-separated, e.g., 1,2,5):
+
+User: 1,3,4
+
+Copilot: ✅ Generating 3 selected tests:
+         - Test #1: HCP: Broadcast Transcript Section
+         - Test #3: HCP: Join Session Groups
+         - Test #4: TC: Participant Verification
+         
+         [Calls action=generate with testNumbers=[1,3,4]]
+         
+         ✅ Generated 3 tests successfully:
+         📁 Tests/UI/hcp-broadcast-section.spec.ts (Quality: 60%)
+         📁 Tests/UI/hcp-join-groups.spec.ts (Quality: 70%)
+         📁 Tests/UI/tc-participant-verification.spec.ts (Quality: 65%)
+         
+         Next: Run tests with `npx playwright test` or cleanup with `@workspace /test-prep action=cleanup`
+```
+
+---
+
+### 3. Generate Tests from Logs
 
 **Invocation (Structured)**:
 ```
 @workspace /test-prep action=generate session=212 key=hcp feature=asset-sharing
+@workspace /test-prep action=generate session=212 testNumbers=[1,3,5]
 ```
 
 **Invocation (Natural Language)**:
 ```
 @workspace /test-prep Generate tests from session 212 for host control panel asset sharing
 @workspace /test-prep Create Playwright test from the logs, focus on annotation sync feature
+@workspace /test-prep Generate tests 1, 3, and 5 from session 212
 ```
 
 **Actions**:
-1. Read `playwright-interaction-logs.txt` (client clicks/inputs/navigation)
-2. Read `playwright-server-logs.txt` (server events/SignalR/database)
-3. Correlate by timestamp (client → server event matching)
-4. Generate Playwright test with assertions
-5. Apply quality scoring (Algorithm 9)
-6. Save test to `Tests/UI/{key}-{feature}.spec.ts`
+1. Load session context from `.github/key-data-streams/test-prep/sessions/{session}/`
+2. Read `playwright-interaction-logs.txt` (client clicks/inputs/navigation)
+3. Read `playwright-server-logs.txt` (server events/SignalR/database)
+4. Correlate by timestamp (client → server event matching)
+5. **Filter by test numbers** (if `testNumbers` parameter provided):
+   - If `testNumbers=[1,3,5]` → Generate only tests #1, #3, #5 from review report
+   - If `testNumbers` omitted → Generate ALL tests
+6. Generate Playwright test(s) with assertions
+7. Apply quality scoring (Algorithm 9)
+8. Save test(s) to `Tests/UI/{key}-{feature}.spec.ts`
 
 **Output**:
-- Test file path
-- Quality score (0-100)
+- Test file path(s)
+- Quality score (0-100) for each test
 - Coverage summary (interactions → assertions)
 - Next command: Run test or cleanup
 
+**Example Output (Cherry-Picked)**:
+
+**✅ Generated 3 Tests**
+
+**Session**: 212  
+**Tests Selected**: #1, #3, #5
+
+**Files Created**:
+1. `Tests/UI/hcp-broadcast-section.spec.ts` (Quality: 60%, 5 assertions)
+2. `Tests/UI/hcp-join-groups.spec.ts` (Quality: 70%, 3 assertions)
+3. `Tests/UI/tc-asset-reception.spec.ts` (Quality: 55%, 4 assertions)
+
+**Coverage**:
+- Client interactions: 3 flows
+- Server events: 8 correlated
+- Assertions: 12 total
+
+**⚡ Next Steps**:
+
+**A.** Run tests now: `npx playwright test --headed`  
+**B.** Generate more tests (different test numbers)  
+**C.** Review test files before running  
+**D.** Cleanup logging infrastructure  
+
 ---
 
-### 3. Cleanup Logging Infrastructure
+### 4. Cleanup Logging Infrastructure
 
 **Invocation (Structured)**:
 ```
@@ -167,6 +337,16 @@ Parsed:
   files = ["HostControlPanel.razor"] (inferred from component name)
   feature = "asset-sharing" (inferred from description)
 
+Input: "Review logs and suggest tests"
+Parsed:
+  action = "review"
+  session = "latest" (use most recent session)
+
+Input: "What tests can I create from the logs?"
+Parsed:
+  action = "review"
+  session = "latest"
+
 Input: "Generate tests from session 212, focus on annotation sync"
 Parsed:
   action = "generate"
@@ -181,11 +361,13 @@ Parsed:
 
 ### action *(auto-detected or explicit)*
 - `prep` - Inject logging infrastructure
+- `review` - Analyze logs and report test potential (approval required before generation)
 - `generate` - Create Playwright test from logs
 - `cleanup` - Remove all logging infrastructure
 
 **Auto-detection**:
 - Keywords: "prepare", "setup", "inject" → `prep`
+- Keywords: "review", "analyze", "report", "suggest", "what tests" → `review`
 - Keywords: "generate", "create test", "build test" → `generate`
 - Keywords: "cleanup", "clean", "remove", "archive" → `cleanup`
 - Presence of `#file:` → `prep` (default)
@@ -220,6 +402,21 @@ Feature name for test file naming (kebab-case)
 
 **Example**: `asset-sharing`, `question-submission`, `annotation-sync`
 
+### testNumbers *(optional for action=generate)*
+Array of test numbers to generate (cherry-pick specific tests from review report)
+
+**Format**: `testNumbers=[1,3,5]` or comma-separated string `"1,3,5"`
+
+**Behavior**:
+- If **provided**: Generate only selected tests from review report
+- If **omitted**: Generate ALL tests from review report
+
+**Example**:
+```
+@workspace /test-prep action=generate session=212 testNumbers=[1,2,5]
+```
+Generates only tests #1, #2, #5 from the review report table.
+
 ### filter *(optional for action=generate)*
 Log filtering criteria (e.g., `component=AssetSidebar`, `timerange=14:30-14:35`)
 
@@ -237,18 +434,83 @@ Run Algorithm 9 (Test Quality Scoring) after generation
 - Generate session ID if not provided
 - Create session tracking folder
 
-**Step 2: Inject Logging Infrastructure**
+**Step 2: Clean Up Old Markers (if any exist)**
+
+**For each file**:
+1. Read component file
+2. Scan for existing `data-playwright-log-marker` attributes (regex: `data-playwright-log-marker="[^"]*"`)
+3. If found:
+   - Remove ALL old markers from file
+   - Log removed marker IDs to cleanup report
+   - Save cleaned file
+4. If not found: Proceed to injection
+
+**Rationale**: Only ONE active test prep session should exist at a time to avoid log correlation confusion
+
+**Step 3: Inject Fresh Logging Infrastructure**
 
 **Algorithm**: See `.github/prompts/shared/kds-validation-algorithms.md` - Algorithm 10 (InjectPlaywrightLogger)
 
 **For each file**:
-1. Read component file
+1. Read component file (now guaranteed clean)
 2. Generate unique marker: `{timestamp}-{componentName}`
 3. Inject `data-playwright-log-marker` attribute into root div
-4. Inject PlaywrightLogger.init() script block
+4. Inject PlaywrightLogger.init() script block (if automated approach)
 5. Save modified file
 
-**Step 3: Configure Backend Logging**
+**Step 4: Create KDS Browser Console Log Placeholder**
+
+**File**: `.github/key-data-streams/test-prep/sessions/{session}/browser-console-logs.md`
+
+**Purpose**: 
+- Tie browser logs into KDS system (Rule #2b compliance)
+- Preserve session context for future reference
+- Enable cross-session log analysis
+
+**Template**:
+```markdown
+# Browser Console Logs - Session {session}
+
+**Session ID**: {session}  
+**Created**: {timestamp}  
+**Components**: {component1, component2, component3}  
+**Status**: Awaiting manual capture
+
+---
+
+## 📋 Capture Instructions
+
+1. Run application: `dotnet run --project SPA/NoorCanvas`
+2. Open browser DevTools (F12) → Console tab
+3. Perform test scenarios (see ../SESSION-{session}.md)
+4. Right-click in console → "Save as..."
+5. Replace this file with saved console output
+
+---
+
+## 🔍 Expected Content
+
+- NoorLogger initialization messages
+- Component lifecycle events (mounted, rendered)
+- User interactions (clicks, inputs, navigation)
+- SignalR events (connection, invoke, receive)
+- JavaScript errors/warnings
+
+---
+
+## ⚠️ Status
+
+**NOT YET CAPTURED** - Placeholder file, replace with actual console export
+
+---
+
+**Related Files**:
+- Session Plan: `../SESSION-{session}.md`
+- Server Logs: Copy from `SPA/NoorCanvas/playwright-server-logs.txt`
+- Tracking: `./injected-files.json`
+```
+
+**Step 5: Configure Backend Logging**
 
 **File**: `SPA/NoorCanvas/appsettings.Development.json`
 
@@ -269,41 +531,63 @@ Run Algorithm 9 (Test Quality Scoring) after generation
 }
 ```
 
-**Step 4: Verify PlaywrightLogger.js Exists**
+**Step 4: Verify PlaywrightLogger.js Exists (Optional - for automated approach)**
 
 **File**: `SPA/NoorCanvas/wwwroot/js/PlaywrightLogger.js`
 
-**Create if missing**: Use Algorithm 10 specification
+**Note**: Current implementation uses manual browser console saving (see ROLLBACK-SUMMARY.md)
 
-**Step 5: Save Tracking File**
+**If automated approach needed**: Use Algorithm 10 specification
+
+**Step 5: Save Tracking File + KDS Integration**
 
 **File**: `.github/key-data-streams/test-prep/sessions/{session}/injected-files.json`
 
 **Format**:
 ```json
 {
-  "session": "212",
+  "session": "{session}",
   "timestamp": "2025-10-31T14:30:22.123Z",
+  "approach": "manual-dual-stream",
+  "kds": {
+    "sessionPlan": "../SESSION-{session}.md",
+    "browserLogs": "./browser-console-logs.md",
+    "serverLogs": "../../../../SPA/NoorCanvas/playwright-server-logs.txt",
+    "trackingFile": "./injected-files.json"
+  },
   "files": [
     {
-      "path": "SPA/NoorCanvas/Components/HostControlPanel.razor",
-      "marker": "20251031143022-HostControlPanel",
-      "linesModified": [45, 2150]
+      "path": "SPA/NoorCanvas/Pages/HostControlPanel.razor",
+      "marker": "{session}-HostControlPanel",
+      "linesModified": [45, 2150],
+      "oldMarkersRemoved": ["20251031150100-HostControlPanel"]
     }
   ],
+  "cleanup": {
+    "oldMarkersFound": 11,
+    "oldMarkersRemoved": 11,
+    "previousSessions": ["20251031150100", "20251031150200"]
+  },
   "status": "prepped"
 }
 ```
 
 **Step 6: Output Instructions**
 
-**Format** (≤15 bullets):
+**Format** (≤20 bullets):
 
 **🎯 Test Prep Complete**
 
 **Session**: `{session}`  
 **Files Prepped**: {count} components  
+**Old Markers Cleaned**: {count} removed from {previousSessionCount} previous sessions  
 **Tracking File**: `.github/key-data-streams/test-prep/sessions/{session}/injected-files.json`
+
+**📁 KDS Integration**:
+- Session Plan: `.github/key-data-streams/test-prep/SESSION-{session}.md`
+- Browser Logs Placeholder: `sessions/{session}/browser-console-logs.md`
+- Server Logs: Copy from `SPA/NoorCanvas/playwright-server-logs.txt`
+- Tracking: `sessions/{session}/injected-files.json`
 
 **📋 Next Steps**:
 
@@ -319,20 +603,30 @@ Run Algorithm 9 (Test Quality Scoring) after generation
    - Cover all test scenarios
 
 3. **Verify Logs Generated**:
-   - Client logs: `playwright-interaction-logs.txt`
-   - Server logs: `playwright-server-logs.txt`
+   - Browser logs: Manually save console to `sessions/{session}/browser-console-logs.md`
+   - Server logs: Copy `SPA/NoorCanvas/playwright-server-logs.txt` to KDS
 
-4. **Generate Tests**:
+4. **Review Logs**:
+   ```
+   @workspace /test-prep action=review session={session}
+   ```
+
+5. **Generate Tests** (after review approval):
    ```
    @workspace /test-prep action=generate session={session} key={key} feature={feature}
    ```
 
 **⚡ Options**
 
-**A.** Start manual testing now  
-**B.** Review injected markers first  
-**C.** Modify session configuration  
-**D.** Cancel and cleanup
+**A.** Start manual testing now (run app, open DevTools)  
+**B.** Review injected markers first (verify clean injection)  
+**C.** Review KDS integration (check session files created)  
+**D.** Cancel and cleanup (remove markers)
+
+**📊 Cleanup Report** (if old markers removed):
+- Previous sessions cleaned: {list of session IDs}
+- Total markers removed: {count}
+- Files affected: {list of file names}
 
 ---
 
@@ -455,47 +749,116 @@ test.describe('{key} - {feature}', () => {
 
 ### Action: cleanup
 
-**Step 1: Load Session Context**
+**Step 1: Load Session Context from KDS**
 
 **Read**: `.github/key-data-streams/test-prep/sessions/{session}/injected-files.json`
+
+**Verify**:
+- Session exists in KDS
+- Tracking file valid
+- Files still contain markers
 
 **Step 2: Remove Markers from Files**
 
 **For each file**:
 1. Read current file content
-2. Remove `data-playwright-log-marker` attributes
-3. Remove PlaywrightLogger.init() script blocks
-4. Verify no markers remain (regex scan)
+2. Remove `data-playwright-log-marker` attributes matching session ID
+3. Remove PlaywrightLogger.init() script blocks (if present)
+4. Verify no markers remain (regex scan: `data-playwright-log-marker="[^"]*"`)
 5. Save cleaned file
 
-**Step 3: Delete Log Files**
+**Step 3: Archive KDS Session Data**
 
-**Files to delete**:
-- `playwright-interaction-logs.txt`
-- `playwright-server-logs.txt`
+**Move entire session folder**:
+```
+FROM: .github/key-data-streams/test-prep/sessions/{session}/
+TO:   .github/key-data-streams/test-prep/_ARCHIVE/session-{session}-archived-{timestamp}/
+```
 
-**Step 4: Archive Session**
+**Archived contents**:
+- `injected-files.json` (tracking data)
+- `browser-console-logs.md` (captured or placeholder)
+- `SESSION-{session}.md` (if exists in parent)
+- Any generated test files or reports
 
-**Move**: `.github/key-data-streams/test-prep/sessions/{session}/` → `.github/key-data-streams/test-prep/_ARCHIVE/session-{timestamp}/`
+**Step 4: Archive Server Logs**
+
+**Copy** (don't delete - may be needed for debugging):
+```
+FROM: SPA/NoorCanvas/playwright-server-logs.txt
+TO:   .github/key-data-streams/test-prep/_ARCHIVE/session-{session}-archived-{timestamp}/server-logs.txt
+```
 
 **Step 5: Output Summary**
 
-**Format** (≤10 bullets):
+**Format** (≤15 bullets):
 
 **🧹 Cleanup Complete**
 
 **Session**: `{session}`  
 **Files Cleaned**: {count} components  
-**Markers Removed**: {count} total  
-**Logs Deleted**: 2 files
+**Markers Removed**: {count} total (session {session})  
+**KDS Archive**: `.github/key-data-streams/test-prep/_ARCHIVE/session-{session}-archived-{timestamp}/`
 
-**📂 Archive**: `.github/key-data-streams/test-prep/_ARCHIVE/session-{timestamp}/`
+**📂 Archived Contents**:
+- Tracking data (`injected-files.json`)
+- Browser console logs (`browser-console-logs.md`)
+- Server logs (`server-logs.txt`)
+- Session plan (`SESSION-{session}.md`)
+- Generated tests (if any)
+
+**📊 Archive Stats**:
+- Session duration: {start} → {end}
+- Components tested: {list}
+- Tests generated: {count} files
+- Total log size: {KB}
 
 **⚡ Status**: Ready for new test prep session
+
+**Next Session ID**: `{nextSessionId}` (auto-generated when needed)
 
 ---
 
 ## Integration Points
+
+### With KDS System
+
+**Full KDS Integration** - All test-prep artifacts stored in Key Data Streams:
+
+**Directory Structure**:
+```
+.github/key-data-streams/test-prep/
+├── README.md                                    ← Guide for test-prep system
+├── E2E-TEST-CAPTURE-GUIDE.md                   ← Manual capture workflow
+├── ROLLBACK-SUMMARY.md                         ← Why manual approach
+├── SESSION-{session}.md                        ← Current session plan
+├── PRE-FLIGHT-CHECK-{session}.md               ← Validation report
+├── sessions/
+│   └── {session}/
+│       ├── injected-files.json                 ← Tracking + KDS links
+│       ├── browser-console-logs.md             ← Captured logs
+│       └── test-generation-report.md           ← Review output
+└── _ARCHIVE/
+    └── session-{session}-archived-{timestamp}/
+        ├── injected-files.json
+        ├── browser-console-logs.md
+        ├── server-logs.txt
+        ├── SESSION-{session}.md
+        └── generated-tests/
+            └── *.spec.ts
+```
+
+**KDS Benefits**:
+- **Traceability**: Every test session has complete audit trail
+- **Reproducibility**: All context preserved for debugging
+- **Cross-Session Analysis**: Compare logs across sessions
+- **Documentation**: Session plans serve as test documentation
+- **Cleanup Safety**: Archive prevents data loss
+
+**KDS Rulebook Compliance**:
+- **Rule 2b**: Test Reverse-Engineering Metadata (UI interaction logging)
+- **Handoff Protocol**: Session tracking enables proper handoff
+- **Document First**: Session plan created before code changes
 
 ### With KDS Rulebook
 
