@@ -222,10 +222,8 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 5. Present findings to user
 
 **Example:**
-```bash
-@workspace /ask -test "How does SignalR broadcasting work?" context="SessionCanvas.razor"
-@workspace /ask -test question="Why is the share button missing?"
-```
+
+**Algorithm:** See `.github/prompts/shared/ask-examples.md` - Command 1 (Ask Invocation with Test Validation)
 
 **Ask-Specific Validation Checks:**
 - ✓ Routed to internal/comm/question.prompt.md
