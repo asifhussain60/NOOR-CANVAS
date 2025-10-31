@@ -216,15 +216,16 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
 2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
-3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
-4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
+3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md` OR `.github/key-data-streams/{key}/cleanup-plan.md` OR `.github/key-data-streams/{key}/plan.md`
+4. If plan file exists → **Parse plan structure and present execution options** (Phase execution, task execution, or full auto-chain)
 5. If related keys found but no plan → present options to user and HALT
 6. If no related keys and no plan → proceed with new key creation
 
 **Routing Logic Based on Plan File:**
-- **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
+- **Plan exists with phases** → Present execution options (Phase 1, Phase 2, All Phases Chained, Specific Task)
+- **Plan exists without phases** → Route to `task` (execute plan) or `todo` (extend plan)
 - **No plan exists** → Route to `plan` (create plan)
-- This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
+- This ensures `.github/key-data-streams/{key}/*.plan.md` is the authoritative source of truth
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
@@ -527,6 +528,94 @@ ExecuteBuildPrompt(rawInput)
 
 ---
 
+### Task 1.5: Plan Execution Options (If Plan File Exists for Key)
+
+**When plan file is found** (`.github/key-data-streams/{key}/*.plan.md`):
+
+**Process:**
+1. Parse plan file structure using `.github/prompts/shared/plan-structure-parser.md`
+2. Identify phases (if present)
+3. Identify individual tasks
+4. Extract execution metadata (duration, risk, dependencies)
+5. Present execution options to user
+6. HALT and wait for user choice
+
+**Algorithm:** See `.github/prompts/shared/plan-structure-parser.md`
+
+**Output:** Plan Execution Options section (≤12 bullets)
+- Key identified
+- Plan file location
+- Plan type (phased vs. linear)
+- Total phases (if applicable)
+- Total tasks
+- Estimated duration (sum of all phases/tasks)
+
+**Options Section:** Letter-based execution choices
+
+**For phased plans:**
+- A: Execute Phase 1 Only (list tasks in phase)
+- B: Execute Phase 2 Only (list tasks in phase)
+- C: Execute Phase 3 Only (list tasks in phase, if exists)
+- D: Execute All Phases Chained (auto-chain 1→2→3)
+- E: Execute Specific Task (user selects task number)
+- F: Review Plan First (show full plan)
+- G: Cancel
+
+**For linear plans (no phases):**
+- A: Execute All Tasks Sequentially (tasks listed)
+- B: Execute Specific Task (user selects task number)
+- C: Review Plan First (show full plan)
+- D: Cancel
+
+**Example Output:**
+
+```markdown
+## 🎯 Plan Execution Options
+
+**Key:** `hcp-refactor`  
+**Plan:** `.github/key-data-streams/hcp-refactor/cleanup-plan.md`  
+**Type:** Phased Plan (3 phases)  
+**Total Tasks:** 10  
+**Estimated Duration:** 105 minutes (1h 45m)
+
+**Phase 1: Safe Deletions** (30 min, ⚡ LOW RISK)
+- Task 1: Remove unused imports
+- Task 3: Remove redundant null checks
+- Task 5: Remove obsolete comments
+- Task 9: Remove empty try-catch
+- Task 10: Extract string literals
+
+**Phase 2: Logic Cleanup** (45 min, ⚠️ MEDIUM RISK)
+- Task 2: Remove redundant StateHasChanged
+- Task 4: Remove dead code methods
+- Task 7: Remove duplicate logging
+
+**Phase 3: UI Cleanup** (30 min, ⚠️ MEDIUM RISK)
+- Task 6: Remove redundant DOM calls
+- Task 8: Remove deprecated HTML attributes
+
+**Options:**
+
+**A.** Execute Phase 1 Only (5 tasks, 30 min, LOW RISK) - **Recommended Start**  
+**B.** Execute Phase 2 Only (3 tasks, 45 min, MEDIUM RISK)  
+**C.** Execute Phase 3 Only (2 tasks, 30 min, MEDIUM RISK)  
+**D.** Execute All Phases Chained (auto-chain 1→2→3, 105 min total)  
+**E.** Execute Specific Task (select 1-10)  
+**F.** Review Plan First (show full plan content)  
+**G.** Cancel (return to routing)
+
+**Reply:** A, B, C, D, E, F, or G
+```
+
+**Behavior:** HALT and wait for user choice. Based on selection:
+- **A/B/C:** Route to `task` with phase parameter
+- **D:** Route to `task` with auto-chain=true and all phases
+- **E:** Prompt user for task number, then route to `task` with specific task
+- **F:** Display full plan, then re-present options
+- **G:** Cancel and return to standard routing flow
+
+---
+
 ### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
 
 **Output:** Analysis section (≤8 bullets)
@@ -680,6 +769,14 @@ BAD: @workspace /route todo "Why is database info missing? Token won't accept. F
 ---
 
 ## 📝 Version History
+
+**1.7.0** (2025-10-31)
+- **PLAN EXECUTION OPTIONS**: Added Task 1.5 - When plan file exists, parse structure and present execution options
+- **PHASE-BASED EXECUTION**: Support for phased plans with individual phase execution or auto-chained execution
+- **TASK-LEVEL EXECUTION**: Option to execute specific tasks from plan
+- **ENHANCED STEP 0**: Check for multiple plan file naming patterns ({key}.plan.md, cleanup-plan.md, plan.md)
+- **AUTO-CHAIN SUPPORT**: Option D executes all phases sequentially without interruption
+- Better UX for continuing work with existing keys
 
 **1.6.0** (2025-10-28)
 - **STATE TRACKING INTEGRATION**: Added state-tracker.ps1 integration for request/handoff logging
