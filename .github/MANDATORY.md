@@ -28,6 +28,7 @@
 | 2 | Document First | Update KDS files BEFORE code changes; documentation commits must precede implementation commits | [rule.md](instructions/rules/document-first/rule.md) |
 | 3 | Playwright Orchestration | Use dotnet orchestration scripts for Playwright tests; NEVER use nested PowerShell processes or deprecated standalone mode | [rule.md](instructions/rules/playwright-orchestration/rule.md) |
 | 14 | Build State Validation | Application MUST be left in built state with zero build errors after task/phase completion; warnings acceptable | [kds-rulebook.json](governance/kds-rulebook.json) |
+| 17 | Screenshot-Based Test Generation | When user uploads screenshots with numbered markers, agent MUST use vision analysis to extract click sequence metadata and generate Playwright tests automatically | [kds-rulebook.json](governance/kds-rulebook.json) |
 
 **Validation:** Execute `ValidateMandatoryCompliance()` before ANY user-facing output
 

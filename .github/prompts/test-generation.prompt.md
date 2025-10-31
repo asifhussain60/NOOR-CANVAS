@@ -106,6 +106,28 @@ Comma-separated API endpoints involved
 - `headless`: Run tests without browser UI (faster, CI/CD)
 - `headed`: Run tests with visible browser (debugging)
 
+### screenshots *(optional)*
+Array of image attachments with numbered markers indicating click sequence
+
+**Behavior:**
+- Agent uses built-in vision analysis to extract numbered markers (1, 2, 3...)
+- Identifies button text, CSS properties, and session context from images
+- Maps visual elements to Razor component code
+- Generates `click-sequence-metadata.json` automatically
+- Creates Playwright test + orchestration script
+- See: `.github/prompts/shared/screenshot-test-extraction.md`
+
+**Expected Screenshot Types:**
+1. **Numbered Markers**: Circles/boxes with numbers showing click sequence
+2. **DevTools CSS Panels**: CSS properties for element targeting
+3. **Session Context**: URL bar showing base URL and tokens
+
+**Vision Analysis Features:**
+- Marker detection (numbered circles/boxes in screenshots)
+- Text extraction (button labels, page titles)
+- CSS property extraction (from DevTools Styles panel)
+- URL parsing (session tokens, base URL)
+
 ---
 
 ## Purpose
@@ -164,6 +186,73 @@ Generate production-ready Playwright tests with:
 | feature-functional.spec.ts | Functional | User login flow | 2025-10-31 | Active |
 | feature-visual.spec.ts | Visual | Button layout | 2025-10-31 | Active |
 ```
+
+---
+
+### Step 0.5: Screenshot Analysis (CONDITIONAL)
+
+**Trigger:** User provides `screenshots` parameter with image attachments
+
+**Purpose:** Extract test metadata from visual markers BEFORE test generation
+
+**Algorithm Reference:** `.github/prompts/shared/screenshot-test-extraction.md`
+
+**Workflow:**
+
+1. **Analyze Screenshots Using Vision**
+   - Use GitHub Copilot's built-in vision capabilities to analyze attached images
+   - Extract numbered markers (1, 2, 3...) indicating click sequence
+   - Extract button text, page titles, and visual context
+   - Extract CSS properties from DevTools screenshots (if present)
+   - Extract session context from URL bar (base URL, tokens)
+
+2. **Map Visual Elements to Code**
+   - Search Razor components for matching button text
+   - Cross-reference CSS properties to narrow candidates
+   - Generate Playwright selectors (data-testid, text, class)
+   - Extract SignalR event names if applicable
+
+3. **Generate Metadata JSON**
+   - Create `click-sequence-metadata.json` with:
+     - metadata: Session context, test framework, orchestration pattern
+     - click_sequence: Each step with element definitions and selectors
+     - ui_components: Component documentation
+     - signalr_architecture: Hub and event mapping
+     - playwright_selectors: Locator strategies
+     - visual_regression: Percy screenshot specs
+     - code_references: Razor files, methods, line numbers
+   - Save to `.github/key-data-streams/{key}/tests/`
+
+4. **User Approval Gate**
+   - Display extracted metadata summary:
+     - Session ID, tokens, base URL
+     - Click sequence (N steps identified)
+     - Component mappings (Razor files)
+     - CSS identifiers (colors, spacing, layout)
+   - Present options:
+     - A. APPROVE - Proceed with extracted metadata (RECOMMENDED)
+     - B. REVISE - User corrects extracted data
+     - C. MANUAL - Skip automation, user provides manual JSON
+
+5. **Proceed to Test Generation**
+   - If APPROVED: Use metadata for Step 2 (Test Spec Generation)
+   - If REVISED: Update metadata with user corrections
+   - If MANUAL: Bypass screenshot analysis, continue standard workflow
+
+**Vision Analysis Examples:**
+- **Marker Detection:** "Identify all numbered circles/boxes in this image. Return number, location, and nearby text."
+- **CSS Extraction:** "Extract CSS rules from the Styles panel. Return property names and values."
+- **URL Parsing:** "Read the browser address bar. Extract base URL and query parameters."
+
+**Integration with test-prep:**
+- Cross-reference extracted selectors with existing `data-playwright-log-marker` attributes
+- Validate that visual markers match prep markers (if test-prep workflow used)
+- See: `.github/prompts/test-prep.prompt.md` Step 1.5
+
+**Limitations:**
+- Vision analysis may require user confirmation for ambiguous text
+- Multiple components with same button text need user disambiguation
+- Missing CSS properties from screenshots prompt user for inline styles
 
 ---
 
