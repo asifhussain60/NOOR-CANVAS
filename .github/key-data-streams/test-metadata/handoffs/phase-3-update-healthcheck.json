@@ -1,0 +1,19 @@
+{
+    "key": "test-metadata",
+    "phase": 3,
+    "task": "3a",
+    "description": "Add test metadata completeness scan to healthcheck.prompt.md",
+    "files": [
+        ".github/prompts/healthcheck.prompt.md"
+    ],
+    "acceptanceCriteria": [
+        "Scans all .razor, Controllers/*.cs, Hubs/*.cs files",
+        "Detects testable code patterns (API, database, SignalR)",
+        "Reports missing PLAYWRIGHT TEST METADATA blocks",
+        "Reports incomplete metadata with missing fields",
+        "Provides fix commands (@workspace /route key=reverse-engineer)"
+    ],
+    "autoChain": true,
+    "nextTask": "handoffs/phase-4-update-route.json",
+    "testFile": null
+}

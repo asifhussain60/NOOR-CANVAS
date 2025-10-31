@@ -1,5 +1,5 @@
 {
-    "version": "1.3.1",
+    "version": "1.4.0",
     "status": "canonical",
     "lastUpdated": "2025-10-31",
     "description": "Machine-readable KDS Governance Rulebook - companion to kds-rulebook.md",
@@ -28,11 +28,13 @@
             "KDS Cleanup - Review mode detects backup files, archives (not deletes) with manifest"
         ],
         "enforcement": [
-            "14 Rules - Validated before output (Rule #1-14, includes #2b sub-rule), each with validation function",
+            "16 Rules - Validated before output (Rules #1-16), each with validation function",
             "Step -1 - All prompts include governance enforcement (except kds.prompt.md itself)",
             "Dual Rulebook - JSON (machine-readable) + MD (human-readable), always synced",
             "Test Metadata - ValidateTestMetadata() scans UI/API files for PLAYWRIGHT TEST METADATA blocks",
-            "Build Validation - Zero errors required after task/phase completion (Rule #14)"
+            "Build Validation - Zero errors required after task/phase completion (Rule #14)",
+            "Git History - ValidateGitHistory() analyzes commits for rule violations (Rule #15)",
+            "Test Quality - ValidateTestQuality() scores tests 0-100 with approval gate (Rule #16)"
         ]
     },
     "corePrinciples": [
@@ -525,6 +527,138 @@
                 }
             ],
             "rationale": "Prevents broken states from being committed, ensures continuous integration readiness, maintains code quality between work sessions"
+        },
+        {
+            "id": "git-history-validation",
+            "number": 15,
+            "category": "governance",
+            "statement": "KDS governance analyzes git commit history for retroactive compliance checking and pattern detection",
+            "severity": "medium",
+            "enforcement": "automated",
+            "validationFunction": "ValidateGitHistory",
+            "appliesToPrompts": [
+                "kds"
+            ],
+            "trigger": [
+                "kds.prompt.md Review Mode (parameter-less invocation)",
+                "kds.prompt.md Step 0.5 (git commit analysis)"
+            ],
+            "analysisScope": {
+                "timeRange": "90 days",
+                "folder": ".github/",
+                "commitCount": 50
+            },
+            "detectionPatterns": [
+                {
+                    "rule": "Rule #10 (KDS Governance)",
+                    "pattern": "Direct .github modifications without kds: prefix",
+                    "severity": "high"
+                },
+                {
+                    "rule": "Rule #2 (Document First)",
+                    "pattern": "Code commits before documentation commits",
+                    "severity": "high"
+                },
+                {
+                    "rule": "Rule #5 (TDD)",
+                    "pattern": "Missing test commits for implementation",
+                    "severity": "medium"
+                },
+                {
+                    "rule": "Rule #8 (Holistic Regeneration)",
+                    "pattern": "Partial file edits vs full regeneration",
+                    "severity": "medium"
+                }
+            ],
+            "outputFormat": {
+                "commitCount": "Total .github commits analyzed",
+                "violationSummary": "By rule number with percentages",
+                "patternDetection": "Common violation types",
+                "trendAnalysis": "Violations increasing/decreasing",
+                "recommendations": "Which rules need better enforcement"
+            },
+            "rationale": "Retroactive compliance checking detects governance gaps, identifies enforcement weaknesses, guides rulebook improvements"
+        },
+        {
+            "id": "test-approval-gate",
+            "number": 16,
+            "category": "testing",
+            "statement": "All generated tests must pass quality scoring (0-100 scale) and user approval before finalization",
+            "severity": "high",
+            "enforcement": "workflow",
+            "validationFunction": "ValidateTestQuality",
+            "appliesToPrompts": [
+                "test-generation"
+            ],
+            "trigger": "test-generation.prompt.md Step 7.5 (after test generation, before registry update)",
+            "stagingStructure": {
+                "draftFolder": ".github/key-data-streams/{key}/tests/DRAFT/",
+                "testFile": "{test-name}.spec.ts",
+                "qualityReport": "{test-name}.quality-report.md"
+            },
+            "scoringCriteria": [
+                {
+                    "category": "Acceptance Criteria Coverage",
+                    "maxPoints": 30,
+                    "description": "All acceptance criteria have corresponding assertions"
+                },
+                {
+                    "category": "Assertion Completeness",
+                    "maxPoints": 20,
+                    "description": "UI state, API responses, database changes validated"
+                },
+                {
+                    "category": "Error Handling",
+                    "maxPoints": 15,
+                    "description": "try/catch blocks, timeout handling, retry logic"
+                },
+                {
+                    "category": "Test Isolation",
+                    "maxPoints": 15,
+                    "description": "Independent test data, cleanup hooks, no shared state"
+                },
+                {
+                    "category": "Documentation Quality",
+                    "maxPoints": 10,
+                    "description": "Clear test description, commented complex logic"
+                },
+                {
+                    "category": "Playwright Best Practices",
+                    "maxPoints": 10,
+                    "description": "data-testid selectors, auto-waiting, parallel execution safe"
+                }
+            ],
+            "approvalWorkflow": [
+                {
+                    "option": "A. APPROVE",
+                    "threshold": "score >= 80",
+                    "action": "Move from DRAFT/ to final location, update registry, commit",
+                    "recommended": true
+                },
+                {
+                    "option": "B. REVISE",
+                    "threshold": "score 60-79",
+                    "action": "Keep in DRAFT/, user provides feedback, regenerate with improvements"
+                },
+                {
+                    "option": "C. REGENERATE",
+                    "threshold": "score < 60",
+                    "action": "Delete DRAFT/, refine requirements, start over"
+                },
+                {
+                    "option": "D. CANCEL",
+                    "threshold": "any score",
+                    "action": "Delete DRAFT/, abort test creation"
+                }
+            ],
+            "guardrails": [
+                "NEVER move test from DRAFT/ without user approval",
+                "NEVER skip quality scoring",
+                "NEVER auto-select approval option",
+                "ALWAYS display quality report before approval options",
+                "ALWAYS keep DRAFT/ files until approval"
+            ],
+            "rationale": "Quality gates prevent low-quality tests from entering codebase, enforce best practices, improve test maintainability"
         }
     ],
     "handoffProtocol": [
@@ -856,6 +990,79 @@
                 "plan.prompt.md - In success criteria section",
                 "test-generation.prompt.md - After test file creation"
             ]
+        },
+        "ValidateGitHistory": {
+            "description": "Analyzes git commit history for rule violations and pattern detection",
+            "command": "git log --all --oneline --since=\"90 days ago\" -- .github/",
+            "analysisScope": {
+                "timeRange": "90 days",
+                "folder": ".github/",
+                "commitCount": 50
+            },
+            "detectionPatterns": [
+                "Direct .github modifications without kds: prefix (Rule #10)",
+                "Code commits before documentation commits (Rule #2)",
+                "Missing test commits for implementation (Rule #5)",
+                "Partial file edits vs full regeneration (Rule #8)"
+            ],
+            "output": {
+                "commitCount": "Total .github commits analyzed",
+                "violationSummary": "By rule number with percentages",
+                "patternDetection": "Common violation types",
+                "trendAnalysis": "Violations increasing/decreasing over time",
+                "recommendations": "Which rules need better enforcement"
+            },
+            "integrationPoints": [
+                "kds.prompt.md Step 0.5 - Git commit analysis",
+                "kds.prompt.md Review Mode - Retroactive compliance check"
+            ]
+        },
+        "ValidateTestQuality": {
+            "description": "Calculates test quality score (0-100) and generates quality report",
+            "algorithm": ".github/prompts/shared/test-quality-scoring.md - Algorithm 9",
+            "scoringCriteria": [
+                {
+                    "category": "Acceptance Criteria Coverage",
+                    "maxPoints": 30
+                },
+                {
+                    "category": "Assertion Completeness",
+                    "maxPoints": 20
+                },
+                {
+                    "category": "Error Handling",
+                    "maxPoints": 15
+                },
+                {
+                    "category": "Test Isolation",
+                    "maxPoints": 15
+                },
+                {
+                    "category": "Documentation Quality",
+                    "maxPoints": 10
+                },
+                {
+                    "category": "Playwright Best Practices",
+                    "maxPoints": 10
+                }
+            ],
+            "approvalThresholds": {
+                "approve": "score >= 80",
+                "revise": "score 60-79",
+                "regenerate": "score < 60"
+            },
+            "output": {
+                "qualityReport": ".github/key-data-streams/{key}/tests/DRAFT/{test-name}.quality-report.md",
+                "approvalOptions": [
+                    "A. APPROVE - Move to final location",
+                    "B. REVISE - Regenerate with improvements",
+                    "C. REGENERATE - Start over with refined scope",
+                    "D. CANCEL - Abort test creation"
+                ]
+            },
+            "integrationPoints": [
+                "test-generation.prompt.md Step 7.5 - Test quality scoring and approval gate"
+            ]
         }
     },
     "enforcement": {
@@ -865,7 +1072,8 @@
             "playwright-orchestration",
             "plan-conflict-detection",
             "kds-governance",
-            "build-state-validation"
+            "build-state-validation",
+            "git-history-validation"
         ],
         "workflow": [
             "per-task-handoffs",
@@ -873,7 +1081,8 @@
             "auto-chain-defaults",
             "central-test-index",
             "key-display",
-            "honest-handoff"
+            "honest-handoff",
+            "test-approval-gate"
         ],
         "manual": [
             "holistic-regeneration"
@@ -888,6 +1097,11 @@
         "gatekeeperPrompt": ".github/prompts/kds.prompt.md"
     },
     "versionHistory": [
+        {
+            "version": "1.4.0",
+            "date": "2025-10-31",
+            "changes": "Added Rule #15 (Git History Validation) for retroactive compliance checking and Rule #16 (Test Approval Gate) with quality scoring (0-100 scale), DRAFT/ staging, and approval workflow. Enhanced KDS governance with git history integration (Step 0.5 in kds.prompt.md) and test quality validation (Step 7.5 in test-generation.prompt.md). Added ValidateGitHistory() and ValidateTestQuality() validation functions. Total rules: 16 (14 mandatory + 2 new governance/testing rules)."
+        },
         {
             "version": "1.3.1",
             "date": "2025-10-31",

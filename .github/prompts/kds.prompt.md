@@ -554,6 +554,77 @@ When invoked without parameters, execute complete system review:
 
 ---
 
+#### Step 0.5: Git Commit History Analysis (NEW - Retroactive Compliance)
+
+**Execute AFTER conversation history analysis (Step 0.4) and BEFORE file structure scan (Step 1)**
+
+**Purpose:** Analyze git commit history for KDS rule violations to detect patterns of non-compliance
+
+**Algorithm:** See `kds-validation-algorithms.md` - Algorithm 8 (Git History Validation)
+
+**Process:**
+
+1. **Load Git History**
+   - Execute: `git log --all --oneline --since="90 days ago" -- .github/` (PowerShell)
+   - Parse commit messages for last 50 commits in `.github` folder
+   - Extract: commit SHA, author, date, message
+
+2. **Analyze Commit Messages**
+   - Pattern matching for rule violations:
+     - Direct `.github` modifications without `kds:` prefix (Rule #10 violation)
+     - Code commits before doc commits (Rule #2 violation - check timestamp ordering)
+     - Missing test commits for implementation commits (Rule #5 violation)
+     - Partial file edits vs full regeneration (Rule #8 violation - detect "update" vs "regenerate")
+   - Cross-reference with `.github/governance/kds-rulebook.json` rules
+   - Flag suspicious patterns (e.g., 5+ violations by same author)
+
+3. **Generate Git Compliance Report**
+   - **Header**: Git Compliance Analysis (Last 90 Days)
+   - **Commit Count**: Total `.github` commits analyzed
+   - **Violation Summary**: By rule number (Rule #2: 12 violations, Rule #5: 8 violations, etc.)
+   - **Pattern Detection**: Common violation types (e.g., "Bypassing kds.prompt.md gatekeeper")
+   - **Top Violators**: Authors with most violations (anonymized if needed)
+   - **Trend Analysis**: Violations increasing/decreasing over time?
+   - **Recommendations**: Which rules need better enforcement or documentation?
+
+**Integration with Step 0 (Conversation History):**
+
+- **Combine insights**: Conversation violations + Git violations = comprehensive compliance picture
+- **Prioritization**: Rules violated in BOTH conversation AND git history → CRITICAL priority
+- **Validation enhancement**: Git patterns inform which validation functions need strengthening
+
+**Output:**
+
+```
+## 📊 Git Compliance Report (Last 90 Days)
+
+**Commits Analyzed:** 47 (`.github` folder only)
+
+**Violation Summary:**
+- Rule #2 (Document First): 12 violations (25% of commits)
+- Rule #5 (TDD): 8 violations (17% of commits)
+- Rule #10 (KDS Governance): 5 violations (11% of commits)
+- Rule #8 (Holistic Regeneration): 3 violations (6% of commits)
+
+**Pattern Detection:**
+- **Bypassing Gatekeeper** (5 commits): Direct prompt edits without `kds:` prefix
+- **Code-Before-Docs** (12 commits): Implementation committed before documentation
+- **Missing Tests** (8 commits): Feature commits with no corresponding test commits
+
+**Trend Analysis:**
+- Violations decreasing (30% in first 30 days → 15% in last 30 days)
+- Rule #2 enforcement improving (docs commits now precede code 75% of time)
+
+**Recommendations:**
+- Strengthen Rule #10 enforcement (pre-commit hook to block direct `.github` edits)
+- Add Rule #2 timestamp validation (reject commits if doc commit not in last 5 commits)
+- Improve Rule #5 visibility (plan.prompt.md should emphasize test-first workflow)
+```
+
+**HALT after Step 0.5 - Present git compliance report to user before file analysis**
+
+---
+
 ### Step 1: Load KDS Rulebook & Context
 
 **Files to load:**

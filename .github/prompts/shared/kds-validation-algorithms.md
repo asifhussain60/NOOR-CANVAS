@@ -419,6 +419,521 @@ END FUNCTION
 
 ---
 
+## Algorithm 8: Git History Validation (NEW - Rule #15)
+
+**Purpose:** Analyze git commit history for KDS rule violations
+
+```
+FUNCTION ValidateGitHistory(workspaceRoot):
+  
+  // Step 1: Load git commit history
+  gitLogCommand = "git log --all --oneline --since='90 days ago' -- .github/"
+  gitLogOutput = ExecuteCommand(gitLogCommand, workspaceRoot)
+  
+  commits = ParseCommits(gitLogOutput)
+  
+  // Step 2: Initialize violation tracking
+  violations = {
+    "Rule #10": [],  // KDS Governance
+    "Rule #2": [],   // Document First
+    "Rule #5": [],   // TDD
+    "Rule #8": []    // Holistic Regeneration
+  }
+  
+  totalCommits = commits.length
+  
+  // Step 3: Analyze each commit
+  FOR EACH commit IN commits:
+    
+    // Rule #10: KDS Governance (Direct .github modifications)
+    IF commit.files.Contains(".github/prompts/") OR commit.files.Contains(".github/instructions/") THEN
+      IF NOT commit.message.StartsWith("kds:") AND NOT commit.message.Contains("governance") THEN
+        violations["Rule #10"].append({
+          "sha": commit.sha,
+          "message": commit.message,
+          "author": commit.author,
+          "date": commit.date,
+          "violation": "Direct .github modification without kds: prefix"
+        })
+      END IF
+    END IF
+    
+    // Rule #2: Document First (Code before docs)
+    IF commit.message.Contains("feat:") OR commit.message.Contains("fix:") THEN
+      // Look for preceding doc commit within last 5 commits
+      precedingDocCommit = FindPrecedingDocCommit(commits, commit.index, lookback=5)
+      
+      IF NOT precedingDocCommit THEN
+        violations["Rule #2"].append({
+          "sha": commit.sha,
+          "message": commit.message,
+          "author": commit.author,
+          "date": commit.date,
+          "violation": "Implementation commit without preceding documentation commit"
+        })
+      END IF
+    END IF
+    
+    // Rule #5: TDD (Missing test commits)
+    IF commit.message.Contains("feat:") THEN
+      // Look for test commit (before or after, within 3 commits)
+      relatedTestCommit = FindRelatedTestCommit(commits, commit.index, window=3)
+      
+      IF NOT relatedTestCommit THEN
+        violations["Rule #5"].append({
+          "sha": commit.sha,
+          "message": commit.message,
+          "author": commit.author,
+          "date": commit.date,
+          "violation": "Feature commit without corresponding test commit"
+        })
+      END IF
+    END IF
+    
+    // Rule #8: Holistic Regeneration (Partial edits)
+    IF commit.message.Contains("update") OR commit.message.Contains("modify") THEN
+      IF NOT commit.message.Contains("regenerate") AND NOT commit.message.Contains("holistic") THEN
+        violations["Rule #8"].append({
+          "sha": commit.sha,
+          "message": commit.message,
+          "author": commit.author,
+          "date": commit.date,
+          "violation": "Partial file edit (should use holistic regeneration)"
+        })
+      END IF
+    END IF
+    
+  END FOR
+  
+  // Step 4: Calculate violation percentages
+  violationSummary = {}
+  FOR EACH rule IN violations.keys():
+    violationCount = violations[rule].length
+    violationPercentage = (violationCount / totalCommits) * 100
+    
+    violationSummary[rule] = {
+      "count": violationCount,
+      "percentage": violationPercentage
+    }
+  END FOR
+  
+  // Step 5: Detect patterns
+  patterns = DetectViolationPatterns(violations)
+  
+  // Step 6: Trend analysis
+  trends = AnalyzeTrends(violations, commits, timeWindow=30)
+  
+  // Step 7: Generate recommendations
+  recommendations = GenerateRecommendations(violationSummary, patterns, trends)
+  
+  // Step 8: Return compliance report
+  RETURN {
+    "commitsAnalyzed": totalCommits,
+    "violationSummary": violationSummary,
+    "patterns": patterns,
+    "trends": trends,
+    "recommendations": recommendations
+  }
+  
+END FUNCTION
+
+// Helper: Parse git log output into commit objects
+FUNCTION ParseCommits(gitLogOutput):
+  
+  commits = []
+  lines = SplitLines(gitLogOutput)
+  
+  FOR i = 0 TO lines.length - 1:
+    line = lines[i]
+    
+    // Parse: {sha} {message}
+    parts = line.split(" ", limit=2)
+    sha = parts[0]
+    message = parts[1]
+    
+    // Get commit details
+    detailsCommand = "git show --stat " + sha
+    details = ExecuteCommand(detailsCommand)
+    
+    commits.append({
+      "index": i,
+      "sha": sha,
+      "message": message,
+      "author": ExtractAuthor(details),
+      "date": ExtractDate(details),
+      "files": ExtractFiles(details)
+    })
+  END FOR
+  
+  RETURN commits
+  
+END FUNCTION
+
+// Helper: Find preceding documentation commit
+FUNCTION FindPrecedingDocCommit(commits, currentIndex, lookback):
+  
+  FOR i = currentIndex - 1 DOWN TO MAX(0, currentIndex - lookback):
+    commit = commits[i]
+    
+    IF commit.message.StartsWith("docs:") THEN
+      RETURN commit
+    END IF
+  END FOR
+  
+  RETURN null
+  
+END FUNCTION
+
+// Helper: Find related test commit
+FUNCTION FindRelatedTestCommit(commits, currentIndex, window):
+  
+  startIndex = MAX(0, currentIndex - window)
+  endIndex = MIN(commits.length - 1, currentIndex + window)
+  
+  FOR i = startIndex TO endIndex:
+    commit = commits[i]
+    
+    IF commit.message.StartsWith("test:") THEN
+      RETURN commit
+    END IF
+  END FOR
+  
+  RETURN null
+  
+END FUNCTION
+
+// Helper: Detect violation patterns
+FUNCTION DetectViolationPatterns(violations):
+  
+  patterns = []
+  
+  // Pattern 1: Bypassing Gatekeeper
+  IF violations["Rule #10"].length > 0 THEN
+    patterns.append({
+      "pattern": "Bypassing Gatekeeper",
+      "count": violations["Rule #10"].length,
+      "description": "Direct .github edits without kds.prompt.md approval"
+    })
+  END IF
+  
+  // Pattern 2: Code-Before-Docs
+  IF violations["Rule #2"].length > 0 THEN
+    patterns.append({
+      "pattern": "Code-Before-Docs",
+      "count": violations["Rule #2"].length,
+      "description": "Implementation committed before documentation"
+    })
+  END IF
+  
+  // Pattern 3: Missing Tests
+  IF violations["Rule #5"].length > 0 THEN
+    patterns.append({
+      "pattern": "Missing Tests",
+      "count": violations["Rule #5"].length,
+      "description": "Feature commits with no corresponding test commits"
+    })
+  END IF
+  
+  RETURN patterns
+  
+END FUNCTION
+
+// Helper: Analyze trends
+FUNCTION AnalyzeTrends(violations, commits, timeWindow):
+  
+  now = CurrentDate()
+  windowStart = now - timeWindow
+  
+  // Recent violations (last 30 days)
+  recentViolations = FilterByDate(violations, windowStart, now)
+  recentViolationCount = CountViolations(recentViolations)
+  
+  // Historical violations (30-60 days ago)
+  historicalStart = now - (timeWindow * 2)
+  historicalEnd = windowStart
+  historicalViolations = FilterByDate(violations, historicalStart, historicalEnd)
+  historicalViolationCount = CountViolations(historicalViolations)
+  
+  // Calculate trend
+  IF recentViolationCount < historicalViolationCount THEN
+    trend = "IMPROVING"
+  ELSE IF recentViolationCount > historicalViolationCount THEN
+    trend = "DEGRADING"
+  ELSE
+    trend = "STABLE"
+  END IF
+  
+  RETURN {
+    "trend": trend,
+    "recentViolations": recentViolationCount,
+    "historicalViolations": historicalViolationCount
+  }
+  
+END FUNCTION
+
+// Helper: Generate recommendations
+FUNCTION GenerateRecommendations(violationSummary, patterns, trends):
+  
+  recommendations = []
+  
+  // Rule #10 recommendations
+  IF violationSummary["Rule #10"].percentage > 10 THEN
+    recommendations.append("Strengthen Rule #10 enforcement (pre-commit hook to block direct .github edits)")
+  END IF
+  
+  // Rule #2 recommendations
+  IF violationSummary["Rule #2"].percentage > 20 THEN
+    recommendations.append("Add Rule #2 timestamp validation (reject commits if doc commit not in last 5 commits)")
+  END IF
+  
+  // Rule #5 recommendations
+  IF violationSummary["Rule #5"].percentage > 15 THEN
+    recommendations.append("Improve Rule #5 visibility (plan.prompt.md should emphasize test-first workflow)")
+  END IF
+  
+  // Trend-based recommendations
+  IF trends.trend == "DEGRADING" THEN
+    recommendations.append("⚠️ CRITICAL: Violations increasing - consider governance review meeting")
+  END IF
+  
+  RETURN recommendations
+  
+END FUNCTION
+```
+
+---
+
+## Algorithm 9: Test Quality Scoring (NEW - Rule #16)
+
+**Purpose:** Calculate test quality score and generate quality report
+
+**NOTE:** Full implementation in `.github/prompts/shared/test-quality-scoring.md`
+
+```
+FUNCTION ValidateTestQuality(testFilePath, acceptanceCriteria):
+  
+  // Call Algorithm 9 from test-quality-scoring.md
+  scoreObject = CalculateTestQualityScore(testFilePath, acceptanceCriteria)
+  
+  // Generate quality report file
+  reportPath = GenerateQualityReportPath(testFilePath)
+  reportContent = GenerateQualityReport(scoreObject, testName, key)
+  
+  WriteFile(reportPath, reportContent)
+  
+  // Determine approval recommendation
+  IF scoreObject.totalScore >= 80 THEN
+    recommendation = "A. APPROVE"
+  ELSE IF scoreObject.totalScore >= 60 THEN
+    recommendation = "B. REVISE"
+  ELSE
+    recommendation = "C. REGENERATE"
+  END IF
+  
+  RETURN {
+    "score": scoreObject.totalScore,
+    "grade": scoreObject.grade,
+    "breakdown": scoreObject.breakdown,
+    "recommendations": scoreObject.recommendations,
+    "approvalRecommendation": recommendation,
+    "reportPath": reportPath
+  }
+  
+END FUNCTION
+```
+
+---
+
+## Algorithm 10: Inject PlaywrightLogger (NEW - Rule #2b Enforcement)
+
+**Purpose:** Automatically inject PlaywrightLogger infrastructure into Razor components with unique markers
+
+```
+FUNCTION InjectPlaywrightLogger(componentPath, componentName, workspaceRoot):
+  
+  # Step 1: Read component file
+  componentContent = ReadFile(componentPath)
+  
+  # Step 2: Generate unique marker
+  timestamp = GetCurrentTimestamp("yyyyMMddHHmmss")
+  markerValue = timestamp + "-" + componentName
+  
+  # Step 3: Inject marker into root div (if not already present)
+  IF NOT componentContent.Contains("data-playwright-log-marker") THEN
+    
+    # Find root div or component container
+    rootDivPattern = "<div[^>]*>"
+    
+    IF componentContent.Match(rootDivPattern) THEN
+      # Inject marker attribute into first div
+      componentContent = ReplaceFirst(
+        componentContent,
+        rootDivPattern,
+        "<div data-playwright-log-marker=\"@($\"{DateTime.UtcNow:yyyyMMddHHmmss}-" + componentName + "\")\">"
+      )
+    ELSE
+      # Component has no root div - wrap content
+      componentContent = 
+        "<div data-playwright-log-marker=\"@($\"{DateTime.UtcNow:yyyyMMddHHmmss}-" + componentName + "\")\">\n" +
+        componentContent +
+        "\n</div>"
+    END IF
+    
+  END IF
+  
+  # Step 4: Inject PlaywrightLogger script (if not already present)
+  IF NOT componentContent.Contains("PlaywrightLogger.init()") THEN
+    
+    scriptBlock = 
+      "<script data-playwright-log-marker=\"@($\"{DateTime.UtcNow:yyyyMMddHHmmss}-" + componentName + "\")\">
+  // PlaywrightLogger initialization
+  if (window.PlaywrightLogger) {
+    window.PlaywrightLogger.init();
+  }
+</script>"
+    
+    # Insert before closing tag or at end
+    componentContent = InjectBeforeClosingTag(componentContent, scriptBlock)
+    
+  END IF
+  
+  # Step 5: Ensure PlaywrightLogger.js exists
+  playwrightLoggerPath = Path.Combine(workspaceRoot, "SPA/NoorCanvas/wwwroot/js/PlaywrightLogger.js")
+  
+  playwrightLoggerExists = FileExists(playwrightLoggerPath)
+  
+  IF NOT playwrightLoggerExists THEN
+    
+    playwrightLoggerContent = 
+"window.PlaywrightLogger = {
+    enabled: true,
+    
+    init: function() {
+        if (!this.enabled) return;
+        
+        // Global click listener
+        document.addEventListener('click', (e) => {
+            const target = e.target;
+            const testId = target.getAttribute('data-testid') || 
+                          target.closest('[data-testid]')?.getAttribute('data-testid');
+            const selector = testId ? `[data-testid=\"${testId}\"]` : this.getSelector(target);
+            const elementType = target.tagName.toLowerCase();
+            const elementText = target.textContent?.trim().substring(0, 50);
+            
+            const timestamp = new Date().toISOString();
+            console.log(`[PLAYWRIGHT-LOG] ${timestamp} | CLICK | ${selector} | ${elementType} | \"${elementText}\"`);
+        });
+    },
+    
+    getSelector: function(element) {
+        const path = [];
+        while (element && element.nodeType === Node.ELEMENT_NODE) {
+            let selector = element.nodeName.toLowerCase();
+            if (element.id) {
+                selector += '#' + element.id;
+                path.unshift(selector);
+                break;
+            } else {
+                let sibling = element;
+                let nth = 1;
+                while (sibling = sibling.previousElementSibling) {
+                    if (sibling.nodeName.toLowerCase() === selector) nth++;
+                }
+                if (nth !== 1) selector += `:nth-of-type(${nth})`;
+            }
+            path.unshift(selector);
+            element = element.parentNode;
+        }
+        return path.join(' > ');
+    }
+};"
+    
+    CreateFile(playwrightLoggerPath, playwrightLoggerContent)
+    Log("Created: PlaywrightLogger.js")
+    
+  END IF
+  
+  # Step 6: Update appsettings.json
+  appsettingsPath = Path.Combine(workspaceRoot, "SPA/NoorCanvas/appsettings.json")
+  
+  appsettingsUpdated = false
+  
+  IF FileExists(appsettingsPath) THEN
+    
+    config = ReadJson(appsettingsPath)
+    
+    IF NOT config.Contains("PlaywrightLogging") THEN
+      config["PlaywrightLogging"] = {
+        "Enabled": true,
+        "LogLevel": "Debug",
+        "OutputFormat": "Console",
+        "RedactSensitiveData": true
+      }
+      
+      WriteJson(appsettingsPath, config)
+      Log("Updated: appsettings.json (PlaywrightLogging section added)")
+      appsettingsUpdated = true
+    END IF
+    
+  END IF
+  
+  # Step 7: Write modified component
+  WriteFile(componentPath, componentContent)
+  
+  RETURN {
+    success: true,
+    componentPath: componentPath,
+    markerValue: markerValue,
+    playwrightLoggerCreated: NOT playwrightLoggerExists,
+    appsettingsUpdated: appsettingsUpdated
+  }
+  
+END FUNCTION
+```
+
+**Usage Example:**
+
+```
+# Auto-inject during component creation
+result = InjectPlaywrightLogger(
+  "SPA/NoorCanvas/Components/HostControlPanel.razor",
+  "HostControlPanel",
+  "D:/PROJECTS/NOOR CANVAS"
+)
+
+IF result.success THEN
+  Log("✅ PlaywrightLogger injected successfully")
+  Log("   Marker: " + result.markerValue)
+  Log("   PlaywrightLogger.js: " + (result.playwrightLoggerCreated ? "Created" : "Exists"))
+  Log("   appsettings.json: " + (result.appsettingsUpdated ? "Updated" : "Already configured"))
+END IF
+```
+
+**Integration Points:**
+- `task.prompt.md` Step 6.6: Auto-invoke when creating Razor components
+- `test-generation.prompt.md` Step 1.5: Verify logger present before test generation
+- `cleanup-playwright-logging.prompt.md`: Remove all markers after test generation complete
+
+**Key Configuration:**
+
+```json
+{
+  "PlaywrightLogging": {
+    "Enabled": true,
+    "LogLevel": "Debug",
+    "OutputFormat": "Console",
+    "RedactSensitiveData": true
+  }
+}
+```
+
+**Marker Format:**
+- Pattern: `{yyyyMMddHHmmss}-{ComponentName}`
+- Example: `20251031143022-HostControlPanel`
+- Uniqueness: Timestamp ensures no collisions across components
+
+---
+
 ## Helper Functions
 
 ### DetectCodeBlocks
