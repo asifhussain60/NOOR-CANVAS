@@ -71,10 +71,8 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 5. Present findings to user
 
 **Example:**
-```bash
-@workspace /drift key=main-task -test description="Fix database connection timeout"
-@workspace /drift key=ui-refresh -test severity=high "Button alignment issue"
-```
+
+**Algorithm:** See `.github/prompts/shared/drift-commands.md` - Command 1 (Drift Invocation Examples)
 
 ---
 
@@ -177,9 +175,9 @@ When agent detects unrelated issue during work:
 - **Classify severity** using auto-classification rules
 - **Register silently** via commit (no user interruption)
 - **Track in parent state.json**:
-  ```powershell
-  Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Severity $severity -Description $drift_description
-  ```
+  
+  **Algorithm:** See `.github/prompts/shared/drift-commands.md` - Command 2 (State Drift Tracking - Silent Registration)
+  
 - **Queue for resolution** after parent completion
 - **Log to work-log.md**: "🔍 Drift detected: {drift-key} (severity: {level})"
 - **Continue parent work** without blocking
@@ -189,9 +187,9 @@ User executes: `@workspace /drift key:{parent} description:{issue} [severity:{le
 - **Create drift key** from description or user-provided
 - **Classify severity** (user-specified or auto-classified)
 - **Track in parent state.json**:
-  ```powershell
-  Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Severity $severity -Description $drift_description
-  ```
+  
+  **Algorithm:** See `.github/prompts/shared/drift-commands.md` - Command 2 (State Drift Tracking - Silent Registration)
+  
 - **Present confirmation**:
   ```
   Drift: {drift-key}
@@ -296,13 +294,7 @@ Append to `.github/key-data-streams/{parent-key}/work-log.md`:
 
 **3. Update State Tracking**
 
-```powershell
-# Mark drift resolved in parent state.json
-Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Resolved $true -ResolutionSha (git rev-parse --short HEAD)
-
-# Log resolution commit
-Update-StateCommit -Key $drift_key -Sha (git rev-parse --short HEAD) -Message "ckpt({drift-key}): Resolved - {summary}" -CheckpointType "drift-resolution"
-```
+**Algorithm:** See `.github/prompts/shared/drift-commands.md` - Command 3 (State Drift Resolution Tracking)
 
 ### 4. Queue Overflow Protection
 
@@ -451,13 +443,8 @@ Severity: {level} | Mode: {auto|manual}
 ```
 
 **After drift resolution commit:**
-```powershell
-# Mark drift as resolved in parent state.json
-Update-StateDriftKey -ParentKey $parent_key -DriftKey $drift_key -Resolved $true
 
-# Log the resolution commit
-Update-StateCommit -Key $drift_key -Sha (git rev-parse --short HEAD) -Message "ckpt({drift-key}): Resolved - {summary}" -CheckpointType "drift-resolution"
-```
+**Algorithm:** See `.github/prompts/shared/drift-commands.md` - Command 4 (Simplified Drift Resolution Logging)
 
 ### Stack Empty Commit
 ```
