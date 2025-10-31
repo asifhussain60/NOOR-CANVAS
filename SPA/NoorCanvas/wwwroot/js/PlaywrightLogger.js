@@ -3,41 +3,41 @@ window.PlaywrightLogger = {
     logBuffer: [],
     maxBufferSize: 10,
     flushInterval: 5000,
-    
-    init: function() {
+
+    init: function () {
         if (!this.enabled) return;
-        
+
         console.log('[PLAYWRIGHT-LOG] Logger initialized');
-        
+
         // Global click listener
         document.addEventListener('click', (e) => {
             const target = e.target;
-            const testId = target.getAttribute('data-testid') || 
-                          target.closest('[data-testid]')?.getAttribute('data-testid');
+            const testId = target.getAttribute('data-testid') ||
+                target.closest('[data-testid]')?.getAttribute('data-testid');
             const selector = testId ? `[data-testid="${testId}"]` : this.getSelector(target);
             const elementType = target.tagName.toLowerCase();
             const elementText = target.textContent?.trim().substring(0, 50) || '';
-            
+
             const timestamp = new Date().toISOString();
             const logEntry = `${timestamp} | CLICK | ${selector} | ${elementType} | "${elementText}"`;
             console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
             this.addLog(logEntry);
         }, true);
-        
+
         // Input changes
         document.addEventListener('input', (e) => {
             const target = e.target;
-            const testId = target.getAttribute('data-testid') || 
-                          target.closest('[data-testid]')?.getAttribute('data-testid');
+            const testId = target.getAttribute('data-testid') ||
+                target.closest('[data-testid]')?.getAttribute('data-testid');
             const selector = testId ? `[data-testid="${testId}"]` : this.getSelector(target);
             const value = target.value?.substring(0, 50) || '';
-            
+
             const timestamp = new Date().toISOString();
             const logEntry = `${timestamp} | INPUT | ${selector} | value="${value}"`;
             console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
             this.addLog(logEntry);
         }, true);
-        
+
         // Navigation
         let lastUrl = window.location.href;
         setInterval(() => {
@@ -49,33 +49,33 @@ window.PlaywrightLogger = {
                 lastUrl = window.location.href;
             }
         }, 100);
-        
+
         // Auto-flush logs every 5 seconds
         setInterval(() => {
             this.flushLogs();
         }, this.flushInterval);
-        
+
         // Flush logs before page unload
         window.addEventListener('beforeunload', () => {
             this.flushLogs(true); // Synchronous flush
         });
     },
-    
-    addLog: function(logEntry) {
+
+    addLog: function (logEntry) {
         this.logBuffer.push(logEntry);
-        
+
         // Auto-flush if buffer reaches max size
         if (this.logBuffer.length >= this.maxBufferSize) {
             this.flushLogs();
         }
     },
-    
-    flushLogs: function(synchronous = false) {
+
+    flushLogs: function (synchronous = false) {
         if (this.logBuffer.length === 0) return;
-        
+
         const logsToSend = [...this.logBuffer];
         this.logBuffer = [];
-        
+
         if (synchronous) {
             // Synchronous flush using navigator.sendBeacon (for page unload)
             const blob = new Blob([JSON.stringify({ logs: logsToSend })], { type: 'application/json' });
@@ -86,8 +86,8 @@ window.PlaywrightLogger = {
             this.saveLogs(logsToSend);
         }
     },
-    
-    saveLogs: function(logs) {
+
+    saveLogs: function (logs) {
         // Send logs to backend endpoint
         fetch('/api/playwright-logs', {
             method: 'POST',
@@ -101,8 +101,8 @@ window.PlaywrightLogger = {
             this.logBuffer.unshift(...logs);
         });
     },
-    
-    getSelector: function(element) {
+
+    getSelector: function (element) {
         const path = [];
         while (element && element.nodeType === Node.ELEMENT_NODE) {
             let selector = element.nodeName.toLowerCase();

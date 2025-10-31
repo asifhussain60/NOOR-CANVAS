@@ -797,7 +797,7 @@ FUNCTION InjectPlaywrightLogger(componentPath, componentName, workspaceRoot):
     
   END IF
   
-  # Step 5: Ensure PlaywrightLogger.js exists
+  # Step 5: Ensure PlaywrightLogger.js exists (with dual-stream auto-save)
   playwrightLoggerPath = Path.Combine(workspaceRoot, "SPA/NoorCanvas/wwwroot/js/PlaywrightLogger.js")
   
   playwrightLoggerExists = FileExists(playwrightLoggerPath)
@@ -807,9 +807,14 @@ FUNCTION InjectPlaywrightLogger(componentPath, componentName, workspaceRoot):
     playwrightLoggerContent = 
 "window.PlaywrightLogger = {
     enabled: true,
+    logBuffer: [],
+    maxBufferSize: 10,
+    flushInterval: 5000,
     
     init: function() {
         if (!this.enabled) return;
+        
+        console.log('[PLAYWRIGHT-LOG] Logger initialized');
         
         // Global click listener
         document.addEventListener('click', (e) => {
@@ -821,7 +826,79 @@ FUNCTION InjectPlaywrightLogger(componentPath, componentName, workspaceRoot):
             const elementText = target.textContent?.trim().substring(0, 50);
             
             const timestamp = new Date().toISOString();
-            console.log(`[PLAYWRIGHT-LOG] ${timestamp} | CLICK | ${selector} | ${elementType} | \"${elementText}\"`);
+            const logEntry = `${timestamp} | CLICK | ${selector} | ${elementType} | \"${elementText}\"`;
+            console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
+            this.addLog(logEntry);
+        }, true);
+        
+        // Input changes
+        document.addEventListener('input', (e) => {
+            const target = e.target;
+            const testId = target.getAttribute('data-testid') || 
+                          target.closest('[data-testid]')?.getAttribute('data-testid');
+            const selector = testId ? `[data-testid=\"${testId}\"]` : this.getSelector(target);
+            const value = target.value?.substring(0, 50) || '';
+            
+            const timestamp = new Date().toISOString();
+            const logEntry = `${timestamp} | INPUT | ${selector} | value=\"${value}\"`;
+            console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
+            this.addLog(logEntry);
+        }, true);
+        
+        // Navigation tracking
+        let lastUrl = window.location.href;
+        setInterval(() => {
+            if (window.location.href !== lastUrl) {
+                const timestamp = new Date().toISOString();
+                const logEntry = `${timestamp} | NAVIGATE | ${window.location.href}`;
+                console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
+                this.addLog(logEntry);
+                lastUrl = window.location.href;
+            }
+        }, 100);
+        
+        // Auto-flush every 5 seconds or 10 entries
+        setInterval(() => {
+            this.flushLogs();
+        }, this.flushInterval);
+        
+        // Flush before page unload
+        window.addEventListener('beforeunload', () => {
+            this.flushLogs(true);
+        });
+    },
+    
+    addLog: function(logEntry) {
+        this.logBuffer.push(logEntry);
+        if (this.logBuffer.length >= this.maxBufferSize) {
+            this.flushLogs();
+        }
+    },
+    
+    flushLogs: function(synchronous = false) {
+        if (this.logBuffer.length === 0) return;
+        
+        const logsToSend = [...this.logBuffer];
+        this.logBuffer = [];
+        
+        if (synchronous) {
+            const blob = new Blob([JSON.stringify({ logs: logsToSend })], { type: 'application/json' });
+            navigator.sendBeacon('/api/playwright-logs', blob);
+        } else {
+            this.saveLogs(logsToSend);
+        }
+    },
+    
+    saveLogs: function(logs) {
+        fetch('/api/playwright-logs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ logs: logs })
+        }).then(() => {
+            console.log(`[PLAYWRIGHT-LOG] Saved ${logs.length} entries to server`);
+        }).catch(err => {
+            console.error('[PLAYWRIGHT-LOG] Failed to save:', err);
+            this.logBuffer.unshift(...logs);
         });
     },
     
@@ -853,7 +930,7 @@ FUNCTION InjectPlaywrightLogger(componentPath, componentName, workspaceRoot):
     
   END IF
   
-  # Step 6: Update appsettings.json
+  # Step 6: Update appsettings.json (Dual-Stream Logging)
   appsettingsPath = Path.Combine(workspaceRoot, "SPA/NoorCanvas/appsettings.json")
   
   appsettingsUpdated = false
@@ -867,11 +944,28 @@ FUNCTION InjectPlaywrightLogger(componentPath, componentName, workspaceRoot):
         "Enabled": true,
         "LogLevel": "Debug",
         "OutputFormat": "Console",
-        "RedactSensitiveData": true
+        "RedactSensitiveData": true,
+        "DualStream": {
+          "ClientLogs": "playwright-interaction-logs.txt",
+          "ServerLogs": "playwright-server-logs.txt",
+          "CorrelationEnabled": true
+        }
       }
       
+      # Add Serilog file writer for server logs
+      IF config.Contains("Serilog") AND config["Serilog"].Contains("WriteTo") THEN
+        config["Serilog"]["WriteTo"].Append({
+          "Name": "File",
+          "Args": {
+            "path": "playwright-server-logs.txt",
+            "outputTemplate": "[SERVER] {Timestamp:yyyy-MM-ddTHH:mm:ss.fffZ} | {SourceContext} | {Message:lj}{NewLine}",
+            "restrictedToMinimumLevel": "Debug"
+          }
+        })
+      END IF
+      
       WriteJson(appsettingsPath, config)
-      Log("Updated: appsettings.json (PlaywrightLogging section added)")
+      Log("Updated: appsettings.json (PlaywrightLogging + Serilog dual-stream)")
       appsettingsUpdated = true
     END IF
     
@@ -922,10 +1016,31 @@ END IF
     "Enabled": true,
     "LogLevel": "Debug",
     "OutputFormat": "Console",
-    "RedactSensitiveData": true
+    "RedactSensitiveData": true,
+    "DualStream": {
+      "ClientLogs": "playwright-interaction-logs.txt",
+      "ServerLogs": "playwright-server-logs.txt",
+      "CorrelationEnabled": true
+    }
+  },
+  "Serilog": {
+    "WriteTo": [
+      {
+        "Name": "File",
+        "Args": {
+          "path": "playwright-server-logs.txt",
+          "outputTemplate": "[SERVER] {Timestamp:yyyy-MM-ddTHH:mm:ss.fffZ} | {SourceContext} | {Message:lj}{NewLine}"
+        }
+      }
+    ]
   }
 }
 ```
+
+**Dual-Stream Architecture:**
+- **Client Stream**: Browser interactions → POST `/api/playwright-logs` → `playwright-interaction-logs.txt`
+- **Server Stream**: Blazor ILogger → Serilog → `playwright-server-logs.txt`
+- **Correlation**: Timestamp matching for assertion generation
 
 **Marker Format:**
 - Pattern: `{yyyyMMddHHmmss}-{ComponentName}`

@@ -176,6 +176,35 @@ Update KDS files BEFORE code changes. Documentation commits must precede impleme
 - `task.prompt.md` Step 8.25: Verifies work-log.md timestamp updated within 60s
 - `todo.prompt.md`: Verifies file size increased (append occurred)
 - `task.prompt.md` Step 6.5: Generates test metadata for UI/API code
+- **NEW**: `kds.prompt.md` (Review Mode): Validates commits follow docs→code sequence
+- **NEW**: Pre-commit git hook (optional): Blocks implementation commits without preceding docs commit
+
+**Commit Sequence Validation:**
+```
+FUNCTION ValidateDocumentFirst(commitHistory):
+  
+  lastDocCommit = FindLastCommit(commitHistory, pattern="docs(")
+  lastFeatCommit = FindLastCommit(commitHistory, pattern="feat(|fix(|refactor(")
+  
+  IF lastFeatCommit.timestamp < lastDocCommit.timestamp THEN
+    RETURN {
+      valid: false,
+      violation: "Implementation commit without preceding documentation commit",
+      lastDocCommit: lastDocCommit.sha,
+      lastFeatCommit: lastFeatCommit.sha,
+      recommendation: "Create docs commit before implementation"
+    }
+  END IF
+  
+  RETURN { valid: true }
+  
+END FUNCTION
+```
+
+**Exception Handling:**
+- Minor bug fixes (fix commits) MAY skip docs update if no architectural impact
+- Typo corrections, formatting changes exempt from rule
+- Emergency hotfixes require retroactive documentation within 24 hours
 
 **Examples:**
 
