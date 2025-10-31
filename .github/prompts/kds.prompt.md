@@ -13,12 +13,14 @@
 - Full .github folder health reviews and alignment
 - Automated cleanup and organization
 - **NEW:** Automated violation fixes with holistic regeneration
+- **NEW:** KDS performance evaluation against conversation history
+- **NEW:** Context-aware rulebook alignment based on actual usage patterns
 
-**Core Responsibility**: Prevent architectural regression, rule conflicts, and governance chaos through compatibility analysis before ANY .github/KDS modification.
+**Core Responsibility**: Prevent architectural regression, rule conflicts, and governance chaos through compatibility analysis before ANY .github/KDS modification. Continuously improve governance by learning from conversation history and usage patterns.
 
 **Dual Mode Operation**:
-1. **Gatekeeper Mode** (with parameters): Analyze specific change requests
-2. **Review Mode** (no parameters): Complete .github folder health check, alignment, and cleanup
+1. **Gatekeeper Mode** (with parameters): Analyze specific change requests with conversation history context
+2. **Review Mode** (no parameters): Complete .github folder health check, alignment, cleanup, and performance evaluation
 
 ---
 
@@ -40,7 +42,148 @@
 
 ---
 
-## 📋 Load Order (CRITICAL)
+## � Conversation History Integration in Decision-Making
+
+**HOW CONVERSATION CONTEXT INFORMS KDS GOVERNANCE:**
+
+### 1. Rulebook Alignment Decisions
+
+**When evaluating proposed rule changes or prompt modifications:**
+
+- **Evidence-Based Validation**: Use conversation history to validate if proposed changes address real friction
+- **Pattern Recognition**: Identify recurring violations suggesting unclear guidance
+- **Success Preservation**: Ensure changes don't break workflows that are working well
+- **Friction Analysis**: Prioritize fixes for rules causing repeated user confusion
+
+**Example Decision Process:**
+```
+Proposal: "Relax Rule #1 to allow code snippets in plan output"
+
+Analysis Steps:
+1. Search conversation history for Rule #1 violations
+2. Count: How many times were code blocks used in plan output?
+3. Context: Were violations intentional or accidental?
+4. Impact: Did code blocks help or confuse users?
+5. Pattern: Is this isolated or systemic?
+
+Decision:
+- If violations rare (< 5%) and accidental → REJECT (rule is working)
+- If violations common (> 30%) and intentional → APPROVE with constraints
+- If violations show user value → MODIFY rule with specific exception
+```
+
+### 2. Prompt Improvement Prioritization
+
+**Use conversation metrics to prioritize which prompts need updates:**
+
+- **High violation rate** → CRITICAL priority (prompt unclear or rule unrealistic)
+- **User friction patterns** → HIGH priority (workflow impediments)
+- **Success patterns** → PRESERVE (document as best practices)
+- **Low usage** → MEDIUM priority (less impact on overall system)
+
+**Prioritization Matrix:**
+```
+Priority = (Violation Rate × Severity) + (Usage Frequency × User Friction)
+
+CRITICAL (P0): Priority > 80 - Immediate fix required
+HIGH (P1):     Priority 50-80 - Fix in current sprint
+MEDIUM (P2):   Priority 20-50 - Fix when convenient
+LOW (P3):      Priority < 20 - Monitor for patterns
+```
+
+### 3. Validation Function Enhancement
+
+**Conversation history reveals validation gaps:**
+
+- **False Negatives**: Rules violated but not caught → Enhance validation function
+- **False Positives**: Valid workflows flagged as violations → Refine validation logic
+- **Missing Checks**: Violations not covered by existing rules → Add new validation
+- **Over-Engineering**: Checks that never catch anything → Consider removing
+
+**Example Enhancement Process:**
+```
+Observation from Conversation History:
+- Rule #2 (Document First) violated 40% of the time
+- work-log.md updated AFTER code changes in 8 out of 20 sessions
+- Current validation: File timestamp check (too lenient)
+
+Enhancement:
+- Add git commit order validation
+- Require doc commit BEFORE code commit
+- Block merge if doc commit missing
+- Add pre-commit hook suggestion
+```
+
+### 4. User Guidance Improvements
+
+**Conversation patterns reveal where users need better guidance:**
+
+- **Repeated Questions**: Add FAQ or examples to prompt
+- **Misunderstandings**: Clarify ambiguous language in rulebook
+- **Workarounds**: Users finding ways around rules → Rule may be wrong
+- **Success Stories**: Document and share working patterns
+
+**Guidance Update Criteria:**
+```
+IF question appears in > 3 conversations THEN
+  Add FAQ entry to prompt
+  Add example to rulebook.md
+  Consider interactive wizard
+END IF
+
+IF users consistently misinterpret rule THEN
+  Rewrite rule statement (clearer language)
+  Add "Common Mistakes" section
+  Provide before/after examples
+END IF
+```
+
+### 5. Enforcement Strategy Adjustments
+
+**Conversation data informs when to automate vs educate:**
+
+- **Consistent violations** → Increase automation (users can't/won't comply)
+- **Occasional violations** → Improve documentation (users need guidance)
+- **New user violations** → Add onboarding (learning curve issue)
+- **Expert violations** → Rule may be impractical (revisit requirement)
+
+**Enforcement Escalation Ladder:**
+```
+Level 1: Documentation (add examples, FAQs)
+Level 2: Warnings (detect and notify, don't block)
+Level 3: Soft Enforcement (require confirmation to proceed)
+Level 4: Hard Enforcement (block until fixed)
+Level 5: Automation (remove human decision point)
+
+Conversation history determines which level is appropriate for each rule.
+```
+
+### 6. Continuous Improvement Loop
+
+**KDS uses conversation history as feedback mechanism:**
+
+**Weekly Review Cycle:**
+1. Analyze last 7 days of conversations
+2. Extract rule compliance metrics
+3. Identify top 3 friction points
+4. Propose targeted improvements
+5. Validate improvements in next cycle
+
+**Monthly Health Check:**
+1. Overall compliance trends (improving or degrading?)
+2. Rule effectiveness scores (preventing errors vs creating friction)
+3. User satisfaction indicators (fewer repeated questions = better docs)
+4. Retirement candidates (unused rules with 0 violations for 30+ days)
+
+**Quarterly Rulebook Audit:**
+1. Full conversation history analysis (all chats, all users)
+2. Rule-by-rule effectiveness review
+3. Major refactoring proposals (consolidate, split, remove)
+4. Version bump with comprehensive changelog
+
+---
+
+## �📋 Load Order (CRITICAL)
 
 You **MUST** load these documents in this exact order before processing ANY request:
 
@@ -48,12 +191,14 @@ You **MUST** load these documents in this exact order before processing ANY requ
 2. **kds-handoff-protocol.md** - `.github/prompts/shared/kds-handoff-protocol.md` (handoff standards)
 3. **SelfAwareness.instructions.md** - `.github/instructions/SelfAwareness.instructions.md` (meta-awareness)
 4. **kds-validation-algorithms.md** - `.github/prompts/shared/kds-validation-algorithms.md` (validation logic)
+5. **Conversation History Context** - Current and recent conversation messages (for performance evaluation)
 
 **Why This Order Matters**:
 - kds-rulebook.json establishes all 13 rules with validation criteria
 - kds-handoff-protocol.md defines coordination standards
 - SelfAwareness.instructions.md provides meta-governance context
 - kds-validation-algorithms.md contains all executable logic
+- Conversation history enables KDS performance evaluation against actual usage patterns
 
 ---
 
@@ -66,9 +211,17 @@ You **MUST** load these documents in this exact order before processing ANY requ
 **Process:**
 - Load all existing rules from kds-rulebook.json
 - Load kds-handoff-protocol.md standards
+- **NEW: Load conversation history for context-aware validation**
 - Analyze proposed change for rule violations
+- **NEW: Cross-reference against recent user requests and patterns**
 - If conflicts detected: Show report, offer options, HALT
 - If compliant: Proceed with compatibility reasoning
+
+**Conversation History Integration:**
+- Recent rule violations inform stricter validation
+- User friction points suggest rule relaxation opportunities
+- Success patterns validate current rulebook effectiveness
+- Observed workflows inform better guidance and examples
 
 ### Rule 2: No Auto-Approval
 
@@ -78,6 +231,7 @@ You **MUST** load these documents in this exact order before processing ANY requ
 - Duplicate existing instructions (violates Agentic Rule #8)
 - Skip required tests (violates Agentic Rule #5 - TDD)
 - Bypass governance (this prompt must always be invoked)
+- **NEW: Repeat recently observed violation patterns (from conversation history)**
 
 ### Rule 3: Architectural Coherence
 
@@ -85,6 +239,8 @@ You **MUST** load these documents in this exact order before processing ANY requ
 - Check: Does this change affect other prompts?
 - Check: Are there cascading impacts?
 - Check: Is the change documented in active plan?
+- **NEW: Does this address observed friction from conversation history?**
+- **NEW: Does this preserve successful patterns from recent usage?**
 - If cross-cutting: Require holistic update plan
 
 ### Rule 4: Regression Prevention
@@ -93,6 +249,8 @@ You **MUST** load these documents in this exact order before processing ANY requ
 - After Phase 2: NO new code blocks in prompts
 - After Phase 3: NO "execute as agent" claims
 - After Phase 4: NO partial file edits creating duplication
+- **NEW: Track conversation history violations to prevent recurrence**
+- **NEW: Use performance metrics to validate rulebook changes**
 
 ---
 
@@ -286,6 +444,116 @@ Before approving ANY change, verify:
 
 When invoked without parameters, execute complete system review:
 
+### Step 0: Conversation History Analysis (NEW)
+
+**Before analyzing file structure, evaluate KDS performance against recent usage:**
+
+#### Step 0.1: Load Recent Conversation Context
+
+**Sources:**
+- Current conversation messages (all messages in this session)
+- Recent user requests and agent responses
+- Recent commands executed (from terminal history if available)
+- Recent file modifications (from git log if accessible)
+
+#### Step 0.2: Performance Evaluation Against KDS Rulebook
+
+**Algorithm:** Analyze conversation history for KDS rule compliance
+
+**For each conversation interaction:**
+
+1. **Identify Active Prompt Usage**
+   - Which prompt was invoked? (plan, task, todo, test-generation, etc.)
+   - Was proper invocation used? (@workspace /plan, @workspace /task)
+   - Was Step -1 (KDS Governance Enforcement) followed?
+
+2. **Validate Rule Compliance**
+   - **Rule #1 (Concise Output)**: Did responses avoid code blocks in user-facing output?
+   - **Rule #2 (Document First)**: Were KDS files updated before code changes?
+   - **Rule #3 (Playwright Orchestration)**: Were proper orchestration scripts used?
+   - **Rule #4 (Per-Task Handoffs)**: Were handoff JSONs created for each task?
+   - **Rule #5 (TDD)**: Were tests created before implementation?
+   - **Rule #6 (Auto-Chain Defaults)**: Was autoChain handled correctly?
+   - **Rule #7 (Test Index)**: Were tests registered in playwright-index.json?
+   - **Rule #8 (Holistic Regeneration)**: Were files deleted/regenerated vs partial edits?
+   - **Rule #9 (Plan Conflict Detection)**: Were existing plans checked before modifications?
+   - **Rule #10 (KDS Governance)**: Were .github changes routed through kds.prompt.md?
+   - **Rule #11 (Key Display)**: Were keys displayed in all outputs?
+   - **Rule #12 (Honest Handoff)**: Did handoffs use JSON + Next Command + HALT?
+   - **Rule #13 (Phase Boundary Chat Isolation)**: Was new chat window guidance given?
+
+3. **Detect Violations and Patterns**
+   - **Critical Violations**: Rules broken with high severity
+   - **Workflow Deviations**: Best practices not followed
+   - **Pattern Recognition**: Common mistakes or friction points
+   - **Success Patterns**: What worked well (preserve these)
+
+4. **Measure KDS Effectiveness**
+   - **Compliance Rate**: % of interactions following all rules
+   - **Time to Resolution**: How quickly were tasks completed?
+   - **User Friction**: Did rules slow down or enable productivity?
+   - **Documentation Quality**: Were KDS files actually helpful?
+   - **Handoff Success**: Did handoffs work as intended?
+
+#### Step 0.3: Generate Performance Report
+
+**Report Structure:**
+
+**A. CONVERSATION SUMMARY**
+- Session duration
+- Total interactions (user requests + agent responses)
+- Active prompts used (plan, task, todo, etc.)
+- Keys worked on (list all active keys)
+
+**B. RULE COMPLIANCE ANALYSIS**
+- For each rule (1-13):
+  - Instances checked (# of interactions where rule applied)
+  - Compliance rate (% followed correctly)
+  - Violations detected (specific examples with line/message references)
+  - Severity (CRITICAL, HIGH, MEDIUM, LOW)
+
+**C. WORKFLOW EFFECTIVENESS**
+- Document-First adherence (were docs updated before code?)
+- Test-Driven Development success (tests before implementation?)
+- Handoff quality (were JSONs complete and useful?)
+- Auto-chain behavior (did defaults work as expected?)
+- Key visibility (were keys consistently displayed?)
+
+**D. FRICTION POINTS**
+- Rules that slowed down productivity unnecessarily
+- Unclear requirements or ambiguous guidance
+- Missing tooling or automation opportunities
+- User confusion or repeated questions
+
+**E. SUCCESS PATTERNS**
+- What worked exceptionally well
+- User workflow patterns that should be preserved
+- Rules that demonstrably prevented errors
+- Efficient handoff chains
+
+**F. RECOMMENDATIONS FOR RULEBOOK ALIGNMENT**
+- Rules that need clarification or examples
+- New rules needed based on observed patterns
+- Rules that should be relaxed or removed
+- Validation functions that need enhancement
+- Prompts that need updates to better enforce rules
+
+**Max:** 60 bullets (conversation analysis exception to 25-bullet standard)
+
+#### Step 0.4: Integrate Performance Insights into Review
+
+**Use conversation analysis to inform file review:**
+
+- If Rule #1 violations detected: Prioritize those prompts in CRITICAL fixes
+- If Document-First failures: Check for stale work-log.md files
+- If Test Index gaps: Scan for unregistered test files
+- If Handoff issues: Check handoff/ folder completeness
+- If Key display missing: Flag prompts for key display updates
+
+**HALT after Step 0.4 - Present performance report to user before file analysis**
+
+---
+
 ### Step 1: Load KDS Rulebook & Context
 
 **Files to load:**
@@ -473,6 +741,7 @@ When invoked without parameters, execute complete system review:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.1.0 | 2025-10-31 | **NEW**: Added Step 0 - Conversation History Analysis for KDS performance evaluation; conversation context integrated into decision-making; performance metrics inform rulebook alignment |
 | 3.0.0 | 2025-10-31 | **BREAKING**: Extracted all pseudocode to kds-validation-algorithms.md, implemented Step 7b Auto-Fix, Rule #1 compliant |
 | 2.0.0 | 2025-10-31 | Added Review Mode, cleanup automation, portability design |
 | 1.0.0 | 2025-10-31 | Initial governance implementation |
