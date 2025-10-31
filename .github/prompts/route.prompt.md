@@ -65,23 +65,16 @@ stateTracking: enabled
 ## ⚡ Quick Start
 
 **Simplest invocation (intelligent auto-routing):**
-```bash
-@workspace /route "your request here"
-# Single task → routes to 'todo' (auto-approved)
-# Multiple tasks → routes to 'plan' (requires approval)
-```
+
+**Algorithm:** See `.github/prompts/shared/route-commands.md` - Command 1 (Simple Invocation Examples)
 
 **With explicit target:**
-```bash
-@workspace /route plan "your request here"
-@workspace /route task "your request here"
-@workspace /route ask "your question here"
-```
+
+**Algorithm:** See `.github/prompts/shared/route-commands.md` - Command 2 (Explicit Target Routing)
 
 **With auto-execute:**
-```bash
-@workspace /route plan auto-execute=true "your request here"
-```
+
+**Algorithm:** See `.github/prompts/shared/route-commands.md` - Command 3 (Auto-Execute Mode)
 
 ---
 
@@ -183,13 +176,7 @@ Whether to automatically execute after building prompt
 
 **Load state-tracker utility and log original request:**
 
-```powershell
-# Source the state-tracker utility
-. .github/prompts/shared/state-tracker.ps1
-
-# Log the original user request
-Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChain @("route")
-```
+**Algorithm:** See `.github/prompts/shared/route-commands.md` - Command 4 (State Tracking Initialization)
 
 **Purpose:**
 - Track entry point of all work
@@ -478,9 +465,8 @@ ExecuteBuildPrompt(rawInput)
 **The handoff is NOT simulated - it actually invokes the target prompt:**
 
 1. **Log handoff to state tracking**
-   ```powershell
-   Update-StateHandoff -Key $key -From "route" -To $target -Parameters @{ key = $key; auto_execute = $autoExecute } -Reason "Routing based on work classification"
-   ```
+   
+   **Algorithm:** See `.github/prompts/shared/route-commands.md` - Command 5 (Handoff Logging)
 
 2. Load target agent prompt file (e.g., `.github/prompts/plan.prompt.md`)
 3. Format invocation based on target agent's parameter requirements
