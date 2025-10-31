@@ -447,6 +447,73 @@ Run Algorithm 9 (Test Quality Scoring) after generation
 
 **Rationale**: Only ONE active test prep session should exist at a time to avoid log correlation confusion
 
+**Step 1.5: Verify Prep Markers (CONDITIONAL - Screenshot Scenario)**
+
+**Trigger:** User invoked test-generation with screenshots parameter AND Razor components have existing data-playwright-log-marker attributes
+
+**Purpose:** Cross-reference screenshot markers with existing test-prep markers to prevent conflicts
+
+**Algorithm:**
+
+1. **Detect Screenshot Scenario**:
+   - Check if test-generation invocation included screenshots
+   - Check if components have data-playwright-log-marker attributes
+   - If BOTH true → Execute marker validation
+
+2. **Cross-Reference Markers**:
+   - Load screenshot visual markers (1, 2, 3... from images)
+   - Load prep markers from Razor components (timestamp-component format)
+   - Compare marker count: Visual markers vs Prep markers
+   - Compare visual sequence vs component element order
+
+3. **Validation Report**:
+   - ✅ **MATCH**: Visual markers align with prep markers (e.g., Marker 2 → Start Session button with data-playwright-log-marker="20251031-HostControlPanel")
+   - ⚠️ **PARTIAL MATCH**: Some visual markers have no prep markers (incomplete prep)
+   - ❌ **MISMATCH**: Visual markers conflict with prep markers (wrong components prepped)
+
+4. **User Decision**:
+   - **If MATCH**: Proceed with screenshot-based test generation using prep markers
+   - **If PARTIAL MATCH**: 
+     - Option A: Keep existing markers, supplement with screenshot data
+     - Option B: Cleanup old markers, re-prep with screenshot guidance
+   - **If MISMATCH**:
+     - Option A: Cleanup old markers, re-prep with screenshot guidance (RECOMMENDED)
+     - Option B: Ignore screenshots, use prep markers only
+     - Option C: Cancel test generation
+
+**Example Scenario**:
+
+**Visual Markers** (from screenshots):
+1. Navigate to Host Control Panel
+2. Click "Transcript Canvas" button
+3. Click "Start Session" button
+4. Click "Share Section" button
+5. Click Question FAB
+
+**Prep Markers** (from Razor components):
+- HostControlPanelSidebar.razor: data-playwright-log-marker="20251031-HostControlPanel" (Start Session button)
+- HostControlPanelContent.razor: data-playwright-log-marker="20251031-TranscriptBroadcast" (Broadcast Transcript button)
+- TranscriptCanvas.razor: data-playwright-log-marker="20251031-QuestionModal" (Question FAB)
+
+**Validation Result**:
+- ⚠️ **PARTIAL MATCH**
+- Marker 3 (Start Session) → FOUND in HostControlPanelSidebar
+- Marker 5 (Question FAB) → FOUND in TranscriptCanvas
+- Marker 2 (Transcript Canvas button) → NOT FOUND (no prep marker)
+- Marker 4 (Share Section button) → NOT FOUND (no prep marker)
+
+**Recommendation**:
+- Cleanup existing markers (partial coverage insufficient)
+- Re-run test-prep with all components from screenshots:
+  - `@workspace /test-prep #file:HostControlPanelContent.razor #file:HostControlPanelSidebar.razor #file:TranscriptCanvas.razor session=212`
+
+**Integration with test-generation.prompt.md**:
+- Screenshot analysis (Step 0.5) passes extracted selectors to test-prep validator
+- If mismatch detected, test-generation halts with cleanup recommendation
+- User must resolve marker conflicts before test generation proceeds
+
+---
+
 **Step 3: Inject Fresh Logging Infrastructure**
 
 **Algorithm**: See `.github/prompts/shared/kds-validation-algorithms.md` - Algorithm 10 (InjectPlaywrightLogger)
@@ -592,9 +659,8 @@ Run Algorithm 9 (Test Quality Scoring) after generation
 **📋 Next Steps**:
 
 1. **Run Application** (headed mode):
-   ```powershell
-   dotnet run --project SPA/NoorCanvas
-   ```
+   
+   **Algorithm:** See `.github/prompts/shared/test-prep-examples.md` - Example 1 (Run Application Command)
 
 2. **Perform Manual Testing** (5-10 minutes):
    - Navigate to prepped components
@@ -681,28 +747,7 @@ END FOR
 
 **Step 4: Generate Playwright Test**
 
-**Template**:
-```typescript
-import { test, expect } from '@playwright/test';
-
-test.describe('{key} - {feature}', () => {
-  
-  test.beforeEach(async ({ page }) => {
-    // Setup from session context
-    await page.goto('/host/control-panel/212');
-  });
-  
-  test('{feature} - {interaction description}', async ({ page }) => {
-    // Generated from client logs
-    await page.getByTestId('share-asset-btn').click();
-    
-    // Generated from server logs (assertions)
-    await expect(page.locator('.asset-shared')).toContainText('ABC123');
-    await expect(page.locator('.asset-type')).toContainText('Image');
-  });
-  
-});
-```
+**Algorithm:** See `.github/prompts/shared/test-prep-examples.md` - Example 2 (Playwright Test Template)
 
 **Step 5: Apply Quality Scoring (if --validate)**
 
