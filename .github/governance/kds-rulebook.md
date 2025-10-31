@@ -1,5 +1,5 @@
 # KDS Governance Rulebook
-**Version:** 1.1.1 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
+**Version:** 1.3.1 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
 
 ---
 
@@ -8,6 +8,7 @@
 **Core Principles:**
 - **Governance First** - All `.github` changes through kds.prompt.md gatekeeper
 - **Document First** - Update KDS files before code, docs commit before implementation
+- **Test Metadata First** - UI/API files include PLAYWRIGHT TEST METADATA for reverse-engineering (Rule #2b)
 - **Honest Handoffs** - Agents use JSON + Next Command + HALT (no auto-execution)
 - **Test-Driven** - Create tests FIRST (red-green-refactor), prefer headless mode
 - **Holistic Regeneration** - Delete & recreate files (no partial edits to prevent duplication)
@@ -28,9 +29,10 @@
 - **KDS Cleanup** - Review mode detects backup files, archives (not deletes) with manifest
 
 **Enforcement:**
-- **13 Rules** - Validated before output (Rule #1-13), each with validation function
+- **14 Rules** - Validated before output (Rule #1-14, includes #2b sub-rule), each with validation function
 - **Step -1** - All prompts include governance enforcement (except kds.prompt.md itself)
 - **Dual Rulebook** - JSON (machine-readable) + MD (human-readable), always synced
+- **Test Metadata** - ValidateTestMetadata() scans UI/API files for PLAYWRIGHT TEST METADATA blocks
 
 ---
 
@@ -156,6 +158,8 @@ Update KDS files BEFORE code changes. Documentation commits must precede impleme
 **Workflow:**
 1. **Update plan.md** with new phase/task descriptions
 2. **Append to work-log.md** with session entry
+2a. **Update KDS documentation** (if modifying governance, prompts, or rules)
+2b. **Add test reverse-engineering metadata** (if creating/modifying UI components, controllers, or SignalR hubs)
 3. **Create handoff JSONs** for next tasks
 4. **Commit documentation**: `docs(key): Add Phase N plan`
 5. **Implement code changes**
@@ -165,11 +169,13 @@ Update KDS files BEFORE code changes. Documentation commits must precede impleme
 - Knowledge preserved even if session fails mid-implementation
 - Enables recovery and continuity across sessions
 - Creates audit trail for decisions and architecture
+- Test metadata enables automated Playwright test generation from existing code
 
 **Enforcement:**
 - `plan.prompt.md` Step 5.5: Blocks output until artifacts exist (plan.md, work-log.md, handoffs/)
 - `task.prompt.md` Step 8.25: Verifies work-log.md timestamp updated within 60s
 - `todo.prompt.md`: Verifies file size increased (append occurred)
+- `task.prompt.md` Step 6.5: Generates test metadata for UI/API code
 
 **Examples:**
 
@@ -195,6 +201,600 @@ Session 1:
 - Partial documentation (plan updated but work-log forgotten)
 
 **Validation Function:** `ValidateDocumentFirst()`
+
+---
+
+#### Rule #2b: Test Reverse-Engineering Metadata (Sub-Rule)
+
+**Statement:**  
+All Razor components, controllers, and SignalR hubs MUST include:
+1. Structured PLAYWRIGHT TEST METADATA comments with API routes, database connections, test data, and selectors
+2. **UI Interaction Logging** for runtime click tracking and element identification (headed Playwright test development)
+
+**When to Apply:**
+- Creating new UI components (`.razor` files)
+- Creating/modifying API controllers (`Controllers/*.cs`)
+- Creating/modifying SignalR hubs (`Hubs/*.cs`)
+- Any file that handles HTTP requests or database operations
+
+**Metadata Structure:**
+
+```csharp
+// ============================================================================
+// PLAYWRIGHT TEST METADATA
+// ============================================================================
+// Component: {component-name}
+// Key: {kds-key}
+// Test Scenarios:
+//   1. {scenario-1-description}
+//   2. {scenario-2-description}
+//   3. {scenario-3-description}
+//
+// API Routes:
+//   - {METHOD} {endpoint} → {stored-procedure-or-linq} ({database})
+//   - {METHOD} {endpoint} → {stored-procedure-or-linq} ({database})
+//
+// Database Connections:
+//   - {DbContextName} ({database-name}) - {tables-accessed}
+//
+// Test Data (Session {session-id}):
+//   - {data-element}: {value}
+//   - {data-element}: {value}
+//
+// SignalR Hubs (if applicable):
+//   - {endpoint} → {HubName} ({connection-groups})
+//
+// Expected Flow:
+//   1. {step-1}
+//   2. {step-2}
+//   3. {step-3}
+//
+// Playwright Selectors:
+//   - [data-testid="{selector-1}"]
+//   - [data-testid="{selector-2}"]
+//
+// UI Interaction Logging (Headed Test Development):
+//   - Click Tracking: ENABLED (logs all @onclick, button, link clicks)
+//   - Element Identification: data-testid + CSS selectors logged
+//   - Interaction Flow: Sequence of user actions captured
+//   - Console Output Format: [PLAYWRIGHT-LOG] {timestamp} | {action} | {selector} | {element-type}
+//   - Log Marker: data-playwright-log-marker="{timestamp}-{component-name}" (unique per session)
+//   - Cleanup Triggers: Manual request OR post-test-generation (automatic)
+//   - Cleanup Algorithm: Remove all data-playwright-log-marker attributes + PlaywrightLogger script tags
+//
+// Related Files:
+//   - {test-file-path} ({test-status: existing/planned})
+//   - {documentation-path}
+// ============================================================================
+```
+
+**Example (HostControlPanel.razor):**
+
+```csharp
+// ============================================================================
+// PLAYWRIGHT TEST METADATA
+// ============================================================================
+// Component: Host-HostControlPanel.razor
+// Key: host-control-panel
+// Test Scenarios:
+//   1. Load control panel with valid session token
+//   2. Verify dropdown cascading (Album → Category → Session)
+//   3. Validate session state persistence
+//
+// API Routes:
+//   - GET /api/host/albums → dbo.GetAllGroups (KSESSIONS)
+//   - GET /api/host/categories/{albumId} → dbo.GetCategoriesForGroup (KSESSIONS)
+//   - GET /api/host/sessions/{categoryId} → LINQ to dbo.Sessions (KSESSIONS)
+//   - POST /api/host/validate-token → canvas.Sessions lookup (canvas + KSESSIONS join)
+//
+// Database Connections:
+//   - KSessionsDbContext (KSESSIONS) - Albums, Categories, Sessions tables
+//   - CanvasDbContext (canvas) - Sessions table (token validation)
+//
+// Test Data (Session 212):
+//   - Host Token: KJAHA99L
+//   - Participant Token: PQ9N5YWW
+//   - Album ID: 1 (Group 1)
+//   - Category ID: 2 (Category for Group 1)
+//   - Session ID: 212 (Peter Parker session)
+//
+// SignalR Hubs:
+//   - Not applicable (no SignalR in this component)
+//
+// Expected Flow:
+//   1. Navigate to /host/control-panel
+//   2. Load albums (API call + dropdown population)
+//   3. Select album → trigger categories load
+//   4. Select category → trigger sessions load
+//   5. Select session → validate token → persist state
+//
+// Playwright Selectors:
+//   - [data-testid="album-dropdown"]
+//   - [data-testid="category-dropdown"]
+//   - [data-testid="session-dropdown"]
+//   - [data-testid="session-title"]
+//
+// Related Files:
+//   - Tests/UI/host-authentication-flow-e2e.spec.ts (existing)
+//   - Tests/UI/cascading-dropdowns.spec.ts (existing)
+//   - .github/instructions/Links/PlaywrightQuickRef.md (test data reference)
+// ============================================================================
+```
+
+**Rationale:**
+- **Reverse-Engineering**: Enables automated Playwright test generation from production code
+- **Test Data Centralization**: Session 212 becomes canonical reference (documented in PlaywrightQuickRef.md)
+- **API Discovery**: Developers can quickly find all endpoints a component uses
+- **Database Mapping**: Clear connection between UI → API → Database
+- **Selector Consistency**: Enforces data-testid usage for stable test selectors
+- **UI Interaction Logging**: Runtime click tracking enables headed Playwright test creation from live user sessions
+
+**Implementation Requirements:**
+
+### A. Static Metadata (documentation in code comments)
+- PLAYWRIGHT TEST METADATA block at top of file
+- All required fields populated (Component, Key, Test Scenarios, Expected Flow, Selectors)
+- Session 212 test data referenced
+
+### B. UI Interaction Logging Infrastructure (NEW)
+
+**Required JavaScript Implementation:**
+
+```javascript
+// Add to component's OnAfterRenderAsync or in <script> section
+// IMPORTANT: This script is tagged with data-playwright-log-marker for cleanup after test generation
+window.PlaywrightLogger = {
+    enabled: true, // Toggle via appsettings.json or environment variable
+    
+    init: function() {
+        if (!this.enabled) return;
+        
+        // Global click listener
+        document.addEventListener('click', (e) => {
+            const target = e.target;
+            const testId = target.getAttribute('data-testid') || 
+                          target.closest('[data-testid]')?.getAttribute('data-testid');
+            const selector = testId ? `[data-testid="${testId}"]` : this.getSelector(target);
+            const elementType = target.tagName.toLowerCase();
+            const elementText = target.textContent?.trim().substring(0, 50);
+            
+            console.log(`[PLAYWRIGHT-LOG] ${new Date().toISOString()} | CLICK | ${selector} | ${elementType} | "${elementText}"`);
+        }, true);
+        
+        // Input change listener
+        document.addEventListener('change', (e) => {
+            const target = e.target;
+            if (target.matches('input, select, textarea')) {
+                const testId = target.getAttribute('data-testid');
+                const selector = testId ? `[data-testid="${testId}"]` : this.getSelector(target);
+                const value = target.type === 'password' ? '[REDACTED]' : target.value;
+                
+                console.log(`[PLAYWRIGHT-LOG] ${new Date().toISOString()} | INPUT | ${selector} | ${target.tagName.toLowerCase()} | value="${value}"`);
+            }
+        }, true);
+        
+        console.log('[PLAYWRIGHT-LOG] UI Interaction Logging ENABLED - headed test development mode');
+    },
+    
+    getSelector: function(element) {
+        // Generate CSS selector path
+        const path = [];
+        while (element && element.nodeType === Node.ELEMENT_NODE) {
+            let selector = element.nodeName.toLowerCase();
+            if (element.id) {
+                selector += '#' + element.id;
+                path.unshift(selector);
+                break;
+            } else {
+                let sibling = element;
+                let nth = 1;
+                while (sibling = sibling.previousElementSibling) {
+                    if (sibling.nodeName.toLowerCase() === selector) nth++;
+                }
+                if (nth !== 1) selector += `:nth-of-type(${nth})`;
+            }
+            path.unshift(selector);
+            element = element.parentNode;
+        }
+        return path.join(' > ');
+    }
+};
+
+// Auto-initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    window.PlaywrightLogger.init();
+});
+```
+
+**Log Marker Pattern (for cleanup tracking):**
+
+```cshtml
+@* Razor component with PlaywrightLogger injection *@
+@* data-playwright-log-marker format: {timestamp}-{component-name} *@
+@* Example: data-playwright-log-marker="20251031143025-HostControlPanel" *@
+
+<div data-playwright-log-marker="@($"{DateTime.UtcNow:yyyyMMddHHmmss}-{ComponentName}")">
+  <!-- Component content -->
+</div>
+
+<script data-playwright-log-marker="@($"{DateTime.UtcNow:yyyyMMddHHmmss}-{ComponentName}")">
+  // PlaywrightLogger initialization code
+  window.PlaywrightLogger.init();
+</script>
+```
+
+**Cleanup Algorithm (global cleanup of all logging infrastructure):**
+
+```
+FUNCTION CleanupPlaywrightLogging(workspaceRoot):
+  
+  # Step 1: Find all files with logging markers
+  files = FindFiles(workspaceRoot, "**/*.{razor,cshtml,html}")
+  
+  # Step 2: Remove data-playwright-log-marker attributes
+  FOR EACH file IN files:
+    content = ReadFile(file)
+    
+    # Remove marker attributes from HTML elements
+    content = RemovePattern(content, 'data-playwright-log-marker="[^"]*"')
+    
+    # Remove entire <script> blocks with markers
+    content = RemovePattern(content, '<script[^>]*data-playwright-log-marker[^>]*>.*?</script>', MULTILINE)
+    
+    # Remove PlaywrightLogger initialization in @code blocks
+    IF content.Contains("window.PlaywrightLogger") THEN
+      content = RemoveCodeBlock(content, "JSRuntime.InvokeVoidAsync.*PlaywrightLogger")
+    END IF
+    
+    WriteFile(file, content)
+    Log("Cleaned: " + file)
+  END FOR
+  
+  # Step 3: Remove appsettings.json PlaywrightLogging section
+  appsettingsPath = Path.Combine(workspaceRoot, "SPA/NoorCanvas/appsettings.json")
+  IF FileExists(appsettingsPath) THEN
+    config = ReadJson(appsettingsPath)
+    IF config.Contains("PlaywrightLogging") THEN
+      config.Remove("PlaywrightLogging")
+      WriteJson(appsettingsPath, config)
+      Log("Cleaned: appsettings.json (PlaywrightLogging section removed)")
+    END IF
+  END IF
+  
+  # Step 4: Generate cleanup report
+  RETURN {
+    filesProcessed: files.Count,
+    markersRemoved: CountRemovals,
+    scriptsRemoved: CountScriptRemovals,
+    configCleaned: configRemoved
+  }
+  
+END FUNCTION
+```
+
+**Cleanup Trigger Modes:**
+
+1. **Manual Request (user-initiated):**
+   ```
+   @workspace /cleanup-playwright-logging
+   ```
+   - User explicitly requests cleanup after test generation complete
+   - Runs global cleanup algorithm across entire workspace
+   - Generates cleanup report with file manifest
+
+2. **Post-Test-Generation (automatic):**
+   ```
+   @workspace /test-generation #file:handoffs/phase-2-test.json
+   → Test generated successfully
+   → Automatically trigger CleanupPlaywrightLogging()
+   → Display cleanup report
+   ```
+   - test-generation.prompt.md automatically runs cleanup after test file created
+   - Ensures logging infrastructure removed after served its purpose
+   - Prevents logging code from being committed to production
+
+**Configuration (appsettings.json):**
+
+```json
+{
+  "PlaywrightLogging": {
+    "Enabled": true,
+    "LogLevel": "Debug",
+    "OutputFormat": "Console", // or "File", "Database"
+    "RedactSensitiveData": true
+  }
+}
+```
+
+**Usage in Razor Components:**
+
+```cshtml
+@* Add unique log marker to component root element *@
+<div data-playwright-log-marker="@($"{DateTime.UtcNow:yyyyMMddHHmmss}-HostControlPanel")">
+  <!-- Component content -->
+</div>
+
+@* Add log marker to script tag for cleanup tracking *@
+<script data-playwright-log-marker="@($"{DateTime.UtcNow:yyyyMMddHHmmss}-HostControlPanel")">
+  // PlaywrightLogger initialization
+  if (window.PlaywrightLogger) {
+    window.PlaywrightLogger.init();
+  }
+</script>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Alternative: Initialize via JSRuntime (also needs marker for cleanup)
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                if (window.PlaywrightLogger) {
+                    window.PlaywrightLogger.init();
+                }
+            ");
+        }
+    }
+}
+```
+
+**Enforcement:**
+- `task.prompt.md` Step 6.5: Auto-generates metadata when creating UI/API files
+- `task.prompt.md` Step 6.6: Injects PlaywrightLogger JavaScript with unique log marker (timestamp-component format)
+- `healthcheck.prompt.md`: Scans for missing metadata in testable files
+- `test-generation.prompt.md` Step 1.5: Loads metadata before generating tests
+- `test-generation.prompt.md` Step 1.6: Parses console logs to extract interaction flow for headed tests
+- `test-generation.prompt.md` Step 9.5: Automatically runs CleanupPlaywrightLogging() after test file created
+- `cleanup-playwright-logging.prompt.md`: Manual cleanup invocation with workspace-wide marker removal
+
+### C. Test Generation from Interaction Logs (NEW)
+
+**Workflow:**
+
+1. **Enable Logging** (appsettings.json → PlaywrightLogging.Enabled = true)
+2. **Run Application in Headed Mode** (manual or via `dotnet run`)
+3. **Perform User Interactions** (click buttons, fill forms, navigate)
+4. **Copy Console Logs** (all lines starting with `[PLAYWRIGHT-LOG]`)
+5. **Generate Test** (invoke test-generation.prompt.md with logs as input)
+
+**Test Generation Algorithm:**
+
+```
+FUNCTION GeneratePlaywrightTestFromLogs(consoleLogs, componentMetadata):
+  
+  # Step 1: Parse console logs into interaction sequence
+  interactions = []
+  FOR EACH line IN consoleLogs:
+    IF line.StartsWith("[PLAYWRIGHT-LOG]") THEN
+      parts = ParseLogLine(line) # {timestamp, action, selector, elementType, value}
+      interactions.Add(parts)
+    END IF
+  END FOR
+  
+  # Step 2: Group interactions by page/navigation
+  pageGroups = GroupByNavigation(interactions) # Detect URL changes
+  
+  # Step 3: Generate test structure
+  test = "import { test, expect } from '@playwright/test';\n\n"
+  test += "test.describe('${componentMetadata.Component} - Recorded User Flow', () => {\n"
+  test += "  test('should complete user interaction flow - Session ${componentMetadata.SessionId}', async ({ page }) => {\n"
+  test += "    // Generated from console logs - ${new Date().toISOString()}\n\n"
+  
+  # Step 4: Add navigation
+  test += "    await page.goto('${GetInitialURL(pageGroups[0])}');\n\n"
+  
+  # Step 5: Convert interactions to Playwright commands
+  FOR EACH interaction IN interactions:
+    IF interaction.action == "CLICK" THEN
+      test += "    await page.locator('${interaction.selector}').click();\n"
+      test += "    // Clicked: ${interaction.elementType} - \"${interaction.text}\"\n\n"
+      
+    ELSE IF interaction.action == "INPUT" THEN
+      test += "    await page.locator('${interaction.selector}').fill('${interaction.value}');\n"
+      test += "    // Filled: ${interaction.elementType}\n\n"
+      
+    ELSE IF interaction.action == "SELECT" THEN
+      test += "    await page.locator('${interaction.selector}').selectOption('${interaction.value}');\n\n"
+    END IF
+  END FOR
+  
+  # Step 6: Add assertions from metadata Expected Flow
+  FOR EACH expectedOutcome IN componentMetadata.ExpectedFlow:
+    test += "    // Assert: ${expectedOutcome}\n"
+    test += "    await expect(page.locator('${GetSelectorForAssertion(expectedOutcome)}')).toBeVisible();\n\n"
+  END FOR
+  
+  test += "  });\n"
+  test += "});\n"
+  
+  RETURN test
+END FUNCTION
+```
+
+**Example Generated Test (from logs):**
+
+```typescript
+// AUTO-GENERATED from console logs - 2025-10-31T14:23:45Z
+// Component: Host-HostControlPanel.razor
+// Test Data: Session 212 (KJAHA99L)
+
+import { test, expect } from '@playwright/test';
+
+test.describe('Host-HostControlPanel - Recorded User Flow', () => {
+  test('should complete cascading dropdown selection - Session 212', async ({ page }) => {
+    // Navigate to host control panel
+    await page.goto('/host/control-panel/KJAHA99L');
+    
+    // [PLAYWRIGHT-LOG] 2025-10-31T14:23:48Z | CLICK | [data-testid="album-dropdown"] | select | ""
+    await page.locator('[data-testid="album-dropdown"]').click();
+    // Clicked: select - ""
+    
+    // [PLAYWRIGHT-LOG] 2025-10-31T14:23:50Z | INPUT | [data-testid="album-dropdown"] | select | value="1"
+    await page.locator('[data-testid="album-dropdown"]').selectOption('1');
+    // Filled: select - Album: "Group 1"
+    
+    // Wait for categories to load (API call triggered)
+    await page.waitForSelector('[data-testid="category-dropdown"]:not([disabled])');
+    
+    // [PLAYWRIGHT-LOG] 2025-10-31T14:23:52Z | CLICK | [data-testid="category-dropdown"] | select | ""
+    await page.locator('[data-testid="category-dropdown"]').click();
+    
+    // [PLAYWRIGHT-LOG] 2025-10-31T14:23:54Z | INPUT | [data-testid="category-dropdown"] | select | value="2"
+    await page.locator('[data-testid="category-dropdown"]').selectOption('2');
+    
+    // Wait for sessions to load
+    await page.waitForSelector('[data-testid="session-dropdown"]:not([disabled])');
+    
+    // [PLAYWRIGHT-LOG] 2025-10-31T14:23:56Z | CLICK | [data-testid="session-dropdown"] | select | ""
+    await page.locator('[data-testid="session-dropdown"]').click();
+    
+    // [PLAYWRIGHT-LOG] 2025-10-31T14:23:58Z | INPUT | [data-testid="session-dropdown"] | select | value="212"
+    await page.locator('[data-testid="session-dropdown"]').selectOption('212');
+    
+    // Assertions from PLAYWRIGHT TEST METADATA Expected Flow
+    // Assert: Session details display (Session 212 - "Need For Messengers")
+    await expect(page.locator('[data-testid="session-title"]')).toHaveText('Need For Messengers');
+    await expect(page.locator('[data-testid="session-title"]')).toBeVisible();
+  });
+});
+```
+
+**Trigger Workflow:**
+
+1. **Automatic (during implementation):**
+   - `@workspace /task` detects UI/API file creation
+   - Automatically generates PLAYWRIGHT TEST METADATA block
+   - Inserts at top of file (after usings/imports)
+
+2. **Manual (reverse-engineering existing code):**
+   - `@workspace /route key=reverse-engineer request="Add test metadata to {file}"`
+   - Scans file for API routes, database operations, SignalR hubs
+   - Extracts Session 212 test data from PlaywrightQuickRef.md
+   - Generates metadata block and inserts
+
+3. **Validation (healthcheck):**
+   - `@workspace /healthcheck` scans codebase
+   - Identifies UI/API files without metadata
+   - Reports missing metadata with suggested fix commands
+
+**Examples:**
+
+✅ **COMPLIANT (auto-generated during task):**
+```
+Task: Create TranscriptCanvas.razor
+1. Generate component code
+2. Auto-detect API calls (/api/participant/validate-token)
+3. Auto-detect SignalR usage (/hubs/canvas)
+4. Load Session 212 test data from PlaywrightQuickRef.md
+5. Generate PLAYWRIGHT TEST METADATA block
+6. Insert at top of TranscriptCanvas.razor
+```
+
+❌ **NON-COMPLIANT (no metadata):**
+```csharp
+@page "/participant/transcript"
+@inject HttpClient Http
+
+<div>
+  <input @bind="questionText" />
+  <button @onclick="SubmitQuestion">Submit</button>
+</div>
+
+@code {
+  // NO PLAYWRIGHT TEST METADATA - violates Rule #2b
+  private async Task SubmitQuestion() { ... }
+}
+```
+
+**Anti-Patterns:**
+- Creating UI components without test metadata (defeats reverse-engineering)
+- Outdated test data (metadata references Session 100, but Session 212 is canonical)
+- Missing selectors (no data-testid attributes documented)
+- Incomplete API routes (only lists GET endpoints, forgets POST/PUT/DELETE)
+
+**Validation Function:** `ValidateTestMetadata()`
+
+**Validation Algorithm:**
+
+```
+FUNCTION ValidateTestMetadata(filePath):
+  
+  # Step 1: Determine if file is testable
+  testableExtensions = [".razor", "Controller.cs", "Hub.cs"]
+  IF NOT filePath.EndsWith(testableExtensions) THEN
+    RETURN { violation: false, reason: "Not a testable file type" }
+  END IF
+  
+  # Step 2: Read file contents
+  fileContents = ReadFile(filePath)
+  
+  # Step 3: Check for PLAYWRIGHT TEST METADATA block
+  IF NOT fileContents.Contains("PLAYWRIGHT TEST METADATA") THEN
+    
+    # Step 3a: Scan for test-worthy code patterns
+    hasApiCalls = fileContents.Contains("HttpClient") OR fileContents.Contains("[HttpGet]")
+    hasDatabase = fileContents.Contains("DbContext") OR fileContents.Contains("LINQ")
+    hasSignalR = fileContents.Contains("Hub") OR fileContents.Contains("HubConnection")
+    
+    IF hasApiCalls OR hasDatabase OR hasSignalR THEN
+      RETURN {
+        violation: true,
+        type: "MISSING_METADATA",
+        filePath: filePath,
+        reason: "File contains testable code but no PLAYWRIGHT TEST METADATA block",
+        suggestedFix: "@workspace /route key=reverse-engineer request='Add test metadata to {filePath}'"
+      }
+    ELSE
+      RETURN { violation: false, reason: "No testable code patterns detected" }
+    END IF
+  END IF
+  
+  # Step 4: Validate metadata completeness
+  metadataBlock = ExtractBlock(fileContents, "PLAYWRIGHT TEST METADATA")
+  
+  requiredFields = [
+    "Component:",
+    "Key:",
+    "Test Scenarios:",
+    "Expected Flow:",
+    "Playwright Selectors:",
+    "Related Files:"
+  ]
+  
+  missingFields = []
+  FOR EACH field IN requiredFields:
+    IF NOT metadataBlock.Contains(field) THEN
+      missingFields.Add(field)
+    END IF
+  END FOR
+  
+  IF missingFields.Count > 0 THEN
+    RETURN {
+      violation: true,
+      type: "INCOMPLETE_METADATA",
+      filePath: filePath,
+      missingFields: missingFields,
+      reason: "PLAYWRIGHT TEST METADATA block exists but missing required fields"
+    }
+  END IF
+  
+  # Step 5: Validate test data references Session 212
+  IF metadataBlock.Contains("Test Data") THEN
+    IF NOT metadataBlock.Contains("Session 212") THEN
+      WARN("Test data should reference Session 212 (canonical test session)")
+    END IF
+  END IF
+  
+  RETURN { violation: false }
+  
+END FUNCTION
+```
+
+**Related Documentation:**
+- `.github/instructions/Links/PlaywrightQuickRef.md` - Session 212 canonical test data
+- `.github/prompts/task.prompt.md` - Step 6.5 (auto-generation logic)
+- `.github/prompts/test-generation.prompt.md` - Step 1.5 (metadata loading)
+- `.github/prompts/healthcheck.prompt.md` - Metadata completeness scan
 
 ---
 
@@ -1053,6 +1653,10 @@ END FUNCTION
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.1 | 2025-10-31 | **ENHANCED Rule #2b Cleanup** - Added data-playwright-log-marker attribute pattern (timestamp-component format), cleanup trigger modes (manual request, post-test-generation automatic), global cleanup algorithm (CleanupPlaywrightLogging function), updated enforcement with Step 9.5 in test-generation.prompt.md |
+| 1.3.0 | 2025-10-31 | **ENHANCED Rule #2b** - Added UI Interaction Logging infrastructure, PlaywrightLogger JavaScript class, test generation from console logs, headed Playwright test development support |
+| 1.2.1 | 2025-10-31 | **ENFORCED Rule #2b** - Test Reverse-Engineering Metadata now mandatory for UI/API files. Added to Quick Reference, updated enforcement count to 14 rules |
+| 1.2.0 | 2025-10-31 | Added Rule #2b (Test Reverse-Engineering Metadata) as sub-rule with ValidateTestMetadata() function |
 | 1.1.1 | 2025-10-31 | Added Quick Reference summary section for rapid comprehension |
 | 1.1.0 | 2025-10-31 | Added Rule #13 (Phase Boundary Chat Isolation), enhanced cleanup automation support |
 | 1.0.0 | 2025-10-31 | Initial rulebook consolidating MANDATORY.md, Agentic Rules, Handoff Protocol |
@@ -1063,4 +1667,4 @@ END FUNCTION
 
 **Last Updated:** 2025-10-31  
 **Maintainer:** KDS System  
-**Version:** 1.1.1
+**Version:** 1.3.1
