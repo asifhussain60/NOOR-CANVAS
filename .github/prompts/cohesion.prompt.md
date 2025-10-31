@@ -51,11 +51,8 @@ Unique identifier for cohesion validation session.
 **User-provided**: `cohesion-{description}` (e.g., `cohesion-pre-release-audit`)
 
 **Examples:**
-```bash
-@workspace /cohesion scope=all key=cohesion-weekly-scan
-@workspace /cohesion scope=prompts key=cohesion-prompt-audit
-@workspace /cohesion scope=all  # Auto: cohesion-20251028-143500
-```
+
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 1 (Key Parameter Examples)
 
 **Note**: Work-log and reports saved to `.github/key-data-streams/{key}/`
 
@@ -75,9 +72,8 @@ Depth of validation:
 - Scope: `.github/` folder ONLY (workspace cleanup handled by cleanup.prompt.md)
 
 **Example:**
-```bash
-@workspace /cohesion scope=all validation-level=kds-cleanup auto-fix=true
-```
+
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 2 (KDS-Cleanup Mode Example)
 
 ### -test *(flag, optional)*
 Enable post-execution validation using `.github/prompts/shared/prompt-test-validation-framework.md`
@@ -90,10 +86,8 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 5. Present findings to user
 
 **Example:**
-```bash
-@workspace /cohesion scope=prompts -test validation-level=full
-@workspace /cohesion scope=all -test
-```
+
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 3 (Test Mode Examples)
 
 **Cohesion-Specific Validation Checks:**
 - ✓ Cohesion report generated
@@ -138,9 +132,8 @@ Control cleanup execution behavior when `validation-level=kds-cleanup`
 - **Safe Harbor Protection**: NEVER modifies `.github/MANDATORY.md`, `*-mandate.md`, `*-protocol.md`, `context-*.md`, `validation-*.md`, `step-*.md`
 
 **Example:**
-```bash
-@workspace /cohesion validation-level=kds-cleanup auto-fix=true
-```
+
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 2 (KDS-Cleanup Mode Example)
 
 ### cleanup-mode *(optional, default=full)* **NEW v2.0**
 
@@ -153,9 +146,8 @@ Fine-tune KDS cleanup behavior when `validation-level=kds-cleanup` and `auto-fix
 - `validate-only` - Detect violations without execution (same as auto-fix=false)
 
 **Example:**
-```bash
-@workspace /cohesion validation-level=kds-cleanup auto-fix=true cleanup-mode=archive-only
-```
+
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 4 (Complete Invocation Examples - archive-only mode)
 
 ## Critical Rules
 **LOAD:** `.github/MANDATORY.md` (3 rules enforced before all work)
@@ -286,41 +278,7 @@ Fine-tune KDS cleanup behavior when `validation-level=kds-cleanup` and `auto-fix
 
 ## How to Invoke
 
-```bash
-# Quick syntax check
-@workspace /cohesion scope=prompts validation-level=syntax
-
-# Full prompt system audit
-@workspace /cohesion scope=all validation-level=full
-
-# Specific file deep scan
-@workspace /cohesion scope=plan.prompt.md validation-level=conflicts
-
-# Instructions-only validation
-@workspace /cohesion scope=instructions validation-level=rules
-
-# Auto-fix mode (requires approval)
-@workspace /cohesion scope=all validation-level=full auto-fix=true
-
-# KDS cleanup with validation (report only)
-@workspace /cohesion scope=all validation-level=kds-cleanup
-
-# KDS cleanup with auto-fix
-@workspace /cohesion scope=all validation-level=kds-cleanup auto-fix=true
-
-# KDS cleanup (archive deprecated files only)
-@workspace /cohesion validation-level=kds-cleanup auto-fix=true cleanup-mode=archive-only
-
-# Auto-invoked from plan/task (end of workflow)
-Execute("cohesion.prompt.md", {
-  scope: "all",
-  validation-level: "kds-cleanup",
-  auto-fix: true,
-  cleanup-mode: "full",
-  key: CurrentKey,
-  verbosity: "concise"
-})
-```
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 4 (Complete Invocation Examples)
 
 ## Validation Algorithm (Pseudocode)
 
@@ -1685,25 +1643,7 @@ Generates comprehensive report at:
 
 ## Periodic Maintenance
 
-### Weekly Cohesion Scan
-```bash
-@workspace /cohesion scope=all validation-level=rules
-```
-
-### Monthly Deep Scan
-```bash
-@workspace /cohesion scope=all validation-level=full
-```
-
-### After Major Changes
-```bash
-@workspace /cohesion scope={modified-file} validation-level=conflicts
-```
-
-### Pre-Release Audit
-```bash
-@workspace /cohesion scope=all validation-level=full auto-fix=true
-```
+**Algorithm:** See `.github/prompts/shared/cohesion-commands.md` - Command 5 (Periodic Maintenance Commands)
 
 ## Commit Format
 
