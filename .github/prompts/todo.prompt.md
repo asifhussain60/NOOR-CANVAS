@@ -272,13 +272,15 @@ Update existing `{key}.plan.md` with:
 - **Exit criteria** updated for extended scope
 - **Error remediation** plan updated
 
-## Output (STRICT)
+## Output (STRICT - 20 BULLETS MAX)
 
 **CRITICAL RULES:**
 - ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
 - ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
 - ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
 - ✅ **LETTER OPTIONS** - Always use A/B/C/D format for user choices
+
+**Planning Exception:** When extending multi-phase plans, todo.prompt.md uses up to 20 bullets (vs 25 for standard agents). See `.github/instructions/rules/concise-output-format/rule.md`.
 
 ---
 

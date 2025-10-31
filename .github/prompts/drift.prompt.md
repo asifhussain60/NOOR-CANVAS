@@ -22,7 +22,9 @@ stateTracking: enabled
 ---
 
 ## User-Facing Output Style
-**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, no code)
+
+**Standard Limit:** 25 bullets for drift summaries. When creating drift resolution plans, route to plan.prompt.md which supports 30-50 bullets for detailed phase/task breakdown.
 
 ---
 

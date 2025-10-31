@@ -25,7 +25,9 @@ stateTracking: enabled
 ---
 
 ## User-Facing Output Style
-**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, no code)
+
+**Standard Limit:** 25 bullets (routing agents follow standard Q&A format). When routing to plan.prompt.md, note that planning agents use flexible limits (30-50 bullets) for phase/task breakdown.
 
 ---
 

@@ -54,7 +54,9 @@ stateTracking: enabled
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
 ## Output Format
-**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, no code)
+
+**Planning Exception:** plan.prompt.md uses flexible bullet limits (30-50 bullets) for detailed phase/task breakdown. See `.github/instructions/rules/concise-output-format/rule.md` - Planning Output Format Exception.
 
 **Mode:** Agent | **Purpose:** Request → executable plan → handoff
 
@@ -727,13 +729,16 @@ All handoff parameters pre-generated and saved:
 
 ---
 
-## �📊 OUTPUT FORMAT (MAX 15 BULLETS TOTAL)
+## 📊 OUTPUT FORMAT (PLANNING EXCEPTION: 30-50 BULLETS)
 
 **CRITICAL RULES:**
 - ❌ **NO CODE EXAMPLES** - No implementation code, pseudocode, or code blocks in user-facing output
 - ✅ **BULLET SUMMARIES ONLY** - Clear, structured bullets with headings
 - ✅ **REPEAT {key} NAME** - Each section must begin by stating the key name
 - ✅ **LETTER OPTIONS** - Always use A/B/C/D format for user choices
+- ✅ **ARCHITECTURAL TASKS** - Phase→Task bullets describe WHAT, never HOW (no code)
+
+**Planning Exception:** plan.prompt.md can use 30-50 bullets for detailed phase/task breakdown (vs 25 for Q&A agents). See `.github/instructions/rules/concise-output-format/rule.md`.
 
 ---
 

@@ -39,7 +39,9 @@ Follow `.github/prompts/shared/commit-message-format.md` with added rollback met
 When invoked standalone (not via task prompt), create a checkpoint before generating tests using the `ckpt` type and tag it (see task conventions). Otherwise, reuse the latest `ckpt` parent from the task flow.
 
 ## User-Facing Output Style (MANDATORY)
-Must follow `.github/prompts/shared/output-style-mandate.md`.
+Must follow `.github/prompts/shared/output-style-mandate.md` and `.github/MANDATORY.md` Rule #1 (25 bullets standard, no code).
+
+**Note:** When generating multi-phase test plans, use plan.prompt.md which supports 30-50 bullets for detailed breakdown.
 
 - Use two sections: "🧠 Copilot Analysis" and "📌 Summary for You".
 - NEVER include code or pseudocode in user-facing content.

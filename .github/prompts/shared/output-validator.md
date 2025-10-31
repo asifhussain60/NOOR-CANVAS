@@ -26,17 +26,23 @@ FUNCTION ValidateResponse(response, agentName)
   
   // 1. Count bullets (including nested)
   stats.bulletCount = CountAllBullets(response)
-  IF stats.bulletCount > 15 THEN
+  
+  // Get prompt-specific bullet limit (from Rule #1)
+  bulletLimit = GetPromptBulletLimit(agentName)
+  
+  IF stats.bulletCount > bulletLimit THEN
     violations.add({
-      rule: "MAX 15 bullets",
+      rule: "Exceeds prompt-specific bullet limit",
       actual: stats.bulletCount,
-      severity: "critical"
+      limit: bulletLimit,
+      severity: "warning",  // WARNING not CRITICAL (flexible)
+      note: "Planning agents (plan/todo) have higher limits than Q&A agents"
     })
-  ELSE IF stats.bulletCount > 12 THEN
+  ELSE IF stats.bulletCount > (bulletLimit - 3) THEN
     warnings.add({
       rule: "Approaching bullet limit",
-      actual: stats.bulletCount + "/15",
-      severity: "warning"
+      actual: stats.bulletCount + "/" + bulletLimit,
+      severity: "info"
     })
   END IF
   
@@ -132,6 +138,23 @@ FUNCTION ValidateResponse(response, agentName)
     END IF
   END IF
   
+  // 9. Validate Phase→Task format (architectural, no code)
+  IF agentName == "plan.prompt.md" AND response.contains("**Phase") THEN
+    taskBullets = ExtractTaskBullets(response)
+    FOR EACH task IN taskBullets
+      // Check for code patterns in task bullets (STRICT - AUTO-BLOCK)
+      IF ContainsCodePatterns(task.content) THEN
+        violations.add({
+          rule: "Phase→Task bullets must be architectural (WHAT), not code (HOW)",
+          task: task.number,
+          snippet: task.content.substring(0, 80),
+          severity: "critical",
+          remediation: "Replace code with architectural description. Example: 'Add ShareButton component - imports component in SessionCanvas.razor' (NOT '@using ShareButton')"
+        })
+      END IF
+    END FOR
+  END IF
+  
   // Generate validation report
   report = {
     valid: violations.isEmpty(),
@@ -143,6 +166,25 @@ FUNCTION ValidateResponse(response, agentName)
   }
   
   RETURN report
+END FUNCTION
+
+FUNCTION GetPromptBulletLimit(agentName)
+  // Planning agents - flexible limits (see Rule #1 Planning Exception)
+  IF agentName == "plan.prompt.md" THEN
+    RETURN 50  // Complex multi-phase plans: 30-50 bullets
+  ELSE IF agentName == "todo.prompt.md" THEN
+    RETURN 20  // Plan extensions
+  
+  // Standard Q&A agents - strict 25 bullet limit
+  ELSE IF agentName IN ["ask.prompt.md", "task.prompt.md", "route.prompt.md", 
+                         "test-generation.prompt.md", "drift.prompt.md", 
+                         "healthcheck.prompt.md"] THEN
+    RETURN 25
+  
+  // Default
+  ELSE
+    RETURN 25
+  END IF
 END FUNCTION
 
 FUNCTION CountAllBullets(text)
@@ -244,6 +286,63 @@ FUNCTION FindNestedLists(text)
   END FOR
   
   RETURN nestedCount
+END FUNCTION
+
+FUNCTION ExtractTaskBullets(text)
+  tasks = []
+  lines = text.split("\n")
+  currentPhase = null
+  
+  FOR EACH line IN lines
+    // Detect phase headers
+    IF line.matches(/^\*\*Phase \d+:/) THEN
+      currentPhase = line
+    
+    // Detect task bullets (Task N.M: description)
+    ELSE IF line.matches(/^- Task \d+\.\d+:/) THEN
+      tasks.add({
+        phase: currentPhase,
+        number: ExtractTaskNumber(line),
+        content: line.trim()
+      })
+    END IF
+  END FOR
+  
+  RETURN tasks
+END FUNCTION
+
+FUNCTION ContainsCodePatterns(taskText)
+  // Patterns that indicate implementation code (not architectural description)
+  codeIndicators = [
+    "@using ",           // Blazor directive
+    "@inject ",          // Blazor injection
+    "<",                 // HTML tags
+    "{",                 // Code blocks
+    "public ",           // C# access modifier
+    "private ",          // C# access modifier
+    "function ",         // JavaScript function
+    "const ",            // JavaScript const
+    "let ",              // JavaScript let
+    "SELECT ",           // SQL
+    "INSERT ",           // SQL
+    "=>",                // Arrow function
+    "//",                // Code comment
+    "/*",                // Block comment start
+    "```"                // Code fence
+  ]
+  
+  FOR EACH indicator IN codeIndicators
+    IF taskText.contains(indicator) THEN
+      RETURN true
+    END IF
+  END FOR
+  
+  RETURN false
+END FUNCTION
+
+FUNCTION ExtractTaskNumber(taskLine)
+  match = taskLine.match(/Task (\d+\.\d+):/)
+  RETURN match ? match[1] : "unknown"
 END FUNCTION
 ```
 
