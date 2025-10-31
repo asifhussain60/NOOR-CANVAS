@@ -1,5 +1,5 @@
 # KDS Governance Rulebook
-**Version:** 1.0.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
+**Version:** 1.1.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
 
 ---
 
@@ -741,6 +741,76 @@ Phase 1 complete. Continuing to Phase 2...
 
 ---
 
+### Rule #13: Phase Boundary Chat Isolation
+
+**Statement:**  
+Each phase should begin in a new Copilot chat window when autoChain is disabled. Ignored if E2E mode enabled.
+
+**Rationale:**
+- Prevents context pollution (Phase 1 assumptions bleeding into Phase 2)
+- Enables phase-specific rollback (undo Phase 2 without affecting Phase 1)
+- Improves Copilot performance (fresh context, no token bloat)
+- Maintains session hygiene (clear boundaries between work phases)
+
+**Enforcement:**
+- `plan.prompt.md`: Display guidance at phase boundary when autoChain=false
+- `task.prompt.md`: Display guidance at phase completion when autoChain=false
+- Manual compliance (user creates new chat)
+
+**Trigger:**
+- Phase completion
+- autoChain=false
+- Not in E2E mode
+
+**Guidance Message:**
+```
+💡 Best Practice: Start a new Copilot chat window for Phase N
+
+Benefits:
+- Fresh context (no token pollution from previous phase)
+- Clean rollback (can undo Phase N without affecting Phase N-1)
+- Better performance (Copilot works better with isolated contexts)
+
+How:
+1. Note your current command/handoff file
+2. Open new chat window (Ctrl+Shift+P → "GitHub Copilot: Open Chat")
+3. Continue with next phase command
+```
+
+**Exception:**  
+E2E mode (autoChain=true) - Single chat session for all phases (user approved chain upfront)
+
+**Examples:**
+
+✅ **COMPLIANT WORKFLOW:**
+```
+Phase 1 complete (autoChain=false).
+
+💡 Best Practice: Start a new Copilot chat window for Phase 2
+
+Next Command (Key: kds):
+@workspace /test-generation #file:.github/key-data-streams/kds/handoffs/phase-2-test.json
+
+[User opens new chat, pastes command]
+```
+
+❌ **NON-COMPLIANT (no guidance):**
+```
+Phase 1 complete.
+
+Next: @workspace /test-generation ...
+(User continues in same chat - context pollution risk)
+```
+
+**Anti-Patterns:**
+- Continuing all phases in single chat (token bloat)
+- No guidance provided (user unaware of best practice)
+- Forcing new chat in E2E mode (breaks user workflow)
+
+**Validation Function:** `ValidatePhaseBoundaryChatIsolation()`
+
+---
+
 ## 🔗 Handoff Protocol Standards
 
 These rules govern **JSON handoff file structure and workflow**.
@@ -952,6 +1022,7 @@ END FUNCTION
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-10-31 | Added Rule #13 (Phase Boundary Chat Isolation), enhanced cleanup automation support |
 | 1.0.0 | 2025-10-31 | Initial rulebook consolidating MANDATORY.md, Agentic Rules, Handoff Protocol |
 
 ---
@@ -960,4 +1031,4 @@ END FUNCTION
 
 **Last Updated:** 2025-10-31  
 **Maintainer:** KDS System  
-**Version:** 1.0.0
+**Version:** 1.1.0

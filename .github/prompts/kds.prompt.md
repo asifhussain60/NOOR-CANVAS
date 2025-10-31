@@ -1,5 +1,5 @@
 # KDS Governance Gatekeeper
-**Key: `kds`** | **Version**: 1.0.0 | **Role**: Mandatory gate for all .github and KDS modifications
+**Key: `kds`** | **Version**: 2.0.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
 
 ---
 
@@ -10,12 +10,35 @@
 - All changes to `.github/instructions/*.md`
 - All changes to `.github/key-data-streams/` structure
 - All changes to MANDATORY.md rules
+- **NEW**: Full .github folder health reviews and alignment
+- **NEW**: Automated cleanup and organization
 
 **Core Responsibility**: Prevent architectural regression, rule conflicts, and governance chaos through compatibility analysis before ANY .github/KDS modification.
 
+**Dual Mode Operation**:
+1. **Gatekeeper Mode** (with parameters): Analyze specific change requests
+2. **Review Mode** (no parameters): Complete .github folder review, alignment, and cleanup
+
 ---
 
-## 📋 Load Order (CRITICAL)
+## � Mode Detection
+
+**When invoked without parameters** (e.g., `@workspace /kds`):
+- Automatically enters **REVIEW MODE**
+- Performs complete .github folder health check
+- Aligns all files with KDS rulebook
+- Executes cleanup automation
+- Generates compliance report
+
+**When invoked with parameters** (e.g., `@workspace /kds request="..."`):
+- Enters **GATEKEEPER MODE**
+- Analyzes specific change request
+- Performs compatibility check
+- Approves or rejects change
+
+---
+
+## �📋 Load Order (CRITICAL)
 
 You **MUST** load these documents in this exact order before processing ANY request:
 
@@ -327,10 +350,278 @@ Track over time:
 
 ---
 
+## � REVIEW MODE (Parameter-less Execution)
+
+When invoked without parameters (`@workspace /kds`), execute the following complete system review and cleanup:
+
+### Step 1: Load KDS Rulebook & Context
+```
+1. Load .github/governance/kds-rulebook.json (canonical source)
+2. Load .github/governance/kds-rulebook.md (human-readable reference)
+3. Load .github/MANDATORY.md (lightweight index)
+4. Load .github/prompts/shared/kds-handoff-protocol.md (handoff standards)
+5. Load .github/instructions/SelfAwareness.instructions.md (operating guardrails)
+```
+
+### Step 2: Scan .github Folder Structure
+```
+Analyze complete .github folder structure:
+- List all prompt files in .github/prompts/
+- List all instruction files in .github/instructions/
+- List all key-data-streams folders
+- Identify backup files (*.backup, *.bak, *.tmp, *-backup-*)
+- Identify old folders (.github-backup-*, old/, archive/ not in _ARCHIVE/)
+- Detect duplicate files (same content, different names)
+- Scan for orphaned handoff JSONs (no matching key)
+```
+
+### Step 3: Validate Against KDS Rulebook
+```
+FOR EACH prompt file:
+  - Check compliance with Rule #1 (Concise Output Format)
+  - Verify Step -1 (KDS Governance Enforcement) present (except kds.prompt.md)
+  - Validate handoff protocol adherence (Rule #12)
+  - Check for key display in output templates (Rule #11)
+  - Detect code blocks in user-facing sections (violation)
+  - Flag long bullets (>3 lines - violation)
+
+FOR EACH instruction file:
+  - Verify no duplication with prompt files
+  - Check for outdated content (references to deleted features)
+  - Validate cross-references (links to existing files)
+
+FOR EACH key-data-stream folder:
+  - Verify structure: plan.md, work-log.md, handoffs/ present
+  - Check for stale keys (no activity >90 days)
+  - Validate handoff JSON schemas against kds-handoff-protocol.md
+```
+
+### Step 4: Prompt Consolidation Analysis
+```
+Analyze for consolidation opportunities (NOT deletion):
+
+1. cohesion.prompt.md:
+   - Current role: Structural validation + KDS cleanup execution
+   - Usage: Referenced in plan.prompt.md Step 7.25, task.prompt.md Step 9.15
+   - Duplication check: Compare with healthcheck.prompt.md for overlaps
+   - Recommendation: Keep if unique responsibilities confirmed
+
+2. healthcheck.prompt.md:
+   - Current role: System health auditing + drift detection (read-only)
+   - Usage: Generates audit reports in .github/audits/healthcheck-audits/
+   - Duplication check: Compare with cohesion.prompt.md for overlaps
+   - Recommendation: Keep if read-only auditor role confirmed
+
+3. drift.prompt.md:
+   - Current role: [Load and analyze]
+   - Usage: [Search for references in workspace]
+   - Recommendation: Consolidate into healthcheck if redundant
+
+4. collapse-keys.prompt.md:
+   - Current role: [Load and analyze]
+   - Usage: [Search for references in workspace]
+   - Recommendation: Archive if no active usage
+
+Decision Criteria:
+- If prompts have <20% unique content → Consolidate
+- If prompts have >80% unique content → Keep separate
+- If prompt has 0 references in last 30 days → Archive to _ARCHIVE/
+```
+
+### Step 5: Cleanup Automation (FINAL STEP)
+```
+Intelligent Cleanup Algorithm:
+
+PHASE 1: Identify Cleanup Targets
+  Patterns to archive (NOT delete):
+    - *.backup files (e.g., MANDATORY.v1.0.0.backup.md)
+    - *.bak files
+    - *.tmp files
+    - Folders matching *-backup-* pattern (e.g., .github-backup-20251030-122400/)
+    - Audit logs older than 90 days (preserve last 3 months)
+    - Stale key-data-streams (no work-log entry in 90 days)
+
+  Preserve (NEVER cleanup):
+    - Active key-data-streams (work-log.md modified within 90 days)
+    - Referenced files (found in grep search across .github/)
+    - Test files (.github/tests/)
+    - Current audit logs (.github/audits/**/work-log.md, reports <90 days)
+    - Governance files (kds-rulebook.*, MANDATORY.md)
+    - Active prompts (usage confirmed in consolidation analysis)
+
+PHASE 2: Archive (Don't Delete)
+  Create archive folder:
+    Path: .github/_ARCHIVE/cleanup-{timestamp}/
+    
+  Move identified targets to archive:
+    .github/MANDATORY.v1.0.0.backup.md → _ARCHIVE/cleanup-{timestamp}/
+    .github/.github-backup-20251030-122400/ → _ARCHIVE/cleanup-{timestamp}/
+    Old audit reports (>90 days) → _ARCHIVE/cleanup-{timestamp}/audits/
+
+  Generate manifest:
+    File: _ARCHIVE/cleanup-{timestamp}/MANIFEST.md
+    Content:
+      - List of archived files
+      - Reason for archival
+      - Original paths
+      - Restore instructions
+
+PHASE 3: Verify Clean State
+  Run post-cleanup validation:
+    - No *.backup, *.bak, *.tmp in active folders
+    - No backup folders in .github/ root
+    - All active keys have recent work-log entries
+    - All referenced files still exist (broken links check)
+```
+
+### Step 6: Generate Compliance Report
+```
+Report Structure:
+
+## 🛡️ KDS System Health Report
+**Generated**: {timestamp}
+**Mode**: Review Mode (Parameter-less Execution)
+
+### 📊 Overall Status
+- Rulebook Version: {version from kds-rulebook.json}
+- Total Prompts: {count}
+- Total Instructions: {count}
+- Total Keys: {count}
+- Compliance Score: {percentage}
+
+### ✅ Compliant Areas
+- [List prompts/instructions passing all validation checks]
+
+### ⚠️ Violations Detected
+[FOR EACH violation]:
+  - File: {file path}
+  - Rule Violated: {rule number and description}
+  - Severity: {critical|high|medium|low}
+  - Fix Recommendation: {how to fix}
+
+### �🔄 Consolidation Recommendations
+[FOR EACH prompt analyzed]:
+  - Prompt: {name}
+  - Role: {description}
+  - Usage: {references found}
+  - Recommendation: {keep|consolidate|archive}
+  - Reasoning: {why}
+
+### 🧹 Cleanup Summary
+- Files Archived: {count}
+- Archive Location: .github/_ARCHIVE/cleanup-{timestamp}/
+- Space Reclaimed: {size estimate}
+- Broken Links Fixed: {count}
+
+### 📋 Action Items
+[Prioritized list of fixes needed]:
+  1. CRITICAL: {issue} - {file} - {fix}
+  2. HIGH: {issue} - {file} - {fix}
+  ...
+
+### 🎯 Next Steps
+A. FIX VIOLATIONS - Address critical/high severity issues first
+B. REVIEW CONSOLIDATION - Approve/reject consolidation recommendations
+C. VALIDATE CLEANUP - Verify archived files not needed
+D. ACCEPT REPORT - Mark system as compliant
+```
+
+### Step 7: Halt and Present Options
+```
+After generating report, display:
+
+## 📊 Review Complete (Key: kds)
+
+System health report generated.
+
+**A. VIEW FULL REPORT** (recommended - see all findings)
+   Displays complete compliance report with violations and recommendations.
+
+**B. Auto-Fix Critical Issues**
+   Applies automated fixes for critical violations (manual approval required).
+
+**C. Execute Cleanup Only**
+   Runs cleanup automation without fixing violations.
+
+**D. Cancel**
+   No changes made, report saved for review.
+
+Next Command (Key: kds):
+[Option-specific command based on user selection]
+```
+
+**HALT - DO NOT AUTO-EXECUTE FIXES**
+
+---
+
+## 🌍 Portability Design (Copy-Paste .github to New Project)
+
+The KDS system is designed for portability. To bring KDS to a new project:
+
+### Initialization Mode
+```
+Invoke: @workspace /kds init
+
+This special mode:
+1. Detects new project context (no existing key-data-streams/)
+2. Creates project-agnostic KDS structure
+3. Guides customization of project-specific elements
+4. Generates initial compliance report for new project
+```
+
+### What to Customize (Project-Specific)
+```
+- .github/key-data-streams/{your-keys}/ (create your own keys)
+- .github/instructions/Links/*.md (update with your project docs)
+- .github/governance/kds-rulebook.md (add project-specific rules if needed)
+- .github/tests/test-index.json (register your tests)
+```
+
+### What to Preserve (KDS Core - Don't Modify)
+```
+- .github/prompts/*.prompt.md (core agent workflows)
+- .github/prompts/shared/kds-handoff-protocol.md (handoff standards)
+- .github/governance/kds-rulebook.json (canonical rule schemas)
+- .github/MANDATORY.md (lightweight rule index)
+- .github/instructions/SelfAwareness.instructions.md (operating guardrails)
+- .github/scripts/ (automation scripts)
+```
+
+### Initialization Workflow
+```
+Step 1: Copy .github folder to new project
+Step 2: Delete project-specific content:
+  - rm -rf .github/key-data-streams/* (except _SCHEMA/ and _template/)
+  - Clear .github/tests/test-index.json (keep structure)
+  - Remove .github/instructions/Links/* (keep folder)
+
+Step 3: Run initialization:
+  @workspace /kds init
+
+Step 4: KDS analyzes new project:
+  - Scans for existing test files
+  - Detects project type (language, framework)
+  - Identifies potential keys based on folder structure
+  - Suggests initial key-data-streams to create
+
+Step 5: KDS generates new project manifest:
+  File: .github/PROJECT-MANIFEST.md
+  Content:
+    - Project name and type
+    - Suggested keys for common tasks
+    - Customization checklist
+    - First steps guide
+
+Step 6: HALT with next steps
+```
+
+---
+
 ## 🔄 Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2025-10-31 | Added Review Mode, cleanup automation, portability design, consolidated prompt analysis |
 | 1.0.0 | 2025-10-31 | Initial governance implementation (Phase 1) |
 
 ---
