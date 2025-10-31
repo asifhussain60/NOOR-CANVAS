@@ -1,24 +1,29 @@
 {
-  "version": "1.0.0",
-  "description": "Centralized test reuse registry for Playwright tests. Maps test IDs to file paths for easy reference and composition.",
-  "lastUpdated": "2025-10-31",
-  "tests": {
-    "phase-1-pilot": {
-      "id": "phase-1-pilot",
-      "key": "kds",
-      "path": ".github/key-data-streams/kds/tests/phase-1-pilot.spec.md",
-      "type": "coordination",
-      "description": "Validates honest handoff protocol (route → plan) using JSON files + Next Command + HALT behavior",
-      "tags": ["kds", "handoff", "coordination", "phase-1"],
-      "acceptanceCriteria": [
-        "JSON handoff file created",
-        "Next Command displayed",
-        "HALT behavior verified",
-        "Honest language (no auto-execution claims)"
-      ],
-      "reusable": true,
-      "dependencies": [],
-      "estimatedDuration": "5-7 minutes"
+    "version": "1.0.0",
+    "description": "Centralized test reuse registry for Playwright tests. Maps test IDs to file paths for easy reference and composition.",
+    "lastUpdated": "2025-10-31",
+    "tests": {
+        "phase-1-pilot": {
+            "id": "phase-1-pilot",
+            "key": "kds",
+            "path": ".github/key-data-streams/kds/tests/phase-1-pilot.spec.md",
+            "type": "coordination",
+            "description": "Validates honest handoff protocol (route → plan) using JSON files + Next Command + HALT behavior",
+            "tags": [
+                "kds",
+                "handoff",
+                "coordination",
+                "phase-1"
+            ],
+            "acceptanceCriteria": [
+                "JSON handoff file created",
+                "Next Command displayed",
+                "HALT behavior verified",
+                "Honest language (no auto-execution claims)"
+            ],
+            "reusable": true,
+            "dependencies": [],
+            "estimatedDuration": "5-7 minutes"
+        }
     }
-  }
 }
