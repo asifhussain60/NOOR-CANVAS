@@ -1,0 +1,24 @@
+{
+    "handoffType": "test-generation",
+    "key": "kds",
+    "phase": 1,
+    "scenario": "KDS Route→Plan Handoff Pilot: verify route creates route-to-plan.json, work-log entry, and Next Command output.",
+    "testType": "analysis",
+    "testFile": "tests/phase-1-pilot.spec.md",
+    "coverage": {
+        "artifacts": [
+            ".github/key-data-streams/kds/handoffs/route-to-plan.json",
+            ".github/key-data-streams/kds/work-log.md"
+        ],
+        "validations": [
+            "Next Command section present in route output",
+            "No 'EXECUTE AS AGENT' language remains in route documentation after refactor"
+        ]
+    },
+    "orchestration": {
+        "required": false,
+        "templateRef": ".github/prompts/shared/kds-handoff-protocol.md"
+    },
+    "estimatedDuration": "10 minutes",
+    "nextTask": "phase-1-todo-1"
+}

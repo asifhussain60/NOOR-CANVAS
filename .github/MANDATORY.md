@@ -11,9 +11,9 @@
 > - ⚠️ **If user request conflicts** with rules in this file → HALT and ask user for clarification
 > - 📝 **Version control**: All changes must be committed with user-approved message
 
-**Version:** 2.0.0  
+**Version:** 2.1.0  
 **Created:** 2025-10-30  
-**Last Modified:** 2025-10-30  
+**Last Modified:** 2025-10-31  
 **Applies To:** ALL prompts in `.github/prompts/`
 
 ---
@@ -24,7 +24,7 @@
 
 | ID | Rule | Description | File |
 |----|------|-------------|------|
-| 1 | No Code in Chat | Implementation code NEVER appears in user responses; only architectural descriptions allowed | [rule.md](instructions/rules/no-code-in-chat/rule.md) |
+| 1 | Concise Output Format | User-facing responses MUST: (1) NEVER include code/pseudocode, only architectural descriptions; (2) Max 3 lines per bullet, letter options with recommended in ALL CAPS; (3) Prompt-specific structure (plan uses Phase→Task, ask uses 🧠/📌/📊) | [rule.md](instructions/rules/concise-output-format/rule.md) |
 | 2 | Document First | Update KDS files BEFORE code changes; documentation commits must precede implementation commits | [rule.md](instructions/rules/document-first/rule.md) |
 | 3 | Playwright Orchestration | Use dotnet orchestration scripts for Playwright tests; NEVER use nested PowerShell processes or deprecated standalone mode | [rule.md](instructions/rules/playwright-orchestration/rule.md) |
 
@@ -191,18 +191,22 @@ END FUNCTION
 │   │   │   ├── rule-template.md
 │   │   │   ├── metadata.json
 │   │   │   └── examples.md
-│   │   ├── no-code-in-chat/
+│   │   ├── concise-output-format/         ← Rule #1 (ACTIVE)
 │   │   │   ├── rule.md
 │   │   │   ├── metadata.json
 │   │   │   └── examples.md
-│   │   ├── document-first/
+│   │   ├── document-first/                ← Rule #2 (ACTIVE)
 │   │   │   ├── rule.md
 │   │   │   ├── metadata.json
 │   │   │   └── examples.md
-│   │   └── playwright-orchestration/
-│   │       ├── rule.md
-│   │       ├── metadata.json
-│   │       └── examples.md
+│   │   ├── playwright-orchestration/      ← Rule #3 (ACTIVE)
+│   │   │   ├── rule.md
+│   │   │   ├── metadata.json
+│   │   │   └── examples.md
+│   │   ├── no-code-in-chat/               ← DEPRECATED (merged into #1)
+│   │   │   └── ...
+│   │   └── concise-response-format/       ← DEPRECATED (merged into #1)
+│   │       └── ...
 │   └── SelfAwareness.instructions.md      ← References MANDATORY.md
 │
 └── prompts/
@@ -219,14 +223,18 @@ END FUNCTION
 - `.github/instructions/Links/SystemIndex.md` - Central navigation hub
 
 **Rule Files:**
-- `.github/instructions/rules/no-code-in-chat/rule.md` - Full implementation
+- `.github/instructions/rules/concise-output-format/rule.md` - Full implementation (combines no-code + conciseness)
 - `.github/instructions/rules/document-first/rule.md` - Full implementation
 - `.github/instructions/rules/playwright-orchestration/rule.md` - Full implementation
 
 **Examples:**
-- `.github/instructions/rules/no-code-in-chat/examples.md` - Compliant/Non-compliant examples
+- `.github/instructions/rules/concise-output-format/examples.md` - Compliant/Non-compliant examples
 - `.github/instructions/rules/document-first/examples.md` - Workflow examples
 - `.github/instructions/rules/playwright-orchestration/examples.md` - Orchestration patterns
+
+**Deprecated (Superseded by Rule #1):**
+- `.github/instructions/rules/no-code-in-chat/` - Merged into concise-output-format
+- `.github/instructions/rules/concise-response-format/` - Merged into concise-output-format
 
 ---
 
@@ -234,6 +242,7 @@ END FUNCTION
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2025-10-31 | Combined Rule #1 (No Code in Chat) + Rule #4 (Concise Response Format) into unified Rule #1 (Concise Output Format); clarified plan.prompt.md special exception (40 bullets with phase breakdown) |
 | 2.0.0 | 2025-10-30 | Transformed to lightweight index; extracted rules to separate files |
 | 1.0.0 | 2025-10-30 | Initial monolithic version (backed up to MANDATORY.v1.0.0.backup.md) |
 
@@ -241,6 +250,6 @@ END FUNCTION
 
 **This file is MANDATORY and applies to ALL prompts without exception.**
 
-**Last Updated:** 2025-10-30  
+**Last Updated:** 2025-10-31  
 **Maintainer:** System  
-**Version:** 2.0.0
+**Version:** 2.1.0

@@ -1,0 +1,646 @@
+{
+    "version": "1.1.1",
+    "status": "canonical",
+    "lastUpdated": "2025-10-31",
+    "description": "Machine-readable KDS Governance Rulebook - companion to kds-rulebook.md",
+    "quickReference": {
+        "corePrinciples": [
+            "Governance First - All .github changes through kds.prompt.md gatekeeper",
+            "Document First - Update KDS files before code, docs commit before implementation",
+            "Honest Handoffs - Agents use JSON + Next Command + HALT (no auto-execution)",
+            "Test-Driven - Create tests FIRST (red-green-refactor), prefer headless mode",
+            "Holistic Regeneration - Delete & recreate files (no partial edits to prevent duplication)"
+        ],
+        "outputQuality": [
+            "Concise Format - No code in chat, 3-line bullets max, letter options in ALL CAPS",
+            "Key Visibility - Display active key in all headers, phase output, and commands",
+            "Per-Task Handoffs - Every task gets dedicated JSON with all parameters pre-populated"
+        ],
+        "workflowStandards": [
+            "Auto-Chain Defaults - Tasks chain by default, phases need user approval (unless E2E mode)",
+            "Phase Isolation - New chat window per phase when autoChain=false (better performance)",
+            "Plan Conflicts - Load existing plan, analyze conflicts before routing to existing keys",
+            "Test Registry - Central index (.github/tests/), reuse before creating new tests"
+        ],
+        "orchestration": [
+            "Playwright Pattern - Dotnet orchestration scripts only (Start-Job → dotnet run → Test → Stop-Job)",
+            "KDS Cleanup - Review mode detects backup files, archives (not deletes) with manifest"
+        ],
+        "enforcement": [
+            "13 Rules - Validated before output (Rule #1-13), each with validation function",
+            "Step -1 - All prompts include governance enforcement (except kds.prompt.md itself)",
+            "Dual Rulebook - JSON (machine-readable) + MD (human-readable), always synced"
+        ]
+    },
+    "corePrinciples": [
+        {
+            "id": "governance-before-execution",
+            "statement": "All .github modifications must pass through KDS gatekeeper (kds.prompt.md) for compatibility analysis",
+            "enforcement": "automated"
+        },
+        {
+            "id": "document-first-respond-later",
+            "statement": "All KDS files must be updated/created BEFORE sending user-facing output",
+            "enforcement": "automated"
+        },
+        {
+            "id": "test-driven-development",
+            "statement": "Every implementation task must have a corresponding test created FIRST",
+            "enforcement": "workflow"
+        },
+        {
+            "id": "honest-handoffs",
+            "statement": "Agents cannot execute other agents. All handoffs require explicit user invocation",
+            "enforcement": "workflow"
+        },
+        {
+            "id": "holistic-regeneration",
+            "statement": "When updating plans or major docs, DELETE and RECREATE entire file (no partial edits)",
+            "enforcement": "manual"
+        }
+    ],
+    "mandatoryRules": [
+        {
+            "id": "concise-output-format",
+            "number": 1,
+            "category": "output-format",
+            "statement": "User-facing responses MUST: (1) NEVER include code/pseudocode, (2) Max 3 lines/bullet, (3) Letter options with recommended in ALL CAPS, (4) Prompt-specific structure",
+            "severity": "critical",
+            "enforcement": "automated",
+            "validationFunction": "ValidateConciseOutputFormat",
+            "appliesToPrompts": [
+                "all"
+            ],
+            "violations": [
+                {
+                    "pattern": "```(markdown|typescript|csharp|powershell|json)",
+                    "context": "User-facing output sections",
+                    "severity": "critical"
+                },
+                {
+                    "pattern": "FUNCTION|PROCEDURE|IF.*THEN|FOR EACH|WHILE",
+                    "context": "User-facing output (not algorithm docs)",
+                    "severity": "high"
+                }
+            ],
+            "exceptions": [
+                {
+                    "prompt": "plan.prompt.md",
+                    "reason": "May use up to 40 bullets for phase/task breakdown (structured output needs detail)"
+                },
+                {
+                    "location": "shared/ algorithm docs",
+                    "reason": "May include pseudocode for clarity (not user-facing)"
+                }
+            ]
+        },
+        {
+            "id": "document-first",
+            "number": 2,
+            "category": "workflow",
+            "statement": "Update KDS files BEFORE code changes. Documentation commits must precede implementation commits.",
+            "severity": "critical",
+            "enforcement": "automated",
+            "validationFunction": "ValidateDocumentFirst",
+            "appliesToPrompts": [
+                "plan",
+                "task",
+                "todo",
+                "test-generation"
+            ],
+            "checkpoints": [
+                {
+                    "prompt": "plan.prompt.md",
+                    "step": "5.5",
+                    "validation": "Blocks output until plan.md, work-log.md, handoffs/ exist"
+                },
+                {
+                    "prompt": "task.prompt.md",
+                    "step": "8.25",
+                    "validation": "Verifies work-log.md timestamp updated within 60s"
+                },
+                {
+                    "prompt": "todo.prompt.md",
+                    "step": "execution",
+                    "validation": "Verifies file size increased (append occurred)"
+                }
+            ]
+        },
+        {
+            "id": "playwright-orchestration",
+            "number": 3,
+            "category": "testing",
+            "statement": "Use dotnet orchestration scripts for Playwright tests. NEVER use nested PowerShell processes or deprecated standalone mode.",
+            "severity": "high",
+            "enforcement": "automated",
+            "validationFunction": "ValidatePlaywrightOrchestration",
+            "appliesToPrompts": [
+                "test-generation"
+            ],
+            "approvedPattern": "Start-Job → dotnet run → Sleep → Test → Stop-Job",
+            "deprecatedPatterns": [
+                "Start-Process powershell.exe",
+                "npx playwright test (standalone without app orchestration)"
+            ]
+        }
+    ],
+    "agenticRules": [
+        {
+            "id": "per-task-handoffs",
+            "number": 4,
+            "category": "handoffs",
+            "statement": "Every task generates a dedicated handoff JSON file with all parameters pre-populated",
+            "severity": "high",
+            "enforcement": "workflow",
+            "validationFunction": "ValidatePerTaskHandoffs",
+            "appliesToPrompts": [
+                "plan",
+                "task",
+                "todo"
+            ],
+            "filePattern": "handoffs/phase-{N}-todo-{M}.json",
+            "requiredFields": [
+                "key",
+                "phase",
+                "task",
+                "description",
+                "files",
+                "acceptanceCriteria",
+                "autoChain",
+                "nextTask",
+                "testFile"
+            ]
+        },
+        {
+            "id": "tdd-every-todo",
+            "number": 5,
+            "category": "testing",
+            "statement": "Every implementation task must have a corresponding test created FIRST (red-green-refactor)",
+            "severity": "high",
+            "enforcement": "workflow",
+            "validationFunction": "ValidateTDDWorkflow",
+            "appliesToPrompts": [
+                "plan",
+                "task",
+                "test-generation"
+            ],
+            "workflow": [
+                "red (failing test)",
+                "green (implement)",
+                "refactor (optimize)"
+            ],
+            "preferHeadless": true
+        },
+        {
+            "id": "auto-chain-defaults",
+            "number": 6,
+            "category": "workflow",
+            "statement": "Tasks auto-chain by default (autoChain=true). Phases require user approval unless E2E mode selected.",
+            "severity": "medium",
+            "enforcement": "workflow",
+            "validationFunction": "ValidateAutoChain",
+            "appliesToPrompts": [
+                "plan",
+                "task",
+                "todo"
+            ],
+            "defaults": {
+                "taskAutoChain": true,
+                "phaseAutoChain": false
+            },
+            "e2eMode": {
+                "enabled": true,
+                "countdownSeconds": 5,
+                "interruptKey": "Ctrl+C"
+            }
+        },
+        {
+            "id": "central-test-index",
+            "number": 7,
+            "category": "testing",
+            "statement": "All tests registered in .github/tests/playwright-index.json. Prefer reusing existing tests before creating new ones.",
+            "severity": "medium",
+            "enforcement": "workflow",
+            "validationFunction": "ValidateTestIndexCompliance",
+            "appliesToPrompts": [
+                "test-generation",
+                "plan"
+            ],
+            "indexPath": ".github/tests/playwright-index.json",
+            "reuseStrategy": "prefer-index"
+        },
+        {
+            "id": "holistic-regeneration",
+            "number": 8,
+            "category": "file-management",
+            "statement": "When updating plans or major docs, DELETE entire file and RECREATE from scratch (no partial edits)",
+            "severity": "high",
+            "enforcement": "manual",
+            "validationFunction": "ValidateHolisticRegeneration",
+            "appliesToPrompts": [
+                "plan"
+            ],
+            "strategies": [
+                {
+                    "file": "plan.md",
+                    "strategy": "delete-recreate",
+                    "reason": "Prevents duplicate/conflicting sections"
+                },
+                {
+                    "file": "work-log.md",
+                    "strategy": "append-with-dedup",
+                    "reason": "Preserves session history"
+                }
+            ]
+        },
+        {
+            "id": "plan-conflict-detection",
+            "number": 9,
+            "category": "routing",
+            "statement": "When routing to existing key, LOAD existing plan and ANALYZE conflicts before proceeding",
+            "severity": "high",
+            "enforcement": "automated",
+            "validationFunction": "ValidatePlanConflictDetection",
+            "appliesToPrompts": [
+                "route"
+            ],
+            "trigger": "existing plan.md detected",
+            "resolutionOptions": [
+                "A. Merge into existing plan (extend via todo)",
+                "B. Replace existing plan (regenerate via plan)",
+                "C. Create new key (separate work stream)",
+                "D. Review existing plan first (cancel)"
+            ]
+        },
+        {
+            "id": "kds-governance",
+            "number": 10,
+            "category": "governance",
+            "statement": "No direct modifications to .github or KDS files without governance review",
+            "severity": "critical",
+            "enforcement": "automated",
+            "validationFunction": "ValidateKDSGovernance",
+            "appliesToPrompts": [
+                "all-except-kds"
+            ],
+            "gatekeeperPrompt": "kds.prompt.md",
+            "loadOrder": [
+                "MANDATORY.md",
+                "kds-handoff-protocol.md",
+                "SelfAwareness.instructions.md",
+                "active key context"
+            ],
+            "rejectionCriteria": [
+                "violates existing rules",
+                "causes regressions",
+                "creates architectural incoherence",
+                "missing rationale"
+            ]
+        },
+        {
+            "id": "key-display",
+            "number": 11,
+            "category": "output-format",
+            "statement": "All user-facing output must display the active key for traceability",
+            "severity": "medium",
+            "enforcement": "workflow",
+            "validationFunction": "ValidateKeyDisplay",
+            "appliesToPrompts": [
+                "all"
+            ],
+            "displayLocations": [
+                "section headers (Key: `{key}`)",
+                "phase/task output (Phase N | Key: {key})",
+                "next command (includes key in path)",
+                "work-log entries (prefixed with key)"
+            ]
+        },
+        {
+            "id": "phase-boundary-chat-isolation",
+            "number": 13,
+            "category": "workflow",
+            "statement": "Each phase should begin in a new Copilot chat window when autoChain is disabled. Ignored if E2E mode enabled.",
+            "severity": "medium",
+            "enforcement": "manual",
+            "validationFunction": "ValidatePhaseBoundaryChatIsolation",
+            "appliesToPrompts": [
+                "plan",
+                "task"
+            ],
+            "trigger": "autoChain=false AND phase transition",
+            "guidance": "User should start new chat window for next phase to preserve context isolation",
+            "exception": "E2E mode (autoChain=true) - single chat session for all phases",
+            "rationale": "Prevents context pollution, enables phase-specific rollback, improves Copilot performance"
+        }
+    ],
+    "handoffProtocol": [
+        {
+            "id": "honest-handoff",
+            "number": 12,
+            "category": "handoffs",
+            "statement": "Agents cannot execute other agents. All handoffs require explicit user invocation.",
+            "severity": "critical",
+            "enforcement": "workflow",
+            "validationFunction": "ValidateHonestHandoff",
+            "appliesToPrompts": [
+                "all"
+            ],
+            "pattern": "JSON + Next Command + HALT",
+            "exception": "E2E mode with autoChain=true (user approves chain upfront)"
+        }
+    ],
+    "jsonSchemas": {
+        "baseHandoff": {
+            "type": "object",
+            "required": [
+                "key",
+                "description",
+                "acceptanceCriteria"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "description": "KDS key identifier"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "What this handoff accomplishes"
+                },
+                "acceptanceCriteria": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 3,
+                    "maxItems": 7,
+                    "description": "Validation criteria"
+                },
+                "autoChain": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Auto-continue to nextTask"
+                },
+                "nextTask": {
+                    "type": "string",
+                    "description": "Path to next handoff JSON or 'complete'"
+                }
+            }
+        },
+        "routeToPlan": {
+            "allOf": [
+                {
+                    "$ref": "#/jsonSchemas/baseHandoff"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "request"
+                    ],
+                    "properties": {
+                        "request": {
+                            "type": "string",
+                            "description": "User's original request"
+                        },
+                        "scope": {
+                            "type": "string",
+                            "description": "Scope boundaries"
+                        },
+                        "constraints": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Constraints"
+                        },
+                        "e2eMode": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "E2E execution mode"
+                        },
+                        "autoChainPhases": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Auto-continue phases"
+                        }
+                    }
+                }
+            ]
+        },
+        "phaseTest": {
+            "allOf": [
+                {
+                    "$ref": "#/jsonSchemas/baseHandoff"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "phase",
+                        "scenario",
+                        "assertCriteria"
+                    ],
+                    "properties": {
+                        "phase": {
+                            "type": "number",
+                            "description": "Phase number"
+                        },
+                        "scenario": {
+                            "type": "string",
+                            "description": "Test scenario description"
+                        },
+                        "assertCriteria": {
+                            "type": "boolean",
+                            "description": "Must assert all acceptance criteria"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "enum": [
+                                "headless",
+                                "headed"
+                            ],
+                            "default": "headless",
+                            "description": "Test execution mode"
+                        }
+                    }
+                }
+            ]
+        },
+        "phaseTodo": {
+            "allOf": [
+                {
+                    "$ref": "#/jsonSchemas/baseHandoff"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "phase",
+                        "task",
+                        "files"
+                    ],
+                    "properties": {
+                        "phase": {
+                            "type": "number",
+                            "description": "Phase number"
+                        },
+                        "task": {
+                            "type": "string",
+                            "pattern": "^[0-9]+[a-z]$",
+                            "description": "Task ID (e.g., '1a', '2b')"
+                        },
+                        "files": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Files to create/modify"
+                        },
+                        "testFile": {
+                            "type": "string",
+                            "description": "Associated test file path"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "validationFunctions": {
+        "ValidateConciseOutputFormat": {
+            "description": "Scans user-facing output for code blocks, pseudocode, long bullets, improper letter options",
+            "violations": [
+                "code blocks in output sections",
+                "bullets exceeding 3 lines",
+                "letter options not in ALL CAPS (recommended)",
+                "pseudocode in user-facing responses"
+            ],
+            "exceptions": [
+                "plan.prompt.md phase breakdown (40 bullets allowed)",
+                "shared/ algorithm docs (pseudocode allowed)"
+            ]
+        },
+        "ValidateDocumentFirst": {
+            "description": "Verifies KDS files updated before user-facing output sent",
+            "checkpoints": [
+                "plan.md exists (plan.prompt.md Step 5.5)",
+                "work-log.md appended (task/todo/test-generation)",
+                "handoff JSONs created (plan Step 4.25)"
+            ]
+        },
+        "ValidatePlaywrightOrchestration": {
+            "description": "Ensures dotnet orchestration pattern used (not standalone mode)",
+            "approvedPattern": "Start-Job → dotnet run → Sleep → Test → Stop-Job",
+            "deprecatedPatterns": [
+                "Start-Process powershell.exe",
+                "npx playwright test (standalone)"
+            ]
+        },
+        "ValidatePerTaskHandoffs": {
+            "description": "Verifies handoff JSON exists for each task with all required fields",
+            "requiredFields": [
+                "key",
+                "phase",
+                "task",
+                "description",
+                "files",
+                "acceptanceCriteria",
+                "autoChain",
+                "nextTask",
+                "testFile"
+            ]
+        },
+        "ValidateTDDWorkflow": {
+            "description": "Ensures test created before implementation (red-green-refactor)",
+            "workflow": [
+                "Task {N}a: Create test (RED)",
+                "Task {N}b-x: Implement (GREEN)",
+                "Task {N}y: Validate (REFACTOR)"
+            ]
+        },
+        "ValidateAutoChain": {
+            "description": "Verifies autoChain=true for tasks, manual approval for phases (unless E2E)",
+            "defaults": {
+                "taskAutoChain": true,
+                "phaseAutoChain": false
+            }
+        },
+        "ValidateTestIndexCompliance": {
+            "description": "Checks if test registered in playwright-index.json, prefers reuse",
+            "indexPath": ".github/tests/playwright-index.json",
+            "reuseStrategy": "prefer-index"
+        },
+        "ValidateHolisticRegeneration": {
+            "description": "Detects partial edits to plan.md (should be delete-recreate)",
+            "warning": "Duplicate sections detected - consider full regeneration"
+        },
+        "ValidatePlanConflictDetection": {
+            "description": "Loads existing plan, analyzes conflicts with new request, presents resolution options",
+            "trigger": "existing plan.md detected in route.prompt.md"
+        },
+        "ValidateKDSGovernance": {
+            "description": "Detects .github modifications, redirects to @workspace /kds",
+            "enforcement": "Step -1 in all prompts (except kds.prompt.md)"
+        },
+        "ValidateKeyDisplay": {
+            "description": "Verifies key displayed in headers, phase output, next commands",
+            "displayLocations": [
+                "section headers",
+                "phase/task output",
+                "next command",
+                "work-log entries"
+            ]
+        },
+        "ValidatePhaseBoundaryChatIsolation": {
+            "description": "Checks if phase transition guidance displayed when autoChain=false",
+            "trigger": "phase completion with autoChain=false",
+            "guidance": "💡 Best Practice: Start a new Copilot chat window for Phase N to preserve context isolation",
+            "exception": "E2E mode - ignore this rule"
+        },
+        "ValidateHonestHandoff": {
+            "description": "Ensures handoff JSON created, Next Command displayed, agent HALTs (no auto-execution)",
+            "pattern": "JSON + Next Command + HALT"
+        }
+    },
+    "enforcement": {
+        "automated": [
+            "concise-output-format",
+            "document-first",
+            "playwright-orchestration",
+            "plan-conflict-detection",
+            "kds-governance"
+        ],
+        "workflow": [
+            "per-task-handoffs",
+            "tdd-every-todo",
+            "auto-chain-defaults",
+            "central-test-index",
+            "key-display",
+            "honest-handoff"
+        ],
+        "manual": [
+            "holistic-regeneration"
+        ]
+    },
+    "relatedDocumentation": {
+        "humanReadable": ".github/governance/kds-rulebook.md",
+        "mandatoryIndex": ".github/MANDATORY.md",
+        "handoffProtocol": ".github/prompts/shared/kds-handoff-protocol.md",
+        "kdsPlan": ".github/key-data-streams/kds/kds.plan.md",
+        "selfAwareness": ".github/instructions/SelfAwareness.instructions.md",
+        "gatekeeperPrompt": ".github/prompts/kds.prompt.md"
+    },
+    "versionHistory": [
+        {
+            "version": "1.1.1",
+            "date": "2025-10-31",
+            "changes": "Added Quick Reference summary section to both JSON and MD for rapid comprehension"
+        },
+        {
+            "version": "1.1.0",
+            "date": "2025-10-31",
+            "changes": "Added Rule #13 (Phase Boundary Chat Isolation), enhanced cleanup automation support"
+        },
+        {
+            "version": "1.0.0",
+            "date": "2025-10-31",
+            "changes": "Initial rulebook consolidating MANDATORY.md, Agentic Rules, Handoff Protocol"
+        }
+    ]
+}
