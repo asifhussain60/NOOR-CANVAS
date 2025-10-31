@@ -20,13 +20,55 @@ Automate preparation of Razor components for Playwright test generation via dual
 
 ---
 
+## Usage
+
+### Flexible Request Mode
+```
+@workspace /test-prep {Additional request modifying default behavior}
+```
+
+**Examples**:
+```
+@workspace /test-prep Prepare HostControlPanel for asset sharing test
+@workspace /test-prep Generate tests from session 212, focus on annotation sync
+@workspace /test-prep Clean up all logging markers from last session
+```
+
+**Agent parses natural language** to determine action (prep/generate/cleanup) and extract parameters.
+
+### Direct File Mode
+```
+@workspace /test-prep #file:Component1.razor #file:Component2.razor [options]
+```
+
+**Examples**:
+```
+@workspace /test-prep #file:HostControlPanel.razor #file:TranscriptCanvas.razor #file:SessionCanvas.razor
+@workspace /test-prep #file:HostControlPanel.razor session=212
+@workspace /test-prep #file:AssetSidebar.razor #file:QuestionPanel.razor key=hcp feature=asset-sharing
+```
+
+**When #file: detected** → Defaults to `action=prep` with specified files
+
+---
+
 ## Commands
 
 ### 1. Prep Files for Logging
 
-**Invocation**:
+**Invocation (Structured)**:
 ```
 @workspace /test-prep action=prep files=[HostControlPanel.razor,SessionCanvas.razor] session=212
+```
+
+**Invocation (Direct File Mode)**:
+```
+@workspace /test-prep #file:HostControlPanel.razor #file:SessionCanvas.razor session=212
+```
+
+**Invocation (Natural Language)**:
+```
+@workspace /test-prep Prepare HostControlPanel, SessionCanvas, and TranscriptCanvas for testing
 ```
 
 **Actions**:
@@ -45,9 +87,15 @@ Automate preparation of Razor components for Playwright test generation via dual
 
 ### 2. Generate Tests from Logs
 
-**Invocation**:
+**Invocation (Structured)**:
 ```
 @workspace /test-prep action=generate session=212 key=hcp feature=asset-sharing
+```
+
+**Invocation (Natural Language)**:
+```
+@workspace /test-prep Generate tests from session 212 for host control panel asset sharing
+@workspace /test-prep Create Playwright test from the logs, focus on annotation sync feature
 ```
 
 **Actions**:
@@ -68,9 +116,15 @@ Automate preparation of Razor components for Playwright test generation via dual
 
 ### 3. Cleanup Logging Infrastructure
 
-**Invocation**:
+**Invocation (Structured)**:
 ```
 @workspace /test-prep action=cleanup session=212
+```
+
+**Invocation (Natural Language)**:
+```
+@workspace /test-prep Clean up all logging markers from session 212
+@workspace /test-prep Remove test prep infrastructure and archive logs
 ```
 
 **Actions**:
@@ -89,15 +143,69 @@ Automate preparation of Razor components for Playwright test generation via dual
 
 ## Parameters
 
-### action *(required)*
+### Input Parsing Logic
+
+**Priority Order**:
+1. **Direct File Mode** (`#file:` detected) → Extract files, default `action=prep`
+2. **Structured Mode** (`action=` detected) → Parse explicit parameters
+3. **Natural Language Mode** → Analyze request, infer action and parameters
+
+**File Extraction**:
+```
+Input: "@workspace /test-prep #file:HostControlPanel.razor #file:SessionCanvas.razor session=212"
+Parsed:
+  action = "prep" (default when #file: present)
+  files = ["HostControlPanel.razor", "SessionCanvas.razor"]
+  session = "212"
+```
+
+**Natural Language Parsing Examples**:
+```
+Input: "Prepare HostControlPanel for asset sharing test"
+Parsed:
+  action = "prep"
+  files = ["HostControlPanel.razor"] (inferred from component name)
+  feature = "asset-sharing" (inferred from description)
+
+Input: "Generate tests from session 212, focus on annotation sync"
+Parsed:
+  action = "generate"
+  session = "212"
+  feature = "annotation-sync" (inferred)
+
+Input: "Clean up all logging markers"
+Parsed:
+  action = "cleanup"
+  session = "latest" or prompt user for session ID
+```
+
+### action *(auto-detected or explicit)*
 - `prep` - Inject logging infrastructure
 - `generate` - Create Playwright test from logs
 - `cleanup` - Remove all logging infrastructure
 
+**Auto-detection**:
+- Keywords: "prepare", "setup", "inject" → `prep`
+- Keywords: "generate", "create test", "build test" → `generate`
+- Keywords: "cleanup", "clean", "remove", "archive" → `cleanup`
+- Presence of `#file:` → `prep` (default)
+
 ### files *(required for action=prep)*
 Array of Razor component file paths (relative or absolute)
 
-**Example**: `files=[HostControlPanel.razor,SessionCanvas.razor,TranscriptCanvas.razor]`
+**Structured Mode**:  
+`files=[HostControlPanel.razor,SessionCanvas.razor,TranscriptCanvas.razor]`
+
+**Direct File Mode**:  
+`#file:HostControlPanel.razor #file:SessionCanvas.razor #file:TranscriptCanvas.razor`
+
+**Natural Language Mode**:  
+Agent infers from component names in request (e.g., "Prepare HostControlPanel and SessionCanvas")
+
+**Path Resolution**:
+- Relative paths resolved from workspace root
+- Common locations searched: `SPA/NoorCanvas/Components/`, `SPA/NoorCanvas/Pages/`
+- Full paths accepted: `SPA/NoorCanvas/Components/HostControlPanel.razor`
 
 ### session *(optional, default=auto-generated)*
 Session ID for tracking (used for cleanup and log correlation)
