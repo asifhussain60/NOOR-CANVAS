@@ -1,8 +1,37 @@
 {
-    "version": "1.0.0",
+    "version": "1.1.1",
     "status": "canonical",
     "lastUpdated": "2025-10-31",
     "description": "Machine-readable KDS Governance Rulebook - companion to kds-rulebook.md",
+    "quickReference": {
+        "corePrinciples": [
+            "Governance First - All .github changes through kds.prompt.md gatekeeper",
+            "Document First - Update KDS files before code, docs commit before implementation",
+            "Honest Handoffs - Agents use JSON + Next Command + HALT (no auto-execution)",
+            "Test-Driven - Create tests FIRST (red-green-refactor), prefer headless mode",
+            "Holistic Regeneration - Delete & recreate files (no partial edits to prevent duplication)"
+        ],
+        "outputQuality": [
+            "Concise Format - No code in chat, 3-line bullets max, letter options in ALL CAPS",
+            "Key Visibility - Display active key in all headers, phase output, and commands",
+            "Per-Task Handoffs - Every task gets dedicated JSON with all parameters pre-populated"
+        ],
+        "workflowStandards": [
+            "Auto-Chain Defaults - Tasks chain by default, phases need user approval (unless E2E mode)",
+            "Phase Isolation - New chat window per phase when autoChain=false (better performance)",
+            "Plan Conflicts - Load existing plan, analyze conflicts before routing to existing keys",
+            "Test Registry - Central index (.github/tests/), reuse before creating new tests"
+        ],
+        "orchestration": [
+            "Playwright Pattern - Dotnet orchestration scripts only (Start-Job → dotnet run → Test → Stop-Job)",
+            "KDS Cleanup - Review mode detects backup files, archives (not deletes) with manifest"
+        ],
+        "enforcement": [
+            "13 Rules - Validated before output (Rule #1-13), each with validation function",
+            "Step -1 - All prompts include governance enforcement (except kds.prompt.md itself)",
+            "Dual Rulebook - JSON (machine-readable) + MD (human-readable), always synced"
+        ]
+    },
     "corePrinciples": [
         {
             "id": "governance-before-execution",
@@ -598,6 +627,11 @@
         "gatekeeperPrompt": ".github/prompts/kds.prompt.md"
     },
     "versionHistory": [
+        {
+            "version": "1.1.1",
+            "date": "2025-10-31",
+            "changes": "Added Quick Reference summary section to both JSON and MD for rapid comprehension"
+        },
         {
             "version": "1.1.0",
             "date": "2025-10-31",
