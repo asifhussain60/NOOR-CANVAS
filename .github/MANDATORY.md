@@ -27,6 +27,7 @@
 | 1 | Concise Output Format | User-facing responses MUST: (1) NEVER include code/pseudocode, only architectural descriptions; (2) Max 3 lines per bullet, letter options with recommended in ALL CAPS; (3) Prompt-specific structure (plan uses Phase→Task, ask uses 🧠/📌/📊) | [rule.md](instructions/rules/concise-output-format/rule.md) |
 | 2 | Document First | Update KDS files BEFORE code changes; documentation commits must precede implementation commits | [rule.md](instructions/rules/document-first/rule.md) |
 | 3 | Playwright Orchestration | Use dotnet orchestration scripts for Playwright tests; NEVER use nested PowerShell processes or deprecated standalone mode | [rule.md](instructions/rules/playwright-orchestration/rule.md) |
+| 14 | Build State Validation | Application MUST be left in built state with zero build errors after task/phase completion; warnings acceptable | [kds-rulebook.json](governance/kds-rulebook.json) |
 
 **Validation:** Execute `ValidateMandatoryCompliance()` before ANY user-facing output
 

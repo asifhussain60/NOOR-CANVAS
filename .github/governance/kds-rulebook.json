@@ -1,5 +1,5 @@
 {
-    "version": "1.1.1",
+    "version": "1.2.0",
     "status": "canonical",
     "lastUpdated": "2025-10-31",
     "description": "Machine-readable KDS Governance Rulebook - companion to kds-rulebook.md",
@@ -29,7 +29,8 @@
         "enforcement": [
             "13 Rules - Validated before output (Rule #1-13), each with validation function",
             "Step -1 - All prompts include governance enforcement (except kds.prompt.md itself)",
-            "Dual Rulebook - JSON (machine-readable) + MD (human-readable), always synced"
+            "Dual Rulebook - JSON (machine-readable) + MD (human-readable), always synced",
+            "Build Validation - Zero errors required after task/phase completion (Rule #14)"
         ]
     },
     "corePrinciples": [
@@ -331,6 +332,49 @@
             "guidance": "User should start new chat window for next phase to preserve context isolation",
             "exception": "E2E mode (autoChain=true) - single chat session for all phases",
             "rationale": "Prevents context pollution, enables phase-specific rollback, improves Copilot performance"
+        },
+        {
+            "id": "build-state-validation",
+            "number": 14,
+            "category": "quality-gates",
+            "statement": "Application MUST be left in a built state with zero build errors before completing any work session, phase, or commit. Warnings are acceptable.",
+            "severity": "critical",
+            "enforcement": "automated",
+            "validationFunction": "ValidateBuildState",
+            "appliesToPrompts": [
+                "task",
+                "todo",
+                "plan",
+                "test-generation"
+            ],
+            "trigger": [
+                "after task completion",
+                "after phase completion",
+                "before git commit",
+                "before handoff to next task"
+            ],
+            "command": "dotnet build --no-incremental",
+            "successCriteria": {
+                "exitCode": 0,
+                "errors": 0,
+                "warnings": "acceptable"
+            },
+            "onFailure": {
+                "options": [
+                    "A. Rollback changes (git reset)",
+                    "B. Fix errors immediately",
+                    "C. Create drift key for build fix"
+                ],
+                "default": "HALT and present options"
+            },
+            "exceptions": [
+                {
+                    "scenario": "Refactoring in progress",
+                    "condition": "Explicit 'refactor-wip' flag in commit message",
+                    "justification": "Mid-refactor states may temporarily break build"
+                }
+            ],
+            "rationale": "Prevents broken states from being committed, ensures continuous integration readiness, maintains code quality between work sessions"
         }
     ],
     "handoffProtocol": [
@@ -596,6 +640,25 @@
         "ValidateHonestHandoff": {
             "description": "Ensures handoff JSON created, Next Command displayed, agent HALTs (no auto-execution)",
             "pattern": "JSON + Next Command + HALT"
+        },
+        "ValidateBuildState": {
+            "description": "Runs dotnet build --no-incremental and verifies zero errors (warnings acceptable)",
+            "command": "dotnet build --no-incremental",
+            "successCriteria": {
+                "exitCode": 0,
+                "errors": 0,
+                "warnings": "acceptable"
+            },
+            "onFailure": {
+                "action": "HALT with options: Rollback, Fix, or Drift",
+                "blocking": true
+            },
+            "integrationPoints": [
+                "task.prompt.md - After task completion (before final output)",
+                "todo.prompt.md - After work completion",
+                "plan.prompt.md - In success criteria section",
+                "test-generation.prompt.md - After test file creation"
+            ]
         }
     },
     "enforcement": {
@@ -604,7 +667,8 @@
             "document-first",
             "playwright-orchestration",
             "plan-conflict-detection",
-            "kds-governance"
+            "kds-governance",
+            "build-state-validation"
         ],
         "workflow": [
             "per-task-handoffs",
@@ -627,6 +691,11 @@
         "gatekeeperPrompt": ".github/prompts/kds.prompt.md"
     },
     "versionHistory": [
+        {
+            "version": "1.2.0",
+            "date": "2025-10-31",
+            "changes": "Added Rule #14 (Build State Validation) - CRITICAL quality gate requiring zero build errors after task/phase completion"
+        },
         {
             "version": "1.1.1",
             "date": "2025-10-31",
