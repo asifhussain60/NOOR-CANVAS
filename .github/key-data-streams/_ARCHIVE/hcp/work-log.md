@@ -560,6 +560,292 @@ Improve Q&A panel functionality and styling on Host Control Panel:
 
 ---
 
+## [2025-10-31T10:00:00Z] - GitHub Copilot
+
+**Status**: 📋 Planning  
+**Phase**: COMPREHENSIVE CLEANUP - Option A
+**Source**: Analysis from `.copilot/CONTEXT/CopilotChats.md`
+
+### Analysis Summary
+
+Reviewed HostControlPanel.razor (4,962 lines) for code quality violations:
+- **Total Identified Issues**: ~800 lines of orphaned/duplicate code
+- **Analysis Source**: CopilotChats.md comprehensive code review
+- **Violation of Rule**: MANDATORY.md Rule 1 (No Code in Chat) - CopilotChats.md contains 54+ code blocks
+
+### Cleanup Categories Identified
+
+#### 1. **Orphaned Methods** (6 methods, ~200 lines)
+- `InjectAssetShareButtonsHubBased` (line 2988) - Returns input unchanged, marked for replacement
+- `CreateRedShareButtonHtml` (line 2999) - No callers found, legacy share button generator
+- `InjectIndividualShareButtons` (line 3379) - Legacy sync wrapper, "keep for fallback" but unused
+- `ExtractRawAssetHtml` (line 2423) - Extraction logic, no usage detected
+- `ExtractAssetHtmlContent` (line 2529) - Duplicate extraction method
+- `ProcessAssetForSharing` (line 2566) - Transformation wrapper, minimal usage
+
+#### 2. **Duplicate HTML Rendering Methods** (9 methods, ~400 lines)
+All functionality already in `SafeHtmlRenderingService`:
+- `RenderLargeContentSummary` (line 3412)
+- `RenderWithSafeFallback` (line 3452)
+- `RenderSanitizedContent` (line 3469)
+- `RenderErrorFallback` (line 3478)
+- `RenderAsPlainText` (line 3508)
+- `ContainsPotentiallyProblematicContent` (line 3534)
+- `CleanHtmlForSafeRendering` (line 3564)
+- `SanitizeHtmlForRendering` (line 3586)
+- `EnsureTagsClosed` (line 3597)
+
+Comment at line 3407: "Obsolete transcript rendering methods removed - using SafeHtmlRenderingService instead" but methods still present.
+
+#### 3. **Stub Methods Moved to Services** (~100 lines)
+Already in `AssetProcessingService`:
+- `CreateShareButtonHtml` → `AssetProcessingService` (line 3010)
+- `SanitizeHtml` → `AssetProcessingService` (line 3012)
+- `RemoveDeleteButtons` → `AssetProcessingService` (line 3016)
+- `GetAssetLookupsFromApiAsync` → `AssetProcessingService` (line 4006)
+
+#### 4. **Stale Documentation Comments** (~50 lines)
+REMOVED/OBSOLETE markers without actual removals:
+- `LoadUserTokenAsync` (line 1151)
+- `DetectAndTrackAssetsAsync` (line 3356)
+- `InjectAssetShareButtonsAsync` (line 3358)
+- `InjectShareButtonForAsset` (line 3360)
+- `SaveAssetsToDatabase` (line 3364)
+
+#### 5. **Debug/Test Methods** (Active but debug-only)
+- `TestAssetDetectionAsync` (line 2687) - Called from DebugPanel
+- `TestTranscriptSectionSharing` (line 3611) - Called from DebugPanel
+- `TestShareAsset` (line 1765) - Comprehensive test method
+
+#### 6. **Potentially Unused Utility Methods** (2 methods, ~50 lines)
+Need verification:
+- `GetSessionElapsedTime` (line 3862)
+- `FormatSessionDescriptionToProperCase` (line 3810)
+
+### Cleanup Plan Phases
+
+#### **Phase 1: Pre-Cleanup Documentation** (DOCUMENT-FIRST PROTOCOL)
+**Tasks**:
+1. ✅ Create this work-log entry documenting cleanup scope
+2. Create baseline snapshot commit
+3. Create baseline Playwright test: `hcp-refactor-baseline.spec.ts`
+4. Run baseline test and capture results
+5. Document current line count: 4,962 lines
+6. Tag checkpoint: `checkpoint/hcp-cleanup-baseline/2025-10-31`
+
+**Success Criteria**:
+- Work-log entry committed
+- Baseline test passes
+- Checkpoint tag created
+
+---
+
+#### **Phase 2: Remove Orphaned Methods** (Target: -200 lines)
+**Methods to Remove**:
+1. `InjectAssetShareButtonsHubBased` (line 2988)
+2. `CreateRedShareButtonHtml` (line 2999)
+3. `InjectIndividualShareButtons` (line 3379)
+4. `ExtractRawAssetHtml` (line 2423)
+5. `ExtractAssetHtmlContent` (line 2529)
+6. `ProcessAssetForSharing` (line 2566)
+
+**Validation**:
+- ✅ Build succeeds (zero errors)
+- ✅ Baseline test passes
+- ✅ `grep_search` confirms no callers in codebase
+
+**Debug Logging**: `[DEBUG-WORKITEM:hcp-cleanup:phase2:orphaned-removal] ;CLEANUP_OK`
+
+---
+
+#### **Phase 3: Remove Duplicate HTML Rendering Methods** (Target: -400 lines)
+**Methods to Remove** (all duplicated in SafeHtmlRenderingService):
+1. `RenderLargeContentSummary` (line 3412)
+2. `RenderWithSafeFallback` (line 3452)
+3. `RenderSanitizedContent` (line 3469)
+4. `RenderErrorFallback` (line 3478)
+5. `RenderAsPlainText` (line 3508)
+6. `ContainsPotentiallyProblematicContent` (line 3534)
+7. `CleanHtmlForSafeRendering` (line 3564)
+8. `SanitizeHtmlForRendering` (line 3586)
+9. `EnsureTagsClosed` (line 3597)
+
+**Verification**:
+- Confirm all callers use `SafeHtmlRenderer` injected service
+- Update any remaining direct calls to use service
+
+**Validation**:
+- ✅ Build succeeds
+- ✅ Baseline test passes
+- ✅ No compilation errors
+
+**Debug Logging**: `[DEBUG-WORKITEM:hcp-cleanup:phase3:duplicate-rendering-removal] ;CLEANUP_OK`
+
+---
+
+#### **Phase 4: Remove Service Stub Methods** (Target: -100 lines)
+**Methods to Remove** (already in AssetProcessingService):
+1. `CreateShareButtonHtml` stub (line 3010)
+2. `SanitizeHtml` stub (line 3012)
+3. `RemoveDeleteButtons` stub (line 3016)
+4. `GetAssetLookupsFromApiAsync` stub (line 4006)
+
+**Verification**:
+- Confirm AssetProcessor service handles all functionality
+- Check for any remaining direct calls
+
+**Validation**:
+- ✅ Build succeeds
+- ✅ Baseline test passes
+
+**Debug Logging**: `[DEBUG-WORKITEM:hcp-cleanup:phase4:service-stubs-removal] ;CLEANUP_OK`
+
+---
+
+#### **Phase 5: Clean Stale Documentation Comments** (Target: -50 lines)
+**Comments to Remove**:
+1. REMOVED: LoadUserTokenAsync (line 1151)
+2. REMOVED: DetectAndTrackAssetsAsync (line 3356)
+3. REMOVED: InjectAssetShareButtonsAsync (line 3358)
+4. REMOVED: InjectShareButtonForAsset (line 3360)
+5. REMOVED: SaveAssetsToDatabase (line 3364)
+6. "Obsolete transcript rendering methods removed" (line 3407)
+
+**Action**: Remove comment blocks documenting already-removed code
+
+**Validation**:
+- ✅ Build succeeds
+- ✅ No functional impact
+
+**Debug Logging**: `[DEBUG-WORKITEM:hcp-cleanup:phase5:stale-comments-removal] ;CLEANUP_OK`
+
+---
+
+#### **Phase 6: Verify Potentially Unused Methods** (Target: TBD)
+**Methods to Investigate**:
+1. `GetSessionElapsedTime` (line 3862)
+2. `FormatSessionDescriptionToProperCase` (line 3810)
+
+**Actions**:
+- Run `list_code_usages` for each method
+- If no usages found: Remove (~50 lines)
+- If usages found: Document and keep
+
+**Validation**:
+- ✅ Usage analysis complete
+- ✅ Decision documented
+
+**Debug Logging**: `[DEBUG-WORKITEM:hcp-cleanup:phase6:unused-verification] ;CLEANUP_OK`
+
+---
+
+#### **Phase 7: Post-Cleanup Validation** (COMPREHENSIVE)
+**Tasks**:
+1. Run full build validation
+2. Re-run baseline Playwright test
+3. Manual smoke test with Session 212
+4. Compare line count: 4,962 → ~4,162 (target: -800 lines)
+5. Run Roslynator analysis (optional)
+
+**Success Criteria**:
+- ✅ Build: 0 errors, 0 warnings
+- ✅ Baseline test: ALL PASS
+- ✅ Manual test: Session 212 functionality intact
+- ✅ Line count reduced by ~800 lines
+
+**Debug Logging**: `[DEBUG-WORKITEM:hcp-cleanup:phase7:final-validation] ;CLEANUP_OK`
+
+---
+
+#### **Phase 8: Documentation & Completion**
+**Tasks**:
+1. Update work-log with final results
+2. Create summary in `.copilot/CONTEXT/CopilotChats.md` (concise, no code blocks)
+3. Commit cleanup changes
+4. Tag: `cleanup/hcp-comprehensive/2025-10-31`
+5. Archive this work-log entry
+
+**Deliverables**:
+- Work-log entry (this document)
+- Git commits with cleanup changes
+- Updated CopilotChats.md (compliant with MANDATORY.md Rule 1)
+
+---
+
+### Estimated Impact
+
+**Before Cleanup**:
+- Total lines: 4,962
+- Orphaned code: ~800 lines
+- Technical debt: HIGH
+
+**After Cleanup**:
+- Target lines: ~4,162 (-800 lines, -16%)
+- Orphaned code: 0 lines
+- Technical debt: LOW
+- Maintainability: IMPROVED
+
+**Preserved**:
+- Debug methods (TestAssetDetectionAsync, TestTranscriptSectionSharing, TestShareAsset)
+- All active functionality
+- Service integrations (SafeHtmlRenderer, AssetProcessor, HtmlTransform)
+
+---
+
+### Risk Assessment
+
+**Low Risk Items** (Safe to remove):
+- Orphaned methods with zero callers
+- Duplicate methods with service alternatives
+- Stale documentation comments
+
+**Medium Risk Items** (Verify first):
+- Potentially unused utility methods
+- Service stub methods (confirm AssetProcessor handles)
+
+**High Risk Items** (Keep):
+- Debug methods (active in DebugPanel)
+- Test methods (used for diagnostics)
+
+---
+
+### Rollback Plan
+
+**If Issues Detected**:
+1. `git log` to find pre-cleanup commit hash
+2. `git reset --hard <commit-hash>` to rollback
+3. Document issue in work-log
+4. Defer cleanup to future iteration
+
+**Checkpoint Tags**:
+- `checkpoint/hcp-cleanup-baseline/2025-10-31` - Before cleanup
+- `checkpoint/hcp-cleanup-phase{N}/2025-10-31` - After each phase
+
+---
+
+### Next Actions
+
+**Immediate**:
+1. ✅ Commit this work-log entry (DOCUMENT-FIRST)
+2. Create baseline snapshot commit
+3. Create baseline Playwright test
+4. Await user approval to proceed with Phase 2
+
+**User Decision Required**:
+- Proceed with Phase 2 (Remove Orphaned Methods)?
+- Skip any categories?
+- Different prioritization?
+
+---
+
+**Compliance Notes**:
+- ✅ Following MANDATORY.md Rule 2 (Document First Protocol)
+- ✅ Work-log updated BEFORE code changes
+- ✅ Comprehensive plan documented in key data stream
+- ⚠️ CopilotChats.md violates Rule 1 (contains code) - will be addressed in Phase 8
+
+---
+
 # CONSOLIDATED FROM hcp-question KEY (2025-10-15)
 
 # hcp-question

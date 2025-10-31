@@ -463,35 +463,34 @@ ExecuteBuildPrompt(rawInput)
 
 ## 📊 Output Format
 
+**CRITICAL:** All output MUST comply with `.github/MANDATORY.md` Rule #1 - NO code blocks, NO pseudocode in user-facing responses.
+
 ### Task 0: Invocation Parsing (Always First)
 
-```markdown
-## 🧠 Parsing (≤5 bullets)
-- Format: {Positional|Named|Default}
-- Target: {target-name}
-- Request: {one-liner}
-- Key: {key} (if specified)
-- Auto-execute: {yes/no}
-```
+**Output:** Parsing section (≤5 bullets)
+- Format detected (Positional, Named, or Default routing)
+- Target agent identified
+- Request summary (one-liner)
+- Key specification (if provided)
+- Auto-execute mode (yes/no)
 
 ---
 
 ### Task 1: Key Data Stream Consultation (If Related Keys Found)
 
-```markdown
-## 🧠 Key Search (≤8 bullets)
-- Found: {count} related keys
-- Top: {key-1} ({status})
-- Relevance: {score}%
-- Location: .github/key-data-streams/
-- Files: {count} modified in {key-1}
-- Recommendation: {which-key-or-new}
+**Output:** Key Search section (≤8 bullets)
+- Count of related keys found
+- Top match with status
+- Relevance score percentage
+- Location in .github/key-data-streams/
+- File modification count in top key
+- Recommendation (which key or create new)
 
-## 📌 Options
-**A.** Use {key-1} | **B.** Create New | **C.** Review Details
-
-Keys: {key-1}, {key-2}, {key-3}
-```
+**Options Section:** Letter-based choices
+- A: Use recommended key
+- B: Create new key
+- C: Review details
+- List discovered keys
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
 
@@ -499,28 +498,29 @@ Keys: {key-1}, {key-2}, {key-3}
 
 ### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
 
-```markdown
-## 🧠 Analysis (≤8 bullets)
-- Request: {one-liner}
-- Context: {files-count}F {images-count}I {errors-count}E
-- Type: {work-type}
-- Complexity: {simple|moderate|complex} ({score}/15)
-- Target: {target-prompt}.prompt.md
-- Layers: {UI, API, Service, DB, SignalR}
-- Routing: {intelligent|manual}
+**Output:** Analysis section (≤8 bullets)
+- Request summary (one-liner)
+- Context counts (files, images, errors using F/I/E notation)
+- Work type classification
+- Complexity level with score (simple/moderate/complex out of 15)
+- Target prompt agent
+- Architecture layers affected (UI, API, Service, DB, SignalR)
+- Routing method (intelligent or manual)
 
-## � Tasks (≤10 bullets when applicable)
-1. Key: {key} (new|existing)
-2. Agent: {target-prompt}.prompt.md
-3. Params: {key-params-list}
-4. Context: {visual|error|file} packages prepared
-5. Approval: {auto|manual}
-6. Files: {estimated-file-count} expected changes
-7. Architecture: {high-level-approach}
+**Tasks Section (≤10 bullets when applicable):**
+- Key determination (new or existing)
+- Target agent file path
+- Key parameters list
+- Context package preparation (visual, error, file)
+- Approval mode (auto or manual)
+- Estimated file change count
+- High-level architectural approach
 
-## ⚡ Options
-**A.** Execute | **B.** Modify | **C.** Change Target | **D.** Cancel
-```
+**Options Section:** Letter-based choices
+- A: Execute handoff (recommended)
+- B: Modify parameters
+- C: Change target agent
+- D: Cancel
 
 **Behavior:** Wait for user approval before proceeding to handoff.
 
@@ -528,18 +528,11 @@ Keys: {key-1}, {key-2}, {key-3}
 
 ### Task 3: Handoff Execution (After approval or when auto-execute=true)
 
-```markdown
-## 🚀 Handoff to {target}
-
-- Target: .github/prompts/{target}.prompt.md
-- Key: {key}
-- Params: {key-params}
-- Transitioning control...
-
----
-
-{BEGIN TARGET AGENT EXECUTION - Target agent output follows}
-```
+**Output:** Handoff section
+- Target prompt file path
+- Key assignment
+- Parameter summary
+- Transition message
 
 **Behavior:** Transition control to target agent. From this point forward, the target agent's instructions govern all behavior.
 

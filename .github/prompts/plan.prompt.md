@@ -5,9 +5,22 @@ mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions, auto-chain, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-30
+lastUpdated: 2025-10-31
 stateTracking: enabled
 **Changelog:**
+- **v1.10 (2025-10-31)**: KDS GOVERNANCE INTEGRATION + HANDOFF CONTEXT + NEXT COMMAND
+  - Added Step 0.2 to load route handoff context from `.github/key-data-streams/{key}/handoffs/route-to-plan.json`
+  - Standardized "Next Command" output after plan generation to start Phase 1 via handoff JSON
+  - Introduced KDS Governance Mode (key = `kds`) with explicit tasks to create `kds-handoff-protocol.md` and `kds.prompt.md`
+  - Clarified honest handoff protocol (no implicit execution) and alignment with MANDATORY.md and SelfAwareness
+  - Kept changes scoped to `.github/**` for clean, isolated merges to development
+- **v1.9 (2025-10-31)**: PHASE ACCEPTANCE CRITERIA + CENTRAL TEST INDEX
+  - Added mandatory Acceptance Criteria per phase (defined in the plan and enforced in tests)
+  - Phase test-generation handoff now includes acceptanceCriteria and must assert them
+  - Introduced a centralized Playwright Test Index JSON for reuse/avoid duplication
+    - Default path: `.github/tests/playwright-index.json` (global)
+    - Plan and test-generation update and consult this index
+  - Added commit/merge hygiene guidance to keep changes isolated and traceable
 - **v1.8 (2025-10-30)**: TEST-FIRST WORKFLOW & AUTOMATED JSON HANDOFFS
   - **Step 4 ENHANCED**: Plan generation now includes test-first workflow
     - Each phase: Task {N}a (create test) → Task {N}b-x (implement) → Task {N}y (run test) → Task {N}z (checkpoint)
@@ -164,6 +177,22 @@ Reply: A, B, or C
 
 ---
 
+## 🔍 Step 0.2: LOAD HANDOFF CONTEXT (IF PROVIDED)
+
+If routed from the router, load the handoff context created by route.prompt.md. This preserves prior analysis and parameters and avoids rework.
+
+**Default location:** `.github/key-data-streams/{key}/handoffs/route-to-plan.json`
+
+**Behavior:**
+- If file exists: Load and use `userRequest`, `analysis`, and any `constraints` to seed planning.
+- If not present: Proceed normally.
+
+**Notes:**
+- Follows the honest handoff protocol: route prepares files; user invokes plan manually.
+- Do not execute downstream agents automatically here; only read context.
+
+---
+
 ## 🔍 Step 0.1: KEY SPELLING VALIDATION
 
 **Validate key follows naming conventions:**
@@ -283,12 +312,17 @@ END IF
 **Goal:** {one-liner}
 **Dependencies:** None
 **Estimated Duration:** {timeframe}
+**Acceptance Criteria (MANDATORY):**
+- Define 3–7 objective, testable outcomes for this phase
+- Criteria must be verifiable via automated tests created in Task 1a and validated in Task 1d
+- Examples: concrete UI states, API responses, file artifacts, log entries, side-effect constraints
 
 **Tasks:**
 1. **Task 1a: Create Passing Test** (test-generation.prompt.md handoff)
    - Purpose: Generate headless test for phase functionality
    - Test File: `.github/key-data-streams/{key}/tests/phase-1-test.spec.ts`
-   - Coverage: {test scenarios}
+  - Coverage: {test scenarios aligned to Acceptance Criteria}
+  - Acceptance Criteria Under Test: Reference the list above
    - Success Criteria: Test passes with current implementation (baseline)
    - Estimated Duration: {timeframe}
    - Handoff File: `handoffs/phase-1-test.json`
@@ -312,7 +346,7 @@ END IF
    - On Completion: Auto-invoke Task 1d
 
 4. **Task 1d: Run & Fix Test**
-   - Action: Execute phase-1-test.spec.ts and make it pass
+  - Action: Execute phase-1-test.spec.ts; assert and satisfy all Phase Acceptance Criteria; make tests pass
    - Test Command: `npx playwright test tests/phase-1-test.spec.ts`
    - Success Criteria: All tests green
    - Estimated Duration: {timeframe}
@@ -381,6 +415,8 @@ END IF
 - Test types required: {unit, E2E, visual}
 - Test-first approach: Create test BEFORE implementation for each phase
 - Test scenarios and coverage per phase
+- Acceptance Criteria: Each phase MUST define acceptance criteria; tests MUST assert them (`assertCriteria: true`)
+- Central Index: Maintain and consult `.github/tests/playwright-index.json` to reuse existing tests before creating new ones
 - **CRITICAL**: If Playwright tests required, include:
   - Orchestration script creation in Task {N}a
   - Script path: `Scripts/run-{key}-phase-{N}-test.ps1`
@@ -437,6 +473,10 @@ New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
   "scenario": "{test scenario description}",
   "testType": "{unit|e2e|visual}",
   "testFile": "tests/phase-{N}-test.spec.ts",
+  "acceptanceCriteria": [
+    "{criterion1}",
+    "{criterion2}"
+  ],
   "coverage": {
     "components": ["{component1}", "{component2}"],
     "interactions": ["{interaction1}", "{interaction2}"],
@@ -452,6 +492,12 @@ New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
     "scriptPath": "Scripts/run-{key}-phase-{N}-test.ps1",
     "templateRef": ".github/prompts/shared/test-orchestration-patterns.md"
   },
+  "testsIndex": {
+    "path": ".github/tests/playwright-index.json",
+    "reuseStrategy": "prefer-index",
+    "allowCreation": true
+  },
+  "assertCriteria": true,
   "estimatedDuration": "{timeframe}",
   "nextTask": "phase-{N}-todo-1"
 }
@@ -499,6 +545,30 @@ New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
   "scope": "kds-cleanup",
   "autoApprove": true,
   "estimatedDuration": "5 minutes"
+}
+```
+
+### 4. Central Playwright Test Index (Global)
+
+To enable intelligent reuse and avoid duplicating tests, maintain a global index file of Playwright tests:
+
+- Default path (global): `.github/tests/playwright-index.json`
+- Update policy:
+  - On creating or updating any phase test, add/update an entry keyed by `{key}`, `phase`, and `testFile`
+  - Include `scenario`, `tags`, `acceptanceCriteria`, `assertCriteria`, and `lastUpdated`
+  - Test-generation agents MUST consult the index first using `reuseStrategy: "prefer-index"`
+
+Example entry shape:
+```json
+{
+  "key": "{key}",
+  "phase": {N},
+  "testFile": ".github/key-data-streams/{key}/tests/phase-{N}-test.spec.ts",
+  "scenario": "{brief}",
+  "tags": ["{ui|api|visual}", "{component}", "{feature}"] ,
+  "acceptanceCriteria": ["{criterion1}", "{criterion2}"],
+  "assertCriteria": true,
+  "lastUpdated": "2025-10-31T00:00:00Z"
 }
 ```
 
@@ -697,6 +767,26 @@ All handoff parameters pre-generated and saved:
 
 ---
 
+## 🔍 Step 6.5: STANDARD "NEXT COMMAND" OUTPUT
+
+After generating handoff files and verifying artifacts, present a single, copyable Next Command to begin Phase 1.
+
+**Next Command:**
+
+```
+@workspace /test-generation #file:.github/key-data-streams/{key}/handoffs/phase-1-test.json
+```
+
+**What this does:**
+- Creates or updates the Phase 1 test per the handoff
+- Asserts the Phase 1 Acceptance Criteria (`assertCriteria: true`)
+- Updates the central test index if tests are created or modified
+- On completion, auto-chains to the first implementation task via `nextTask`
+
+If manual mode is selected, still present this command but do not auto-trigger.
+
+---
+
 ## 🔍 Step 7: INDEX MAINTENANCE
 
 **Update global index with new key:**
@@ -843,7 +933,23 @@ Reply: A (or wait 5s), B, C, D, or E
 
 ---
 
-## 🚀 HANDOFF TO TASK.PROMPT.MD (After user approval)
+## � NEXT COMMAND (COPY AND EXECUTE)
+
+Start Phase 1 by creating the test via the prepared handoff JSON:
+
+```
+@workspace /test-generation #file:.github/key-data-streams/{key}/handoffs/phase-1-test.json
+```
+
+What the next agent will do:
+- Load the handoff JSON and honor `acceptanceCriteria` and `assertCriteria`
+- Prefer reuse via `.github/tests/playwright-index.json` before creating new tests
+- Run in headless mode unless the plan marks the phase as UI/visual
+- On success, auto-chain to the first todo handoff in Phase 1
+
+---
+
+## �🚀 HANDOFF TO TASK.PROMPT.MD (After user approval)
 
 **Handoff message:**
 
@@ -965,7 +1071,17 @@ Reply: A, B, or C
 
 ---
 
-## 🔀 DRIFT DETECTION & MANAGEMENT
+## � Git Commit and Merge Hygiene (KDS-related changes)
+
+- Use scoped, descriptive commit messages to simplify review and merging:
+  - `feat(kds/plan): add phase acceptance criteria and central test index`
+  - `docs(kds): update plan changelog v1.9`
+  - `refactor(kds): normalize test handoff fields`
+- Keep plan/prompt/KDS edits isolated to `.github/**` to reduce merge surface with application code.
+- Use checkpoints for multi-file prompt updates: `ckpt(kds): after plan v1.9 updates`
+- Summarize affected files and version in PR description for traceability.
+
+## �🔀 DRIFT DETECTION & MANAGEMENT
 
 **During planning, detect potential drift issues:**
 
@@ -1013,6 +1129,31 @@ Reply: A, B, or C
 
 Reply: A, B, or C
 ```
+
+---
+
+## 🧭 KDS GOVERNANCE MODE (key = `kds`)
+
+When planning for the KDS key (`key: kds`), include governance-specific tasks to evolve and safeguard the prompt system:
+
+**Additional Phase 1 Tasks (KDS-only):**
+1. Create `.github/prompts/shared/kds-handoff-protocol.md`
+  - Define standard handoff JSON formats (route-to-*, phase-*-test.json, phase-*-todo-*.json)
+  - Specify `nextTask` chaining and `autoChain` defaults (tasks=true, phases=manual by default)
+  - Document the honest handoff protocol and "Next Command" UX
+2. Create `.github/prompts/kds.prompt.md`
+  - Governance gatekeeper for all `.github/**` and KDS changes
+  - Load order: `.github/MANDATORY.md` → `kds-handoff-protocol.md` → `SelfAwareness.instructions.md` → active key context
+  - Responsibilities: conflict detection, non-regression enforcement, compatibility reasoning requirement
+  - Output: Always provide a single Next Command for the downstream agent; never auto-execute
+3. Update governance docs as needed (e.g., add Rule 4 – manual invocation) while keeping MANDATORY.md the canonical source of truth
+
+**Validation (KDS-only):**
+- Verify prompts reference (not duplicate) canonical rules and protocol docs
+- Ensure route/plan/task/todo/test-generation adhere to honest handoffs and JSON conventions
+- Run coordination validators to check handoff counts, chains, and acceptance criteria presence
+
+All KDS prompt changes must be scoped to `.github/**` and follow checkpoint commits for clean merges.
 
 ---
 
