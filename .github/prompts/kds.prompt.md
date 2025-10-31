@@ -643,23 +643,146 @@ When invoked without parameters, execute complete system review:
 
 **Max:** 50 bullets (review mode exception to 25-bullet standard)
 
-### Step 7: Present Options and Halt
+### Step 7: Generate Handoff JSONs and Present Options
+
+**CRITICAL:** Create handoff JSONs BEFORE presenting options to user.
+
+**Handoff JSON Generation Algorithm:**
+
+```
+FUNCTION GenerateReviewHandoffs(violations, recommendations, actionItems):
+  
+  # Extract all recommendations by priority
+  criticalActions = FilterByPriority(actionItems, "P0")
+  highActions = FilterByPriority(actionItems, "P1")
+  mediumActions = FilterByPriority(actionItems, "P2")
+  
+  # Option A: Auto-fix critical violations (P0 only)
+  autoFixHandoff = {
+    "key": "kds-review-autofix",
+    "description": "Auto-fix all detected Rule #1 violations using holistic regeneration",
+    "violations": violations.filter(v => v.severity == "CRITICAL"),
+    "actions": criticalActions.map(a => {
+      "actionId": a.id,
+      "description": a.description,
+      "files": a.files,
+      "estimatedTime": a.estimatedTime
+    }),
+    "acceptanceCriteria": [
+      "All Rule #1 violations resolved (zero code blocks in prompts)",
+      "Algorithm files created in .github/prompts/shared/",
+      "Prompts regenerated with algorithm references only",
+      "Post-fix validation passes (no new violations introduced)"
+    ],
+    "autoChain": true,
+    "nextTask": "handoffs/review-validate.json"
+  }
+  
+  # Option B: Implement high-priority enhancements (P0 + P1)
+  enhanceHandoff = {
+    "key": "kds-review-enhance",
+    "description": "Implement all P0 and P1 recommendations from KDS review",
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Critical Fixes",
+        "actions": criticalActions
+      },
+      {
+        "phase": 2,
+        "name": "High-Priority Enhancements",
+        "actions": highActions
+      }
+    ],
+    "acceptanceCriteria": [
+      "All P0 actions completed (critical violations fixed)",
+      "All P1 actions completed (validation functions added, enforcement tightened)",
+      "Git pre-commit hook installed for Rule #10 enforcement",
+      "ValidateCommitSequence() function implemented and tested",
+      "Auto-chain documentation consolidated",
+      "Rule #2b dual-stream logging enhanced"
+    ],
+    "autoChain": false,
+    "e2eMode": false
+  }
+  
+  # Option C: Comprehensive upgrade (P0 + P1 + P2)
+  upgradeHandoff = {
+    "key": "kds-review-upgrade",
+    "description": "Full KDS governance overhaul with all detected improvements",
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Critical Fixes (P0)",
+        "actions": criticalActions
+      },
+      {
+        "phase": 2,
+        "name": "High-Priority Enhancements (P1)",
+        "actions": highActions
+      },
+      {
+        "phase": 3,
+        "name": "Rulebook Consolidation (P2)",
+        "actions": mediumActions
+      }
+    ],
+    "acceptanceCriteria": [
+      "All violations resolved (P0)",
+      "All enhancements implemented (P1)",
+      "Rulebook refactored (P2 consolidation)",
+      "Rule #2 + Rule #2b merged into single Documentation-First Workflow",
+      "Validation function naming standardized",
+      "Ambiguities eliminated (commit ordering, test metadata cleanup, holistic regeneration threshold defined)",
+      "Git compliance rate >90% (validated via Step 0.5 analysis)",
+      "Zero Rule #1 violations in all prompts"
+    ],
+    "autoChain": false,
+    "e2eMode": false
+  }
+  
+  # Write handoff files
+  WriteJson(".github/key-data-streams/kds/handoffs/review-autofix.json", autoFixHandoff)
+  WriteJson(".github/key-data-streams/kds/handoffs/review-enhance.json", enhanceHandoff)
+  WriteJson(".github/key-data-streams/kds/handoffs/review-upgrade.json", upgradeHandoff)
+  
+  RETURN {
+    "autoFixPath": ".github/key-data-streams/kds/handoffs/review-autofix.json",
+    "enhancePath": ".github/key-data-streams/kds/handoffs/review-enhance.json",
+    "upgradePath": ".github/key-data-streams/kds/handoffs/review-upgrade.json"
+  }
+  
+END FUNCTION
+```
+
+**Presentation Format:**
+
+**ENFORCEMENT PRINCIPLE:** All options MUST drive action. No "do nothing" or "cancel" options permitted.
 
 **Options:**
 
-**A. VIEW FULL REPORT**  
-   Displays complete compliance report with all findings.
+**A. AUTO-FIX CRITICAL VIOLATIONS** ⭐ (RECOMMENDED for immediate improvement)
+   Scope: All P0 actions (Rule #1 violations, pre-commit hooks)
+   Estimated time: 45-60 minutes
+   Actions included: {list all P0 action IDs from report}
+   Handoff: `.github/key-data-streams/kds/handoffs/review-autofix.json`
+   Next Command: `@workspace /task #file:.github/key-data-streams/kds/handoffs/review-autofix.json`
 
-**B. AUTO-FIX CRITICAL ISSUES** (NEW - FULLY IMPLEMENTED)  
-   Executes automated fixes for Rule #1 violations using holistic regeneration.
+**B. IMPLEMENT HIGH-PRIORITY ENHANCEMENTS**
+   Scope: All P0 + P1 actions (fixes + validation functions + enforcement tightening)
+   Estimated time: 90-120 minutes
+   Actions included: {list all P0 + P1 action IDs from report}
+   Handoff: `.github/key-data-streams/kds/handoffs/review-enhance.json`
+   Next Command: `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-enhance.json`
 
-**C. EXECUTE CLEANUP ONLY**  
-   Runs cleanup automation without fixing violations.
+**C. EXECUTE COMPREHENSIVE KDS UPGRADE**
+   Scope: All P0 + P1 + P2 actions (fixes + enhancements + refactoring)
+   Estimated time: 3-4 hours
+   Actions included: {list all P0 + P1 + P2 action IDs from report}
+   Handoff: `.github/key-data-streams/kds/handoffs/review-upgrade.json`
+   Next Command: `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-upgrade.json`
 
-**D. CANCEL**  
-   No changes made, report saved for review.
-
-**HALT - DO NOT AUTO-EXECUTE FIXES** (user must select option)
+**HALT - DO NOT AUTO-EXECUTE** (user selects option A/B/C and invokes handoff)
 
 ---
 
