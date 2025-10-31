@@ -1,0 +1,963 @@
+# KDS Governance Rulebook
+**Version:** 1.0.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
+
+---
+
+## 📖 Purpose
+
+This document consolidates **ALL governance rules** for the KDS (Key Data Streams) system and GitHub Copilot workspace. It serves as the **single authoritative source** for:
+
+- MANDATORY operating rules (all prompts must follow)
+- Agentic execution rules (KDS workflow standards)
+- Handoff protocol standards (JSON schemas and workflows)
+- Enforcement mechanisms (validation, gatekeeper procedures)
+
+**Replaces/Supersedes:**
+- `.github/MANDATORY.md` (now references this rulebook for extended documentation)
+- Scattered rules in `kds.plan.md`, `kds-handoff-protocol.md`
+- Implicit governance patterns in individual prompts
+
+**Dual Format:**
+- **This file (kds-rulebook.md)**: Human-readable with examples, rationale, anti-patterns
+- **Companion (kds-rulebook.json)**: Machine-readable schemas for automated validation
+
+---
+
+## 🏛️ Core Principles
+
+### Principle 1: Governance Before Execution
+**All `.github` modifications must pass through KDS gatekeeper (`kds.prompt.md`) for compatibility analysis.**
+
+**Rationale:** Prevents rule conflicts, maintains architectural coherence, protects against regressions.
+
+### Principle 2: Document First, Respond Later
+**All KDS files must be updated/created BEFORE sending user-facing output.**
+
+**Rationale:** Ensures knowledge preservation even if session fails; enables recovery and continuity.
+
+### Principle 3: Test-Driven Development
+**Every implementation task must have a corresponding test created FIRST (red-green-refactor).**
+
+**Rationale:** Validates acceptance criteria, prevents feature drift, creates regression safety net.
+
+### Principle 4: Honest Handoffs
+**Agents cannot execute other agents. All handoffs require explicit user invocation.**
+
+**Rationale:** Maintains transparency, user control, debuggability; prevents autonomous agent chains.
+
+### Principle 5: Holistic Regeneration
+**When updating plans or major docs, DELETE and RECREATE entire file (no partial edits).**
+
+**Rationale:** Prevents duplicate sections, conflicting instructions, architectural inconsistencies.
+
+---
+
+## 📋 MANDATORY Rules (All Prompts)
+
+These rules apply to **EVERY prompt** in `.github/prompts/*.prompt.md` without exception.
+
+### Rule #1: Concise Output Format
+
+**Statement:**  
+User-facing responses MUST:
+1. **NEVER include code blocks or pseudocode** (only architectural descriptions)
+2. Use **max 3 lines per bullet point**
+3. Use **letter-based options (A, B, C)** with recommended option in **ALL CAPS**
+4. Follow **prompt-specific structure** (plan uses Phase→Task, ask uses 🧠/📌/📊)
+
+**Rationale:**  
+- Code in chat violates separation of concerns (code belongs in files, not output)
+- Concise bullets improve readability, reduce cognitive load
+- Letter options with emphasis improve UX consistency
+
+**Enforcement:**
+- Automated: grep_search for code blocks in Output Format sections
+- Manual: Review user-facing templates for compliance
+
+**Examples:**
+
+✅ **COMPLIANT:**
+```markdown
+## 📌 Next Steps
+
+**A. EXECUTE PHASE 1** (recommended - create test first)
+   Creates Playwright test with acceptance criteria validation.
+   Command: `@workspace /test-generation #file:handoffs/phase-1-test.json`
+
+**B. Review Plan Details**
+   Opens full plan document for architecture review.
+```
+
+❌ **NON-COMPLIANT:**
+```markdown
+## Next Steps
+
+Here's the code to execute Phase 1:
+
+```typescript
+async function executePhase1() {
+  await createTest();
+  await runTest();
+}
+```
+
+Run this command: `@workspace /test-generation key=kds phase=1`
+```
+
+**Anti-Patterns:**
+- Including C#/TypeScript/PowerShell code snippets in user output
+- Multi-paragraph bullets (exceeds 3-line limit)
+- Lowercase letter options without emphasis (`a. option` instead of `**A. OPTION**`)
+
+**Special Exceptions:**
+- `plan.prompt.md` may use up to 40 bullets for phase/task breakdown (structured output needs detail)
+- Algorithm documentation in shared/ folder may include pseudocode for clarity (not user-facing)
+
+**Validation Function:** `ValidateConciseOutputFormat()`
+
+---
+
+### Rule #2: Document First
+
+**Statement:**  
+Update KDS files BEFORE code changes. Documentation commits must precede implementation commits.
+
+**Workflow:**
+1. **Update plan.md** with new phase/task descriptions
+2. **Append to work-log.md** with session entry
+3. **Create handoff JSONs** for next tasks
+4. **Commit documentation**: `docs(key): Add Phase N plan`
+5. **Implement code changes**
+6. **Commit implementation**: `feat(key): Implement Phase N Task M`
+
+**Rationale:**
+- Knowledge preserved even if session fails mid-implementation
+- Enables recovery and continuity across sessions
+- Creates audit trail for decisions and architecture
+
+**Enforcement:**
+- `plan.prompt.md` Step 5.5: Blocks output until artifacts exist (plan.md, work-log.md, handoffs/)
+- `task.prompt.md` Step 8.25: Verifies work-log.md timestamp updated within 60s
+- `todo.prompt.md`: Verifies file size increased (append occurred)
+
+**Examples:**
+
+✅ **COMPLIANT WORKFLOW:**
+```
+Session 1:
+1. Create plan.md with Phase 1 architecture  [docs(kds): Add Phase 1 plan]
+2. Append work-log.md with session entry     [docs(kds): Session 5 entry]
+3. Create handoffs/phase-1-test.json         [docs(kds): Add Phase 1 handoffs]
+4. Implement enforcement gate                [feat(kds): Add Step -1 to prompts]
+```
+
+❌ **NON-COMPLIANT WORKFLOW:**
+```
+Session 1:
+1. Implement enforcement gate                [feat(kds): Add enforcement]
+2. (Forget to update plan.md - session ends - knowledge lost)
+```
+
+**Anti-Patterns:**
+- Implementing code first, documenting later (or never)
+- Committing code and docs in same commit (violates commit ordering)
+- Partial documentation (plan updated but work-log forgotten)
+
+**Validation Function:** `ValidateDocumentFirst()`
+
+---
+
+### Rule #3: Playwright Orchestration
+
+**Statement:**  
+Use dotnet orchestration scripts for Playwright tests. NEVER use nested PowerShell processes or deprecated standalone mode.
+
+**Approved Pattern:**
+```powershell
+# Orchestrator script (e.g., run-transcript-canvas-visual-tests.ps1)
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+Start-Job -ScriptBlock { dotnet run } | Out-Null
+Start-Sleep -Seconds 15
+
+cd "D:\PROJECTS\NOOR CANVAS\Tests\UI"
+npx playwright test transcript-canvas-visual.spec.ts --headed
+
+Stop-Job -Name Job1 -ErrorAction SilentlyContinue
+```
+
+**Rationale:**
+- Dotnet orchestration ensures app lifecycle managed by single script
+- Prevents orphaned processes (app running after test fails)
+- Enables CI/CD integration with proper cleanup
+
+**Enforcement:**
+- test-generation.prompt.md creates orchestrator script per test
+- Validation scans for deprecated `Start-Process` patterns
+
+**Examples:**
+
+✅ **COMPLIANT:**
+```markdown
+Test: transcript-canvas-visual.spec.ts
+Orchestrator: Scripts/run-transcript-canvas-visual-tests.ps1
+Pattern: Start-Job → dotnet run → Sleep → Test → Stop-Job
+```
+
+❌ **NON-COMPLIANT:**
+```powershell
+# Standalone mode (no app lifecycle management)
+npx playwright test my-test.spec.ts --headed
+```
+
+**Anti-Patterns:**
+- Running Playwright tests without app orchestration
+- Using nested PowerShell processes (`Start-Process powershell.exe`)
+- Forgetting cleanup (app keeps running after test)
+
+**Validation Function:** `ValidatePlaywrightOrchestration()`
+
+---
+
+## 🤖 Agentic Execution Rules (KDS Workflow)
+
+These rules govern **how KDS agents execute planned work**.
+
+### Rule #4: Per-Task Handoffs (One Handoff per Task)
+
+**Statement:**  
+Every task generates a dedicated handoff JSON file with all parameters pre-populated.
+
+**Files:** `handoffs/phase-{N}-todo-{M}.json` (M = 1..N tasks in phase)
+
+**Fields:**
+- `key`: KDS key (e.g., "kds", "debug-panel")
+- `phase`: Phase number (e.g., 1)
+- `task`: Task ID (e.g., "1a", "2b")
+- `description`: What this task accomplishes
+- `files`: Array of files to create/modify
+- `acceptanceCriteria`: Array of validation criteria (3-7 items)
+- `autoChain`: Boolean (true = auto-continue to nextTask)
+- `nextTask`: Next handoff file or "complete"
+- `testFile`: Associated test file path
+
+**Purpose:**
+- Eliminates manual parameter construction errors
+- Enables traceable handoff chain for debugging
+- Supports E2E execution with autoChain
+
+**Rationale:**
+- Manual parameter entry prone to typos, missing fields
+- JSON files serve as execution audit trail
+- autoChain enables E2E mode without violating honest handoff (user approves chain upfront)
+
+**Enforcement:**
+- `plan.prompt.md` Step 4.25: Generates handoff JSONs for all tasks
+- Handoffs saved to `.github/key-data-streams/{key}/handoffs/` before user approval
+
+**Examples:**
+
+✅ **COMPLIANT HANDOFF:**
+```json
+{
+  "key": "kds-enforcement-gate",
+  "phase": 1,
+  "task": "1a",
+  "description": "Add Step -1 governance enforcement to plan.prompt.md",
+  "files": [".github/prompts/plan.prompt.md"],
+  "acceptanceCriteria": [
+    "Step -1 logic detects .github modification requests",
+    "Enforcement message includes copy-paste @workspace /kds command",
+    "No code blocks in enforcement message"
+  ],
+  "autoChain": true,
+  "nextTask": "handoffs/phase-1-todo-2.json",
+  "testFile": ".github/key-data-streams/kds/tests/enforcement-validation.spec.md"
+}
+```
+
+❌ **NON-COMPLIANT (manual parameters):**
+```markdown
+Next Command:
+@workspace /todo key=kds-enforcement phase=1 task=1a files="plan.prompt.md" acceptance="Add Step -1, Include message, No code" auto-chain=true next="phase-1-todo-2"
+```
+
+**Anti-Patterns:**
+- Manual parameter strings (error-prone)
+- Missing acceptanceCriteria (no validation criteria)
+- Broken autoChain (nextTask points to non-existent file)
+
+**Validation Function:** `ValidatePerTaskHandoffs()`
+
+---
+
+### Rule #5: TDD on Every Todo (Prefer Headless)
+
+**Statement:**  
+Every implementation task must have a corresponding test created FIRST (red-green-refactor workflow).
+
+**Files:** `handoffs/phase-{N}-test.json`
+
+**Fields (additional to base handoff):**
+- `acceptanceCriteria`: What the test must validate
+- `assertCriteria`: Boolean (true = test must assert all acceptance criteria)
+- `mode`: "headless" (default) or "headed" (UI/visual only)
+
+**Workflow:**
+1. **Red**: Create failing test (assertions for acceptance criteria)
+2. **Green**: Implement feature until test passes
+3. **Refactor**: Clean up code while keeping test passing
+
+**Rationale:**
+- Tests define success criteria upfront (prevents scope creep)
+- Red-green-refactor prevents premature optimization
+- Headless mode faster for non-UI features
+
+**Enforcement:**
+- `plan.prompt.md` Phase structure: Task {N}a (test) → Task {N}b-x (impl) → Task {N}y (validate)
+- `test-generation.prompt.md`: Requires acceptanceCriteria and generates assertions
+
+**Examples:**
+
+✅ **COMPLIANT TEST-FIRST:**
+```markdown
+Phase 1 Tasks:
+- 1a: Create enforcement-validation test (RED)
+- 1b: Add Step -1 to plan.prompt.md (GREEN)
+- 1c: Add Step -1 to route.prompt.md (GREEN)
+- 1d: Run enforcement-validation test (VALIDATE)
+```
+
+❌ **NON-COMPLIANT (implementation first):**
+```markdown
+Phase 1 Tasks:
+- 1a: Add Step -1 to all prompts
+- 1b: Create test to verify enforcement works
+```
+
+**Anti-Patterns:**
+- Creating tests after implementation (defeats purpose)
+- Using headed mode for non-UI features (slower, unnecessary)
+- Skipping refactor step (leaves technical debt)
+
+**Validation Function:** `ValidateTDDWorkflow()`
+
+---
+
+### Rule #6: Auto-Chain Defaults and Options
+
+**Statement:**  
+Tasks auto-chain by default (autoChain=true). Phases require user approval unless E2E mode selected.
+
+**Task-Level Chaining:**
+- `autoChain: true` → Automatically invokes nextTask after completion
+- User approves **plan once**, tasks execute E2E within phase
+- Stop points: Validate tasks (user reviews results)
+
+**Phase-Level Approval:**
+- **Option A**: Execute Phase by Phase (stop after each phase - RECOMMENDED)
+- **Option B**: Execute All Phases E2E (auto-continue through all phases)
+
+**Implementation:**
+- todo.json includes "autoChain": true and "nextTask" pointer
+- plan.prompt.md shows execution mode options (A vs B)
+
+**Rationale:**
+- Task-level chaining reduces friction (approve 1 plan vs N tasks)
+- Phase-level checkpoints enable review and course correction
+- E2E mode supports uninterrupted multi-phase execution
+
+**Enforcement:**
+- `plan.prompt.md` Step 6: Handoff logic includes E2E countdown (5s) or manual proceed
+- JSON files control chaining behavior
+
+**Examples:**
+
+✅ **COMPLIANT AUTO-CHAIN:**
+```json
+{
+  "task": "1a",
+  "autoChain": true,
+  "nextTask": "handoffs/phase-1-todo-2.json"
+}
+```
+
+**User Experience:**
+```
+Phase 1 complete. Auto-continuing to Phase 2 in 5s... (Ctrl+C to stop)
+```
+
+❌ **NON-COMPLIANT (no chaining):**
+```markdown
+Phase 1 Task 1a complete.
+Please manually run: @workspace /todo #file:handoffs/phase-1-todo-2.json
+(User must manually invoke each task - poor UX)
+```
+
+**Anti-Patterns:**
+- Forcing manual invocation for every task (defeats E2E purpose)
+- Missing nextTask pointers (breaks chain)
+- No Ctrl+C interrupt mechanism (user can't stop runaway execution)
+
+**Validation Function:** `ValidateAutoChain()`
+
+---
+
+### Rule #7: Central Playwright Test Index (Global Reuse)
+
+**Statement:**  
+All tests registered in `.github/tests/playwright-index.json`. Prefer reusing existing tests before creating new ones.
+
+**Path:** `.github/tests/playwright-index.json`
+
+**Policy:** `reuseStrategy=prefer-index`
+
+**Fields:**
+- `testId`: Unique identifier (e.g., "phase-1-pilot-test")
+- `key`: Associated KDS key
+- `path`: File path to test
+- `type`: "documentation" | "functional" | "visual"
+- `description`: What the test validates
+- `tags`: Searchable keywords
+- `acceptanceCriteria`: Array of criteria
+- `reusable`: Boolean (can other keys use this test?)
+- `dependencies`: Array of required keys/files
+- `estimatedDuration`: e.g., "30s"
+
+**Purpose:**
+- Prevent duplicate tests across keys
+- Enforce test reuse and maintenance
+- Enable test discovery by capability
+
+**Rationale:**
+- Duplication wastes time, creates maintenance burden
+- Centralized index enables "find test for X" queries
+- Reusable flag promotes test sharing
+
+**Enforcement:**
+- `test-generation.prompt.md`: Searches index before creating new test
+- `plan.prompt.md`: Updates index when generating phase tests
+
+**Examples:**
+
+✅ **COMPLIANT INDEX ENTRY:**
+```json
+{
+  "testId": "enforcement-validation",
+  "key": "kds",
+  "path": ".github/key-data-streams/kds/tests/enforcement-validation.spec.md",
+  "type": "documentation",
+  "description": "Validates Step -1 enforcement gate blocks .github modifications",
+  "tags": ["governance", "enforcement", "kds"],
+  "acceptanceCriteria": [
+    "Agent halts when detecting .github modification request",
+    "Enforcement message displayed with @workspace /kds command"
+  ],
+  "reusable": true,
+  "dependencies": ["kds.prompt.md"],
+  "estimatedDuration": "2min"
+}
+```
+
+**Anti-Patterns:**
+- Creating duplicate tests (not searching index first)
+- Marking non-reusable tests reusable (creates confusion)
+- Forgetting to update index (orphaned tests)
+
+**Validation Function:** `ValidateTestIndexCompliance()`
+
+---
+
+### Rule #8: Holistic File Regeneration (No Partial Edits)
+
+**Statement:**  
+When updating plans or major docs, DELETE entire file and RECREATE from scratch (no partial edits).
+
+**Problem:**  
+Partial edits create duplicate sections, conflicting instructions, architectural inconsistencies.
+
+**Solution:**
+
+**Strategy A (plan.md):**  
+Delete and recreate entire file when significant changes occur.
+
+**Strategy B (work-log.md):**  
+Use structured merge with deduplication (preserves session history).
+
+**Implementation:**
+- `plan.prompt.md` Step 4: Regenerates complete plan.md from scratch
+- work-log uses append-with-dedup pattern (detect duplicate session entries, consolidate)
+
+**Benefits:**
+- Eliminates redundancy
+- Maintains architectural coherence
+- Prevents contradictory instructions
+
+**Rationale:**
+- Partial edits compound over sessions (redundancy accumulates)
+- Full regeneration ensures single source of truth
+- Work-log exception: history preservation trumps deduplication
+
+**Enforcement:**
+- `plan.prompt.md` Step 4: DELETE {key}.plan.md → REGENERATE with all phases
+- Validation scans for duplicate sections (warning, not blocking)
+
+**Examples:**
+
+✅ **COMPLIANT REGENERATION:**
+```markdown
+Step 4: Regenerate Plan
+1. Delete existing .github/key-data-streams/kds/kds.plan.md
+2. Create new kds.plan.md with:
+   - Updated Executive Summary
+   - All 10 phases (no duplicates)
+   - Acceptance criteria per phase
+```
+
+❌ **NON-COMPLIANT (partial edit):**
+```markdown
+Step 4: Update Plan
+1. Append Phase 11 to existing plan.md
+   (Now plan has 2 "Phase 1" sections - CONFLICT)
+```
+
+**Anti-Patterns:**
+- Appending sections without checking for duplicates
+- Editing sections in-place (old version remains elsewhere in file)
+- Partial updates (Phase 1 updated, Phase 2-10 stale)
+
+**Validation Function:** `ValidateHolisticRegeneration()`
+
+---
+
+### Rule #9: Plan Conflict Detection (Routing to Existing Keys)
+
+**Statement:**  
+When routing to existing key, LOAD existing plan and ANALYZE conflicts before proceeding.
+
+**Trigger:** `route.prompt.md` detects existing plan file (`.github/key-data-streams/{key}/{key}.plan.md`)
+
+**Process:**
+1. **Load** existing plan.md (phases, tasks, architecture)
+2. **Analyze** new user request for conflicts with existing plan
+3. **If conflicts detected** → HALT and present resolution options:
+   - **A. Merge** new request into existing plan (extend - use `todo`)
+   - **B. Replace** existing plan (regenerate - use `plan` with override)
+   - **C. Create new key** (separate work - generate new key)
+   - **D. Review** existing plan first (cancel - show plan to user)
+
+**Output:** Architectural coherence report showing conflicts
+
+**Purpose:**
+- Preserve plan integrity
+- Prevent contradictory instructions
+- Maintain traceability
+
+**Rationale:**
+- Multiple requests to same key create architectural conflicts
+- Explicit conflict resolution prevents silent overwrites
+- User decides merge vs replace (architectural decision)
+
+**Enforcement:**
+- `route.prompt.md` Step 0.5: After key consultation, before handoff
+- Conflict report shows: overlapping phases, contradictory tasks, incompatible architecture
+
+**Examples:**
+
+✅ **COMPLIANT CONFLICT DETECTION:**
+```markdown
+## ⚠️ Plan Conflict Detected
+
+**Existing Plan (key=kds):** 10-phase KDS overhaul, currently on Phase 2
+**New Request:** "Rewrite all prompts from scratch"
+
+**Conflicts:**
+- Phases 2-9 already planned (rewrite would invalidate existing work)
+- 4 handoff JSONs created (rewrite would break chains)
+
+**Resolution Options:**
+
+**A. MERGE INTO EXISTING PLAN** (recommended - extend Phase 10)
+   Add rewrite as Phase 11, preserves completed work.
+
+**B. Replace Existing Plan** (destructive - loses Phases 2-9)
+   Regenerate plan with rewrite as primary goal.
+
+**C. Create New Key** (isolate work - key=prompt-rewrite)
+   Separate work stream, KDS plan untouched.
+
+**D. Review Existing Plan First**
+   Show kds.plan.md before deciding.
+```
+
+❌ **NON-COMPLIANT (silent overwrite):**
+```markdown
+Creating new plan for key=kds...
+(Old plan silently overwritten - Phases 2-9 lost)
+```
+
+**Anti-Patterns:**
+- Routing to plan without checking for existing plan.md
+- Silently overwriting plans (no conflict analysis)
+- No resolution options (user has no choice)
+
+**Validation Function:** `ValidatePlanConflictDetection()`
+
+---
+
+### Rule #10: KDS Governance (All .github/KDS Changes via kds.prompt.md)
+
+**Statement:**  
+No direct modifications to `.github` or KDS files without governance review.
+
+**Gatekeeper:** `kds.prompt.md` analyzes all requests for conflicts, regressions, rule violations
+
+**Load Order:**
+1. MANDATORY.md (baseline rules)
+2. kds-handoff-protocol.md (handoff standards)
+3. SelfAwareness.instructions.md (operating guardrails)
+4. Active key context (existing plan.md, work-log.md)
+
+**Enforcement:**
+- Rejects changes that violate or nullify previous rules
+- Requires compatibility reasoning (WHY change won't break existing work)
+- Cascading impact analysis (what else breaks if this changes?)
+
+**Invocation:**
+```markdown
+@workspace /kds request="[your change request here]"
+```
+
+**Workflow:**
+1. User requests .github modification
+2. Agent detects modification (Step -1 in all prompts)
+3. Agent HALTS and redirects to `@workspace /kds`
+4. kds.prompt.md loads context, analyzes compatibility
+5. kds.prompt.md generates approval/rejection report
+6. If approved: creates implementation handoff JSON
+7. User executes handoff JSON
+
+**Purpose:**
+- Prevent rule conflicts (new rule contradicts existing rule)
+- Protect against regressions (change breaks existing workflows)
+- Maintain architectural coherence (all changes fit together)
+
+**Rationale:**
+- .github is high-impact (affects all prompts)
+- Ungated changes create silent conflicts
+- Governance ensures compatibility analysis
+
+**Enforcement:**
+- All prompts include Step -1: KDS Governance Enforcement
+- kds.prompt.md is the ONLY prompt without Step -1 (it's the gatekeeper)
+
+**Examples:**
+
+✅ **COMPLIANT GOVERNANCE FLOW:**
+```markdown
+User: "Update plan.prompt.md to skip file verification"
+
+Agent (plan.prompt.md Step -1):
+⚠️ GOVERNANCE ENFORCEMENT
+Please use: @workspace /kds request="Skip file verification in plan.prompt.md"
+
+User: @workspace /kds request="Skip file verification in plan.prompt.md"
+
+Agent (kds.prompt.md):
+🔍 Compatibility Analysis
+- CONFLICT: Violates Rule #2 (Document First)
+- REGRESSION: Breaks 4 existing workflows
+- VERDICT: ❌ REJECTED
+
+Recommended Alternative:
+- Make verification optional (add -skip-verification flag)
+- Preserves safety by default, enables override
+```
+
+❌ **NON-COMPLIANT (direct modification):**
+```markdown
+User: "Update plan.prompt.md to skip file verification"
+
+Agent (plan.prompt.md):
+Updating plan.prompt.md...
+(Rule #2 violated - no compatibility check - workflows broken)
+```
+
+**Anti-Patterns:**
+- Modifying .github files without governance review
+- Skipping compatibility analysis (no conflict detection)
+- No cascading impact analysis (break related prompts)
+
+**Validation Function:** `ValidateKDSGovernance()`
+
+---
+
+### Rule #11: Key Display in User Output (Visibility Protocol)
+
+**Statement:**  
+All user-facing output must display the active key for traceability.
+
+**Implementation:**
+- **Section Headers:** Include key in format `**Key: \`{key}\`**` (subtle, right-aligned or piped)
+- **Phase/Task Output:** Show `Phase N (Key: {key})` in execution summaries
+- **Next Command:** Include key in handoff commands
+- **Work-Log Entries:** Always prefix with key
+
+**Examples:**
+
+✅ **COMPLIANT KEY DISPLAY:**
+```markdown
+## 🧠 Analysis | Key: `kds`
+
+Phase 1 complete (Key: kds). Auto-continuing to Phase 2...
+
+Next Command:
+@workspace /test-generation #file:.github/key-data-streams/kds/handoffs/phase-2-test.json
+```
+
+❌ **NON-COMPLIANT (no key):**
+```markdown
+## Analysis
+
+Phase 1 complete. Continuing to Phase 2...
+(User loses context - which key am I working on?)
+```
+
+**Purpose:**
+- Users never lose context of which work stream they're in
+- Prevents key confusion during multi-key work
+- Enables traceability in logs and transcripts
+
+**Rationale:**
+- Multi-key sessions common (user switches between features)
+- Missing key context creates confusion ("which plan is this?")
+- Explicit display prevents context loss
+
+**Anti-Patterns:**
+- Omitting key from headers (no context)
+- Showing key once at top (user forgets after scrolling)
+- Inconsistent display (key in some sections, not others)
+
+**Validation Function:** `ValidateKeyDisplay()`
+
+---
+
+## 🔗 Handoff Protocol Standards
+
+These rules govern **JSON handoff file structure and workflow**.
+
+### Rule #12: Honest Handoff Protocol
+
+**Statement:**  
+Agents cannot execute other agents. All handoffs require explicit user invocation.
+
+**Core Principle:**  
+"Honest Handoff = JSON + Next Command + HALT"
+
+**Workflow:**
+1. Agent creates handoff JSON file with all parameters
+2. Agent saves JSON to `.github/key-data-streams/{key}/handoffs/`
+3. Agent displays "Next Command" section with exact invocation
+4. Agent HALTS (does not auto-execute)
+5. User manually invokes command (or selects auto-continue in E2E mode)
+
+**Rationale:**
+- Maintains transparency (user sees what will execute)
+- User control (can review/modify handoff before proceeding)
+- Debuggability (handoff JSON is audit trail)
+- Prevents autonomous agent chains (anti-pattern)
+
+**Exception:** E2E mode with autoChain=true (user approves chain upfront)
+
+**Enforcement:**
+- All prompts generate handoff JSON before output
+- "Next Command" section mandatory in user output
+- No auto-execution logic (except E2E countdown)
+
+**Examples:**
+
+✅ **COMPLIANT HONEST HANDOFF:**
+```markdown
+## 📋 Next Command
+
+```markdown
+@workspace /test-generation #file:.github/key-data-streams/kds/handoffs/phase-1-test.json
+```
+
+Handoff file created at: `.github/key-data-streams/kds/handoffs/phase-1-test.json`
+
+(Agent HALTS - user invokes manually)
+```
+
+❌ **NON-COMPLIANT (auto-execution):**
+```markdown
+Executing test-generation agent...
+(Agent executes other agent - dishonest, opaque, not debuggable)
+```
+
+**Anti-Patterns:**
+- Implicit agent execution (no handoff JSON)
+- Hiding parameters (user doesn't see what will execute)
+- Auto-execution without user approval
+
+**Validation Function:** `ValidateHonestHandoff()`
+
+---
+
+### Base Handoff JSON Schema
+
+**All handoff files must include:**
+
+```json
+{
+  "key": "string (required) - KDS key identifier",
+  "description": "string (required) - What this handoff accomplishes",
+  "acceptanceCriteria": ["string[]" (required) - 3-7 validation criteria"],
+  "autoChain": "boolean (optional, default false) - Auto-continue to nextTask",
+  "nextTask": "string (optional) - Path to next handoff JSON or 'complete'"
+}
+```
+
+### route-to-plan.json Schema
+
+**Additional fields:**
+
+```json
+{
+  "request": "string (required) - User's original request",
+  "scope": "string (optional) - Scope boundaries",
+  "constraints": ["string[]" (optional) - Constraints"],
+  "e2eMode": "boolean (optional, default false) - E2E execution mode",
+  "autoChainPhases": "boolean (optional, default false) - Auto-continue phases"
+}
+```
+
+### phase-{N}-test.json Schema
+
+**Additional fields:**
+
+```json
+{
+  "phase": "number (required) - Phase number",
+  "scenario": "string (required) - Test scenario description",
+  "assertCriteria": "boolean (required) - Must assert all acceptance criteria",
+  "mode": "string (optional, default 'headless') - Test execution mode"
+}
+```
+
+### phase-{N}-todo-{M}.json Schema
+
+**Additional fields:**
+
+```json
+{
+  "phase": "number (required) - Phase number",
+  "task": "string (required) - Task ID (e.g., '1a', '2b')",
+  "files": ["string[] (required) - Files to create/modify"],
+  "testFile": "string (optional) - Associated test file path"
+}
+```
+
+---
+
+## 🛡️ Enforcement Mechanisms
+
+### Validation Functions
+
+Each rule has a corresponding validation function executed before user-facing output:
+
+- `ValidateConciseOutputFormat()` - Rule #1
+- `ValidateDocumentFirst()` - Rule #2
+- `ValidatePlaywrightOrchestration()` - Rule #3
+- `ValidatePerTaskHandoffs()` - Rule #4
+- `ValidateTDDWorkflow()` - Rule #5
+- `ValidateAutoChain()` - Rule #6
+- `ValidateTestIndexCompliance()` - Rule #7
+- `ValidateHolisticRegeneration()` - Rule #8
+- `ValidatePlanConflictDetection()` - Rule #9
+- `ValidateKDSGovernance()` - Rule #10
+- `ValidateKeyDisplay()` - Rule #11
+- `ValidateHonestHandoff()` - Rule #12
+
+### Global Compliance Check
+
+**Execute before ANY user-facing output:**
+
+```
+FUNCTION ValidateAllRules():
+  violations = []
+  
+  FOR EACH rule IN KDSRulebook:
+    result = EXECUTE rule.validationFunction()
+    IF result.violation THEN
+      violations.ADD(result)
+    END IF
+  END FOR
+  
+  IF violations.Count > 0 THEN
+    LogViolations(violations)
+    HALT
+  END IF
+  
+  RETURN { compliant: true }
+END FUNCTION
+```
+
+### KDS Governance Gatekeeper
+
+**kds.prompt.md Load Order:**
+
+1. Load MANDATORY.md
+2. Load kds-handoff-protocol.md
+3. Load SelfAwareness.instructions.md
+4. Load active key context (plan.md, work-log.md)
+
+**Compatibility Analysis:**
+
+1. **Parse request** - Extract change intent, target files, rationale
+2. **Load context** - All related rules, existing plans, dependencies
+3. **Detect conflicts** - Rule contradictions, architectural incoherence
+4. **Analyze cascading impacts** - What else breaks if this changes?
+5. **Generate report** - PASSED or FAILED with resolution options
+6. **If approved** - Create implementation handoff JSON
+7. **HALT** - User invokes handoff manually
+
+**Rejection Criteria:**
+- Violates existing rules (contradicts Rule #1-12)
+- Causes regressions (breaks existing workflows)
+- Creates architectural incoherence (doesn't fit with existing design)
+- Missing rationale (WHY change needed not explained)
+
+---
+
+## 📚 Related Documentation
+
+**Core References:**
+- `.github/MANDATORY.md` - Lightweight index (references this rulebook)
+- `.github/prompts/shared/kds-handoff-protocol.md` - Detailed JSON schemas and workflow diagrams
+- `.github/key-data-streams/kds/kds.plan.md` - KDS overhaul implementation plan
+- `.github/instructions/SelfAwareness.instructions.md` - Global operating guardrails
+
+**Rule Implementations:**
+- `.github/instructions/rules/concise-output-format/rule.md` - Rule #1 detailed implementation
+- `.github/instructions/rules/document-first/rule.md` - Rule #2 detailed implementation
+- `.github/instructions/rules/playwright-orchestration/rule.md` - Rule #3 detailed implementation
+
+**Governance:**
+- `.github/prompts/kds.prompt.md` - Governance gatekeeper (compatibility analysis)
+- `.github/governance/kds-rulebook.json` - Machine-readable schemas (companion to this file)
+
+---
+
+## 🔄 Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-10-31 | Initial rulebook consolidating MANDATORY.md, Agentic Rules, Handoff Protocol |
+
+---
+
+**This rulebook is the CANONICAL source for all KDS governance rules.**
+
+**Last Updated:** 2025-10-31  
+**Maintainer:** KDS System  
+**Version:** 1.0.0
