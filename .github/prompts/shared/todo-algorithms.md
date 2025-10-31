@@ -197,6 +197,25 @@ END FUNCTION
 
 ---
 
+## Algorithm 6: Query Drift History
+
+**Purpose:** Git commands for querying drift status, resolution, and severity counts
+
+```bash
+# Find all drifts for current key
+git log --grep="drift({current-key})" --format="%h %s %b"
+
+# Check if drift resolved
+git log --grep="ckpt({drift-key}): Resolved" --format="%h %s"
+
+# Count remaining drifts by severity
+git log --grep="drift({current-key})" --format="%b" | grep "Severity:" | sort | uniq -c
+```
+
+**Usage:** Copy-paste commands in terminal for drift queue analysis
+
+---
+
 ## Related Files
 - **Consumer:** `.github/prompts/todo.prompt.md`
 - **Protocol:** `.github/prompts/shared/kds-handoff-protocol.md`

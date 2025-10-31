@@ -470,19 +470,8 @@ Parent: {parent-key} | Remaining: {count} drifts
 **Queue Overflow Warning**: Display when at 9/10 drifts with low-priority drift recommendations
 
 ### Drift Stack Query
-```bash
-# Find all drifts for current key
-git log --grep="drift({current-key})" --format="%h %s %b"
 
-# Check if drift resolved
-git log --grep="ckpt({drift-key}): Resolved" --format="%h %s"
-
-# Count remaining drifts by severity
-git log --grep="drift({current-key})" --grep="Severity: critical" --format="%h"
-
-# Get drift details (mode, severity, triggered by)
-git log --grep="drift({current-key})" --format="%h %s %b" | grep -E "Mode:|Severity:|Triggered by:"
-```
+**Algorithm:** See `shared/todo-algorithms.md` - Algorithm 6 (Query Drift History) for git commands to analyze drift queue status
 
 ### Handoff Integration
 - **todo.prompt.md** → detects completion + generates comprehensive drift summary
