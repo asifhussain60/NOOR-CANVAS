@@ -7,19 +7,30 @@ window.PlaywrightLogger = {
     init: function () {
         if (!this.enabled) return;
 
-        console.log('[PLAYWRIGHT-LOG] Logger initialized');
+        console.log('[PLAYWRIGHT-LOG] Logger initialized with data-playwright-log-marker support');
 
         // Global click listener
         document.addEventListener('click', (e) => {
             const target = e.target;
+
+            // Priority 1: Check for data-playwright-log-marker (test-prep system)
+            const logMarker = target.getAttribute('data-playwright-log-marker') ||
+                target.closest('[data-playwright-log-marker]')?.getAttribute('data-playwright-log-marker');
+
+            // Priority 2: Fallback to data-testid (legacy support)
             const testId = target.getAttribute('data-testid') ||
                 target.closest('[data-testid]')?.getAttribute('data-testid');
-            const selector = testId ? `[data-testid="${testId}"]` : this.getSelector(target);
+
+            const selector = logMarker ? `[data-playwright-log-marker="${logMarker}"]` :
+                testId ? `[data-testid="${testId}"]` :
+                    this.getSelector(target);
+
             const elementType = target.tagName.toLowerCase();
             const elementText = target.textContent?.trim().substring(0, 50) || '';
+            const markerInfo = logMarker ? ` | MARKER: ${logMarker}` : '';
 
             const timestamp = new Date().toISOString();
-            const logEntry = `${timestamp} | CLICK | ${selector} | ${elementType} | "${elementText}"`;
+            const logEntry = `${timestamp} | CLICK | ${selector} | ${elementType} | "${elementText}"${markerInfo}`;
             console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
             this.addLog(logEntry);
         }, true);
@@ -27,13 +38,24 @@ window.PlaywrightLogger = {
         // Input changes
         document.addEventListener('input', (e) => {
             const target = e.target;
+
+            // Priority 1: Check for data-playwright-log-marker
+            const logMarker = target.getAttribute('data-playwright-log-marker') ||
+                target.closest('[data-playwright-log-marker]')?.getAttribute('data-playwright-log-marker');
+
+            // Priority 2: Fallback to data-testid
             const testId = target.getAttribute('data-testid') ||
                 target.closest('[data-testid]')?.getAttribute('data-testid');
-            const selector = testId ? `[data-testid="${testId}"]` : this.getSelector(target);
+
+            const selector = logMarker ? `[data-playwright-log-marker="${logMarker}"]` :
+                testId ? `[data-testid="${testId}"]` :
+                    this.getSelector(target);
+
             const value = target.value?.substring(0, 50) || '';
+            const markerInfo = logMarker ? ` | MARKER: ${logMarker}` : '';
 
             const timestamp = new Date().toISOString();
-            const logEntry = `${timestamp} | INPUT | ${selector} | value="${value}"`;
+            const logEntry = `${timestamp} | INPUT | ${selector} | value="${value}"${markerInfo}`;
             console.log(`[PLAYWRIGHT-LOG] ${logEntry}`);
             this.addLog(logEntry);
         }, true);
