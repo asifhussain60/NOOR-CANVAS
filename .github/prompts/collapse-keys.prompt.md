@@ -2,6 +2,37 @@
 
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
+---
+
+## 🛡️ Step -1: KDS Governance Enforcement
+
+**BEFORE processing any request, check:**
+
+IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
+  - **HALT execution immediately**
+  - Display enforcement message below
+  - **STOP** (do not proceed to Step 0+)
+
+**⚠️ GOVERNANCE ENFORCEMENT**
+
+Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
+
+**Please use this command instead:**
+
+```markdown
+@workspace /kds request="[your change request here]"
+```
+
+**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
+
+**See:** `.github/prompts/kds.prompt.md` for governance protocol.
+
+---
+
+ELSE: Proceed to key consolidation
+
+---
+
 Scan the `.github/key-data-streams/` directory for all folders whose names match `<key-pattern>` and consolidate both folders AND files into a clean, standardized key structure.
 
 **Two Modes:**

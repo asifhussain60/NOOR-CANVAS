@@ -16,6 +16,37 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
+---
+
+## 🛡️ Step -1: KDS Governance Enforcement
+
+**BEFORE processing any request, check:**
+
+IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
+  - **HALT execution immediately**
+  - Display enforcement message below
+  - **STOP** (do not proceed to Step 0+)
+
+**⚠️ GOVERNANCE ENFORCEMENT**
+
+Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
+
+**Please use this command instead:**
+
+```markdown
+@workspace /kds request="[your change request here]"
+```
+
+**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
+
+**See:** `.github/prompts/kds.prompt.md` for governance protocol.
+
+---
+
+ELSE: Proceed to test generation
+
+---
+
 **Version:** 1.3.0  
 **Last Updated:** 2025-10-28  
 **Changelog:**

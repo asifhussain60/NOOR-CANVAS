@@ -7,6 +7,35 @@ inputs: key, user_request, context, scope, constraints, include_suggestions, aut
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
 lastUpdated: 2025-10-31
 stateTracking: enabled
+
+---
+
+## 🛡️ Step -1: KDS Governance Enforcement
+
+**BEFORE processing any request, check:**
+
+IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
+  - **HALT execution immediately**
+  - Display enforcement message below
+  - **STOP** (do not proceed to Step 0+)
+
+**⚠️ GOVERNANCE ENFORCEMENT**
+
+Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
+
+**Please use this command instead:**
+
+```markdown
+@workspace /kds request="[your change request here]"
+```
+
+**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
+
+**See:** `.github/prompts/kds.prompt.md` for governance protocol.
+
+---
+
+ELSE: Proceed to Step 0
 **Changelog:**
 - **v1.10 (2025-10-31)**: KDS GOVERNANCE INTEGRATION + HANDOFF CONTEXT + NEXT COMMAND
   - Added Step 0.2 to load route handoff context from `.github/key-data-streams/{key}/handoffs/route-to-plan.json`
