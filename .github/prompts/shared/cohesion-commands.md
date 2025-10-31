@@ -97,3 +97,27 @@ Execute("cohesion.prompt.md", {
 ---
 
 **End of Cohesion Command Examples**
+
+
+## Command 6: State Tracking Integration (PowerShell)
+
+**Source:** cohesion.prompt.md Step 7: Update Tracking Files
+
+**Purpose:** Log cohesion validation session and results to state.json
+
+```powershell
+# Log cohesion validation session
+Update-StateKey -Key $key -Type "cohesion-validation" -Status "in-progress" -Scope $scope
+
+# After validation complete
+Update-StateKey -Key $key -Status "completed" -IssuesFound $issueCount -Severity $highestSeverity
+
+# Log work-log update
+Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "cohesion({key}): Validation complete - {N} issues found" -CheckpointType "cohesion-validation"
+```
+
+**Usage Context:** Internal implementation (state tracking integration)
+
+**References:** 
+- State Tracker: `.github/prompts/shared/state-tracker.ps1`
+
