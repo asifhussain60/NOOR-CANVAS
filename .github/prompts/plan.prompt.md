@@ -470,6 +470,8 @@ New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
   "handoffType": "test-generation",
   "key": "{key}",
   "phase": {N},
+  "e2eMode": true,
+  "autoChainPhases": true,
   "scenario": "{test scenario description}",
   "testType": "{unit|e2e|visual}",
   "testFile": "tests/phase-{N}-test.spec.ts",
@@ -502,6 +504,10 @@ New-Item -ItemType Directory -Path "$keyPath/handoffs" -Force
   "nextTask": "phase-{N}-todo-1"
 }
 ```
+
+**E2E Mode Fields**:
+- `e2eMode`: Set to `true` for auto-execute mode (Option A), `false` for manual mode (Option B)
+- `autoChainPhases`: Controls phase-to-phase auto-continuation (independent from task-level auto-chain)
 
 ### 2. Implementation Task Handoffs
 
@@ -915,20 +921,31 @@ Reply: Done (after answering)
 - Task 3.2: {action} - {expected-outcome}
 - Task 3.3: {action} - {expected-outcome}
 
-**⚡ Options**
-**A. AUTO-EXECUTE ALL PHASES** (RECOMMENDED - starts in 5s)  
-**B.** Manual mode (approve each phase individually)  
-**C.** Review plan files first  
+**⚡ Execution Mode**
+
+**A. END-TO-END MODE** (RECOMMENDED - Auto-executes in 5s)  
+   - All phases execute automatically without approval gates
+   - Tests run before each phase implementation
+   - Checkpoint commits created after each phase
+   - Interrupt anytime with Ctrl+C
+   - Best for: Refactors, compliance fixes, well-specified features
+
+**B. MANUAL MODE** (Stop after each phase for approval)  
+   - Await approval before starting each phase
+   - Review test results before proceeding
+   - Best for: Complex features, exploratory work, learning
+
+**C.** Review plan files before deciding  
 **D.** Modify plan scope  
 **E.** Cancel planning
 
-**Auto-executing in 5 seconds... Say "manual" or "cancel" to abort.**
+**Auto-executing in 5 seconds... Say "B", "manual", or "cancel" to abort.**
 
-Reply: A (or wait 5s), B, C, D, or E
+Reply: A (or wait 5s for auto-execute), B (manual), C, D, or E
 
 **Behavior:** 
-- **Default (no reply or A):** Set `auto-chain=true` and invoke task.prompt.md for automatic E2E execution
-- **If B selected:** Set `auto-chain=false` and wait for approval after each phase
+- **Default (no reply or A):** Set `auto-chain=true` + `e2eMode=true` in handoff JSONs → automatic E2E execution
+- **If B selected:** Set `auto-chain=false` + `e2eMode=false` → wait for approval after each phase
 - If C/D/E selected: Wait for user action
 
 ---

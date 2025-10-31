@@ -86,6 +86,8 @@ Defines the **Honest Handoff Protocol** for structured parameter passing between
 {
   "key": "feature-name",
   "phase": 1,
+  "e2eMode": true,
+  "autoChainPhases": true,
   "description": "Phase 1: Database schema creation - requires validation test",
   "testType": "integration",
   "targetFiles": ["Migrations/add-backup-table.sql"],
@@ -99,6 +101,10 @@ Defines the **Honest Handoff Protocol** for structured parameter passing between
   "nextTask": "phase-1-todo-1.json"
 }
 ```
+
+**E2E Mode Fields** (NEW):
+- **e2eMode**: `true` = auto-execute mode (plan Option A), `false` = manual mode (plan Option B)
+- **autoChainPhases**: Controls phase-to-phase auto-continuation (independent from task-level `autoChain`)
 
 ### phase-{N}-todo-{M}.json Schema
 **Purpose**: Plan agent → Task Execution agent handoff (per-task implementation)  
@@ -150,29 +156,42 @@ plan displays: Next Command (Key: {key}): @workspace /test-generation #file:hand
 plan HALTS
 ```
 
-### Workflow 2: Test-First Implementation (plan → test → todo)
+### Workflow 2: Test-First Implementation (plan → test → todo) - E2E MODE
+
 ```
-plan.prompt.md creates phase-1-test.json
+plan.prompt.md creates phase-1-test.json with e2eMode=true
+    ↓
+User selects Option A (E2E Mode) or waits 5s
     ↓
 User invokes: @workspace /test-generation #file:handoffs/phase-1-test.json
     ↓
 test-generation creates test file
     ↓
-test-generation displays: Next Command (Key: {key}): @workspace /todo #file:handoffs/phase-1-todo-1.json
-    ↓
-test-generation HALTS
-    ↓
-User invokes: @workspace /todo #file:handoffs/phase-1-todo-1.json
+IF e2eMode=true AND autoChain=true:
+  Auto-invoke: @workspace /todo #file:handoffs/phase-1-todo-1.json
+ELSE:
+  Display Next Command, HALT
     ↓
 todo.prompt.md loads JSON, implements task
     ↓
-todo runs test (autoChain=true)
+todo runs test (validates acceptance criteria)
     ↓
-IF test passes AND nextTask exists:
-  todo displays: Next Command (Key: {key}): @workspace /todo #file:handoffs/phase-1-todo-2.json
+IF test passes AND nextTask exists AND e2eMode=true:
+  Auto-invoke: @workspace /todo #file:handoffs/phase-1-todo-2.json
+ELSE IF nextTask is phase-level (phase-2-test.json):
+  IF autoChainPhases=true:
+    Auto-invoke: @workspace /test-generation #file:handoffs/phase-2-test.json
+  ELSE:
+    Display Next Command, HALT (manual approval)
 ELSE:
-  todo HALTS, asks user for next action
+  HALT, ask user for next action
 ```
+
+**E2E Benefits**:
+- ✅ Single-session execution (no context loss between phases)
+- ✅ Tests still validate each phase before proceeding
+- ✅ Checkpoint commits still created per phase
+- ✅ Interruptible at any phase boundary (Ctrl+C)
 
 ---
 
