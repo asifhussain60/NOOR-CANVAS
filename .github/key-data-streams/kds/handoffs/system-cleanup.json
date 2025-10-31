@@ -1,42 +1,53 @@
 {
-  "handoffType": "plan",
-  "key": "kds-cleanup",
-  "description": "Remove obsolete keys from .github/key-data-streams/ after validating no active references. Preserve hcp-* keys. Consolidate duplicates.",
-  "acceptanceCriteria": [
-    "Reference scan completed for all deletion candidates",
-    "Zero-reference keys safely deleted",
-    "Duplicate keys consolidated (cohesion, drift-prompt, prompt-*)",
-    "hcp-* keys preserved",
-    "Index files updated (index.md, CDN-KEYS-INDEX.md, active.keys.log)"
-  ],
-  "deletionCandidates": [
-    "auto-drift-detection",
-    "auto-execution-fix",
-    "workspace-cleanup",
-    "_ARCHIVE"
-  ],
-  "consolidationTargets": [
-    {
-      "merge": ["cohesion", "cohesion-cleanup-consolidation"],
-      "into": "cohesion"
-    },
-    {
-      "merge": ["drift-prompt", "drift-prompt-efficiency"],
-      "into": "drift-prompt"
-    },
-    {
-      "merge": ["prompt", "prompt-efficiency-fix", "prompt-merged", "prompt-state-integration"],
-      "into": "prompt-system"
-    }
-  ],
-  "preserveKeys": [
-    "hcp-refactor",
-    "hcp-refactor-phase1",
-    "hcp-timer",
-    "hcp-timer-v2"
-  ],
-  "e2eMode": true,
-  "autoChain": false,
-  "estimatedDuration": "45-60 minutes",
-  "requiresManualValidation": true
+    "handoffType": "plan",
+    "key": "kds-cleanup",
+    "description": "Remove obsolete keys from .github/key-data-streams/ after validating no active references. Preserve hcp-* keys. Consolidate duplicates.",
+    "acceptanceCriteria": [
+        "Reference scan completed for all deletion candidates",
+        "Zero-reference keys safely deleted",
+        "Duplicate keys consolidated (cohesion, drift-prompt, prompt-*)",
+        "hcp-* keys preserved",
+        "Index files updated (index.md, CDN-KEYS-INDEX.md, active.keys.log)"
+    ],
+    "deletionCandidates": [
+        "auto-drift-detection",
+        "auto-execution-fix",
+        "workspace-cleanup",
+        "_ARCHIVE"
+    ],
+    "consolidationTargets": [
+        {
+            "merge": [
+                "cohesion",
+                "cohesion-cleanup-consolidation"
+            ],
+            "into": "cohesion"
+        },
+        {
+            "merge": [
+                "drift-prompt",
+                "drift-prompt-efficiency"
+            ],
+            "into": "drift-prompt"
+        },
+        {
+            "merge": [
+                "prompt",
+                "prompt-efficiency-fix",
+                "prompt-merged",
+                "prompt-state-integration"
+            ],
+            "into": "prompt-system"
+        }
+    ],
+    "preserveKeys": [
+        "hcp-refactor",
+        "hcp-refactor-phase1",
+        "hcp-timer",
+        "hcp-timer-v2"
+    ],
+    "e2eMode": true,
+    "autoChain": false,
+    "estimatedDuration": "45-60 minutes",
+    "requiresManualValidation": true
 }
