@@ -1171,8 +1171,10 @@
                         </span>
                         
                         <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Button converted to open question modal ;CLEANUP_OK -->
+                        @* [TEST-METADATA:ui-logging] Playwright log marker for question modal toggle button ;CLEANUP_OK *@
                         <button @onclick="OpenQuestionModal" 
                                 class="canvas-sidebar-toggle"
+                                data-playwright-log-marker="20251031120000-TranscriptCanvas-QuestionModalToggle"
                                 title="Ask a Question">
                             <i class="fa-solid fa-comment-dots canvas-sidebar-toggle-icon"></i>
                         </button>
@@ -1206,6 +1208,7 @@
 <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Sidebar HTML completely removed (tabs, Q&A panel, participants panel) - Question modal only ;CLEANUP_OK -->
 
 <!-- [TRACE-WORKITEM:transcript-canvas:modal-conversion] Question Modal - Centered popup for asking questions ;CLEANUP_OK -->
+@* [TEST-METADATA:ui-logging] Playwright log markers for question modal form elements ;CLEANUP_OK *@
 @if (IsQuestionModalVisible)
 {
     <div class="canvas-modal-overlay" @onclick="CloseQuestionModal">
@@ -1215,6 +1218,7 @@
             <div style="margin-bottom:1rem;">
                 <textarea @bind="QuestionInput" 
                           class="canvas-form-textarea"
+                          data-playwright-log-marker="20251031120000-TranscriptCanvas-QuestionInput"
                           placeholder="Type your question here..."
                           rows="4"
                           autocomplete="off"
@@ -1225,12 +1229,14 @@
             <div class="canvas-modal-buttons">
                 <button @onclick="SubmitQuestionFromModal" 
                         type="button"
+                        data-playwright-log-marker="20251031120000-TranscriptCanvas-QuestionSubmit"
                         class="canvas-form-submit-button canvas-modal-button-flex">
                     <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
                     <span class="canvas-form-submit-text">Submit</span>
                 </button>
                 <button @onclick="CloseQuestionModal" 
                         type="button"
+                        data-playwright-log-marker="20251031120000-TranscriptCanvas-QuestionCancel"
                         class="canvas-modal-button canvas-modal-button-cancel canvas-modal-button-flex">
                     Cancel
                 </button>

@@ -34,12 +34,14 @@
                     </span>
                 </div>
                 
+                @* [TEST-METADATA:ui-logging] Playwright log marker for Q&A toggle button ;CLEANUP_OK *@
                 <button type="button"
                         @onclick="OnToggleQAPanel"
                         @onkeydown="OnToggleKeyDown"
                         aria-expanded="@QAPanelOpen"
                         aria-controls="hcp-qa-panel"
                         aria-label="Toggle questions panel"
+                        data-playwright-log-marker="20251031120000-HostControlPanel-QAToggle"
                         style="position:relative; width:66px; height:66px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
                         onmouseover="this.style.backgroundColor='#004d00'; this.style.transform='scale(1.05)'"
                         onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
@@ -62,29 +64,27 @@
         </div>
         
     <!-- Transcript Content Area with Independent Scrolling -->
-    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;">
-            @* [DEBUG-WORKITEM:transcript-canvas:broadcast] Show broadcast button when in broadcast mode ;CLEANUP_OK *@
-            @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
-            @if (IsBroadcastMode && !string.IsNullOrEmpty(Model?.TransformedTranscript))
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;">
+            @* [WORKITEM:hcp-fab-button] FAB share button always visible when transcript loaded (not tied to session state) ;CLEANUP_OK *@
+            @* [TEST-METADATA:ui-logging] Playwright log marker for FAB broadcast transcript button ;CLEANUP_OK *@
+            @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
             {
-                <div style="display:flex;justify-content:center;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #E5E7EB;">
-                    <button type="button" 
-                            @onclick="OnBroadcastTranscript" 
-                            disabled="@IsLoading"
-                            style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(212,175,55,0.4);color:white;font-weight:600;font-size:1rem;background-color:#D4AF37;border:none;cursor:@(IsLoading ? "not-allowed" : "pointer");opacity:@(IsLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                            onmouseover="this.style.backgroundColor='#C5B358'; this.style.transform='scale(1.05)'"
-                            onmouseout="this.style.backgroundColor='#D4AF37'; this.style.transform='scale(1)'">
-                        @if (IsLoading)
-                        {
-                            <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-share-nodes" style="font-size:1rem;"></i>
-                        }
-                        <span>Broadcast Transcript to Participants</span>
-                    </button>
-                </div>
+                <button type="button" 
+                        @onclick="OnBroadcastTranscript" 
+                        disabled="@IsLoading"
+                        aria-label="Broadcast transcript to participants"
+                        class="hcp-fab-share-button"
+                        data-playwright-log-marker="20251031120000-HostControlPanel-BroadcastTranscript"
+                        title="Share Transcript">
+                    @if (IsLoading)
+                    {
+                        <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-share-nodes" style="font-size:1.5rem;"></i>
+                    }
+                </button>
             }
             
             @* [DEBUG-WORKITEM:hcp-unify:spinner] Loading state already implemented with LoadingSpinner component ;CLEANUP_OK *@
@@ -119,12 +119,14 @@
         
         <!-- End Session Button -->
         @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
+        @* [TEST-METADATA:ui-logging] Playwright log marker for End Session button ;CLEANUP_OK *@
         @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
         {
             <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
                 <button type="button" 
                         @onclick="OnEndSession" 
                         disabled="@IsLoading"
+                        data-playwright-log-marker="20251031120000-HostControlPanel-EndSession"
                         style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(220,38,38,0.4);color:white;font-weight:600;font-size:1rem;background-color:#DC2626;border:none;cursor:@(IsLoading ? "not-allowed" : "pointer");opacity:@(IsLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
                         onmouseover="this.style.backgroundColor='#B91C1C'; this.style.transform='scale(1.05)'"
                         onmouseout="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1)'">
@@ -275,6 +277,20 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        
+        // [TRACE:hcp-fab-button] Log FAB button visibility conditions ;CLEANUP_OK
+        if (firstRender || Model != null)
+        {
+            Console.WriteLine($"[FAB-DEBUG] HasTranscript: {!string.IsNullOrEmpty(Model?.TransformedTranscript)}, IsLoading: {IsLoading}");
+            if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                Console.WriteLine("[FAB-DEBUG] ✅ FAB button SHOULD be visible");
+            }
+            else
+            {
+                Console.WriteLine($"[FAB-DEBUG] ❌ FAB button hidden - Transcript: {(Model?.TransformedTranscript != null ? "exists" : "null")}");
+            }
+        }
         
         // [TRACE:hcp-tcanvas:inject] Notify parent when transcript container has content rendered ;CLEANUP_OK
         if (!hasNotifiedTranscriptRendered && !string.IsNullOrEmpty(Model?.TransformedTranscript))

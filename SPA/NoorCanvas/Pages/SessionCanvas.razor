@@ -1209,16 +1209,19 @@
                         </div>
                         <div class="canvas-question-form">
                             @* [DEBUG-WORKITEM:canvas:textarea-wrap:TRACE] Changed input to textarea with 3 rows for text wrapping ;CLEANUP_OK *@
+                            @* [TEST-METADATA:ui-logging] Playwright log markers for question form elements ;CLEANUP_OK *@
                             <textarea rows="3"
                                    @bind="QuestionInput" 
                                    @onkeydown="HandleQuestionKeyDown"
-                                   class="canvas-form-textarea" 
+                                   class="canvas-form-textarea"
+                                   data-playwright-log-marker="20251031120000-SessionCanvas-QuestionInput"
                                    placeholder="Ask a question..." 
                                    autocomplete="off"
                                    disabled="@(Model?.SessionStatus != "Active")"></textarea>
                             <button @onclick="SubmitQuestion" 
                                     type="button"
                                     class="canvas-form-submit-button shadow-golden"
+                                    data-playwright-log-marker="20251031120000-SessionCanvas-QuestionSubmit"
                                     style="@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
                                     disabled="@(Model?.SessionStatus != "Active")">
                                 <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
@@ -1232,15 +1235,18 @@
                 <div class="canvas-sidebar">
                     
                     <!-- Tabs -->
+                    @* [TEST-METADATA:ui-logging] Playwright log markers for tab switcher buttons ;CLEANUP_OK *@
                     <div class="canvas-tabs">
                         <button @onclick="() => ActiveTab = Tab.QA" 
                                 class="canvas-tab-button canvas-tab-button-left @(ActiveTab == Tab.QA ? "active" : "")"
+                                data-playwright-log-marker="20251031120000-SessionCanvas-TabQA"
                                 style="background:@(ActiveTab == Tab.QA ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
                             <i class="fa-solid fa-question-circle canvas-tab-icon"></i>
                             Q&A
                         </button>
                         <button @onclick="() => ActiveTab = Tab.Participants" 
                                 class="canvas-tab-button canvas-tab-button-right @(ActiveTab == Tab.Participants ? "active" : "")"
+                                data-playwright-log-marker="20251031120000-SessionCanvas-TabParticipants"
                                 style="background:@(ActiveTab == Tab.Participants ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
                             <i class="fa-solid fa-users canvas-tab-icon"></i>
                             Participants
@@ -1272,22 +1278,25 @@
                                             <div class="canvas-question-item question-item-style-green">
                                                 
                                                 <!-- TOP ROW: Owner Label (left) + Action Buttons (right) -->
-                                                <div class="canvas-question-footer">
-                                                    <span class="canvas-question-owner-label owner-label-color">
-                                                        Your Question
-                                                    </span>
-                                                    
-                                                    <div class="canvas-question-actions">
-                                                        <span @onclick="() => EditQuestion(index)" class="canvas-question-edit-button">
-                                                            <i class="fa-solid fa-pen"></i>
-                                                        </span>
-                                                        <span @onclick="() => ShowDeleteModal(index)" class="canvas-question-delete-button">
-                                                            <i class="fa-solid fa-trash-can"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- BOTTOM ROW: Question Text -->
+                                @* [TEST-METADATA:ui-logging] Playwright log markers for question edit/delete buttons ;CLEANUP_OK *@
+                                <div class="canvas-question-footer">
+                                    <span class="canvas-question-owner-label owner-label-color">
+                                        Your Question
+                                    </span>
+                                    
+                                    <div class="canvas-question-actions">
+                                        <span @onclick="() => EditQuestion(index)" 
+                                              class="canvas-question-edit-button"
+                                              data-playwright-log-marker="20251031120000-SessionCanvas-EditQuestion">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </span>
+                                        <span @onclick="() => ShowDeleteModal(index)" 
+                                              class="canvas-question-delete-button"
+                                              data-playwright-log-marker="20251031120000-SessionCanvas-DeleteQuestion">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </span>
+                                    </div>
+                                </div>                                                <!-- BOTTOM ROW: Question Text -->
                                                 <div class="canvas-question-content">
                                                     <div class="canvas-question-header">
                                                         <span class="canvas-question-text question-text-color-green">
@@ -1321,12 +1330,14 @@
                                                     </div>
                                                     
                                                     <!-- RIGHT SIDE: Compact Vote Button -->
+                                                    @* [TEST-METADATA:ui-logging] Playwright log marker for vote button ;CLEANUP_OK *@
                                                     <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
                                                         <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
                                                                 @onclick:preventDefault="true"
                                                                 @onclick:stopPropagation="true"
                                                                 class="canvas-question-vote-button vote-button-style-sienna-owner"
                                                                 data-question-id="@question.QuestionId"
+                                                                data-playwright-log-marker="20251031120000-SessionCanvas-VoteQuestion"
                                                                 style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
                                                                 disabled="@hasVoted"
                                                                 title="@(hasVoted ? "Already voted" : "Upvote this question")">
@@ -1563,6 +1574,8 @@
                 {
                     Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: showNoorToast function NOT defined - _Host.cshtml script may not be executing ;CLEANUP_OK", requestId);
                 }
+
+                // [WORKITEM:hcp-fab-button] Removed asset kebab menu JavaScript - replaced with FAB share button in HostControlPanelContent.razor ;CLEANUP_OK
             }
             catch (Exception ex)
             {

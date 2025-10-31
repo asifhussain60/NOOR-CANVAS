@@ -75,10 +75,12 @@ else
             @* [DEBUG-WORKITEM:hcp-unify:layout] Single centered Start Session button (65% width) ;CLEANUP_OK *@
             @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
             @* [WORKITEM:transcrikpt-canvas] Disabled until canvas is selected *@
+            @* [TEST-METADATA:ui-logging] Playwright log marker for Start Session button click tracking ;CLEANUP_OK *@
             <div style="width:100%;display:flex;justify-content:center;">
                 <button type="button" 
                         @onclick="OnStartSession" 
                         disabled="@(IsLoading || Model?.SessionStatus == "Active" || IsStartSessionDisabled())"
+                        data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"
                         style="width:58%;padding:0.9rem 1.1rem;border-radius:1rem;box-shadow:0 2px 6px rgba(0,100,0,0.08);color:#065F46;font-weight:700;font-size:1rem;background-color:#ECFDF5;border:2px solid #65A30D;transition:background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(IsLoading || Model?.SessionStatus == "Active" || IsStartSessionDisabled() ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
                         onmouseover="if(!this.disabled) { this.style.backgroundColor='#D1FAE5'; this.style.boxShadow='0 3px 8px rgba(0,100,0,0.12)'; }"
                         onmouseout="if(!this.disabled) { this.style.backgroundColor='#ECFDF5'; this.style.boxShadow='0 2px 6px rgba(0,100,0,0.08)'; }">
