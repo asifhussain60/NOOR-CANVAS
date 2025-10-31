@@ -7,9 +7,9 @@ description: Canonical execution engine that breaks down requests, validates out
 > purpose: Execute planned work, validate outcomes, update key data stream progressively
 > inputs: key, tasks, -test, github-branch, commit-checkpoints, auto-chain, phase, debug-level, verbosity
 > outputs: phase execution results, checkpoints, updated work-log and artifacts
-> lastUpdated: 2025-10-29
-> version: 1.6
-> changelog: v1.6 (2025-10-29) - Added Step 8.25 FILE FINALIZATION VERIFICATION - Enforces Document First Respond Later protocol - Verifies work-log.md updated within 60 seconds - HALT if timestamp fails (blocks Step 8.6) - Renumbered Step 8.5 to 8.6 - References file-finalization-verifier.md
+> lastUpdated: 2025-10-31
+> version: 2.0
+> changelog: v2.0 (2025-10-31) - RULE #1 COMPLIANCE - Extracted workflows to shared/task-algorithms.md (Branch Verification, Document First Checkpoint, Plan Validation Gate). Removed IF...THEN pseudocode blocks. Algorithm references replace inline code.
 > stateTracking: enabled
 > acceptsFrom: [plan]
 > calls: [test-generation]
@@ -76,12 +76,6 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 4. If violations (especially critical like database access rules): auto-generate improvement plan and handoff to plan.prompt.md
 5. Present findings and actionable next steps to user
 
-**Example:**
-```bash
-@workspace /task key=my-task -test tasks="Phase 1: Implement UI\n---\nPhase 2: Add tests"
-@workspace /task key=hcp -test tasks="Fix button alignment"
-```
-
 **Task-Specific Validation Checks:**
 - ✓ Commit checkpoints created after phase completion (ckpt: messages in git log)
 - ✓ Work log updated during execution
@@ -92,26 +86,6 @@ Enable post-execution validation using `.github/prompts/shared/prompt-test-valid
 - ✓ No code in user-facing output (CONCISE-MANDATE compliance)
 - ✓ Output format compliance (🧠/📌/📊 structure)
 - ✓ Max 15 bullets per response
-
-**Critical Violations Detected:**
-```markdown
-🚨 VALIDATION FAILED - Critical Violation
-
-Quality Score: 35/100 (Critical Issues)
-
-❌ Database Access Rule Violation:
-   File: AdminService.cs, Line 42
-   Issue: INSERT INTO dbo.Users (READ-ONLY schema)
-   
-🔄 Auto-generating improvement plan...
-Handing off to plan.prompt.md for remediation
-
-What would you like to do next?
-A. Review improvement plan and apply fixes
-B. Rollback changes (restore to last checkpoint)
-C. Manual fix with guidance
-D. Cancel validation (NOT RECOMMENDED)
-```
 
 **See:** `.github/prompts/shared/prompt-test-validation-framework.md` for complete validation algorithm
 
@@ -142,13 +116,6 @@ Specific phase number to execute (used with auto-chain)
 - If specified, execute only that phase from plan
 - If omitted, execute all tasks sequentially
 
-Proceed with task without image analysis? (not recommended for complex visual changes)
-```
-
-**Previous behavior (now deprecated):**
-Triggered AI-powered screenshot analysis. Comma-delimited image filenames (extensions optional).  
-**Modes:** Plain screenshots → HTML documentation, Annotated mockups → Requirement extraction
-
 ---
 
 ## Purpose & Usage
@@ -167,34 +134,13 @@ Canonical execution engine that breaks down requests, validates outcomes, mainta
 ### How to Invoke
 
 **Via Plan Agent Handoff** (Recommended for complex work):
-```
-# Step 1: User initiates planning
-@workspace /feature key=user-landing user_request="Route users to asset or transcript canvas based on host selection"
-
-# Step 2: Plan agent creates comprehensive plan, user reviews
-[Plan agent presents 30-50 line draft]
-
-# Step 3: User approves
-User: "proceed"
-
-# Step 4: Plan agent automatically invokes task agent
-Plan Agent: @workspace /task key=user-landing github-branch=development tasks="Phase 1: Database Schema\n---\nPhase 2: Backend Persistence\n---\nPhase 3: Frontend Routing\n---\nPhase 4: Testing"
-
-# Task agent loads plan and executes phases
-```
+Plan agent creates comprehensive plan → user approves → plan agent automatically invokes task agent
 
 **Direct Invocation** (For simple tasks):
 ```
-# Simple single-task execution
 @workspace /task key=hcp tasks="Fix hadees token removal in SessionCanvas"
-
-# Multi-phase execution (manual phases)
 @workspace /task key=canvas tasks="Add share button\n---\nCreate Playwright test"
-
-# Mark task complete (triggers comprehensive documentation)
 @workspace /task key=hcp tasks="mark complete"
-
-# Auto-detect previous key (Step 0.5 Protocol)
 @workspace Adding to previous key data stream, fix the submit button styling
 ```
 
@@ -240,8 +186,6 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 - **PlaywrightQuickRef.md** ⭐ **MANDATORY for test creation**
 - **ValidationFramework.md** - Standard 6-level validation pipeline
 
-**See:** task.prompt.md attachment for complete list of architectural references
-
 ### Workflow Requirements
 - Always begin with **checkpoint commit** for rollback safety
 - **Always verify key data stream BEFORE planning** (prevent duplicate work)
@@ -273,10 +217,6 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 
 ### Called By
 - **plan.prompt.md** (Planning Orchestrator) - Receives comprehensive execution plans
-  - Plan includes: phased tasks, test specifications, branch strategy, technology stack, architecture layers
-  - Handoff format: `key`, `tasks`, `github-branch`, `debug-level`, `verbosity`
-  - Task agent executes phases sequentially per plan
-  - **See**: [Agent Handoff Protocol](shared/agent-handoff-protocol.md) for complete handoff specification
 - **Direct user invocation** - For simple tasks without planning
 
 ### Calls (Orchestrates)
@@ -284,18 +224,8 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 - **healthcheck.prompt.md** - Post-implementation validation (recommended but manual)
 
 ### When to Use
-- **Use plan.prompt.md first** if:
-  - Complex multi-phase implementation (3+ phases)
-  - Need comprehensive test plan
-  - Want interactive planning with user approval
-  - Requirements unclear or need refinement
-  - Significant architecture changes
-- **Use task.prompt.md directly** if:
-  - Simple, well-defined task (1-2 steps)
-  - Already have clear plan
-  - Quick fix or minor change
-  - Continuing existing work
-  - Bug fixes with known solution
+- **Use plan.prompt.md first** if: Complex multi-phase implementation (3+ phases), need comprehensive test plan, requirements unclear, significant architecture changes
+- **Use task.prompt.md directly** if: Simple well-defined task (1-2 steps), already have clear plan, quick fix, continuing existing work, bug fixes with known solution
 
 ---
 
@@ -307,42 +237,16 @@ Plan Agent: @workspace /task key=user-landing github-branch=development tasks="P
 
 1. **ALWAYS check for comprehensive plan first**: `.github/key-data-streams/{key}/{key}.plan.md`
 2. **If plan exists:**
-   - ✅ Load complete phase details from `{key}.plan.md`
-   - ✅ Load JSON tracking data from `{key}.plan.json`
-   - ✅ Use plan's technology stack analysis (skip redundant discovery)
-   - ✅ Reference plan's architecture layers
+   - ✅ Load complete phase details from plan
+   - ✅ Load JSON tracking data from plan.json
+   - ✅ Use plan's technology stack analysis
    - ✅ Follow plan's test specifications
    - ✅ Update plan's JSON tracking after each phase
-   - ✅ Apply plan's System Context Pack (APIs, DB, SignalR, test data)
    - ✅ Report phase completion with progress tracking
 3. **If plan missing:**
    - ⚠️ Warn user: "No comprehensive plan found. Consider running @workspace /feature first for complex multi-phase work."
-   - Use lightweight planning (current Step 3 behavior)
+   - Use lightweight planning
    - Generate simple work plan and proceed
-   - Update markdown work-log only (no JSON tracking)
-
-**Plan Context Files** (automatically loaded when plan exists):
-- `{key}.plan.md` - Complete plan specification with phases, tests, architecture
-- `{key}.plan.json` - JSON tracking for programmatic progress queries
-- `work-log.md` - Execution history and key data stream
-
-**Benefits of Plan Integration:**
-- ✅ Eliminates redundant analysis (technology stack already discovered)
-- ✅ Ensures implementation follows approved architecture
-- ✅ Maintains consistency across phases
-- ✅ JSON tracking enables programmatic progress queries
-- ✅ Reuses pre-gathered context (APIs, DB schemas, test data)
-- ✅ Clear phase boundaries with validation gates
-- ✅ Better user experience with plan approval workflow
-
-**Example: Plan Handoff Flow**
-```
-User: @workspace /feature key=user-landing user_request="Route users based on host selection"
-[Plan agent creates plan, user approves]
-Plan Agent: @workspace /task key=user-landing github-branch=development tasks="Phase 1: ...\n---\nPhase 2: ..."
-Task Agent: ✅ Loaded comprehensive plan from .github/key-data-streams/user-landing/user-landing.plan.md
-Task Agent: [Executes phases sequentially]
-```
 
 ---
 
@@ -352,20 +256,9 @@ Task Agent: [Executes phases sequentially]
 
 ### Step -1: Initialize State Tracking (EXECUTE FIRST)
 
-**Load state-tracker utility and log incoming request:**
+**See:** `.github/prompts/shared/test-examples.md` - State Tracker Integration section
 
-```powershell
-# Source the state-tracker utility
-. .github/prompts/shared/state-tracker.ps1
-
-# Log the incoming request (routed from plan or direct invocation)
-Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain @("route", "plan", "task")
-```
-
-**Purpose:**
-- Track task execution invocations
-- Record execution requests and handoffs from plan agent
-- Enable commit tracking during checkpoint operations
+**Purpose:** Track task execution invocations, record execution requests, enable commit tracking
 
 ---
 
@@ -375,46 +268,16 @@ Update-StateRequest -Key $key -Type "execution" -UserRequest $tasks -PromptChain
 
 ⚠️ **ALWAYS verify you're in the correct branch before starting any work.**
 
+**Algorithm:** See `shared/task-algorithms.md` - Algorithm 1: Branch Strategy Verification
+
 **Branch Strategy:**
 - **`master`** - Production only (PROTECTED - deploy target)
 - **`development`** - ALL development work (DEFAULT)
 
-**Execute:**
-```powershell
-# Verify branch strategy compliance
-$githubBranch = $parameters.githubBranch ?? "development"
-$branchCheck = VerifyBranchStrategy($githubBranch)
-
-IF $branchCheck.status == "BLOCKED" THEN
-  # CRITICAL: Cannot execute on master
-  SHOW_MESSAGE($branchCheck.message)
-  EXIT 1  # HALT execution
-END IF
-
-IF $branchCheck.status == "WARNING" THEN
-  # Branch mismatch - prompt user
-  SHOW_MESSAGE($branchCheck.message)
-  WAIT_FOR_USER_CHOICE()  # A or B
-  
-  IF userChoice == "A" THEN
-    ExecuteCommand("git checkout {$branchCheck.expectedBranch}")
-    VERIFY_BRANCH_SWITCH()
-  ELSE IF userChoice == "B" THEN
-    LOG_OVERRIDE_TO_WORK_LOG($branchCheck)
-  END IF
-END IF
-
-# Proceed to Step 1 (checkpoint commit)
-```
-
 **Enforcement:**
-- ⚠️ **ABORT** task execution if on `master` branch (unless github-branch explicitly set to `master`)
+- ⚠️ **ABORT** if on `master` branch (unless github-branch explicitly set to `master`)
 - ✅ **PROCEED** if current branch matches github-branch parameter
 - ⚠️ **PROMPT** user if mismatch detected (allow override with warning)
-
-**See:** 
-- `.github/prompts/shared/step-0-branch-verification.md` - Complete verification algorithm
-- `SelfAwareness.instructions.md` - Branch Strategy section
 
 ---
 
@@ -425,43 +288,15 @@ END IF
 **Purpose:** Seamlessly continue work on the most recently modified key without requiring explicit key parameter.
 
 **Detection & Resolution:**
-1. **Scan recent git commits** for key data stream modifications:
-   ```bash
-   git log --pretty=format:"%H %s" --name-only -10 | grep "key-data-streams"
-   ```
-2. **Identify most recent key:**
-   - Parse file path: `.github/key-data-streams/**/{key}.md`
-   - Extract `{key}` from path
-   - Verify last modification timestamp
-3. **Auto-populate key parameter:**
-   - Set `key = {detected-key}`
-   - Inform user: `"📌 Continuing work on key: {detected-key} (last modified: {timestamp})"`
+1. Scan recent git commits for key data stream modifications
+2. Identify most recent key from file path
+3. Auto-populate key parameter
+4. Inform user of detected key
 
 **Validation:**
 - If NO recent key modifications found → Request explicit key from user
 - If MULTIPLE keys modified in last commit → Use most recent timestamp
 - If ambiguous → Present options to user for selection
-
-**Handover to Task Protocol:**
-- Once key is resolved, proceed to **Step 1: Checkpoint Commit**
-- Continue normal task workflow (Steps 1-9)
-- Update the SAME key data stream that was auto-detected
-
-**Example Flow:**
-```
-User: "Adding to previous key data stream, fix the button alignment issue"
-
-Agent Actions:
-1. Scan git log → Finds `.github/key-data-streams/canvas/canvas.md` modified 2 minutes ago
-2. Extract key: "canvas"
-3. Notify: "📌 Continuing work on key: canvas (last modified: 2025-10-15T00:02:00Z)"
-4. Proceed to Step 1 with key="canvas"
-```
-
-**Guardrails:**
-- **ALWAYS verify detected key with user before proceeding** (brief confirmation)
-- **NEVER assume key if git history is ambiguous** (request clarification)
-- **ALWAYS preserve previous work** (append to existing work log, never overwrite)
 
 ---
 
@@ -472,73 +307,16 @@ Agent Actions:
 **Purpose:** Detect interrupted workflows and offer seamless recovery from last checkpoint
 
 **Detection:**
-1. **Load plan.json**: `.github/key-data-streams/{key}/{key}.plan.json`
-2. **Check for interruptedAt field**:
-   ```json
-   "interruptedAt": {
-     "phase": 4,
-     "step": "4.2",
-     "timestamp": "2025-10-20T15:30:00Z",
-     "reason": "build-failure",
-     "errorMessage": "CS0103: The name 'foo' does not exist",
-     "lastSuccessfulPhase": 3
-   }
-   ```
-3. **If interruptedAt exists** → Present recovery option:
-   ```
-   🔄 INTERRUPTED WORKFLOW DETECTED
-   
-   Key: {key}
-   Last Successful Phase: Phase {lastSuccessfulPhase}
-   Interrupted At: Phase {phase}, Step {step}
-   Reason: {reason}
-   Timestamp: {timestamp}
-   
-   Error: {errorMessage}
-   
-   Would you like to resume from Phase {phase}? (yes/no)
-   ```
-
-4. **User Response:**
-   - **"yes"** / **"resume"** / **"continue"** → Proceed to recovery workflow
-   - **"no"** / **"start over"** → Clear interruptedAt, proceed normally
-   - **No response** → Assume "yes" after 5 seconds
+1. Load plan.json and check for interruptedAt field
+2. If exists, present recovery option with phase/step details
+3. User can resume, start over, or cancel
 
 **Recovery Workflow:**
-1. **Load checkpoint tag**: `checkpoint/{key}/{timestamp}`
-   ```bash
-   git tag -l "checkpoint/{key}/*" | tail -1
-   ```
-2. **Verify checkpoint exists** (last successful phase should have tag)
-3. **Resume from interrupted phase**:
-   - Set `current_phase = interruptedAt.phase`
-   - Load phase tasks from plan.md
-   - Skip completed tasks (check plan.json task.completed flags)
-   - Execute remaining tasks
-4. **Clear interruptedAt on phase completion**:
-   ```json
-   "interruptedAt": null
-   ```
-
-**User Commands (Alternative Triggers):**
-- **"continue"** → Auto-detect most recent interrupted key, resume
-- **"resume {key}"** → Resume specific key's interrupted workflow
-- **"continue from phase {N}"** → Resume from specific phase (override interruptedAt.phase)
-
-**Validation:**
-- If NO plan.json found → Skip recovery (no workflow to resume)
-- If NO interruptedAt field → Skip recovery (no interruption detected)
-- If checkpoint tag missing → Warn user, offer fresh start from interrupted phase
-
-**Output:**
-```
-✅ Resuming from Phase {phase}: {title}
-
-Last Checkpoint: Phase {lastSuccessfulPhase} ({checkpoint-tag})
-Skipping completed tasks: {completed-task-count}/{total-task-count}
-
-Executing remaining tasks...
-```
+1. Load checkpoint tag from last successful phase
+2. Resume from interrupted phase
+3. Skip completed tasks
+4. Execute remaining tasks
+5. Clear interruptedAt on completion
 
 ---
 
@@ -549,91 +327,17 @@ Executing remaining tasks...
 **Purpose:** Verify key data stream infrastructure exists before proceeding
 
 **Validation:**
-
-1. **Check if key folder exists**: `.github/key-data-streams/{key}/`
-   - If NOT exists → HALT immediately
-   - Error message to user:
-     ```
-     ❌ ERROR: Key folder does not exist
-     
-     Key: {key}
-     Expected path: .github/key-data-streams/{key}/
-     
-     This key has not been initialized through the planning process.
-     
-     REQUIRED ACTION:
-     Run the planning agent first to create the key infrastructure:
-     
-     @workspace /feature key={key} user_request="{your requirements}"
-     
-     The planning agent will:
-     - Create the key folder structure
-     - Generate comprehensive plan document
-     - Set up test directory and registry
-     - Prepare handoff for task execution
-     
-     After planning completes, you can run this task command.
-     ```
-   - **EXIT with status code 1** (prevents downstream failures)
-
-2. **Check if plan exists**: `.github/key-data-streams/{key}/{key}.plan.md`
-   - If exists → Use comprehensive plan (existing Step 3 Plan Integration Protocol)
-   - If NOT exists → Warn user but continue with lightweight planning:
-     ```
-     ⚠️ WARNING: No comprehensive plan found
-     
-     Key folder exists but no {key}.plan.md detected.
-     Using lightweight planning mode for simple tasks.
-     
-     For complex multi-phase work, consider running:
-     @workspace /feature key={key} user_request="{requirements}"
-     ```
-
-**Output:**
-- **Concise:** `"✓ Key folder validated: {key}"`
-- **Detailed:** 
-  ```
-  ✓ Key Folder Validation
-  
-  Key: {key}
-  Path: .github/key-data-streams/{key}/
-  Status: EXISTS
-  Plan: {FOUND | NOT FOUND}
-  Mode: {Comprehensive | Lightweight}
-  ```
+1. Check if key folder exists: `.github/key-data-streams/{key}/`
+2. If NOT exists → HALT with error message directing user to run planning agent first
+3. If exists → Check for plan.md (use comprehensive plan if found, otherwise lightweight)
 
 ---
 
 ### Step 1: Checkpoint Commit (MANDATORY)
 
-Create checkpoint commit for rollback capability:
-```bash
-git add -A
-git commit -m "ckpt({key}): pre-task checkpoint"
-set "_SHA=" & for /f %i in ('git rev-parse --short HEAD') do set _SHA=%i
+Create checkpoint commit for rollback capability with git tag and rollback index update.
 
-# Create/update rollback index for this key
-if not exist .github\key-data-streams\{key} mkdir .github\key-data-streams\{key}
-"" >nul 2>&1
-echo | set /p="# Rollback Index for {key}\r\n" > .github\key-data-streams\{key}\rollback-index.md
-if not exist .github\key-data-streams\{key}\rollback-index.md (
-   echo # Rollback Index for {key}> .github\key-data-streams\{key}\rollback-index.md
-   echo >> .github\key-data-streams\{key}\rollback-index.md
-   echo | set /p="| Date | Type | Summary | SHA | Parent |\r\n" >> .github\key-data-streams\{key}\rollback-index.md
-   echo | set /p="|------|------|---------|-----|--------|\r\n" >> .github\key-data-streams\{key}\rollback-index.md
-)
-
-# Append current checkpoint row
-powershell -NoProfile -Command "$d=Get-Date -Format 'yyyy-MM-dd HH:mm:ss'; $sha=(git rev-parse --short HEAD); Add-Content '.github/key-data-streams/{key}/rollback-index.md' \"| $d | ckpt | pre-task checkpoint | $sha | - |\""
-
-# Tag the checkpoint for easy discovery
-powershell -NoProfile -Command "$sha=(git rev-parse --short HEAD); $t=Get-Date -Format 'yyyyMMdd-HHmm'; git tag \"key-{key}-ckpt-$t-$sha\""
-```
-
-**Log checkpoint to state tracking:**
-```powershell
-Update-StateCommit -Key $key -Sha (git rev-parse --short HEAD) -Message "ckpt({key}): pre-task checkpoint" -Phase $phase -CheckpointType "pre-task"
-```
+**Log checkpoint to state tracking** after commit creation.
 
 This ensures rollback capability if the task introduces instability.
 
@@ -676,53 +380,9 @@ Build comprehensive context before planning through conditional, intelligent sub
 
 **Trigger:** ALWAYS when `key` parameter exists
 
-**Execute:**
-```powershell
-IF KeyExists($key) THEN
-  
-  # Update plan and work log with session details
-  $docResult = DocumentFirstCheckpoint($key, $userRequest, $phase)
-  
-  IF $docResult.status == "FAILED" THEN
-    # Documentation update failed - HALT execution
-    SHOW_ERROR($docResult.reason)
-    LOG_FAILURE($docResult)
-    EXIT 1
-  END IF
-  
-  IF $docResult.status == "SUCCESS" THEN
-    # Documentation committed - proceed to planning
-    LOG_SUCCESS("Documentation updated: {$docResult.filesUpdated} files")
-    LOG_COMMIT("Checkpoint SHA: {$docResult.commitSha}")
-  END IF
-  
-  # If status == "SKIP", key folder doesn't exist yet (first-time execution)
-  # Proceed to Step 3 for lightweight planning
-  
-END IF
-
-# Continue to Step 3 (Planning)
-```
+**Algorithm:** See `shared/task-algorithms.md` - Algorithm 2: Document First Checkpoint
 
 **Guardrail:** Code commits WITHOUT prior documentation updates = VIOLATION
-
-**Output (based on verbosity):**
-- **Concise:** `"✅ Documentation checkpoint: {file-count} files updated, committed {short-sha}"`
-- **Detailed:** 
-  ```
-  ✅ Documentation First Checkpoint
-  
-  Files Updated: {count}
-  - {key}.plan.md (session context added)
-  - work-log.md (session entry created)
-  
-  Commit: {short-sha}
-  Message: doc({key}): session start documentation
-  
-  Status: Ready for implementation (Step 5)
-  ```
-
-**See:** `.github/prompts/shared/step-2-5-document-first-checkpoint.md` - Complete protocol
 
 ---
 
@@ -730,59 +390,28 @@ END IF
 
 **Execution Context Detection:**
 
-**A. Phase-Driven Planning** (when `.github/key-data-streams/{key}/{key}.plan.md` exists):
-1. Load comprehensive plan document
-2. Load JSON tracking from `.github/key-data-streams/{key}/{key}.plan.json`
-3. Parse `tasks` parameter for phase identifiers:
-   - Pattern: `Phase 1: {title}\n---\nPhase 2: {title}\n---\nPhase 3: {title}`
-   - Extract phase numbers and titles
-4. For each phase, load from plan document:
-   - **Objectives**: Phase goals (numbered list)
-   - **Context**: Files to analyze, previous phase dependencies
-   - **Implementation Tasks**: TODO items with expected outcomes
-   - **Validation Checklist**: Build, lint, tests
-   - **Playwright Test Specification**: Test scenarios, mode, Percy requirements
-   - **Orchestration Script Specification**: PowerShell template
-   - **Debug Markers**: Specific markers for this phase
-   - **Commit Format**: Template with debug markers
-   - **Approval Gate**: User must approve before next phase
-5. Skip lightweight planning (plan already exists)
-6. Proceed directly to Step 4 (Approval) with loaded phase details
+**A. Phase-Driven Planning** (when comprehensive plan exists):
+1. Load plan document and JSON tracking
+2. Parse tasks parameter for phase identifiers
+3. For each phase, load from plan: objectives, context, implementation tasks, validation checklist, test specification, orchestration script, debug markers, commit format, approval gate
+4. Skip lightweight planning
+5. Proceed to Step 4 with loaded phase details
 
 **B. Lightweight Planning** (no plan exists):
 1. Use verified/inferred key from Step 2
-2. Incorporate architecture analysis from Step 2.8
-3. **MANDATORY for CRUD:** Verify complete data lifecycle documented in Step 2.8.7
-4. **HIGH-PRIORITY Constraints:** Include dedicated section for ALL CAPS constraints from Step 2.1.5
-5. Parse `debug-level`, `verbosity`, `tasks`
-6. **Detect completion keywords:** If `tasks` contains "mark complete", prepare Step 9
-7. **Detect documentation mode:** If `debug-level: doc`, prepare documentation instead of code execution
-8. Incorporate context from Step 2
-9. Generate simple work plan
+2. Incorporate architecture analysis
+3. **MANDATORY for CRUD:** Verify complete data lifecycle documented
+4. **HIGH-PRIORITY Constraints:** Include dedicated section for ALL CAPS constraints
+5. Parse parameters
+6. **Detect completion keywords:** If tasks contains "mark complete", prepare Step 9
+7. **Detect documentation mode:** If debug-level: doc, prepare documentation instead of code
+8. Generate simple work plan
 
-**Plan Structure (Lightweight Mode)**:
-```markdown
-## Implementation Plan
-
-### Primary Objective
-{main task description}
-
-### HIGH-PRIORITY Constraints (from user ALL CAPS emphasis)
-1. [CONSTRAINT] {constraint description}
-   - **Category**: {Preservation|Exactness|Mandatory Inclusion|Behavioral}
-   - **Verification Method**: {how to verify}
-   - **Status**: PENDING → VERIFIED → FAILED
-
-### Subtasks
-1. {subtask 1}
-2. {subtask 2}
-
-### Verification Checklist
-- [ ] Build passes (zero errors, zero warnings)
-- [ ] Lint validation passes (all file types)
-- [ ] High-priority constraints verified
-- [ ] Tests pass (if applicable)
-```
+**Plan Structure (Lightweight Mode):**
+- Primary Objective
+- HIGH-PRIORITY Constraints (with verification method)
+- Subtasks
+- Verification Checklist
 
 ---
 
@@ -794,42 +423,9 @@ END IF
 
 **Trigger:** ALWAYS when lightweight planning used (Step 3B)
 
-**Execute:**
-```powershell
-# Only execute if lightweight planning mode (no comprehensive plan exists)
-IF PlanMode == "Lightweight" THEN
-  
-  # Write plan to .github/key-data-streams/{key}/{key}.plan.md
-  $planResult = PlanValidationGate($key, $planContent)
-  
-  IF $planResult.status == "FAILED" THEN
-    # Plan file write failed - HALT execution
-    SHOW_ERROR($planResult.reason)
-    LOG_FAILURE($planResult)
-    EXIT 1
-  END IF
-  
-  IF $planResult.status == "SUCCESS" THEN
-    # Plan written to file - show user location
-    SHOW_MESSAGE("Plan created: {$planResult.file} ({$planResult.fileSize} bytes)")
-    LOG_SUCCESS("Plan validation gate passed")
-  END IF
-  
-  # If status == "SKIP", comprehensive plan exists (from plan.prompt.md)
-  # Proceed directly to Step 4 (Approval)
-  
-END IF
-
-# Continue to Step 4 (Approval)
-```
+**Algorithm:** See `shared/task-algorithms.md` - Algorithm 3: Plan Validation Gate
 
 **Guardrail:** No approval prompt WITHOUT plan file existing
-
-**Output (based on verbosity):**
-- **Concise:** `"✅ Plan created: {key}.plan.md ({size} bytes)"`
-- **Detailed:** Full plan summary (≤10 bullets) + file location + approval options
-
-**See:** `.github/prompts/shared/step-3-5-plan-validation-gate.md` - Complete protocol
 
 ---
 
@@ -837,15 +433,9 @@ END IF
 
 Before implementation commits, prepare the commit subject to include rollback metadata and lineage:
 
-- Determine `parent` = latest checkpoint short SHA (from `rollback-index.md` last ckpt row)
-- Use format per conventions: `{type}({key}): {summary} [sha={short}] [parent={short}]`
+- Determine parent = latest checkpoint short SHA
+- Use format: `{type}({key}): {summary} [sha={short}] [parent={short}]`
 - Types: `task` for implementation; `test` for generated tests; `hc` for healthcheck-driven doc updates
-
-This guarantees that later “show last 10 commits” queries present a clean, meaningful list with easy rollback anchors.
-
-**Output (based on verbosity):**
-- **Concise:** 3-5 line summary, subtask list, constraint count, approach
-- **Detailed:** Complete analysis, file-by-file breakdown, test strategy, constraint verification plan, risks
 
 ---
 
@@ -855,497 +445,67 @@ This guarantees that later “show last 10 commits” queries present a clean, m
 
 **Workflow:**
 
-1. **Present Generated Plan** to user for confirmation (controlled by `verbosity` parameter)
-
+1. **Present Generated Plan** to user for confirmation
 2. **Parse User Response:**
-   - **Explicit Approval** (proceed to Step 5):
-     - Patterns: `"yes"`, `"y"`, `"proceed"`, `"go ahead"`, `"continue"`, `"approved"`, `"ok"` (case-insensitive)
-     - **CRITICAL:** Response must contain ONLY approval keywords, no additional requests
-     - Example: `"Yes"`, `"proceed"`, `"Y"`, `"ok"`
-   
-   - **Additional Requirements** (loop back to Step 3):
-     - Any response containing new instructions, modifications, or clarifications
-     - Examples: `"Also add X"`, `"Change Y to Z"`, `"What about A?"`, `"Make the button blue"`
-     - Agent appends requirements to context and re-plans
-   
-   - **Rejection** (halt execution):
-     - Patterns: `"no"`, `"cancel"`, `"stop"`, `"halt"`
-     - Mark task as **Pending Approval** and exit
+   - **Explicit Approval** (proceed to Step 5): `"yes"`, `"proceed"`, `"approved"`, etc. (ONLY approval keywords, no additional requests)
+   - **Additional Requirements** (loop back to Step 3): Any response containing new instructions/modifications
+   - **Rejection** (halt): `"no"`, `"cancel"`, `"stop"`
 
 3. **Re-Evaluation Loop** (if additional requirements detected):
-   - **Iteration {N}/3:** Append user's additional requirements to Step 2 context
-   - Return to **Step 3:** Re-plan with updated requirements
-   - Present updated plan with change summary:
-     ```
-     📝 Updated Implementation Plan (Iteration {N}/3)
-     
-     Additional Requirements Added:
-     - {requirement 1}
-     - {requirement 2}
-     
-     Updated Plan:
-     {new plan with changes highlighted}
-     
-     Proceed with updated plan? (yes/proceed to continue, or provide more requirements)
-     ```
-   - **Iteration Limit:** After 3 re-evaluations, require explicit `"proceed"` or `"cancel"`
-   - **Loop Termination:** Only proceed to Step 5 on explicit approval without new requirements
+   - Append requirements to context
+   - Return to Step 3 for re-planning
+   - Present updated plan with change summary
+   - **Iteration Limit:** Max 3 re-evaluations
+   - **Loop Termination:** Only proceed on explicit approval without new requirements
 
-4. **⚠️ Early Warning:** If Step 2.8.7 detected INCOMPLETE data lifecycle:
-   ```
-   ⚠️ WARNING: Incomplete Data Lifecycle Detected
-   
-   Current implementation missing:
-   - [X] Database Persistence (mutations not saved)
-   - [X] SignalR Broadcast (other clients won't see changes)
-   
-   This will result in:
-   - ❌ Changes disappear after page refresh
-   - ❌ Multi-user desync (only one browser updated)
-   
-   Recommendation:
-   1. Add API endpoint: POST /api/questions/{id}/delete
-   2. Add database mutation: DbContext.Questions.Remove()
-   3. Add SignalR broadcast: Clients.All.SendAsync("QuestionDeleted")
-   
-   Proceed with incomplete implementation? (Not recommended)
-   ```
+4. **⚠️ Early Warning:** If Step 2.8.7 detected INCOMPLETE data lifecycle, show warning about missing persistence/broadcast
 
-5. **Halt Conditions:**
-   - User provides rejection response
-   - Maximum iterations (3) reached without approval
-   - Explicit "Pending Approval" request
-
-**Output (controlled by verbosity):**
-- **Concise:** Plan summary, iteration count (if re-evaluation occurred), approval request
-- **Detailed:** Full plan, change history across iterations, architectural impact analysis
-
----
-
-**Examples:**
-
-**Scenario 1: Immediate Approval**
-```
-Agent: {presents plan}
-       
-       Proceed with this plan?
-
-User: "Yes, proceed"
-
-Agent: ✅ Approved. Proceeding to Step 5 (Execute)
-```
-
-**Scenario 2: Additional Requirements (Single Iteration)**
-```
-Agent: {presents initial plan}
-       
-       Proceed with this plan?
-
-User: "Also add a confirmation dialog before deletion"
-
-Agent: 📝 Updated Implementation Plan (Iteration 1/3)
-       
-       Additional Requirements Added:
-       - Add confirmation dialog before deletion
-       
-       Updated Plan:
-       1. Add ConfirmDialog component to SessionCanvas.razor
-       2. Wire up deletion flow with confirmation step
-       3. Add confirmation state management
-       ...
-       
-       Proceed with updated plan?
-
-User: "Yes"
-
-Agent: ✅ Approved after 1 iteration. Proceeding to Step 5 (Execute)
-```
-
-**Scenario 3: Multiple Iterations**
-```
-Agent: {presents initial plan}
-
-User: "Change button color to blue"
-
-Agent: 📝 Updated Implementation Plan (Iteration 1/3)
-       {updated plan with blue button}
-       Proceed with updated plan?
-
-User: "Also add a tooltip on hover"
-
-Agent: 📝 Updated Implementation Plan (Iteration 2/3)
-       {updated plan with blue button + tooltip}
-       Proceed with updated plan?
-
-User: "proceed"
-
-Agent: ✅ Approved after 2 iterations. Proceeding to Step 5 (Execute)
-```
-
-**Scenario 4: Max Iterations Reached**
-```
-Agent: {presents plan after 3rd iteration}
-       
-       ⚠️ Maximum re-evaluations reached (3/3).
-       
-       Please respond with:
-       - "proceed" to implement current plan
-       - "cancel" to halt execution
-       - OR start a new /task invocation with refined requirements
-
-User: "proceed"
-
-Agent: ✅ Approved after 3 iterations. Proceeding to Step 5 (Execute)
-```
+5. **Halt Conditions:** Rejection response, max iterations reached, explicit "Pending Approval" request
 
 ---
 
 ### Step 5: Execute
 
-**Determine execution mode based on `debug-level` parameter and plan existence.**
+**Determine execution mode based on debug-level parameter and plan existence.**
 
 #### 5a. Documentation Mode (`debug-level: doc`)
-**Actions:**
-1. Skip code execution - no file modifications
-2. Generate implementation documentation in key data stream
-3. Document validation checklist for manual implementation
-4. Output location: `.github/key-data-streams/{key}/implementation-plan.md`
-5. Skip to Step 8 (bypass Steps 6-7)
+Skip code execution, generate implementation documentation, skip to Step 8
 
-#### 5b. Phase-Driven Execution (when {key}.plan.md exists)
-**Actions:**
-1. **For each phase in tasks parameter:**
-   - Load full phase details from `.github/key-data-streams/{key}/{key}.plan.md`
-   - Execute TODO items from "Implementation Tasks" section
-   - Follow "Validation Checklist" from plan (build, lint, tests)
-   - Use "Debug Markers" from plan
-   - Apply "Commit Format" template from plan
-   - Update JSON tracking after phase completion (see Step 8.1)
-   - Wait for user approval before next phase (per "Approval Gate")
-2. **Phase completion:** Present summary and request approval for next phase
-3. **Phase failure:** Halt execution, rollback available via checkpoint tag
+#### 5b. Phase-Driven Execution (when plan.md exists)
+Execute phases from plan with validation checklists, debug markers, commit formats, update JSON tracking, wait for approval between phases
 
 #### 5c. Lightweight Execution (no plan exists)
-**Actions:**
-1. Execute subtasks in sequence
-2. Halt immediately on failure (unless override)
-3. Insert debug logging based on `debug-level` parameter
-4. Apply architecture analysis findings (reuse patterns, avoid duplication)
-
----
+Execute subtasks in sequence, halt on failure, insert debug logging, apply architecture analysis
 
 #### 5d. Production Migration Generation (Database Changes Detected)
 
-**Trigger:** When phase involves database schema changes (detected in Step 2.8 or from {key}.plan.md "Production Migration Specification")
+**LOAD MODULE:** `.github/prompts/shared/task-exec/migration-generation-protocol.md`
 
-**Purpose:** Auto-generate forward migration + rollback scripts for safe production deployment
+**Trigger:** When phase involves database schema changes
 
-**Detection Signals:**
-- ✅ ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE INDEX, DROP INDEX
-- ✅ ADD CONSTRAINT, DROP CONSTRAINT (foreign keys, defaults, checks)
-- ✅ Schema modifications to canvas.* tables
-- ✅ Data migrations (UPDATE, INSERT for schema initialization)
-- ✅ Phase plan contains "Production Migration Specification" section
-
-**MANDATORY: Skip if Development-Only Changes**
-- ❌ Changes to KSESSIONS_DEV specific data (test sessions, participants)
-- ❌ Temporary test data (will be cleared)
-- ❌ Code-only changes with no database impact
-
----
+**Detection Signals:** ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE INDEX, etc.
 
 **Generation Protocol:**
-
-**Step 1: Extract Migration Details from Plan**
-
-If {key}.plan.md contains "Production Migration Specification" for current phase:
-```markdown
-### Production Migration Specification
-
-**Migration Required**: YES
-**Database Changes**:
-- ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset'
-- CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType])
-
-**Migration Script**: Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-add-canvastype-column.sql
-**Rollback**: Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-add-canvastype-column.sql
-```
-
-Extract:
-- Database changes (SQL statements)
-- Migration description (from filename guidance)
-- Safety checks (if specified)
-- Rollback strategy (reverse operations)
-
-**Step 2: Generate Migration ID**
-
-Format: `{YYYYMMDD-HHMMSS}` (e.g., `20251020-143000`)
-
-```powershell
-# PowerShell command to generate timestamp:
-Get-Date -Format "yyyyMMdd-HHmmss"
-```
-
-**Step 3: Create Forward Migration Script**
-
-Location: `Scripts/Migrations/Prod/pending/migration-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
-
-Template:
-```sql
--- ============================================================================
--- Production Migration Script
--- ============================================================================
--- Migration ID: {YYYYMMDD-HHMMSS}
--- Key: {key}
--- Description: {description}
--- Created: {ISO-8601-timestamp}
--- Author: GitHub Copilot (Agent: task)
--- Database: KSESSIONS (Production)
--- Schema: canvas
--- ============================================================================
-
--- SAFETY CHECKS
-IF DB_NAME() != 'KSESSIONS'
-BEGIN
-    RAISERROR('ERROR: This migration must run against KSESSIONS database only!', 16, 1)
-    RETURN
-END
-GO
-
--- Check if already applied
-IF EXISTS (SELECT 1 FROM canvas.MigrationHistory WHERE MigrationId = '{YYYYMMDD-HHMMSS}')
-BEGIN
-    PRINT 'Migration {YYYYMMDD-HHMMSS} already applied - skipping'
-    RETURN
-END
-GO
-
--- MIGRATION LOGIC
-BEGIN TRANSACTION MigrationTrans;
-
-BEGIN TRY
-    PRINT 'Starting migration: {description}'
-    
-    -- {Database changes here - use IF NOT EXISTS checks for idempotency}
-    -- Example:
-    IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType')
-    BEGIN
-        ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset';
-        PRINT '  ✅ Added CanvasType column'
-    END
-    
-    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Sessions_CanvasType')
-    BEGIN
-        CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType]);
-        PRINT '  ✅ Created index IX_Sessions_CanvasType'
-    END
-    
-    -- Record in history
-    INSERT INTO canvas.MigrationHistory (MigrationId, Description, AppliedAt, AppliedBy)
-    VALUES ('{YYYYMMDD-HHMMSS}', '{description}', GETUTCDATE(), SYSTEM_USER);
-    
-    COMMIT TRANSACTION MigrationTrans;
-    PRINT '✅ Migration {YYYYMMDD-HHMMSS} completed successfully'
-    
-END TRY
-BEGIN CATCH
-    ROLLBACK TRANSACTION MigrationTrans;
-    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-    PRINT '❌ Migration failed: ' + @ErrorMessage
-    RAISERROR(@ErrorMessage, 16, 1);
-END CATCH
-GO
-```
-
-**Step 4: Create Rollback Script**
-
-Location: `Scripts/Migrations/Prod/rollback/rollback-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
-
-Template:
-```sql
--- ============================================================================
--- Production Migration Rollback Script
--- ============================================================================
--- Migration ID: {YYYYMMDD-HHMMSS}
--- Key: {key}
--- Description: Rollback {description}
--- Created: {ISO-8601-timestamp}
--- Author: GitHub Copilot (Agent: task)
--- Database: KSESSIONS (Production)
--- Schema: canvas
--- ============================================================================
-
--- SAFETY CHECKS
-IF DB_NAME() != 'KSESSIONS'
-BEGIN
-    RAISERROR('ERROR: This rollback must run against KSESSIONS database only!', 16, 1)
-    RETURN
-END
-GO
-
--- ROLLBACK LOGIC
-BEGIN TRANSACTION RollbackTrans;
-
-BEGIN TRY
-    PRINT 'Starting rollback: {description}'
-    
-    -- {Reverse database changes - use IF EXISTS checks for idempotency}
-    -- Example (reverse order of forward migration):
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Sessions_CanvasType')
-    BEGIN
-        DROP INDEX IX_Sessions_CanvasType ON [canvas].[Sessions];
-        PRINT '  ✅ Dropped index IX_Sessions_CanvasType'
-    END
-    
-    IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'CanvasType')
-    BEGIN
-        ALTER TABLE [canvas].[Sessions] DROP COLUMN [CanvasType];
-        PRINT '  ✅ Dropped CanvasType column'
-    END
-    
-    -- Update history
-    UPDATE canvas.MigrationHistory
-    SET RolledBackAt = GETUTCDATE(), RolledBackBy = SYSTEM_USER
-    WHERE MigrationId = '{YYYYMMDD-HHMMSS}';
-    
-    COMMIT TRANSACTION RollbackTrans;
-    PRINT '✅ Rollback {YYYYMMDD-HHMMSS} completed successfully'
-    
-END TRY
-BEGIN CATCH
-    ROLLBACK TRANSACTION RollbackTrans;
-    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-    PRINT '❌ Rollback failed: ' + @ErrorMessage
-    RAISERROR(@ErrorMessage, 16, 1);
-END CATCH
-GO
-```
-
-**Step 5: Document Migration in Work Log**
-
-Add to `.github/key-data-streams/{key}/work-log.md`:
-
-```markdown
-### Migration Generated
-
-**Migration ID**: {YYYYMMDD-HHMMSS}
-**Files Created**:
-- `Scripts/Migrations/Prod/pending/migration-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
-- `Scripts/Migrations/Prod/rollback/rollback-{YYYYMMDD-HHMMSS}-{key}-{description}.sql`
-
-**Database Changes**:
-- {list of SQL statements}
-
-**Deployment**: Will be executed automatically by ncdeploy.ps1 Step 3
-**Rollback**: Available at Scripts/Migrations/Prod/rollback/rollback-{timestamp}...sql
-
-**Validation**: 
-- ✅ Syntax validated (idempotent checks present)
-- ✅ Safety checks included (DB_NAME validation)
-- ✅ Transaction wrapped (auto-rollback on error)
-- ✅ MigrationHistory tracking included
-```
-
-**Step 6: Commit Migration Scripts**
-
-```bash
-git add Scripts/Migrations/Prod/pending/migration-*.sql
-git add Scripts/Migrations/Prod/rollback/rollback-*.sql
-git commit -m "migration({key}): {description}
-
-Migration ID: {YYYYMMDD-HHMMSS}
-Database: KSESSIONS (Production)
-Schema: canvas
-
-Forward: Scripts/Migrations/Prod/pending/migration-{timestamp}-{key}-{description}.sql
-Rollback: Scripts/Migrations/Prod/rollback/rollback-{timestamp}-{key}-{description}.sql
-
-Changes:
-- {list of database changes}
-
-Deployment: Automatic via ncdeploy.ps1 Step 3
-See: Scripts/Migrations/Prod/README.md for workflow"
-```
-
----
-
-**Output to User:**
-
-**Concise Mode:**
-```
-✅ Generated production migration
-   Migration ID: 20251020-143000
-   Files: Scripts/Migrations/Prod/pending/migration-20251020-143000-user-landing-add-canvastype-column.sql
-          Scripts/Migrations/Prod/rollback/rollback-20251020-143000-user-landing-add-canvastype-column.sql
-```
-
-**Detailed Mode:**
-```
-### Production Migration Generated
-
-**Migration ID**: 20251020-143000
-
-**Database Changes**:
-- ALTER TABLE [canvas].[Sessions] ADD [CanvasType] NVARCHAR(20) NULL DEFAULT 'asset'
-- CREATE INDEX IX_Sessions_CanvasType ON [canvas].[Sessions] ([CanvasType])
-
-**Files Created**:
-1. Forward Migration:
-   `Scripts/Migrations/Prod/pending/migration-20251020-143000-user-landing-add-canvastype-column.sql`
-   
-   - ✅ Safety checks: DB_NAME() = KSESSIONS validation
-   - ✅ Idempotent: IF NOT EXISTS checks for column/index
-   - ✅ Transaction wrapped: Auto-rollback on error
-   - ✅ MigrationHistory tracking
-
-2. Rollback Script:
-   `Scripts/Migrations/Prod/rollback/rollback-20251020-143000-user-landing-add-canvastype-column.sql`
-   
-   - ✅ Reverse operations: DROP INDEX → DROP COLUMN
-   - ✅ Idempotent: IF EXISTS checks
-   - ✅ MigrationHistory update (RolledBackAt timestamp)
-
-**Deployment**:
-- Executed automatically by ncdeploy.ps1 Step 3 (before code deployment)
-- Validated in dry-run mode: `.\Scripts\ncdeploy.ps1 -DryRun`
-- Archived to `archived/{YYYY-MM-DD}/` after successful deployment
-
-**Rollback**:
-- Auto-executed if migration fails during ncdeploy.ps1
-- Manual execution: `sqlcmd -S localhost -d KSESSIONS -i rollback-{timestamp}...sql`
-
-**See**: Scripts/Migrations/Prod/README.md for complete workflow
-```
-
----
+1. Extract migration details from plan
+2. Generate migration ID (YYYYMMDD-HHMMSS format)
+3. Create forward migration script with safety checks, idempotent operations, transaction wrapping
+4. Create rollback script with reverse operations
+5. Document in work log
+6. Commit migration scripts
 
 **Critical Rules:**
-
-1. **ALWAYS generate both forward + rollback scripts** (no exceptions)
-2. **ALWAYS use idempotent checks** (IF NOT EXISTS / IF EXISTS)
-3. **ALWAYS validate database name** (DB_NAME() = 'KSESSIONS')
-4. **ALWAYS wrap in transactions** (BEGIN TRANSACTION ... COMMIT/ROLLBACK)
-5. **ALWAYS track in MigrationHistory** (INSERT on forward, UPDATE on rollback)
-6. **NEVER skip rollback script** (even for simple changes like adding column)
-7. **NEVER use hardcoded values** (use DEFAULT constraints for nullable columns)
-
-**See Also:**
-- `Scripts/Migrations/Prod/README.md` - Complete migration workflow
-- `Scripts/Migrations/Prod/init-migration-history.sql` - MigrationHistory table schema
-- `.github/prompts/plan.prompt.md` - Database Migration Protocol (detection rules)
-
----
+- ALWAYS generate both forward + rollback scripts
+- ALWAYS use idempotent checks (IF NOT EXISTS / IF EXISTS)
+- ALWAYS validate database name (DB_NAME() = 'KSESSIONS')
+- ALWAYS wrap in transactions
+- ALWAYS track in MigrationHistory
 
 **Validation Gate (MANDATORY after every code change):**
-1. **Build Validation:** Run `dotnet build`, verify zero errors/warnings
-2. **Evidence Re-Collection:** For UI bugs, re-run diagnostics to verify fix
-3. **Incremental Progress Check:** User confirms issue improved/resolved
-4. **Halt on Failure:** If same issue persists after 2 attempts, escalate
-5. **Auto-Escalation:** Enable diagnostic mode after repeated failures
-
-**Output (controlled by verbosity):**
-- **Concise:** Progress markers only (`"✓ Subtask 1 complete"`)
-- **Detailed:** Full execution details, file diffs, test results
+1. Build Validation (dotnet build, zero errors/warnings)
+2. Evidence Re-Collection (for UI bugs, re-run diagnostics)
+3. Incremental Progress Check
+4. Halt on Failure
+5. Auto-Escalation after repeated failures
 
 ---
 
@@ -1353,54 +513,23 @@ See: Scripts/Migrations/Prod/README.md for workflow"
 
 - Execute Standard Validation Pipeline per `ValidationFramework.md`
 - Apply validation shortcuts for task agent (Levels 1-5, Level 6 if structural)
-- Follow failure protocols on detection
-- Record all validation results in key data stream
-- **Automatic Rollback:** If validation fails after 3 attempts, execute `.\Workspaces\Global\rollback.ps1 -Key {key} -Agent task`
+- Record validation results in key data stream
+- **Automatic Rollback:** If validation fails after 3 attempts, execute rollback script
 
 #### 6.1. Automatic Playwright Test Creation (UI Tasks)
 
 **For tasks involving UI changes, delegate to test-generation.prompt.md.**
 
 **Delegation Protocol:**
-1. Detect if task involves UI changes (components, pages, CSS, user interactions)
-2. If yes, invoke `test-generation.prompt.md` with parameters:
-   - `key`: Current task key (MANDATORY for directory structure)
-   - `feature`: Task key or feature name
-   - `scenario`: Specific test scenario from task description
-   - `endpoints`: API endpoints involved (if any)
-   - `tokens`: Session 212 defaults (unless task specifies otherwise)
-   - `multiUser`: true if host/participant interaction
-   - `testType`: "functional" | "visual" | "both" (based on change type)
-3. **Receive generated test files and orchestration script**
-4. **AUTOMATIC:** test-generation.prompt.md updates test registry (Step 7.5)
-5. **Verify:** Test registry updated in commit
-6. Document in key-data-stream
+1. Detect if task involves UI changes
+2. Invoke test-generation.prompt.md with parameters (key, feature, scenario, endpoints, tokens, testType)
+3. Receive generated test files and orchestration script
+4. **AUTOMATIC:** test-generation.prompt.md updates test registry
+5. Verify registry updated in commit
 
-**Expected Outcome:**
-- Test files created in `.github/key-data-streams/{key}/tests/`
-- Orchestration script created in `.github/key-data-streams/{key}/scripts/`
-- **Test registry updated** in `.github/key-data-streams/{key}/tests/test-registry.md`
-- Single commit includes: tests + scripts + registry
+**See:** `test-generation.prompt.md`, `.github/prompts/shared/playwright-test-generation.md`, `.github/prompts/shared/test-orchestration-patterns.md`
 
-**See:** 
-- `test-generation.prompt.md` - Complete test generation workflow
-- `.github/prompts/shared/step-7-5-test-registry-auto-update.md` - Registry update protocol
-- `.github/prompts/shared/playwright-test-generation.md` - Test generation patterns
-- `.github/prompts/shared/test-orchestration-patterns.md` - Orchestration script requirement (MANDATORY)
-
-**Key Requirements:**
-- **Test Location**: `.github/key-data-streams/{key}/tests/` (within key data stream)
-- **Test Registry**: `.github/key-data-streams/{key}/tests/test-registry.md` (prevents duplication)
-- **Orchestration Scripts**: `.github/key-data-streams/{key}/scripts/`
-- **Naming**: `{feature}-{test-type}.spec.ts`
-- **Test Data**: Use Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
-- **Execution**: Via orchestration scripts ONLY (never direct `npx playwright test`)
-- **Cleanup**: Tests deleted from key directory after production promotion (Step 9)
-
-**Skip test creation if:**
-- Task is backend-only (no UI impact)
-- Task is documentation/configuration only
-- User explicitly requests `--no-tests` flag
+**Skip test creation if:** Backend-only task, documentation/configuration only, user requests --no-tests
 
 ---
 
@@ -1426,9 +555,9 @@ See: Scripts/Migrations/Prod/README.md for workflow"
 
 **LOAD MODULE:** `.github/prompts/shared/task-exec/validation-and-response.md`
 
-Provide summary based on `verbosity` parameter (concise/detailed).
+Provide summary based on verbosity parameter (concise/detailed).
 
-**BLOCKER VALIDATION (Execute BEFORE summary):** Ensure documentation completeness - work-log.md must contain all required sections.
+**BLOCKER VALIDATION:** Ensure documentation completeness - work-log.md must contain all required sections.
 
 **Summary Includes:** Status, work done, files modified, debug logging, tests, build, lint validation, high-priority constraints, approval iterations, checkpoint
 
@@ -1449,64 +578,53 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 - **8.6:** Response Validation (MANDATORY - CONCISE-MANDATE enforcement)
 - **8.5:** Checkpoint Commit & Tag (MANDATORY - create git tag)
 
-**Guardrail:** Lock detection - HALT if `.github/key-data-streams/**/{key}.lock` exists
+**Guardrail:** Lock detection - HALT if lock file exists
 
 ---
 
-### Step 9: Completion Workflow *(Conditional: When tasks = "mark complete" or "completed")*
+### Step 9: Completion Workflow *(Conditional: When tasks = "mark complete")*
 
 **LOAD MODULE:** `.github/prompts/shared/task-exec/completion-workflow.md` (Section: Step 9)
 
 **Triggered when:** User specifies `tasks = "mark complete"` or `tasks = "completed"`
 
 **Workflow:**
-- **9.1:** Obsolete Information Removal & Debug Cleanup (remove all debug markers)
-- **9.2:** Test Promotion & Cleanup (promote passing tests to production, delete from key directory)
-- **9.3:** State Management & Completion (mark key as `complete`)
-- **9.4:** Resumption Protocol (auto-revert to `in-progress` if new tasks arrive)
+- **9.1:** Obsolete Information Removal & Debug Cleanup
+- **9.2:** Test Promotion & Cleanup
+- **9.3:** State Management & Completion
+- **9.4:** Resumption Protocol
 
 ---
 
 ## Guardrails
 
-- **ALWAYS verify branch strategy BEFORE any work** (Step 0 - blocks execution on master)
-- **ALWAYS update documentation BEFORE code changes** (Step 2.5 - document first checkpoint)
-- **ALWAYS write plan to file BEFORE approval** (Step 3.5 - plan validation gate)
-- **ALWAYS update test registry when creating tests** (Step 6.1 delegates to test-generation → Step 7.5)
-- **ALWAYS check for comprehensive plan first** (if key provided, look for {key}.plan.md)
-- **ALWAYS load System Context Pack** (if {key}.plan.md exists - Step 2.12)
-- **ALWAYS update JSON tracking** (if {key}.plan.json exists - Step 8.1 after each phase)
-- **ALWAYS query key data stream before planning** (Step 2 is mandatory)
-- **ALWAYS record user request in key data stream** (Step 2.2.1 - succinct summary before work begins)
-- **ALWAYS detect high-priority constraints** (Step 2.1.5 - scan for ALL CAPS emphasis)
-- **ALWAYS execute Step 2.8.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations)
-- **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory)
-- **ALWAYS run mandatory lint validation before commit** (Step 6.2 - all modified files MUST pass)
-- **ALWAYS verify high-priority constraints** (Step 6.3 - ALL CAPS constraints MUST be verified)
-- **ALWAYS update key data stream after execution** (Step 8.3 is mandatory - includes user request and work completed)
-- **ALWAYS update JSON tracking if plan exists** (Step 8.1 - synchronize with markdown work-log)
-- **ALWAYS create checkpoint commit and git tag after task completion** (Step 8.5 is mandatory)
-- **ALWAYS prune old checkpoint tags to maintain max 28 per key** (automatic cleanup)
-- **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9 triggered by keyword - cleanup & state change only)
-- **ALWAYS preserve all historical entries when resuming completed keys**
-- **ALWAYS infer key from recent work** if not explicitly provided
-- **ALWAYS enforce re-evaluation iteration limit** (max 3 iterations at Step 4 approval gate)
-- **ALWAYS require explicit approval without additional requirements** before proceeding to Step 5
-- **NEVER execute on master branch** unless explicitly authorized (Step 0 enforcement)
-- **NEVER skip documentation updates** when key exists (Step 2.5 blocks code commits)
-- **NEVER show plan only in chat** - must exist as file before approval (Step 3.5 enforcement)
-- **NEVER create tests without registry update** - automatic via test-generation.prompt.md Step 7.5
-- **NEVER implement UI-only mutations** - all CRUD operations MUST have complete data lifecycle (UI → API → DB → Broadcast → UI)
-- **NEVER skip persistence validation** - after mutation, refresh page and verify state persists
-- **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes
-- **NEVER proceed past Step 4 if user response contains additional requirements** - loop back to Step 3 for re-planning
-- **NEVER commit with lint failures** - Step 6.2 lint validation MUST pass before Step 8
-- **NEVER violate high-priority constraints** - Step 6.3 constraint verification MUST pass or trigger rollback
+- **ALWAYS verify branch strategy BEFORE any work** (Step 0)
+- **ALWAYS update documentation BEFORE code changes** (Step 2.5)
+- **ALWAYS write plan to file BEFORE approval** (Step 3.5)
+- **ALWAYS check for comprehensive plan first** (if key provided)
+- **ALWAYS load System Context Pack** (if plan exists)
+- **ALWAYS update JSON tracking** (if plan.json exists)
+- **ALWAYS query key data stream before planning** (Step 2)
+- **ALWAYS record user request in key data stream**
+- **ALWAYS detect high-priority constraints** (ALL CAPS)
+- **ALWAYS execute Data Lifecycle Validation for CRUD** (Step 2.8.7)
+- **ALWAYS run mandatory lint validation before commit** (Step 6.2)
+- **ALWAYS verify high-priority constraints** (Step 6.3)
+- **ALWAYS update key data stream after execution** (Step 8.3)
+- **ALWAYS create checkpoint commit and git tag** (Step 8.5)
+- **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9)
+- **NEVER execute on master branch** unless explicitly authorized
+- **NEVER skip documentation updates** when key exists
+- **NEVER show plan only in chat** - must exist as file
+- **NEVER implement UI-only mutations** - complete data lifecycle required
+- **NEVER skip persistence validation**
+- **NEVER proceed past Step 4 if user response contains additional requirements**
+- **NEVER commit with lint failures**
+- **NEVER violate high-priority constraints**
 - Never modify functionality unless explicitly required
 - Always ensure architectural and structural integrity
 - Always pause and request clarification if uncertain
 - Maintain alignment across all agents
-- Do not continue execution past failure points unless explicitly approved
 
 ---
 
@@ -1519,11 +637,11 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 ## Lifecycle
 
 - Default state: `in-progress`
-- Tasks transition to `complete` when user provides `tasks = "mark complete"` or `tasks = "completed"`
-- **Completion triggers Step 9** - comprehensive cross-layer documentation and cleanup
-- **Completed keys can be reopened** - new tasks automatically revert status to `in-progress`
-- **Resumption preserves history** - completion documentation remains intact when key is reopened
-- Keys and summaries in `key-data-streams` remain **single source of truth** for lifecycle tracking
+- Tasks transition to `complete` when user provides `tasks = "mark complete"`
+- **Completion triggers Step 9** - comprehensive documentation and cleanup
+- **Completed keys can be reopened** - new tasks automatically revert to `in-progress`
+- **Resumption preserves history**
+- Keys in `key-data-streams` remain **single source of truth**
 
 ---
 
@@ -1532,7 +650,7 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 **See:** `.github/learning/task-agent-lessons.md` for historical lessons learned from task agent failures, prevention patterns, and validation strategies.
 
 **Key Lesson Applied:** Question Deletion Bug (Lesson 1)
-- Step 2.8.7 validates complete CRUD data lifecycle (UI → API → Database → Broadcast → UI)
+- Step 2.8.7 validates complete CRUD data lifecycle
 - Step 4 approval shows early warning for incomplete implementations
 - Playwright tests require persistence validation with page refresh
 
@@ -1541,4 +659,3 @@ Provide summary based on `verbosity` parameter (concise/detailed).
 ## Diagnostic Mode Details
 
 **See:** `.github/prompts/shared/debug-logging-mandate.md` for complete diagnostic mode patterns, marker formats, and use cases.
-
