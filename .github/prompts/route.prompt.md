@@ -51,7 +51,7 @@ stateTracking: enabled
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
 > acceptsFrom: [user]
-> calls: [plan, task, todo, ask, healthcheck, drift, cohesion, test-generation]
+> calls: [plan, task, todo, ask, healthcheck, drift, cohesion, test-generation, test-prep]
 
 ---
 
@@ -104,6 +104,7 @@ stateTracking: enabled
 
 **Request Type Detection:**
 - **Question/investigation indicators** → Routes to `ask` prompt (answers first, offers actionable handoff)
+- **Test preparation requests** → Routes to `test-prep` prompt (prep/generate/cleanup logging infrastructure)
 - **Test-related requests** → Routes to `test-generation` prompt (generates tests, offers execution)
 - **Single focused task** → Routes to `todo` prompt (auto-approved for immediate execution)
 - **Multiple unrelated tasks** → Routes to `plan` prompt (requires user approval)
@@ -132,6 +133,7 @@ The specialized prompt to route to. Valid values:
 - `task` - Task execution and implementation
 - `todo` - Extend current work with same key
 - `test` - Generate Playwright tests using the test-generation agent
+- `test-prep` - Prepare components for automated test generation (prep/generate/cleanup)
 - `ask` - Answer questions about the codebase
 - `healthcheck` - System health audit and validation
 - `drift` - Manage unrelated issues during work
@@ -140,6 +142,7 @@ The specialized prompt to route to. Valid values:
 **Default Behavior:** If target is not specified, the agent uses intelligent routing:
 - Analyzes request to detect questions, test needs, single tasks, or multiple unrelated tasks
 - **Question indicators** (how, why, what, where, when, explain, investigate) → routes to `ask` (answers first)
+- **Test prep indicators** (prep test logging, inject markers, prepare for testing, cleanup logging) → routes to `test-prep`
 - **Test indicators** (test, playwright, percy, e2e, visual regression) → routes to `test-generation` (generates tests)
 - **Single task** → routes to `todo` (auto-approved, immediate execution)
 - **Multiple tasks** → routes to `plan` (requires user approval, multi-phase coordination)
@@ -201,7 +204,7 @@ Update-StateRequest -Key $key -Type "original" -UserRequest $request -PromptChai
 
 **Extract target + request from user input**
 - Supports positional (`/route plan "..."`), named (`target=plan`), and default (intelligent routing)
-- Valid targets: plan, task, todo, test, ask, healthcheck, drift, cohesion
+- Valid targets: plan, task, todo, test, ask, healthcheck, drift, cohesion, test-prep
 - Extracts: target, request, autoExecute, key, context
 - Defaults to 'plan' if no target specified
 
