@@ -1,36 +1,5 @@
 # KDS Governance Rulebook
-**Version:** 1.1.1 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
-
----
-
-## ⚡ Quick Reference
-
-**Core Principles:**
-- **Governance First** - All `.github` changes through kds.prompt.md gatekeeper
-- **Document First** - Update KDS files before code, docs commit before implementation
-- **Honest Handoffs** - Agents use JSON + Next Command + HALT (no auto-execution)
-- **Test-Driven** - Create tests FIRST (red-green-refactor), prefer headless mode
-- **Holistic Regeneration** - Delete & recreate files (no partial edits to prevent duplication)
-
-**Output Quality:**
-- **Concise Format** - No code in chat, 3-line bullets max, letter options in ALL CAPS
-- **Key Visibility** - Display active key in all headers, phase output, and commands
-- **Per-Task Handoffs** - Every task gets dedicated JSON with all parameters pre-populated
-
-**Workflow Standards:**
-- **Auto-Chain Defaults** - Tasks chain by default, phases need user approval (unless E2E mode)
-- **Phase Isolation** - New chat window per phase when autoChain=false (better performance)
-- **Plan Conflicts** - Load existing plan, analyze conflicts before routing to existing keys
-- **Test Registry** - Central index (`.github/tests/`), reuse before creating new tests
-
-**Orchestration:**
-- **Playwright Pattern** - Dotnet orchestration scripts only (Start-Job → dotnet run → Test → Stop-Job)
-- **KDS Cleanup** - Review mode detects backup files, archives (not deletes) with manifest
-
-**Enforcement:**
-- **13 Rules** - Validated before output (Rule #1-13), each with validation function
-- **Step -1** - All prompts include governance enforcement (except kds.prompt.md itself)
-- **Dual Rulebook** - JSON (machine-readable) + MD (human-readable), always synced
+**Version:** 1.1.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
 
 ---
 
@@ -1053,7 +1022,6 @@ END FUNCTION
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.1.1 | 2025-10-31 | Added Quick Reference summary section for rapid comprehension |
 | 1.1.0 | 2025-10-31 | Added Rule #13 (Phase Boundary Chat Isolation), enhanced cleanup automation support |
 | 1.0.0 | 2025-10-31 | Initial rulebook consolidating MANDATORY.md, Agentic Rules, Handoff Protocol |
 
@@ -1063,4 +1031,4 @@ END FUNCTION
 
 **Last Updated:** 2025-10-31  
 **Maintainer:** KDS System  
-**Version:** 1.1.1
+**Version:** 1.1.0
