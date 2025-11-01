@@ -498,10 +498,16 @@ When invoked without parameters, execute complete system review:
 - Recent user requests and agent responses
 - Recent commands executed (from terminal history if available)
 - Recent file modifications (from git log if accessible)
+- **Router performance analysis** - Did route.prompt.md properly detect keys, load plans, and present options?
 
 #### Step 0.2: Performance Evaluation Against KDS Rulebook
 
 **Algorithm:** Analyze conversation history for KDS rule compliance
+
+**Router-Specific Validation:**
+- Execute `.github/prompts/shared/router-performance-validation.md` - Algorithm 15
+- Validate route.prompt.md compliance with Rules #9, #11, #12
+- Generate router performance score and recommendations
 
 **For each conversation interaction:**
 
@@ -519,10 +525,10 @@ When invoked without parameters, execute complete system review:
    - **Rule #6 (Auto-Chain Defaults)**: Was autoChain handled correctly?
    - **Rule #7 (Test Index)**: Were tests registered in playwright-index.json?
    - **Rule #8 (Holistic Regeneration)**: Were files deleted/regenerated vs partial edits?
-   - **Rule #9 (Plan Conflict Detection)**: Were existing plans checked before modifications?
+   - **Rule #9 (Plan Conflict Detection)**: Were existing plans checked before modifications? **NEW: Router must search related keys and load plans**
    - **Rule #10 (KDS Governance)**: Were .github changes routed through kds.prompt.md?
-   - **Rule #11 (Key Display)**: Were keys displayed in all outputs?
-   - **Rule #12 (Honest Handoff)**: Did handoffs use JSON + Next Command + HALT?
+   - **Rule #11 (Key Display)**: Were keys displayed in all outputs? **NEW: Router must show key status (FOUND/NOT_FOUND/RELATED)**
+   - **Rule #12 (Honest Handoff)**: Did handoffs use JSON + Next Command + HALT? **NEW: Router must create handoff JSONs**
    - **Rule #13 (Phase Boundary Chat Isolation)**: Was new chat window guidance given?
 
 3. **Detect Violations and Patterns**
@@ -576,6 +582,10 @@ When invoked without parameters, execute complete system review:
 
 **F. RECOMMENDATIONS FOR RULEBOOK ALIGNMENT (MOST VIOLATED RULES)**
 - **Most Violated Rules Report** - Top 5 rules with lowest compliance rates
+- **Router-Specific Violations** - Did route.prompt.md fail to detect keys, load plans, or create handoffs?
+- **Rule #9 Enhancement Needs** - Router key search and plan loading gaps
+- **Rule #11 Enhancement Needs** - Key display in router outputs
+- **Rule #12 Enhancement Needs** - Handoff JSON generation in router
 - Rules that need clarification or examples
 - New rules needed based on observed patterns
 - Rules that should be relaxed or removed (if <20% compliance)
