@@ -4,10 +4,11 @@
 
 ---
 
-**Version:** 1.7.1  
+**Version:** 1.7.2  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 **Changelog:**
+- **v1.7.2 (2025-11-01)**: ENHANCED KEY DISCOVERY - Task 1 restructured into 3 scenarios (Exact Match, Related Keys, New Key) with "Did you mean?" suggestions showing similar patterns ({key}*, *{key}*) when exact match not found. Improved UX with clear A/B/C options for new key creation.
 - **v1.7.1 (2025-11-01)**: ROUTER EXEMPTION - Removed Step -1 KDS enforcement per Rule #18. Routers are exempt from governance gates to preserve routing workflow (Steps 0-7). Enforcement belongs in execution prompts (plan/task/todo), not routers. Fixes regression where Step -1 caused router to bypass multi-task detection and plan creation.
 - **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
 - **v1.6.0**: Previous version with state tracking
@@ -562,7 +563,26 @@ ExecuteBuildPrompt(rawInput)
 
 ---
 
-### Task 1: Key Data Stream Consultation (If Related Keys Found)
+### Task 1: Key Data Stream Consultation (Always Execute)
+
+**CRITICAL:** This task ALWAYS executes, regardless of whether exact match found or not.
+
+**Scenario A: Exact Match Found**
+
+**Output:** Key Found section (≤8 bullets)
+- **Key Requested:** `{key}`
+- **Key Status:** FOUND (exact match)
+- Location: `.github/key-data-streams/{key}/`
+- Plan exists: YES/NO
+- Work log entries: {count}
+- Last activity: {date}
+- Status: {complete/in-progress/stale}
+
+**Proceed to:** Task 1.5 (Plan Execution Options) if plan exists
+
+---
+
+**Scenario B: No Exact Match - Related Keys Found**
 
 **Output:** Key Search section (≤12 bullets)
 - **Key Requested:** `{key}` (preserve from Task 0)
@@ -584,6 +604,38 @@ ExecuteBuildPrompt(rawInput)
 - **D.** COMPARE (Show all related keys side-by-side)
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
+
+---
+
+**Scenario C: No Exact Match - No Related Keys (New Key)**
+
+**Output:** New Key Creation section (≤8 bullets)
+- **Key Requested:** `{key}`
+- **Key Status:** NOT_FOUND (no `.github/key-data-streams/{key}/` directory exists)
+- **Search performed:** Pattern `{key}*`, `*{key}*`, semantic matching
+- **Related keys checked:** {count} existing keys scanned
+- **Did you mean?** (if similar patterns found):
+  - `{similar-key-1}` - {similarity-reason}
+  - `{similar-key-2}` - {similarity-reason}
+
+**Options Section:** Letter-based choices
+- **A.** CREATE NEW KEY `{key}` (Route to plan.prompt.md to create plan) ⭐ RECOMMENDED
+- **B.** SEARCH RELATED KEYS (Check for similar work in other keys)
+- **C.** CANCEL (Exit routing)
+
+**Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
+
+**Example - "Did you mean?" suggestions:**
+```
+**Key Requested:** `hcp-cleanup`
+**Key Status:** NOT_FOUND
+
+**Did you mean?**
+- `hcp-refactor` - Similar prefix, cleanup/refactor work
+- `hcp-refactor-phase1` - HCP-related work
+- `cleanup-proc-reset` - Cleanup work (different domain)
+- `cohesion-cleanup-consolidation` - Cleanup work (different domain)
+```
 
 ---
 
@@ -854,6 +906,13 @@ BAD: @workspace /route todo "Why is database info missing? Token won't accept. F
 ---
 
 ## 📝 Version History
+
+**1.7.2** (2025-11-01)
+- **ENHANCED KEY DISCOVERY**: Restructured Task 1 into 3 scenarios (Exact Match, Related Keys, New Key)
+- **"DID YOU MEAN?" FEATURE**: Shows similar key patterns when exact match not found
+- **IMPROVED UX**: Clear options (A/B/C) for new key creation with related key suggestions
+- **PATTERN MATCHING**: Searches for `{key}*`, `*{key}*`, and semantic similarities
+- Task 1 now ALWAYS executes (not conditional) for consistent key discovery
 
 **1.7.0** (2025-10-31)
 - **PLAN EXECUTION OPTIONS**: Added Task 1.5 - When plan file exists, parse structure and present execution options
