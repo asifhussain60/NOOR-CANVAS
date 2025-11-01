@@ -20,7 +20,7 @@
     ],
     "relatedDocs": [
         ".github/key-data-streams/_template/",
-        ".github/key-data-streams/README.md"
+        ".github/instructions/Links/KeyDataStreamsQuickRef.md"
     ],
     "tags": [
         "workflow",
