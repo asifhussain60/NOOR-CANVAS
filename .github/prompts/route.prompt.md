@@ -4,39 +4,11 @@
 
 ---
 
-## 🛡️ Step -1: KDS Governance Enforcement
-
-**BEFORE processing any request, check:**
-
-IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
-  - **HALT execution immediately**
-  - Display enforcement message below
-  - **STOP** (do not proceed to Step 0+)
-
-**⚠️ GOVERNANCE ENFORCEMENT**
-
-Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
-
-**Please use this command instead:**
-
-```markdown
-@workspace /kds request="[your change request here]"
-```
-
-**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
-
-**See:** `.github/prompts/kds.prompt.md` for governance protocol.
-
----
-
-ELSE: Proceed to routing logic
-
----
-
-**Version:** 1.7.0  
+**Version:** 1.7.1  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 **Changelog:**
+- **v1.7.1 (2025-11-01)**: ROUTER EXEMPTION - Removed Step -1 KDS enforcement per Rule #18. Routers are exempt from governance gates to preserve routing workflow (Steps 0-7). Enforcement belongs in execution prompts (plan/task/todo), not routers. Fixes regression where Step -1 caused router to bypass multi-task detection and plan creation.
 - **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
 - **v1.6.0**: Previous version with state tracking
 

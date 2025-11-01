@@ -1049,6 +1049,1169 @@ END IF
 
 ---
 
+## Algorithm 11: Validate Auto-Chain Handoffs (NEW - Phase 1 P0)
+
+**Purpose:** Validate handoff JSONs have required auto-chain fields and nextTask pointers resolve
+
+```
+FUNCTION ValidateAutoChainHandoffs(workspaceRoot, keyName):
+  
+  # Step 1: Find all handoff JSON files for this key
+  handoffsPath = Path.Combine(workspaceRoot, ".github/key-data-streams/", keyName, "handoffs/")
+  
+  IF NOT DirectoryExists(handoffsPath) THEN
+    RETURN {
+      valid: false,
+      reason: "Handoffs directory does not exist",
+      path: handoffsPath
+    }
+  END IF
+  
+  handoffFiles = FindFiles(handoffsPath, "*.json")
+  
+  IF handoffFiles.Count == 0 THEN
+    RETURN {
+      valid: true,
+      reason: "No handoff files to validate (new key)",
+      handoffsChecked: 0
+    }
+  END IF
+  
+  # Step 2: Initialize violation tracking
+  violations = []
+  validHandoffs = 0
+  
+  # Step 3: Validate each handoff JSON
+  FOR EACH handoffFile IN handoffFiles:
+    
+    handoffContent = ReadFile(handoffFile)
+    handoffJSON = ParseJSON(handoffContent)
+    
+    # Check required fields
+    requiredFields = ["key", "description", "acceptanceCriteria"]
+    missingFields = []
+    
+    FOR EACH field IN requiredFields:
+      IF NOT handoffJSON.ContainsKey(field) THEN
+        missingFields.Add(field)
+      END IF
+    END FOR
+    
+    # Check auto-chain specific fields (if autoChain enabled)
+    IF handoffJSON.ContainsKey("autoChain") AND handoffJSON["autoChain"] == true THEN
+      
+      # Validate e2eMode field exists
+      IF NOT handoffJSON.ContainsKey("e2eMode") THEN
+        violations.Add({
+          file: handoffFile,
+          violation: "MISSING_E2E_MODE",
+          description: "autoChain=true but e2eMode field missing",
+          severity: "HIGH"
+        })
+      END IF
+      
+      # Validate nextTask pointer
+      IF NOT handoffJSON.ContainsKey("nextTask") THEN
+        violations.Add({
+          file: handoffFile,
+          violation: "MISSING_NEXT_TASK",
+          description: "autoChain=true but nextTask pointer missing",
+          severity: "CRITICAL"
+        })
+      ELSE IF handoffJSON["nextTask"] != "complete" THEN
+        # Validate nextTask file exists
+        nextTaskPath = Path.Combine(handoffsPath, handoffJSON["nextTask"])
+        
+        IF NOT FileExists(nextTaskPath) THEN
+          violations.Add({
+            file: handoffFile,
+            violation: "BROKEN_NEXT_TASK_POINTER",
+            description: "nextTask points to non-existent file: " + handoffJSON["nextTask"],
+            severity: "CRITICAL",
+            expectedPath: nextTaskPath
+          })
+        END IF
+      END IF
+      
+      # Validate autoChainPhases (if present)
+      IF handoffJSON.ContainsKey("autoChainPhases") THEN
+        phases = handoffJSON["autoChainPhases"]
+        
+        IF NOT IsArray(phases) THEN
+          violations.Add({
+            file: handoffFile,
+            violation: "INVALID_AUTO_CHAIN_PHASES",
+            description: "autoChainPhases must be an array",
+            severity: "HIGH"
+          })
+        ELSE
+          # Validate each phase has required fields
+          FOR i = 0 TO phases.Length - 1:
+            phase = phases[i]
+            
+            requiredPhaseFields = ["phase", "description", "tasks", "validation", "estimatedDuration"]
+            
+            FOR EACH phaseField IN requiredPhaseFields:
+              IF NOT phase.ContainsKey(phaseField) THEN
+                violations.Add({
+                  file: handoffFile,
+                  violation: "INCOMPLETE_PHASE_DEFINITION",
+                  description: "Phase " + (i + 1) + " missing field: " + phaseField,
+                  severity: "MEDIUM"
+                })
+              END IF
+            END FOR
+          END FOR
+        END IF
+      END IF
+      
+    END IF
+    
+    # Track validation results
+    IF missingFields.Count > 0 THEN
+      violations.Add({
+        file: handoffFile,
+        violation: "MISSING_REQUIRED_FIELDS",
+        description: "Handoff JSON missing: " + Join(missingFields, ", "),
+        severity: "CRITICAL"
+      })
+    ELSE
+      validHandoffs += 1
+    END IF
+    
+  END FOR
+  
+  # Step 4: Generate validation report
+  IF violations.Count > 0 THEN
+    RETURN {
+      valid: false,
+      handoffsChecked: handoffFiles.Count,
+      validHandoffs: validHandoffs,
+      violations: violations,
+      summary: GenerateViolationSummary(violations)
+    }
+  ELSE
+    RETURN {
+      valid: true,
+      handoffsChecked: handoffFiles.Count,
+      validHandoffs: validHandoffs,
+      message: "All handoff JSONs valid with correct auto-chain configuration"
+    }
+  END IF
+  
+END FUNCTION
+
+// Helper: Generate violation summary
+FUNCTION GenerateViolationSummary(violations):
+  
+  summary = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    byType: {}
+  }
+  
+  FOR EACH violation IN violations:
+    # Count by severity
+    IF violation.severity == "CRITICAL" THEN
+      summary.critical += 1
+    ELSE IF violation.severity == "HIGH" THEN
+      summary.high += 1
+    ELSE IF violation.severity == "MEDIUM" THEN
+      summary.medium += 1
+    END IF
+    
+    # Count by type
+    violationType = violation.violation
+    IF NOT summary.byType.ContainsKey(violationType) THEN
+      summary.byType[violationType] = 0
+    END IF
+    summary.byType[violationType] += 1
+  END FOR
+  
+  RETURN summary
+  
+END FUNCTION
+
+// Helper: Validate handoff chain integrity
+FUNCTION ValidateHandoffChain(startHandoff, handoffsPath):
+  
+  chain = []
+  currentHandoff = startHandoff
+  visited = []
+  
+  WHILE currentHandoff != "complete":
+    
+    # Detect circular references
+    IF visited.Contains(currentHandoff) THEN
+      RETURN {
+        valid: false,
+        reason: "CIRCULAR_REFERENCE",
+        chain: chain,
+        circularNode: currentHandoff
+      }
+    END IF
+    
+    visited.Add(currentHandoff)
+    chain.Add(currentHandoff)
+    
+    # Load handoff JSON
+    handoffPath = Path.Combine(handoffsPath, currentHandoff)
+    
+    IF NOT FileExists(handoffPath) THEN
+      RETURN {
+        valid: false,
+        reason: "BROKEN_CHAIN",
+        chain: chain,
+        missingFile: handoffPath
+      }
+    END IF
+    
+    handoffJSON = ParseJSON(ReadFile(handoffPath))
+    
+    # Get next task
+    IF NOT handoffJSON.ContainsKey("nextTask") THEN
+      RETURN {
+        valid: false,
+        reason: "MISSING_NEXT_TASK",
+        chain: chain,
+        file: currentHandoff
+      }
+    END IF
+    
+    currentHandoff = handoffJSON["nextTask"]
+    
+    # Prevent infinite loops
+    IF chain.Count > 50 THEN
+      RETURN {
+        valid: false,
+        reason: "CHAIN_TOO_LONG",
+        chain: chain,
+        maxLength: 50
+      }
+    END IF
+    
+  END WHILE
+  
+  RETURN {
+    valid: true,
+    chain: chain,
+    chainLength: chain.Count
+  }
+  
+END FUNCTION
+```
+
+**Integration Points:**
+- `kds.prompt.md` Review Mode Step 2.5: Validate all handoff JSONs in workspace
+- `plan.prompt.md` Step 4.25: Validate generated handoffs before user approval
+- `route.prompt.md` Step 6: Validate route-to-plan.json handoff
+
+**Usage Example:**
+
+```
+# Validate handoffs for specific key
+result = ValidateAutoChainHandoffs("D:/PROJECTS/NOOR CANVAS", "kds-governance-enhancement")
+
+IF NOT result.valid THEN
+  DisplayViolations(result.violations)
+  SuggestFixes(result.summary)
+ELSE
+  Log("✅ All handoffs valid (" + result.validHandoffs + "/" + result.handoffsChecked + ")")
+END IF
+
+# Validate specific handoff chain
+chainResult = ValidateHandoffChain("phase-1-test.json", ".github/key-data-streams/kds/handoffs/")
+
+IF NOT chainResult.valid THEN
+  Log("❌ Chain broken: " + chainResult.reason)
+  Log("   Chain: " + Join(chainResult.chain, " → "))
+ELSE
+  Log("✅ Chain valid: " + chainResult.chainLength + " tasks")
+END IF
+```
+
+**Acceptance Criteria:**
+- ✅ Detects missing required fields (key, description, acceptanceCriteria)
+- ✅ Validates auto-chain fields (autoChain, e2eMode, nextTask)
+- ✅ Checks nextTask pointers resolve to existing files
+- ✅ Validates autoChainPhases array structure
+- ✅ Detects circular references in handoff chains
+- ✅ Prevents infinite loops (max 50 tasks in chain)
+
+---
+
+## Algorithm 12: Validate Test Orchestration (NEW - Phase 2 P1)
+
+**Purpose:** Enforce dotnet orchestration pattern, validate headless mode defaults, check acceptance criteria in test JSONs
+
+```
+FUNCTION ValidateTestOrchestration(workspaceRoot):
+  
+  # Step 1: Find all orchestration scripts
+  orchestrationScripts = FindFiles(workspaceRoot, "Scripts/run-*-tests.ps1")
+  
+  IF orchestrationScripts.Count == 0 THEN
+    RETURN {
+      valid: true,
+      reason: "No orchestration scripts to validate (new workspace)",
+      scriptsChecked: 0
+    }
+  END IF
+  
+  # Step 2: Initialize violation tracking
+  violations = []
+  validScripts = 0
+  
+  # Step 3: Validate each orchestration script
+  FOR EACH script IN orchestrationScripts:
+    
+    scriptContent = ReadFile(script)
+    scriptViolations = []
+    
+    # Check for deprecated standalone mode
+    IF scriptContent.Contains("npx playwright test") AND NOT scriptContent.Contains("Start-Job") THEN
+      scriptViolations.Add({
+        type: "DEPRECATED_STANDALONE_MODE",
+        description: "Script uses standalone 'npx playwright test' without app orchestration",
+        severity: "CRITICAL",
+        line: FindLineNumber(scriptContent, "npx playwright test"),
+        suggestedFix: "Add dotnet orchestration: Start-Job → dotnet run → Sleep → Test → Stop-Job"
+      })
+    END IF
+    
+    # Check for nested PowerShell processes (anti-pattern)
+    IF scriptContent.Contains("Start-Process powershell.exe") THEN
+      scriptViolations.Add({
+        type: "NESTED_POWERSHELL_PROCESS",
+        description: "Script uses nested PowerShell processes (deprecated pattern)",
+        severity: "HIGH",
+        line: FindLineNumber(scriptContent, "Start-Process powershell.exe"),
+        suggestedFix: "Replace with Start-Job for app lifecycle management"
+      })
+    END IF
+    
+    # Check for proper orchestration pattern
+    hasStartJob = scriptContent.Contains("Start-Job")
+    hasDotnetRun = scriptContent.Contains("dotnet run")
+    hasSleep = scriptContent.Contains("Start-Sleep")
+    hasStopJob = scriptContent.Contains("Stop-Job")
+    
+    IF hasStartJob AND hasDotnetRun AND hasSleep THEN
+      # Valid orchestration pattern detected
+      IF NOT hasStopJob THEN
+        scriptViolations.Add({
+          type: "MISSING_CLEANUP",
+          description: "Orchestration pattern missing Stop-Job cleanup",
+          severity: "HIGH",
+          suggestedFix: "Add Stop-Job to prevent orphaned processes"
+        })
+      END IF
+    ELSE IF scriptContent.Contains("npx playwright test") THEN
+      # Playwright test without proper orchestration
+      scriptViolations.Add({
+        type: "INCOMPLETE_ORCHESTRATION",
+        description: "Missing required orchestration components (Start-Job, dotnet run, or Start-Sleep)",
+        severity: "HIGH",
+        requiredComponents: {
+          "Start-Job": hasStartJob,
+          "dotnet run": hasDotnetRun,
+          "Start-Sleep": hasSleep,
+          "Stop-Job": hasStopJob
+        }
+      })
+    END IF
+    
+    # Check for headless mode default
+    IF scriptContent.Contains("npx playwright test") THEN
+      hasHeadedFlag = scriptContent.Contains("--headed")
+      hasHeadlessFlag = scriptContent.Contains("--headless")
+      
+      # Headless should be default (no flags, or explicit --headless)
+      IF hasHeadedFlag AND NOT scriptContent.Contains("# UI/Visual test") THEN
+        scriptViolations.Add({
+          type: "HEADED_MODE_WITHOUT_JUSTIFICATION",
+          description: "Script uses --headed mode without UI/Visual test comment justification",
+          severity: "MEDIUM",
+          suggestedFix: "Add comment '# UI/Visual test' or remove --headed to use headless default"
+        })
+      END IF
+    END IF
+    
+    # Track results
+    IF scriptViolations.Count > 0 THEN
+      violations.Add({
+        file: script,
+        violations: scriptViolations
+      })
+    ELSE
+      validScripts += 1
+    END IF
+    
+  END FOR
+  
+  # Step 4: Find all phase test JSON files
+  testHandoffs = FindFiles(workspaceRoot, ".github/key-data-streams/**/handoffs/phase-*-test.json")
+  
+  FOR EACH testHandoff IN testHandoffs:
+    
+    testJSON = ParseJSON(ReadFile(testHandoff))
+    
+    # Check for acceptance criteria
+    IF NOT testJSON.ContainsKey("acceptanceCriteria") THEN
+      violations.Add({
+        file: testHandoff,
+        violations: [{
+          type: "MISSING_ACCEPTANCE_CRITERIA",
+          description: "Test handoff JSON missing acceptanceCriteria field",
+          severity: "CRITICAL",
+          suggestedFix: "Add acceptanceCriteria array with 3-7 validation criteria"
+        }]
+      })
+    ELSE IF testJSON["acceptanceCriteria"].Count < 3 THEN
+      violations.Add({
+        file: testHandoff,
+        violations: [{
+          type: "INSUFFICIENT_ACCEPTANCE_CRITERIA",
+          description: "Test handoff has < 3 acceptance criteria (minimum 3 required)",
+          severity: "HIGH",
+          currentCount: testJSON["acceptanceCriteria"].Count,
+          suggestedFix: "Add more specific validation criteria"
+        }]
+      })
+    END IF
+    
+    # Check for mode field (headless default)
+    IF testJSON.ContainsKey("mode") AND testJSON["mode"] == "headed" THEN
+      # Verify scenario justifies headed mode
+      scenario = testJSON.GetValueOrDefault("scenario", "")
+      
+      isVisualTest = scenario.Contains("visual") OR scenario.Contains("UI") OR scenario.Contains("screenshot")
+      
+      IF NOT isVisualTest THEN
+        violations.Add({
+          file: testHandoff,
+          violations: [{
+            type: "HEADED_MODE_WITHOUT_VISUAL_JUSTIFICATION",
+            description: "Test JSON uses mode='headed' but scenario doesn't indicate visual/UI test",
+            severity: "MEDIUM",
+            scenario: scenario,
+            suggestedFix: "Change mode to 'headless' or update scenario to indicate visual test"
+          }]
+        })
+      END IF
+    END IF
+    
+  END FOR
+  
+  # Step 5: Generate validation report
+  IF violations.Count > 0 THEN
+    RETURN {
+      valid: false,
+      scriptsChecked: orchestrationScripts.Count,
+      testHandoffsChecked: testHandoffs.Count,
+      validScripts: validScripts,
+      violations: violations,
+      summary: GenerateOrchestrationViolationSummary(violations)
+    }
+  ELSE
+    RETURN {
+      valid: true,
+      scriptsChecked: orchestrationScripts.Count,
+      testHandoffsChecked: testHandoffs.Count,
+      validScripts: validScripts,
+      message: "All test orchestration patterns valid"
+    }
+  END IF
+  
+END FUNCTION
+
+// Helper: Generate orchestration violation summary
+FUNCTION GenerateOrchestrationViolationSummary(violations):
+  
+  summary = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    byType: {},
+    topIssues: []
+  }
+  
+  FOR EACH fileViolation IN violations:
+    FOR EACH violation IN fileViolation.violations:
+      # Count by severity
+      IF violation.severity == "CRITICAL" THEN
+        summary.critical += 1
+      ELSE IF violation.severity == "HIGH" THEN
+        summary.high += 1
+      ELSE IF violation.severity == "MEDIUM" THEN
+        summary.medium += 1
+      END IF
+      
+      # Count by type
+      violationType = violation.type
+      IF NOT summary.byType.ContainsKey(violationType) THEN
+        summary.byType[violationType] = 0
+      END IF
+      summary.byType[violationType] += 1
+    END FOR
+  END FOR
+  
+  # Identify top issues (most common violations)
+  sortedTypes = SortByValue(summary.byType, descending=true)
+  summary.topIssues = Take(sortedTypes, 5)
+  
+  RETURN summary
+  
+END FUNCTION
+
+// Helper: Find line number in file
+FUNCTION FindLineNumber(fileContent, searchString):
+  
+  lines = SplitLines(fileContent)
+  
+  FOR i = 0 TO lines.Length - 1:
+    IF lines[i].Contains(searchString) THEN
+      RETURN i + 1  # 1-indexed line numbers
+    END IF
+  END FOR
+  
+  RETURN -1  # Not found
+  
+END FUNCTION
+```
+
+**Integration Points:**
+- `kds.prompt.md` Review Mode Step 2.6: Validate all test orchestration
+- `test-generation.prompt.md` Step 7: Validate generated orchestration script
+- `plan.prompt.md` Step 4.25: Validate test handoff JSONs before user approval
+
+**Usage Example:**
+
+```
+# Validate all test orchestration in workspace
+result = ValidateTestOrchestration("D:/PROJECTS/NOOR CANVAS")
+
+IF NOT result.valid THEN
+  DisplayOrchestrationViolations(result.violations)
+  
+  # Show summary
+  Log("Summary:")
+  Log("  CRITICAL: " + result.summary.critical + " violations")
+  Log("  HIGH: " + result.summary.high + " violations")
+  Log("  MEDIUM: " + result.summary.medium + " violations")
+  
+  # Show top issues
+  Log("Top Issues:")
+  FOR EACH issue IN result.summary.topIssues:
+    Log("  - " + issue.key + ": " + issue.value + " occurrences")
+  END FOR
+ELSE
+  Log("✅ All test orchestration valid")
+  Log("   Scripts checked: " + result.scriptsChecked)
+  Log("   Test handoffs checked: " + result.testHandoffsChecked)
+END IF
+```
+
+**Acceptance Criteria:**
+- ✅ Detects deprecated standalone mode (npx playwright test without Start-Job)
+- ✅ Flags nested PowerShell processes (Start-Process powershell.exe)
+- ✅ Validates dotnet orchestration pattern (Start-Job → dotnet run → Sleep → Stop-Job)
+- ✅ Checks headless mode defaults (--headed requires justification)
+- ✅ Validates test handoff JSONs have acceptanceCriteria (min 3 items)
+- ✅ Flags headed mode without visual test justification
+
+---
+
+## Algorithm 13: Detect Stale Rules (NEW - Phase 3 P2)
+
+**Purpose:** Auto-flag rules >90 days old in Review Mode based on lastValidated timestamps
+
+```
+FUNCTION DetectStaleRules(rulebookJsonPath, validationThresholdDays):
+  
+  # Step 1: Load rulebook JSON
+  IF NOT FileExists(rulebookJsonPath) THEN
+    RETURN {
+      valid: false,
+      reason: "Rulebook JSON not found",
+      path: rulebookJsonPath
+    }
+  END IF
+  
+  rulebookContent = ReadFile(rulebookJsonPath)
+  rulebook = ParseJSON(rulebookContent)
+  
+  # Step 2: Get current date
+  currentDate = GetCurrentDate()
+  
+  # Step 3: Initialize stale rule tracking
+  staleRules = []
+  upToDateRules = []
+  missingTimestamps = []
+  
+  # Step 4: Check each rule's lastValidated timestamp
+  allRules = rulebook["mandatoryRules"] + rulebook["agenticRules"] + rulebook["handoffProtocol"]
+  
+  FOR EACH rule IN allRules:
+    
+    ruleId = rule["id"]
+    ruleNumber = rule["number"]
+    category = rule["category"]
+    
+    # Check if lastValidated field exists
+    IF NOT rule.ContainsKey("lastValidated") THEN
+      missingTimestamps.Add({
+        ruleId: ruleId,
+        ruleNumber: ruleNumber,
+        category: category,
+        severity: "HIGH",
+        recommendation: "Add lastValidated timestamp to rule JSON"
+      })
+      CONTINUE
+    END IF
+    
+    # Parse lastValidated date
+    lastValidated = ParseDate(rule["lastValidated"])  # Expected format: "YYYY-MM-DD"
+    
+    # Calculate days since last validation
+    daysSinceValidation = DaysBetween(lastValidated, currentDate)
+    
+    # Check validation frequency (if specified)
+    validationFrequency = rule.GetValueOrDefault("validationFrequency", 90)  # Default: 90 days
+    
+    # Determine if rule is stale
+    IF daysSinceValidation > validationFrequency THEN
+      
+      # Calculate staleness severity
+      staleness = daysSinceValidation - validationFrequency
+      
+      IF staleness > 180 THEN
+        severity = "CRITICAL"  # Over 180 days overdue
+      ELSE IF staleness > 90 THEN
+        severity = "HIGH"  # 90-180 days overdue
+      ELSE IF staleness > 30 THEN
+        severity = "MEDIUM"  # 30-90 days overdue
+      ELSE
+        severity = "LOW"  # Slightly overdue
+      END IF
+      
+      staleRules.Add({
+        ruleId: ruleId,
+        ruleNumber: ruleNumber,
+        category: category,
+        statement: rule["statement"],
+        lastValidated: lastValidated,
+        validationFrequency: validationFrequency,
+        daysSinceValidation: daysSinceValidation,
+        daysOverdue: staleness,
+        severity: severity,
+        nextValidationDue: AddDays(lastValidated, validationFrequency),
+        recommendation: GenerateStalenessRecommendation(rule, staleness)
+      })
+      
+    ELSE
+      upToDateRules.Add({
+        ruleId: ruleId,
+        ruleNumber: ruleNumber,
+        lastValidated: lastValidated,
+        nextValidationDue: AddDays(lastValidated, validationFrequency),
+        daysRemaining: validationFrequency - daysSinceValidation
+      })
+    END IF
+    
+  END FOR
+  
+  # Step 5: Generate stale rules report
+  RETURN {
+    totalRules: allRules.Count,
+    staleRules: staleRules,
+    upToDateRules: upToDateRules,
+    missingTimestamps: missingTimestamps,
+    summary: {
+      staleCount: staleRules.Count,
+      upToDateCount: upToDateRules.Count,
+      missingTimestampCount: missingTimestamps.Count,
+      criticalStale: CountBySeverity(staleRules, "CRITICAL"),
+      highStale: CountBySeverity(staleRules, "HIGH"),
+      mediumStale: CountBySeverity(staleRules, "MEDIUM"),
+      lowStale: CountBySeverity(staleRules, "LOW")
+    },
+    recommendations: GenerateStaleRulesRecommendations(staleRules, missingTimestamps)
+  }
+  
+END FUNCTION
+
+// Helper: Generate staleness recommendation
+FUNCTION GenerateStalenessRecommendation(rule, daysOverdue):
+  
+  IF daysOverdue > 180 THEN
+    RETURN "URGENT: Review rule effectiveness. Consider deprecation if no longer applicable. Update validation algorithms if still needed."
+  ELSE IF daysOverdue > 90 THEN
+    RETURN "HIGH PRIORITY: Review rule compliance in recent conversation history. Update examples if needed."
+  ELSE IF daysOverdue > 30 THEN
+    RETURN "Schedule validation review. Check if rule needs clarification or enforcement updates."
+  ELSE
+    RETURN "Due for validation review. Verify rule still applicable to current workflows."
+  END IF
+  
+END FUNCTION
+
+// Helper: Generate overall recommendations
+FUNCTION GenerateStaleRulesRecommendations(staleRules, missingTimestamps):
+  
+  recommendations = []
+  
+  # Timestamp issues
+  IF missingTimestamps.Count > 0 THEN
+    recommendations.Add({
+      priority: "HIGH",
+      action: "Add lastValidated timestamps to " + missingTimestamps.Count + " rules",
+      impactedRules: missingTimestamps.Select(r => r.ruleId)
+    })
+  END IF
+  
+  # Critical stale rules
+  criticalStale = Filter(staleRules, r => r.severity == "CRITICAL")
+  IF criticalStale.Count > 0 THEN
+    recommendations.Add({
+      priority: "CRITICAL",
+      action: "Immediate review required for " + criticalStale.Count + " critically stale rules (>180 days overdue)",
+      impactedRules: criticalStale.Select(r => "Rule #" + r.ruleNumber + " (" + r.ruleId + ")"),
+      suggestedActions: [
+        "Review conversation history for violations",
+        "Update validation functions if needed",
+        "Deprecate if no longer applicable",
+        "Update lastValidated timestamp after review"
+      ]
+    })
+  END IF
+  
+  # High priority stale rules
+  highStale = Filter(staleRules, r => r.severity == "HIGH")
+  IF highStale.Count > 0 THEN
+    recommendations.Add({
+      priority: "HIGH",
+      action: "Review " + highStale.Count + " rules overdue for validation (90-180 days)",
+      impactedRules: highStale.Select(r => "Rule #" + r.ruleNumber),
+      suggestedActions: [
+        "Check compliance in recent work",
+        "Update examples if guidance unclear",
+        "Refresh validation algorithms"
+      ]
+    })
+  END IF
+  
+  # Batch validation suggestions
+  IF staleRules.Count > 5 THEN
+    recommendations.Add({
+      priority: "MEDIUM",
+      action: "Schedule batch validation session for " + staleRules.Count + " overdue rules",
+      estimatedTime: CalculateValidationTime(staleRules.Count),
+      suggestedApproach: "Group by category, validate related rules together"
+    })
+  END IF
+  
+  RETURN recommendations
+  
+END FUNCTION
+
+// Helper: Count by severity
+FUNCTION CountBySeverity(staleRules, severity):
+  RETURN Filter(staleRules, r => r.severity == severity).Count
+END FUNCTION
+
+// Helper: Calculate validation time
+FUNCTION CalculateValidationTime(ruleCount):
+  minutesPerRule = 15
+  totalMinutes = ruleCount * minutesPerRule
+  hours = Floor(totalMinutes / 60)
+  minutes = totalMinutes MOD 60
+  RETURN hours + "h " + minutes + "m"
+END FUNCTION
+```
+
+**Integration Points:**
+- `kds.prompt.md` Review Mode Step 2.7: Auto-flag stale rules report
+- `kds-rulebook.json`: All rules require `lastValidated` (YYYY-MM-DD) and `validationFrequency` (30/60/90 days)
+
+**Usage Example:**
+
+```
+# Detect stale rules in rulebook
+result = DetectStaleRules(
+  ".github/governance/kds-rulebook.json",
+  validationThresholdDays=90
+)
+
+IF result.summary.staleCount > 0 THEN
+  Log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+  Log("⚠️  STALE RULES DETECTED")
+  Log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+  Log("")
+  Log("Total Rules: " + result.totalRules)
+  Log("Stale Rules: " + result.summary.staleCount)
+  Log("")
+  Log("By Severity:")
+  Log("  CRITICAL: " + result.summary.criticalStale + " rules")
+  Log("  HIGH:     " + result.summary.highStale + " rules")
+  Log("  MEDIUM:   " + result.summary.mediumStale + " rules")
+  Log("  LOW:      " + result.summary.lowStale + " rules")
+  Log("")
+  
+  # Show stale rules
+  FOR EACH staleRule IN result.staleRules:
+    Log("[" + staleRule.severity + "] Rule #" + staleRule.ruleNumber + " (" + staleRule.ruleId + ")")
+    Log("  Last Validated: " + staleRule.lastValidated)
+    Log("  Days Overdue: " + staleRule.daysOverdue)
+    Log("  Recommendation: " + staleRule.recommendation)
+    Log("")
+  END FOR
+  
+  # Show recommendations
+  Log("📋 Recommended Actions:")
+  FOR EACH rec IN result.recommendations:
+    Log("[" + rec.priority + "] " + rec.action)
+    IF rec.impactedRules THEN
+      Log("  Impacted: " + Join(rec.impactedRules, ", "))
+    END IF
+  END FOR
+  
+ELSE
+  Log("✅ All rules up to date")
+  Log("   Next validation due in " + Min(result.upToDateRules.Select(r => r.daysRemaining)) + " days")
+END IF
+```
+
+**Acceptance Criteria:**
+- ✅ Detects rules with lastValidated >90 days old
+- ✅ Calculates staleness severity (CRITICAL/HIGH/MEDIUM/LOW)
+- ✅ Flags rules missing lastValidated timestamps
+- ✅ Respects validationFrequency field (30/60/90 days)
+- ✅ Generates actionable recommendations
+- ✅ Groups stale rules by severity for prioritization
+
+---
+
+## Algorithm 14: Calculate Prompt Complexity (NEW - Phase 3 P2)
+
+**Purpose:** Generate complexity metrics (lines, sections, dependencies, duplication) for prompts and score 0-100
+
+```
+FUNCTION CalculatePromptComplexity(promptFilePath):
+  
+  # Step 1: Read prompt file
+  IF NOT FileExists(promptFilePath) THEN
+    RETURN {
+      error: "Prompt file not found",
+      path: promptFilePath
+    }
+  END IF
+  
+  promptContent = ReadFile(promptFilePath)
+  promptLines = SplitLines(promptContent)
+  
+  # Step 2: Initialize metrics
+  metrics = {
+    lineCount: 0,
+    sectionCount: 0,
+    stepCount: 0,
+    dependencies: [],
+    codeBlocks: 0,
+    pseudocodeBlocks: 0,
+    externalReferences: 0,
+    duplicationRatio: 0.0,
+    averageSectionLength: 0.0
+  }
+  
+  # Step 3: Calculate basic metrics
+  metrics.lineCount = promptLines.Count
+  
+  # Count sections (## headers)
+  FOR EACH line IN promptLines:
+    IF line.StartsWith("##") THEN
+      metrics.sectionCount += 1
+    END IF
+    
+    # Count steps (### Step headers)
+    IF line.StartsWith("### Step") THEN
+      metrics.stepCount += 1
+    END IF
+    
+    # Count code blocks
+    IF line.StartsWith("```") THEN
+      metrics.codeBlocks += 1
+    END IF
+    
+    # Count pseudocode blocks
+    IF line.Contains("FUNCTION ") OR line.Contains("FOR EACH") OR line.Contains("IF ") AND line.Contains(" THEN") THEN
+      metrics.pseudocodeBlocks += 1
+    END IF
+    
+    # Count external references
+    IF line.Contains(".github/prompts/") OR line.Contains(".github/instructions/") THEN
+      refPath = ExtractReferencePath(line)
+      IF refPath AND NOT metrics.dependencies.Contains(refPath) THEN
+        metrics.dependencies.Add(refPath)
+      END IF
+    END IF
+    
+  END FOR
+  
+  # Divide by 2 (opening + closing backticks)
+  metrics.codeBlocks = metrics.codeBlocks / 2
+  
+  # Count external references
+  metrics.externalReferences = metrics.dependencies.Count
+  
+  # Step 4: Calculate duplication ratio
+  uniqueLines = RemoveDuplicates(promptLines)
+  metrics.duplicationRatio = 1.0 - (uniqueLines.Count / promptLines.Count)
+  
+  # Step 5: Calculate average section length
+  IF metrics.sectionCount > 0 THEN
+    metrics.averageSectionLength = metrics.lineCount / metrics.sectionCount
+  END IF
+  
+  # Step 6: Calculate complexity score (0-100)
+  # Higher score = higher complexity (more refactoring needed)
+  
+  score = 0
+  
+  # Line count penalty (>500 lines = high complexity)
+  IF metrics.lineCount > 1000 THEN
+    score += 30
+  ELSE IF metrics.lineCount > 500 THEN
+    score += 20
+  ELSE IF metrics.lineCount > 250 THEN
+    score += 10
+  END IF
+  
+  # Section count penalty (>30 sections = high complexity)
+  IF metrics.sectionCount > 50 THEN
+    score += 20
+  ELSE IF metrics.sectionCount > 30 THEN
+    score += 15
+  ELSE IF metrics.sectionCount > 15 THEN
+    score += 10
+  END IF
+  
+  # Code block penalty (>10 blocks = should be extracted to shared/)
+  IF metrics.codeBlocks > 20 THEN
+    score += 15
+  ELSE IF metrics.codeBlocks > 10 THEN
+    score += 10
+  ELSE IF metrics.codeBlocks > 5 THEN
+    score += 5
+  END IF
+  
+  # Pseudocode penalty (should be in shared/algorithms/)
+  IF metrics.pseudocodeBlocks > 10 THEN
+    score += 10
+  ELSE IF metrics.pseudocodeBlocks > 5 THEN
+    score += 5
+  END IF
+  
+  # Dependency penalty (>10 dependencies = high coupling)
+  IF metrics.externalReferences > 15 THEN
+    score += 15
+  ELSE IF metrics.externalReferences > 10 THEN
+    score += 10
+  ELSE IF metrics.externalReferences > 5 THEN
+    score += 5
+  END IF
+  
+  # Duplication penalty
+  IF metrics.duplicationRatio > 0.3 THEN
+    score += 10
+  ELSE IF metrics.duplicationRatio > 0.2 THEN
+    score += 5
+  END IF
+  
+  # Clamp score to 0-100
+  score = Min(score, 100)
+  
+  # Step 7: Determine grade
+  grade = ""
+  refactoringPriority = ""
+  
+  IF score >= 80 THEN
+    grade = "F"
+    refactoringPriority = "CRITICAL"
+  ELSE IF score >= 70 THEN
+    grade = "D"
+    refactoringPriority = "HIGH"
+  ELSE IF score >= 50 THEN
+    grade = "C"
+    refactoringPriority = "MEDIUM"
+  ELSE IF score >= 30 THEN
+    grade = "B"
+    refactoringPriority = "LOW"
+  ELSE
+    grade = "A"
+    refactoringPriority = "NONE"
+  END IF
+  
+  # Step 8: Generate refactoring recommendations
+  recommendations = []
+  
+  IF metrics.lineCount > 500 THEN
+    recommendations.Add("Split prompt into smaller, focused prompts (current: " + metrics.lineCount + " lines)")
+  END IF
+  
+  IF metrics.codeBlocks > 5 THEN
+    recommendations.Add("Extract " + metrics.codeBlocks + " code blocks to shared/examples/ files")
+  END IF
+  
+  IF metrics.pseudocodeBlocks > 5 THEN
+    recommendations.Add("Extract " + metrics.pseudocodeBlocks + " pseudocode blocks to shared/algorithms/ files")
+  END IF
+  
+  IF metrics.externalReferences > 10 THEN
+    recommendations.Add("High coupling detected (" + metrics.externalReferences + " dependencies). Consider consolidating shared files.")
+  END IF
+  
+  IF metrics.duplicationRatio > 0.2 THEN
+    recommendations.Add("Duplication detected (" + Round(metrics.duplicationRatio * 100, 1) + "%). Apply holistic regeneration.")
+  END IF
+  
+  IF metrics.stepCount > 15 THEN
+    recommendations.Add("Complex workflow (" + metrics.stepCount + " steps). Consider breaking into sub-prompts.")
+  END IF
+  
+  # Step 9: Return complexity report
+  RETURN {
+    promptFile: promptFilePath,
+    metrics: metrics,
+    complexityScore: score,
+    grade: grade,
+    refactoringPriority: refactoringPriority,
+    recommendations: recommendations,
+    summary: {
+      description: GenerateComplexitySummary(score, metrics),
+      nextSteps: GenerateNextSteps(refactoringPriority, recommendations)
+    }
+  }
+  
+END FUNCTION
+
+// Helper: Generate complexity summary
+FUNCTION GenerateComplexitySummary(score, metrics):
+  
+  IF score >= 80 THEN
+    RETURN "CRITICAL complexity - Immediate refactoring required (" + metrics.lineCount + " lines, " + metrics.codeBlocks + " code blocks)"
+  ELSE IF score >= 70 THEN
+    RETURN "HIGH complexity - Refactoring recommended (" + metrics.sectionCount + " sections, " + metrics.externalReferences + " dependencies)"
+  ELSE IF score >= 50 THEN
+    RETURN "MODERATE complexity - Consider simplification (" + metrics.lineCount + " lines)"
+  ELSE IF score >= 30 THEN
+    RETURN "LOW complexity - Well-structured with minor improvements possible"
+  ELSE
+    RETURN "EXCELLENT - Clean, maintainable prompt structure"
+  END IF
+  
+END FUNCTION
+
+// Helper: Generate next steps
+FUNCTION GenerateNextSteps(priority, recommendations):
+  
+  IF priority == "CRITICAL" THEN
+    RETURN "Schedule immediate refactoring session. Apply top " + Min(recommendations.Count, 3) + " recommendations."
+  ELSE IF priority == "HIGH" THEN
+    RETURN "Plan refactoring in next sprint. Start with code block extraction."
+  ELSE IF priority == "MEDIUM" THEN
+    RETURN "Address during next maintenance window. Prioritize duplication removal."
+  ELSE IF priority == "LOW" THEN
+    RETURN "Optional improvements. Consider during routine updates."
+  ELSE
+    RETURN "No refactoring needed. Maintain current quality."
+  END IF
+  
+END FUNCTION
+
+// Helper: Extract reference path from line
+FUNCTION ExtractReferencePath(line):
+  
+  # Pattern: `.github/prompts/path.md` or .github/instructions/path.md
+  pattern = "\.github/(prompts|instructions)/[a-zA-Z0-9\-_/\.]+\.md"
+  
+  match = RegexMatch(line, pattern)
+  
+  IF match THEN
+    RETURN match.value
+  ELSE
+    RETURN null
+  END IF
+  
+END FUNCTION
+```
+
+**Integration Points:**
+- `kds.prompt.md` Review Mode Step 2.8: Calculate complexity for all prompts
+- Output: Refactoring Candidates report (prompts with scores >70)
+
+**Usage Example:**
+
+```
+# Calculate complexity for all prompts
+promptFiles = FindFiles(".github/prompts/", "*.prompt.md")
+
+complexityResults = []
+refactoringCandidates = []
+
+FOR EACH promptFile IN promptFiles:
+  
+  result = CalculatePromptComplexity(promptFile)
+  complexityResults.Add(result)
+  
+  IF result.complexityScore >= 70 THEN
+    refactoringCandidates.Add(result)
+  END IF
+  
+END FOR
+
+# Sort by complexity score (highest first)
+refactoringCandidates = SortBy(refactoringCandidates, r => r.complexityScore, descending=true)
+
+# Display report
+Log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+Log("📊 PROMPT COMPLEXITY ANALYSIS")
+Log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+Log("")
+Log("Total Prompts Analyzed: " + complexityResults.Count)
+Log("Refactoring Candidates: " + refactoringCandidates.Count + " (score ≥70)")
+Log("")
+
+IF refactoringCandidates.Count > 0 THEN
+  Log("🔧 REFACTORING CANDIDATES (sorted by complexity):")
+  Log("")
+  
+  FOR EACH candidate IN refactoringCandidates:
+    Log("[" + candidate.grade + " - " + candidate.complexityScore + "/100] " + GetFileName(candidate.promptFile))
+    Log("  Priority: " + candidate.refactoringPriority)
+    Log("  Metrics: " + candidate.metrics.lineCount + " lines, " + candidate.metrics.codeBlocks + " code blocks, " + candidate.metrics.externalReferences + " dependencies")
+    Log("  Top Recommendation: " + candidate.recommendations[0])
+    Log("")
+  END FOR
+  
+  Log("Next Steps: " + refactoringCandidates[0].summary.nextSteps)
+  
+ELSE
+  Log("✅ All prompts have acceptable complexity (score <70)")
+END IF
+```
+
+**Acceptance Criteria:**
+- ✅ Calculates line count, section count, step count
+- ✅ Counts code blocks and pseudocode blocks
+- ✅ Tracks external dependencies (shared files)
+- ✅ Measures duplication ratio
+- ✅ Scores prompts 0-100 (higher = more complex)
+- ✅ Generates refactoring recommendations
+- ✅ Identifies candidates with scores >70
+
+---
+
 ## Helper Functions
 
 ### DetectCodeBlocks

@@ -262,14 +262,21 @@ You **MUST** load these documents in this exact order before processing ANY requ
 1. Load kds-rulebook.json current version
 2. Check: Does proposed rule conflict with existing rules?
 3. Check: Does it require changes to prompts?
-4. If conflicts exist: Show conflict analysis with resolution options
-5. If approved: Update kds-rulebook.json, generate impact report, create test
+4. **RULE #19 ENFORCEMENT:** IF modifying governance rules, REQUIRE both kds-rulebook.json AND kds-rulebook.md in same commit
+5. If conflicts exist: Show conflict analysis with resolution options
+6. If approved: Update BOTH kds-rulebook.json AND kds-rulebook.md atomically, generate impact report, create test
+
+**Mandatory Validation:**
+- ValidateDualRulebookSync() - REJECT if only one rulebook modified
+- Both files must have matching: version number, lastUpdated timestamp, rule count
 
 **Output Options:**
-- A: Merge into existing rule (extend)
-- B: Replace conflicting rule
-- C: Create new rule with compatibility notes
+- A: Merge into existing rule (extend) - UPDATE BOTH RULEBOOKS
+- B: Replace conflicting rule - UPDATE BOTH RULEBOOKS
+- C: Create new rule with compatibility notes - UPDATE BOTH RULEBOOKS
 - D: Cancel (not viable)
+
+**CRITICAL:** Never proceed with single-rulebook update. Rule #19 is MANDATORY.
 
 ### Workflow B: Prompt Modification
 
@@ -278,9 +285,43 @@ You **MUST** load these documents in this exact order before processing ANY requ
 2. Load kds-rulebook.json + kds-handoff-protocol.md
 3. Check: Does change violate Rule #1 (code blocks)?
 4. Check: Does it break honest handoff protocol?
-5. Check: Which other prompts depend on this behavior?
-6. If violations: HALT with violation report
-7. If approved: Apply holistic regeneration, update dependents, add test
+5. **RULE #18 ENFORCEMENT:** IF targetPrompt IN ['route.prompt.md', 'ask.prompt.md'] AND changeRequest contains 'add Step -1', REJECT with Router Exemption violation
+6. **RULE #19 ENFORCEMENT:** IF modifying kds-rulebook.json OR kds-rulebook.md, REQUIRE both files in same commit
+7. Check: Which other prompts depend on this behavior?
+8. If violations: HALT with violation report
+9. If approved: Apply holistic regeneration, update dependents, add test
+
+**Router Exemption Detection (Rule #18):**
+```
+IF targetPrompt IN ['route.prompt.md', 'ask.prompt.md']:
+  IF changeRequest.contains('add Step -1') OR changeRequest.contains('## Step -1:'):
+    REJECT with message:
+      "VIOLATION: Rule #18 (Router Exemption)
+       Routing prompts are EXEMPT from Step -1 governance enforcement.
+       
+       Reason: Routers analyze and direct traffic but never modify .github files.
+       Impact: Adding Step -1 would break routing workflow (Steps 0-7).
+       
+       Routers that need exemption: route.prompt.md, ask.prompt.md
+       Executors that need Step -1: plan.prompt.md, task.prompt.md, todo.prompt.md"
+```
+
+**Dual Rulebook Validation (Rule #19):**
+```
+IF targetPrompt IN ['kds-rulebook.json', 'kds-rulebook.md']:
+  modifiedFiles = getModifiedFilesInCommit()
+  IF 'kds-rulebook.json' IN modifiedFiles AND 'kds-rulebook.md' NOT IN modifiedFiles:
+    REJECT with message:
+      "VIOLATION: Rule #19 (Dual Rulebook Sync)
+       Both kds-rulebook.json AND kds-rulebook.md must be updated together.
+       This is MANDATORY, not optional."
+       
+  IF 'kds-rulebook.md' IN modifiedFiles AND 'kds-rulebook.json' NOT IN modifiedFiles:
+    REJECT with message:
+      "VIOLATION: Rule #19 (Dual Rulebook Sync)
+       Both kds-rulebook.json AND kds-rulebook.md must be updated together.
+       This is MANDATORY, not optional."
+```
 
 ### Workflow C: KDS Structure Change
 
@@ -444,7 +485,9 @@ Before approving ANY change, verify:
 
 When invoked without parameters, execute complete system review:
 
-### Step 0: Conversation History Analysis (NEW)
+### Step 0: Conversation History Analysis (MANDATORY)
+
+**REQUIRED in every Review Mode execution - NOT optional**
 
 **Before analyzing file structure, evaluate KDS performance against recent usage:**
 
@@ -531,14 +574,31 @@ When invoked without parameters, execute complete system review:
 - Rules that demonstrably prevented errors
 - Efficient handoff chains
 
-**F. RECOMMENDATIONS FOR RULEBOOK ALIGNMENT**
+**F. RECOMMENDATIONS FOR RULEBOOK ALIGNMENT (MOST VIOLATED RULES)**
+- **Most Violated Rules Report** - Top 5 rules with lowest compliance rates
 - Rules that need clarification or examples
 - New rules needed based on observed patterns
-- Rules that should be relaxed or removed
+- Rules that should be relaxed or removed (if <20% compliance)
 - Validation functions that need enhancement
 - Prompts that need updates to better enforce rules
 
 **Max:** 60 bullets (conversation analysis exception to 25-bullet standard)
+
+**Output Format for Most Violated Rules:**
+```
+📊 Most Violated Rules (from conversation history)
+
+1. Rule #X (RuleName) - YY% compliance
+   Violations: N instances
+   Common issue: [description]
+   Recommendation: [fix]
+   
+2. Rule #X (RuleName) - YY% compliance
+   ...
+   
+5. Rule #X (RuleName) - YY% compliance
+   ...
+```
 
 #### Step 0.4: Integrate Performance Insights into Review
 
