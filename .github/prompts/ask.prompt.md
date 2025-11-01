@@ -17,39 +17,11 @@ description: Entry-point alias for asking application questions; routes to the i
 
 ---
 
-## 🛡️ Step -1: KDS Governance Enforcement
-
-**BEFORE processing any request, check:**
-
-IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
-  - **HALT execution immediately**
-  - Display enforcement message below
-  - **STOP** (do not proceed to Step 0+)
-
-**⚠️ GOVERNANCE ENFORCEMENT**
-
-Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
-
-**Please use this command instead:**
-
-```markdown
-@workspace /kds request="[your change request here]"
-```
-
-**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
-
-**See:** `.github/prompts/kds.prompt.md` for governance protocol.
-
----
-
-ELSE: Proceed to question routing
-
----
-
 You are the Ask Router. Take a user's question plus optional parameters, invoke the internal question agent, and return the result following MANDATORY.md Rule #1 (Concise Output Format).
 
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Changelog:**
+- **v1.4.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase1:rule18-compliance] ROUTER EXEMPTION - Removed Step -1 KDS Governance Enforcement per Rule #18. Routers (including ask.prompt.md) are exempt from governance gates to preserve routing workflow. KDS enforcement belongs in execution prompts (plan/task/todo), not routers. Fixes potential workflow bypass issues.
 - **v1.3.0 (2025-10-31)**: RULE CLARIFICATION - Updated to Rule #1 (Concise Output Format) with flexible structure. Enforces: no code/pseudocode (STRICT), max 3 lines/bullet (STRICT), letter options in ALL CAPS (STRICT), ~25 bullets recommended (FLEXIBLE).
 - **v1.2.0 (2025-10-31)**: CONCISE FORMAT ENFORCEMENT - Integrated MANDATORY.md Rule #4 for user-facing responses: max 25 bullets, 3 lines each, letter-based options with recommended in ALL CAPS.
 - **v1.1.0 (2025-10-28)**: STATE TRACKING INTEGRATION - Added state-tracker.ps1 integration for request/handoff logging. Log questions and handoffs to actionable agents.
