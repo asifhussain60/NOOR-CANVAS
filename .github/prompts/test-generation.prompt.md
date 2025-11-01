@@ -263,6 +263,100 @@ Generate production-ready Playwright tests with:
 
 ---
 
+### Step 1.5: Query KDTR for Pattern Reuse (MANDATORY)
+
+**Purpose:** Check KDS Test Registry System (KDTR) for existing successful test patterns before generating new tests
+
+**See:** `.github/test-registry/README.md` - KDTR documentation
+
+**Algorithm:**
+
+1. **Query KDTR Directory**
+   - Path: `.github/test-registry/{key}/`
+   - List all JSON files in directory
+   - Filter by testType (E2E, Integration, API, Visual)
+
+2. **Analyze Existing Patterns**
+   - For each JSON file found:
+     - Extract: testName, executionDate, status, sessionData, reuseGuidance
+     - Check: sessionDataValid (tokens not expired)
+     - Check: lastVerifiedDate (<30 days old = recommended for reuse)
+     - Check: reuseGuidance.whenToReuse (scenario match)
+
+3. **Present Pattern Options to User**
+   - **If patterns found:**
+     - Show list with: testName, testType, lastVerifiedDate, sessionData
+     - Highlight: "Session 212 pattern available (verified 5 days ago)"
+     - Display reuseGuidance.whenToReuse description
+     - **Options:**
+       - A. REUSE PATTERN - Load existing sessionData, apiResponses, uiState (RECOMMENDED if <30 days)
+       - B. CREATE NEW - Generate fresh test (pattern too old or scenario mismatch)
+   
+   - **If no patterns found:**
+     - Log: "No existing patterns in KDTR for key '{key}'"
+     - Proceed with fresh test generation
+     - Note: "Will publish to KDTR after successful execution"
+
+4. **Load Pattern Data (if REUSE selected)**
+   - Read JSON file: `.github/test-registry/{key}/{selected-pattern}.json`
+   - Extract sessionData:
+     - `sessionId`, `hostToken`, `userToken`
+     - `expiresAt` (validate not expired)
+   - Extract apiResponses:
+     - Endpoint patterns (GET/POST URLs)
+     - Expected status codes
+     - Response body structures
+   - Extract uiState:
+     - UI selectors (CSS selectors, data-testid attributes)
+     - localStorage keys/values
+     - Form data patterns
+   - Extract testPatterns:
+     - Navigation code snippets
+     - Authentication code snippets
+     - API validation code snippets
+
+5. **Apply Pattern to New Test**
+   - **Session Data Reuse:**
+     - Use same Session 212 tokens (PQ9N5YWW, KJAHA99L) if valid
+     - Copy sessionId for API calls
+   - **API Patterns Reuse:**
+     - Copy endpoint URLs from pattern
+     - Reuse expected status codes
+     - Adapt request bodies for new scenario
+   - **UI Selectors Reuse:**
+     - Copy CSS selectors from pattern
+     - Reuse localStorage keys
+     - Adapt form data for new scenario
+   - **Document Pattern Source:**
+     - Add comment to test: `// Based on KDTR pattern: {testName}`
+     - Include pattern file reference in test metadata
+
+**Session 212 Default Pattern:**
+- **Reference:** `.github/test-registry/session-212/valid-tokens.json`
+- **Usage:** Default for ALL tests requiring host/user tokens
+- **Tokens:** Host=PQ9N5YWW, User=KJAHA99L
+- **When to use:** Any E2E test with authentication requirements
+- **Verification:** Check expiresAt field (renew if expired via Host Provisioner)
+
+**Pattern Reuse Benefits:**
+- ✅ Faster test creation (reuse proven patterns)
+- ✅ Consistent token usage (Session 212 standard)
+- ✅ Known-working selectors (no guessing)
+- ✅ Validated API endpoints (already tested)
+
+**KDTR Publishing (Post-Test Execution):**
+- After test PASSES: Orchestration script publishes data to KDTR
+- Captured: sessionData, apiResponses, uiState, evidence, testPatterns
+- Location: `.github/test-registry/{key}/{test-name}.json`
+- Status: PASSED (only successful tests stored)
+
+**HALT if pattern loading fails:**
+- If JSON parse error: Report error, ask user to fix or skip pattern
+- If tokens expired: Prompt user to renew Session 212 or use different tokens
+- If selectors outdated: Warn user, offer manual selector entry
+
+---
+
 ### Step 2: Test Type Determination
 
 Based on `testType` parameter and scenario analysis:

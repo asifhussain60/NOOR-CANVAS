@@ -1,5 +1,10 @@
 # KDS Governance Gatekeeper
-**Key: `kds`** | **Version**: 3.0.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
+**Key: `kds`** | **Version**: 3.2.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
+
+**Changelog:**
+- **v3.2.0 (2025-11-01)**: [DEBUG-WORKITEM:test-registry:kds-integration] Added Rule #5 - Test Registry System (KDTR) Enforcement. KDTR housed in `.github/test-registry/`, enforces pattern reuse before test generation, publishes successful test data atomically with test execution. Integration with test-generation.prompt.md (Step 1.5).
+- **v3.1.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:kds-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C multi-option outputs with single "Next Command" format in Step 7a (Action Handoff Generation). Recommended action shown first with alternatives as footnotes. User feedback: "I just want one prompt to execute."
+- **v3.0.0 (2025-10-31)**: BREAKING - Extracted all pseudocode to kds-validation-algorithms.md, implemented Step 7b Auto-Fix, Rule #1 compliant
 
 ---
 
@@ -251,6 +256,45 @@ You **MUST** load these documents in this exact order before processing ANY requ
 - After Phase 4: NO partial file edits creating duplication
 - **NEW: Track conversation history violations to prevent recurrence**
 - **NEW: Use performance metrics to validate rulebook changes**
+
+### Rule 5: Test Registry System (KDTR) Enforcement
+
+**KDS Test Registry System (KDTR)** - `.github/test-registry/`
+
+**MANDATORY for test-generation.prompt.md and test execution workflows:**
+
+**Before generating new test:**
+- Query `.github/test-registry/{key}/` for existing test patterns
+- If successful pattern exists (<30 days old): Recommend reuse of session data, API endpoints, UI selectors
+- If no pattern exists: Generate new test and plan KDTR entry publication
+
+**After successful test execution:**
+- Capture: screenshots, console logs, network traces, API responses, UI state
+- Publish to `.github/test-registry/{key}/{test-name}.json`
+- Include: sessionData, apiResponses, uiState, testPatterns, reuseGuidance, evidence
+- Atomic operation: Test PASS + KDTR publish (both or neither)
+
+**Pattern reuse criteria:**
+- Session data valid (tokens not expired)
+- API endpoints still active
+- UI selectors still valid
+- Last verified <30 days
+
+**KDTR file structure:**
+- Location: `.github/test-registry/{key}/{test-name}.json`
+- Format: JSON only (flexible schema in `.github/test-registry/schema.json`)
+- One file per successful test
+- Tied to views: Captures UI state, API responses, sessionData, evidence
+
+**Enforcement:**
+- test-generation.prompt.md MUST query KDTR before generating tests (Step 1.5)
+- Test orchestration scripts MUST publish to KDTR after successful execution
+- Only PASSED tests publish to KDTR (failed tests do not)
+
+**Reference:**
+- `.github/test-registry/README.md` - KDTR documentation
+- `.github/test-registry/session-212/valid-tokens.json` - Canonical Session 212 data
+- `.github/test-registry/schema.json` - Flexible JSON schema
 
 ---
 
@@ -624,6 +668,77 @@ When invoked without parameters, execute complete system review:
 
 ---
 
+#### Step 0.5: Git Commit History Analysis (NEW - Retroactive Compliance)
+
+**Execute AFTER conversation history analysis (Step 0.4) and BEFORE file structure scan (Step 1)**
+
+**Purpose:** Analyze git commit history for KDS rule violations to detect patterns of non-compliance
+
+**Algorithm:** See `kds-validation-algorithms.md` - Algorithm 8 (Git History Validation)
+
+**Process:**
+
+1. **Load Git History**
+   - Execute: `git log --all --oneline --since="90 days ago" -- .github/` (PowerShell)
+   - Parse commit messages for last 50 commits in `.github` folder
+   - Extract: commit SHA, author, date, message
+
+2. **Analyze Commit Messages**
+   - Pattern matching for rule violations:
+     - Direct `.github` modifications without `kds:` prefix (Rule #10 violation)
+     - Code commits before doc commits (Rule #2 violation - check timestamp ordering)
+     - Missing test commits for implementation commits (Rule #5 violation)
+     - Partial file edits vs full regeneration (Rule #8 violation - detect "update" vs "regenerate")
+   - Cross-reference with `.github/governance/kds-rulebook.json` rules
+   - Flag suspicious patterns (e.g., 5+ violations by same author)
+
+3. **Generate Git Compliance Report**
+   - **Header**: Git Compliance Analysis (Last 90 Days)
+   - **Commit Count**: Total `.github` commits analyzed
+   - **Violation Summary**: By rule number (Rule #2: 12 violations, Rule #5: 8 violations, etc.)
+   - **Pattern Detection**: Common violation types (e.g., "Bypassing kds.prompt.md gatekeeper")
+   - **Top Violators**: Authors with most violations (anonymized if needed)
+   - **Trend Analysis**: Violations increasing/decreasing over time?
+   - **Recommendations**: Which rules need better enforcement or documentation?
+
+**Integration with Step 0 (Conversation History):**
+
+- **Combine insights**: Conversation violations + Git violations = comprehensive compliance picture
+- **Prioritization**: Rules violated in BOTH conversation AND git history → CRITICAL priority
+- **Validation enhancement**: Git patterns inform which validation functions need strengthening
+
+**Output:**
+
+```
+## 📊 Git Compliance Report (Last 90 Days)
+
+**Commits Analyzed:** 47 (`.github` folder only)
+
+**Violation Summary:**
+- Rule #2 (Document First): 12 violations (25% of commits)
+- Rule #5 (TDD): 8 violations (17% of commits)
+- Rule #10 (KDS Governance): 5 violations (11% of commits)
+- Rule #8 (Holistic Regeneration): 3 violations (6% of commits)
+
+**Pattern Detection:**
+- **Bypassing Gatekeeper** (5 commits): Direct prompt edits without `kds:` prefix
+- **Code-Before-Docs** (12 commits): Implementation committed before documentation
+- **Missing Tests** (8 commits): Feature commits with no corresponding test commits
+
+**Trend Analysis:**
+- Violations decreasing (30% in first 30 days → 15% in last 30 days)
+- Rule #2 enforcement improving (docs commits now precede code 75% of time)
+
+**Recommendations:**
+- Strengthen Rule #10 enforcement (pre-commit hook to block direct `.github` edits)
+- Add Rule #2 timestamp validation (reject commits if doc commit not in last 5 commits)
+- Improve Rule #5 visibility (plan.prompt.md should emphasize test-first workflow)
+```
+
+**HALT after Step 0.5 - Present git compliance report to user before file analysis**
+
+---
+
 ### Step 1: Load KDS Rulebook & Context
 
 **Files to load:**
@@ -829,30 +944,26 @@ END FUNCTION
 
 **ENFORCEMENT PRINCIPLE:** All options MUST drive action. No "do nothing" or "cancel" options permitted.
 
-**Options:**
+**Next Command** (copy-paste to execute recommended action):
+```
+@workspace /task #file:.github/key-data-streams/kds/handoffs/review-autofix.json
+```
 
-**A. AUTO-FIX CRITICAL VIOLATIONS** ⭐ (RECOMMENDED for immediate improvement)
-   Scope: All P0 actions (Rule #1 violations, pre-commit hooks)
-   Estimated time: 45-60 minutes
-   Actions included: {list all P0 action IDs from report}
-   Handoff: `.github/key-data-streams/kds/handoffs/review-autofix.json`
-   Next Command: `@workspace /task #file:.github/key-data-streams/kds/handoffs/review-autofix.json`
+⭐ **Recommended**: AUTO-FIX CRITICAL VIOLATIONS (P0 only, 45-60 minutes)
+- Scope: All P0 actions (Rule #1 violations, pre-commit hooks)
+- Actions: {list all P0 action IDs from report}
+- Fastest path to compliance improvement
 
-**B. IMPLEMENT HIGH-PRIORITY ENHANCEMENTS**
-   Scope: All P0 + P1 actions (fixes + validation functions + enforcement tightening)
-   Estimated time: 90-120 minutes
-   Actions included: {list all P0 + P1 action IDs from report}
-   Handoff: `.github/key-data-streams/kds/handoffs/review-enhance.json`
-   Next Command: `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-enhance.json`
+**Alternative Actions** (if different scope needed):
+- **High-priority enhancements** (P0 + P1, 90-120 min): 
+  `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-enhance.json`
+  Includes: Fixes + validation functions + enforcement tightening
+  
+- **Comprehensive upgrade** (P0 + P1 + P2, 3-4 hours):
+  `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-upgrade.json`
+  Includes: Fixes + enhancements + rulebook refactoring
 
-**C. EXECUTE COMPREHENSIVE KDS UPGRADE**
-   Scope: All P0 + P1 + P2 actions (fixes + enhancements + refactoring)
-   Estimated time: 3-4 hours
-   Actions included: {list all P0 + P1 + P2 action IDs from report}
-   Handoff: `.github/key-data-streams/kds/handoffs/review-upgrade.json`
-   Next Command: `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-upgrade.json`
-
-**HALT - DO NOT AUTO-EXECUTE** (user selects option A/B/C and invokes handoff)
+**Behavior:** KDS agent HALTS here - execute Next Command or choose alternative scope.
 
 ---
 
@@ -860,7 +971,7 @@ END FUNCTION
 
 **Algorithm:** See `kds-validation-algorithms.md` - AutoFixCriticalIssues function
 
-**When user selects Option B:**
+**When user executes the recommended auto-fix handoff:**
 
 **Process for each CRITICAL violation:**
 

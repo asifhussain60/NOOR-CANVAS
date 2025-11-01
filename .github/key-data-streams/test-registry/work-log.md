@@ -46,3 +46,51 @@
 - Populate session-212/valid-tokens.json with database evidence
 
 ---
+
+## [2025-11-01T01:00:00Z] - GitHub Copilot
+
+**Status**: Completed  
+**Phase**: 2 - KDS Integration  
+**Context**: Integrated KDTR enforcement into kds.prompt.md and test-generation.prompt.md
+
+**Completed Tasks**:
+- ✅ Updated kds.prompt.md with Rule #5 (KDTR Enforcement)
+  - Added after Rule #4 (Regression Prevention)
+  - Enforces: Query KDTR before test generation
+  - Enforces: Publish to KDTR after successful test execution
+  - Enforces: Atomic operation (test pass + KDTR publish)
+  
+- ✅ Updated test-generation.prompt.md with Step 1.5 (Query KDTR for Pattern Reuse)
+  - Added between Step 1 (Authentication Detection) and Step 2 (Test Type Determination)
+  - Algorithm: Query directory, analyze patterns, present options, load data, apply patterns
+  - Session 212 default pattern reference
+  - HALT if pattern loading fails
+
+**Integration Points**:
+- kds.prompt.md v3.2.0: Rule #5 enforces KDTR in test workflows
+- test-generation.prompt.md: Step 1.5 queries KDTR before generating tests
+- Orchestration scripts: Publish to KDTR after test PASSES
+
+**KDTR Workflow**:
+1. User requests test generation: `@workspace /test-generation "test scenario" key:feature`
+2. test-generation.prompt.md Step 1.5: Query `.github/test-registry/feature/`
+3. If patterns found: Show options (REUSE or CREATE NEW)
+4. If REUSE: Load sessionData, apiResponses, uiState from JSON
+5. Generate test using patterns (Session 212 tokens, API endpoints, UI selectors)
+6. After test PASSES: Orchestration script publishes to KDTR
+
+**Key Achievements**:
+- ✅ KDTR fully integrated into KDS governance (kds.prompt.md Rule #5)
+- ✅ test-generation.prompt.md enforces pattern reuse (Step 1.5)
+- ✅ Session 212 canonical data available for all tests
+- ✅ Flexible JSON schema supports any data format tied to views
+- ✅ Document First protocol followed (plan.md + work-log.md before code)
+
+**Debug Marker**: `[DEBUG-WORKITEM:test-registry:kds-integration]`
+
+**Next Steps**:
+- Test KDTR integration with actual test generation workflow
+- Validate pattern reuse with existing Session 212 data
+- Create sample KDTR entries for user-auth, canvas, transcript keys
+
+---
