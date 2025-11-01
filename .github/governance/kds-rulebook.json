@@ -1,5 +1,5 @@
 {
-    "version": "2.1.0",
+    "version": "2.2.0",
     "status": "canonical",
     "lastUpdated": "2025-11-01",
     "description": "Machine-readable KDS Governance Rulebook - companion to kds-rulebook.md",
@@ -40,7 +40,8 @@
             "Screenshot Tests - ValidateScreenshotTestGeneration() enforces vision analysis workflow (Rule #17)",
             "Router Validation - ValidateRouterExemption() ensures routing workflow integrity (Rule #18)",
             "Rulebook Sync - ValidateDualRulebookSync() ensures JSON/MD updated together (Rule #19)",
-            "KDTR Enforcement - ValidateKDTREnforcement() ensures pattern reuse and test data publication (Rule #20)"
+            "KDTR Enforcement - ValidateKDTREnforcement() ensures pattern reuse and test data publication (Rule #20)",
+            "KDS Folder Purity - ValidateKDSFolderPurity() enforces data-only structure in key-data-streams/ (Rule #21)"
         ]
     },
     "corePrinciples": [
@@ -1011,6 +1012,102 @@
                 "orchestration": "Test orchestration scripts - Atomic KDTR publish operation"
             },
             "rationale": "Pattern reuse reduces test development time (estimated 40-60% savings), ensures consistency across test suite, preserves working test data for regression testing, enables knowledge transfer between test creation sessions."
+        },
+        {
+            "id": "kds-folder-purity",
+            "number": 21,
+            "category": "governance",
+            "statement": ".github/key-data-streams/ MUST contain ONLY data streams (state.json, plan files, work-logs, test artifacts). NO architecture docs, design documentation, reference materials, validation scripts, or schemas. All non-data files belong in .github/instructions/Links/, .github/schemas/, or Workspaces/Scripts/.",
+            "severity": "high",
+            "enforcement": "automated",
+            "validationFunction": "ValidateKDSFolderPurity",
+            "appliesToPaths": [
+                ".github/key-data-streams/"
+            ],
+            "allowedFileTypes": {
+                "perKey": [
+                    "{key}.plan.md",
+                    "{key}.plan.json",
+                    "work-log.md",
+                    "state.json",
+                    "rollback-index.md",
+                    "tests/*.spec.ts",
+                    "tests/test-registry.md",
+                    "handoffs/*.json",
+                    "scripts/*.ps1"
+                ],
+                "root": [
+                    "_ARCHIVE/**",
+                    "_template/**"
+                ]
+            },
+            "prohibitedFileTypes": [
+                {
+                    "pattern": "README.md",
+                    "reason": "Design documentation",
+                    "correctLocation": ".github/instructions/Links/KeyDataStreamsQuickRef.md"
+                },
+                {
+                    "pattern": "*-INDEX.md",
+                    "reason": "Catalog/reference material",
+                    "correctLocation": ".github/instructions/Links/KeyDataStreamsCatalog.md"
+                },
+                {
+                    "pattern": "index.md",
+                    "reason": "Navigation document",
+                    "correctLocation": ".github/instructions/Links/ (or delete if redundant)"
+                },
+                {
+                    "pattern": "MIGRATION-REPORT-*.md",
+                    "reason": "Historical reports",
+                    "correctLocation": "Workspaces/Documentation/Archives/"
+                },
+                {
+                    "pattern": "_SCHEMA/",
+                    "reason": "Schema definitions (design artifacts)",
+                    "correctLocation": ".github/schemas/key-data-streams/"
+                },
+                {
+                    "pattern": "validate-*.ps1",
+                    "reason": "Validation scripts (tooling)",
+                    "correctLocation": "Workspaces/Scripts/"
+                },
+                {
+                    "pattern": "*.plan.md (in root)",
+                    "reason": "Standalone plans without key folder",
+                    "correctLocation": ".github/key-data-streams/{key}/ (move to respective key directory)"
+                }
+            ],
+            "validationChecks": [
+                "Scan .github/key-data-streams/ root for prohibited patterns",
+                "Flag files not matching allowed file types",
+                "Suggest correct relocation paths",
+                "Verify no orphaned architecture documents"
+            ],
+            "correctStructure": {
+                "root": [
+                    "_ARCHIVE/ (historical data streams only)",
+                    "_template/ (template files for new keys)",
+                    "{key}/ (active key directories)"
+                ],
+                "keyDirectory": [
+                    "{key}.plan.md",
+                    "{key}.plan.json",
+                    "work-log.md",
+                    "state.json",
+                    "rollback-index.md",
+                    "tests/",
+                    "handoffs/",
+                    "scripts/ (key-specific orchestration only)"
+                ],
+                "noDesignDocs": "All architecture/design/reference files belong in .github/instructions/Links/ or .github/schemas/"
+            },
+            "enforcementPoints": {
+                "kdsReviewMode": "kds.prompt.md Review Mode scans for prohibited files",
+                "healthcheck": "healthcheck.prompt.md validates folder purity",
+                "preCommitHook": "Git pre-commit hook rejects commits with prohibited file types in key-data-streams/"
+            },
+            "rationale": "Separation of concerns: Data streams (transient, execution-specific) vs Design docs (permanent, reference material). Mixing these creates confusion about what's authoritative, makes cleanup difficult, violates KDS architectural principle of 'data only'."
         }
     ],
     "handoffProtocol": [
@@ -1588,6 +1685,59 @@
                 "location": ".github/test-registry/session-212/valid-tokens.json",
                 "usage": "Default source for all tests requiring host/user tokens, API endpoints, session data"
             }
+        },
+        "ValidateKDSFolderPurity": {
+            "description": "Scans .github/key-data-streams/ for prohibited file types and suggests correct relocation paths",
+            "algorithm": ".github/prompts/shared/kds-validation-algorithms.md - ValidateKDSFolderPurity",
+            "checks": [
+                "Scan root directory for README.md, *-INDEX.md, index.md, MIGRATION-REPORT-*.md",
+                "Detect _SCHEMA/ directory (should be in .github/schemas/key-data-streams/)",
+                "Find validate-*.ps1 scripts (should be in Workspaces/Scripts/)",
+                "Identify standalone *.plan.md files in root (should be in respective key directories)",
+                "Flag any non-data files (only state.json, plan files, work-logs, tests allowed)"
+            ],
+            "violations": [
+                {
+                    "type": "ARCHITECTURE_DOC_IN_KDS",
+                    "pattern": "README.md, *-INDEX.md, index.md",
+                    "severity": "high",
+                    "correctLocation": ".github/instructions/Links/",
+                    "suggestedFix": "Move to Links/ folder with descriptive name (KeyDataStreamsQuickRef.md, KeyDataStreamsCatalog.md)"
+                },
+                {
+                    "type": "SCHEMA_IN_KDS",
+                    "pattern": "_SCHEMA/",
+                    "severity": "medium",
+                    "correctLocation": ".github/schemas/key-data-streams/",
+                    "suggestedFix": "Move entire _SCHEMA/ directory to proper schema location"
+                },
+                {
+                    "type": "SCRIPT_IN_KDS",
+                    "pattern": "validate-*.ps1, *.ps1 (in root)",
+                    "severity": "medium",
+                    "correctLocation": "Workspaces/Scripts/",
+                    "suggestedFix": "Move validation/utility scripts to Workspaces/Scripts/"
+                },
+                {
+                    "type": "HISTORICAL_REPORT_IN_KDS",
+                    "pattern": "MIGRATION-REPORT-*.md",
+                    "severity": "low",
+                    "correctLocation": "Workspaces/Documentation/Archives/",
+                    "suggestedFix": "Archive historical reports to Documentation/Archives/"
+                },
+                {
+                    "type": "ORPHANED_PLAN_FILE",
+                    "pattern": "*.plan.md (in root, not in key directory)",
+                    "severity": "medium",
+                    "correctLocation": ".github/key-data-streams/{key}/",
+                    "suggestedFix": "Move to respective key directory or archive if obsolete"
+                }
+            ],
+            "integrationPoints": [
+                "kds.prompt.md Review Mode Step 2 - Folder structure scan",
+                "kds.prompt.md Review Mode Step 3 - Validate against rulebook",
+                "healthcheck.prompt.md - KDS folder validation"
+            ]
         }
     },
     "enforcement": {
@@ -1600,7 +1750,8 @@
             "build-state-validation",
             "git-history-validation",
             "router-exemption",
-            "dual-rulebook-sync"
+            "dual-rulebook-sync",
+            "kds-folder-purity"
         ],
         "workflow": [
             "per-task-handoffs",
@@ -1628,6 +1779,11 @@
         "gatekeeperPrompt": ".github/prompts/kds.prompt.md"
     },
     "versionHistory": [
+        {
+            "version": "2.2.0",
+            "date": "2025-11-01",
+            "changes": "Added Rule #21 (KDS Folder Purity) - Enforces strict separation between data streams and design documentation. .github/key-data-streams/ MUST contain ONLY transient data (state.json, plans, work-logs, tests). ALL architecture docs, schemas, validation scripts relocated: README.md → .github/instructions/Links/KeyDataStreamsQuickRef.md, CDN-KEYS-INDEX.md → KeyDataStreamsCatalog.md, _SCHEMA/ → .github/schemas/key-data-streams/, validate-kds.ps1 → Workspaces/Scripts/. Adds ValidateKDSFolderPurity() validation function enforced in kds.prompt.md Review Mode and healthcheck.prompt.md. Total rules: 21 (17 mandatory + 4 governance/meta rules)."
+        },
         {
             "version": "2.1.0",
             "date": "2025-11-01",

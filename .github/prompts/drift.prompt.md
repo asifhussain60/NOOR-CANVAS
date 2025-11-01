@@ -13,37 +13,6 @@ stateTracking: enabled
 
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
----
-
-## 🛡️ Step -1: KDS Governance Enforcement
-
-**BEFORE processing any request, check:**
-
-IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
-  - **HALT execution immediately**
-  - Display enforcement message below
-  - **STOP** (do not proceed to Step 0+)
-
-**⚠️ GOVERNANCE ENFORCEMENT**
-
-Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
-
-**Please use this command instead:**
-
-```markdown
-@workspace /kds request="[your change request here]"
-```
-
-**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
-
-**See:** `.github/prompts/kds.prompt.md` for governance protocol.
-
----
-
-ELSE: Proceed to drift management
-
----
-
 **Mode:** Agent | **Purpose:** Multi-threaded workflow management via drift stack (dual-mode support)
 
 **Version:** 1.3.0  
@@ -53,9 +22,7 @@ ELSE: Proceed to drift management
 ---
 
 ## User-Facing Output Style
-**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, no code)
-
-**Standard Limit:** 25 bullets for drift summaries. When creating drift resolution plans, route to plan.prompt.md which supports 30-50 bullets for detailed phase/task breakdown.
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
 
 ---
 

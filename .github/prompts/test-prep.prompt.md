@@ -14,13 +14,9 @@ Automate preparation of Razor components for Playwright test generation via dual
 
 ## Version
 
-**Version**: 1.1.0  
+**Version**: 1.0.0  
 **Created**: 2025-10-31  
-**Last Updated**: 2025-11-01
-
-**Changelog:**
-- **v1.1.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:test-prep-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C/D multi-option outputs with single "Next Command" format in test selection/generation flow. Recommended action (capture logs) shown first with alternatives as footnotes. User feedback: "I just want one prompt to execute."
-- **v1.0.0 (2025-10-31)**: Initial version - Automated test generation from interaction logs
+**Last Updated**: 2025-10-31
 
 ---
 
@@ -177,24 +173,14 @@ Automate preparation of Razor components for Playwright test generation via dual
 **Total Tests Possible**: 8 complete flows, 12 partial flows (20 total)  
 **Coverage**: SignalR (100%), API calls (85%), Database ops (40%), UI interactions (0% - no client logs)
 
-**⚡ Next Command** (copy-paste to unlock all tests):
-```
-@workspace /test-prep action=capture-logs
-```
+**⚡ Next Steps**:
 
-⭐ **Recommended**: Capture client logs (manual export) to unlock 12 additional tests (total 20 tests possible)
+**A.** Capture client logs (manual export) and re-run review → **Unlock 12 additional tests**  
+**B.** Generate ALL 8 server-only tests now (limited assertions, 60-75% quality)  
+**C.** Cherry-pick specific tests to generate (select by test number)  
+**D.** Cancel and re-do manual testing with automated logging enabled  
 
-**Alternative Actions** (if different approach needed):
-- **Generate server-only tests** (8 tests, 60-75% quality): 
-  `@workspace /test-prep action=generate test-ids=all`
-  
-- **Cherry-pick specific tests** (select by test number):
-  `@workspace /test-prep action=generate test-ids=1,2,5`
-  
-- **Re-do with automated logging**:
-  Enable logging first, then re-run manual testing for full coverage
-
-**Behavior:** Test-prep agent HALTS here - execute Next Command or choose alternative approach.
+**Choose Action**: [A/B/C/D]
 
 ---
 

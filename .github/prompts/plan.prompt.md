@@ -1,26 +1,20 @@
-=# plan.prompt.md (Feature Planning Agent v1.11.0)
+=# plan.prompt.md (Feature Planning Agent v1.8)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions, auto-chain, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-11-01
+lastUpdated: 2025-10-31
 stateTracking: enabled
 
 ---
 
 ## 🛡️ Step -1: KDS Governance Enforcement
 
-**See:** `.github/governance/kds-rulebook.md` Rule #10 (Key Data Stream Management)
-
-**IF** user request modifies `.github/prompts/*.md` OR `.github/instructions/*.md`:
-  - HALT execution → Redirect to `@workspace /kds request="[change request]"`
-
-**ELSE:** Proceed to Step 0
+**CRITICAL CHECK** - See `.github/governance/kds-rulebook.md` Rule #10 for complete enforcement logic. If modifying `.github/` files, HALT and route to `@workspace /kds`.
 
 ---
-- **v1.11.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:plan-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C/D multi-option outputs with single "Next Command" format. E2E mode now default with single command, manual mode available via JSON edit. Affects: Phase 1 (Key Consultation), Phase 2 (Questionnaire), Phase 3 (Execution Mode), Resume Work, Cleanup. User feedback: "I just want one prompt to execute."
 - **v1.10 (2025-10-31)**: KDS GOVERNANCE INTEGRATION + HANDOFF CONTEXT + NEXT COMMAND
   - Added Step 0.2 to load route handoff context from `.github/key-data-streams/{key}/handoffs/route-to-plan.json`
   - Standardized "Next Command" output after plan generation to start Phase 1 via handoff JSON
@@ -918,26 +912,32 @@ If manual mode is selected, still present this command but do not auto-trigger.
 - Task 3.2: {action} - {expected-outcome}
 - Task 3.3: {action} - {expected-outcome}
 
-**⚡ Next Command** (copy-paste to execute E2E):
-```
-@workspace /test-generation #file:.github/key-data-streams/{key}/handoffs/phase-1-test.json
-```
+**⚡ Execution Mode**
 
-⭐ **Default**: E2E Mode (auto-chain all phases, no approval gates)
-- All phases execute automatically without interruption
-- Tests run before each phase implementation
-- Checkpoint commits created after each phase
-- Best for: Refactors, compliance fixes, well-specified features
+**A. END-TO-END MODE** (RECOMMENDED - Auto-executes in 5s)  
+   - All phases execute automatically without approval gates
+   - Tests run before each phase implementation
+   - Checkpoint commits created after each phase
+   - Interrupt anytime with Ctrl+C
+   - Best for: Refactors, compliance fixes, well-specified features
 
-**Alternative Execution** (if manual mode needed):
-- Manual mode: Modify `e2eMode: false` in handoff JSON before execution
-- Review plan first: Read `.github/key-data-streams/{key}/{key}.plan.md`
-- Modify scope: Re-run `/plan` with updated parameters
-- Cancel: Stop planning process
+**B. MANUAL MODE** (Stop after each phase for approval)  
+   - Await approval before starting each phase
+   - Review test results before proceeding
+   - Best for: Complex features, exploratory work, learning
+
+**C.** Review plan files before deciding  
+**D.** Modify plan scope  
+**E.** Cancel planning
+
+**Auto-executing in 5 seconds... Say "B", "manual", or "cancel" to abort.**
+
+Reply: A (or wait 5s for auto-execute), B (manual), C, D, or E
 
 **Behavior:** 
-- **Default:** `auto-chain=true` + `e2eMode=true` in handoff JSONs → automatic E2E execution
-- **Manual override:** Edit handoff JSONs to set `e2eMode=false` → wait for approval after each phase
+- **Default (no reply or A):** Set `auto-chain=true` + `e2eMode=true` in handoff JSONs → automatic E2E execution
+- **If B selected:** Set `auto-chain=false` + `e2eMode=false` → wait for approval after each phase
+- If C/D/E selected: Wait for user action
 
 ---
 
@@ -1153,6 +1153,31 @@ What the next agent will do:
 
 **Behavior:** Cleanup complete - execute Next Command to archive or leave active.
 ```
+
+---
+
+## 🧭 KDS GOVERNANCE MODE (key = `kds`)
+
+When planning for the KDS key (`key: kds`), include governance-specific tasks to evolve and safeguard the prompt system:
+
+**Additional Phase 1 Tasks (KDS-only):**
+1. Create `.github/prompts/shared/kds-handoff-protocol.md`
+  - Define standard handoff JSON formats (route-to-*, phase-*-test.json, phase-*-todo-*.json)
+  - Specify `nextTask` chaining and `autoChain` defaults (tasks=true, phases=manual by default)
+  - Document the honest handoff protocol and "Next Command" UX
+2. Create `.github/prompts/kds.prompt.md`
+  - Governance gatekeeper for all `.github/**` and KDS changes
+  - Load order: `.github/MANDATORY.md` → `kds-handoff-protocol.md` → `SelfAwareness.instructions.md` → active key context
+  - Responsibilities: conflict detection, non-regression enforcement, compatibility reasoning requirement
+  - Output: Always provide a single Next Command for the downstream agent; never auto-execute
+3. Update governance docs as needed (e.g., add Rule 4 – manual invocation) while keeping MANDATORY.md the canonical source of truth
+
+**Validation (KDS-only):**
+- Verify prompts reference (not duplicate) canonical rules and protocol docs
+- Ensure route/plan/task/todo/test-generation adhere to honest handoffs and JSON conventions
+- Run coordination validators to check handoff counts, chains, and acceptance criteria presence
+
+All KDS prompt changes must be scoped to `.github/**` and follow checkpoint commits for clean merges.
 
 ---
 

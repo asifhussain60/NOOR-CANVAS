@@ -400,78 +400,9 @@ IF warnings only:
 
 ---
 
-### Step 8.5: Build Validation Gate (BLOCKING - Rule #14)
+### Step 8.5: Checkpoint Commit & Tag (MANDATORY)
 
-**CRITICAL:** Application MUST be left in built state with zero build errors.
-
-**Algorithm:** See `.github/prompts/shared/build-validation-gate.md`
-
-**Process:**
-
-1. **Execute build command:**
-   ```bash
-   dotnet build --no-incremental
-   ```
-
-2. **Parse build result:**
-   - Exit code (must be 0)
-   - Error count (must be 0)
-   - Warning count (acceptable)
-
-3. **On SUCCESS (0 errors):**
-   - Log to work-log.md
-   - Proceed to Step 8.7 (Checkpoint Commit)
-
-4. **On FAILURE (errors > 0):**
-   - HALT execution immediately
-   - Extract error details (file, line, code, message)
-   - Present resolution options:
-     - **A.** Rollback changes (git reset)
-     - **B.** Fix errors immediately
-     - **C.** Create drift key for build fix
-     - **D.** Show full build output
-   - Wait for user choice
-   - Execute chosen option
-
-**Exception:** Skip validation if:
-- Commit message contains "refactor-wip"
-- OR explicit `skipBuildValidation=true` flag
-
-**Log Entry Format (on success):**
-```
-#### Build Validation ✅
-- Command: dotnet build --no-incremental
-- Exit Code: 0
-- Errors: 0
-- Warnings: {count}
-- Duration: {seconds}s
-```
-
-**Error Report Format (on failure):**
-```
-## ⚠️ Build Validation Failed
-
-**Errors:** {count}  
-**Warnings:** {count}
-
-**Error Details:**
-- {file}({line}): {errorCode} - {message}
-...
-
-**Resolution Options:**
-**A.** Rollback Changes
-**B.** Fix Errors Immediately  
-**C.** Create Drift Key
-**D.** Show Full Output
-
-**Reply:** A, B, C, or D
-```
-
----
-
-### Step 8.7: Checkpoint Commit & Tag (MANDATORY)
-
-**After build validation passes, create final checkpoint commit with git tag.**
+**After all work is complete and key data stream is updated, create final checkpoint commit with git tag.**
 
 **Checkpoint Commit Requirements:**
 

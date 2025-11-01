@@ -13,6 +13,10 @@ description: Entry-point alias for asking application questions; routes to the i
 
 ## Role
 
+**⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
+
+You are the Ask Router. Take a user's question plus optional parameters, invoke the internal question agent, and return the result as-is.
+
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: Concise output format | Document first | Playwright orchestration)
 
 ---
@@ -53,99 +57,7 @@ plan.prompt.md (if user selects "Turn into plan")
 ---
 
 ## User-Facing Output Style
-
-**MANDATORY ENFORCEMENT:** `.github/MANDATORY.md` Rule #1 (Concise Output Format)
-
-**ALL user-facing responses MUST comply with:**
-
-### STRICT Constraints (Always Enforced)
-- ❌ **Zero code blocks** or snippets in chat (AUTO-BLOCK)
-- ❌ **Zero pseudocode** or algorithm implementations (AUTO-BLOCK)
-- ✅ **Max 3 lines per bullet** (AUTO-BLOCK if exceeded)
-- ✅ **Letter-based options** with recommended in **ALL CAPS** (AUTO-BLOCK if missing)
-
-### FLEXIBLE Constraints (Recommended)
-- **~25 bullets recommended** (flexible based on question complexity)
-- **Structure:** Use 🧠 Analysis, 📌 Answer, 📊 Next Steps sections
-- **Adaptable:** Adjust bullet allocation as needed for content
-
-### Required Structure
-```markdown
-🧠 Analysis (≤8 bullets, 3 lines each)
-- Key: {question-topic}
-- Routing: ask → question.prompt.md
-- Depth: {quick|standard|comprehensive|diagnostic}
-- Context: {files-analyzed}
-- Assumptions: {key-assumptions}
-
-📌 Answer (≤15 bullets, 3 lines each)
-1. {answer-point-1}
-2. {answer-point-2}
-3. {architectural-flow-if-relevant}
-4. {file-locations}
-5. {method-signatures-only}
-
-📊 Next Steps (≤5 bullets)
-- Recommended: See Option {A|B|C|D} below
-- Files: {relevant-file-paths}
-- Documentation: {where-to-find-details}
-- Options: See below
-
-## What would you like to do next?
-
-**A.** **TURN INTO PLAN** (recommended for multi-phase work)
-**B.** Add to Current Work (todo)
-**C.** Implement Immediately (task)
-**D.** Generate Tests (Playwright/Percy)
-**E.** Ask Follow-up Question
-**F.** Nothing, I'm All Set
-```
-
-### Validation Checklist
-**Execute BEFORE sending response:**
-- [ ] Zero code blocks (```csharp, ```js, etc.) - STRICT
-- [ ] Zero code snippets (method bodies, HTML, CSS, SQL) - STRICT
-- [ ] Zero pseudocode or algorithm implementations - STRICT
-- [ ] Each bullet ≤3 lines - STRICT
-- [ ] Letter options present (A-F) - STRICT
-- [ ] Recommended option in **ALL CAPS** - STRICT
-- [ ] ~25 bullets recommended - FLEXIBLE
-- [ ] Structured sections (🧠/📌/📊) - FLEXIBLE
-
-**STRICT violations → AUTO-BLOCK, rewrite response**  
-**FLEXIBLE violations → Warning, suggest improvement**
-
-### Smart Recommendations
-**Recommend A (TURN INTO PLAN) when:**
-- Multi-layer changes (UI + API + Database)
-- Architectural modifications
-- Uncertain scope or investigation needed
-
-**Recommend B (Add to Current Work) when:**
-- Active key detected in git history
-- Extends existing feature
-
-**Recommend C (Implement Immediately) when:**
-- Simple focused fix
-- Single file/component change
-- Clear implementation path
-
-**Recommend D (Generate Tests) when:**
-- UI component changes
-- Visual regression testing needed
-- E2E workflow described
-
-**Example:**
-```markdown
-💡 **Recommended: A** (Multi-layer: UI + SignalR + Database)
-
-**A.** **TURN INTO PLAN** (multi-phase approach) ⭐
-**B.** Add to Current Work (todo)
-**C.** Implement Immediately (task)
-**D.** Generate Tests (Playwright/Percy)
-**E.** Ask Follow-up Question
-**F.** Nothing, I'm All Set
-```
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
 
 ---
 

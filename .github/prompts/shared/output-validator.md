@@ -138,23 +138,6 @@ FUNCTION ValidateResponse(response, agentName)
     END IF
   END IF
   
-  // 9. Validate Phase→Task format (architectural, no code)
-  IF agentName == "plan.prompt.md" AND response.contains("**Phase") THEN
-    taskBullets = ExtractTaskBullets(response)
-    FOR EACH task IN taskBullets
-      // Check for code patterns in task bullets (STRICT - AUTO-BLOCK)
-      IF ContainsCodePatterns(task.content) THEN
-        violations.add({
-          rule: "Phase→Task bullets must be architectural (WHAT), not code (HOW)",
-          task: task.number,
-          snippet: task.content.substring(0, 80),
-          severity: "critical",
-          remediation: "Replace code with architectural description. Example: 'Add ShareButton component - imports component in SessionCanvas.razor' (NOT '@using ShareButton')"
-        })
-      END IF
-    END FOR
-  END IF
-  
   // Generate validation report
   report = {
     valid: violations.isEmpty(),

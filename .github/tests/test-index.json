@@ -1,12 +1,12 @@
 {
   "metadata": {
     "version": "1.0",
-    "lastUpdated": "2025-10-30T15:39:34Z",
-    "totalTests": 61,
+    "lastUpdated": "2025-10-29T17:36:16Z",
+    "totalTests": 64,
     "reusableTests": 12,
     "testsByType": {
       "withOrchestration": 12,
-      "withoutOrchestration": 60
+      "withoutOrchestration": 63
     }
   },
   "tests": [
@@ -510,6 +510,106 @@
     {
       "id": "test-26",
       "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-click-test.spec.ts",
+      "feature": "Hcp Fab Button Click Test",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "click",
+        "fab",
+        "functionality",
+        "hcp"
+      ],
+      "similarityHash": "hcpfabbuttonclicktest-button-click-fab",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-27",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-click-validation.spec.ts",
+      "feature": "Hcp Fab Button Click Validation",
+      "scenarios": [],
+      "tags": [
+        "(hcp-fab-button)",
+        "assetshare",
+        "button",
+        "click",
+        "fab"
+      ],
+      "similarityHash": "hcpfabbuttonclickvalidation-(hcp-fab-button)-assetshare-button",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-28",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-console-check.spec.ts",
+      "feature": "Hcp Fab Button Console Check",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "check.spec",
+        "console",
+        "fab",
+        "hcp"
+      ],
+      "similarityHash": "hcpfabbuttonconsolecheck-button-check.spec-console",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-29",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-verification.spec.ts",
+      "feature": "Hcp Fab Button Verification",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "fab",
+        "hcp",
+        "verification",
+        "verification.spec"
+      ],
+      "similarityHash": "hcpfabbuttonverification-button-fab-hcp",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-30",
+      "key": "unknown",
+      "file": "Tests/UI/hcp-fab-button-visual.spec.ts",
+      "feature": "Hcp Fab Button Visual",
+      "scenarios": [],
+      "tags": [
+        "button",
+        "fab",
+        "hcp",
+        "implementation",
+        "visual.spec"
+      ],
+      "similarityHash": "hcpfabbuttonvisual-button-fab-hcp",
+      "reusable": false,
+      "created": "2025-10-29T00:00:00Z",
+      "orchestration": null,
+      "lastRun": null,
+      "status": "active"
+    },
+    {
+      "id": "test-31",
+      "key": "unknown",
       "file": "Tests/UI/hcp-refactor-baseline.spec.ts",
       "feature": "Hcp Refactor Baseline",
       "scenarios": [],
@@ -528,7 +628,7 @@
       "status": "active"
     },
     {
-      "id": "test-27",
+      "id": "test-32",
       "key": "unknown",
       "file": "Tests/UI/host-provisioner-visual-regression.spec.ts",
       "feature": "Host Provisioner Visual Regression",
@@ -548,7 +648,7 @@
       "status": "active"
     },
     {
-      "id": "test-28",
+      "id": "test-33",
       "key": "unknown",
       "file": "Tests/UI/inserted-hadees-rendering.spec.ts",
       "feature": "Inserted Hadees Rendering",
@@ -568,7 +668,7 @@
       "status": "active"
     },
     {
-      "id": "test-29",
+      "id": "test-34",
       "key": "unknown",
       "file": "Tests/UI/issue-use-landing-textbox-js-errors.spec.ts",
       "feature": "Issue Use Landing Textbox Js Errors",
@@ -588,7 +688,7 @@
       "status": "active"
     },
     {
-      "id": "test-30",
+      "id": "test-35",
       "key": "unknown",
       "file": "Tests/UI/multi-browser-participant-isolation.spec.ts",
       "feature": "Multi Browser Participant Isolation",
@@ -608,7 +708,7 @@
       "status": "active"
     },
     {
-      "id": "test-31",
+      "id": "test-36",
       "key": "unknown",
       "file": "Tests/UI/participant-name-broadcast-test.spec.ts",
       "feature": "Participant Name Broadcast Test",
@@ -628,7 +728,7 @@
       "status": "active"
     },
     {
-      "id": "test-32",
+      "id": "test-37",
       "key": "unknown",
       "file": "Tests/UI/participant-registration-flow-complete.spec.ts",
       "feature": "Participant Registration Flow Complete",
@@ -648,7 +748,7 @@
       "status": "active"
     },
     {
-      "id": "test-33",
+      "id": "test-38",
       "key": "unknown",
       "file": "Tests/UI/phase1-session-waiting-guard.spec.ts",
       "feature": "Phase1 Session Waiting Guard",
@@ -668,7 +768,7 @@
       "status": "active"
     },
     {
-      "id": "test-34",
+      "id": "test-39",
       "key": "unknown",
       "file": "Tests/UI/phase10-debug-panel-clear-storage.spec.ts",
       "feature": "Phase10 Debug Panel Clear Storage",
@@ -688,7 +788,7 @@
       "status": "active"
     },
     {
-      "id": "test-35",
+      "id": "test-40",
       "key": "unknown",
       "file": "Tests/UI/phase2-session-canvas-guard.spec.ts",
       "feature": "Phase2 Session Canvas Guard",
@@ -708,7 +808,7 @@
       "status": "active"
     },
     {
-      "id": "test-36",
+      "id": "test-41",
       "key": "unknown",
       "file": "Tests/UI/phase3-transcript-canvas-guard.spec.ts",
       "feature": "Phase3 Transcript Canvas Guard",
@@ -728,7 +828,7 @@
       "status": "active"
     },
     {
-      "id": "test-37",
+      "id": "test-42",
       "key": "unknown",
       "file": "Tests/UI/phase4-registration-bypass-flag.spec.ts",
       "feature": "Phase4 Registration Bypass Flag",
@@ -748,7 +848,7 @@
       "status": "active"
     },
     {
-      "id": "test-38",
+      "id": "test-43",
       "key": "unknown",
       "file": "Tests/UI/phase5-session-ended-redirect.spec.ts",
       "feature": "Phase5 Session Ended Redirect",
@@ -768,7 +868,7 @@
       "status": "active"
     },
     {
-      "id": "test-39",
+      "id": "test-44",
       "key": "unknown",
       "file": "Tests/UI/phase6-localstorage-infrastructure.spec.ts",
       "feature": "Phase6 Localstorage Infrastructure",
@@ -788,7 +888,7 @@
       "status": "active"
     },
     {
-      "id": "test-40",
+      "id": "test-45",
       "key": "unknown",
       "file": "Tests/UI/phase7-localstorage-expiration-extension.spec.ts",
       "feature": "Phase7 Localstorage Expiration Extension",
@@ -808,7 +908,7 @@
       "status": "active"
     },
     {
-      "id": "test-41",
+      "id": "test-46",
       "key": "unknown",
       "file": "Tests/UI/phase8-localstorage-validation.spec.ts",
       "feature": "Phase8 Localstorage Validation",
@@ -828,7 +928,7 @@
       "status": "active"
     },
     {
-      "id": "test-42",
+      "id": "test-47",
       "key": "unknown",
       "file": "Tests/UI/phase9-save-load-auto-navigation.spec.ts",
       "feature": "Phase9 Save Load Auto Navigation",
@@ -848,7 +948,7 @@
       "status": "active"
     },
     {
-      "id": "test-43",
+      "id": "test-48",
       "key": "unknown",
       "file": "Tests/UI/registration-guard-enforcement.spec.ts",
       "feature": "Registration Guard Enforcement",
@@ -868,7 +968,7 @@
       "status": "active"
     },
     {
-      "id": "test-44",
+      "id": "test-49",
       "key": "unknown",
       "file": "Tests/UI/share-button-click-fix.spec.ts",
       "feature": "Share Button Click Fix",
@@ -888,27 +988,7 @@
       "status": "active"
     },
     {
-      "id": "test-45",
-      "key": "unknown",
-      "file": "Tests/UI/signalr-broadcast-verification.spec.ts",
-      "feature": "Signalr Broadcast Verification",
-      "scenarios": [],
-      "tags": [
-        "broadcast",
-        "flow",
-        "signalr",
-        "verification",
-        "verification.spec"
-      ],
-      "similarityHash": "signalrbroadcastverification-broadcast-flow-signalr",
-      "reusable": false,
-      "created": "2025-10-29T00:00:00Z",
-      "orchestration": null,
-      "lastRun": null,
-      "status": "active"
-    },
-    {
-      "id": "test-46",
+      "id": "test-50",
       "key": "unknown",
       "file": "Tests/UI/simplified-participant-name-test.spec.ts",
       "feature": "Simplified Participant Name Test",
@@ -928,7 +1008,7 @@
       "status": "active"
     },
     {
-      "id": "test-47",
+      "id": "test-51",
       "key": "unknown",
       "file": "Tests/UI/start-time-dropdown-visual.spec.ts",
       "feature": "Start Time Dropdown Visual",
@@ -948,7 +1028,7 @@
       "status": "active"
     },
     {
-      "id": "test-48",
+      "id": "test-52",
       "key": "unknown",
       "file": "Tests/UI/start-time-dropdown.spec.ts",
       "feature": "Start Time Dropdown",
@@ -967,7 +1047,7 @@
       "status": "active"
     },
     {
-      "id": "test-49",
+      "id": "test-53",
       "key": "unknown",
       "file": "Tests/UI/table-asset-share-validation.spec.ts",
       "feature": "Table Asset Share Validation",
@@ -987,7 +1067,7 @@
       "status": "active"
     },
     {
-      "id": "test-50",
+      "id": "test-54",
       "key": "unknown",
       "file": "Tests/UI/table-asset-share.spec.ts",
       "feature": "Table Asset Share",
@@ -1007,7 +1087,7 @@
       "status": "active"
     },
     {
-      "id": "test-51",
+      "id": "test-55",
       "key": "unknown",
       "file": "Tests/UI/test-section-share-buttons.spec.ts",
       "feature": "Test Section Share Buttons",
@@ -1027,7 +1107,7 @@
       "status": "active"
     },
     {
-      "id": "test-52",
+      "id": "test-56",
       "key": "unknown",
       "file": "Tests/UI/toastr-notyf-validation.spec.ts",
       "feature": "Toastr Notyf Validation",
@@ -1047,7 +1127,7 @@
       "status": "active"
     },
     {
-      "id": "test-53",
+      "id": "test-57",
       "key": "unknown",
       "file": "Tests/UI/transcript-canvas-html-structure.spec.ts",
       "feature": "Transcript Canvas Html Structure",
@@ -1067,7 +1147,7 @@
       "status": "active"
     },
     {
-      "id": "test-54",
+      "id": "test-58",
       "key": "unknown",
       "file": "Tests/UI/transcript-canvas-width-visual.spec.ts",
       "feature": "Transcript Canvas Width Visual",
@@ -1086,26 +1166,7 @@
       "status": "active"
     },
     {
-      "id": "test-55",
-      "key": "unknown",
-      "file": "Tests/UI/transcript-section-broadcast.spec.ts",
-      "feature": "Transcript Section Broadcast",
-      "scenarios": [],
-      "tags": [
-        "broadcast.spec",
-        "broadcasting",
-        "section",
-        "transcript"
-      ],
-      "similarityHash": "transcriptsectionbroadcast-broadcast.spec-broadcasting-section",
-      "reusable": false,
-      "created": "2025-10-29T00:00:00Z",
-      "orchestration": null,
-      "lastRun": null,
-      "status": "active"
-    },
-    {
-      "id": "test-56",
+      "id": "test-59",
       "key": "unknown",
       "file": "Tests/UI/url-migration-validation.spec.ts",
       "feature": "Url Migration Validation",
@@ -1124,7 +1185,7 @@
       "status": "active"
     },
     {
-      "id": "test-57",
+      "id": "test-60",
       "key": "unknown",
       "file": "Tests/UI/user-landing-manual-navigation.spec.ts",
       "feature": "User Landing Manual Navigation",
@@ -1144,7 +1205,7 @@
       "status": "active"
     },
     {
-      "id": "test-58",
+      "id": "test-61",
       "key": "unknown",
       "file": "Tests/UI/verify-asset-width-and-overflow-fix.spec.ts",
       "feature": "Verify Asset Width And Overflow Fix",
@@ -1164,7 +1225,7 @@
       "status": "active"
     },
     {
-      "id": "test-59",
+      "id": "test-62",
       "key": "unknown",
       "file": "Tests/UI/verify-cdn-transform-session2343.spec.ts",
       "feature": "Verify Cdn Transform Session2343",
@@ -1184,7 +1245,7 @@
       "status": "active"
     },
     {
-      "id": "test-60",
+      "id": "test-63",
       "key": "unknown",
       "file": "Tests/UI/verify-example-quote-width-styling.spec.ts",
       "feature": "Verify Example Quote Width Styling",
@@ -1204,7 +1265,7 @@
       "status": "active"
     },
     {
-      "id": "test-61",
+      "id": "test-64",
       "key": "unknown",
       "file": "Tests/UI/verify-plain-text-button-removal.spec.ts",
       "feature": "Verify Plain Text Button Removal",

@@ -779,6 +779,11 @@ When invoked without parameters, execute complete system review:
 - Verify structure: plan.md, work-log.md present
 - Check for stale keys (no activity >90 days)
 - Validate handoff JSON schemas
+- **NEW (Rule #21): Validate KDS Folder Purity**
+  - Scan for prohibited files (README.md, *-INDEX.md, index.md, MIGRATION-REPORT-*.md, _SCHEMA/, validate-*.ps1)
+  - Flag architecture/design docs in key-data-streams/ root
+  - Suggest relocation: docs → .github/instructions/Links/, schemas → .github/schemas/, scripts → Workspaces/Scripts/
+  - Ensure ONLY data streams remain (state.json, plans, work-logs, tests, handoffs)
 
 ### Step 4: Prompt Consolidation Analysis
 

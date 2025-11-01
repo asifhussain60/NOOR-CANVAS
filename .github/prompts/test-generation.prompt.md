@@ -11,12 +11,7 @@ description: Generate Playwright end-to-end tests (functional and visual) with o
 
 ## 🛡️ Step -1: KDS Governance Enforcement
 
-**See:** `.github/governance/kds-rulebook.md` Rule #10 (Key Data Stream Management)
-
-**IF** user request modifies `.github/prompts/*.md` OR `.github/instructions/*.md`:
-  - HALT execution → Redirect to `@workspace /kds request="[change request]"`
-
-**ELSE:** Proceed to test generation
+**CRITICAL CHECK** - See `.github/governance/kds-rulebook.md` Rule #10 for complete enforcement logic. If modifying `.github/` files, HALT and route to `@workspace /kds`.
 
 ---
 
@@ -473,214 +468,18 @@ Based on `testType` parameter and scenario analysis:
 
 ---
 
-### Step 7.5: Test Quality Scoring & Approval Gate (NEW - MANDATORY)
-
-**Execute AFTER test file generation (Step 3-6) and BEFORE test registry update (Step 7.75)**
-
-**Purpose:** Validate test quality and obtain user approval before finalizing test placement
-
-**DRAFT/ Staging Structure:**
-
-````
-.github/key-data-streams/{key}/tests/
-  DRAFT/
-    {test-name}.spec.ts           # Staged test file (awaiting approval)
-    {test-name}.quality-report.md # Quality scoring details
-  {test-name}.spec.ts             # Approved test (moved from DRAFT/)
-````
-
-**Algorithm:** See `.github/prompts/shared/test-quality-scoring.md` for complete scoring logic
-
-**Quality Scoring Criteria (0-100 Scale):**
-
-1. **Acceptance Criteria Coverage (30 points)**
-   - All acceptance criteria have corresponding assertions (30 pts)
-   - Partial coverage (10-25 pts)
-   - No coverage (0 pts)
-
-2. **Assertion Completeness (20 points)**
-   - Assertions for UI state, API responses, database changes (20 pts)
-   - Partial assertions (10-15 pts)
-   - Minimal assertions (0-5 pts)
-
-3. **Error Handling (15 points)**
-   - try/catch blocks, timeout handling, retry logic (15 pts)
-   - Basic error handling (5-10 pts)
-   - No error handling (0 pts)
-
-4. **Test Isolation (15 points)**
-   - Independent test data, cleanup hooks, no shared state (15 pts)
-   - Partial isolation (5-10 pts)
-   - Coupled tests (0 pts)
-
-5. **Documentation Quality (10 points)**
-   - Clear test description, commented complex logic, scenario explanation (10 pts)
-   - Minimal comments (5 pts)
-   - No documentation (0 pts)
-
-6. **Playwright Best Practices (10 points)**
-   - data-testid selectors, auto-waiting, parallel execution safe (10 pts)
-   - Some best practices (5 pts)
-   - Poor practices (0 pts)
-
-**Scoring Process:**
-
-1. **Generate Test** (Steps 3-6 complete)
-2. **Save to DRAFT/** `.github/key-data-streams/{key}/tests/DRAFT/{test-name}.spec.ts`
-3. **Calculate Quality Score** (0-100 using criteria above)
-4. **Generate Quality Report** `.github/key-data-streams/{key}/tests/DRAFT/{test-name}.quality-report.md`
-5. **Display Score & Report** to user
-6. **Present Approval Options** (A/B/C/D)
-
-**Quality Report Template:**
-
-````markdown
-# Test Quality Report: {test-name}
-**Generated:** {timestamp}  
-**Key:** {key}  
-**Overall Score:** {score}/100  
-
-## Score Breakdown
-
-### Acceptance Criteria Coverage: {score}/30
-- Criteria 1: {assertion-reference} ✅
-- Criteria 2: {assertion-reference} ✅
-- Criteria 3: ❌ Missing assertion
-
-### Assertion Completeness: {score}/20
-- UI assertions: ✅ (toBeVisible, toHaveText)
-- API assertions: ✅ (response status, body validation)
-- Database assertions: ❌ Missing
-
-### Error Handling: {score}/15
-- try/catch blocks: ✅
-- Timeout handling: ⚠️ Partial (some waits missing)
-- Retry logic: ❌ Not implemented
-
-### Test Isolation: {score}/15
-- Independent test data: ✅
-- Cleanup hooks: ✅ (afterEach)
-- No shared state: ✅
-
-### Documentation Quality: {score}/10
-- Test description: ✅ (clear scenario)
-- Code comments: ⚠️ Minimal
-- Complex logic explained: ❌ Missing
-
-### Playwright Best Practices: {score}/10
-- data-testid selectors: ✅
-- Auto-waiting: ✅
-- Parallel execution safe: ✅
-
-## Recommendations
-- Add assertion for Criteria 3: {acceptance-criteria-text}
-- Add database validation after API call
-- Improve error handling for API timeouts
-- Add comments explaining complex selectors
-
-## Test File Location
-DRAFT: `.github/key-data-streams/{key}/tests/DRAFT/{test-name}.spec.ts`
-````
-
-**Approval Workflow Options:**
-
-**A. APPROVE** (Recommended if score ≥ 80)
-- Move test from DRAFT/ to `.github/key-data-streams/{key}/tests/`
-- Delete DRAFT/ folder and quality report
-- Update test registry (Step 7.75)
-- Commit with message: `test({key}): {scenario} - Quality score: {score}/100`
-- Test is now ready for execution
-
-**B. REVISE** (Recommended if score 60-79)
-- Keep test in DRAFT/
-- User provides feedback on improvements needed
-- Regenerate test with improvements (address quality report recommendations)
-- Recalculate score (repeat Step 7.5)
-- Present approval options again
-
-**C. REGENERATE** (Recommended if score < 60)
-- Delete DRAFT/ folder (including test and quality report)
-- User refines requirements or acceptance criteria
-- Return to Step 3 (Test File Generation)
-- Generate new test with refined scope
-- Repeat quality scoring
-
-**D. CANCEL**
-- Delete DRAFT/ folder (cleanup)
-- Abort test creation (return to calling prompt)
-- No files committed
-
-**HALT after displaying options - user must select A/B/C/D**
-
-**Output to User:**
-
-````markdown
-## 🧪 Test Quality Report | Key: `{key}`
-
-**Test:** {test-name}  
-**Score:** {score}/100  
-
-**Breakdown:**
-- Acceptance Criteria Coverage: {score}/30
-- Assertion Completeness: {score}/20
-- Error Handling: {score}/15
-- Test Isolation: {score}/15
-- Documentation Quality: {score}/10
-- Playwright Best Practices: {score}/10
-
-**Recommendations:**
-1. {recommendation-1}
-2. {recommendation-2}
-3. {recommendation-3}
-
-**Test Location:** `.github/key-data-streams/{key}/tests/DRAFT/{test-name}.spec.ts`  
-**Quality Report:** `.github/key-data-streams/{key}/tests/DRAFT/{test-name}.quality-report.md`
-
-## Approval Options
-
-**A. APPROVE** (score ≥ 80 - RECOMMENDED)
-   Move to final location, update registry, commit test.
-
-**B. REVISE** (score 60-79)
-   Keep in DRAFT/, provide feedback, regenerate with improvements.
-
-**C. REGENERATE** (score < 60)
-   Delete DRAFT/, refine requirements, start over with better scope.
-
-**D. CANCEL**
-   Delete DRAFT/, abort test creation.
-
-**HALT - Select option to proceed**
-````
-
-**Guardrails:**
-- NEVER move test from DRAFT/ to final location without user approval
-- NEVER skip quality scoring (even if test looks perfect)
-- NEVER auto-select approval option (user must explicitly choose)
-- ALWAYS display quality report before approval options
-- ALWAYS keep DRAFT/ files until approval (enables review/revision)
-
----
-
-### Step 7.75: Test Registry Auto-Update (MANDATORY)
-
-**Execute AFTER approval granted (Option A selected in Step 7.5)**
+### Step 7.5: Test Registry Auto-Update (MANDATORY)
 
 **LOAD MODULE:** `.github/prompts/shared/step-7-5-test-registry-auto-update.md`
 
-**Purpose:** Update test registry AUTOMATICALLY after test approval (prevents duplication in future)
+**Purpose:** Update test registry AUTOMATICALLY after test file creation (prevents duplication in future)
 
-**Trigger:** ALWAYS when test moved from DRAFT/ to final location
+**Trigger:** ALWAYS when test file created (Step 3 completion)
 
 **Registry Update Protocol:**
 1. Load existing registry: `.github/key-data-streams/{key}/tests/test-registry.md`
-2. Append new test entry with file name, type, scenario, created date, status, quality score
+2. Append new test entry with file name, type, scenario, created date, status
 3. Commit registry with test files (single commit includes tests + registry)
-
-**Registry Entry Format:**
-```markdown
-| {test-name}.spec.ts | {type} | {scenario} | {date} | Active | {score}/100 |
-```
 
 **Guardrail:** NEVER create test without registry update (blocks commit if missing)
 
