@@ -1,7 +1,8 @@
 # KDS Governance Gatekeeper
-**Key: `kds`** | **Version**: 3.1.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
+**Key: `kds`** | **Version**: 3.2.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
 
 **Changelog:**
+- **v3.2.0 (2025-11-01)**: [DEBUG-WORKITEM:test-registry:kds-integration] Added Rule #5 - Test Registry System (KDTR) Enforcement. KDTR housed in `.github/test-registry/`, enforces pattern reuse before test generation, publishes successful test data atomically with test execution. Integration with test-generation.prompt.md (Step 1.5).
 - **v3.1.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:kds-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C multi-option outputs with single "Next Command" format in Step 7a (Action Handoff Generation). Recommended action shown first with alternatives as footnotes. User feedback: "I just want one prompt to execute."
 - **v3.0.0 (2025-10-31)**: BREAKING - Extracted all pseudocode to kds-validation-algorithms.md, implemented Step 7b Auto-Fix, Rule #1 compliant
 
@@ -255,6 +256,45 @@ You **MUST** load these documents in this exact order before processing ANY requ
 - After Phase 4: NO partial file edits creating duplication
 - **NEW: Track conversation history violations to prevent recurrence**
 - **NEW: Use performance metrics to validate rulebook changes**
+
+### Rule 5: Test Registry System (KDTR) Enforcement
+
+**KDS Test Registry System (KDTR)** - `.github/test-registry/`
+
+**MANDATORY for test-generation.prompt.md and test execution workflows:**
+
+**Before generating new test:**
+- Query `.github/test-registry/{key}/` for existing test patterns
+- If successful pattern exists (<30 days old): Recommend reuse of session data, API endpoints, UI selectors
+- If no pattern exists: Generate new test and plan KDTR entry publication
+
+**After successful test execution:**
+- Capture: screenshots, console logs, network traces, API responses, UI state
+- Publish to `.github/test-registry/{key}/{test-name}.json`
+- Include: sessionData, apiResponses, uiState, testPatterns, reuseGuidance, evidence
+- Atomic operation: Test PASS + KDTR publish (both or neither)
+
+**Pattern reuse criteria:**
+- Session data valid (tokens not expired)
+- API endpoints still active
+- UI selectors still valid
+- Last verified <30 days
+
+**KDTR file structure:**
+- Location: `.github/test-registry/{key}/{test-name}.json`
+- Format: JSON only (flexible schema in `.github/test-registry/schema.json`)
+- One file per successful test
+- Tied to views: Captures UI state, API responses, sessionData, evidence
+
+**Enforcement:**
+- test-generation.prompt.md MUST query KDTR before generating tests (Step 1.5)
+- Test orchestration scripts MUST publish to KDTR after successful execution
+- Only PASSED tests publish to KDTR (failed tests do not)
+
+**Reference:**
+- `.github/test-registry/README.md` - KDTR documentation
+- `.github/test-registry/session-212/valid-tokens.json` - Canonical Session 212 data
+- `.github/test-registry/schema.json` - Flexible JSON schema
 
 ---
 
