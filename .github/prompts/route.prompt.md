@@ -2,10 +2,13 @@
 
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
-**Version:** 1.7.0  
+---
+
+**Version:** 1.7.1  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 **Changelog:**
+- **v1.7.1 (2025-11-01)**: ROUTER EXEMPTION - Removed Step -1 KDS enforcement per Rule #18. Routers are exempt from governance gates to preserve routing workflow (Steps 0-7). Enforcement belongs in execution prompts (plan/task/todo), not routers. Fixes regression where Step -1 caused router to bypass multi-task detection and plan creation.
 - **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
 - **v1.6.0**: Previous version with state tracking
 
@@ -20,12 +23,14 @@ stateTracking: enabled
 
 <!-- Metadata (non-frontmatter, lint-safe) -->
 > acceptsFrom: [user]
-> calls: [plan, task, todo, ask, healthcheck, drift, cohesion, test-generation]
+> calls: [plan, task, todo, ask, healthcheck, drift, cohesion, test-generation, test-prep]
 
 ---
 
 ## User-Facing Output Style
-**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
+**LOAD:** `.github/MANDATORY.md` (Rule 1: output format, no code)
+
+**Standard Limit:** 25 bullets (routing agents follow standard Q&A format). When routing to plan.prompt.md, note that planning agents use flexible limits (30-50 bullets) for phase/task breakdown.
 
 ---
 
@@ -64,6 +69,7 @@ stateTracking: enabled
 
 **Request Type Detection:**
 - **Question/investigation indicators** → Routes to `ask` prompt (answers first, offers actionable handoff)
+- **Test preparation requests** → Routes to `test-prep` prompt (prep/generate/cleanup logging infrastructure)
 - **Test-related requests** → Routes to `test-generation` prompt (generates tests, offers execution)
 - **Single focused task** → Routes to `todo` prompt (auto-approved for immediate execution)
 - **Multiple unrelated tasks** → Routes to `plan` prompt (requires user approval)
@@ -92,6 +98,7 @@ The specialized prompt to route to. Valid values:
 - `task` - Task execution and implementation
 - `todo` - Extend current work with same key
 - `test` - Generate Playwright tests using the test-generation agent
+- `test-prep` - Prepare components for automated test generation (prep/generate/cleanup)
 - `ask` - Answer questions about the codebase
 - `healthcheck` - System health audit and validation
 - `drift` - Manage unrelated issues during work
@@ -100,6 +107,7 @@ The specialized prompt to route to. Valid values:
 **Default Behavior:** If target is not specified, the agent uses intelligent routing:
 - Analyzes request to detect questions, test needs, single tasks, or multiple unrelated tasks
 - **Question indicators** (how, why, what, where, when, explain, investigate) → routes to `ask` (answers first)
+- **Test prep indicators** (prep test logging, inject markers, prepare for testing, cleanup logging) → routes to `test-prep`
 - **Test indicators** (test, playwright, percy, e2e, visual regression) → routes to `test-generation` (generates tests)
 - **Single task** → routes to `todo` (auto-approved, immediate execution)
 - **Multiple tasks** → routes to `plan` (requires user approval, multi-phase coordination)
@@ -155,7 +163,7 @@ Whether to automatically execute after building prompt
 
 **Extract target + request from user input**
 - Supports positional (`/route plan "..."`), named (`target=plan`), and default (intelligent routing)
-- Valid targets: plan, task, todo, test, ask, healthcheck, drift, cohesion
+- Valid targets: plan, task, todo, test, ask, healthcheck, drift, cohesion, test-prep
 - Extracts: target, request, autoExecute, key, context
 - Defaults to 'plan' if no target specified
 
@@ -170,15 +178,16 @@ Whether to automatically execute after building prompt
 **Process:**
 1. Load global index (`.github/key-data-streams/index.md`)
 2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
-3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md`
-4. If plan file exists → **Route to task or todo** (NOT plan) - plan is source of truth
+3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md` OR `.github/key-data-streams/{key}/cleanup-plan.md` OR `.github/key-data-streams/{key}/plan.md`
+4. If plan file exists → **Parse plan structure and present execution options** (Phase execution, task execution, or full auto-chain)
 5. If related keys found but no plan → present options to user and HALT
 6. If no related keys and no plan → proceed with new key creation
 
 **Routing Logic Based on Plan File:**
-- **Plan exists** → Route to `task` (execute plan) or `todo` (extend plan)
+- **Plan exists with phases** → Present execution options (Phase 1, Phase 2, All Phases Chained, Specific Task)
+- **Plan exists without phases** → Route to `task` (execute plan) or `todo` (extend plan)
 - **No plan exists** → Route to `plan` (create plan)
-- This ensures `.github/key-data-streams/{key}/{key}.plan.md` is the authoritative source of truth
+- This ensures `.github/key-data-streams/{key}/*.plan.md` is the authoritative source of truth
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
@@ -447,64 +456,152 @@ ExecuteBuildPrompt(rawInput)
 
 ## 📊 Output Format
 
+**CRITICAL:** All output MUST comply with `.github/MANDATORY.md` Rule #1 - NO code blocks, NO pseudocode in user-facing responses.
+
 ### Task 0: Invocation Parsing (Always First)
 
-```markdown
-## 🧠 Parsing (≤5 bullets)
-- Format: {Positional|Named|Default}
-- Target: {target-name}
-- Request: {one-liner}
-- Key: {key} (if specified)
-- Auto-execute: {yes/no}
-```
+**Output:** Parsing section (≤5 bullets)
+- Format detected (Positional, Named, or Default routing)
+- Target agent identified
+- Request summary (one-liner)
+- Key specification (if provided)
+- Auto-execute mode (yes/no)
 
 ---
 
 ### Task 1: Key Data Stream Consultation (If Related Keys Found)
 
-```markdown
-## 🧠 Key Search (≤8 bullets)
-- Found: {count} related keys
-- Top: {key-1} ({status})
-- Relevance: {score}%
-- Location: .github/key-data-streams/
-- Files: {count} modified in {key-1}
-- Recommendation: {which-key-or-new}
+**Output:** Key Search section (≤8 bullets)
+- Count of related keys found
+- Top match with status
+- Relevance score percentage
+- Location in .github/key-data-streams/
+- File modification count in top key
+- Recommendation (which key or create new)
 
-## 📌 Options
-**A.** Use {key-1} | **B.** Create New | **C.** Review Details
-
-Keys: {key-1}, {key-2}, {key-3}
-```
+**Options Section:** Letter-based choices
+- A: Use recommended key
+- B: Create new key
+- C: Review details
+- List discovered keys
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
 
 ---
 
-### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
+### Task 1.5: Plan Execution Options (If Plan File Exists for Key)
+
+**When plan file is found** (`.github/key-data-streams/{key}/*.plan.md`):
+
+**Process:**
+1. Parse plan file structure using `.github/prompts/shared/plan-structure-parser.md`
+2. Identify phases (if present)
+3. Identify individual tasks
+4. Extract execution metadata (duration, risk, dependencies)
+5. Present execution options to user
+6. HALT and wait for user choice
+
+**Algorithm:** See `.github/prompts/shared/plan-structure-parser.md`
+
+**Output:** Plan Execution Options section (≤12 bullets)
+- Key identified
+- Plan file location
+- Plan type (phased vs. linear)
+- Total phases (if applicable)
+- Total tasks
+- Estimated duration (sum of all phases/tasks)
+
+**Options Section:** Letter-based execution choices
+
+**For phased plans:**
+- A: Execute Phase 1 Only (list tasks in phase)
+- B: Execute Phase 2 Only (list tasks in phase)
+- C: Execute Phase 3 Only (list tasks in phase, if exists)
+- D: Execute All Phases Chained (auto-chain 1→2→3)
+- E: Execute Specific Task (user selects task number)
+- F: Review Plan First (show full plan)
+- G: Cancel
+
+**For linear plans (no phases):**
+- A: Execute All Tasks Sequentially (tasks listed)
+- B: Execute Specific Task (user selects task number)
+- C: Review Plan First (show full plan)
+- D: Cancel
+
+**Example Output:**
 
 ```markdown
-## 🧠 Analysis (≤8 bullets)
-- Request: {one-liner}
-- Context: {files-count}F {images-count}I {errors-count}E
-- Type: {work-type}
-- Complexity: {simple|moderate|complex} ({score}/15)
-- Target: {target-prompt}.prompt.md
-- Layers: {UI, API, Service, DB, SignalR}
-- Routing: {intelligent|manual}
+## 🎯 Plan Execution Options
 
-## � Tasks (≤10 bullets when applicable)
-1. Key: {key} (new|existing)
-2. Agent: {target-prompt}.prompt.md
-3. Params: {key-params-list}
-4. Context: {visual|error|file} packages prepared
-5. Approval: {auto|manual}
-6. Files: {estimated-file-count} expected changes
-7. Architecture: {high-level-approach}
+**Key:** `hcp-refactor`  
+**Plan:** `.github/key-data-streams/hcp-refactor/cleanup-plan.md`  
+**Type:** Phased Plan (3 phases)  
+**Total Tasks:** 10  
+**Estimated Duration:** 105 minutes (1h 45m)
 
-## ⚡ Options
-**A.** Execute | **B.** Modify | **C.** Change Target | **D.** Cancel
+**Phase 1: Safe Deletions** (30 min, ⚡ LOW RISK)
+- Task 1: Remove unused imports
+- Task 3: Remove redundant null checks
+- Task 5: Remove obsolete comments
+- Task 9: Remove empty try-catch
+- Task 10: Extract string literals
+
+**Phase 2: Logic Cleanup** (45 min, ⚠️ MEDIUM RISK)
+- Task 2: Remove redundant StateHasChanged
+- Task 4: Remove dead code methods
+- Task 7: Remove duplicate logging
+
+**Phase 3: UI Cleanup** (30 min, ⚠️ MEDIUM RISK)
+- Task 6: Remove redundant DOM calls
+- Task 8: Remove deprecated HTML attributes
+
+**Options:**
+
+**A.** Execute Phase 1 Only (5 tasks, 30 min, LOW RISK) - **Recommended Start**  
+**B.** Execute Phase 2 Only (3 tasks, 45 min, MEDIUM RISK)  
+**C.** Execute Phase 3 Only (2 tasks, 30 min, MEDIUM RISK)  
+**D.** Execute All Phases Chained (auto-chain 1→2→3, 105 min total)  
+**E.** Execute Specific Task (select 1-10)  
+**F.** Review Plan First (show full plan content)  
+**G.** Cancel (return to routing)
+
+**Reply:** A, B, C, D, E, F, or G
 ```
+
+**Behavior:** HALT and wait for user choice. Based on selection:
+- **A/B/C:** Route to `task` with phase parameter
+- **D:** Route to `task` with auto-chain=true and all phases
+- **E:** Prompt user for task number, then route to `task` with specific task
+- **F:** Display full plan, then re-present options
+- **G:** Cancel and return to standard routing flow
+
+---
+
+### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
+
+**Output:** Analysis section (≤8 bullets)
+- Request summary (one-liner)
+- Context counts (files, images, errors using F/I/E notation)
+- Work type classification
+- Complexity level with score (simple/moderate/complex out of 15)
+- Target prompt agent
+- Architecture layers affected (UI, API, Service, DB, SignalR)
+- Routing method (intelligent or manual)
+
+**Tasks Section (≤10 bullets when applicable):**
+- Key determination (new or existing)
+- Target agent file path
+- Key parameters list
+- Context package preparation (visual, error, file)
+- Approval mode (auto or manual)
+- Estimated file change count
+- High-level architectural approach
+
+**Options Section:** Letter-based choices
+- A: Execute handoff (recommended)
+- B: Modify parameters
+- C: Change target agent
+- D: Cancel
 
 **Behavior:** Wait for user approval before proceeding to handoff.
 
@@ -512,18 +609,11 @@ Keys: {key-1}, {key-2}, {key-3}
 
 ### Task 3: Handoff Execution (After approval or when auto-execute=true)
 
-```markdown
-## 🚀 Handoff to {target}
-
-- Target: .github/prompts/{target}.prompt.md
-- Key: {key}
-- Params: {key-params}
-- Transitioning control...
-
----
-
-{BEGIN TARGET AGENT EXECUTION - Target agent output follows}
-```
+**Output:** Handoff section
+- Target prompt file path
+- Key assignment
+- Parameter summary
+- Transition message
 
 **Behavior:** Transition control to target agent. From this point forward, the target agent's instructions govern all behavior.
 
@@ -640,6 +730,14 @@ BAD: @workspace /route todo "Why is database info missing? Token won't accept. F
 ---
 
 ## 📝 Version History
+
+**1.7.0** (2025-10-31)
+- **PLAN EXECUTION OPTIONS**: Added Task 1.5 - When plan file exists, parse structure and present execution options
+- **PHASE-BASED EXECUTION**: Support for phased plans with individual phase execution or auto-chained execution
+- **TASK-LEVEL EXECUTION**: Option to execute specific tasks from plan
+- **ENHANCED STEP 0**: Check for multiple plan file naming patterns ({key}.plan.md, cleanup-plan.md, plan.md)
+- **AUTO-CHAIN SUPPORT**: Option D executes all phases sequentially without interruption
+- Better UX for continuing work with existing keys
 
 **1.6.0** (2025-10-28)
 - **STATE TRACKING INTEGRATION**: Added state-tracker.ps1 integration for request/handoff logging

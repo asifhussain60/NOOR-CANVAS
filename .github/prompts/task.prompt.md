@@ -18,6 +18,19 @@ description: Canonical execution engine that breaks down requests, validates out
 
 **⚠️ LOAD FIRST:** `.github/MANDATORY.md` (Enforce: No code in chat | Document first | Playwright orchestration)
 
+---
+
+## 🛡️ Step -1: KDS Governance Enforcement
+
+**See:** `.github/governance/kds-rulebook.md` Rule #10 (Key Data Stream Management)
+
+**IF** user request modifies `.github/prompts/*.md` OR `.github/instructions/*.md`:
+  - HALT execution → Redirect to `@workspace /kds request="[change request]"`
+
+**ELSE:** Proceed to execution
+
+---
+
 ## Output Format
 **LOAD:** `.github/MANDATORY.md` (Rule 1: output format, 15 bullets, no code)
 
@@ -544,8 +557,9 @@ Provide summary based on verbosity parameter (concise/detailed).
 - **8.2:** Key Data Stream Bloat Detection
 - **8.3:** Key Data Stream Update Requirements (COMPREHENSIVE DOCUMENTATION)
 - **8.25:** File Finalization Verification (BLOCKING - verify work-log.md updated)
+- **8.5:** Build Validation Gate (BLOCKING - Rule #14: zero build errors required)
 - **8.6:** Response Validation (MANDATORY - CONCISE-MANDATE enforcement)
-- **8.5:** Checkpoint Commit & Tag (MANDATORY - create git tag)
+- **8.7:** Checkpoint Commit & Tag (MANDATORY - create git tag)
 
 **Guardrail:** Lock detection - HALT if lock file exists
 
@@ -580,7 +594,8 @@ Provide summary based on verbosity parameter (concise/detailed).
 - **ALWAYS run mandatory lint validation before commit** (Step 6.2)
 - **ALWAYS verify high-priority constraints** (Step 6.3)
 - **ALWAYS update key data stream after execution** (Step 8.3)
-- **ALWAYS create checkpoint commit and git tag** (Step 8.5)
+- **ALWAYS run build validation before completion** (Step 8.5 - Rule #14)
+- **ALWAYS create checkpoint commit and git tag** (Step 8.7)
 - **ALWAYS execute completion workflow when tasks = "mark complete"** (Step 9)
 - **NEVER execute on master branch** unless explicitly authorized
 - **NEVER skip documentation updates** when key exists

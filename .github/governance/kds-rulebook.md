@@ -1,5 +1,5 @@
 # KDS Governance Rulebook
-**Version:** 1.3.1 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-10-31
+**Version:** 2.0.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-11-01
 
 ---
 
@@ -29,10 +29,17 @@
 - **KDS Cleanup** - Review mode detects backup files, archives (not deletes) with manifest
 
 **Enforcement:**
-- **14 Rules** - Validated before output (Rule #1-14, includes #2b sub-rule), each with validation function
-- **Step -1** - All prompts include governance enforcement (except kds.prompt.md itself)
-- **Dual Rulebook** - JSON (machine-readable) + MD (human-readable), always synced
+- **19 Rules** - Validated before output (Rules #1-19), each with validation function
+- **Step -1** - Execution prompts include governance enforcement (routers exempt per Rule #18)
+- **Router Exemption** - route.prompt.md and ask.prompt.md skip Step -1 to preserve routing workflow
+- **Dual Rulebook Sync** - JSON + MD must be updated together atomically (Rule #19 - MANDATORY)
 - **Test Metadata** - ValidateTestMetadata() scans UI/API files for PLAYWRIGHT TEST METADATA blocks
+- **Build Validation** - Zero errors required after task/phase completion (Rule #14)
+- **Git History** - ValidateGitHistory() analyzes commits for rule violations (Rule #15)
+- **Test Quality** - ValidateTestQuality() scores tests 0-100 with approval gate (Rule #16)
+- **Screenshot Tests** - ValidateScreenshotTestGeneration() enforces vision analysis workflow (Rule #17)
+- **Router Validation** - ValidateRouterExemption() ensures routing workflow integrity (Rule #18)
+- **Rulebook Sync** - ValidateDualRulebookSync() ensures JSON/MD updated together (Rule #19)
 
 ---
 
@@ -1238,7 +1245,7 @@ Creating new plan for key=kds...
 ### Rule #10: KDS Governance (All .github/KDS Changes via kds.prompt.md)
 
 **Statement:**  
-No direct modifications to `.github` or KDS files without governance review.
+No direct modifications to `.github` or KDS files without governance review. Execution prompts (plan, task, todo, test-generation) MUST include Step -1 enforcement gate to redirect .github modifications to kds.prompt.md gatekeeper.
 
 **Gatekeeper:** `kds.prompt.md` analyzes all requests for conflicts, regressions, rule violations
 
@@ -1260,12 +1267,52 @@ No direct modifications to `.github` or KDS files without governance review.
 
 **Workflow:**
 1. User requests .github modification
-2. Agent detects modification (Step -1 in all prompts)
+2. Agent detects modification (Step -1 in all execution prompts)
 3. Agent HALTS and redirects to `@workspace /kds`
 4. kds.prompt.md loads context, analyzes compatibility
 5. kds.prompt.md generates approval/rejection report
 6. If approved: creates implementation handoff JSON
 7. User executes handoff JSON
+
+**Step -1 Enforcement Gate (Centralized Logic):**
+
+**BEFORE processing any request, check:**
+
+```
+IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
+  - **HALT execution immediately**
+  - Display enforcement message below
+  - **STOP** (do not proceed to Step 0+)
+```
+
+**⚠️ GOVERNANCE ENFORCEMENT**
+
+Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
+
+**Please use this command instead:**
+
+```markdown
+@workspace /kds request="[your change request here]"
+```
+
+**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
+
+**See:** `.github/prompts/kds.prompt.md` for governance protocol.
+
+---
+
+**ELSE:** Proceed to normal execution workflow
+
+---
+
+**Required in Prompts:**
+- ✅ `plan.prompt.md` - Step -1 REQUIRED (execution prompt)
+- ✅ `task.prompt.md` - Step -1 REQUIRED (execution prompt)
+- ✅ `todo.prompt.md` - Step -1 REQUIRED (execution prompt)
+- ✅ `test-generation.prompt.md` - Step -1 REQUIRED (execution prompt)
+- ❌ `route.prompt.md` - Step -1 EXEMPT (router per Rule #18)
+- ❌ `ask.prompt.md` - Step -1 EXEMPT (router per Rule #18)
+- ❌ `kds.prompt.md` - Step -1 EXEMPT (gatekeeper itself)
 
 **Purpose:**
 - Prevent rule conflicts (new rule contradicts existing rule)
@@ -1276,10 +1323,12 @@ No direct modifications to `.github` or KDS files without governance review.
 - .github is high-impact (affects all prompts)
 - Ungated changes create silent conflicts
 - Governance ensures compatibility analysis
+- Centralized enforcement logic reduces duplication
 
 **Enforcement:**
-- All prompts include Step -1: KDS Governance Enforcement
+- All execution prompts include Step -1 with reference to this rule
 - kds.prompt.md is the ONLY prompt without Step -1 (it's the gatekeeper)
+- Routers exempt per Rule #18 (preserve routing workflow)
 
 **Examples:**
 
@@ -1317,8 +1366,21 @@ Updating plan.prompt.md...
 - Modifying .github files without governance review
 - Skipping compatibility analysis (no conflict detection)
 - No cascading impact analysis (break related prompts)
+- Duplicating Step -1 logic across prompts (use reference to this rule instead)
 
 **Validation Function:** `ValidateKDSGovernance()`
+
+---
+
+**Implementation Note:**  
+Execution prompts should reference this rule with:
+```markdown
+## 🛡️ Step -1: KDS Governance Enforcement
+
+**See:** kds-rulebook.md Rule #10 (Key Data Stream Management)
+
+[Single-line reference instead of duplicating full enforcement logic]
+```
 
 ---
 
@@ -1439,6 +1501,234 @@ Next: @workspace /test-generation ...
 - Forcing new chat in E2E mode (breaks user workflow)
 
 **Validation Function:** `ValidatePhaseBoundaryChatIsolation()`
+
+---
+
+### Rule #18: Router Exemption from Step -1 Enforcement
+
+**Statement:**  
+Routing prompts (`route.prompt.md`, `ask.prompt.md`) are **EXEMPT** from Step -1 governance enforcement. Routers must execute their full documented workflow (Steps 0-7) to properly detect multi-task requests and route to specialized agents. Governance enforcement belongs in execution prompts (`plan`, `task`, `todo`) where `.github` modifications actually occur, NOT in routers that only analyze and redirect.
+
+**Rationale:**
+- **Routers don't modify .github** - They only read and analyze user requests
+- **Workflow dependency** - Must complete Steps 0-7 for correct routing decisions
+- **Multi-task detection critical** - Step 1.5 detects single vs multi-task requests
+- **Proper enforcement point** - Execution prompts are where .github changes happen
+
+**Router vs Executor Distinction:**
+
+| Aspect | Routers (EXEMPT) | Executors (ENFORCE) |
+|--------|------------------|---------------------|
+| **Prompts** | route.prompt.md, ask.prompt.md | plan.prompt.md, task.prompt.md, todo.prompt.md |
+| **Role** | Analyze requests and route to specialists | Perform implementation work |
+| **Modifies .github?** | ❌ NO - Read-only | ✅ YES - Creates/modifies KDS files |
+| **Workflow Critical?** | ✅ YES - Must execute Steps 0-7 | ⚠️ OPTIONAL - Step -1 gates .github changes |
+| **Step -1 Enforcement?** | ❌ NO (Rule #18) | ✅ YES (Rule #10) |
+
+**Architectural Regression (Commit da40bc31):**
+
+**Problem:** Step -1 was added to `route.prompt.md` on 2025-10-31, causing:
+- ❌ Router bypassed Steps 0-7 (workflow broken)
+- ❌ Multi-task detection skipped (Step 1.5 never executed)
+- ❌ No plan creation for complex work
+- ❌ Direct execution without user approval
+- ❌ No handoff to plan.prompt.md generated
+
+**Symptoms from Production:**
+```
+User: @workspace /route Key: hcp-cleanup  
+      Clean up identified gaps
+
+Expected: Route detects multiple tasks → plan.prompt.md → creates phases → user approval
+Actual:   Router executed cleanup directly (bypassed planning entirely)
+```
+
+**Fix (2025-11-01):**
+- Removed Step -1 from route.prompt.md (lines 7-36)
+- Added Rule #18 to prevent recurrence
+- Updated kds.prompt.md with router detection logic
+
+**Enforcement:**
+- `ValidateRouterExemption()` scans routing prompts for Step -1 sections
+- kds.prompt.md Workflow B rejects attempts to add Step -1 to routers
+- Automatic detection prevents future regressions
+
+**Examples:**
+
+✅ **COMPLIANT (router without Step -1):**
+```markdown
+# route.prompt.md
+
+**LOAD FIRST:** `.github/MANDATORY.md`
+
+## 🎯 Core Behavior
+
+1. Searches existing key data streams
+2. Analyzes all context
+3. Intelligently routes based on task complexity:
+   - Single task → todo prompt
+   - Multiple tasks → plan prompt
+...
+```
+
+❌ **NON-COMPLIANT (Step -1 in router - VIOLATES RULE #18):**
+```markdown
+# route.prompt.md
+
+## Step -1: KDS Governance Enforcement
+
+IF user request contains .github modifications:
+  HALT execution
+  Redirect to kds.prompt.md
+
+(This breaks routing workflow - Steps 0-7 never execute!)
+```
+
+**Prevention Mechanism:**
+
+kds.prompt.md Workflow B (Prompt Modification) now includes:
+```
+IF targetPrompt IN ['route.prompt.md', 'ask.prompt.md'] 
+   AND changeRequest.contains('add Step -1') 
+THEN
+  REJECT with Rule #18 violation
+  Reasoning: "Routing prompts exempt from Step -1 per Rule #18"
+  Impact: "Would break routing workflow (Steps 0-7)"
+```
+
+**Anti-Patterns:**
+- Adding governance gates to routers (breaks workflow)
+- Enforcing at wrong layer (analyze vs execute)
+- Assuming all prompts need Step -1 (routers are different)
+
+**Validation Function:** `ValidateRouterExemption()`
+
+**Related Rules:**
+- Rule #10 (KDS Governance) - Defines Step -1 for execution prompts
+- Rule #9 (Plan Conflict Detection) - Depends on router executing Step 0
+
+---
+
+### Rule #19: Dual Rulebook Synchronization (MANDATORY)
+
+**Statement:**  
+All rule modifications MUST update **BOTH** `kds-rulebook.json` AND `kds-rulebook.md` atomically in the same commit. This is **MANDATORY, not optional**. Desync between machine-readable (JSON) and human-readable (MD) governance creates undefined behavior and breaks the trust model.
+
+**Rationale:**
+The KDS governance system relies on dual-format rulebook architecture:
+- **kds-rulebook.json** - Canonical machine-readable source for automated validation
+- **kds-rulebook.md** - Human-readable documentation for agent training
+
+If only one is updated:
+- ❌ Agents may operate under different rule sets (read MD, validated by JSON)
+- ❌ Validation logic becomes stale (JSON has ValidateFoo() but MD doesn't document it)
+- ❌ Documentation becomes misleading (MD says "do X" but JSON validates "do Y")
+- ❌ Trust in governance erodes (which rulebook is authoritative?)
+
+**Both formats must stay perfectly synchronized at all times.**
+
+**Sync Requirements:**
+
+| Aspect | Requirement |
+|--------|-------------|
+| **Scope** | ANY modification to governance rules in either format |
+| **Timing** | Same commit - no split across multiple commits |
+| **Completeness** | Both files must reflect identical rule state |
+| **Enforcement** | kds.prompt.md validates both files modified together |
+
+**Validation Function:** `ValidateDualRulebookSync()`
+
+**Algorithm:**
+```
+ValidateDualRulebookSync(changeRequest, modifiedFiles):
+  IF changeRequest modifies 'kds-rulebook.json':
+    REQUIRE 'kds-rulebook.md' IN modifiedFiles
+    
+  IF changeRequest modifies 'kds-rulebook.md':
+    REQUIRE 'kds-rulebook.json' IN modifiedFiles
+    
+  ruleCountJSON = JSON.rules.length
+  ruleCountMD = count("### Rule #N:" sections in MD)
+  REQUIRE ruleCountJSON == ruleCountMD
+  
+  versionJSON = JSON.version
+  versionMD = MD.version (extracted from header)
+  REQUIRE versionJSON == versionMD
+  
+  lastUpdatedJSON = JSON.lastUpdated
+  lastUpdatedMD = MD.lastUpdated
+  REQUIRE lastUpdatedJSON == lastUpdatedMD
+```
+
+**Enforcement:**
+- kds.prompt.md Workflow A (Rule Modification) rejects single-file changes
+- kds.prompt.md Workflow B (Prompt Modification) rejects single-file changes
+- Pre-commit hook validates both files modified together
+- ValidateDualRulebookSync() runs in every governance change
+
+**Consequences of Desync:**
+
+**Problems:**
+- Agents read MD documentation but JSON validation uses different rules
+- Validation functions missing for documented rules (or vice versa)
+- Version confusion - unclear which rulebook is authoritative
+- Broken governance trust model
+
+**Prevention:**
+- kds.prompt.md rejects single-file rule changes
+- Pre-commit hook validates both files modified together
+- ValidateDualRulebookSync() checks file pairs in every governance change
+
+**Examples:**
+
+✅ **COMPLIANT (atomic sync in same commit):**
+```
+Commit: "feat(kds): Add Rule #18 (Router Exemption)"
+
+Modified Files:
+- .github/governance/kds-rulebook.json
+- .github/governance/kds-rulebook.md
+
+Changes:
+JSON: Added rule object with id='router-exemption', number=18
+MD:   Added '### Rule #18: Router Exemption' section with identical content
+Both: Version updated to 1.6.0, lastUpdated to 2025-11-01
+```
+
+❌ **NON-COMPLIANT (split commits):**
+```
+Commit 1: "Update kds-rulebook.json with Rule #18"
+Modified: .github/governance/kds-rulebook.json
+
+Commit 2 (LATER): "Sync kds-rulebook.md with Rule #18"  
+Modified: .github/governance/kds-rulebook.md
+
+VIOLATION: Rule #19 - Rulebooks must be synced in SAME commit
+Impact: Between commits, agents operate with desynced governance
+Rejection: kds.prompt.md would have rejected Commit 1
+```
+
+❌ **NON-COMPLIANT (updating only JSON, planning to 'sync MD later'):**
+```
+Agent: "I'll add Rule #18 to kds-rulebook.json now..."
+
+User: "What about kds-rulebook.md?"
+
+Agent: "I'll sync it later" ← CRITICAL VIOLATION
+
+Correct Response: "Rule #19 requires BOTH rulebooks updated together.
+                   I cannot proceed with only JSON modification."
+```
+
+**Anti-Patterns:**
+- Updating JSON first, MD later (breaks sync guarantee)
+- Assuming 'someone else will sync it' (governance is atomic)
+- Split commits for 'readability' (sync is mandatory)
+- Thinking MD is 'just documentation' (agents depend on it)
+
+**Related Rules:**
+- Rule #10 (KDS Governance) - Defines gatekeeper enforcement
+- Rule #18 (Router Exemption) - Example of rule added with proper dual sync
 
 ---
 
@@ -1653,6 +1943,7 @@ END FUNCTION
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0.0 | 2025-11-01 | **MAJOR GOVERNANCE OVERHAUL** - Phase 1 (P0): Centralized Step -1 enforcement in Rule #10 (removed 4 duplicate blocks from prompts), created Algorithm 11 (ValidateAutoChainHandoffs), enhanced pre-commit hook with KDS governance enforcement. Phase 2 (P1): Created Algorithm 12 (ValidateTestOrchestration), made Step 0 (Conversation History Analysis) MANDATORY in kds.prompt.md Review Mode with auto-generated Most Violated Rules report. Phase 3 (P2): Added Algorithms 13-14 (DetectStaleRules, CalculatePromptComplexity), introduced rule sunset policy with lastValidated/validationFrequency fields, prompt complexity scoring (0-100 scale) with refactoring recommendations. Total: 4 new algorithms, centralized governance logic, automated maintenance detection. |
 | 1.3.1 | 2025-10-31 | **ENHANCED Rule #2b Cleanup** - Added data-playwright-log-marker attribute pattern (timestamp-component format), cleanup trigger modes (manual request, post-test-generation automatic), global cleanup algorithm (CleanupPlaywrightLogging function), updated enforcement with Step 9.5 in test-generation.prompt.md |
 | 1.3.0 | 2025-10-31 | **ENHANCED Rule #2b** - Added UI Interaction Logging infrastructure, PlaywrightLogger JavaScript class, test generation from console logs, headed Playwright test development support |
 | 1.2.1 | 2025-10-31 | **ENFORCED Rule #2b** - Test Reverse-Engineering Metadata now mandatory for UI/API files. Added to Quick Reference, updated enforcement count to 14 rules |
@@ -1665,6 +1956,6 @@ END FUNCTION
 
 **This rulebook is the CANONICAL source for all KDS governance rules.**
 
-**Last Updated:** 2025-10-31  
+**Last Updated:** 2025-11-01  
 **Maintainer:** KDS System  
-**Version:** 1.3.1
+**Version:** 2.0.0

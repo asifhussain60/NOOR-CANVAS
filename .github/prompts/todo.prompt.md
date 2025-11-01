@@ -11,30 +11,12 @@ description: Extend or modify current active work while preserving context, key,
 
 ## 🛡️ Step -1: KDS Governance Enforcement
 
-**BEFORE processing any request, check:**
+**See:** `.github/governance/kds-rulebook.md` Rule #10 (Key Data Stream Management)
 
-IF user request contains modifications to `.github/prompts/*.md` OR `.github/instructions/*.md`:
-  - **HALT execution immediately**
-  - Display enforcement message below
-  - **STOP** (do not proceed to Step 0+)
+**IF** user request modifies `.github/prompts/*.md` OR `.github/instructions/*.md`:
+  - HALT execution → Redirect to `@workspace /kds request="[change request]"`
 
-**⚠️ GOVERNANCE ENFORCEMENT**
-
-Changes to `.github` prompts/instructions must go through the KDS gatekeeper for compatibility analysis.
-
-**Please use this command instead:**
-
-```markdown
-@workspace /kds request="[your change request here]"
-```
-
-**Why?** Ensures compatibility checks, prevents rule conflicts, and maintains architectural coherence.
-
-**See:** `.github/prompts/kds.prompt.md` for governance protocol.
-
----
-
-ELSE: Proceed to todo workflow
+**ELSE:** Proceed to todo workflow
 
 ---
 
