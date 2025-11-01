@@ -1,5 +1,5 @@
 # KDS Governance Rulebook
-**Version:** 2.0.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-11-01
+**Version:** 2.1.0 | **Status:** CANONICAL SOURCE OF TRUTH | **Date:** 2025-11-01
 
 ---
 
@@ -29,10 +29,11 @@
 - **KDS Cleanup** - Review mode detects backup files, archives (not deletes) with manifest
 
 **Enforcement:**
-- **19 Rules** - Validated before output (Rules #1-19), each with validation function
+- **20 Rules** - Validated before output (Rules #1-20), each with validation function
 - **Step -1** - Execution prompts include governance enforcement (routers exempt per Rule #18)
 - **Router Exemption** - route.prompt.md and ask.prompt.md skip Step -1 to preserve routing workflow
 - **Dual Rulebook Sync** - JSON + MD must be updated together atomically (Rule #19 - MANDATORY)
+- **Test Registry (KDTR)** - Query before test generation, publish after successful execution (Rule #20)
 - **Test Metadata** - ValidateTestMetadata() scans UI/API files for PLAYWRIGHT TEST METADATA blocks
 - **Build Validation** - Zero errors required after task/phase completion (Rule #14)
 - **Git History** - ValidateGitHistory() analyzes commits for rule violations (Rule #15)
@@ -40,6 +41,7 @@
 - **Screenshot Tests** - ValidateScreenshotTestGeneration() enforces vision analysis workflow (Rule #17)
 - **Router Validation** - ValidateRouterExemption() ensures routing workflow integrity (Rule #18)
 - **Rulebook Sync** - ValidateDualRulebookSync() ensures JSON/MD updated together (Rule #19)
+- **KDTR Enforcement** - ValidateKDTREnforcement() ensures pattern reuse and test data publication (Rule #20)
 
 ---
 
@@ -1761,6 +1763,209 @@ Correct Response: "Rule #19 requires BOTH rulebooks updated together.
 
 ---
 
+### Rule #20: KDS Test Registry (KDTR) Enforcement
+
+**Statement:**  
+KDS Test Registry (KDTR) housed in `.github/test-registry/` must be consulted **BEFORE** test generation for pattern reuse and updated **AFTER** successful test execution with test data, evidence, and reuse guidance.
+
+**Rationale:**
+Pattern reuse reduces test development time (estimated 40-60% savings), ensures consistency across test suite, preserves working test data for regression testing, and enables knowledge transfer between test creation sessions.
+
+**KDTR is a pure JSON data registry (no business logic):**
+- Location: `.github/test-registry/{key}/{test-name}.json`
+- Format: JSON only (flexible schema in `.github/test-registry/schema.json`)
+- Integration: KDS governance (kds.prompt.md Rule #5), test generation (test-generation.prompt.md Step 1.5)
+- Canonical data: Session 212 (`.github/test-registry/session-212/valid-tokens.json`)
+
+**Workflow Phases:**
+
+**1. Pre-Generation (Query KDTR for Pattern Reuse):**
+
+| Step | Action |
+|------|--------|
+| **Trigger** | test-generation.prompt.md Step 1.5 |
+| **Search** | `.github/test-registry/{key}/` for existing patterns |
+| **Analyze** | If found: Check age (<30 days?), tokens (valid?), API endpoints (current?), selectors (valid?) |
+| **Decision** | If pattern valid → Present REUSE option with details; If no pattern/invalid → Generate NEW test |
+| **HALT** | If JSON parse error or critical validation failure |
+
+**2. Post-Execution (Publish to KDTR):**
+
+| Step | Action |
+|------|--------|
+| **Trigger** | Test execution status = PASSED |
+| **Capture** | Screenshots, console logs, network traces, API responses |
+| **Extract** | sessionData (tokens, sessionId, expiresAt), uiState (selectors, navigation, elements) |
+| **Record** | testPatterns (navigation, authentication, apiValidation), reuseGuidance (whenToReuse, usageExamples) |
+| **Write** | `.github/test-registry/{key}/{test-name}.json` |
+| **Atomic** | Test file + KDTR entry committed together (both or neither) |
+
+**Pattern Reuse Criteria:**
+
+- ✅ **Age:** <30 days since last verified
+- ✅ **Tokens:** Session tokens not expired
+- ✅ **API:** Endpoints still active
+- ✅ **Selectors:** UI selectors still valid
+
+**Canonical Session 212:**
+
+```json
+{
+  "sessionId": 212,
+  "hostToken": "PQ9N5YWW",
+  "userToken": "KJAHA99L",
+  "location": ".github/test-registry/session-212/valid-tokens.json",
+  "purpose": "Default reference for all tests requiring host/user tokens"
+}
+```
+
+**KDTR Data Captured:**
+
+- **sessionData:** Tokens, sessionId, expiresAt, baseUrl
+- **apiResponses:** Endpoints, payloads, statusCodes, responseTime
+- **uiState:** Selectors (data-testid/text/class), navigation paths, element states
+- **testPatterns:** Navigation, authentication, apiValidation, sessionManagement
+- **reuseGuidance:** whenToReuse, usageExamples, knownWorkingTests
+- **evidence:** Screenshots, console logs, network traces
+
+**File Structure:**
+
+```
+.github/test-registry/
+├── schema.json                          # Flexible JSON schema definition
+├── README.md                            # KDTR documentation
+├── session-212/                         # Canonical Session 212 data
+│   └── valid-tokens.json                # Host/User tokens, API endpoints, selectors
+├── user-auth/                           # User authentication test patterns
+├── canvas/                              # Canvas feature test patterns
+└── transcript/                          # Transcript feature test patterns
+```
+
+**Enforcement:**
+
+| Phase | Enforcement Point | Requirement |
+|-------|------------------|-------------|
+| **Pre-Generation** | test-generation.prompt.md Step 1.5 | MUST query KDTR before generating tests |
+| **Post-Execution** | Test orchestration scripts | MUST publish to KDTR after successful execution |
+| **Quality Gate** | KDTR entry creation | Only PASSED tests publish (failed tests excluded) |
+| **Atomicity** | Git commit | Test file + KDTR entry together (both or neither) |
+
+**Integration Points:**
+- **test-generation.prompt.md Step 1.5** - Query KDTR for Pattern Reuse
+- **kds.prompt.md Rule #5** - Test Registry System Enforcement
+- **Test orchestration scripts** - Atomic KDTR publication after test pass
+
+**Validation Function:** `ValidateKDTREnforcement()`
+
+**Algorithm:**
+```
+ValidateKDTREnforcement(testGenerationContext):
+  # Pre-Generation Check
+  IF generating new test:
+    kdtrFiles = SearchDirectory(".github/test-registry/{key}/")
+    IF kdtrFiles.length > 0:
+      FOR EACH pattern IN kdtrFiles:
+        age = CalculateAge(pattern.lastVerified)
+        tokensValid = ValidateTokens(pattern.sessionData.tokens)
+        apiCurrent = ValidateAPIEndpoints(pattern.apiResponses.endpoints)
+        selectorsCurrent = ValidateSelectors(pattern.uiState.selectors)
+        
+        IF age < 30 AND tokensValid AND apiCurrent AND selectorsCurrent:
+          PresentReuseOption(pattern)
+          RETURN "REUSE_PATTERN"
+        END IF
+      END FOR
+    END IF
+    RETURN "GENERATE_NEW"
+  END IF
+  
+  # Post-Execution Check
+  IF test execution status == PASSED:
+    kdtrEntry = {
+      sessionData: CaptureSessionData(),
+      apiResponses: CaptureAPIResponses(),
+      uiState: CaptureUIState(),
+      testPatterns: ExtractTestPatterns(),
+      reuseGuidance: GenerateReuseGuidance(),
+      evidence: CollectEvidence()
+    }
+    
+    WriteJSON(".github/test-registry/{key}/{test-name}.json", kdtrEntry)
+    CommitAtomic([testFile, kdtrEntry])
+    RETURN "PUBLISHED_TO_KDTR"
+  ELSE:
+    # Test FAILED - do not publish to KDTR
+    RETURN "TEST_FAILED_NO_PUBLISH"
+  END IF
+```
+
+**Violations Detected:**
+
+| Violation | Condition | Severity | Fix |
+|-----------|-----------|----------|-----|
+| **KDTR_NOT_QUERIED** | New test generated without checking KDTR | High | Execute Step 1.5 before generating test |
+| **FAILED_TEST_PUBLISHED** | KDTR entry created for failed test | Critical | Delete entry, only publish after PASS |
+| **INCOMPLETE_KDTR_ENTRY** | JSON missing required fields | Medium | Regenerate with all fields per schema |
+| **STALE_PATTERN_REUSED** | Pattern >30 days old reused without validation | Medium | Verify validity before reuse |
+| **NON_ATOMIC_PUBLICATION** | Test passed but KDTR entry not published | High | Ensure atomic commit in orchestration |
+
+**Examples:**
+
+✅ **COMPLIANT (Pattern Reuse):**
+```markdown
+## 🔍 KDTR Pattern Found
+
+**Pattern:** `.github/test-registry/user-auth/valid-login-flow.json`
+**Age:** 12 days
+**Session:** 212 (Host: PQ9N5YWW, User: KJAHA99L)
+**Status:** Tokens valid, API endpoints current, selectors verified
+
+**Options:**
+A. REUSE pattern (recommended - 45 min saved)
+B. GENERATE NEW test
+```
+
+✅ **COMPLIANT (KDTR Publication):**
+```
+Test PASSED → Capturing test data...
+- sessionData: ✓ (Session 212)
+- apiResponses: ✓ (8 endpoints documented)
+- uiState: ✓ (12 selectors captured)
+- testPatterns: ✓ (4 patterns identified)
+- reuseGuidance: ✓ (3 usage examples)
+- evidence: ✓ (Screenshots, logs, traces)
+
+Publishing to KDTR: .github/test-registry/user-auth/login-success.json
+Atomic commit: test-file.spec.ts + KDTR entry
+```
+
+❌ **NON-COMPLIANT (Skipped KDTR Query):**
+```
+Generating new Playwright test for user login...
+(No KDTR query performed - violation of Step 1.5)
+```
+
+❌ **NON-COMPLIANT (Published Failed Test):**
+```
+Test FAILED (3 assertions failed)
+Publishing to KDTR anyway... ← CRITICAL VIOLATION
+(Failed tests must not corrupt pattern library)
+```
+
+**Anti-Patterns:**
+- Skipping KDTR query ("I'll just create a new test")
+- Publishing failed tests to KDTR
+- Incomplete KDTR entries (missing sessionData or evidence)
+- Non-atomic publication (test committed, KDTR entry forgotten)
+- Ignoring pattern reuse recommendations
+
+**Related Rules:**
+- Rule #5 (TDD) - Tests created before implementation
+- Rule #7 (Central Test Index) - Prefer reuse before creating new tests
+- Rule #16 (Test Approval Gate) - Quality scoring before finalization
+
+---
+
 ## 🔗 Handoff Protocol Standards
 
 These rules govern **JSON handoff file structure and workflow**.
@@ -1972,6 +2177,7 @@ END FUNCTION
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2025-11-01 | **Added Rule #20 (KDTR Enforcement)** - KDS Test Registry System (`.github/test-registry/`) enforces pattern reuse before test generation and test data publication after successful execution. Integration: test-generation.prompt.md Step 1.5 (query KDTR), kds.prompt.md Rule #5 (enforcement), test orchestration scripts (atomic publication). Canonical Session 212 data (`.github/test-registry/session-212/valid-tokens.json`) serves as default reference for all tests. Adds ValidateKDTREnforcement() validation function. Total rules: 20 (16 mandatory + 4 governance/meta rules). |
 | 2.0.0 | 2025-11-01 | **MAJOR GOVERNANCE OVERHAUL** - Phase 1 (P0): Centralized Step -1 enforcement in Rule #10 (removed 4 duplicate blocks from prompts), created Algorithm 11 (ValidateAutoChainHandoffs), enhanced pre-commit hook with KDS governance enforcement. Phase 2 (P1): Created Algorithm 12 (ValidateTestOrchestration), made Step 0 (Conversation History Analysis) MANDATORY in kds.prompt.md Review Mode with auto-generated Most Violated Rules report. Phase 3 (P2): Added Algorithms 13-14 (DetectStaleRules, CalculatePromptComplexity), introduced rule sunset policy with lastValidated/validationFrequency fields, prompt complexity scoring (0-100 scale) with refactoring recommendations. Total: 4 new algorithms, centralized governance logic, automated maintenance detection. |
 | 1.3.1 | 2025-10-31 | **ENHANCED Rule #2b Cleanup** - Added data-playwright-log-marker attribute pattern (timestamp-component format), cleanup trigger modes (manual request, post-test-generation automatic), global cleanup algorithm (CleanupPlaywrightLogging function), updated enforcement with Step 9.5 in test-generation.prompt.md |
 | 1.3.0 | 2025-10-31 | **ENHANCED Rule #2b** - Added UI Interaction Logging infrastructure, PlaywrightLogger JavaScript class, test generation from console logs, headed Playwright test development support |
