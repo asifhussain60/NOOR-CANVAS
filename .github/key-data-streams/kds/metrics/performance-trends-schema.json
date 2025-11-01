@@ -1,0 +1,189 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "KDS Performance Trends",
+    "description": "Tracks KDS governance performance metrics over time for trend analysis and self-learning",
+    "type": "object",
+    "required": [
+        "kds_version",
+        "metrics_updated",
+        "review_mode_executions",
+        "average_compliance_score",
+        "trend"
+    ],
+    "properties": {
+        "kds_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "Current KDS rulebook version"
+        },
+        "metrics_updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+        },
+        "review_mode_executions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total Review Mode executions tracked"
+        },
+        "auto_fix_success_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Percentage of auto-fixes that succeeded (0.0-1.0)"
+        },
+        "average_compliance_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Rolling average compliance score"
+        },
+        "trend": {
+            "type": "string",
+            "enum": [
+                "improving",
+                "declining",
+                "stable"
+            ],
+            "description": "Overall compliance trend direction"
+        },
+        "historical_scores": {
+            "type": "array",
+            "description": "Time-series compliance scores",
+            "items": {
+                "type": "object",
+                "required": [
+                    "date",
+                    "score"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "score": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                    }
+                }
+            }
+        },
+        "rule_effectiveness": {
+            "type": "array",
+            "description": "Effectiveness metrics per rule",
+            "items": {
+                "type": "object",
+                "required": [
+                    "rule_id",
+                    "violations_prevented",
+                    "effectiveness"
+                ],
+                "properties": {
+                    "rule_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 21
+                    },
+                    "violations_prevented": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "effectiveness": {
+                        "type": "string",
+                        "enum": [
+                            "high",
+                            "medium",
+                            "low",
+                            "unknown"
+                        ]
+                    },
+                    "average_compliance_rate": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                    }
+                }
+            }
+        },
+        "trend_analysis": {
+            "type": "object",
+            "properties": {
+                "7_day_average": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "30_day_average": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "trend_direction": {
+                    "type": "string",
+                    "enum": [
+                        "improving",
+                        "declining",
+                        "stable"
+                    ]
+                },
+                "improvement_rate": {
+                    "type": "number",
+                    "description": "Percentage change per week"
+                }
+            }
+        },
+        "most_common_violations": {
+            "type": "array",
+            "description": "Top 5 most frequently violated rules",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "rule_id": {
+                        "type": "integer"
+                    },
+                    "frequency": {
+                        "type": "integer"
+                    },
+                    "rule_title": {
+                        "type": "string"
+                    }
+                }
+            },
+            "maxItems": 5
+        },
+        "improvement_recommendations": {
+            "type": "array",
+            "description": "Auto-generated improvement suggestions",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "rule_enhancement",
+                            "prompt_update",
+                            "validation_improvement",
+                            "documentation_clarification"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": [
+                            "P0",
+                            "P1",
+                            "P2"
+                        ]
+                    },
+                    "triggered_by": {
+                        "type": "string",
+                        "description": "What pattern triggered this recommendation"
+                    }
+                }
+            }
+        }
+    }
+}
