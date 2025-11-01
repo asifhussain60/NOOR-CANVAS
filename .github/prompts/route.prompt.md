@@ -175,13 +175,34 @@ Whether to automatically execute after building prompt
 
 **⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams AND check for existing plan files.
 
+**CRITICAL ENFORCEMENT (Rule #9, #11, #12):**
+- This step is MANDATORY and CANNOT be skipped
+- Router must search file system, not just semantic search
+- Router must load plans when related keys found
+- Router must display key status in output
+
 **Process:**
-1. Load global index (`.github/key-data-streams/index.md`)
-2. Search for related keys using semantic and keyword matching in `.github/key-data-streams/`
-3. **CHECK FOR EXISTING PLAN FILE**: `.github/key-data-streams/{key}/{key}.plan.md` OR `.github/key-data-streams/{key}/cleanup-plan.md` OR `.github/key-data-streams/{key}/plan.md`
-4. If plan file exists → **Parse plan structure and present execution options** (Phase execution, task execution, or full auto-chain)
-5. If related keys found but no plan → present options to user and HALT
-6. If no related keys and no plan → proceed with new key creation
+1. **Extract key from user request** (from `key=` parameter OR heuristically from request text)
+2. **Search exact match first**: `.github/key-data-streams/{key}/`
+   - If found → Load plan.md and proceed to Step 0.5
+3. **Search related keys if exact not found**:
+   - Pattern search: `{key}*`, `*{key}`, `{prefix}*` (e.g., `hcp*` for `hcp-cleanup`)
+   - Load global index: `.github/key-data-streams/index.md`
+   - Use semantic matching for conceptually similar keys
+4. **For each related key found**:
+   - Check for plan files: `{key}.plan.md`, `cleanup-plan.md`, `plan.md`
+   - Check work-log.md last modified date
+   - Calculate relevance score (name similarity + recency)
+5. **Present findings to user** (see Output Format below)
+6. **HALT and wait for user decision** if related keys found
+7. **Proceed to new key creation** only if no related keys AND user confirmed
+
+**Step 0.5: Plan Loading (if related key selected)**
+- Load plan file: `.github/key-data-streams/{selected-key}/*.plan.md`
+- Parse plan structure using `.github/prompts/shared/plan-structure-parser.md`
+- Identify phases, tasks, status, estimated duration
+- Present execution options (see Task 1.5 output format)
+- HALT and wait for execution choice
 
 **Routing Logic Based on Plan File:**
 - **Plan exists with phases** → Present execution options (Phase 1, Phase 2, All Phases Chained, Specific Task)
@@ -416,12 +437,82 @@ ExecuteBuildPrompt(rawInput)
   ↓
   Step 6: User review (if auto-execute=false) → WAIT FOR APPROVAL
   ↓
+  Step 6.5: GenerateHandoffJSON → create .json file, display Next Command, HALT
+  ↓
   Step 7: HandoffToAgent → TRANSITION CONTROL to target prompt
   ↓
   Step 7.5: ValidateResponse (BEFORE sending to user) → See validation-protocol.md
 ```
 
 **Algorithm:** See `.github/prompts/shared/execution-flow.md`
+
+---
+
+## 🤝 Step 6.5: Handoff JSON Generation (MANDATORY - Rule #12 Compliance)
+
+**⚠️ BLOCKING REQUIREMENT**: Generate handoff JSON file BEFORE Step 7 handoff execution
+
+**CRITICAL ENFORCEMENT (Rule #12 - Honest Handoff):**
+- This step is MANDATORY for all routing decisions
+- JSON file must be created before displaying Next Command to user
+- Next Command must reference the JSON file path
+- Router must HALT after displaying Next Command (no auto-execution)
+
+**Process:**
+1. **Create handoff directory**: `.github/key-data-streams/{key}/handoffs/` (create if missing)
+2. **Generate JSON filename**: `route-to-{target}-{timestamp}.json` (e.g., `route-to-plan-20250115T143022.json`)
+3. **Build JSON structure** (see template below)
+4. **Save file** to handoffs directory
+5. **Display Next Command** with file reference (see output format)
+6. **HALT** - wait for user to execute Next Command manually
+
+**Handoff JSON Template:**
+```json
+{
+  "version": "1.0.0",
+  "timestamp": "{ISO-8601 timestamp with timezone}",
+  "fromAgent": "route",
+  "toAgent": "{target-agent}",
+  "key": "{final-key}",
+  "handoffReason": "{one-line summary of routing decision}",
+  "requestSummary": "{original user request verbatim}",
+  "scope": ["{architecture-layer-1}", "{layer-2}", ...],
+  "relatedKeys": ["{related-key-1}", "{related-key-2}", ...],
+  "acceptanceCriteria": [
+    "{criterion-1 from request analysis}",
+    "{criterion-2 from request analysis}"
+  ],
+  "parameters": {
+    "complexity": "{simple|moderate|complex}",
+    "complexityScore": {numeric-score},
+    "workType": "{feature|bugfix|refactor|enhancement|investigation}",
+    "architectureLayers": ["{UI}", "{API}", "{Service}", "{Database}", "{SignalR}"],
+    "estimatedFiles": {file-count}
+  },
+  "contextPackage": {
+    "files": ["{file-path-1}", "{file-path-2}", ...],
+    "images": ["{attachment-reference-1}", ...],
+    "errors": ["{error-summary-1}", ...]
+  }
+}
+```
+
+**Output Format (in Task 3 - Final Handoff):**
+```
+**Next Command** (copy-paste to continue):
+@workspace /{target} #file:.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json
+
+⚠️ Router will HALT here - you must execute the Next Command above to continue.
+```
+
+**Why This Matters:**
+- **Audit Trail**: Every routing decision is documented with context
+- **Work Continuation**: New chat sessions can resume via handoff JSON
+- **Plan Conflict Detection**: Target agents can check for related keys via handoff
+- **Key Traceability**: Rule #11 compliance - all work tied to keys
+- **Honest Handoff**: Rule #12 compliance - no hidden routing logic
+
+**Algorithm:** See `.github/prompts/shared/kds-handoff-protocol.md`
 
 ---
 
@@ -460,7 +551,9 @@ ExecuteBuildPrompt(rawInput)
 
 ### Task 0: Invocation Parsing (Always First)
 
-**Output:** Parsing section (≤5 bullets)
+**Output:** Parsing section (≤7 bullets)
+- **Key Requested:** `{key}` (extracted from request or parameter)
+- **Key Status:** SEARCHING... (updated in Task 1)
 - Format detected (Positional, Named, or Default routing)
 - Target agent identified
 - Request summary (one-liner)
@@ -471,19 +564,24 @@ ExecuteBuildPrompt(rawInput)
 
 ### Task 1: Key Data Stream Consultation (If Related Keys Found)
 
-**Output:** Key Search section (≤8 bullets)
-- Count of related keys found
-- Top match with status
-- Relevance score percentage
-- Location in .github/key-data-streams/
-- File modification count in top key
-- Recommendation (which key or create new)
+**Output:** Key Search section (≤12 bullets)
+- **Key Requested:** `{key}` (preserve from Task 0)
+- **Key Status:** NOT_FOUND (exact match) | RELATED_FOUND ({count} similar)
+- **Related Keys Discovered:**
+  - `{key-1}` - Relevance: {score}%, Last modified: {date}, Status: {complete/in-progress}
+  - `{key-2}` - Relevance: {score}%, Last modified: {date}, Status: {status}
+- **Top Match Details:**
+  - Location: `.github/key-data-streams/{top-key}/`
+  - Plan exists: YES/NO
+  - Work log entries: {count}
+  - Last activity: {date}
+- **Recommendation:** Extend `{top-key}` (if recent activity <30 days) OR Create new `{requested-key}`
 
 **Options Section:** Letter-based choices
-- A: Use recommended key
-- B: Create new key
-- C: Review details
-- List discovered keys
+- **A.** USE `{top-key}` (Load plan and continue work) ⭐ RECOMMENDED if recent
+- **B.** CREATE NEW `{requested-key}` (Start fresh work stream)
+- **C.** REVIEW PLAN (Show full plan content for `{top-key}`)
+- **D.** COMPARE (Show all related keys side-by-side)
 
 **Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
 
@@ -579,7 +677,9 @@ ExecuteBuildPrompt(rawInput)
 
 ### Task 2: Before Handoff (User Review Mode, when auto-execute=false)
 
-**Output:** Analysis section (≤8 bullets)
+**Output:** Analysis section (≤10 bullets)
+- **Key:** `{final-key}` (confirmed from Step 4)
+- **Key Status:** FOUND (existing) | NEW (creating) | EXTENDING (from {parent-key})
 - Request summary (one-liner)
 - Context counts (files, images, errors using F/I/E notation)
 - Work type classification
@@ -588,8 +688,8 @@ ExecuteBuildPrompt(rawInput)
 - Architecture layers affected (UI, API, Service, DB, SignalR)
 - Routing method (intelligent or manual)
 
-**Tasks Section (≤10 bullets when applicable):**
-- Key determination (new or existing)
+**Handoff Preparation (≤8 bullets):**
+- **Handoff JSON:** `.github/key-data-streams/{key}/handoffs/route-to-{target}.json`
 - Target agent file path
 - Key parameters list
 - Context package preparation (visual, error, file)
@@ -598,10 +698,10 @@ ExecuteBuildPrompt(rawInput)
 - High-level architectural approach
 
 **Options Section:** Letter-based choices
-- A: Execute handoff (recommended)
-- B: Modify parameters
-- C: Change target agent
-- D: Cancel
+- **A.** EXECUTE HANDOFF (Create JSON + display Next Command) ⭐ RECOMMENDED
+- **B.** MODIFY PARAMETERS (Edit before generating JSON)
+- **C.** CHANGE TARGET AGENT (Re-route)
+- **D.** CANCEL
 
 **Behavior:** Wait for user approval before proceeding to handoff.
 
@@ -609,13 +709,37 @@ ExecuteBuildPrompt(rawInput)
 
 ### Task 3: Handoff Execution (After approval or when auto-execute=true)
 
-**Output:** Handoff section
-- Target prompt file path
-- Key assignment
-- Parameter summary
-- Transition message
+**Output:** Handoff section (≤6 bullets)
+- **Key:** `{final-key}`
+- **Key Status:** HANDOFF_READY
+- Target prompt file path: `.github/prompts/{target}.prompt.md`
+- Parameter summary: {key-value pairs}
+- Handoff JSON created: `.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json`
+- Transition message: "Control transferring to {target} agent..."
 
-**Behavior:** Transition control to target agent. From this point forward, the target agent's instructions govern all behavior.
+**Next Command Display** (MANDATORY - copy-paste to continue):
+```
+**Next Command** (copy-paste to execute):
+
+@workspace /{target} #file:.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json
+
+⚠️ **Router will HALT here** - you must execute the Next Command above to continue work.
+```
+
+**Example:**
+```
+**Next Command** (copy-paste to execute):
+
+@workspace /plan #file:.github/key-data-streams/hcp-cleanup/handoffs/route-to-plan-20250115T143022.json
+
+⚠️ **Router will HALT here** - you must execute the Next Command above to continue work.
+```
+
+**Behavior:** 
+- Display Next Command to user
+- HALT execution (do NOT auto-execute)
+- User must copy-paste Next Command to invoke target agent
+- Target agent will load handoff JSON and continue work
 
 ---
 
