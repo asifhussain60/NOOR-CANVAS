@@ -1,11 +1,11 @@
-=# plan.prompt.md (Feature Planning Agent v1.8)
+=# plan.prompt.md (Feature Planning Agent v1.11.0)
 
 ---
 mode: agent
 purpose: Interactive planning agent that refines a user request into an executable, testable plan and hands off to task and test-generation agents.
 inputs: key, user_request, context, scope, constraints, include_suggestions, auto-chain, -test
 outputs: Finalized plan recorded in .github/key-data-streams/{key}/work-log.md and a prepared handoff to task.prompt.md (tasks) and, when applicable, test-generation.prompt.md
-lastUpdated: 2025-10-31
+lastUpdated: 2025-11-01
 stateTracking: enabled
 
 ---
@@ -20,6 +20,7 @@ stateTracking: enabled
 **ELSE:** Proceed to Step 0
 
 ---
+- **v1.11.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:plan-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C/D multi-option outputs with single "Next Command" format. E2E mode now default with single command, manual mode available via JSON edit. Affects: Phase 1 (Key Consultation), Phase 2 (Questionnaire), Phase 3 (Execution Mode), Resume Work, Cleanup. User feedback: "I just want one prompt to execute."
 - **v1.10 (2025-10-31)**: KDS GOVERNANCE INTEGRATION + HANDOFF CONTEXT + NEXT COMMAND
   - Added Step 0.2 to load route handoff context from `.github/key-data-streams/{key}/handoffs/route-to-plan.json`
   - Standardized "Next Command" output after plan generation to start Phase 1 via handoff JSON
@@ -839,14 +840,18 @@ If manual mode is selected, still present this command but do not auto-trigger.
 - Recommendation: {Use existing | Create new}
 - Reason: {brief-explanation}
 
-**📌 Options**
-**A.** Use `{key-1}` (reuse existing work)  
-**B.** Create new key `{key}`  
-**C.** Review `{key-1}` details first
+**📌 Next Command** (copy-paste to continue):
+```
+@workspace /plan Key: {key-1}
+```
 
-Reply: A, B, or C
+⭐ **Recommended**: Use existing key `{key-1}` (reuse existing work, {score}% relevance)
 
-**Behavior:** HALT and wait for user choice.
+**Alternative Actions**:
+- Create new key: `@workspace /plan Key: {key}`
+- Review details: Read `.github/key-data-streams/{key-1}/*.plan.md` first
+
+**Behavior:** Router HALTS here - execute Next Command or alternative.
 
 ---
 
@@ -861,14 +866,16 @@ Reply: A, B, or C
 - Purpose: Refine plan based on your answers
 - Next: Answer questions in the file, then reply "Done"
 
-**📌 Instructions**
-**A.** Open `.github/key-data-streams/{key}/questionnaire-{ts}.md`  
-**B.** Answer all questions directly in that file  
-**C.** Reply "Done" when complete (I'll process answers and finalize plan)
+**📌 Next Steps** (follow in order):
 
-Reply: Done (after answering)
+1. Open questionnaire: `.github/key-data-streams/{key}/questionnaire-{ts}.md`
+2. Answer all questions directly in that file
+3. Save the file
+4. Reply "Done" in chat (plan agent will process answers and finalize plan)
 
-**Behavior:** HALT and wait for user to answer.
+**Purpose**: Questionnaire refines plan based on your specific requirements
+
+**Behavior:** Plan agent HALTS here - complete questionnaire and reply "Done" to continue.
 
 ---
 
@@ -911,32 +918,26 @@ Reply: Done (after answering)
 - Task 3.2: {action} - {expected-outcome}
 - Task 3.3: {action} - {expected-outcome}
 
-**⚡ Execution Mode**
+**⚡ Next Command** (copy-paste to execute E2E):
+```
+@workspace /test-generation #file:.github/key-data-streams/{key}/handoffs/phase-1-test.json
+```
 
-**A. END-TO-END MODE** (RECOMMENDED - Auto-executes in 5s)  
-   - All phases execute automatically without approval gates
-   - Tests run before each phase implementation
-   - Checkpoint commits created after each phase
-   - Interrupt anytime with Ctrl+C
-   - Best for: Refactors, compliance fixes, well-specified features
+⭐ **Default**: E2E Mode (auto-chain all phases, no approval gates)
+- All phases execute automatically without interruption
+- Tests run before each phase implementation
+- Checkpoint commits created after each phase
+- Best for: Refactors, compliance fixes, well-specified features
 
-**B. MANUAL MODE** (Stop after each phase for approval)  
-   - Await approval before starting each phase
-   - Review test results before proceeding
-   - Best for: Complex features, exploratory work, learning
-
-**C.** Review plan files before deciding  
-**D.** Modify plan scope  
-**E.** Cancel planning
-
-**Auto-executing in 5 seconds... Say "B", "manual", or "cancel" to abort.**
-
-Reply: A (or wait 5s for auto-execute), B (manual), C, D, or E
+**Alternative Execution** (if manual mode needed):
+- Manual mode: Modify `e2eMode: false` in handoff JSON before execution
+- Review plan first: Read `.github/key-data-streams/{key}/{key}.plan.md`
+- Modify scope: Re-run `/plan` with updated parameters
+- Cancel: Stop planning process
 
 **Behavior:** 
-- **Default (no reply or A):** Set `auto-chain=true` + `e2eMode=true` in handoff JSONs → automatic E2E execution
-- **If B selected:** Set `auto-chain=false` + `e2eMode=false` → wait for approval after each phase
-- If C/D/E selected: Wait for user action
+- **Default:** `auto-chain=true` + `e2eMode=true` in handoff JSONs → automatic E2E execution
+- **Manual override:** Edit handoff JSONs to set `e2eMode=false` → wait for approval after each phase
 
 ---
 
@@ -1010,10 +1011,18 @@ What the next agent will do:
 - Last Activity: {timestamp}
 - Request: {new-request-summary}
 
-## 📌 Options
-**A.** Continue Phase {X} | **B.** Modify Plan | **C.** New Key Instead
+## 📌 Next Command (copy-paste to continue current phase):
+```
+@workspace /task phase={X} key={key}
+```
 
-Reply: A, B, or C
+⭐ **Recommended**: Continue Phase {X} from where you left off
+
+**Alternative Actions**:
+- Modify plan: Edit `.github/key-data-streams/{key}/*.plan.md` and re-execute
+- New key: `@workspace /route Key: {new-key-name}` to start fresh work
+
+**Behavior:** Plan agent HALTS here - execute Next Command or alternative.
 ```
 
 ---
@@ -1131,10 +1140,18 @@ Reply: A, B, or C
 - README: Generated with summary
 - Status: Ready for long-term storage
 
-## 📌 Next
-**A.** Archive Key | **B.** Keep Active | **C.** Review README
+## 📌 Next Command (copy-paste to archive key):
+```
+@workspace /archive key={key}
+```
 
-Reply: A, B, or C
+⭐ **Recommended**: Archive key for long-term storage
+
+**Alternative Actions**:
+- Keep active: No action needed, key remains in active state
+- Review README: Read `.github/key-data-streams/{key}/README.md` first
+
+**Behavior:** Cleanup complete - execute Next Command to archive or leave active.
 ```
 
 ---

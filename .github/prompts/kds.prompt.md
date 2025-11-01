@@ -1,5 +1,9 @@
 # KDS Governance Gatekeeper
-**Key: `kds`** | **Version**: 3.0.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
+**Key: `kds`** | **Version**: 3.1.0 | **Role**: Mandatory gate for all .github and KDS modifications + System Health & Cleanup
+
+**Changelog:**
+- **v3.1.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:kds-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C multi-option outputs with single "Next Command" format in Step 7a (Action Handoff Generation). Recommended action shown first with alternatives as footnotes. User feedback: "I just want one prompt to execute."
+- **v3.0.0 (2025-10-31)**: BREAKING - Extracted all pseudocode to kds-validation-algorithms.md, implemented Step 7b Auto-Fix, Rule #1 compliant
 
 ---
 
@@ -900,30 +904,26 @@ END FUNCTION
 
 **ENFORCEMENT PRINCIPLE:** All options MUST drive action. No "do nothing" or "cancel" options permitted.
 
-**Options:**
+**Next Command** (copy-paste to execute recommended action):
+```
+@workspace /task #file:.github/key-data-streams/kds/handoffs/review-autofix.json
+```
 
-**A. AUTO-FIX CRITICAL VIOLATIONS** ⭐ (RECOMMENDED for immediate improvement)
-   Scope: All P0 actions (Rule #1 violations, pre-commit hooks)
-   Estimated time: 45-60 minutes
-   Actions included: {list all P0 action IDs from report}
-   Handoff: `.github/key-data-streams/kds/handoffs/review-autofix.json`
-   Next Command: `@workspace /task #file:.github/key-data-streams/kds/handoffs/review-autofix.json`
+⭐ **Recommended**: AUTO-FIX CRITICAL VIOLATIONS (P0 only, 45-60 minutes)
+- Scope: All P0 actions (Rule #1 violations, pre-commit hooks)
+- Actions: {list all P0 action IDs from report}
+- Fastest path to compliance improvement
 
-**B. IMPLEMENT HIGH-PRIORITY ENHANCEMENTS**
-   Scope: All P0 + P1 actions (fixes + validation functions + enforcement tightening)
-   Estimated time: 90-120 minutes
-   Actions included: {list all P0 + P1 action IDs from report}
-   Handoff: `.github/key-data-streams/kds/handoffs/review-enhance.json`
-   Next Command: `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-enhance.json`
+**Alternative Actions** (if different scope needed):
+- **High-priority enhancements** (P0 + P1, 90-120 min): 
+  `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-enhance.json`
+  Includes: Fixes + validation functions + enforcement tightening
+  
+- **Comprehensive upgrade** (P0 + P1 + P2, 3-4 hours):
+  `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-upgrade.json`
+  Includes: Fixes + enhancements + rulebook refactoring
 
-**C. EXECUTE COMPREHENSIVE KDS UPGRADE**
-   Scope: All P0 + P1 + P2 actions (fixes + enhancements + refactoring)
-   Estimated time: 3-4 hours
-   Actions included: {list all P0 + P1 + P2 action IDs from report}
-   Handoff: `.github/key-data-streams/kds/handoffs/review-upgrade.json`
-   Next Command: `@workspace /plan #file:.github/key-data-streams/kds/handoffs/review-upgrade.json`
-
-**HALT - DO NOT AUTO-EXECUTE** (user selects option A/B/C and invokes handoff)
+**Behavior:** KDS agent HALTS here - execute Next Command or choose alternative scope.
 
 ---
 
@@ -931,7 +931,7 @@ END FUNCTION
 
 **Algorithm:** See `kds-validation-algorithms.md` - AutoFixCriticalIssues function
 
-**When user selects Option B:**
+**When user executes the recommended auto-fix handoff:**
 
 **Process for each CRITICAL violation:**
 

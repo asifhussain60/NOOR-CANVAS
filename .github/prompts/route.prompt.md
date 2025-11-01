@@ -4,10 +4,11 @@
 
 ---
 
-**Version:** 1.7.2  
+**Version:** 1.8.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 **Changelog:**
+- **v1.8.0 (2025-11-01)**: [DEBUG-WORKITEM:kds-system-fix:phase0:route-output] OUTPUT FORMAT SIMPLIFIED - Replaced A/B/C/D multi-option outputs with single "Next Command" format. All routing scenarios now show one recommended Next Command with alternatives as footnotes. Improves UX per user feedback: "I just want one prompt to execute to continue." Affects: Scenario B (Related Keys), Scenario C (New Key), Task 1.5 (Plan Execution), Task 2 (User Review), Drift Detection output.
 - **v1.7.2 (2025-11-01)**: ENHANCED KEY DISCOVERY - Task 1 restructured into 3 scenarios (Exact Match, Related Keys, New Key) with "Did you mean?" suggestions showing similar patterns ({key}*, *{key}*) when exact match not found. Improved UX with clear A/B/C options for new key creation.
 - **v1.7.1 (2025-11-01)**: ROUTER EXEMPTION - Removed Step -1 KDS enforcement per Rule #18. Routers are exempt from governance gates to preserve routing workflow (Steps 0-7). Enforcement belongs in execution prompts (plan/task/todo), not routers. Fixes regression where Step -1 caused router to bypass multi-task detection and plan creation.
 - **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
@@ -301,14 +302,19 @@ Whether to automatically execute after building prompt
 - ❌ {signal-2-description}
 - ⚠️ {signal-3-description}
 
-**Recommendation**: Create drift key
+**Next Command** (copy-paste to create drift key):
+```
+@workspace /drift parent_key={current-key} description="{drift-summary}"
+```
 
-**A.** Create drift key `{current-key}-drift-001` (recommended)  
-**B.** Expand current key scope (update plan)  
-**C.** Create new independent key  
-**D.** Continue anyway (no drift tracking)
+⭐ **Recommended**: Create drift key to track unrelated work separately
 
-Reply: A, B, C, or D
+**Alternative Actions** (if different approach needed):
+- Expand scope: Modify `.github/key-data-streams/{current-key}/*.plan.md` to include drift work
+- New key: `@workspace /route Key: {new-key-name}`
+- Continue anyway: Proceed with current key (not recommended for unrelated work)
+
+**Behavior:** Router HALTS here - execute Next Command or alternative.
 ```
 
 **Algorithm:** See `.github/prompts/shared/drift-detection-algorithm.md`
@@ -597,13 +603,19 @@ ExecuteBuildPrompt(rawInput)
   - Last activity: {date}
 - **Recommendation:** Extend `{top-key}` (if recent activity <30 days) OR Create new `{requested-key}`
 
-**Options Section:** Letter-based choices
-- **A.** USE `{top-key}` (Load plan and continue work) ⭐ RECOMMENDED if recent
-- **B.** CREATE NEW `{requested-key}` (Start fresh work stream)
-- **C.** REVIEW PLAN (Show full plan content for `{top-key}`)
-- **D.** COMPARE (Show all related keys side-by-side)
+**Next Command** (copy-paste to continue):
+```
+@workspace /route Key: {top-key}
+```
 
-**Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
+⭐ **Recommended**: Use existing `{top-key}` to continue work (most recent, active)
+
+**Alternative Actions** (if different approach needed):
+- Create new key: `@workspace /route Key: {requested-key}`
+- Review plan first: Read `.github/key-data-streams/{top-key}/*.plan.md` manually
+- Compare keys: Review `.github/key-data-streams/index.md`
+
+**Behavior:** Router HALTS here - execute Next Command above to continue.
 
 ---
 
@@ -618,12 +630,18 @@ ExecuteBuildPrompt(rawInput)
   - `{similar-key-1}` - {similarity-reason}
   - `{similar-key-2}` - {similarity-reason}
 
-**Options Section:** Letter-based choices
-- **A.** CREATE NEW KEY `{key}` (Route to plan.prompt.md to create plan) ⭐ RECOMMENDED
-- **B.** SEARCH RELATED KEYS (Check for similar work in other keys)
-- **C.** CANCEL (Exit routing)
+**Next Command** (copy-paste to continue):
+```
+@workspace /plan Key: {key}
+```
 
-**Behavior:** HALT and wait for user choice. Do not proceed until user selects option.
+⭐ **Recommended**: Create new key and route to plan agent to build implementation plan
+
+**Alternative Actions** (if different approach needed):
+- Search related keys manually: Review `.github/key-data-streams/index.md`
+- Use similar key: Choose from "Did you mean?" suggestions above
+
+**Behavior:** Router HALTS here - execute Next Command above to create new key.
 
 **Example - "Did you mean?" suggestions:**
 ```
@@ -705,25 +723,22 @@ ExecuteBuildPrompt(rawInput)
 - Task 6: Remove redundant DOM calls
 - Task 8: Remove deprecated HTML attributes
 
-**Options:**
-
-**A.** Execute Phase 1 Only (5 tasks, 30 min, LOW RISK) - **Recommended Start**  
-**B.** Execute Phase 2 Only (3 tasks, 45 min, MEDIUM RISK)  
-**C.** Execute Phase 3 Only (2 tasks, 30 min, MEDIUM RISK)  
-**D.** Execute All Phases Chained (auto-chain 1→2→3, 105 min total)  
-**E.** Execute Specific Task (select 1-10)  
-**F.** Review Plan First (show full plan content)  
-**G.** Cancel (return to routing)
-
-**Reply:** A, B, C, D, E, F, or G
+**Next Command** (copy-paste to execute E2E):
+```
+@workspace /task #file:.github/key-data-streams/hcp-refactor/handoffs/execute-all-phases-chained.json
 ```
 
-**Behavior:** HALT and wait for user choice. Based on selection:
-- **A/B/C:** Route to `task` with phase parameter
-- **D:** Route to `task` with auto-chain=true and all phases
-- **E:** Prompt user for task number, then route to `task` with specific task
-- **F:** Display full plan, then re-present options
-- **G:** Cancel and return to standard routing flow
+⭐ **Recommended**: Execute all phases chained (E2E mode, 105 min total, auto-chain 1→2→3)
+
+**Alternative Execution** (if different approach needed):
+- Phase 1 only: `@workspace /task phase=1 key=hcp-refactor` (30 min, LOW RISK - good start)
+- Phase 2 only: `@workspace /task phase=2 key=hcp-refactor` (45 min, MEDIUM RISK)
+- Phase 3 only: `@workspace /task phase=3 key=hcp-refactor` (30 min, MEDIUM RISK)
+- Specific task: `@workspace /task task-number={N} key=hcp-refactor` (choose 1-10)
+- Review plan: Read `.github/key-data-streams/hcp-refactor/cleanup-plan.md` first
+
+**Behavior:** Router HALTS here - execute Next Command for E2E or use alternatives.
+```
 
 ---
 
@@ -749,13 +764,19 @@ ExecuteBuildPrompt(rawInput)
 - Estimated file change count
 - High-level architectural approach
 
-**Options Section:** Letter-based choices
-- **A.** EXECUTE HANDOFF (Create JSON + display Next Command) ⭐ RECOMMENDED
-- **B.** MODIFY PARAMETERS (Edit before generating JSON)
-- **C.** CHANGE TARGET AGENT (Re-route)
-- **D.** CANCEL
+**Next Command** (copy-paste to execute):
+```
+@workspace /{target} #file:.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json
+```
 
-**Behavior:** Wait for user approval before proceeding to handoff.
+⭐ **Recommended**: Execute handoff and create JSON file
+
+**Alternative Actions** (if changes needed):
+- Modify parameters: Edit request and re-run `/route`
+- Change target agent: Specify different `target=` parameter
+- Cancel: Stop routing process
+
+**Behavior:** Router will create JSON and HALT - you execute Next Command to continue.
 
 ---
 
