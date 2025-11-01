@@ -1,117 +1,117 @@
 {
-  "testName": "session-212-canonical-data",
-  "testType": "Reference",
-  "key": "session-212",
-  "executionDate": "2025-11-01T00:00:00Z",
-  "status": "VERIFIED",
-  "evidence": {
-    "source": "Database query result - KSESSIONS_DEV.canvas.Sessions table (SessionId=212)",
-    "screenshot": "Session212-Database-Evidence.png",
-    "verificationMethod": "Direct SQL query: SELECT * FROM canvas.Sessions WHERE SessionId = 212"
-  },
-  "sessionData": {
-    "sessionId": 212,
-    "hostToken": "PQ9N5YWW",
-    "userToken": "KJAHA99L",
-    "status": "Created",
-    "scheduledDate": null,
-    "scheduledDuration": null,
-    "createdAt": "2025-10-27T11:51:55.6875985",
-    "createdBy": "GitHub Copilot Test",
-    "expiresAt": "2025-11-02T17:02:54.8000000",
-    "hoursUntilExpiry": 24
-  },
-  "apiEndpoints": {
-    "hostValidation": "/api/host/token/PQ9N5YWW/validate",
-    "userValidation": "/api/participant/session/KJAHA99L/me",
-    "sessionCanvas": "/session/canvas/KJAHA99L",
-    "transcriptCanvas": "/transcript/canvas/KJAHA99L",
-    "sessionWaiting": "/session/waiting/KJAHA99L",
-    "userLanding": "/user/landing/KJAHA99L",
-    "hostControlPanel": "/host/control-panel/PQ9N5YWW",
-    "hostSessionOpener": "/host/session-opener/PQ9N5YWW"
-  },
-  "testPatterns": {
-    "navigation": [
-      "await page.goto('https://localhost:9091/user/landing/KJAHA99L')",
-      "await page.goto('https://localhost:9091/session/canvas/KJAHA99L')",
-      "await page.goto('https://localhost:9091/host/control-panel/PQ9N5YWW')",
-      "await page.waitForLoadState('networkidle')"
-    ],
-    "authentication": [
-      "const USER_TOKEN = 'KJAHA99L'",
-      "const HOST_TOKEN = 'PQ9N5YWW'",
-      "const SESSION_ID = 212",
-      "await page.evaluate(() => localStorage.clear())"
-    ],
-    "apiValidation": [
-      "const response = await page.request.get('/api/participant/session/KJAHA99L/me')",
-      "expect(response.status()).toBe(200)",
-      "const hostValidation = await page.request.get('/api/host/token/PQ9N5YWW/validate')",
-      "expect(hostValidation.ok()).toBeTruthy()"
-    ],
-    "sessionManagement": [
-      "const sessionData = { sessionId: 212, hostToken: 'PQ9N5YWW', userToken: 'KJAHA99L' }",
-      "await page.evaluate(data => localStorage.setItem('session_data', JSON.stringify(data)), sessionData)"
-    ]
-  },
-  "uiState": {
-    "userLanding": {
-      "nameInput": "#name-input",
-      "emailInput": "input[placeholder='Enter your email']",
-      "countrySelect": "select.user-landing-select",
-      "submitButton": "button.user-landing-button",
-      "localStorageKey": "noor_user_registration_KJAHA99L"
+    "testName": "session-212-canonical-data",
+    "testType": "Reference",
+    "key": "session-212",
+    "executionDate": "2025-11-01T00:00:00Z",
+    "status": "VERIFIED",
+    "evidence": {
+        "source": "Database query result - KSESSIONS_DEV.canvas.Sessions table (SessionId=212)",
+        "screenshot": "Session212-Database-Evidence.png",
+        "verificationMethod": "Direct SQL query: SELECT * FROM canvas.Sessions WHERE SessionId = 212"
     },
-    "sessionCanvas": {
-      "questionInput": "textarea[placeholder*='question']",
-      "submitButton": "button:has-text('Submit')",
-      "participantList": ".participant-list",
-      "questionList": ".question-list"
+    "sessionData": {
+        "sessionId": 212,
+        "hostToken": "PQ9N5YWW",
+        "userToken": "KJAHA99L",
+        "status": "Created",
+        "scheduledDate": null,
+        "scheduledDuration": null,
+        "createdAt": "2025-10-27T11:51:55.6875985",
+        "createdBy": "GitHub Copilot Test",
+        "expiresAt": "2025-11-02T17:02:54.8000000",
+        "hoursUntilExpiry": 24
     },
-    "hostControlPanel": {
-      "startButton": "button:has-text('Start Session')",
-      "endButton": "button:has-text('End Session')",
-      "participantCount": ".participant-count",
-      "sessionStatus": ".session-status"
+    "apiEndpoints": {
+        "hostValidation": "/api/host/token/PQ9N5YWW/validate",
+        "userValidation": "/api/participant/session/KJAHA99L/me",
+        "sessionCanvas": "/session/canvas/KJAHA99L",
+        "transcriptCanvas": "/transcript/canvas/KJAHA99L",
+        "sessionWaiting": "/session/waiting/KJAHA99L",
+        "userLanding": "/user/landing/KJAHA99L",
+        "hostControlPanel": "/host/control-panel/PQ9N5YWW",
+        "hostSessionOpener": "/host/session-opener/PQ9N5YWW"
+    },
+    "testPatterns": {
+        "navigation": [
+            "await page.goto('https://localhost:9091/user/landing/KJAHA99L')",
+            "await page.goto('https://localhost:9091/session/canvas/KJAHA99L')",
+            "await page.goto('https://localhost:9091/host/control-panel/PQ9N5YWW')",
+            "await page.waitForLoadState('networkidle')"
+        ],
+        "authentication": [
+            "const USER_TOKEN = 'KJAHA99L'",
+            "const HOST_TOKEN = 'PQ9N5YWW'",
+            "const SESSION_ID = 212",
+            "await page.evaluate(() => localStorage.clear())"
+        ],
+        "apiValidation": [
+            "const response = await page.request.get('/api/participant/session/KJAHA99L/me')",
+            "expect(response.status()).toBe(200)",
+            "const hostValidation = await page.request.get('/api/host/token/PQ9N5YWW/validate')",
+            "expect(hostValidation.ok()).toBeTruthy()"
+        ],
+        "sessionManagement": [
+            "const sessionData = { sessionId: 212, hostToken: 'PQ9N5YWW', userToken: 'KJAHA99L' }",
+            "await page.evaluate(data => localStorage.setItem('session_data', JSON.stringify(data)), sessionData)"
+        ]
+    },
+    "uiState": {
+        "userLanding": {
+            "nameInput": "#name-input",
+            "emailInput": "input[placeholder='Enter your email']",
+            "countrySelect": "select.user-landing-select",
+            "submitButton": "button.user-landing-button",
+            "localStorageKey": "noor_user_registration_KJAHA99L"
+        },
+        "sessionCanvas": {
+            "questionInput": "textarea[placeholder*='question']",
+            "submitButton": "button:has-text('Submit')",
+            "participantList": ".participant-list",
+            "questionList": ".question-list"
+        },
+        "hostControlPanel": {
+            "startButton": "button:has-text('Start Session')",
+            "endButton": "button:has-text('End Session')",
+            "participantCount": ".participant-count",
+            "sessionStatus": ".session-status"
+        }
+    },
+    "reuseGuidance": {
+        "whenToReuse": "Default test session for ALL E2E tests requiring host/user tokens. This is the canonical session for NOOR CANVAS test automation.",
+        "sessionDataValid": true,
+        "tokensVerified": true,
+        "lastVerifiedDate": "2025-11-01T00:00:00Z",
+        "expirationNote": "Session expires 2025-11-02T17:02:54. If expired, renew via Host Provisioner: 'dotnet run -- create --session-id 212 --created-by \"GitHub Copilot Test\" --dry-run false'",
+        "usageExamples": [
+            "User registration flow tests → Use KJAHA99L token",
+            "Host control panel tests → Use PQ9N5YWW token",
+            "Multi-browser isolation tests → Use both tokens in separate contexts",
+            "API endpoint validation → Use tokens for authentication headers",
+            "SignalR real-time tests → Connect with Session 212 ID"
+        ],
+        "knownWorkingTests": [
+            "registration-guard-enforcement.spec.ts",
+            "user-registration-multi-instance.spec.ts",
+            "multi-browser-participant-isolation.spec.ts",
+            "participant-registration-flow-complete.spec.ts",
+            "phase6-localstorage-infrastructure.spec.ts"
+        ]
+    },
+    "databaseSchema": {
+        "tableName": "canvas.Sessions",
+        "primaryKey": "SessionId",
+        "columns": {
+            "SessionId": "int (212)",
+            "HostToken": "varchar(50) (PQ9N5YWW)",
+            "UserToken": "varchar(50) (KJAHA99L)",
+            "Status": "varchar(50) (Created)",
+            "ScheduledDate": "datetime (NULL)",
+            "ScheduledDuration": "int (NULL)",
+            "CreatedAt": "datetime2 (2025-10-27T11:51:55.6875985)",
+            "ExpiresAt": "datetime2 (2025-11-02T17:02:54.8000000)",
+            "HoursUntilExpiry": "int (24)"
+        },
+        "connectionString": "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa",
+        "accessLevel": "READ-WRITE (canvas.* schema)"
     }
-  },
-  "reuseGuidance": {
-    "whenToReuse": "Default test session for ALL E2E tests requiring host/user tokens. This is the canonical session for NOOR CANVAS test automation.",
-    "sessionDataValid": true,
-    "tokensVerified": true,
-    "lastVerifiedDate": "2025-11-01T00:00:00Z",
-    "expirationNote": "Session expires 2025-11-02T17:02:54. If expired, renew via Host Provisioner: 'dotnet run -- create --session-id 212 --created-by \"GitHub Copilot Test\" --dry-run false'",
-    "usageExamples": [
-      "User registration flow tests → Use KJAHA99L token",
-      "Host control panel tests → Use PQ9N5YWW token",
-      "Multi-browser isolation tests → Use both tokens in separate contexts",
-      "API endpoint validation → Use tokens for authentication headers",
-      "SignalR real-time tests → Connect with Session 212 ID"
-    ],
-    "knownWorkingTests": [
-      "registration-guard-enforcement.spec.ts",
-      "user-registration-multi-instance.spec.ts",
-      "multi-browser-participant-isolation.spec.ts",
-      "participant-registration-flow-complete.spec.ts",
-      "phase6-localstorage-infrastructure.spec.ts"
-    ]
-  },
-  "databaseSchema": {
-    "tableName": "canvas.Sessions",
-    "primaryKey": "SessionId",
-    "columns": {
-      "SessionId": "int (212)",
-      "HostToken": "varchar(50) (PQ9N5YWW)",
-      "UserToken": "varchar(50) (KJAHA99L)",
-      "Status": "varchar(50) (Created)",
-      "ScheduledDate": "datetime (NULL)",
-      "ScheduledDuration": "int (NULL)",
-      "CreatedAt": "datetime2 (2025-10-27T11:51:55.6875985)",
-      "ExpiresAt": "datetime2 (2025-11-02T17:02:54.8000000)",
-      "HoursUntilExpiry": "int (24)"
-    },
-    "connectionString": "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa",
-    "accessLevel": "READ-WRITE (canvas.* schema)"
-  }
 }
