@@ -4,10 +4,11 @@
 
 ---
 
-**Version:** 1.7.1  
+**Version:** 1.8.0  
 **Purpose:** Analyze user requests + context → route to specialized agent → **ACTUALLY HANDOFF**
 
 **Changelog:**
+- **v1.8.0 (2025-11-01)**: MARKDOWN HANDOFF - Changed from JSON to markdown plan files for better Copilot compatibility. Handoff now creates {key}.plan.md + work-log.md instead of route-to-{target}.json. Updated Next Command format to use simpler #file: syntax that Copilot reliably parses in new chat sessions.
 - **v1.7.1 (2025-11-01)**: ROUTER EXEMPTION - Removed Step -1 KDS enforcement per Rule #18. Routers are exempt from governance gates to preserve routing workflow (Steps 0-7). Enforcement belongs in execution prompts (plan/task/todo), not routers. Fixes regression where Step -1 caused router to bypass multi-task detection and plan creation.
 - **v1.7.0 (2025-10-29)**: FILE FINALIZATION DELEGATION - Documented Step 7.5 behavior for file finalization. route.prompt.md does NOT verify files (orchestrator role). Target agents (plan/task/todo) handle file finalization per their own protocols. References file-finalization-verifier.md.
 - **v1.6.0**: Previous version with state tracking
@@ -17,7 +18,7 @@ mode: agent
 purpose: Analyzes user requests and context to intelligently route to specialized agents (plan, task, todo, ask, test-generation, etc.)
 inputs: target, request, key, context, auto-execute
 outputs: Handoff to target agent with optimized parameters
-lastUpdated: 2025-10-29
+lastUpdated: 2025-11-01
 stateTracking: enabled
 ---
 
@@ -36,7 +37,57 @@ stateTracking: enabled
 
 ## ⚡ Quick Start
 
-**Simplest invocation (intelligent auto-routing):**
+### Invocation Format (Case-Insensitive)
+
+**Standard format**: `/route key: {key-name}` (all lowercase recommended)
+
+**✅ ALL OF THESE WORK:**
+```
+/route key: hcp-ids          (recommended - all lowercase)
+/route Key: hcp-ids          (also works - capital K)
+/route KEY: hcp-ids          (also works - all caps)
+```
+
+**❌ THESE DON'T WORK:**
+```
+/route hcp-ids               (missing "key:" - WRONG)  
+/route "key: hcp-ids"        (quoted - WRONG)
+```
+
+**Case doesn't matter** - the system normalizes `key:`, `Key:`, and `KEY:` to lowercase during parsing.
+
+### What Happens When You Use `/route key: {key-name}`
+
+**If key exists** (e.g., `.github/key-data-streams/hcp-ids/` folder found):
+1. Router searches for existing plan file (`hcp-ids.plan.md` or `plan.md`)
+2. If plan exists → Shows execution options (Phase 1, All Phases, Specific Task)
+3. If no plan → Creates new plan based on your request
+4. **NEVER duplicates planning** - uses existing plan when available
+
+**If key doesn't exist**:
+1. Router creates key directory (`.github/key-data-streams/{key}/`)
+2. Routes to `plan` agent to create plan
+3. Follows standard planning workflow
+
+### Common Invocation Patterns
+
+**Pattern 1: Continue existing work**
+```
+/route key: hcp-refactor
+```
+Router finds existing plan → Offers Phase 1, Phase 2, All Phases, etc.
+
+**Pattern 2: Start new work**
+```
+/route key: new-feature
+```
+Router doesn't find key → Creates new plan
+
+**Pattern 3: With request context**
+```
+/route key: hcp-ids "Add toast notification showing button IDs when clicked"
+```
+Router uses request to enhance plan or execution
 
 **Algorithm:** See `.github/prompts/shared/route-commands.md` - Command 1 (Simple Invocation Examples)
 
@@ -161,11 +212,17 @@ Whether to automatically execute after building prompt
 
 ### Step -1: Parse Invocation Format (EXECUTE FIRST)
 
-**Extract target + request from user input**
+**Extract target + request from user input with case-insensitive key parameter**
 - Supports positional (`/route plan "..."`), named (`target=plan`), and default (intelligent routing)
+- **Case-Insensitive**: Accepts `key:`, `Key:`, or `KEY:` - normalizes to lowercase
 - Valid targets: plan, task, todo, test, ask, healthcheck, drift, cohesion, test-prep
-- Extracts: target, request, autoExecute, key, context
+- Extracts: target, request, autoExecute, key (normalized), context
 - Defaults to 'plan' if no target specified
+
+**Key Parameter Normalization:**
+- Input: `/route Key: hcp-ids` → Normalized: `key: hcp-ids`
+- Input: `/route KEY: hcp-ids` → Normalized: `key: hcp-ids`
+- Input: `/route key: hcp-ids` → Normalized: `key: hcp-ids`
 
 **Algorithm:** See `.github/prompts/shared/invocation-parser.md`
 
@@ -175,40 +232,67 @@ Whether to automatically execute after building prompt
 
 **⚠️ BLOCKING REQUIREMENT**: Before analyzing the request, you MUST search for existing related key data streams AND check for existing plan files.
 
-**CRITICAL ENFORCEMENT (Rule #9, #11, #12):**
+**CRITICAL ENFORCEMENT:**
 - This step is MANDATORY and CANNOT be skipped
-- Router must search file system, not just semantic search
-- Router must load plans when related keys found
+- Router must search file system using `list_dir` tool
+- Router must load existing plans when key found
 - Router must display key status in output
+- **KDS Governance**: If key exists with plan, offer execution (don't recreate plan)
 
 **Process:**
-1. **Extract key from user request** (from `key=` parameter OR heuristically from request text)
-2. **Search exact match first**: `.github/key-data-streams/{key}/`
-   - If found → Load plan.md and proceed to Step 0.5
-3. **Search related keys if exact not found**:
+1. **Extract key from user request**
+   - From explicit parameter: `/route key: hcp-ids` → extract "hcp-ids"
+   - **Case-insensitive**: Accepts `key:`, `Key:`, or `KEY:`
+   - Normalize to lowercase during parsing
+   - Validate format: kebab-case (lowercase-with-hyphens)
+
+2. **Check exact key match**: Use `list_dir` on `.github/key-data-streams/{key}/`
+   - If directory exists → Key found, proceed to Step 0.5
+   - If not found → Search for related keys (step 3)
+
+3. **Search related keys** (only if exact match not found):
    - Pattern search: `{key}*`, `*{key}`, `{prefix}*` (e.g., `hcp*` for `hcp-cleanup`)
    - Load global index: `.github/key-data-streams/index.md`
    - Use semantic matching for conceptually similar keys
+
 4. **For each related key found**:
    - Check for plan files: `{key}.plan.md`, `cleanup-plan.md`, `plan.md`
    - Check work-log.md last modified date
    - Calculate relevance score (name similarity + recency)
-5. **Present findings to user** (see Output Format below)
-6. **HALT and wait for user decision** if related keys found
-7. **Proceed to new key creation** only if no related keys AND user confirmed
 
-**Step 0.5: Plan Loading (if related key selected)**
-- Load plan file: `.github/key-data-streams/{selected-key}/*.plan.md`
-- Parse plan structure using `.github/prompts/shared/plan-structure-parser.md`
-- Identify phases, tasks, status, estimated duration
-- Present execution options (see Task 1.5 output format)
-- HALT and wait for execution choice
+5. **Present findings to user** (see Task 1 output format below)
+
+6. **HALT and wait for user decision** if related keys found
+
+7. **Proceed to Step 0.5** if exact key match found
+
+**Step 0.5: Plan Loading & Execution Options (CRITICAL - Prevents Duplicate Planning)**
+
+**When exact key match found** (`.github/key-data-streams/{key}/` directory exists):
+
+1. **Search for plan file** using `read_file`:
+   - Try `{key}.plan.md` first
+   - Try `plan.md` as fallback
+   - Try `cleanup-plan.md` if cleanup-related key
+
+2. **If plan file found**:
+   - Load plan using `read_file`
+   - Parse structure using `.github/prompts/shared/plan-structure-parser.md`
+   - Identify phases (if present), tasks, status, duration
+   - **PRESENT EXECUTION OPTIONS** (see Task 1.5 output format)
+   - **HALT - DO NOT create new plan**
+   - Wait for user to choose execution option
+
+3. **If NO plan file found**:
+   - Key exists but no plan → Likely abandoned or drift key
+   - Present options: Create plan (A) | Archive key (B) | Use different key (C)
+   - HALT and wait for decision
 
 **Routing Logic Based on Plan File:**
-- **Plan exists with phases** → Present execution options (Phase 1, Phase 2, All Phases Chained, Specific Task)
-- **Plan exists without phases** → Route to `task` (execute plan) or `todo` (extend plan)
-- **No plan exists** → Route to `plan` (create plan)
-- This ensures `.github/key-data-streams/{key}/*.plan.md` is the authoritative source of truth
+- **Plan exists with phases** → Show execution options (Phase 1, All Phases, etc.)
+- **Plan exists without phases** → Show task execution options
+- **No plan exists** → Offer to create plan OR use different key
+- **Never duplicate planning** - always use existing plan when available
 
 **Algorithm:** See `.github/prompts/shared/key-consultation.md`
 
@@ -448,69 +532,135 @@ ExecuteBuildPrompt(rawInput)
 
 ---
 
-## 🤝 Step 6.5: Handoff JSON Generation (MANDATORY - Rule #12 Compliance)
+## 🤝 Step 6.5: Handoff Plan Generation (MANDATORY - Rule #12 Compliance)
 
-**⚠️ BLOCKING REQUIREMENT**: Generate handoff JSON file BEFORE Step 7 handoff execution
+**⚠️ BLOCKING REQUIREMENT**: Generate plan markdown file BEFORE Step 7 handoff execution
 
 **CRITICAL ENFORCEMENT (Rule #12 - Honest Handoff):**
 - This step is MANDATORY for all routing decisions
-- JSON file must be created before displaying Next Command to user
-- Next Command must reference the JSON file path
+- Plan file must be created before displaying Next Command to user
+- Next Command must reference the plan file path (markdown, NOT JSON)
 - Router must HALT after displaying Next Command (no auto-execution)
 
 **Process:**
-1. **Create handoff directory**: `.github/key-data-streams/{key}/handoffs/` (create if missing)
-2. **Generate JSON filename**: `route-to-{target}-{timestamp}.json` (e.g., `route-to-plan-20250115T143022.json`)
-3. **Build JSON structure** (see template below)
-4. **Save file** to handoffs directory
-5. **Display Next Command** with file reference (see output format)
-6. **HALT** - wait for user to execute Next Command manually
+1. **Create key directory**: `.github/key-data-streams/{key}/` (create if missing)
+2. **Generate plan filename**: `{key}.plan.md` (e.g., `hcp-fab-button.plan.md`)
+3. **Build plan structure** (see template below - MUST be markdown)
+4. **Save file** to key data stream directory
+5. **Create work-log.md** with initial session entry
+6. **Display Next Command** with file reference (see output format)
+7. **HALT** - wait for user to execute Next Command manually
 
-**Handoff JSON Template:**
-```json
-{
-  "version": "1.0.0",
-  "timestamp": "{ISO-8601 timestamp with timezone}",
-  "fromAgent": "route",
-  "toAgent": "{target-agent}",
-  "key": "{final-key}",
-  "handoffReason": "{one-line summary of routing decision}",
-  "requestSummary": "{original user request verbatim}",
-  "scope": ["{architecture-layer-1}", "{layer-2}", ...],
-  "relatedKeys": ["{related-key-1}", "{related-key-2}", ...],
-  "acceptanceCriteria": [
-    "{criterion-1 from request analysis}",
-    "{criterion-2 from request analysis}"
-  ],
-  "parameters": {
-    "complexity": "{simple|moderate|complex}",
-    "complexityScore": {numeric-score},
-    "workType": "{feature|bugfix|refactor|enhancement|investigation}",
-    "architectureLayers": ["{UI}", "{API}", "{Service}", "{Database}", "{SignalR}"],
-    "estimatedFiles": {file-count}
-  },
-  "contextPackage": {
-    "files": ["{file-path-1}", "{file-path-2}", ...],
-    "images": ["{attachment-reference-1}", ...],
-    "errors": ["{error-summary-1}", ...]
-  }
-}
-```
+**Plan File Template (Markdown):**
+````markdown
+# {Feature Title}
+
+**Key:** `{key}`  
+**Status:** Planning  
+**Created:** {date}  
+**Complexity:** {simple|moderate|complex} (Score: {X}/15)
+
+---
+
+## 📋 Overview
+
+{Brief description of feature/fix}
+
+**Related Keys:**
+- `{related-key-1}` - {description}
+- `{related-key-2}` - {description}
+
+**Architecture Layers:**
+- {layer-1}
+- {layer-2}
+
+---
+
+## 🎯 Acceptance Criteria
+
+1. ✅ {criterion-1}
+2. ✅ {criterion-2}
+3. ✅ {criterion-3}
+
+---
+
+## 🏗️ Technical Context
+
+{File locations, method names, line numbers, current behavior}
+
+---
+
+## 📐 Implementation Plan
+
+### Phase 1: {Title}
+**Duration:** {X} minutes  
+**Risk:** {LOW|MEDIUM|HIGH}
+
+**Tasks:**
+1. {Task description}
+2. {Task description}
+
+**Files Modified:**
+- {file-path}
+
+**Testing:**
+- {test-approach}
+
+---
+
+## 📊 Execution Options
+
+**A.** **EXECUTE ALL PHASES CHAINED** (Recommended)  
+**B.** EXECUTE PHASE 1 ONLY  
+**C.** REVIEW PLAN FIRST  
+**D.** CANCEL
+````
+
+**Work Log Template:**
+````markdown
+# Work Log: {key}
+
+**Key:** `{key}`  
+**Created:** {date}  
+**Status:** Planning
+
+---
+
+## Session: {date} (Initial Planning)
+
+**Action:** {what-you're-doing}  
+**Status:** Phase 0 - Planning  
+**Context:** {why-this-work}
+
+**Objective:** {goal}
+
+**Plan:**
+- Phase 1: {title}
+- Phase 2: {title}
+
+**Next:** Execute plan phases
+````
 
 **Output Format (in Task 3 - Final Handoff):**
-```
+````
 **Next Command** (copy-paste to continue):
-@workspace /{target} #file:.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json
+
+@workspace Implement the plan in #file:{key}.plan.md using key {key}
+
+Or more explicitly:
+
+@workspace /plan key:{key} #file:.github/key-data-streams/{key}/{key}.plan.md
 
 ⚠️ Router will HALT here - you must execute the Next Command above to continue.
-```
+````
 
 **Why This Matters:**
 - **Audit Trail**: Every routing decision is documented with context
-- **Work Continuation**: New chat sessions can resume via handoff JSON
-- **Plan Conflict Detection**: Target agents can check for related keys via handoff
-- **Key Traceability**: Rule #11 compliance - all work tied to keys
-- **Honest Handoff**: Rule #12 compliance - no hidden routing logic
+- **Work Continuation**: New chat sessions can resume via plan markdown file
+- **Plan Conflict Detection**: Target agents can check for related keys via plan metadata
+- **Key Traceability**: All work tied to keys in KDS structure
+- **Honest Handoff**: No hidden routing logic - all context visible in plan file
+- **Copilot Compatibility**: Markdown files reliably read by Copilot's #file: syntax
 
 **Algorithm:** See `.github/prompts/shared/kds-handoff-protocol.md`
 
@@ -738,7 +888,8 @@ ExecuteBuildPrompt(rawInput)
 - Routing method (intelligent or manual)
 
 **Handoff Preparation (≤8 bullets):**
-- **Handoff JSON:** `.github/key-data-streams/{key}/handoffs/route-to-{target}.json`
+- **Plan File:** `.github/key-data-streams/{key}/{key}.plan.md`
+- **Work Log:** `.github/key-data-streams/{key}/work-log.md`
 - Target agent file path
 - Key parameters list
 - Context package preparation (visual, error, file)
@@ -747,8 +898,8 @@ ExecuteBuildPrompt(rawInput)
 - High-level architectural approach
 
 **Options Section:** Letter-based choices
-- **A.** EXECUTE HANDOFF (Create JSON + display Next Command) ⭐ RECOMMENDED
-- **B.** MODIFY PARAMETERS (Edit before generating JSON)
+- **A.** EXECUTE HANDOFF (Create plan.md + work-log.md + display Next Command) ⭐ RECOMMENDED
+- **B.** MODIFY PARAMETERS (Edit before generating files)
 - **C.** CHANGE TARGET AGENT (Re-route)
 - **D.** CANCEL
 
@@ -761,34 +912,42 @@ ExecuteBuildPrompt(rawInput)
 **Output:** Handoff section (≤6 bullets)
 - **Key:** `{final-key}`
 - **Key Status:** HANDOFF_READY
-- Target prompt file path: `.github/prompts/{target}.prompt.md`
-- Parameter summary: {key-value pairs}
-- Handoff JSON created: `.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json`
+- Plan file created: `.github/key-data-streams/{key}/{key}.plan.md`
+- Work log created: `.github/key-data-streams/{key}/work-log.md`
+- Target prompt: `{target}.prompt.md`
 - Transition message: "Control transferring to {target} agent..."
 
 **Next Command Display** (MANDATORY - copy-paste to continue):
-```
+````
 **Next Command** (copy-paste to execute):
 
-@workspace /{target} #file:.github/key-data-streams/{key}/handoffs/route-to-{target}-{timestamp}.json
+@workspace Implement the plan in #file:{key}.plan.md using key {key}
+
+Or more explicitly:
+
+@workspace /plan key:{key} #file:.github/key-data-streams/{key}/{key}.plan.md
 
 ⚠️ **Router will HALT here** - you must execute the Next Command above to continue work.
-```
+````
 
 **Example:**
-```
+````
 **Next Command** (copy-paste to execute):
 
-@workspace /plan #file:.github/key-data-streams/hcp-cleanup/handoffs/route-to-plan-20250115T143022.json
+@workspace Implement the plan in #file:hcp-fab-button.plan.md using key hcp-fab-button
+
+Or more explicitly:
+
+@workspace /plan key:hcp-fab-button #file:.github/key-data-streams/hcp-fab-button/hcp-fab-button.plan.md
 
 ⚠️ **Router will HALT here** - you must execute the Next Command above to continue work.
-```
+````
 
 **Behavior:** 
 - Display Next Command to user
 - HALT execution (do NOT auto-execute)
 - User must copy-paste Next Command to invoke target agent
-- Target agent will load handoff JSON and continue work
+- Target agent will load plan markdown file and continue work
 
 ---
 
