@@ -2,8 +2,9 @@
 
 **Purpose:** Execute tasks from active session with test-first workflow and progress tracking.
 
-**Version:** 4.5  
-**Loaded By:** `.github/prompts/user/execute.md`
+**Version:** 5.1 (Context-Brain Integration)  
+**Loaded By:** `.github/prompts/user/execute.md`  
+**Uses:** `#shared-module:session-loader.md`, `#shared-module:execution-tracer.md`, `#file:.github/prompts/internal/context-brain.md`
 
 ---
 
@@ -240,14 +241,49 @@ Re-run test
 
 ## 📚 Context Loading
 
-### Always Load
+### ⚡ STEP 1: Activate Contextual Intelligence (NEW - Week 4)
+
+**BEFORE executing task, invoke Context Brain:**
+
+```markdown
+#file:.github/prompts/internal/context-brain.md
+user_request: "{current task description}"
+agent_type: "executor"
+current_files: ["{files from task}"]
+```
+
+**Context Brain will provide:**
+- ⚠️ **File Confusion Warnings** (e.g., HostControlPanel vs HostControlPanelContent)
+- 🔗 **Related Files** (commonly modified together)
+- 💡 **Pattern Suggestions** (reuse existing patterns)
+- 🎨 **Test ID Patterns** (follow naming conventions)
+- 🔍 **API/Database Context** (related endpoints/tables)
+
+**Critical: Use warnings to PREVENT mistakes:**
+```yaml
+Example Warning:
+  "⚠️ FAB buttons are in HostControlPanelContent.razor, not HostControlPanel.razor"
+  
+Action:
+  - VERIFY file choice before modifying
+  - If warning is relevant, switch to suggested file
+  - Confirm with user if uncertain
+```
+
+---
+
+### STEP 2: Load Required Files
+
 ```markdown
 #shared-module:session-loader.md (session state - DIP compliant)
 #file:.github/prompts/shared/test-first.md (TDD workflow)
 #file:.github/governance/rules.md (validation rules)
 ```
 
-### Task-Specific Loading
+---
+
+### STEP 3: Task-Specific Loading (As Needed)
+
 ```markdown
 IF task involves UI:
   #file:.github/prompts/internal/test-generator.md (visual tests)

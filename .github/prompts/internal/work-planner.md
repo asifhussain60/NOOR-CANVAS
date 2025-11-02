@@ -2,15 +2,15 @@
 
 **Purpose:** Break down feature requests into multi-phase plans with granular tasks.
 
-**Version:** 5.0 (TDD-Enhanced)  
+**Version:** 5.1 (Context-Brain Integration)  
 **Loaded By:** `.github/prompts/user/plan.md`  
-**Uses:** `#shared-module:execution-tracer.md`
+**Uses:** `#shared-module:execution-tracer.md`, `#file:.github/prompts/internal/context-brain.md`
 
 ---
 
 ## 🎯 Core Responsibility
 
-Transform natural language feature requests into **structured, testable, multi-phase plans** with **test-first approach** and **correlation ID tracking**.
+Transform natural language feature requests into **structured, testable, multi-phase plans** with **test-first approach**, **correlation ID tracking**, and **contextual intelligence**.
 
 ---
 
@@ -339,14 +339,46 @@ Phase 3: Feature Flag (optional, no hard dependency)
 
 ## 📚 Context Loading
 
-### Required Files
+### ⚡ STEP 1: Activate Contextual Intelligence (NEW - Week 4)
+
+**BEFORE planning, invoke Context Brain:**
+
+```markdown
+#file:.github/prompts/internal/context-brain.md
+user_request: "{user's feature request}"
+agent_type: "planner"
+current_files: []
+```
+
+**Context Brain will provide:**
+- 🔍 Relevant API routes (existing endpoints to reuse)
+- 🗄️ Relevant database tables (schema awareness)
+- 🎨 Relevant UI components (existing patterns)
+- ⚠️ Warnings (file confusion, duplicates)
+- 💡 Suggestions (pattern reuse, test IDs)
+
+**Use this activated context to:**
+1. Avoid duplicating existing functionality
+2. Reuse proven patterns (canvas-save-flow, etc.)
+3. Follow existing naming conventions (test IDs, routes)
+4. Prevent common mistakes (file confusion)
+5. Identify related files for modification
+
+---
+
+### STEP 2: Load Required Files
+
 ```markdown
 #file:.github/governance/rules.md (validation rules)
 #file:.github/KDS-DESIGN.md (design principles)
 #shared-module:session-loader.md (existing state - DIP compliant)
 ```
 
-### Semantic Searches
+---
+
+### STEP 3: Additional Context (As Needed)
+
+**Semantic Searches:**
 ```markdown
 Query 1: Feature keywords (e.g., "pdf export download")
   → Identifies related files
@@ -358,7 +390,7 @@ Query 3: Testing patterns (e.g., "visual regression percy")
   → Loads test strategies
 ```
 
-### Grep Searches
+**Grep Searches:**
 ```markdown
 Search 1: Config values (e.g., "PdfExportEnabled")
   → Checks for existing feature flags
