@@ -1,11 +1,17 @@
 # KDS BRAIN - Knowledge Graph
 # Version: 1.0
-# Last Updated: 2025-11-02T13:20:26Z
+# Last Updated: 2025-11-02T15:30:00Z
 # Purpose: Aggregated learnings from KDS interactions
-# STATUS: RESET - Empty state
+# STATUS: ACTIVE - Learning from fab-button feature
 
 intent_patterns:
-  plan: {}
+  plan:
+    phrases:
+      - pattern: "add [X] button"
+        confidence: 0.95
+        examples:
+          - "add share button"
+          - "add fab button"
   execute: {}
   resume: {}
   correct: {}
@@ -14,9 +20,28 @@ intent_patterns:
   ask: {}
   govern: {}
 
-file_relationships: {}
+file_relationships:
+  host_control_panel:
+    primary_file: "SPA/NoorCanvas/Pages/HostControlPanel.razor"
+    related_files:
+      - path: "SPA/NoorCanvas/Services/ShareButtonInjectionService.cs"
+        relationship: "service_injection"
+        confidence: 1.0
+      - path: "SPA/NoorCanvas/wwwroot/css/noor-canvas.css"
+        relationship: "styling"
+        confidence: 1.0
+    modification_pattern: "co_modification"
 
-workflow_patterns: {}
+workflow_patterns:
+  service_layer_ui_injection:
+    description: "Service layer injection → JavaScript handlers → Toast UI"
+    steps:
+      - "Service layer injection"
+      - "JavaScript handlers"
+      - "Toast UI feedback"
+    success_rate: 1.0
+    used_in:
+      - "hcp-fab-button"
 
 correction_history:
   file_mismatch:
@@ -31,13 +56,30 @@ correction_history:
 
 validation_insights:
   common_failures: []
+  test_patterns:
+    playwright_e2e:
+      framework: "playwright"
+      canonical_test_data: "session-212"
+      used_in:
+        - "hcp-fab-button"
 
-feature_components: {}
+feature_components:
+  fab_button:
+    status: "complete"
+    completion_date: "2025-11-01"
+    files:
+      - "SPA/NoorCanvas/Pages/HostControlPanel.razor"
+      - "SPA/NoorCanvas/Services/ShareButtonInjectionService.cs"
+      - "SPA/NoorCanvas/wwwroot/css/noor-canvas.css"
+      - "Tests/UI/hcp-fab-button-injection-test.spec.ts"
+      - "Tests/UI/hcp-fab-button-click-test.spec.ts"
+    test_approach: "playwright_e2e_session_212"
+    workflow_used: "service_layer_ui_injection"
 
 statistics:
-  total_events_processed: 0
-  last_updated: "2025-11-02T13:20:26Z"
+  total_events_processed: 1
+  last_updated: "2025-11-02T15:30:00Z"
   knowledge_graph_version: "1.0"
   confidence_threshold: 0.70
   learning_enabled: true
-  status: "RESET"
+  status: "ACTIVE"
