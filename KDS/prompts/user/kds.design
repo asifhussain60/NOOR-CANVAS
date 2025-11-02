@@ -1,0 +1,1313 @@
+# KDS.DESIGN - Self-Learning Contextual Brain System
+**Version:** 5.0.0-DESIGN  
+**Status:** 🧠 ARCHITECTURAL BLUEPRINT  
+**Created:** 2025-11-02  
+**Purpose:** Transform KDS into a neuron-like self-learning system that auto-discovers application context
+
+---
+
+## 🎯 Vision: The Self-Learning "Brain"
+
+Transform KDS from a **task orchestration framework** into an **intelligent, self-learning system** that builds comprehensive knowledge about any application it works with, growing smarter with every task execution.
+
+### Core Concept
+
+Like neurons in a brain that strengthen connections through repeated use, KDS should:
+
+1. **Auto-discover** architecture, routes, database schemas, environment configs
+2. **Learn from experience** - capture what works, what fails, why
+3. **Build connections** - link related concepts (routes ↔ controllers ↔ database tables)
+4. **Strengthen pathways** - frequently used patterns become "fast paths"
+5. **Self-optimize** - adapt strategies based on success/failure history
+6. **Transfer knowledge** - apply learnings from one codebase to another
+
+---
+
+## 🧩 Problem Statement
+
+### Current State (KDS v4.5)
+
+**What Works:**
+- ✅ Task orchestration (plan → execute → test → validate)
+- ✅ Publishing mechanism (successful patterns → knowledge/)
+- ✅ Multi-chat continuity (sessions/)
+- ✅ Intent routing (universal entry point)
+
+**What's Missing:**
+- ❌ **No automatic architecture discovery** - Copilot doesn't know routes until you tell it
+- ❌ **No database schema awareness** - Must manually search for connection strings
+- ❌ **No environment knowledge** - Doesn't distinguish dev/qa/prod automatically
+- ❌ **No learning feedback loop** - Patterns published, but not actively used to improve future tasks
+- ❌ **No relationship mapping** - Can't trace "this button → this API → this DB table"
+- ❌ **No confidence scoring** - Doesn't know which patterns are most reliable
+
+### Inspiration: KSESSIONS "Total Recall"
+
+The KSESSIONS project has a **`total-recall.prompt.md`** that performs exhaustive analysis:
+
+```yaml
+Total Recall Analysis:
+  - Scan all controllers → extract API endpoints
+  - Scan all DbContext → extract database schema
+  - Scan all .razor/.cshtml → extract UI components
+  - Scan appsettings.json → extract connection strings
+  - Generate Architecture.md, InfrastructureQuickRef.md, SystemIndex.md
+  - Build complete knowledge base in one shot
+```
+
+**Problem:** This is a **one-time, manual** operation.  
+**Goal:** Make it **continuous and automatic** - run with EVERY task.
+
+---
+
+## 🧠 Solution: Neuron-Like Self-Learning Architecture
+
+### Design Principles
+
+1. **Incremental Learning** - Gather context progressively, not all at once
+2. **Contextual Activation** - Only load relevant knowledge per task
+3. **Reinforcement Learning** - Strengthen successful patterns, prune failures
+4. **Relationship Mapping** - Build knowledge graph of interconnected concepts
+5. **Confidence Scoring** - Track reliability of each piece of knowledge
+6. **Auto-Discovery** - Extract knowledge from code, don't wait for humans
+7. **Portable** - Works with ANY .NET, Node.js, Python, Java project
+
+---
+
+## 🏗️ Architecture: The Five Layers
+
+### Layer 1: Context Sensors (Auto-Discovery)
+
+**Purpose:** Continuously scan project for structural knowledge
+
+**Sensors:**
+
+#### 1. Route Sensor
+```yaml
+trigger: ANY task that mentions URLs, API, endpoints
+action: |
+  - Scan Controllers/**/*.cs for [HttpGet], [HttpPost], [Route] attributes
+  - Scan app.MapControllers(), app.UseEndpoints()
+  - Extract route patterns: /api/Canvas/Save → CanvasController.Save()
+  - Build route-to-code mapping
+storage: KDS/context/routes.json
+format: |
+  {
+    "last_scan": "2025-11-02T10:30:00Z",
+    "routes": [
+      {
+        "pattern": "/api/Canvas/Save",
+        "method": "POST",
+        "controller": "CanvasController",
+        "action": "Save",
+        "parameters": ["CanvasDto dto"],
+        "auth_required": true,
+        "file": "SPA/NoorCanvas/Controllers/CanvasController.cs",
+        "line": 145
+      }
+    ]
+  }
+```
+
+#### 2. Database Sensor
+```yaml
+trigger: ANY task that mentions data, database, save, load, query
+action: |
+  - Scan DbContext files for DbSet<T> properties
+  - Scan appsettings.json for ConnectionStrings
+  - Extract table names, relationships (navigation properties)
+  - Detect environment-specific connections (dev, qa, prod)
+  - Scan Migrations/ for schema evolution history
+storage: KDS/context/database.json
+format: |
+  {
+    "last_scan": "2025-11-02T10:30:00Z",
+    "connections": {
+      "DefaultConnection": {
+        "server": "localhost",
+        "database": "NoorCanvas_Dev",
+        "environments": ["development", "local"]
+      },
+      "ProductionConnection": {
+        "server": "prod-server.database.windows.net",
+        "database": "NoorCanvas_Prod",
+        "environments": ["production"]
+      }
+    },
+    "tables": [
+      {
+        "name": "CanvasSessions",
+        "dbset": "CanvasSessions",
+        "context": "ApplicationDbContext",
+        "file": "SPA/NoorCanvas/Data/ApplicationDbContext.cs",
+        "relationships": [
+          {"type": "one-to-many", "target": "Participants"}
+        ]
+      }
+    ]
+  }
+```
+
+#### 3. UI Component Sensor
+```yaml
+trigger: ANY task that mentions UI, component, Blazor, Razor, page
+action: |
+  - Scan *.razor for components
+  - Extract @page directives (routes)
+  - Extract data-testid attributes (Rule #15)
+  - Map component hierarchy (parent-child relationships)
+  - Detect state management (@bind, parameters)
+storage: KDS/context/ui-components.json
+format: |
+  {
+    "last_scan": "2025-11-02T10:30:00Z",
+    "components": [
+      {
+        "name": "HostControlPanelContent",
+        "file": "SPA/NoorCanvas/Components/HostControlPanelContent.razor",
+        "route": null,
+        "test_ids": [
+          "fab-share-button",
+          "fab-delete-button",
+          "qa-toggle-button"
+        ],
+        "children": ["ShareModal", "DeleteConfirmDialog"],
+        "api_calls": [
+          "POST /api/Canvas/Share",
+          "DELETE /api/Canvas/{id}"
+        ]
+      }
+    ],
+    "pages": [
+      {
+        "route": "/canvas/{sessionId:int}",
+        "component": "CanvasPage",
+        "file": "SPA/NoorCanvas/Pages/CanvasPage.razor"
+      }
+    ]
+  }
+```
+
+#### 4. Environment Sensor
+```yaml
+trigger: EVERY task execution
+action: |
+  - Read appsettings.json, appsettings.Development.json, .env files
+  - Detect current environment (ASPNETCORE_ENVIRONMENT, NODE_ENV)
+  - Extract environment-specific configs
+  - Track environment variables
+storage: KDS/context/environment.json
+format: |
+  {
+    "last_scan": "2025-11-02T10:30:00Z",
+    "current_environment": "Development",
+    "detected_from": "ASPNETCORE_ENVIRONMENT env variable",
+    "configurations": {
+      "Development": {
+        "database": "NoorCanvas_Dev",
+        "logging_level": "Debug",
+        "api_base_url": "https://localhost:7001"
+      },
+      "Production": {
+        "database": "NoorCanvas_Prod",
+        "logging_level": "Warning",
+        "api_base_url": "https://noorcanvas.azurewebsites.net"
+      }
+    }
+  }
+```
+
+#### 5. Dependency Sensor
+```yaml
+trigger: EVERY session start, package.json/csproj change
+action: |
+  - Scan package.json devDependencies
+  - Scan *.csproj PackageReference
+  - Detect test frameworks (Playwright, xUnit, MSTest)
+  - Detect quality tools (ESLint, Roslynator, Prettier)
+  - Version all dependencies
+storage: KDS/context/dependencies.json
+format: |
+  {
+    "last_scan": "2025-11-02T10:30:00Z",
+    "test_frameworks": [
+      {"name": "Playwright", "version": "1.40.0", "config": "playwright.config.ts"}
+    ],
+    "quality_tools": [
+      {"name": "Roslynator", "version": "4.7.0", "enabled": true}
+    ],
+    "frontend": [
+      {"name": "Blazor", "version": ".NET 8.0", "type": "framework"}
+    ]
+  }
+```
+
+**Sensor Orchestration:**
+```yaml
+when_to_scan:
+  full_scan: 
+    - First task in new session
+    - Explicit @workspace /context-refresh command
+    - After major codebase changes (merge, rebase)
+  
+  incremental_scan:
+    - Before EVERY task (check for changes since last scan)
+    - After code changes (post-implementation)
+    - After test creation (update ui-components with new testids)
+
+scan_strategy:
+  - Read KDS/context/*.json (cached knowledge)
+  - Check last_scan timestamp vs file modification dates
+  - Only re-scan files that changed
+  - Merge new findings with existing knowledge
+  - Deduplicate and consolidate
+```
+
+---
+
+### Layer 2: Knowledge Graph (Relationship Mapping)
+
+**Purpose:** Build interconnected map of application components
+
+**Graph Structure:**
+
+```yaml
+nodes:
+  - type: UI_COMPONENT
+    properties: [name, file, route, test_ids]
+  
+  - type: API_ENDPOINT
+    properties: [route, method, controller, action]
+  
+  - type: DATABASE_TABLE
+    properties: [name, dbset, context, schema]
+  
+  - type: SERVICE
+    properties: [name, file, methods]
+  
+  - type: ENVIRONMENT
+    properties: [name, config, active]
+
+edges:
+  - UI_COMPONENT --calls--> API_ENDPOINT
+  - API_ENDPOINT --uses--> SERVICE
+  - SERVICE --queries--> DATABASE_TABLE
+  - DATABASE_TABLE --relates_to--> DATABASE_TABLE
+  - API_ENDPOINT --auth_required--> true/false
+  - ENVIRONMENT --configures--> DATABASE_TABLE
+```
+
+**Example Graph:**
+
+```mermaid
+graph LR
+    A[HostControlPanelContent.razor] -->|calls| B[POST /api/Canvas/Share]
+    B -->|uses| C[CanvasService.ShareCanvas]
+    C -->|queries| D[CanvasSessions table]
+    D -->|relates_to| E[Participants table]
+    F[Development Env] -->|configures| D
+    G[Production Env] -->|configures| D
+```
+
+**Storage:**
+
+```json
+// KDS/context/knowledge-graph.json
+{
+  "last_updated": "2025-11-02T10:30:00Z",
+  "version": "1.0",
+  "nodes": [
+    {
+      "id": "ui_hostcontrolpanelcontent",
+      "type": "UI_COMPONENT",
+      "name": "HostControlPanelContent",
+      "file": "SPA/NoorCanvas/Components/HostControlPanelContent.razor"
+    },
+    {
+      "id": "api_canvas_share",
+      "type": "API_ENDPOINT",
+      "route": "/api/Canvas/Share",
+      "method": "POST"
+    }
+  ],
+  "edges": [
+    {
+      "from": "ui_hostcontrolpanelcontent",
+      "to": "api_canvas_share",
+      "type": "calls",
+      "confidence": 0.95,
+      "evidence": "Found @onclick=\"ShareCanvas\" → HTTP POST to /api/Canvas/Share"
+    }
+  ]
+}
+```
+
+**Graph Queries:**
+
+```yaml
+query_examples:
+  - "What UI components call this API endpoint?"
+    → Traverse edges: API_ENDPOINT <--calls-- UI_COMPONENT
+  
+  - "What database tables does this page touch?"
+    → Traverse: UI_COMPONENT → API_ENDPOINT → SERVICE → DATABASE_TABLE
+  
+  - "What's the full flow for saving a canvas?"
+    → Trace: UI save button → API → Service → Database → SignalR broadcast → UI update
+```
+
+---
+
+### Layer 3: Learning Engine (Reinforcement & Confidence)
+
+**Purpose:** Learn from successes and failures, strengthen good patterns
+
+**Confidence Scoring:**
+
+Every piece of knowledge has a **confidence score** (0.0 to 1.0):
+
+```yaml
+confidence_factors:
+  - source_reliability:
+      code_analysis: 0.9  # High confidence (static analysis)
+      user_confirmation: 1.0  # Highest (user verified)
+      inference: 0.6  # Medium (heuristic-based)
+      assumption: 0.3  # Low (guessed)
+  
+  - verification_count:
+      never_verified: 0.5
+      verified_once: 0.7
+      verified_3_times: 0.9
+      verified_10_times: 0.95
+  
+  - recency:
+      last_24_hours: 1.0
+      last_7_days: 0.9
+      last_30_days: 0.7
+      older_90_days: 0.5
+
+  - success_rate:
+      pattern_succeeded: confidence += 0.1
+      pattern_failed: confidence -= 0.2
+      pattern_ignored: confidence -= 0.05
+```
+
+**Example:**
+
+```json
+{
+  "knowledge_item": {
+    "fact": "CanvasController.Save uses CanvasService",
+    "confidence": 0.85,
+    "source": "code_analysis",
+    "verified_count": 3,
+    "last_verified": "2025-11-02T10:30:00Z",
+    "success_history": [
+      {"task": "canvas-save-fix", "outcome": "success"},
+      {"task": "canvas-validation", "outcome": "success"},
+      {"task": "canvas-refactor", "outcome": "success"}
+    ]
+  }
+}
+```
+
+**Learning Feedback Loop:**
+
+```yaml
+task_execution:
+  pre_task:
+    - Load relevant knowledge (contextual activation)
+    - Show confidence scores for guidance
+    - "Route /api/Canvas/Save (confidence: 0.85) likely uses CanvasService"
+  
+  during_task:
+    - Track which knowledge items were used
+    - Track which were correct vs incorrect
+  
+  post_task:
+    - Update confidence scores based on outcome
+    - If pattern succeeded: confidence += 0.1
+    - If pattern failed: confidence -= 0.2
+    - If new discovery: add to knowledge graph
+    - Prune low-confidence items (<0.3) after 90 days
+```
+
+**Pattern Reinforcement:**
+
+```yaml
+frequently_used_patterns:
+  - pattern: "Canvas save flow: UI → API → Service → DB"
+    usage_count: 47
+    success_rate: 0.96
+    status: STRONG_PATHWAY (fast path)
+  
+  - pattern: "Delete requires auth check"
+    usage_count: 12
+    success_rate: 1.0
+    status: STRONG_PATHWAY
+  
+  - pattern: "Use polling for real-time updates"
+    usage_count: 3
+    success_rate: 0.33
+    status: WEAK_PATHWAY (deprecated - prefer SignalR)
+```
+
+---
+
+### Layer 4: Contextual Activation (Smart Loading)
+
+**Purpose:** Load ONLY relevant knowledge per task (avoid context overflow)
+
+**Activation Strategy:**
+
+```yaml
+task_analysis:
+  step_1_extract_keywords:
+    user_request: "I want to add a save button to the canvas"
+    keywords: [save, button, canvas, UI]
+  
+  step_2_activate_relevant_nodes:
+    - UI_COMPONENT: CanvasPage, HostControlPanelContent
+    - API_ENDPOINT: POST /api/Canvas/Save
+    - SERVICE: CanvasService
+    - DATABASE_TABLE: CanvasSessions
+    - TEST_PATTERN: canvas-save-flow.md
+  
+  step_3_load_context:
+    - Read KDS/context/routes.json → filter to Canvas routes
+    - Read KDS/context/database.json → filter to CanvasSessions
+    - Read KDS/knowledge/workflows/canvas-save-flow.md
+    - Build mini-graph: Canvas UI → API → DB
+  
+  step_4_provide_to_copilot:
+    context: |
+      Relevant Routes:
+      - POST /api/Canvas/Save (CanvasController.Save)
+      
+      Relevant Database:
+      - CanvasSessions table (ApplicationDbContext)
+      
+      Existing Pattern (confidence: 0.96):
+      - Canvas save flow: UI button → POST /api/Canvas/Save → CanvasService.SaveCanvas() → DbContext.SaveChangesAsync()
+      
+      Test IDs already in use:
+      - canvas-save-button (confidence: 0.9)
+```
+
+**Activation Algorithms:**
+
+```python
+def activate_relevant_context(user_request, knowledge_graph):
+    # Step 1: Extract keywords
+    keywords = extract_keywords(user_request)
+    
+    # Step 2: Find relevant nodes (graph search)
+    relevant_nodes = []
+    for keyword in keywords:
+        nodes = knowledge_graph.search(keyword)
+        relevant_nodes.extend(nodes)
+    
+    # Step 3: Expand to connected nodes (1-hop traversal)
+    for node in relevant_nodes:
+        neighbors = knowledge_graph.get_neighbors(node, max_hops=1)
+        relevant_nodes.extend(neighbors)
+    
+    # Step 4: Filter by confidence (only load high-confidence knowledge)
+    filtered_nodes = [n for n in relevant_nodes if n.confidence > 0.7]
+    
+    # Step 5: Sort by relevance score
+    sorted_nodes = sort_by_relevance(filtered_nodes, keywords)
+    
+    # Step 6: Load top 10 nodes (avoid context overflow)
+    top_nodes = sorted_nodes[:10]
+    
+    return build_context_summary(top_nodes)
+```
+
+---
+
+### Layer 5: Auto-Documentation (Knowledge Externalization)
+
+**Purpose:** Generate human-readable docs from knowledge graph
+
+**Auto-Generated Documents:**
+
+#### 1. Architecture.md (Auto-Updated)
+```yaml
+trigger: After EVERY context scan
+action: |
+  - Regenerate Controllers section from routes.json
+  - Regenerate Database section from database.json
+  - Regenerate UI section from ui-components.json
+  - Maintain consistent format
+template: KDS/templates/Architecture.md.template
+output: KDS/docs/Architecture.md
+```
+
+#### 2. API-Routes.md (Auto-Generated)
+```yaml
+trigger: After route sensor scan
+action: |
+  - Group routes by controller
+  - Show method, parameters, auth requirements
+  - Link to code files
+output: KDS/docs/API-Routes.md
+example: |
+  ## CanvasController
+  
+  **POST /api/Canvas/Save**
+  - Action: `Save(CanvasDto dto)`
+  - Auth: Required
+  - File: SPA/NoorCanvas/Controllers/CanvasController.cs:145
+  - Related: CanvasService.SaveCanvas(), CanvasSessions table
+```
+
+#### 3. Database-Schema.md (Auto-Generated)
+```yaml
+trigger: After database sensor scan
+action: |
+  - List all tables with columns
+  - Show relationships (FK constraints)
+  - Environment-specific connections
+output: KDS/docs/Database-Schema.md
+```
+
+#### 4. UI-TestID-Map.md (Auto-Generated)
+```yaml
+trigger: After UI component sensor scan
+action: |
+  - List all data-testid attributes
+  - Group by component
+  - Show Playwright selectors
+output: KDS/docs/UI-TestID-Map.md
+example: |
+  ## HostControlPanelContent.razor
+  
+  - `fab-share-button` → Share button (line 47)
+  - `fab-delete-button` → Delete button (line 52)
+  
+  **Playwright Selector:**
+  `await page.getByTestId('fab-share-button').click();`
+```
+
+---
+
+## 🔧 Integration with Existing KDS
+
+### Modified Workflow
+
+#### Before (v4.5):
+```yaml
+User: #file:KDS/prompts/user/kds.md I want to add a save button
+  ↓
+Intent Router: Detects PLAN intent
+  ↓
+Work Planner: Creates plan (NO context about existing save flows)
+  ↓
+User: Continue
+  ↓
+Code Executor: Implements (may duplicate existing patterns)
+```
+
+#### After (v5.0 - With Brain):
+```yaml
+User: #file:KDS/prompts/user/kds.md I want to add a save button
+  ↓
+Intent Router: Detects PLAN intent
+  ↓
+Context Activation: Load relevant knowledge
+  - Routes: POST /api/Canvas/Save (confidence: 0.95)
+  - Pattern: canvas-save-flow.md (success rate: 96%)
+  - UI: Existing save button testid="canvas-save-button"
+  ↓
+Work Planner: Creates plan WITH context
+  - "Existing save flow detected (confidence: 0.95)"
+  - "Reuse pattern: canvas-save-flow.md"
+  - "Avoid duplication: save button already exists"
+  ↓
+User: Continue
+  ↓
+Code Executor: Implements using KNOWN patterns
+  ↓
+Learning Engine: Update confidence (success → +0.1)
+```
+
+### New Agent: Context Brain
+
+**Location:** `KDS/prompts/internal/context-brain.md`
+
+**Purpose:** Orchestrate all context sensors and knowledge graph
+
+```yaml
+invocation:
+  - Called BEFORE work-planner.md
+  - Called BEFORE code-executor.md
+  - Called BEFORE test-generator.md
+
+workflow:
+  step_1_check_cache:
+    - Read KDS/context/*.json files
+    - Check last_scan timestamps
+  
+  step_2_incremental_scan:
+    - Detect changed files since last scan
+    - Run relevant sensors (route, database, UI, etc.)
+    - Merge new findings into knowledge graph
+  
+  step_3_contextual_activation:
+    - Extract keywords from user request
+    - Query knowledge graph for relevant nodes
+    - Load high-confidence context
+  
+  step_4_provide_context:
+    - Return formatted context to calling agent
+    - Include confidence scores
+    - Suggest existing patterns
+  
+  step_5_post_task_learning:
+    - Update confidence scores based on task outcome
+    - Publish new patterns to knowledge/
+    - Prune low-confidence items
+```
+
+---
+
+## 🛠️ Open Source Tools to Leverage
+
+### 1. Knowledge Graph Storage
+
+**Option A: Neo4j (Graph Database)**
+```yaml
+pros:
+  - Purpose-built for relationship queries
+  - Cypher query language (powerful graph traversal)
+  - Visualization tools built-in
+cons:
+  - External dependency (violates Rule #18 local-first)
+  - Heavyweight for single-user KDS
+verdict: ❌ Too heavy, violates local-first principle
+```
+
+**Option B: ArangoDB (Multi-Model)**
+```yaml
+pros:
+  - Graph + document + key-value in one DB
+  - Can run embedded or server mode
+  - AQL query language
+cons:
+  - Still external dependency
+  - Overkill for KDS needs
+verdict: ❌ Too complex
+```
+
+**Option C: JSON Files + Custom Graph Library**
+```yaml
+approach: |
+  - Store nodes and edges in KDS/context/knowledge-graph.json
+  - Implement lightweight graph traversal in JavaScript/PowerShell
+  - No external dependencies
+pros:
+  - ✅ Local-first (Rule #18 compliant)
+  - ✅ Human-readable (JSON)
+  - ✅ Git-trackable (version control)
+  - ✅ Zero setup
+cons:
+  - Manual graph queries (no Cypher)
+  - Performance limits (large graphs >10k nodes)
+verdict: ✅ RECOMMENDED for KDS v5.0
+```
+
+### 2. Vector Similarity (Pattern Matching)
+
+**Option A: Chroma DB (Vector Database)**
+```yaml
+use_case: Find similar code patterns
+approach: |
+  - Embed code snippets as vectors
+  - Query for semantic similarity
+  - "Find controllers similar to CanvasController"
+pros:
+  - Excellent for semantic search
+  - Python-friendly (can embed via subprocess)
+cons:
+  - External dependency
+  - Requires embeddings model (OpenAI, local LLM)
+verdict: ⚠️ FUTURE ENHANCEMENT (v6.0)
+```
+
+**Option B: Simple TF-IDF (Term Frequency)**
+```yaml
+use_case: Find similar patterns in knowledge base
+approach: |
+  - Calculate term frequency in pattern descriptions
+  - Compare documents using cosine similarity
+  - Pure algorithmic (no ML needed)
+pros:
+  - ✅ Zero dependencies
+  - ✅ Fast for small knowledge bases
+cons:
+  - Less accurate than embeddings
+verdict: ✅ RECOMMENDED for v5.0 pattern deduplication
+```
+
+### 3. Mem0 (Memory Layer for LLMs)
+
+**What is Mem0?**
+```yaml
+description: |
+  Open-source memory layer for AI agents
+  Stores conversational context and facts
+  Retrieves relevant memories based on current conversation
+github: mem0ai/mem0
+```
+
+**Evaluation for KDS:**
+```yaml
+pros:
+  - Built for multi-session continuity (like KDS sessions/)
+  - Supports vector search for context retrieval
+  - Python SDK available
+cons:
+  - Python-based (KDS is PowerShell/Copilot-native)
+  - Requires embedding model
+  - External service (violates local-first)
+verdict: ❌ Not suitable (but concepts can be borrowed)
+```
+
+### 4. LangChain Memory
+
+**What is LangChain Memory?**
+```yaml
+description: |
+  Memory modules for LLM chains
+  ConversationBufferMemory, ConversationSummaryMemory
+  Stores chat history and context
+github: langchain-ai/langchain
+```
+
+**Evaluation for KDS:**
+```yaml
+pros:
+  - Well-documented patterns for context management
+  - Multiple memory types (buffer, summary, entity)
+cons:
+  - Python library (not Copilot-native)
+  - Designed for LangChain ecosystem
+verdict: ❌ Not directly usable (but design patterns are valuable)
+```
+
+### 5. Obsidian Graph (Local Knowledge Management)
+
+**What is Obsidian?**
+```yaml
+description: |
+  Markdown-based knowledge management
+  Auto-generates graph of linked notes
+  Local-first, Git-friendly
+```
+
+**Evaluation for KDS:**
+```yaml
+pros:
+  - ✅ Local-first (all data in markdown)
+  - ✅ Git-trackable
+  - ✅ Graph visualization built-in
+  - ✅ Wikilink syntax [[note]] for relationships
+cons:
+  - Requires Obsidian app to view graph
+  - Not programmable (no API for KDS integration)
+verdict: ⚠️ INSPIRATION for KDS markdown graph format
+```
+
+**Borrowed Concept:**
+
+```yaml
+knowledge_markdown_format:
+  - Use [[wikilinks]] in KDS/context/*.md files
+  - Example: "CanvasController uses [[CanvasService]] to save to [[CanvasSessions]]"
+  - Build graph by parsing [[links]]
+  - Render graph in GitHub (markdown preview shows links)
+```
+
+### 6. SQLite (Embedded Database)
+
+**Use Case:** Store context cache locally
+
+```yaml
+approach: |
+  - Create KDS/context/kds-context.db (SQLite)
+  - Tables: routes, database_tables, ui_components, knowledge_graph
+  - Query with SQL (fast, indexed)
+  - No external server needed
+pros:
+  - ✅ Local-first (embedded, zero-config)
+  - ✅ Fast queries (indexed)
+  - ✅ ACID transactions
+  - ✅ Git-trackable (binary, but can export to JSON)
+cons:
+  - Binary file (harder to review in PRs)
+  - Requires SQLite CLI (usually pre-installed)
+verdict: ✅ RECOMMENDED for v5.1+ (performance optimization)
+```
+
+---
+
+## 📊 Recommended Approach for KDS v5.0
+
+### Phase 1: Foundation (MVP)
+
+**Implement:**
+
+1. **Context Sensors** (5 sensors)
+   - Route Sensor → `KDS/context/routes.json`
+   - Database Sensor → `KDS/context/database.json`
+   - UI Component Sensor → `KDS/context/ui-components.json`
+   - Environment Sensor → `KDS/context/environment.json`
+   - Dependency Sensor → `KDS/context/dependencies.json`
+
+2. **Knowledge Graph (JSON-based)**
+   - `KDS/context/knowledge-graph.json`
+   - Simple node/edge structure
+   - Manual graph traversal (JavaScript/PowerShell)
+
+3. **Confidence Scoring**
+   - Every knowledge item has confidence (0.0-1.0)
+   - Update based on task outcomes
+
+4. **Contextual Activation**
+   - Keyword extraction from user requests
+   - Load top 10 relevant nodes
+   - Provide context to work-planner.md
+
+5. **Context Brain Agent**
+   - `KDS/prompts/internal/context-brain.md`
+   - Orchestrates sensors, graph queries, activation
+
+**NO External Dependencies** (Rule #18 compliant)
+
+### Phase 2: Learning Engine (v5.1)
+
+**Add:**
+
+1. **Reinforcement Learning**
+   - Track pattern success/failure
+   - Strengthen good pathways
+   - Prune weak pathways
+
+2. **TF-IDF Pattern Similarity**
+   - Deduplicate similar patterns
+   - Find related knowledge
+
+3. **Auto-Documentation**
+   - Regenerate Architecture.md
+   - Generate API-Routes.md
+   - Generate Database-Schema.md
+
+### Phase 3: Advanced Features (v6.0)
+
+**Add:**
+
+1. **Vector Embeddings (Optional)**
+   - Integrate Chroma DB for semantic search
+   - Requires user opt-in (external dependency)
+
+2. **SQLite Storage (Performance)**
+   - Migrate from JSON to SQLite
+   - Faster queries for large graphs
+
+3. **Visual Graph Viewer**
+   - Web UI for knowledge graph
+   - D3.js or Cytoscape.js visualization
+
+---
+
+## 🚀 Implementation Roadmap
+
+### Week 1: Context Sensors
+
+**Tasks:**
+1. Create `KDS/context/` folder structure
+2. Implement Route Sensor (scan controllers)
+3. Implement Database Sensor (scan DbContext)
+4. Implement UI Component Sensor (scan .razor)
+5. Test incremental scanning (detect changed files)
+
+**Deliverables:**
+- `KDS/context/routes.json` (auto-generated)
+- `KDS/context/database.json` (auto-generated)
+- `KDS/context/ui-components.json` (auto-generated)
+
+### Week 2: Knowledge Graph
+
+**Tasks:**
+1. Design JSON schema for knowledge-graph.json
+2. Implement graph builder (parse sensor outputs → graph)
+3. Implement graph queries (find related nodes)
+4. Add confidence scoring
+
+**Deliverables:**
+- `KDS/context/knowledge-graph.json`
+- Graph query library (JavaScript/PowerShell)
+
+### Week 3: Context Brain Agent
+
+**Tasks:**
+1. Create `context-brain.md` internal agent
+2. Integrate with work-planner.md (pre-planning context load)
+3. Implement contextual activation algorithm
+4. Test end-to-end: user request → context load → planning
+
+**Deliverables:**
+- `KDS/prompts/internal/context-brain.md`
+- Modified work-planner.md (calls context-brain first)
+
+### Week 4: Learning & Reinforcement
+
+**Tasks:**
+1. Add post-task feedback (update confidence scores)
+2. Implement pattern reinforcement (usage tracking)
+3. Auto-publish successful patterns with confidence
+4. Prune low-confidence knowledge
+
+**Deliverables:**
+- Learning feedback loop (integrated into mandatory-post-task.md)
+- Confidence-based knowledge pruning
+
+### Week 5: Auto-Documentation
+
+**Tasks:**
+1. Create Architecture.md template
+2. Implement auto-generation from knowledge graph
+3. Generate API-Routes.md
+4. Generate Database-Schema.md
+
+**Deliverables:**
+- `KDS/docs/Architecture.md` (auto-updated)
+- `KDS/docs/API-Routes.md` (auto-generated)
+- `KDS/docs/Database-Schema.md` (auto-generated)
+
+---
+
+## 📐 Design Decisions
+
+### Why JSON over Graph Database?
+
+**Decision:** Use JSON files for knowledge graph storage
+
+**Rationale:**
+- ✅ Local-first (Rule #18 compliance)
+- ✅ Git-trackable (version control)
+- ✅ Human-readable (easy debugging)
+- ✅ Zero dependencies
+- ✅ Works in any environment
+
+**Trade-off:** Manual graph queries (no Cypher), slower for large graphs
+
+**Future:** Migrate to SQLite if performance becomes issue (>10k nodes)
+
+### Why Incremental Scanning?
+
+**Decision:** Scan only changed files, not entire codebase every time
+
+**Rationale:**
+- ✅ Performance (large codebases would be slow)
+- ✅ Efficiency (most files don't change)
+- ✅ Battery-friendly (laptops)
+
+**Implementation:** Compare file modification timestamps to last_scan
+
+### Why Confidence Scoring?
+
+**Decision:** Every knowledge item has confidence score (0.0-1.0)
+
+**Rationale:**
+- ✅ Handle uncertainty (inferred vs verified knowledge)
+- ✅ Reinforcement learning (strengthen good patterns)
+- ✅ Pruning (remove unreliable knowledge)
+- ✅ Transparency (show Copilot confidence levels)
+
+### Why Contextual Activation?
+
+**Decision:** Load only top 10 relevant nodes per task
+
+**Rationale:**
+- ✅ Avoid context overflow (token limits)
+- ✅ Faster loading (don't read entire graph)
+- ✅ Relevant context only (noise reduction)
+
+**Algorithm:** Keyword extraction → graph search → confidence filter → relevance sort
+
+---
+
+## 🎓 Success Metrics
+
+### Knowledge Graph Metrics
+
+```yaml
+target_metrics:
+  - nodes_discovered: ">100 nodes" (routes, tables, components)
+  - edges_mapped: ">200 edges" (relationships)
+  - confidence_avg: ">0.8" (reliable knowledge)
+  - coverage: ">80% of codebase mapped"
+  - freshness: "< 7 days since last full scan"
+```
+
+### Learning Metrics
+
+```yaml
+target_metrics:
+  - pattern_reuse_rate: ">60%" (use existing patterns vs creating new)
+  - pattern_success_rate: ">90%" (patterns that worked)
+  - duplication_reduction: ">40%" (less code duplication)
+  - context_accuracy: ">85%" (relevant context loaded)
+```
+
+### Performance Metrics
+
+```yaml
+target_metrics:
+  - context_load_time: "< 2 seconds" (sensor scans + graph query)
+  - incremental_scan_time: "< 500ms" (changed files only)
+  - full_scan_time: "< 30 seconds" (entire codebase)
+  - memory_usage: "< 100MB" (knowledge graph in memory)
+```
+
+---
+
+## 🔐 Governance & Rules
+
+### New Rules for v5.0
+
+**RULE #19: Incremental Context Gathering**
+
+```yaml
+rule_id: INCREMENTAL_CONTEXT
+severity: MANDATORY
+scope: ALL_TASKS
+
+mandate: |
+  Context Brain MUST run before work-planner, code-executor, test-generator.
+  NO task execution without contextual activation.
+  ALWAYS load relevant knowledge from graph.
+
+workflow:
+  step_1: User invokes task (via kds.md)
+  step_2: Intent Router dispatches to specialist
+  step_3: Specialist invokes context-brain.md FIRST
+  step_4: Context Brain scans + activates relevant knowledge
+  step_5: Context provided to specialist agent
+  step_6: Specialist executes with context
+
+enforcement:
+  - Pre-task validation checks for context-brain invocation
+  - HALT if context not loaded
+```
+
+**RULE #20: Knowledge Confidence Tracking**
+
+```yaml
+rule_id: CONFIDENCE_TRACKING
+severity: HIGH
+scope: ALL_KNOWLEDGE_ITEMS
+
+mandate: |
+  Every knowledge item MUST have confidence score (0.0-1.0).
+  Update confidence based on task outcomes.
+  Prune items with confidence < 0.3 after 90 days.
+
+confidence_updates:
+  - pattern_succeeded: confidence += 0.1
+  - pattern_failed: confidence -= 0.2
+  - pattern_ignored: confidence -= 0.05
+  - user_confirmed: confidence = 1.0
+  - user_rejected: confidence = 0.0
+
+pruning_policy:
+  - confidence < 0.3 AND age > 90 days → DELETE
+  - confidence < 0.5 AND age > 180 days → ARCHIVE
+```
+
+**RULE #21: Auto-Documentation Generation**
+
+```yaml
+rule_id: AUTO_DOCS
+severity: MEDIUM
+scope: CONTEXT_SENSORS
+
+mandate: |
+  After EVERY context scan, regenerate documentation.
+  Architecture.md, API-Routes.md, Database-Schema.md MUST stay current.
+
+workflow:
+  step_1: Context sensor completes scan
+  step_2: Update knowledge graph
+  step_3: Regenerate affected documentation
+  step_4: Commit with message: "AUTO-DOC: Updated {doc_name} from context scan"
+
+validation:
+  - Docs must be regenerated within 5 minutes of scan
+  - Git commit MUST include both .json and .md changes
+```
+
+---
+
+## 🧪 Testing Strategy
+
+### Unit Tests for Context Brain
+
+```csharp
+// Test: Route Sensor
+[Test]
+public void RouteSensor_ShouldExtractAllApiEndpoints()
+{
+    var sensor = new RouteSensor();
+    var routes = sensor.Scan("SPA/NoorCanvas/Controllers");
+    
+    Assert.That(routes.Count, Is.GreaterThan(10));
+    Assert.That(routes, Has.Some.Matches<Route>(r => r.Pattern == "/api/Canvas/Save"));
+}
+
+// Test: Knowledge Graph Builder
+[Test]
+public void KnowledgeGraph_ShouldLinkUIToAPI()
+{
+    var graph = BuildTestGraph();
+    var ui = graph.FindNode("HostControlPanelContent");
+    var api = graph.FindNode("POST /api/Canvas/Share");
+    
+    Assert.That(graph.HasEdge(ui, api), Is.True);
+}
+
+// Test: Contextual Activation
+[Test]
+public void ContextBrain_ShouldLoadRelevantNodesOnly()
+{
+    var brain = new ContextBrain();
+    var context = brain.Activate("I want to add a save button");
+    
+    Assert.That(context.Nodes.Count, Is.LessThanOrEqualTo(10)); // Max 10 nodes
+    Assert.That(context.Nodes, Has.Some.Matches<Node>(n => n.Type == "API_ENDPOINT" && n.Name.Contains("Save")));
+}
+```
+
+### Integration Tests
+
+```yaml
+test_scenarios:
+  - scenario: "Full context scan on fresh codebase"
+    steps:
+      - Run @workspace /context-refresh
+      - Verify routes.json generated
+      - Verify database.json generated
+      - Verify knowledge-graph.json generated
+    
+  - scenario: "Incremental scan after code change"
+    steps:
+      - Modify CanvasController.cs
+      - Run context scan
+      - Verify ONLY CanvasController routes updated
+      - Verify timestamps updated
+  
+  - scenario: "Contextual activation for save button task"
+    steps:
+      - User: "I want to add a save button"
+      - Verify context-brain loads Canvas-related nodes
+      - Verify confidence scores shown
+      - Verify existing patterns suggested
+```
+
+---
+
+## 📚 Documentation Updates Required
+
+### Update KDS-DESIGN.md
+
+**Add sections:**
+- Context Brain Architecture (Layer 1-5)
+- Knowledge Graph structure
+- Confidence scoring system
+- Sensor specifications
+
+### Create New Docs
+
+1. **CONTEXT-BRAIN-GUIDE.md**
+   - How context sensors work
+   - How to add new sensors
+   - Knowledge graph schema
+   - Query examples
+
+2. **CONFIDENCE-SCORING.md**
+   - Confidence calculation formulas
+   - Reinforcement learning rules
+   - Pruning policies
+
+3. **KNOWLEDGE-GRAPH-SCHEMA.md**
+   - Node types
+   - Edge types
+   - JSON format specification
+   - Query language (custom)
+
+---
+
+## 🎉 Summary
+
+### What This Design Achieves
+
+✅ **Auto-Discovery** - Scans code for routes, DB, UI components  
+✅ **Relationship Mapping** - Builds knowledge graph of interconnections  
+✅ **Self-Learning** - Reinforcement learning from success/failure  
+✅ **Contextual Intelligence** - Loads only relevant knowledge per task  
+✅ **Zero External Dependencies** - Local-first JSON storage (Rule #18)  
+✅ **Continuous Improvement** - Confidence scoring + pruning  
+✅ **Auto-Documentation** - Regenerates docs from knowledge graph  
+✅ **Portable** - Works with .NET, Node.js, Python, Java projects  
+
+### Comparison to Current KDS (v4.5)
+
+| Feature | v4.5 (Current) | v5.0 (Brain Design) |
+|---------|----------------|---------------------|
+| **Architecture Discovery** | ❌ Manual | ✅ Automatic (sensors) |
+| **Route Knowledge** | ❌ None | ✅ Auto-extracted from controllers |
+| **Database Awareness** | ❌ None | ✅ Auto-extracted from DbContext |
+| **UI Component Map** | ⚠️ Manual (via Rule #15) | ✅ Auto-scanned |
+| **Environment Knowledge** | ❌ None | ✅ Auto-detected (dev/qa/prod) |
+| **Relationship Mapping** | ❌ None | ✅ Knowledge graph |
+| **Learning from Tasks** | ⚠️ Publish patterns only | ✅ Reinforcement + confidence |
+| **Context Loading** | ❌ Load everything | ✅ Contextual activation (top 10) |
+| **Documentation** | ⚠️ Manual updates | ✅ Auto-generated from graph |
+
+### Next Steps
+
+1. **Review this design** with stakeholders
+2. **Prototype Route Sensor** (Week 1 MVP)
+3. **Validate JSON schema** for knowledge graph
+4. **Implement context-brain.md** agent
+5. **Test end-to-end** with real task
+
+---
+
+## 🔗 References
+
+### Inspiration Sources
+
+1. **KSESSIONS Total Recall** - Exhaustive project analysis pattern
+2. **Obsidian Graph** - Local-first knowledge graph with wikilinks
+3. **Mem0** - Memory layer concepts for multi-session continuity
+4. **LangChain Memory** - Context management patterns
+5. **Neo4j** - Graph database query concepts (adapted for JSON)
+
+### Related KDS Documents
+
+- `KDS/KDS-DESIGN.md` - Current KDS architecture (v4.5)
+- `KDS/governance/rules.md` - All KDS rules (v4.4)
+- `KDS/prompts/user/kds.md` - Universal entry point
+- `Workspaces/TEMP/KDS_KSESSIONS/prompts/total-recall.prompt.md` - Context gathering inspiration
+
+---
+
+**END OF DESIGN DOCUMENT**
+
+This design is ready for implementation. No external dependencies required (Rule #18 compliant). All knowledge stored locally in JSON files. Fully portable across codebases.
+
+**Approval Status:** ⏳ Awaiting stakeholder review  
+**Implementation:** 🚀 Ready to begin Week 1 (Context Sensors)
