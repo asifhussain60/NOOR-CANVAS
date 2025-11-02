@@ -152,11 +152,11 @@ public class AssetProcessingService
             }
 
             var finalHtml = document.Body?.InnerHtml ?? html;
-            _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Asset detection complete - injected {TotalMatches} share buttons",
+            _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Asset grouping complete - created {TotalMatches} asset containers",
                 runId, totalMatches);
-            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? DOM INJECTION COMPLETE: {ButtonCount} buttons injected at {Time}",
+            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? DOM WRAPPING COMPLETE: {ContainerCount} asset containers created at {Time}",
                 runId, totalMatches, DateTime.Now.ToString("HH:mm:ss.fff"));
-            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ? NOTE: JavaScript handlers will be attached separately - watch for timing gaps",
+            _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ? NOTE: JavaScript menu handlers will be attached separately - watch for timing gaps",
                 runId);
             _logger.LogInformation("[ASSETSHARE-DB:{RunId}] Final HTML length: {FinalLength} (was {OriginalLength})",
                 runId, finalHtml.Length, html.Length);
@@ -166,6 +166,85 @@ public class AssetProcessingService
         catch (Exception ex)
         {
             _logger.LogError(ex, "[ASSETSHARE-DB:{RunId}] Failed to inject share buttons, returning original HTML", runId);
+            return html;
+        }
+    }
+
+    /// <summary>
+    /// Mark asset locations without injecting interactive buttons.
+    /// Adds data attributes to track asset positions for testing and debugging.
+    /// [ROUTE:remove-fab-injection] Replace button injection with location markers.
+    /// </summary>
+    /// <param name="html">The HTML content to process for asset marking.</param>
+    /// <param name="sessionId">The session ID for logging.</param>
+    /// <returns>The HTML with asset location markers added.</returns>
+    public async Task<string> MarkAssetLocationsAsync(string html, string sessionId)
+    {
+        try
+        {
+            var runId = $"{sessionId}-mark-{DateTime.Now:HHmmss}";
+            _logger.LogInformation("[ASSET-MARKER:{RunId}] Marking asset locations (no button injection)", runId);
+
+            if (string.IsNullOrEmpty(html))
+            {
+                _logger.LogWarning("[ASSET-MARKER:{RunId}] Empty HTML provided", runId);
+                return html;
+            }
+
+            // Get active asset types from AssetLookup API
+            var assetLookups = await GetAssetLookupsFromApiAsync(runId);
+
+            if (!assetLookups.Any())
+            {
+                _logger.LogWarning("[ASSET-MARKER:{RunId}] No asset lookups found", runId);
+                return html;
+            }
+
+            // Parse HTML document
+            var parser = new HtmlParser();
+            var document = parser.ParseDocument(html);
+            var totalMarked = 0;
+
+            // Process each asset type
+            foreach (var assetLookup in assetLookups)
+            {
+                var elements = document.QuerySelectorAll(assetLookup.CssSelector ?? string.Empty);
+
+                if (elements.Length > 0)
+                {
+                    _logger.LogInformation("[ASSET-MARKER:{RunId}] Found {Count} instances of {AssetType}",
+                        runId, elements.Length, assetLookup.AssetIdentifier);
+
+                    for (int i = 0; i < elements.Length; i++)
+                    {
+                        var element = elements[i];
+                        var instanceNumber = i + 1;
+                        var shareId = $"asset-{assetLookup.AssetIdentifier}-{instanceNumber}";
+
+                        // Add marker data attributes
+                        element.SetAttribute("data-noor-asset-marker", "true");
+                        element.SetAttribute("data-asset-type", assetLookup.AssetIdentifier);
+                        element.SetAttribute("data-asset-instance", instanceNumber.ToString());
+                        element.SetAttribute("data-share-id", shareId);
+                        element.SetAttribute("data-display-name", assetLookup.DisplayName ?? assetLookup.AssetIdentifier);
+
+                        // Add visual marker comment
+                        var comment = document.CreateComment($" NOOR-ASSET-LOCATION: {assetLookup.DisplayName} #{instanceNumber} (ID: {shareId}) ");
+                        element.ParentElement?.InsertBefore(comment, element);
+
+                        totalMarked++;
+                    }
+                }
+            }
+
+            var finalHtml = document.Body?.InnerHtml ?? html;
+            _logger.LogInformation("[ASSET-MARKER:{RunId}] Marked {Count} assets with location data", runId, totalMarked);
+
+            return finalHtml;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ASSET-MARKER] Failed to mark asset locations, returning original HTML");
             return html;
         }
     }
@@ -215,7 +294,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Process individual asset element and inject share button.
+    /// Process individual asset element and wrap it in a grouped container with header and menu.
     /// </summary>
     private void ProcessAssetElement(IElement element, AssetLookupDto assetLookup, int instanceNumber, string runId, HtmlParser parser)
     {
@@ -223,41 +302,101 @@ public class AssetProcessingService
         var shareId = $"asset-{assetLookup.AssetType}-{instanceNumber}";
 
         var buttonCreateTime = DateTime.Now;
-        _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Injecting share button for element {Instance} with shareId: {ShareId}",
+        _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Wrapping asset element {Instance} with grouped container, shareId: {ShareId}",
             runId, instanceNumber, shareId);
-        _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? BUTTON CREATION START: shareId={ShareId}, assetType={AssetType}, time={Time}",
+        _logger.LogInformation("[ASSET-SHARE-TIMING:{RunId}] ?? CONTAINER CREATION START: shareId={ShareId}, assetType={AssetType}, time={Time}",
             runId, shareId, assetLookup.AssetType, buttonCreateTime.ToString("HH:mm:ss.fff"));
 
         // Add data-asset-id to the element for JavaScript matching
         element.SetAttribute("data-asset-id", shareId);
 
-        // Create share button HTML - pass AssetType for consistent identification
-        var shareButton = CreateShareButtonHtml(
+        // Create container header with title and FAB button
+        var containerHeader = CreateAssetContainerHeaderHtml(
             assetLookup.AssetType,
             assetLookup.DisplayName ?? assetLookup.AssetType,
             shareId,
             instanceNumber);
 
-        // Parse share button and insert before the asset element
+        // Create container footer
+        var containerFooter = CreateAssetContainerFooterHtml();
+
+        // Wrap the asset element with the container
         if (element.ParentElement != null)
         {
-            var buttonDoc = parser.ParseFragment(shareButton, element.ParentElement);
-            var nodesToInsert = buttonDoc.ToList();  // Collect nodes first to avoid enumeration modification
-            foreach (var buttonNode in nodesToInsert)
+            try
             {
-                element.ParentElement.InsertBefore(buttonNode, element);
+                _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Parsing header HTML for {ShareId}, length: {Length}",
+                    runId, shareId, containerHeader?.Length ?? 0);
+
+                // Parse and insert header before the asset element
+                var headerDoc = parser.ParseFragment(containerHeader, element.ParentElement);
+                var headerNodes = headerDoc.ToList();
+                foreach (var headerNode in headerNodes)
+                {
+                    // Insert header before the element
+                    element.ParentElement.InsertBefore(headerNode, element);
+
+                    // Find the .asset-content-wrapper div that was just inserted
+                    if (headerNode is IElement headerElement)
+                    {
+                        var contentWrapper = headerElement.QuerySelector(".asset-content-wrapper");
+                        if (contentWrapper != null)
+                        {
+                            // CRITICAL FIX: Move the element INSIDE the .asset-content-wrapper
+                            element.Remove();  // Remove from current position
+                            contentWrapper.AppendChild(element);  // Move inside wrapper
+
+                            _logger.LogInformation("[INSERTED-HADEES-DEBUG:{RunId}] MOVED element inside .asset-content-wrapper for {ShareId}",
+                                runId, shareId);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("[INSERTED-HADEES-DEBUG:{RunId}] .asset-content-wrapper not found in header for {ShareId}",
+                                runId, shareId);
+                        }
+                    }
+                }
+
+                // Parse and insert footer after the header (header now contains the element)
+                var footerDoc = parser.ParseFragment(containerFooter, element.ParentElement);
+                var footerNodes = footerDoc.ToList();
+
+                // Insert footer after the header container
+                var headerContainer = element.ParentElement?.ParentElement;  // The .asset-group-container
+                if (headerContainer?.ParentElement != null)
+                {
+                    var nextSibling = headerContainer.NextSibling;
+                    foreach (var footerNode in footerNodes)
+                    {
+                        if (nextSibling != null)
+                        {
+                            headerContainer.ParentElement.InsertBefore(footerNode, nextSibling);
+                        }
+                        else
+                        {
+                            headerContainer.ParentElement.AppendChild(footerNode);
+                        }
+                    }
+                }
+
+                _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Asset wrapped successfully in grouped container for {ShareId}",
+                    runId, shareId);
             }
-            _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Share button injected successfully for {ShareId}",
-                runId, shareId);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[ASSETSHARE-DB:{RunId}] ❌ FAILED to parse/insert header for {ShareId}. Header HTML length: {Length}",
+                    runId, shareId, containerHeader?.Length ?? 0);
+                // Don't re-throw - continue processing other assets
+            }
             
             // Log completion timing for DOM debugging
-            var buttonCompleteTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            _logger.LogInformation("[DOM-TIMING] Share button creation completed at {ButtonCompleteTime}ms for asset {ShareId}",
-                buttonCompleteTime, shareId);
+            var containerCompleteTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _logger.LogInformation("[DOM-TIMING] Asset container creation completed at {ContainerCompleteTime}ms for asset {ShareId}",
+                containerCompleteTime, shareId);
         }
         else
         {
-            _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Element has no parent - cannot inject button for {ShareId}",
+            _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Element has no parent - cannot wrap in container for {ShareId}",
                 runId, shareId);
         }
     }
@@ -307,20 +446,36 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Create HTML for a share button based on AssetLookup data.
-    /// Uses blue theme matching CopilotContext.txt specifications.
+    /// Create HTML for asset grouping container with header and FAB share button.
+    /// Container wraps around the asset content with title, FAB button, and visual grouping.
+    /// [WORKITEM:hcp-fab-button] Purple FAB button in asset header for sharing functionality.
+    /// [REFACTOR:hcp-ids] Added unique button ID for Playwright test targeting.
     /// </summary>
-    private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    private static string CreateAssetContainerHeaderHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
         // HTML-encode all user-provided values to prevent parsing errors
         var encodedAssetType = System.Web.HttpUtility.HtmlEncode(assetType);
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
 
-        // Blue theme wrapper (action-wrapper from CopilotContext.txt) - spans full width of container
-        return $@"<div class=""action-wrapper"" data-noor-share-control=""true"" style=""background-color: #e6f2ff; border: 1px solid #0056b3; padding: 20px; margin-top: 30px; margin-bottom: 30px; width: 100%; margin-left: 0; margin-right: 0; box-sizing: border-box; border-radius: 8px; display: flex; justify-content: center;"">" +
-               $@"<button class=""shared-action-button"" data-share-button=""asset"" data-noor-share-control=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #007bff; border: 1px solid #0056b3; color: white; padding: 8px 15px; border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; font-weight: 500; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); transition: background-color 0.1s; margin: 0; white-space: nowrap; width: 200px;"" onmouseover=""this.style.backgroundColor='#0056b3';"" onmouseout=""this.style.backgroundColor='#007bff';"">" +
-               $@"<i class=""fas fa-lightbulb"" style=""margin-right: 8px; color: white;""></i>Share Asset</button></div>";
+        // Generate unique button ID: asset-fab-{assetType}-{instanceNumber}
+        var buttonId = $"asset-fab-{assetType.ToLowerInvariant().Replace(" ", "-")}-{instanceNumber}";
+
+        // Asset grouping container with header and purple FAB button
+        return $@"<div class=""asset-group-container"" data-noor-asset-group=""true"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" style=""background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #8b5cf6; border-radius: 12px; padding: 20px; margin: 30px 0; box-shadow: 0 4px 6px rgba(139, 92, 246, 0.2); position: relative; transition: all 0.3s ease;"" onmouseover=""this.style.boxShadow='0 8px 12px rgba(139, 92, 246, 0.3)'; this.style.borderColor='#7c3aed';"" onmouseout=""this.style.boxShadow='0 4px 6px rgba(139, 92, 246, 0.2)'; this.style.borderColor='#8b5cf6';"">" +
+               $@"<div class=""asset-header"" style=""display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #8b5cf6;"">" +
+               $@"<h3 class=""asset-title"" style=""margin: 0; color: #8b5cf6; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center;""><i class=""fas fa-cube"" style=""margin-right: 8px; color: #8b5cf6;""></i>{encodedDisplayName}</h3>" +
+               $@"<button type=""button"" id=""{buttonId}"" class=""asset-header-fab-button"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" aria-label=""Share {encodedDisplayName} asset #{instanceNumber}"" style=""width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: 1px solid #7c3aed; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3); transition: all 0.2s ease;"" onmouseover=""this.style.background='linear-gradient(135deg, #7c3aed, #6d28d9)'; this.style.transform='scale(1.1)';"" onmouseout=""this.style.background='linear-gradient(135deg, #8b5cf6, #7c3aed)'; this.style.transform='scale(1)';""><i class=""fa-solid fa-share-nodes"" style=""font-size: 1rem;""></i></button>" +
+               $@"</div>" +
+               $@"<div class=""asset-content-wrapper"" style=""padding: 16px 0;"">";
+    }
+
+    /// <summary>
+    /// Create closing HTML for asset grouping container.
+    /// </summary>
+    private static string CreateAssetContainerFooterHtml()
+    {
+        return @"</div></div>";
     }
 
     /// <summary>

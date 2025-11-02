@@ -35,11 +35,13 @@
                 </div>
                 
                 @* [TEST-METADATA:ui-logging] Playwright log marker for Q&A toggle button ;CLEANUP_OK *@
-                <button type="button"
+                @* [REFACTOR:hcp-id] Added unique ID for Q&A toggle button *@
+                <button id="content-qa-toggle-btn"
+                        type="button"
                         @onclick="OnToggleQAPanel"
                         @onkeydown="OnToggleKeyDown"
                         aria-expanded="@QAPanelOpen"
-                        aria-controls="hcp-qa-panel"
+                        aria-controls="content-qa-panel"
                         aria-label="Toggle questions panel"
                         data-playwright-log-marker="20251031120000-HostControlPanel-QAToggle"
                         style="position:relative; width:66px; height:66px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
@@ -67,14 +69,18 @@
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;">
             @* [WORKITEM:hcp-fab-button] FAB share button always visible when transcript loaded (not tied to session state) ;CLEANUP_OK *@
             @* [TEST-METADATA:ui-logging] Playwright log marker for FAB broadcast transcript button ;CLEANUP_OK *@
-            @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+            @* [REFACTOR:hcp-id] Added unique ID for FAB share button *@
+            @* [FIX:hcp-ids] Ensure button renders even when loading to maintain DOM presence *@
+            @if (!string.IsNullOrEmpty(Model?.TransformedTranscript) || IsLoading)
             {
-                <button type="button" 
-                        @onclick="OnBroadcastTranscript" 
-                        disabled="@IsLoading"
+                <button id="content-fab-share-btn"
+                        type="button" 
+                        @onclick="@(() => HandleFabClick())" 
+                        disabled="@(IsLoading || string.IsNullOrEmpty(Model?.TransformedTranscript))"
                         aria-label="Broadcast transcript to participants"
                         class="hcp-fab-share-button"
                         data-playwright-log-marker="20251031120000-HostControlPanel-BroadcastTranscript"
+                        data-has-transcript="@(!string.IsNullOrEmpty(Model?.TransformedTranscript))"
                         title="Share Transcript">
                     @if (IsLoading)
                     {
@@ -98,7 +104,8 @@
             else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
             {
                 <!-- [DEBUG-WORKITEM:hcp-tcanvas:parse] Container ID for JavaScript section parser ;CLEANUP_OK -->
-             <div id="transcript-content-container" 
+                <!-- [REFACTOR:hcp-id] Added unique ID for transcript container -->
+             <div id="content-transcript-container" 
                  style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;min-width:0;" 
                      @ref="transcriptContainer">
                     <!-- [DEBUG-WORKITEM:css:theme-consistency] Unified CSS classes and theme with SessionCanvas/TranscriptCanvas (90% width for consistency) ;CLEANUP_OK -->
@@ -120,10 +127,12 @@
         <!-- End Session Button -->
         @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
         @* [TEST-METADATA:ui-logging] Playwright log marker for End Session button ;CLEANUP_OK *@
+        @* [REFACTOR:hcp-id] Added unique ID for End Session button *@
         @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
         {
             <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
-                <button type="button" 
+                <button id="content-end-session-btn"
+                        type="button" 
                         @onclick="OnEndSession" 
                         disabled="@IsLoading"
                         data-playwright-log-marker="20251031120000-HostControlPanel-EndSession"
@@ -149,9 +158,10 @@
     @* [DEBUG-WORKITEM:hcp-questions:sticky:TRACE] Made panel sticky, full-height, vertical scroll only ;CLEANUP_OK *@
     @* [DEBUG-WORKITEM:hcp:simple] Updated border to 2px with darker gold (#C5A84C) for prominence *@
     @* [WORKITEM:hcp:impl:20251022-1836] Panel visibility controlled by QAPanelOpen parameter from parent ;CLEANUP_OK *@
+    @* [REFACTOR:hcp-id] Added unique ID for Q&A panel container *@
     @if (QAPanelOpen)
     {
-    <div id="hcp-qa-panel" class="host-qa-panel" style="flex:0 0 30%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #C5A84C;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;position:sticky;top:1rem;align-self:flex-start;max-height:calc(100vh - 2rem);overflow-x:hidden;overflow-y:hidden;min-width:0;">
+    <div id="content-qa-panel" class="host-qa-panel" style="flex:0 0 30%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #C5A84C;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;position:sticky;top:1rem;align-self:flex-start;max-height:calc(100vh - 2rem);overflow-x:hidden;overflow-y:hidden;min-width:0;">
         @* [SIMPLE:hcp:timer-relocation] Changed header to flex layout with timer on right, updated icon to circle-question, changed text to "Questions" ;CLEANUP_OK *@
         @* [WORKITEM:hcp] Updated borders: 1px dark green top/right/bottom, kept 4px left, removed border-radius, changed to Roboto font *@
         <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-top:1px solid #006400;border-right:1px solid #006400;border-bottom:1px solid #006400;border-left:4px solid #006400;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,100,0,0.1);font-family:'Roboto',sans-serif;">
@@ -242,6 +252,21 @@
             var hours = (int)elapsed.TotalHours;
             var minutes = elapsed.Minutes;
             return $"{hours}:{minutes:D2}";
+        }
+    }
+    
+    // [FIX:hcp-ids] Handle FAB button click with logging for debugging
+    private async Task HandleFabClick()
+    {
+        Console.WriteLine($"[FAB-CLICK] Button clicked - HasTranscript: {!string.IsNullOrEmpty(Model?.TransformedTranscript)}, IsLoading: {IsLoading}");
+        if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+        {
+            Console.WriteLine("[FAB-CLICK] ✅ Invoking OnBroadcastTranscript");
+            await OnBroadcastTranscript.InvokeAsync();
+        }
+        else
+        {
+            Console.WriteLine("[FAB-CLICK] ❌ Transcript is null or empty, not broadcasting");
         }
     }
     

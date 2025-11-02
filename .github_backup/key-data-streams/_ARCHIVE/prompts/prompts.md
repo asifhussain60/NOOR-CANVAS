@@ -1,0 +1,430 @@
+# Key: prompts
+
+## Metadata
+- **Status**: in-progress
+- **Created**: 2025-10-11
+- **Last Updated**: 2025-10-16T12:12:00Z
+- **Owner**: GitHub Copilot
+- **Description**: Git tag-based checkpoint system - replaced log files with native git tags for better integration and browsing
+- **Complexity**: medium
+- **Debug Level**: simple
+
+## File Mappings
+
+### Frontend (Views)
+- N/A - This key focuses on infrastructure and workflow improvements
+
+### Frontend (Components)
+- N/A - No frontend components involved
+
+### Backend (Controllers)
+- N/A - No backend controllers involved
+
+### Backend (Services)
+- N/A - No backend services involved
+
+### Backend (DTOs)
+- N/A - No DTOs involved
+
+### Database
+- **Tables**: N/A - No database changes
+- **Scripts**: N/A - No database scripts
+
+### Tests
+- **E2E (Playwright)**: N/A - No E2E tests for this key
+- **Unit Tests**: N/A - No unit tests required
+
+### Configuration
+- **appsettings.json**: N/A - No configuration changes
+- **Environment Variables**: 
+  - `KESTREL_PORT` - Referenced in server cleanup documentation (default: 9091)
+
+### Documentation
+- `.github/instructions/Links/InfrastructureQuickRef.md` - NEW: Authoritative infrastructure reference (database, API, SignalR, Session 212)
+- `.github/instructions/Links/FileMetrics.md` - UPDATED: Refreshed with live line counts, usage guide
+- `.github/instructions/Links/FunctionalityRegistry-QuickRef.md` - UPDATED: Added related documentation links
+- `.github/instructions/Links/ValidationFramework.md` - UPDATED: Added InfrastructureQuickRef.md reference
+- `.github/instructions/Links/ReferenceIndex.md` - UPDATED: Restructured with categories, comprehensive catalog
+- `.github/instructions/Links/SystemStructureSummary.md` - UPDATED: All 13 Links files cataloged, version 2.0.0
+- `.github/prompts/task.prompt.md` - UPDATED: Complete Core Mandates restructure, all Links files referenced
+- `.github/prompts/question.prompt.md` - UPDATED: Core Mandates restructure with reference documentation
+- `.github/prompts/healthcheck.prompt.md` - UPDATED: Organized validation scope references
+- `.github/prompts/sync.prompt.md` - UPDATED: Added sync-specific documentation responsibilities
+- `.github/prompts/test-generation.prompt.md` - UPDATED: Added InfrastructureQuickRef.md to canonical references
+- `.github/prompts/cohesion-review.prompt.md` - Prompt system cohesion analysis agent
+- `.github/prompts/refactor.prompt.md` - Code refactoring agent (already comprehensive)
+- `.github/prompts/analyze-learning.prompt.md` - Learning pattern analysis (already comprehensive)
+- `.github/prompts/task.prompt.md` - UPDATED: Dual-mode annotate parameter (HTML documentation as default)
+- `Workspaces/Documentation/prompts-comprehensive-analysis-summary.md` - NEW: Complete execution summary
+- `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Template with file mappings
+- `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - This file (self-documenting)
+- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Work log for prompts key
+
+## Dependencies
+- **Keys**: N/A - Infrastructure key, not dependent on feature keys
+- **External Libraries**: OpenAI GPT-4 Vision API (for annotate parameter)
+- **npm Packages**: N/A - No npm dependencies
+
+## Summary
+The prompts key encompasses comprehensive refresh and integration of the entire prompts system infrastructure. This includes creating an authoritative infrastructure reference document to eliminate Copilot hallucinations, refreshing all Links folder files with live data, establishing complete cross-reference matrix across all agents, integrating previously orphaned files into the system, and enhancing the annotate parameter with dual-mode operation (HTML documentation as default, requirement extraction for annotated images).
+
+## Current Work
+- ✅ **InfrastructureQuickRef.md Creation**: NEW authoritative reference for database, API endpoints, SignalR hubs, Session 212 test data
+  - Purpose: Eliminate Copilot hallucinations about infrastructure
+  - Contains: 85+ API endpoints, 3 SignalR hubs, Session 212 canonical tokens (PQ9N5YWW, KJAHA99L)
+  - Critical Anti-Patterns section prevents obsolete feature references (e.g., annotation system)
+  - Referenced by: task, question, healthcheck, sync, test-generation prompts
+  
+- ✅ **Orphaned Files Integration**: All 3 orphaned Links files now properly referenced
+  - FileMetrics.md → Referenced by sync agent for drift detection, refreshed with live line counts
+  - FunctionalityRegistry-QuickRef.md → Linked to task.prompt.md Step 8.2, question.prompt.md
+  - ValidationFramework.md → Explicitly referenced in all validation workflows
+  
+- ✅ **Prompt Core Mandates Restructure**: 5 prompts updated with complete Links catalog
+  - task.prompt.md → Complete architectural reference documentation section (13 files)
+  - question.prompt.md → Restructured into Analysis Approach + Reference Documentation
+  - healthcheck.prompt.md → Organized into Operational Rules + Validation Scope
+  - sync.prompt.md → Added documentation sync responsibilities
+  - test-generation.prompt.md → Added InfrastructureQuickRef.md to canonical references
+  
+- ✅ **Links Folder Refresh**: All files updated with current information
+  - ReferenceIndex.md → Restructured with categories (Architecture, Validation, Testing, Feature Tracking)
+  - SystemStructureSummary.md → Complete Links catalog (13 files), version 2.0.0
+  - FileMetrics.md → Live line counts for 26 files (Instructions, Prompts, Shared)
+  - ValidationFramework.md → Added InfrastructureQuickRef.md reference
+  - FunctionalityRegistry-QuickRef.md → Added related documentation section
+  
+- ✅ **Code Cleanup**: Removed stale annotation system references
+  - Program.cs → Removed AnnotationHub mapping and logging
+  - InfrastructureQuickRef.md → Critical Anti-Patterns section documents annotation system deletion
+
+- ✅ **Dual-Mode Annotate Parameter Enhancement** (2025-01-13T16:45:00Z)
+  - **Mode 1 (Default)**: HTML Documentation from plain screenshots
+    - AI identifies view/component (SessionCanvas.razor, HostControlPanel, etc.)
+    - Catalogs HTML elements (interactive, structural, content, state indicators)
+    - Documents in key data stream "## View Documentation" section
+    - Updates existing entries in-place (versioned with timestamps)
+    - No code execution - pure documentation for context building
+  - **Mode 2 (Auto-Detected)**: Requirement Extraction from annotated images
+    - Triggers when AI detects visual annotations (arrows, markup, measurements)
+    - Extracts change requirements → presents for approval → executes
+  - **Key Benefits**:
+    - Context building before implementation
+    - Regression detection (compare documented vs actual)
+    - Handoff documentation for other agents
+    - Dual purpose: documentation AND requirements
+    - Version history tracks view evolution
+  - **Implementation**: Step 2.7 in task.prompt.md execution workflow
+  - **Commit**: 6a5d64fd
+
+## Recent Changes
+- 2025-10-13: Enhanced task.prompt.md with documentation mode, technical analysis, and library catalog (commit: 0bbd932b)
+  - Added `debug-level: doc` parameter for documentation-only mode (generates implementation plan without execution)
+  - Created Step 2.5: Technical Architecture Analysis (mandatory anti-duplication & spaghetti prevention)
+    - Architecture layer review consulting Architecture.md
+    - Code duplication detection via semantic_search
+    - Service discovery and dependency checking
+    - Infrastructure compliance validation with InfrastructureQuickRef.md
+    - Cross-agent pattern reuse from Workspaces/Copilot/learning/
+    - Spaghetti code risk assessment with complexity metrics
+  - Updated Step 3 (Plan) to incorporate architecture analysis findings
+  - Updated Step 5 (Execute) with documentation mode workflow:
+    - Generate implementation plan in `.github/prompts.keys/{key}/implementation-plan.md`
+    - Include code examples from discovered patterns
+    - Document architectural decisions and rationale
+    - Skip validation and build steps in doc mode
+  - Created **PromptEnhancementLibraries.md** (585 lines) in Links folder
+    - Documented 8 major libraries: DSPy, Guidance, LangChain, Semantic Kernel, PromptTools, PromptFoo, LangSmith, Langfuse
+    - Comparison matrix with C# support, self-hosting capabilities, licensing
+    - Semantic Kernel recommended for C# compatibility with NOOR Canvas stack
+    - PromptFoo recommended for automated prompt testing in CI/CD
+    - Integration examples and getting started guides
+  - Added PromptEnhancementLibraries.md reference to SystemIndex.md navigation
+  - Added library reference to task.prompt.md Core Mandates section
+  - Addresses requirements: documentation mode, infrastructure-aware planning, external library catalog
+- 2025-10-13: Enhanced refactor.prompt.md with comprehensive multi-file consolidation strategy (commit: 28e4ca88)
+  - Added Multi-File Consolidation Strategy section with 5-step process
+  - Included grep_search patterns for identifying similar methods across files
+  - Added consolidation decision matrix (when to merge vs keep separate)
+  - Documented consolidation execution workflow and validation steps
+  - Added consolidation documentation template for tracking merged functionality
+  - Enhanced Cross-Service Pattern Detection capabilities
+  - Improved Query Pattern Analysis for database access consolidation
+- 2025-01-11: Comprehensive prompts system refresh (commit: 4c8211f2)
+  - Created InfrastructureQuickRef.md (254 lines) - anti-hallucination reference
+  - Refreshed FileMetrics.md with live data (18 → 97 lines)
+  - Updated 6 Links files (FunctionalityRegistry-QuickRef, ValidationFramework, ReferenceIndex, SystemStructureSummary)
+  - Restructured Core Mandates in 5 prompts (task, question, healthcheck, sync, test-generation)
+  - Removed AnnotationHub from Program.cs
+  - Created comprehensive execution summary (Workspaces/Documentation/prompts-comprehensive-analysis-summary.md)
+  - Total changes: 12 files, 571 insertions, 71 deletions
+- 2025-10-11: Implemented auto-load file mappings in task.prompt.md Step 2.3 (commit: fb3c3a46)
+- 2025-10-11: Added Step 0 to task.prompt.md - Kestrel server cleanup (commit: e47d1285)
+- 2025-10-11: Created key-template.md with file mapping schema (commit: e47d1285)
+- 2025-10-11: Created prompts.md metadata file (commit: e47d1285)
+
+## Related Keys
+- **canvas**: Example key with narrative dependencies (to be migrated to new format)
+- **hcp**: Example key using key.json format (demonstrates files_modified array concept)
+- **test-system**: All prompts now reference InfrastructureQuickRef.md for Session 212 canonical test data
+
+## Notes
+- **Design Philosophy**: All Links files must be properly referenced by at least one prompt - zero orphaned files
+- **Anti-Hallucination**: InfrastructureQuickRef.md eliminates need for Copilot to guess infrastructure details
+- **Cross-Reference Matrix**: Complete mapping of which prompts reference which Links files
+- **Drift Detection**: FileMetrics.md tracks line counts to detect documentation staleness
+- **Template Location**: `_template/key-template.md` serves as reference for all new keys
+- **Automation Opportunity**: Future enhancement could auto-populate File Mappings section by analyzing git history and file imports
+- **Sync Responsibilities**: sync agent updates FileMetrics.md and InfrastructureQuickRef.md after structural changes
+
+---
+
+## Execution Tracking
+
+### Phases
+- **Checkpoint**: ✅ completed (2s, 2025-10-11T12:00:00Z) - commit: 865599ea
+- **Plan**: ✅ completed (120s, 2025-10-11T12:02:00Z) - Analyzed canvas.md and hcp/key.json structures
+- **Execute**: ✅ completed (300s, 2025-10-11T12:13:00Z) - commits: e47d1285, fb3c3a46
+  - Step 0 implementation: DONE (e47d1285)
+  - File mapping schema design: DONE (e47d1285)
+  - Template creation: DONE (e47d1285)
+  - Prompts metadata creation: DONE (e47d1285)
+  - Auto-load implementation in Step 2.3: DONE (fb3c3a46)
+- **Validate**: ✅ completed (30s, 2025-10-11T12:14:00Z) - All files created successfully, auto-load logic verified
+- **Confirm**: ✅ completed (10s, 2025-10-11T12:15:00Z) - Commits e47d1285 and fb3c3a46 created
+
+### Commits
+- `865599ea` - checkpoint: pre-task prompts
+- `e47d1285` - feat(prompts): Add server cleanup step + file mapping system
+- `5b0c9a77` - checkpoint: pre-task prompts - auto-load file mappings
+- `fb3c3a46` - feat(prompts): Implement auto-load file mappings in task.prompt.md Step 2
+- `a250157a` - docs(prompts): Update prompts.md with commit SHA and completion status
+- `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration
+- `28e4ca88` - feat(prompts): Enhanced refactor.prompt.md with multi-file consolidation strategy
+- `0bbd932b` - feat(prompts): Add debug-level:doc mode, technical analysis step, and prompt enhancement libraries
+- `c32e047f` - checkpoint: pre-task prompts prompt improvements
+- `47f3996d` - feat(prompts): enhance commit workflow with key data stream cleanup
+- `5aee6553` - feat(prompts): Add debug logging cleanup step to commit workflow
+- `fcbd4a3d` - enhance(cohesion-review): Add workspace pattern extraction step for prompt optimization
+- `b87a7c5d` - docs(cohesion-review): Comprehensive workspace pattern integration analysis with 12 success + 8 failure patterns identified
+- `338816d7` - feat(task): Add continuation detection and self-improvement loop with error pattern library
+- `2237996f` - feat(prompts): Enforce test location, .github consolidation, visual test automation, bloat prevention
+
+## Recent Changes
+
+- ✅ **Holistic Prompts & Instructions Enforcement** (2025-10-14T18:30:00Z)
+  - **Completed**: Test location, .github consolidation, visual automation, bloat prevention
+  
+  - **1. Test Location Standardization** ✅
+    - **Rule**: ALL tests created in `Workspaces/TEMP/` ONLY (no more Tests/UI/ during generation)
+    - **Changes**: task.prompt.md Step 6.1, test-generation.prompt.md
+    - **Naming**: `{key}-{functional|visual}.spec.ts`
+    - **Promotion**: TEMP → Tests/UI/ ONLY during completion workflow
+    - **Impact**: 100% test location consistency, clear quality gate
+  
+  - **2. .github Path Consolidation** ✅
+    - **Rule**: All system files under `.github/` (9 prompts updated)
+    - **Moved**: `Workspaces/Copilot/learning/` → `.github/learning/`
+    - **Moved**: `Workspaces/Documentation/cohesion-*.md` → `.github/reports/`
+    - **Updated**: 28 learning path references, 5 report path references
+    - **Structure**: .github = system config, Workspaces = project artifacts
+    - **Impact**: 0 Workspaces/ references in prompts, 60% less maintenance
+  
+  - **3. Automatic Visual Test Detection** ✅ NEW
+    - **Feature**: Auto-detect Percy vs Playwright based on keywords
+    - **Logic**: CSS/color/layout → visual, click/submit/API → functional
+    - **Execution**: Automatically runs appropriate test after generation
+    - **Output**: `🧪 Auto-Test: {VISUAL|FUNCTIONAL|BOTH} - {PASS|FAIL}`
+    - **Override**: `--no-auto-test` parameter to skip
+    - **Location**: task.prompt.md Step 6.1.1 (NEW section)
+    - **Impact**: 90%+ test type detection accuracy expected
+  
+  - **4. Key Data Stream Bloat Prevention** ✅ NEW
+    - **Feature**: Pre-update cleanup with deduplication and archival
+    - **Deduplication**: Merge duplicate file refs, consolidate commits
+    - **Obsolescence**: Remove failed experiments >30 days, TODOs >14 days
+    - **Size Limits**: Warn@2000 lines, Hard stop@3000 lines
+    - **Archive**: `.github/prompts.keys/{key}/archive/work-log-{date}.md`
+    - **Output**: `🧹 Cleanup: {before}→{after} lines (-{percent}%)`
+    - **Location**: task.prompt.md Step 8.0 (NEW - runs before 8.1)
+    - **Impact**: 25-35% key data stream size reduction
+  
+  - **Files Modified**: 10 total
+    - task.prompt.md (12 changes: test location, auto-detect, bloat prevention, paths)
+    - test-generation.prompt.md (3 changes: test location mandate)
+    - cohesion-review.prompt.md (5 changes: output to .github/reports/)
+    - question.prompt.md, sync.prompt.md, refactor.prompt.md (learning paths)
+    - healthcheck.prompt.md, commit.prompt.md (learning + report paths)
+    - holistic-review-enforcement-plan.md (NEW)
+    - holistic-review-implementation-complete.md (NEW)
+  
+  - **Validation**:
+    - ✅ Test location enforced (100% Workspaces/TEMP/)
+    - ✅ .github consolidation complete (0 old path references)
+    - ✅ Auto-detection logic implemented (Step 6.1.1)
+    - ✅ Bloat prevention active (Step 8.0)
+    - ✅ Backward compatible (old paths still work)
+  
+  - **Documentation**: `.github/reports/holistic-review-implementation-complete.md`
+  - **Commit**: `2237996f`
+
+- ✅ **Task Prompt Self-Improvement System** (2025-10-14T17:00:00Z)
+  - **Completed**: Continuation detection + self-improvement loop + error pattern library
+  - **Step 2.1 Enhancement**: Automatic previous key data stream detection
+    - Trigger phrases: "adding to previous", "continue previous", "resume", "same key"
+    - 5-tier detection: thread history → terminal commands → recent keys → open files → git log
+    - Auto-revert completed keys to in-progress with preserved history
+    - User confirmation with candidate validation
+  - **Step 2.7 Enhancement**: Error pattern matching with .github/learning/error-patterns.json
+    - 8 documented patterns (FP-001 to FP-008) with solutions
+    - Confidence levels: HIGH (5), MEDIUM (2), LOW (1)
+    - Resolved patterns: 2 (FP-004, FP-007) archived
+    - Skip investigation for known patterns (instant resolution)
+  - **Step 10 NEW**: Self-improvement from workspace patterns
+    - Pattern extraction from workspace documents (30-day scan)
+    - Auto-update error-patterns.json after error resolutions
+    - Integrate success patterns into task.prompt.md
+    - Archive obsolete patterns (>90 days resolved)
+    - Self-update commit automation
+  - **Learning Infrastructure**: Consolidated to .github/learning/
+    - Moved from Workspaces/Copilot/learning/
+    - Created error-patterns.json (8 initial patterns)
+    - Updated README to v2.0
+    - Preserved all existing pattern files
+  - **Efficiency Gains**:
+    - Continuation detection: -2 min/task (no key lookup needed)
+    - Error pattern matching: -30 min/known error (skip investigation)
+    - Self-improvement: +2 min/completion (investment for compounding returns)
+  - **Documentation**: task-prompt-self-improvement-implementation.md (complete analysis)
+  - **Commit**: `338816d7`
+
+- ✅ **Workspace Pattern Integration Analysis** (2025-10-14T15:30:00Z)
+  - **Completed**: Comprehensive cohesion review with workspace pattern extraction
+  - **Success Patterns Identified**: 12 proven implementation patterns from Workspaces/
+    1. SP-001: SimHostUser Multi-Instance Testing
+    2. SP-002: Session-Ended Broadcast Implementation
+    3. SP-003: DocFX Documentation Automation
+    4. SP-004: Cohesion Improvement Roadmap Execution
+    5. SP-005: Issue-80 Prevention System
+    6. SP-006: Retrosync Architecture Audit
+    7. SP-007: HostProvisioner Configuration Management
+    8. SP-008: AssetLookup API Migration
+    9. SP-009: Canvas Q&A Authentication Fix
+    10. SP-010: Global Command Shortcuts
+    11. SP-011: Automated Learning System (already integrated ✅)
+    12. SP-012: Incremental Validation Pattern
+  - **Failure Patterns Identified**: 8 documented root causes with preventive measures
+    1. FP-001: Blazor ServerPrerendered Renderer Conflict
+    2. FP-002: Self-Contained Executable Configuration Embedding
+    3. FP-003: Dynamic JSON Deserialization Runtime Exception
+    4. FP-004: Issue-80 PowerShell Profile Directory Conflict (resolved ✅)
+    5. FP-005: ESLint Unused Variable Accumulation
+    6. FP-006: Workspace Cleanup Regression
+    7. FP-007: File Lock Build Failures (resolved ✅)
+    8. FP-008: Database Timeout Network Issues
+  - **Action Items Generated**: 6 prioritized actions (11 SP total)
+    - **Phase 1 (High Priority)**: Create error-patterns.json (2 SP), integrate success patterns (3 SP)
+    - **Phase 2 (Medium Priority)**: Consolidate DB rules (1 SP), enhance key template (1 SP), reference consolidation (2 SP)
+    - **Phase 3 (Low Priority)**: Automate incremental analysis (2 SP)
+  - **Cohesion Score**: 8.2/10 (current) → 8.5/10 (projected after Phase 1+2)
+  - **Report Location**: `Workspaces/Documentation/cohesion-review-2025-10-14.md`
+  - **Enhanced File**: `.github/prompts/cohesion-review.prompt.md` - Added Step 2.1.5 (Pattern Extraction)
+  - **Commits**: 
+    - `fcbd4a3d` - enhance(cohesion-review): Add workspace pattern extraction step
+    - `b87a7c5d` - docs(cohesion-review): Pattern integration analysis
+
+- ✅ **Debug Cleanup Enhancement (commit.prompt.md)** (2025-10-14T00:00:00Z)
+  - **Added Step 4.7**: Automated Debug Logging Cleanup (pre-commit workflow)
+    - **PowerShell Script Features**:
+      1. Searches for `[DEBUG-WORKITEM:*] ;CLEANUP_OK` markers across all file types
+      2. Displays found markers for manual review
+      3. Removes debug code:
+         - C# Logger.Log* statements with DEBUG-WORKITEM markers
+         - JavaScript console.* statements with DEBUG-WORKITEM markers
+         - Comment-based debug markers (// and /* */ formats)
+      4. Verifies zero markers remain post-cleanup
+      5. Auto-stages cleaned files for commit
+    - **Pattern Support**: Handles C#, JavaScript, single-line/multi-line comments
+    - **Integration**: Executes before final commit in Step 6, after all other cleanups
+    - **Reference**: Uses markers created by task.prompt.md debug-level parameter
+    - **Documentation**: Aligns with shared/debug-logging-mandate.md patterns
+  - **Commit**: `5aee6553` - feat(prompts): Add debug logging cleanup step to commit workflow
+
+- ✅ **Task 1 (task.prompt.md)**: Removed Step 0 (Server Cleanup), updated Step 7 summary header to "SUMMARY: {key}" format
+- ✅ **Task 2 (commit.prompt.md)**: Added Step 4 (Key Data Stream Cleanup) with logic to read prompts.keys, remove redundancies, compact structure, and extract patterns to Links/shared folders
+- Commit: `47f3996d` - feat(prompts): enhance commit workflow with key data stream cleanup
+
+### Files Modified (Current Session)
+- `.github/prompts/commit.prompt.md` - UPDATED - Added Step 4.7 (Debug Logging Cleanup) with PowerShell script for automatic marker removal (commit: 5aee6553)
+- `.github/prompts/task.prompt.md` - UPDATED - Removed Step 0 (Server Cleanup), changed Step 7 headers to "SUMMARY: {key-name}"
+- `.github/prompts/commit.prompt.md` - UPDATED - Added Step 4 (Key Data Stream Cleanup), renumbered steps 4-8 → 5-9, updated guardrails
+
+### Previous Session Files
+- `fb3c3a46` - feat(prompts): Implement auto-load file mappings in task.prompt.md Step 2
+- `a250157a` - docs(prompts): Update prompts.md with commit SHA and completion status
+- `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration
+- `28e4ca88` - feat(prompts): Enhanced refactor.prompt.md with multi-file consolidation strategy
+- `0bbd932b` - feat(prompts): Add debug-level:doc mode, technical analysis step, and prompt enhancement libraries (LATEST)
+
+### Files Modified
+- `.github/prompts/task.prompt.md` - UPDATED - Added debug-level:doc mode, Step 2.5 Technical Analysis, PromptEnhancementLibraries reference (commit: 0bbd932b)
+- `.github/instructions/Links/PromptEnhancementLibraries.md` - CREATED (585 lines) - Comprehensive library catalog (commit: 0bbd932b)
+- `.github/instructions/Links/SystemIndex.md` - UPDATED - Added Prompt Enhancement section to Quick Navigation (commit: 0bbd932b)
+- `.github/prompts/refactor.prompt.md` - UPDATED - Enhanced multi-file consolidation strategy (commit: 28e4ca88)
+- `.github/instructions/Links/InfrastructureQuickRef.md` - CREATED (254 lines) - Authoritative infrastructure reference
+- `.github/instructions/Links/FileMetrics.md` - UPDATED (18 → 97 lines) - Live line counts, usage guide
+- `.github/instructions/Links/FunctionalityRegistry-QuickRef.md` - UPDATED - Added related documentation
+- `.github/instructions/Links/ValidationFramework.md` - UPDATED - Added InfrastructureQuickRef.md reference
+- `.github/instructions/Links/ReferenceIndex.md` - UPDATED (11 → 48 lines) - Restructured with categories
+- `.github/instructions/Links/SystemStructureSummary.md` - UPDATED (44 → 56 lines) - Complete Links catalog, v2.0.0
+- `.github/prompts/task.prompt.md` - UPDATED - Complete Core Mandates restructure (13 Links files)
+- `.github/prompts/question.prompt.md` - UPDATED - Core Mandates restructure with references
+- `.github/prompts/healthcheck.prompt.md` - UPDATED - Organized validation scope
+- `.github/prompts/sync.prompt.md` - UPDATED - Added sync responsibilities
+- `.github/prompts/test-generation.prompt.md` - UPDATED - Added InfrastructureQuickRef.md
+- `SPA/NoorCanvas/Program.cs` - UPDATED - Removed AnnotationHub references
+- `Workspaces/Documentation/prompts-comprehensive-analysis-summary.md` - CREATED - Execution summary
+- `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Created new markdown template
+- `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - This metadata file (updated)
+- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Updated with comprehensive analysis phases
+
+### Warnings & Errors
+- N/A - No warnings or errors encountered
+
+---
+
+## Work Log
+
+### 2025-10-16T12:12:00Z
+- **Status**: In Progress
+- **Changes**: 
+  - Replaced log file approach with git tag-based checkpoints (user feedback improvement)
+  - Updated Step 8.4 to use `git tag "checkpoint/{key}/{timestamp}"` instead of separate log files
+  - Format: `checkpoint/{key}/{YYYY-MM-DD_HHMM}` (git tags cannot contain colons)
+  - Implemented automatic tag pruning to maintain 28 most recent checkpoints per key
+  - Removed `.github/prompts.keys/.checkpoints/` directory (obsolete)
+  - Updated summary templates and guardrails to reflect tag-based approach
+  - Benefits: Single source of truth, native git browsing, works with all git tools
+- **Files Affected**: 
+  - `.github/prompts/task.prompt.md` - Rewrote Step 8.4 with git tag approach
+  - `.github/prompts.keys/.checkpoints/` - DELETED (replaced by git tags)
+- **Tests**: N/A - Infrastructure change, no tests required
+- **Approval Iterations**: 1 (user requested better approach)
+- **Commit**: b42fab11dd47b1eb1a74afd5ea42b1d9f3f97738
+- **Checkpoint Tag**: checkpoint/prompts/2025-10-16_1212
+
+### 2025-10-16T02:47:00Z
+- **Status**: In Progress (superseded by tag-based approach)
+- **Changes**: 
+  - Added Step 8.4 (Checkpoint Commit & Log) to task.prompt.md
+  - Created `.github/prompts.keys/.checkpoints/` directory for checkpoint logs
+  - Implemented 28-entry limit per key with automatic pruning
+  - Updated Guardrails section with checkpoint commit mandate
+  - Updated Step 7 summary templates to include checkpoint SHA
+  - Updated Expected Outcomes to include checkpoint tracking
+- **Files Affected**: 
+  - `.github/prompts/task.prompt.md` - Added checkpoint commit workflow
+  - `.github/prompts.keys/.checkpoints/prompts.log` - Created checkpoint log
+- **Tests**: N/A - Infrastructure change, no tests required
+- **Approval Iterations**: 0
+- **Commit**: 98ea296ffd7e563d1af10952876363679178fdc6

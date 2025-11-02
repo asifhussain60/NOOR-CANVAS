@@ -3283,6 +3283,8 @@ else
     {
         try
         {
+            var buildTimestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            Logger.LogInformation("🏗️ [BUILD-TRACKER] InjectShareButtons executing - Build Time: {BuildTime} UTC", buildTimestamp);
             Logger.LogInformation("ASSET-INJECTION-V2: Injecting SHARE buttons for {Count} assets", assets.Count);
 
             // Process in reverse position order to maintain HTML positions during injection
@@ -3291,8 +3293,16 @@ else
                 var containerSelector = $"[data-asset-id='{asset.AssetId}']";
                 var shareButton = GenerateShareButton(asset.AssetId, asset.AssetType);
 
+                Logger.LogInformation("🔍 [INJECTION-DEBUG] About to inject button for AssetId={AssetId}, Type={AssetType}, Button HTML length={Length}", 
+                    asset.AssetId, asset.AssetType, shareButton.Length);
+
                 // Find container and inject button before it
+                var beforeLength = html.Length;
                 html = InjectButtonBeforeContainer(html, asset.AssetId, shareButton);
+                var afterLength = html.Length;
+
+                Logger.LogInformation("📏 [INJECTION-DEBUG] HTML size change: {Before} → {After} (Δ={Delta})", 
+                    beforeLength, afterLength, afterLength - beforeLength);
 
                 Logger.LogDebug("ASSET-INJECTION-V2: Injected SHARE button for asset {AssetId} ({AssetType})",
                     asset.AssetId, asset.AssetType);
@@ -3326,12 +3336,21 @@ else
     {
         try
         {
+            Logger.LogInformation("🔍 [CONTAINER-SEARCH] Looking for container with data-asset-id=\"{AssetId}\"", assetId);
+            
             var containerPattern = $@"<[^>]*data-asset-id=""{assetId}""[^>]*>";
             var match = System.Text.RegularExpressions.Regex.Match(html, containerPattern);
 
             if (match.Success)
             {
+                Logger.LogInformation("✅ [CONTAINER-FOUND] Match at index {Index}, injecting button. Matched: {Matched}", 
+                    match.Index, match.Value.Substring(0, Math.Min(100, match.Value.Length)));
                 html = html.Insert(match.Index, shareButtonHtml);
+                Logger.LogInformation("✅ [BUTTON-INJECTED] Successfully inserted button before container");
+            }
+            else
+            {
+                Logger.LogWarning("❌ [CONTAINER-NOT-FOUND] No container found with data-asset-id=\"{AssetId}\"", assetId);
             }
 
             return html;
@@ -3351,6 +3370,9 @@ else
     /// </summary>
     private string GenerateShareButton(long assetId, string assetType)
     {
+        var buildTimestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        Logger.LogInformation("🏗️ [BUILD-TRACKER] GenerateShareButton executing - Build Time: {BuildTime} UTC", buildTimestamp);
+        
         // HTML-encode asset type for safety
         var escapedAssetType = System.Web.HttpUtility.HtmlEncode(assetType);
         
@@ -3360,7 +3382,11 @@ else
         Logger.LogDebug("[hcp-ids] Generated button ID: {ButtonId} for AssetId: {AssetId}, Type: {AssetType}", 
             buttonId, assetId, assetType);
         
-        return $@"<button id=""{buttonId}"" data-share-button=""asset"" data-asset-id=""{assetId}"" data-asset-type=""{escapedAssetType}"" class=""ks-share-btn"" type=""button"" aria-label=""Share {escapedAssetType} asset #{assetId}"">SHARE</button>";
+        var buttonHtml = $@"<button id=""{buttonId}"" data-share-button=""asset"" data-asset-id=""{assetId}"" data-asset-type=""{escapedAssetType}"" class=""ks-share-btn"" type=""button"" aria-label=""Share {escapedAssetType} asset #{assetId}"">SHARE</button>";
+        
+        Logger.LogInformation("✅ [BUTTON-GENERATED] Button HTML: {Html}", buttonHtml);
+        
+        return buttonHtml;
     }
 
     // REMOVED: DetectAndTrackAssetsAsync - replaced by simplified database-driven approach
@@ -4601,6 +4627,9 @@ Please share this report with the development team for debugging.`;
 
     // Share button handler setup
     function setupShareButtonHandlers(dotNetObjectRef) {
+        const buildTimestamp = new Date().toISOString();
+        console.log('🏗️ [BUILD-TRACKER] setupShareButtonHandlers executing - Client Time:', buildTimestamp);
+        
         const handlerSetupTime = new Date();
         const timeString = handlerSetupTime.toLocaleTimeString() + '.' + handlerSetupTime.getMilliseconds().toString().padStart(3, '0');
         
@@ -4622,6 +4651,10 @@ Please share this report with the development team for debugging.`;
                 innerHTML: btn.innerHTML.substring(0, 50)
             }))
         });
+        
+        console.log('🔎 [DOM-DEBUG] All buttons in document:', document.querySelectorAll('button').length);
+        console.log('🔎 [DOM-DEBUG] All elements with class ks-share-btn:', document.querySelectorAll('.ks-share-btn').length);
+        console.log('🔎 [DOM-DEBUG] All elements with data-share-button:', document.querySelectorAll('[data-share-button]').length);
         
         // Add event listener for share button clicks using event delegation
         document.addEventListener('click', handleShareButtonClick);

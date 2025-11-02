@@ -1,0 +1,846 @@
+# Playwright Testing Quick Reference
+
+**Version**: 2.0.0  
+**Last Updated**: 2025-10-16  
+**Purpose**: Authoritative Playwright testing reference - eliminates ambiguity in test creation and execution
+
+---
+
+## ⚠️ CRITICAL: Application Launch Protocol (MANDATORY)
+
+**ALL PLAYWRIGHT TESTS MUST USE ORCHESTRATION SCRIPTS WITH SEPARATE WINDOW APP LAUNCH**
+
+### ✅ REQUIRED APPROACH: Orchestration Scripts
+
+**ALWAYS use this pattern for ALL Playwright tests:**
+
+```powershell
+# Complete orchestration script (Scripts/run-{feature}-test.ps1)
+
+# 1. Kill existing processes
+Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | 
+    Where-Object { $_.MainWindowTitle -like "*NoorCanvas*" } | 
+    Stop-Process -Force
+
+# 2. Launch app in SEPARATE PowerShell window
+$app = Start-Process powershell -ArgumentList "-NoExit", "-Command",
+    "cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; 
+     `$env:ASPNETCORE_ENVIRONMENT='Development'; 
+     `$env:ASPNETCORE_URLS='https://localhost:9091'; 
+     dotnet run" -WindowStyle Minimized -PassThru
+
+# 3. Health check with polling (NEVER use fixed delays)
+$maxAttempts = 30
+$attempt = 0
+$appReady = $false
+
+while (-not $appReady -and $attempt -lt $maxAttempts) {
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:9091" -SkipCertificateCheck -TimeoutSec 2
+        if ($response.StatusCode -eq 200) {
+            $appReady = $true
+            Write-Host "✅ App ready after $attempt seconds" -ForegroundColor Green
+        }
+    } catch {
+        $attempt++
+        Write-Host "⏳ Waiting... ($attempt/$maxAttempts)" -ForegroundColor Gray
+        Start-Sleep -Seconds 1
+    }
+}
+
+if (-not $appReady) {
+    Write-Host "❌ App failed to start within timeout" -ForegroundColor Red
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+    exit 1
+}
+
+# 4. Run tests with guaranteed cleanup
+try {
+    npx playwright test test.spec.ts --headed --reporter=list
+} finally {
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
+```
+
+**See:** `.github/prompts/shared/test-orchestration-patterns.md` for complete canonical template
+
+### ❌ DEPRECATED APPROACHES (DO NOT USE)
+
+```powershell
+# ❌ WRONG - webServer config (deprecated, unreliable)
+PW_MODE=standalone npx playwright test
+
+# ❌ WRONG - Direct execution without orchestration
+npx playwright test
+
+# ❌ WRONG - Manual app startup before tests
+dotnet run
+./Workspaces/Global/nc.ps1
+./Workspaces/Global/ncb.ps1
+
+# ❌ WRONG - Start-Job (unreliable PID tracking, orphaned processes)
+Start-Job -ScriptBlock { dotnet run }
+
+# ❌ WRONG - Background operator (doesn't work in PowerShell 5.1)
+dotnet run &
+```
+
+### Why Separate Window is Mandatory
+
+**Benefits of Orchestration Scripts:**
+- ✅ **Proper environment isolation**: `ASPNETCORE_ENVIRONMENT=Development` guaranteed
+- ✅ **Visible debugging**: Can restore minimized window to see app errors
+- ✅ **Reliable PID tracking**: `$app.Id` for guaranteed cleanup
+- ✅ **Health check polling**: Prevents race conditions (tests wait for app ready)
+- ✅ **Guaranteed cleanup**: `try/finally` ensures app stops even if tests fail
+- ✅ **No orphaned processes**: Direct PID control via `Stop-Process -Force`
+
+**Problems with Deprecated Approaches:**
+- ❌ **webServer config**: Hidden errors, inconsistent environment variables, race conditions
+- ❌ **Start-Job**: Unpredictable job names (`Job1`, `Job2`), unreliable cleanup
+- ❌ **Manual startup**: Non-automatable, human error prone, no cleanup guarantee
+- ❌ **Background operator**: Doesn't work in PowerShell 5.1 (Windows default)
+
+### Manual App Launch (nc.ps1/ncb.ps1) is ONLY for:
+- **Browser Development**: Manual testing in browser (not automated tests)
+- **Debugging**: Visual Studio/VS Code debugger
+- **Demo Pages**: Showing features to stakeholders
+- **NEVER**: For running automated Playwright tests (use orchestration scripts instead)
+
+---
+
+## 📝 CRITICAL: Code Style Rules
+
+### Emoji Usage in Test Scripts
+**❌ NEVER use emojis in console.log statements or test code**
+
+```typescript
+// WRONG - Contains emojis
+console.log('📱 Loading Host Control Panel...');
+console.log('✅ Test passed');
+console.log('🖱️ Clicking button...');
+
+// RIGHT - ASCII only
+console.log('[INFO] Loading Host Control Panel...');
+console.log('[PASS] Test passed');
+console.log('[ACTION] Clicking button...');
+```
+
+**Rationale:**
+- Emojis cause encoding issues in CI/CD pipelines
+- PowerShell terminals may not render emojis correctly
+- Log files become unreadable with special characters
+- ASCII ensures cross-platform compatibility
+
+### Console Logging Standards
+```typescript
+// Use structured ASCII prefixes
+console.log('[STEP] Navigate to page');       // Test steps
+console.log('[VERIFY] Element is visible');   // Verification
+console.log('[PASS] Test completed');         // Success
+console.log('[WARN] Non-critical error');     // Warnings
+console.log('[ERROR] Critical failure');      // Errors
+console.log('[INFO] Additional context');     // Information
+```
+
+---
+
+## 🖥️ Test Execution with Orchestration Scripts
+
+**ALL Playwright tests MUST use orchestration scripts** - See canonical pattern above.
+
+### Standard Test Execution Workflow
+
+**Step 1: Create Orchestration Script**
+- Location: `Scripts/run-{feature}-test.ps1`
+- Template: See `.github/prompts/shared/test-orchestration-patterns.md`
+- Required components: Cleanup, Launch, Health Check, Test Execution, Guaranteed Cleanup
+
+**Step 2: Run Via Orchestration Script**
+```powershell
+# Execute the orchestration script (handles everything)
+.\Scripts\run-{feature}-test.ps1
+```
+
+**Step 3: Optional - Add to tasks.json**
+```json
+{
+    "label": "test-{feature}",
+    "type": "shell",
+    "command": "powershell.exe",
+    "args": [
+        "-NoProfile",
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/Scripts/run-{feature}-test.ps1"
+    ],
+    "group": "test"
+}
+```
+
+### Advanced: Keep App Running for Debugging
+
+```powershell
+# Add -KeepAppRunning parameter to orchestration script
+param([switch]$KeepAppRunning)
+
+# ... run tests ...
+
+if ($KeepAppRunning) {
+    Write-Host "[DEBUG] Keeping app running for manual verification" -ForegroundColor Yellow
+    Write-Host "  App URL: https://localhost:9091" -ForegroundColor Cyan
+    Write-Host "  PID: $($app.Id)" -ForegroundColor Cyan
+    Write-Host "  To stop: Stop-Process -Id $($app.Id)" -ForegroundColor Gray
+} else {
+    Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+}
+```
+
+**Usage:**
+```powershell
+.\Scripts\run-{feature}-test.ps1 -KeepAppRunning
+```
+
+### When to Use Orchestration Scripts
+- **✅ ALWAYS**: For all Playwright test execution
+- **✅ ALWAYS**: For Percy visual regression tests
+- **✅ ALWAYS**: For headed tests (debugging)
+- **✅ ALWAYS**: For CI/CD test automation
+- **✅ ALWAYS**: For temporary tests in `Workspaces/TEMP/`
+
+### Reference Implementations
+- `Scripts/run-debug-panel-percy-tests.ps1` - Percy visual tests with orchestration
+- `Scripts/run-transcript-canvas-visual-tests.ps1` - Visual regression tests
+- `.github/prompts/shared/test-orchestration-patterns.md` - Canonical template
+
+---
+
+## 🎯 Testing Strategy Overview
+
+**NOOR CANVAS uses three complementary testing approaches:**
+
+### 1. **Functional E2E Tests** (Playwright - Standard)
+- **Purpose**: Verify user interactions and business logic
+- **When**: User flows, API integration, multi-user scenarios, SignalR broadcasts
+- **Tools**: Playwright `@playwright/test`
+- **Example**: Submit question, vote on question, participant registration
+
+### 2. **Visual Regression Tests** (Percy + Playwright)
+- **Purpose**: Catch visual/CSS rendering issues
+- **When**: CSS changes, layout modifications, responsive design, color scheme updates
+- **Tools**: Percy `@percy/playwright` + Playwright
+- **Example**: Question card styling, vote badge positioning, modal layouts
+
+### 3. **CSS Quality Tests** (Stylelint - Pre-commit)
+- **Purpose**: Prevent CSS conflicts and bad patterns
+- **When**: Before every commit, automated in CI/CD
+- **Tools**: Stylelint `stylelint`
+- **Example**: Duplicate properties, named colors, class naming violations
+
+**See Decision Matrix below for when to use each approach.**
+
+---
+
+## 🎯 When User Says "Playwright Test" or "pwtest"
+
+**Copilot Should Know**:
+1. **Test Location**: `PlayWright/tests/` or `Tests/UI/` or `Workspaces/TEMP/` (for temporary tests)
+2. **Configuration**: `config/testing/playwright.config.cjs`
+3. **Test Data**: Session 212 with tokens KJAHA99L (user) / PQ9N5YWW (host)
+4. **Base URL**: `https://localhost:9091`
+5. **Execution Modes**: standalone, temp, CI, **percy** (visual regression)
+6. **Browser**: Chromium (default), Firefox, WebKit available
+7. **Visual Testing**: Percy integration available for visual regression
+
+---
+
+## 📁 Test File Structure
+
+### Standard Test Template
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Feature Name', () => {
+  test('should do something specific', async ({ page }) => {
+    // Navigate
+    await page.goto('https://localhost:9091/route');
+    
+    // Interact
+    await page.click('selector');
+    
+    // Assert
+    await expect(page.locator('selector')).toBeVisible();
+  });
+});
+```
+
+### Test File Naming Convention
+- **Pattern**: `{feature}-{test-type}.spec.ts`
+- **Examples**:
+  - `session-canvas-loading.spec.ts`
+  - `user-registration-flow.spec.ts`
+  - `host-control-panel-navigation.spec.ts`
+
+### Test Location Rules
+1. **Permanent Tests**: `PlayWright/tests/` or `Tests/UI/`
+2. **Temporary Tests**: `Workspaces/TEMP/` (auto-cleanup after task completion)
+3. **Phase Tests**: `Workspaces/TEMP/` with naming: `{agent}-phase-{n}-{key}-{RUN_ID}.spec.ts`
+
+---
+
+## 🎯 Testing Approach Decision Matrix
+
+**Use this matrix to choose the right testing tool for your change:**
+
+| Change Type | Testing Tool | Why | Example |
+|------------|--------------|-----|---------|
+| **User Workflow/Behavior** | Playwright (Functional E2E) | Tests actual user interactions, API calls, SignalR updates | User joins session, submits question, votes |
+| **Visual/Styling Changes** | Percy (Visual Regression) | Pixel-perfect comparison across viewports, catches unintended CSS changes | Orange card rendering, button styles, layout shifts |
+| **CSS Code Quality** | Stylelint (Pre-commit) | Prevents CSS conflicts before they reach the browser | Class naming conventions, duplicate properties, color formats |
+| **Component Refactor** | Percy + Playwright | Percy validates visual consistency, Playwright validates behavior | Refactoring question card component |
+| **API Change** | Playwright (Functional E2E) | Tests API contract, response format, error handling | New participant endpoint, SignalR hub changes |
+| **Responsive Design** | Percy (Multi-viewport) | Tests layout across 375px/768px/1280px viewports | Mobile-first design, tablet layout, desktop grid |
+| **Theme Changes** | Percy + Stylelint | Percy validates visual output, Stylelint validates CSS quality | Dark mode, color scheme updates, Blazor theme |
+| **Accessibility Fix** | Playwright (Functional E2E) | Tests ARIA attributes, keyboard navigation, screen reader support | ARIA labels, focus management, semantic HTML |
+
+### Decision Flowchart
+
+```
+Did you change...
+│
+├─ User flows/interactions? → Playwright Functional Test
+│  ├─ Examples: Login, navigation, form submission, voting
+│  └─ File: Tests/UI/*-functional.spec.ts
+│
+├─ Visual appearance/CSS? → Percy Visual Test + Stylelint
+│  ├─ Examples: Button colors, card layouts, spacing, themes
+│  ├─ Visual Test: Tests/UI/*-visual.spec.ts (Percy)
+│  └─ CSS Quality: npm run lint:css (Stylelint)
+│
+├─ API/SignalR contract? → Playwright Functional Test
+│  ├─ Examples: New endpoints, hub methods, response format
+│  └─ File: Tests/UI/*-api.spec.ts
+│
+├─ Component internals (no UI change)? → Playwright Functional Test
+│  ├─ Examples: Refactoring, performance optimization
+│  └─ Validate behavior remains unchanged
+│
+└─ Multi-viewport responsive design? → Percy Multi-viewport Test
+   ├─ Examples: Mobile layout, tablet breakpoints, grid systems
+   └─ File: Tests/UI/*-responsive.spec.ts
+```
+
+### Quick Reference Commands
+
+```bash
+# Functional E2E Tests (Playwright)
+npx playwright test Tests/UI/feature-name-functional.spec.ts --headed
+
+# Visual Regression Tests (Percy + Playwright)
+npm run test:percy:visual -- Tests/UI/feature-name-visual.spec.ts
+
+# CSS Quality Check (Stylelint)
+npm run lint:css -- SPA/NoorCanvas/Components/**/*.razor
+
+# Full Test Suite (All 3 Approaches)
+npx playwright test && npm run test:percy && npm run lint:css
+```
+
+### Percy Visual Test Template
+
+```typescript
+import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
+
+test.describe('Visual Regression: Feature Name', () => {
+  test('should render component correctly across viewports', async ({ page }) => {
+    // Navigate to the component
+    await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+    
+    // Wait for component to load
+    await page.waitForSelector('[data-testid="component"]');
+    
+    // Take Percy snapshot (tests 375px, 768px, 1280px viewports)
+    await percySnapshot(page, 'Component Name - Initial State', {
+      widths: [375, 768, 1280],
+      minHeight: 1024
+    });
+    
+    // Interact with component
+    await page.click('[data-testid="toggle-button"]');
+    await page.waitForTimeout(500); // Wait for animation
+    
+    // Take another snapshot showing changed state
+    await percySnapshot(page, 'Component Name - Active State');
+  });
+});
+```
+
+**Percy Configuration**: See `.percy.yml` for viewport settings and ignored elements.
+
+---
+
+## 🔧 Configuration Files
+
+### Primary Config: `config/testing/playwright.config.cjs`
+
+**Core Settings**:
+```javascript
+{
+  timeout: 30000,
+  testDir: '../../',
+  testMatch: [
+    '**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+    '**/Tests/UI/**/*.{test,spec}.{js,ts,jsx,tsx}',
+    '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'
+  ],
+  retries: 0,
+  use: {
+    baseURL: 'https://localhost:9091',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    ignoreHTTPSErrors: true
+  }
+}
+```
+
+### Environment Modes (DEPRECATED - Use Orchestration Scripts Instead)
+
+**⚠️ NOTE: All environment modes below are DEPRECATED. Use orchestration scripts instead.**
+
+The following modes were part of the webServer config approach, which is no longer recommended:
+
+#### 1. Standalone Mode (`PW_MODE=standalone`) - DEPRECATED
+**Status**: DEPRECATED - Use orchestration scripts instead
+
+**Previous Approach (DO NOT USE):**
+```bash
+$env:PW_MODE='standalone'; npx playwright test
+```
+
+**Problems:**
+- Hidden process output (can't debug startup failures)
+- Environment variables not consistently set
+- Race conditions (tests start before app ready)
+- Orphaned processes (unreliable cleanup)
+
+**Replacement:** Use orchestration script pattern (see above)
+
+#### 2. Temp Mode (`PW_MODE=temp`) - DEPRECATED
+**Status**: DEPRECATED - Use orchestration scripts with artifact collection instead
+
+**Previous Approach (DO NOT USE):**
+```bash
+$env:PW_MODE='temp'; npx playwright test
+```
+
+**Replacement:** Configure video/trace in playwright.config.cjs per-test
+
+#### 3. CI Mode (default) - DEPRECATED
+**Status**: DEPRECATED - Use orchestration scripts in CI/CD pipelines
+
+**Replacement:** Execute orchestration scripts from CI/CD (GitHub Actions, Azure DevOps)
+
+**Modern Approach for All Scenarios:**
+```powershell
+# Use orchestration scripts for ALL test execution
+.\Scripts\run-{feature}-test.ps1
+```
+
+---
+
+## 🧪 Test Data (Session 212)
+
+### Canonical Test Session
+**Session ID**: `212`
+
+**Why Session 212?**:
+- Has complete transcript data
+- Multiple participants registered
+- Known stable state
+- Used across all test documentation
+
+### Test Tokens
+
+#### User Token: `KJAHA99L`
+**Purpose**: Participant/user testing
+
+**API Response** (`/api/participant/session/KJAHA99L/me`):
+```json
+{
+  "name": "Peter Parker",
+  "userGuid": "b59e3dca-9330-40f5-9de8-9a5350fd2d6a",
+  "email": "peter.parker@test.com",
+  "country": "Bahrain",
+  "joinedAt": "2025-10-01T14:28:43.523333"
+}
+```
+
+**Test URLs**:
+- Session Canvas: `https://localhost:9091/session/canvas/KJAHA99L`
+- User Info: API-based participant loading
+
+#### Host Token: `PQ9N5YWW`
+**Purpose**: Host control panel testing
+
+**Behavior**:
+- Shows registration panel after authentication
+- Different content/behavior than user token
+
+**Test URLs**:
+- Host Control Panel: `https://localhost:9091/host/control-panel/PQ9N5YWW`
+- Registration: `https://localhost:9091/session/join/PQ9N5YWW`
+- Session Canvas (Host): `https://localhost:9091/session/canvas/PQ9N5YWW`
+
+### Other Test Data
+- **Base URL**: `https://localhost:9091`
+- **API Base**: `https://localhost:9091/api`
+- **SignalR Hubs**: 
+  - `/hub/session`
+  - `/hub/qa`
+  - `/hub/annotation`
+
+---
+
+## 🚀 Test Execution Commands
+
+### Run All Tests
+```bash
+npx playwright test
+```
+
+### Run Specific Test File
+```bash
+npx playwright test Tests/UI/session-canvas.spec.ts
+```
+
+### Run Tests in Headed Mode
+```bash
+npx playwright test --headed
+```
+
+### Run Tests with UI Mode (Interactive)
+```bash
+npx playwright test --ui
+```
+
+### Run in Standalone Mode
+```bash
+$env:PW_MODE='standalone'; npx playwright test
+```
+
+### Run Specific Browser
+```bash
+npx playwright test --project=chromium
+npx playwright test --project=firefox
+npx playwright test --project=webkit
+```
+
+### Debug Mode
+```bash
+npx playwright test --debug
+```
+
+### Generate Report
+```bash
+npx playwright show-report
+```
+
+---
+
+## 📝 Test Writing Patterns
+
+### API-Based Approach (Preferred)
+**Pattern**: Load data from API, not localStorage
+
+```typescript
+test('should load participant from API', async ({ page }) => {
+  await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+  
+  // API call happens automatically in component
+  await page.waitForSelector('[data-testid="participant-name"]');
+  
+  const name = await page.locator('[data-testid="participant-name"]').textContent();
+  expect(name).toBe('Peter Parker');
+});
+```
+
+**Why?**: Eliminates localStorage dependency, more reliable
+
+### Multi-Browser Isolation
+**Pattern**: Each test starts fresh, no shared state
+
+```typescript
+test.describe('Feature Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    // Each test gets fresh browser context
+    await page.goto('https://localhost:9091');
+  });
+
+  test('test 1', async ({ page }) => {
+    // Isolated
+  });
+
+  test('test 2', async ({ page }) => {
+    // Isolated
+  });
+});
+```
+
+### Waiting Strategies
+
+#### Wait for Selector
+```typescript
+await page.waitForSelector('[data-testid="element"]', { timeout: 10000 });
+```
+
+#### Wait for URL
+```typescript
+await page.waitForURL('**/expected-route');
+```
+
+#### Wait for API Response
+```typescript
+const response = await page.waitForResponse(
+  response => response.url().includes('/api/endpoint')
+);
+```
+
+#### Wait for Network Idle
+```typescript
+await page.waitForLoadState('networkidle');
+```
+
+### Assertion Patterns
+
+#### Visibility
+```typescript
+await expect(page.locator('selector')).toBeVisible();
+await expect(page.locator('selector')).toBeHidden();
+```
+
+#### Text Content
+```typescript
+await expect(page.locator('selector')).toHaveText('Expected Text');
+await expect(page.locator('selector')).toContainText('Partial');
+```
+
+#### Count
+```typescript
+await expect(page.locator('selector')).toHaveCount(5);
+```
+
+#### URL
+```typescript
+await expect(page).toHaveURL('https://localhost:9091/expected-route');
+```
+
+#### Attribute
+```typescript
+await expect(page.locator('selector')).toHaveAttribute('attr', 'value');
+```
+
+---
+
+## 🎯 Common Test Scenarios
+
+### 1. Navigation Test
+```typescript
+test('should navigate to session canvas', async ({ page }) => {
+  await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+  await expect(page).toHaveURL(/session\/canvas/);
+  await expect(page.locator('h1')).toBeVisible();
+});
+```
+
+### 2. Form Submission Test
+```typescript
+test('should submit question', async ({ page }) => {
+  await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+  
+  await page.fill('[data-testid="question-input"]', 'Test question');
+  await page.click('[data-testid="submit-button"]');
+  
+  await expect(page.locator('[data-testid="question-submitted"]')).toBeVisible();
+});
+```
+
+### 3. API Response Test
+```typescript
+test('should load data from API', async ({ page }) => {
+  const responsePromise = page.waitForResponse(
+    response => response.url().includes('/api/participant/session/KJAHA99L/me')
+  );
+  
+  await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+  
+  const response = await responsePromise;
+  const data = await response.json();
+  
+  expect(data.name).toBe('Peter Parker');
+});
+```
+
+### 4. SignalR Real-Time Test
+```typescript
+test('should receive SignalR updates', async ({ page }) => {
+  await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+  
+  // Trigger action that should broadcast
+  await page.click('[data-testid="vote-button"]');
+  
+  // Wait for SignalR update to reflect
+  await page.waitForSelector('[data-testid="vote-count-updated"]');
+  
+  const count = await page.locator('[data-testid="vote-count"]').textContent();
+  expect(parseInt(count!)).toBeGreaterThan(0);
+});
+```
+
+---
+
+## 🐛 Debugging Tips
+
+### 1. Slow Motion
+```typescript
+test.use({ 
+  launchOptions: { 
+    slowMo: 500  // Slows down by 500ms per action
+  } 
+});
+```
+
+### 2. Screenshots on Failure (Automatic)
+- Configured in `playwright.config.cjs`
+- Location: `test-results/` folder
+
+### 3. Video Recording
+- Standalone mode: Always on
+- Temp mode: Always on
+- Default: Only on failure
+
+### 4. Trace Viewer
+```bash
+npx playwright show-trace test-results/trace.zip
+```
+
+### 5. Console Logs
+```typescript
+page.on('console', msg => console.log('Browser:', msg.text()));
+```
+
+---
+
+## ⚙️ TypeScript Configuration
+
+**File**: `config/testing/tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "types": ["node", "@playwright/test"]
+  },
+  "include": [
+    "../../PlayWright/**/*.ts",
+    "../../Tests/UI/**/*.ts",
+    "../../Workspaces/TEMP/**/*.ts"
+  ]
+}
+```
+
+---
+
+## 🧹 Cleanup Rules
+
+### Temporary Test Cleanup
+**When**: After task completion (in key data stream update)
+
+**Pattern**:
+```powershell
+Remove-Item "Workspaces/TEMP/*-phase-*.spec.ts" -Force
+Remove-Item "Workspaces/TEMP/playwright-artifacts/*" -Recurse -Force
+```
+
+**Exceptions**: 
+- Keep tests if `commit:false` flag used
+- Keep tests marked for preservation in key metadata
+
+---
+
+## 📊 Test Reporting
+
+### HTML Report (Default)
+```bash
+npx playwright show-report
+```
+
+**Location**: `playwright-report/` or mode-specific folder
+
+### JSON Report
+```bash
+npx playwright test --reporter=json
+```
+
+### Custom Reporter
+Configured in `playwright.config.cjs` per mode
+
+---
+
+## 🔗 Integration Points
+
+### With Task Agent
+- **Step 6.1**: Automatic Playwright test generation for UI tasks
+- **Test Location**: `Workspaces/TEMP/` for phase tests
+- **Cleanup**: After successful task completion
+
+### With Test-Generation Agent
+- Uses Session 212 canonical patterns
+- Multi-browser testing support
+- API-based test approaches
+
+### With Validation Framework
+- Level 5: E2E Testing with Playwright
+- Required for UI feature tasks
+- Optional for backend-only tasks
+
+---
+
+## 📚 Related Documentation
+
+- **PlaywrightConfig.MD** - Detailed configuration reference
+- **PlaywrightTestPaths.MD** - Canonical test patterns and Session 212 data
+- **PlaywrightTestOrchestration.md** - ⭐ App launch + test orchestration patterns
+- **InfrastructureQuickRef.md** - API endpoints for test assertions
+- **Architecture.md** - SignalR hubs and real-time testing
+
+---
+
+## 🔄 Auto-Update Protocol
+
+**This file is maintained by**:
+- **cohesion-review** agent - Updates during system-wide reviews
+- **sync** agent - Keeps consistent with actual configuration files
+
+**Update Triggers**:
+- New test patterns discovered
+- Configuration changes in `playwright.config.cjs`
+- New test data added (beyond Session 212)
+- New environment modes added
+- Test execution strategy changes
+
+**Verification**:
+- Compare with `config/testing/playwright.config.cjs`
+- Validate Session 212 test data still valid
+- Ensure test commands match actual npm scripts
+- Cross-reference with `PlaywrightConfig.MD` and `PlaywrightTestPaths.MD`
+
+---
+
+**Version History**:
+- **1.0.0** (2025-10-12): Initial creation - Consolidated Playwright testing knowledge

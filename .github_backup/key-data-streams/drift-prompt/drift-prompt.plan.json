@@ -1,0 +1,81 @@
+{
+  "key": "drift-prompt",
+  "title": "Drift Management System Implementation",
+  "created": "2025-10-25",
+  "status": "completed",
+  "branch": "development",
+  "version": "1.0",
+  "phases": [
+    {
+      "id": 1,
+      "title": "Agent Specification",
+      "status": "completed",
+      "tasks": [
+        "Create YAML frontmatter with metadata",
+        "Define purpose, inputs, outputs",
+        "Establish critical rules (15 bullets, auto-commit, max stack 3)",
+        "Reference shared guidance files"
+      ],
+      "files": [".github/prompts/drift.prompt.md"]
+    },
+    {
+      "id": 2,
+      "title": "Core Protocol Implementation",
+      "status": "completed",
+      "tasks": [
+        "Implement primary key context tracking",
+        "Create automatic drift naming system",
+        "Build stack management (max depth 3)",
+        "Add automatic drift detection",
+        "Establish context integrity rules",
+        "Document completion handling"
+      ],
+      "files": [".github/prompts/drift.prompt.md"]
+    },
+    {
+      "id": 3,
+      "title": "Integration with Existing Prompts",
+      "status": "completed",
+      "tasks": [
+        "Align with plan.prompt.md pattern",
+        "Follow output-style-mandate.md",
+        "Implement commit-checkpoint-protocol.md",
+        "Create example workflows",
+        "Add error handling"
+      ],
+      "files": [".github/prompts/drift.prompt.md"]
+    },
+    {
+      "id": 4,
+      "title": "Continue/Plan Integration",
+      "status": "completed",
+      "tasks": [
+        "Add drift detection section",
+        "Create handoff workflow",
+        "Document drift resolution process",
+        "Add git query commands",
+        "Update success criteria"
+      ],
+      "files": [".github/prompts/continue.prompt.md"]
+    }
+  ],
+  "user_decisions": [
+    {
+      "question": "Auto-commit at drift resolution?",
+      "decision": "YES",
+      "rationale": "Create checkpoint commit after each drift resolved"
+    },
+    {
+      "question": "Priority levels (critical/blocking/info)?",
+      "decision": "DEFER",
+      "rationale": "Not implemented in v1.0, noted in Future Enhancements"
+    },
+    {
+      "question": "Max drift stack depth?",
+      "decision": "3 levels",
+      "rationale": "Enforce maximum depth of 3, force resolution if exceeded"
+    }
+  ],
+  "estimated_effort": "1-2 hours",
+  "actual_effort": "completed"
+}

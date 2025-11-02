@@ -1,0 +1,147 @@
+{
+    "key": "database-environment-safeguards",
+    "version": "1.0.0",
+    "status": "phase-2-complete",
+    "created": "2025-10-27",
+    "lastUpdated": "2025-10-27",
+    "priority": "CRITICAL",
+    "phases": [
+        {
+            "id": 1,
+            "name": "Configuration Layer Setup",
+            "status": "completed",
+            "description": "Create appsettings.Development.json, update .gitignore, validation script",
+            "exitCriteria": [
+                "appsettings.Development.json exists with KSESSIONS_DEV",
+                ".gitignore updated to exclude environment configs",
+                "validate-dev-setup.ps1 script created and tested",
+                "Localhost connects to KSESSIONS_DEV (verified)"
+            ],
+            "estimatedDuration": "30 minutes",
+            "actualDuration": "30 minutes",
+            "checkpointCommit": "2ce0f1e0",
+            "completedDate": "2025-10-27"
+        },
+        {
+            "id": 2,
+            "name": "Startup Validation",
+            "status": "completed",
+            "description": "Add fail-fast validation to Program.cs",
+            "exitCriteria": [
+                "Startup validation added to Program.cs",
+                "Development + KSESSIONS → Application stops",
+                "Development + KSESSIONS_DEV → Application starts",
+                "Production validation logic ready",
+                "Clear error messages guide developer"
+            ],
+            "estimatedDuration": "45 minutes",
+            "actualDuration": "45 minutes",
+            "checkpointCommit": "9e3ed451",
+            "completedDate": "2025-10-27",
+            "dependsOn": [
+                1
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Enhanced Runtime Guard",
+            "status": "pending",
+            "description": "Extend DatabaseEnvironmentGuardService for bi-directional protection",
+            "exitCriteria": [
+                "Service detects localhost + KSESSIONS (new violation)",
+                "Service detects noorcanvas.kashkole.com + KSESSIONS_DEV (existing)",
+                "ViolationType property distinguishes violations",
+                "All logging includes violation type",
+                "Safe combinations return null"
+            ],
+            "estimatedDuration": "1 hour",
+            "checkpointCommit": null,
+            "dependsOn": [
+                2
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Component-Level Blocking",
+            "status": "pending",
+            "description": "Enhance host razor views to block BEFORE data operations",
+            "exitCriteria": [
+                "Guard check is FIRST operation in OnInitializedAsync",
+                "Violation returns immediately (no DB queries)",
+                "Red alert UI distinguishes violation types",
+                "Alert provides specific fix instructions",
+                "Logging indicates component name and violation",
+                "No false positives in safe configurations"
+            ],
+            "estimatedDuration": "1.5 hours",
+            "checkpointCommit": null,
+            "dependsOn": [
+                3
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Developer Experience",
+            "status": "pending",
+            "description": "Create setup automation and documentation",
+            "exitCriteria": [
+                "setup-dev-environment.ps1 automates complete setup",
+                "-Validate mode checks without modifying",
+                "VS Code task for quick validation",
+                "Documentation clear and actionable",
+                "New developers can setup in < 2 minutes"
+            ],
+            "estimatedDuration": "1 hour",
+            "checkpointCommit": null,
+            "dependsOn": [
+                1
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Testing & Validation",
+            "status": "pending",
+            "description": "Comprehensive test coverage for all scenarios",
+            "exitCriteria": [
+                "Playwright tests validate safe scenarios",
+                "Manual checklist covers all violations",
+                "Tests documented with expected results",
+                "Test results recorded for audit",
+                "Zero false positives confirmed"
+            ],
+            "estimatedDuration": "2 hours",
+            "checkpointCommit": null,
+            "dependsOn": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ]
+        }
+    ],
+    "totalEstimatedDuration": "6.5 hours",
+    "relatedKeys": [
+        "hp-db-guard"
+    ],
+    "relatedDocuments": [
+        "Docs/POST-MORTEM-appsettings-local-override.md",
+        "Tools/HostProvisioner/README.md",
+        ".github/prompts/workitems/hp-db-guard.plan.md"
+    ],
+    "targetFiles": [
+        "SPA/NoorCanvas/appsettings.Development.json",
+        "SPA/NoorCanvas/Program.cs",
+        "SPA/NoorCanvas/Services/Security/DatabaseEnvironmentGuardService.cs",
+        "SPA/NoorCanvas/Services/Security/IDatabaseEnvironmentGuardService.cs",
+        "SPA/NoorCanvas/Pages/Host-SessionOpener.razor",
+        "SPA/NoorCanvas/Pages/HostControlPanel.razor",
+        "SPA/NoorCanvas/Pages/HostLanding.razor",
+        ".gitignore",
+        "Scripts/validate-dev-setup.ps1",
+        "Scripts/setup-dev-environment.ps1",
+        "PlayWright/Tests/database-environment-safeguards.spec.ts",
+        "Tests/Manual/database-environment-validation-checklist.md",
+        "Docs/DEVELOPMENT-ENVIRONMENT-SETUP.md"
+    ]
+}

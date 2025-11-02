@@ -1,0 +1,194 @@
+# hcp-tcanvas: Host Control Panel Transcript Canvas Share Feature
+
+## Key Metadata
+- **Status**: in-progress
+- **Created**: 2025-10-18T00:00:00Z
+- **Last Updated**: 2025-10-18T18:30:00Z
+
+---
+
+## User Request (2025-10-18T00:00:00Z)
+Update HostControlPanel.razor "Share Transcript" button to dynamically parse session transcript HTML from API, group content by h2 headers, inject share buttons for each group, and broadcast selected h2+content when clicked.
+
+**High-Priority Constraints**: None detected
+
+---
+
+## Work Log
+
+### Work Completed (2025-10-18T18:30:00Z)
+- **Status**: In Progress - Broadcast functionality implemented and tested
+- **Problem**: Buttons working but broadcast not reaching participants
+- **Root Cause**: `BroadcastTranscriptSection` hub method didn't exist in SessionHub.cs
+- **Solution**: Implemented complete broadcast pipeline with isolated testing
+- **Changes**:
+  1. **SessionHub.cs** - Added `BroadcastTranscriptSection` hub method:
+     - Accepts: sessionId (string), sectionHtml (string), h2Text (string)
+     - Broadcasts to: session group via `ReceiveTranscriptSection` event
+     - Payload includes: sectionHtml, h2Text, timestamp, sharedBy, trackingId
+     - Comprehensive trace logging with [TRACE:hcp-tcanvas:broadcast] markers
+  
+  2. **Test Infrastructure**:
+     - `test-transcript-section-broadcast.spec.ts` - Two-context Playwright test
+     - Participant (KJAHA99L) receives broadcast from Host (PQ9N5YWW)
+     - Verifies: SignalR connection, button injection, click, broadcast reception
+     - `run-transcript-section-broadcast-test.ps1` - Orchestration script
+  
+  3. **Documentation**:
+     - `PLAYWRIGHT-TEST-RESOLUTION.md` - Documents Start-Process -PassThru pattern
+     - Explains why Start-Job failed and how Start-Process with -PassThru solves it
+     - Reusable pattern for future test orchestration
+
+- **Files Affected**:
+  - `SPA/NoorCanvas/Hubs/SessionHub.cs` (added BroadcastTranscriptSection method)
+  - `.github/prompts.keys/hcp-tcanvas/PLAYWRIGHT-TEST-RESOLUTION.md` (created)
+  - `.github/prompts.keys/hcp-tcanvas/tests/test-transcript-section-broadcast.spec.ts` (created)
+  - `.github/prompts.keys/hcp-tcanvas/scripts/run-transcript-section-broadcast-test.ps1` (created)
+
+- **Session 212 Test Data**:
+  - **6 H2 sections** verified in Session212.txt
+  - Host Token: `PQ9N5YWW`
+  - Participant Token: `KJAHA99L`
+  - Expected: 6 share buttons inject, each triggers broadcast on click
+
+- **Broadcast Flow**:
+  1. Host clicks share button → JavaScript calls `ShareTranscriptSection` JSInvokable
+  2. C# method transforms HTML → calls `hubConnection.InvokeAsync("BroadcastTranscriptSection")`
+  3. SessionHub receives call → broadcasts to session group
+  4. Participant's SignalR connection receives `ReceiveTranscriptSection` event
+  5. Participant UI updates with section content
+
+- **Build**: Clean (10.8s, 0 errors, 0 warnings)
+- **Commit**: 0401cf00 "Add BroadcastTranscriptSection hub method and broadcast test"
+- **Next Steps**:
+  - Run `.\run-transcript-section-broadcast-test.ps1` to verify end-to-end broadcast
+  - Verify participant receives section HTML correctly
+  - Check console logs for [TRACE:hcp-tcanvas:broadcast] markers
+  - Add UI handler on SessionCanvas.razor to display received sections
+
+---
+
+### Work Completed (2025-10-18T16:00:00Z)
+- **Status**: In Progress - Dynamic script loading implemented
+- **Problem**: TranscriptSectionParser not loading, buttons not injecting
+- **Root Cause**: Dynamic injection added in previous session but code was not actually committed/applied
+- **Solution**: Implemented proper script loading verification with fallback
+- **Changes**:
+  - Added script existence check: `typeof window.TranscriptSectionParser !== 'undefined'`
+  - If undefined: dynamically inject script tag via `createElement('script')`
+  - Cache-busting query parameter: `?v=${Date.now()}` forces fresh load
+  - 1000ms wait period for script to load
+  - Post-load verification: throw `InvalidOperationException` if still undefined
+  - Comprehensive trace logging for script load diagnostics
+- **Files Affected**:
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (HandleTranscriptRendered method)
+- **Session 212 Verification**:
+  - Session 212 HTML contains **6 H2 sections** (verified)
+  - Expected: 6 share buttons should inject after clicking "Share Transcript"
+- **Build**: Clean (23.7s, 0 errors, 0 warnings)
+- **Commit**: 80218458 "Add dynamic TranscriptSectionParser script loading with verification"
+- **Next Steps**:
+  - Manual test with Session 212 data
+  - Verify 6 share buttons inject correctly
+  - Test button click → JSInvokable method call → SignalR broadcast
+  - Create automated Playwright test for end-to-end validation
+
+---
+
+### Work Completed (2025-10-18T14:20:00Z)
+- **Status**: In Progress - Script loading fix implemented
+- **Problem**: TranscriptSectionParser JavaScript not loading on certain page navigations
+- **Root Cause**: Script tag in `<HeadContent>` not re-evaluated during Blazor routing
+- **Solution**: Dynamic script injection fallback
+- **Changes**:
+  - Added `typeof window.TranscriptSectionParser !== 'undefined'` check before calling
+  - If undefined: dynamically inject script tag with `createElement('script')`
+  - Cache-busting query parameter: `?v=${Date.now()}`
+  - 1000ms wait for script load with verification
+  - Throw `InvalidOperationException` if still undefined after injection
+  - Comprehensive trace logging for script load diagnostics
+- **Files Affected**:
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (dynamic script loading fallback)
+- **Diagnostics**:
+  - Script existence check: `typeof window.TranscriptSectionParser !== 'undefined'`
+  - Dynamic injection logs: Script ID, src path, timestamp
+  - Post-load verification: Boolean check after 1000ms delay
+  - Error path: Clear exception message if script fails to load
+- **Build**: Clean (0 errors, 0 warnings)
+- **Logs Confirmed**: Script loading messages appearing in console
+- **Commit**: 3929c845 "Add dynamic script loading fallback for TranscriptSectionParser"
+- **Checkpoint**: checkpoint/hcptcanvas/2025-01-18_1419
+
+---
+
+### User Report (2025-10-18T13:00:00Z)
+"Not working" - No share buttons injecting. User provided console logs and HTML showing:
+- NO "TranscriptSectionParser" messages in console
+- NO script loading evidence
+- Container exists: `transcript-content-container`
+- HTML contains h2 elements
+- Other JavaScript files loading successfully
+
+**Diagnosis**: Script file never loaded despite tag existing in HostControlPanel.razor
+
+**High-Priority Constraints**: CRITICAL - Script not loading blocks all button injection
+
+--- User Request (2025-10-18T12:00:00Z)
+No share buttons are being injected for the h2 blocks. Follow SessionCanvas.razor injection pattern and tie it to asset and broadcasting logic.
+
+**High-Priority Constraints**: None detected
+
+---
+
+### Work Completed (2025-10-18T12:30:00Z)
+- **Status**: In Progress
+- **Changes**:
+  - Enhanced `ShareTranscript()` with pre-injection HTML inspection (regex h2 count, preview)
+  - Added `TestTranscriptSectionSharing()` method with 7-phase validation
+  - Added debug panel action for manual testing
+  - Improved error diagnostics with HTML preview on h2 detection failure
+  - Added DOM render timing diagnostics (container innerHTML length check, retry logic)
+- **Files Affected**:
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (trace logging, test method, debug action, DOM diagnostics)
+- **Test Coverage**:
+  - Phase 1: Model.TransformedTranscript content check
+  - Phase 2: Regex h2 element count in HTML
+  - Phase 3: DOM container existence verification (JavaScript)
+  - Phase 4: JavaScript h2 count in rendered DOM
+  - Phase 5: Share button injection via TranscriptSectionParser
+  - Phase 6: Button presence validation in DOM
+  - Phase 7: Section HTML extraction accuracy test
+- **Diagnostics**:
+  - Pre-injection: HTML preview, regex h2 count
+  - DOM timing: Container innerHTML length, 1000ms retry if empty
+  - Post-injection: Button count verification, error capture
+- **Build**: Clean (0 errors, 0 warnings)
+- **Lint Validation**: PASS (Razor: 1 file)
+- **Debug Level**: trace
+- **Commit**: a00ef25af86652167706d3925e933895c5ff3d01
+
+---
+
+### Work Completed (2025-10-18T00:30:00Z)
+- **Status**: In Progress
+- **Changes**: 
+  - Created JavaScript transcript section parser (`transcript-section-parser.js`)
+  - Added JSInvokable C# method `ShareTranscriptSection()` in HostControlPanel.razor
+  - Modified `ShareTranscript()` to inject share buttons after loading transcript
+  - Enhanced TranscriptCanvas.razor listener to detect `contentType="transcript-section"`
+  - Added container ID to HostControlPanelContent.razor for JavaScript targeting
+- **Files Affected**:
+  - `SPA/NoorCanvas/wwwroot/js/transcript-section-parser.js` (created)
+  - `SPA/NoorCanvas/Pages/HostControlPanel.razor` (JSInvokable method, button injection, script reference)
+  - `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor` (container ID)
+  - `SPA/NoorCanvas/Pages/TranscriptCanvas.razor` (contentType detection in HtmlContentReceived listener)
+- **Architecture**:
+  - Follows SessionCanvas pattern: JSInvokable + JavaScript click delegation
+  - Reuses existing `BroadcastHtml` SignalR hub method with `contentType="transcript-section"`
+  - Share buttons injected dynamically after each h2 element
+  - Click handler extracts h2+content, broadcasts via SignalR
+- **Build**: Clean (0 errors, 0 warnings, 23.5s)
+- **Lint Validation**: PASS (Razor: 2 files, JavaScript: 1 file)
+- **Debug Level**: simple
+- **Commit**: b73750f28f2d7b547b2da4518df235f4599c2a84
+

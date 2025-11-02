@@ -1,0 +1,32 @@
+{
+    "id": "document-first",
+    "title": "Document First",
+    "version": "1.0.0",
+    "created": "2025-10-30",
+    "lastModified": "2025-10-30",
+    "category": "workflow",
+    "severity": "critical",
+    "enforcement": "automatic",
+    "autoFix": true,
+    "validationFunction": "ValidateDocumentFirst",
+    "appliesToPrompts": [
+        "all"
+    ],
+    "relatedRules": [
+        "no-code-in-chat"
+    ],
+    "relatedModules": [
+        ".github/prompts/shared/step-2-5-document-first-checkpoint.md"
+    ],
+    "relatedDocs": [
+        ".github/key-data-streams/_template/",
+        ".github/instructions/Links/KeyDataStreamsQuickRef.md"
+    ],
+    "tags": [
+        "workflow",
+        "documentation",
+        "kds",
+        "git",
+        "audit-trail"
+    ]
+}

@@ -32,3 +32,87 @@
 [PLAYWRIGHT-LOG] 2025-11-01T18:08:33.859Z | NAVIGATE | https://localhost:9091/transcript/canvas/KJAHA99L
 [PLAYWRIGHT-LOG] 2025-11-01T18:08:33.626Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
 [PLAYWRIGHT-LOG] 2025-11-01T18:08:39.443Z | CLICK | div#transcript-content-container > div > div > div > button | button | "Share Section"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:22.105Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:22.797Z | CLICK | button#debug-action-0 | button | "Clean Canvas"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:24.402Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:25.605Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > div > button | button | "Copy"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:32.061Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:32.926Z | CLICK | button#debug-action-0 | button | "Enter Test Data"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:43.513Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:44.458Z | CLICK | button#debug-action-0 > span | span | "Enter Test Data"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:55.316Z | NAVIGATE | https://localhost:9091/transcript/canvas/KJAHA99L
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:50.669Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:50.731Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:54.068Z | CLICK | button#reg-transcript-canvas-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:54.821Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T19:44:55.070Z | NAVIGATE | https://localhost:9091/transcript/canvas/KJAHA99L
+[PLAYWRIGHT-LOG] 2025-11-01T19:52:52.769Z | CLICK | div#components-reconnect-modal | div | "Reconnection failed. Try reloading the page if you"
+[PLAYWRIGHT-LOG] 2025-11-01T19:53:00.015Z | CLICK | html > body > div > div > div > div:nth-of-type(2) > div > div:nth-of-type(4) > div:nth-of-type(2) | div | "SELECT PARTICIPANT CANVAS
+        
+        
+      "
+[PLAYWRIGHT-LOG] 2025-11-01T19:53:00.464Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-01T19:53:01.568Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T20:00:33.677Z | CLICK | div#components-reconnect-modal | div | "Could not reconnect to the server. Reload the page"
+[PLAYWRIGHT-LOG] 2025-11-01T20:00:45.873Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:00:48.055Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T20:00:54.929Z | CLICK | div#content-transcript-container > div > div > div > div > button > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:00:55.850Z | CLICK | div#content-transcript-container > div > div > div > div > button | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:01:46.657Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:01:47.603Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T20:02:24.559Z | CLICK | div#content-transcript-container > div > div > div > div > button | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:02:25.076Z | CLICK | div#content-transcript-container > div > div > div > div > button | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:02:25.289Z | CLICK | div#content-transcript-container > div > div > div > div > button | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:30.140Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:30.859Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:34.739Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:35.988Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:36.866Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:37.912Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:39.600Z | CLICK | button#asset-fab-inserted-hadees-1 | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:32:41.985Z | CLICK | div#content-transcript-container > div > div > div > div | div | "Inserted Hadees"
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:37.206Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:38.320Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:42.518Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:43.855Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:45.014Z | CLICK | button#asset-fab-inserted-hadees-1 > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:50.031Z | CLICK | div#content-transcript-container > div > div > h2 | h2 | "Impurity (نجاست) and Purification (طهارة)"
+[PLAYWRIGHT-LOG] 2025-11-01T20:43:58.820Z | CLICK | div#content-transcript-container > div > div > div > div:nth-of-type(2) | div | "Muhammad Ibn Abdullah (SWS)div |  id: not found | "
+[PLAYWRIGHT-LOG] 2025-11-01T20:44:01.176Z | CLICK | div#content-transcript-container | div | "Impurity (نجاستspan |  id: not found | class: inli"
+[PLAYWRIGHT-LOG] 2025-11-01T20:55:34.974Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "div |  id: not found | class: not found
+        
+ "
+[PLAYWRIGHT-LOG] 2025-11-01T21:13:34.483Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "div |  id: not found | class: not found
+        
+ "
+[PLAYWRIGHT-LOG] 2025-11-01T21:13:39.546Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "div |  id: not found | class: not found
+        
+ "
+[PLAYWRIGHT-LOG] 2025-11-01T21:13:50.087Z | CLICK | html > body > vis-bug | vis-bug | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:13:59.885Z | CLICK | button#reg-transcript-canvas-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:14:03.890Z | CLICK | button#reg-transcript-canvas-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:14:29.699Z | CLICK | html > body > vis-bug | vis-bug | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:14:31.272Z | CLICK | html > body > vis-bug | vis-bug | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:16:23.435Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:16:24.532Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T21:16:29.730Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-BroadcastTranscript"] | i | "" | MARKER: 20251031120000-HostControlPanel-BroadcastTranscript
+[PLAYWRIGHT-LOG] 2025-11-01T21:17:44.408Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "Need For Messengers
+            We Look at the Pur"
+[PLAYWRIGHT-LOG] 2025-11-01T21:22:35.116Z | CLICK | html > body > div > div > div > div:nth-of-type(2) > div > div:nth-of-type(4) > div > div:nth-of-type(2) > p:nth-of-type(2) | p | "1 hour"
+[PLAYWRIGHT-LOG] 2025-11-01T21:22:35.768Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-01T21:22:36.779Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T21:22:55.129Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-BroadcastTranscript"] | i | "" | MARKER: 20251031120000-HostControlPanel-BroadcastTranscript
+[PLAYWRIGHT-LOG] 2025-11-01T21:23:04.321Z | CLICK | div#content-transcript-container > div > div > p:nth-of-type(5) > img | img | ""
+[PLAYWRIGHT-LOG] 2025-11-01T22:24:47.320Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-01T22:24:48.220Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-01T22:40:45.780Z | CLICK | div#components-reconnect-modal | div | "Reconnection failed. Try reloading the page if you"
+[PLAYWRIGHT-LOG] 2025-11-01T22:40:57.243Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-01T22:40:58.459Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T09:11:46.768Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T09:11:46.937Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T09:12:13.328Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T09:12:13.410Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T09:12:38.631Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T09:12:38.744Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T09:13:03.412Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T09:13:03.576Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession

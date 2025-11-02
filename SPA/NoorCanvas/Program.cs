@@ -195,6 +195,7 @@ builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fa
 builder.Services.AddScoped<HtmlParsingService>(); // [DEBUG-WORKITEM:signalcomm:impl] Advanced HTML parsing service to replace Blazor DOM parser limitations ;CLEANUP_OK
 builder.Services.AddScoped<IMediaUrlTransformService, MediaUrlTransformService>(); // Environment-aware media URL transformation for transcript images
 builder.Services.AddScoped<UnifiedHtmlTransformService>(); // Unified HTML transformation for host and participant views
+builder.Services.AddScoped<ShareButtonInjectionService>(); // [hcp-fab-button] Share button injection service for session assets
 builder.Services.AddScoped<IScreenshotAnalysisService, ScreenshotAnalysisService>(); // AI-powered screenshot annotation extraction
 // [hcp-refactor:phase2] SignalR Infrastructure - Extracted from HostControlPanel.razor
 builder.Services.AddScoped<IHubConnectionFactory, HubConnectionFactory>(); // Factory for creating SignalR connections with reconnection policy

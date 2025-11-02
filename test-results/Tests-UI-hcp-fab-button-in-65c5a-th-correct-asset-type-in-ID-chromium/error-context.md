@@ -1,0 +1,447 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - img "NOOR Canvas" [ref=e7]
+      - heading " HOST CONTROL PANEL" [level=1] [ref=e8]:
+        - generic [ref=e9]: 
+        - generic [ref=e10]: HOST CONTROL PANEL
+      - paragraph [ref=e11]: Manage your session with professional-grade controls
+    - text:   
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - heading "Need For Messengers" [level=3] [ref=e15]
+        - generic [ref=e16]:
+          - generic "Session elapsed time" [ref=e17]:
+            - generic [ref=e18]: 0:19
+          - generic [ref=e19]: Transcript Canvas
+        - button "Toggle questions panel" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: "?"
+          - generic "0 questions" [ref=e22]: "0"
+      - generic [ref=e23]:
+        - button "Broadcast transcript to participants" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: 
+        - generic [ref=e28]:
+          - heading "Impurity (نجاست) and Purification (طهارة)" [level=2] [ref=e29]
+          - paragraph [ref=e30]: "Impurity (نجاست) arises from defilement, while purification (طهارة) is the process of moving from the state of impurity to that of purity. As human beings are composed of both body and soul, purification must encompass both: the body through physical cleansing and the soul through spiritual refinement. Outward rituals purify the body, while understanding their inner meanings purifies the soul."
+          - paragraph [ref=e31]: Physical purification is achieved through water, whereas purification of the soul is attained through knowledge.
+          - generic [ref=e32]:
+            - heading "Muhammad Ibn Abdullah (SWS)" [level=4] [ref=e34]:
+              - generic [ref=e35]: 
+              - text: Muhammad Ibn Abdullah (SWS)
+            - generic [ref=e36]: لَا صَلَاةَ إِلَّا بِالطَّهَارَةِ
+            - generic [ref=e37]: There is no prayer without purification.
+          - paragraph [ref=e38]: Ablution (وضوء) is the process by which the body expels impurities and prepares for worship. It also signifies recognition of the sacred boundaries of the Imam (إمام), while prayer (صلاة) represents standing within the Imam’s summons through those boundaries. Since participation in the Imam’s call is impossible without first knowing his appointed limits, prayer (صلاة) is invalid without ablution (وضوء).
+          - generic [ref=e39]:
+            - heading "Muhammad Ibn Abdullah (SWS)" [level=4] [ref=e41]:
+              - generic [ref=e42]: 
+              - text: Muhammad Ibn Abdullah (SWS)
+            - generic [ref=e43]: الطَّهَارَةُ نِصْفُ الْإِيمَانِ
+            - generic [ref=e44]: Purification is half of faith.
+          - paragraph [ref=e45]: The Messenger of Allah (ﷺ) also said that whoever completes his purification (طهارة) and then sets out from his home toward the mosque to perform prayer (صلاة), remains in a state of prayer (صلاة) until his ablution (وضوء) breaks. Thus, ablution is the gateway to divine illumination, by which the believer receives spiritual aid from the Imam (إمام).
+          - paragraph [ref=e46]:
+            - img [ref=e47]
+          - heading "The Symbolism of Ablution (وضوء)" [level=2] [ref=e48]
+          - generic [ref=e49]:
+            - heading "Muhammad Ibn Abdullah (SWS)" [level=4] [ref=e51]:
+              - generic [ref=e52]: 
+              - text: Muhammad Ibn Abdullah (SWS)
+            - generic [ref=e53]: "الصَّلَاةُ أُسِّسَتْ عَلَى أَرْبَعٍ: الْوُضُوءِ، وَالرُّكُوعِ، وَالسُّجُودِ، وَالْخُشُوعِ"
+            - generic [ref=e54]: "Prayer is founded upon four things: ablution, bowing, prostration, and humility. Whoever neglects them, his prayer is deception."
+          - paragraph [ref=e55]: Among these four obligations, the perfection of Ablution (وضوء) is the first and most vital. Its perfection lies in repeating each act three times. Water (ماء) symbolizes the good deeds of the believers, which Allah has divided into three portions. Therefore,
+          - list [ref=e56]:
+            - listitem [ref=e57]: Each limb in ablution is washed three times,
+            - listitem [ref=e58]: Just as one drinks water in three sips.
+            - listitem [ref=e59]: Knowledge too has three dimensions — the Law (شریعت), the Interpretation (تأویل), and the Realities (حقائق).
+          - heading "Ablution as the Gnosis of Three Spiritual States" [level=3] [ref=e60]
+          - paragraph [ref=e61]:
+            - img [ref=e62]
+          - paragraph [ref=e63]:
+            - img [ref=e64]
+          - paragraph [ref=e65]:
+            - text: The ritual performance of ablution (وضوء) offers a clear structure for understanding the spiritual journey, demonstrating the concept of esoteric interpretation (تأويل) where the external act (ظاهر) guides us to the inner truth (باطن). Each of the three repetitions corresponds to the
+            - strong [ref=e66]: gnosis (deep, spiritual knowledge)
+            - text: and the acceptance of a specific spiritual authority or state.
+          - 'heading "First Repetition: Gnosis of Sincerity and the Guide (داعي)" [level=4] [ref=e67]'
+          - paragraph [ref=e68]:
+            - text: The
+            - strong [ref=e69]: first repetition
+            - text: symbolizes the believer's recognition of the absolute need for
+            - strong [ref=e70]: sincerity
+            - text: (نية) in spiritual life and the acceptance of the
+            - strong [ref=e71]: Spiritual Guide (داعي)
+            - text: ". The داعي is an authorized teacher and representative of the Imam, acting as the primary point of contact for new spiritual seekers. The act acknowledges that the journey must be founded on a pure, honest heart, a sincerity that is perceived and validated by the داعي. This is the necessary first step: realizing that the starting point is a pure intention and accepting the human teacher who initiates one into the path."
+          - 'heading "Second Repetition: Gnosis of Guardianship (ولایت) and the Imam (إمام الزمان)" [level=4] [ref=e72]'
+          - paragraph [ref=e73]:
+            - text: The
+            - strong [ref=e74]: second repetition
+            - text: "marks the ascent to a higher level: the recognition and gnosis of the fundamental doctrine of"
+            - strong [ref=e75]: Guardianship (ولایت)
+            - text: under the
+            - strong [ref=e76]: Imam of the Age (إمام الزمان)
+            - text: . Achieving this level grants the believer a
+            - strong [ref=e77]: double reward
+            - text: and permanent spiritual protection. This is the crucial stage where the believer fully realizes that the Imam is the living proof (حجة) of Allah on Earth and the source of esoteric truth. It is through submission to the Imam's sacred authority (ولایت) that the soul undergoes its necessary
+            - strong [ref=e78]: inner purification
+            - text: from spiritual impurities.
+          - 'heading "Third Repetition: Gnosis of Prophecy (نبوة) and Perfection (كمال)" [level=4] [ref=e79]'
+          - paragraph [ref=e80]:
+            - text: The
+            - strong [ref=e81]: third repetition
+            - text: culminates the ascent in the supreme recognition and gnosis of the spiritual state of
+            - strong [ref=e82]: Prophecy (نبوة)
+            - text: ", leading to"
+            - strong [ref=e83]: Perfection (كمال)
+            - text: . At this ultimate stage, the act symbolizes the believer's spiritual completion and alignment with the (ناطق), the ultimate source of divine law and wisdom. This gnosis is so profound that the Prophet (ناطق) confirms it directly, declaring the ablution as his own and that of all Prophets. By aligning their perfect spiritual act with the
+            - strong [ref=e84]: universal prophetic light
+            - text: ", the believer's soul achieves the highest possible state of human intellectual and spiritual completeness."
+          - paragraph [ref=e85]: "To purify each limb three times symbolizes the believer’s recognition of the three essential ranks of the spiritual hierarchy: the Guide (داعی), the Imam (إمام), and the Prophet (ناطق). Through this recognition, one becomes included among the boundaries of the faith and rises toward completeness in devotion."
+          - table [ref=e86]:
+            - rowgroup [ref=e87]:
+              - row "First Repetition Second Repetition Third Repetition" [ref=e88]:
+                - cell "First Repetition" [ref=e89]
+                - cell "Second Repetition" [ref=e90]
+                - cell "Third Repetition" [ref=e91]
+            - rowgroup [ref=e92]:
+              - row "Gnosis of the داعی(Guide) Gnosis of (Guardianship) of إمام الزمان Gnosis of the ناطق (Prophet)" [ref=e93]:
+                - cell "Gnosis of the داعی(Guide)" [ref=e94]
+                - cell "Gnosis of (Guardianship) of إمام الزمان" [ref=e95]
+                - cell "Gnosis of the ناطق (Prophet)" [ref=e96]
+              - row "Outward Purity Inward Purity Perfection" [ref=e97]:
+                - cell "Outward Purity" [ref=e98]
+                - cell "Inward Purity" [ref=e99]
+                - cell "Perfection" [ref=e100]
+          - heading "The Seven Acts of Purification" [level=2] [ref=e101]
+          - paragraph [ref=e102]: Purification (طہارت) relates to the cleansing of seven bodily members. Of these, four are obligatory (فرض) and three are recommended (سنت). Every act of purification corresponds to a limit or boundary within both the physical and spiritual invitation (دعوت).
+          - paragraph [ref=e103]:
+            - img [ref=e104]
+          - table [ref=e105]:
+            - rowgroup [ref=e106]:
+              - row "1 Washing the hands (يدين) The Guide (داعی)" [ref=e107]:
+                - cell "1" [ref=e108]
+                - cell "Washing the hands (يدين)" [ref=e109]
+                - cell "The Guide (داعی)" [ref=e110]
+              - row "2 Rinsing the mouth (مضمضة) The Proof (حجت)" [ref=e111]:
+                - cell "2" [ref=e112]
+                - cell "Rinsing the mouth (مضمضة)" [ref=e113]
+                - cell "The Proof (حجت)" [ref=e114]
+              - row "3 Cleaning the nose (استنشاق) The Imam (إمام)" [ref=e115]:
+                - cell "3" [ref=e116]
+                - cell "Cleaning the nose (استنشاق)" [ref=e117]
+                - cell "The Imam (إمام)" [ref=e118]
+              - row "4 Washing the face (وجه) The Prophet (ناطق)" [ref=e119]:
+                - cell "4" [ref=e120]
+                - cell "Washing the face (وجه)" [ref=e121]
+                - cell "The Prophet (ناطق)" [ref=e122]
+              - row "5 Washing both arms (ذراعين) The Foundation (أساس)" [ref=e123]:
+                - cell "5" [ref=e124]
+                - cell "Washing both arms (ذراعين)" [ref=e125]
+                - cell "The Foundation (أساس)" [ref=e126]
+              - row "6 Wiping the head (رأس) The Universal Intellect (عقل کل)" [ref=e127]:
+                - cell "6" [ref=e128]
+                - cell "Wiping the head (رأس)" [ref=e129]
+                - cell "The Universal Intellect (عقل کل)" [ref=e130]
+              - row "7 Wiping both feet (رجلين) The Universal Soul (نفس کل)" [ref=e131]:
+                - cell "7" [ref=e132]
+                - cell "Wiping both feet (رجلين)" [ref=e133]
+                - cell "The Universal Soul (نفس کل)" [ref=e134]
+          - paragraph [ref=e135]: Beyond these seven acts, ablution (وضوء) involves touching water upon the face, arms, and feet — again totaling seven limbs. These seven limits mirror seven نطقاء (Prophets), seven أئمہ (Imams), and seven أساس (Foundations), and further symbolize the seven ranks in the spiritual hierarchy stretching from the believer to the Imam.
+          - table [ref=e136]:
+            - rowgroup [ref=e137]:
+              - row "Rank Symbolic Association" [ref=e138]:
+                - cell "Rank" [ref=e139]
+                - cell "Symbolic Association" [ref=e140]
+            - rowgroup [ref=e141]:
+              - row "1. Imam (إمام) Representative of Divine authority" [ref=e142]:
+                - cell "1. Imam (إمام)" [ref=e143]
+                - cell "Representative of Divine authority" [ref=e144]
+              - row "2. Proof (حجت) Bearer of inner demonstration" [ref=e145]:
+                - cell "2. Proof (حجت)" [ref=e146]
+                - cell "Bearer of inner demonstration" [ref=e147]
+              - row "3. Possessor of Contact (ذو مصة) Bridge between Proof and Gate" [ref=e148]:
+                - cell "3. Possessor of Contact (ذو مصة)" [ref=e149]
+                - cell "Bridge between Proof and Gate" [ref=e150]
+              - row "4. Gate (باب) Threshold to the higher realms" [ref=e151]:
+                - cell "4. Gate (باب)" [ref=e152]
+                - cell "Threshold to the higher realms" [ref=e153]
+              - row "5. Guide (داعی) Deputy of the Imam" [ref=e154]:
+                - cell "5. Guide (داعی)" [ref=e155]
+                - cell "Deputy of the Imam" [ref=e156]
+              - row "6. Caller (مكلّب) Assistant to the Guide" [ref=e157]:
+                - cell "6. Caller (مكلّب)" [ref=e158]
+                - cell "Assistant to the Guide" [ref=e159]
+              - row "7. Believer (مؤمن) Recipient of initiation" [ref=e160]:
+                - cell "7. Believer (مؤمن)" [ref=e161]
+                - cell "Recipient of initiation" [ref=e162]
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165] [cursor=pointer]: 
+              - generic [ref=e166]: ESOTERICS
+            - generic [ref=e167]:
+              - paragraph [ref=e168]: "The three recommended acts — washing the hands, rinsing the mouth, and cleansing the nose — precede the four obligatory ones. This order reflects the manner in which three secondary limits (the داعی, the حجت, and the إمام) are established by the four cosmic principles (عقل کل, نفس کل, ناطق, أساس). The sequence thus parallels the phrase “In the name of Allah, the Most Gracious, the Most Merciful” (بسم الله الرحمن الرحيم): first the three letters of بسم, then the four letters of اللہ."
+              - table [ref=e169]:
+                - rowgroup [ref=e170]:
+                  - row "ہ ل ل ا م س ب" [ref=e171]:
+                    - cell "ہ" [ref=e172]
+                    - cell "ل" [ref=e173]
+                    - cell "ل" [ref=e174]
+                    - cell "ا" [ref=e175]
+                    - cell "م" [ref=e176]
+                    - cell "س" [ref=e177]
+                    - cell "ب" [ref=e178]
+                - rowgroup [ref=e179]:
+                  - row "عقل کل نفس کل ناطق اساس مام حجۃ داعی" [ref=e180]:
+                    - cell "عقل کل" [ref=e181]
+                    - cell "نفس کل" [ref=e182]
+                    - cell "ناطق" [ref=e183]
+                    - cell "اساس" [ref=e184]
+                    - cell "مام" [ref=e185]
+                    - cell "حجۃ" [ref=e186]
+                    - cell "داعی" [ref=e187]
+          - paragraph [ref=e188]: In the order of the four obligatory acts, the washing of the face signifies the recognition of the ناطق (the speaking Prophet), followed by the arms representing the أساس (the Foundation), through whom the higher principles — the Universal Intellect (عقل کل) and the Universal Soul (نفس کل) — are acknowledged.
+          - paragraph [ref=e189]
+          - paragraph [ref=e190]: To perform these seven acts is to affirm that Allah’s Essence transcends all limits symbolized by the limbs. Each act is a testimony that the divine knowledge belongs to Him alone, and that all the spiritual boundaries are created to convey His wisdom into the souls of the believers.
+          - heading "The Order of Ablution (وضوء)" [level=2] [ref=e191]
+          - paragraph [ref=e192]:
+            - text: The sequence of ablution (وضوء) begins with cleansing from physical impurities and proceeds toward spiritual readiness. The first step is
+            - strong [ref=e193]: Taghawut
+            - text: (تغاوط) — expelling bodily waste and filth. This is followed by
+            - strong [ref=e194]: Istinja
+            - text: (استنجا), the act of washing and purifying the private parts, after which the true stages of purification commence.
+          - table [ref=e195]:
+            - rowgroup [ref=e196]:
+              - row "# Act of Ablution" [ref=e197]:
+                - cell "#" [ref=e198]
+                - cell "Act of Ablution" [ref=e199]
+            - rowgroup [ref=e200]:
+              - row "1 Expelling impurities – تغاوط" [ref=e201]:
+                - cell "1" [ref=e202]
+                - cell "Expelling impurities – تغاوط" [ref=e203]
+              - row "2 Cleansing after relieving oneself – استنجا" [ref=e204]:
+                - cell "2" [ref=e205]
+                - cell "Cleansing after relieving oneself – استنجا" [ref=e206]
+              - row "3 Washing both hands" [ref=e207]:
+                - cell "3" [ref=e208]
+                - cell "Washing both hands" [ref=e209]
+              - row "4 Rinsing the mouth and using the miswak" [ref=e210]:
+                - cell "4" [ref=e211]
+                - cell "Rinsing the mouth and using the miswak" [ref=e212]
+              - row "5 Intention – نية" [ref=e213]:
+                - cell "5" [ref=e214]
+                - cell "Intention – نية" [ref=e215]
+              - row "6 Drawing water into the nose" [ref=e216]:
+                - cell "6" [ref=e217]
+                - cell "Drawing water into the nose" [ref=e218]
+              - row "7 Washing the face" [ref=e219]:
+                - cell "7" [ref=e220]
+                - cell "Washing the face" [ref=e221]
+              - row "8 Washing both arms up to the elbows" [ref=e222]:
+                - cell "8" [ref=e223]
+                - cell "Washing both arms up to the elbows" [ref=e224]
+              - row "9 Wiping the head" [ref=e225]:
+                - cell "9" [ref=e226]
+                - cell "Wiping the head" [ref=e227]
+              - row "10 Wiping the ears" [ref=e228]:
+                - cell "10" [ref=e229]
+                - cell "Wiping the ears" [ref=e230]
+              - row "11 Wiping the neck" [ref=e231]:
+                - cell "11" [ref=e232]
+                - cell "Wiping the neck" [ref=e233]
+              - row "12 Wiping both feet" [ref=e234]:
+                - cell "12" [ref=e235]
+                - cell "Wiping both feet" [ref=e236]
+          - heading "Obligatory Acts of Ablution (فرائض الوضوء)" [level=3] [ref=e237]
+          - table [ref=e238]:
+            - rowgroup [ref=e239]:
+              - row "# Obligation" [ref=e240]:
+                - cell "#" [ref=e241]
+                - cell "Obligation" [ref=e242]
+            - rowgroup [ref=e243]:
+              - row "1 Pure water" [ref=e244]:
+                - cell "1" [ref=e245]
+                - cell "Pure water" [ref=e246]
+              - row "2 Intention (نية)" [ref=e247]:
+                - cell "2" [ref=e248]
+                - cell "Intention (نية)" [ref=e249]
+              - row "3 Washing the face" [ref=e250]:
+                - cell "3" [ref=e251]
+                - cell "Washing the face" [ref=e252]
+              - row "4 Washing both arms" [ref=e253]:
+                - cell "4" [ref=e254]
+                - cell "Washing both arms" [ref=e255]
+              - row "5 Wiping the head" [ref=e256]:
+                - cell "5" [ref=e257]
+                - cell "Wiping the head" [ref=e258]
+              - row "6 Wiping both feet" [ref=e259]:
+                - cell "6" [ref=e260]
+                - cell "Wiping both feet" [ref=e261]
+              - row "7 Maintaining proper sequence" [ref=e262]:
+                - cell "7" [ref=e263]
+                - cell "Maintaining proper sequence" [ref=e264]
+          - heading "Recommended Acts of Ablution (سنن الوضوء)" [level=3] [ref=e265]
+          - table [ref=e266]:
+            - rowgroup [ref=e267]:
+              - row "# Recommended Act" [ref=e268]:
+                - cell "#" [ref=e269]
+                - cell "Recommended Act" [ref=e270]
+            - rowgroup [ref=e271]:
+              - row "1 Performing Istinja" [ref=e272]:
+                - cell "1" [ref=e273]
+                - cell "Performing Istinja" [ref=e274]
+              - row "2 Washing hands before placing them in the vessel" [ref=e275]:
+                - cell "2" [ref=e276]
+                - cell "Washing hands before placing them in the vessel" [ref=e277]
+              - row "3 Beginning ablution with “Bismillah al-Rahman al-Rahim” (بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ)" [ref=e278]:
+                - cell "3" [ref=e279]
+                - cell "Beginning ablution with “Bismillah al-Rahman al-Rahim” (بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ)" [ref=e280]
+              - row "4 Rinsing the mouth" [ref=e281]:
+                - cell "4" [ref=e282]
+                - cell "Rinsing the mouth" [ref=e283]
+              - row "5 Drawing water into the nose" [ref=e284]:
+                - cell "5" [ref=e285]
+                - cell "Drawing water into the nose" [ref=e286]
+              - row "6 Rotating the ring on one’s finger" [ref=e287]:
+                - cell "6" [ref=e288]
+                - cell "Rotating the ring on one’s finger" [ref=e289]
+              - row "7 Passing fingers through the beard" [ref=e290]:
+                - cell "7" [ref=e291]
+                - cell "Passing fingers through the beard" [ref=e292]
+              - row "8 Pouring water over the eyes" [ref=e293]:
+                - cell "8" [ref=e294]
+                - cell "Pouring water over the eyes" [ref=e295]
+              - row "9 Washing the right limbs before the left" [ref=e296]:
+                - cell "9" [ref=e297]
+                - cell "Washing the right limbs before the left" [ref=e298]
+              - row "10 Repeating washing two or three times" [ref=e299]:
+                - cell "10" [ref=e300]
+                - cell "Repeating washing two or three times" [ref=e301]
+              - row "11 Wiping both ears" [ref=e302]:
+                - cell "11" [ref=e303]
+                - cell "Wiping both ears" [ref=e304]
+          - paragraph [ref=e305]: The sequence of these acts illustrates the gradual ascent from material to spiritual purity. The believer begins by removing physical defilement, then moves through cleansing gestures that mirror spiritual refinement. The acts of rinsing, washing, and wiping each limb are reflections of stages in spiritual awareness, each purging a deeper level of impurity from the soul.
+          - paragraph [ref=e306]: Through this progression, ablution becomes both a discipline of the body and a parable of the soul’s journey toward divine nearness. Each limb corresponds to a spiritual organ, and every act of cleansing testifies to the believer’s intent to align outward conduct with inner faith.
+          - heading "The Source and Nature of Purifying Water (ماء)" [level=2] [ref=e307]
+          - paragraph [ref=e308]: "Water – ماء – was sent down from the heavens to the earth by divine command, as Allah the Exalted declares in the Qur’an:"
+          - generic [ref=e309]:
+            - generic [ref=e310] [cursor=pointer]: The Believers (23:18).
+            - paragraph [ref=e311]: ‏ وَأَنزَلْنَا مِنَ السَّمَاءِ مَاءًۭ بِقَدَرٍۢ فَأَسْكَنَّٰهُ فِى ٱلْأَرْضِ وَإِنَّا عَلَىٰ ذَهَابٍۢ بِهِۦ لَقَٰدِرُونَ ‎
+            - generic [ref=e312]: Translation:.
+            - paragraph [ref=e313]: And We sent down water from the sky in due measure, then lodged it in the earth, and indeed We are able to take it away.
+          - paragraph [ref=e314]: Water flows through both pure and impure places. The pure include rivers, ponds, and wells; the impure include the salty seas. When water passes through corrupted locations, though its origin is pure, the impurity of the place affects it, altering its sweetness and clarity. It then loses its power to nourish or sustain life. The once-living water becomes bitter, saline, and destructive.
+          - paragraph [ref=e315]: Purification (طهارة) is described as the gateway to prayer (صلاة), just as faith (إيمان) is the gateway to Islam (إسلام). Every visible act has a hidden reality, and each outward ritual has an inward meaning.
+          - paragraph [ref=e316]: "Allah the Almighty says in the Qur’an:"
+          - generic [ref=e317]:
+            - generic [ref=e318] [cursor=pointer]: The Criterion (25:48).
+            - paragraph [ref=e319]: ‏ وَهُوَ ٱلَّذِىٓ أَرْسَلَ ٱلرِّيَاحَ بُشْرًۭا بَيْنَ يَدَىْ رَحْمَتِهِۦ ۚ وَأَنزَلْنَا مِنَ ٱلسَّمَآءِ مَآءًۭ طَهُورًۭا ‎
+            - generic [ref=e320]: Translation:.
+            - paragraph [ref=e321]: And He it is Who sends the winds as glad tidings before His mercy, and We send down from the sky pure water.
+          - generic [ref=e322]:
+            - generic [ref=e323] [cursor=pointer]: The Spoils of War (8:11).
+            - paragraph [ref=e324]: ‏ إِذْ يُغَشِّيكُمُ ٱلنُّعَاسَ أَمَنَةًۭ مِّنْهُ وَيُنَزِّلُ عَلَيْكُم مِّنَ ٱلسَّمَآءِ مَآءًۭ لِّيُطَهِّرَكُم بِهِۦ وَيُذْهِبَ عَنكُمْ رِجْزَ ٱلشَّيْطَـٰنِ وَلِيَرْبِطَ عَلَىٰ قُلُوبِكُمْ وَيُثَبِّتَ بِهِ ٱلْأَقْدَامَ ‎
+            - generic [ref=e325]: Translation:.
+            - paragraph [ref=e326]: When He caused drowsiness to overcome you as a reassurance from Him, and sent down water from the sky to purify you, to remove from you the filth of Satan, to strengthen your hearts, and to make your feet firm.
+          - paragraph [ref=e327]: The inner meaning of these verses reveals that water symbolizes divine knowledge. Just as physical impurities are washed away with pure water, the impurities of the soul—ignorance, doubt, and heedlessness—are removed through sacred knowledge. Hence, just as prayer is invalid without physical purification, so spiritual instruction is invalid without the inner covenant (عهد) and the guidance of the Imam (إمام).
+          - paragraph [ref=e328]: Pure water cleanses filth, while tainted water cannot. This teaches that true knowledge must come from a pure source free of distortion. In this light, performing ablution with pure water signifies the believer’s connection to divine knowledge through the Imam and his rightful representatives.
+          - paragraph [ref=e329]: In summary, physical water symbolizes revealed knowledge; its flow from heaven to earth symbolizes the descent of divine truth from higher to lower realms. Ablution with such water represents both the cleansing of the body and the enlightenment of the soul.
+          - heading "The Inner Meaning of Purification (طهارة)" [level=2] [ref=e330]
+          - paragraph [ref=e331]: Purification (طهارة) is valid only with pure water. If the water is mixed with any other substance, even fragrance or sweet syrup, it is no longer suitable for ablution (وضوء) or ritual bathing (غسل). Pure water removes impurity, but impure or mixed water cannot remove filth. This rule reflects the principle that divine knowledge must come from uncorrupted, authentic sources; corrupted teaching cannot cleanse the soul.
+          - paragraph [ref=e332]: Ablution (وضوء) symbolizes the act of a believer entering the covenant (عهد) of the Imam of the Time (إمام الزمان), recognizing his sacred boundaries, and disavowing his enemies. The inner meaning of prayer (صلاة) is the believer’s union with the spiritual ranks of the Imam and his representatives. Just as prayer cannot be performed without ablution, inner knowledge cannot be imparted without first taking the sacred covenant, because the covenant is the inward reality of purification, and spiritual instruction is the inward reality of prayer.
+          - paragraph [ref=e333]: Pure water symbolizes divine knowledge (علم), which cleanses the soul’s ignorance, just as water removes physical impurity from the body. Performing prayer without ablution is likened to seeking esoteric knowledge without first entering the Imam’s allegiance.
+          - table [ref=e334]:
+            - rowgroup [ref=e335]:
+              - row "Purification (طهارة) Prayer (صلاة)" [ref=e336]:
+                - cell "Purification (طهارة)" [ref=e337]
+                - cell "Prayer (صلاة)" [ref=e338]
+            - rowgroup [ref=e339]:
+              - row "Covenant of the Imam of the Time – عهد إمام الزمان Knowledge of Esoteric Truths – علم تأويل وحقائق" [ref=e340]:
+                - cell "Covenant of the Imam of the Time – عهد إمام الزمان" [ref=e341]
+                - cell "Knowledge of Esoteric Truths – علم تأويل وحقائق" [ref=e342]
+          - paragraph [ref=e343]: When pure water is unavailable, purification may be done with salty or bitter water – ماء مالح – symbolizing the state of a believer living among the enemies of faith. Such a believer may conceal his true beliefs through dissimulation (تقية), aligning outwardly with false ideas for safety while keeping the truth preserved within. This corresponds to purifying oneself in difficult conditions when access to the pure source is obstructed.
+          - paragraph [ref=e344]: Thus, the visible act of cleansing with water represents the hidden act of cleansing the soul with divine wisdom. The purity or impurity of water reflects the state of knowledge itself—pure when drawn from the Imam’s lineage, and corrupted when mixed with false teachings.
+          - heading "The Symbolism of Wells, Rivers, and Water Vessels" [level=2] [ref=e345]
+          - paragraph [ref=e346]: When a worshipper prepares for prayer and seeks water for ablution (وضوء), he draws it from rivers or wells. The river represents the manifest knowledge of the true Imam (إمام), flowing openly for all who seek it. The well symbolizes the hidden or esoteric knowledge of the Imam’s Hujjat (حجة), accessible only to those who are spiritually near and capable of reaching its depth.
+          - paragraph [ref=e347]:
+            - text: The bucket used to draw water from the well signifies the Dai of proclamation (داعي بلاغ), who learns from the Hujjat and brings forth that knowledge for others. The vessel into which this water is poured represents the Dai al-Mutlaq (داعي المطلق), who conveys this wisdom to the Muminin (مؤمنين) through appointed missionaries. The right and left hands drawing and distributing water symbolize the authorized ranks of
+            - strong [ref=e348]: Madhun
+            - text: (مأذون) and
+            - strong [ref=e349]: Mukasir
+            - text: (مكاسر).
+          - table [ref=e350]:
+            - rowgroup [ref=e351]:
+              - row "Outer Symbol Inner Meaning" [ref=e352]:
+                - cell "Outer Symbol" [ref=e353]
+                - cell "Inner Meaning" [ref=e354]
+            - rowgroup [ref=e355]:
+              - row "River water The manifest knowledge of the Imam (علم الإمام الظاهر)" [ref=e356]:
+                - cell "River water" [ref=e357]
+                - cell "The manifest knowledge of the Imam (علم الإمام الظاهر)" [ref=e358]
+              - row "Well water The hidden knowledge of the Imam’s Hujjat (علم حجة الإمام الباطن)" [ref=e359]:
+                - cell "Well water" [ref=e360]
+                - cell "The hidden knowledge of the Imam’s Hujjat (علم حجة الإمام الباطن)" [ref=e361]
+              - row "Bucket The Dai of proclamation (داعي بلاغ)" [ref=e362]:
+                - cell "Bucket" [ref=e363]
+                - cell "The Dai of proclamation (داعي بلاغ)" [ref=e364]
+              - row "Water vessel The Dai al-Mutlaq (داعي المطلق)" [ref=e365]:
+                - cell "Water vessel" [ref=e366]
+                - cell "The Dai al-Mutlaq (داعي المطلق)" [ref=e367]
+              - row "Right hand The Madhun (مأذون)" [ref=e368]:
+                - cell "Right hand" [ref=e369]
+                - cell "The Madhun (مأذون)" [ref=e370]
+              - row "Left hand The Mukasir (مكاسر)" [ref=e371]:
+                - cell "Left hand" [ref=e372]
+                - cell "The Mukasir (مكاسر)" [ref=e373]
+          - paragraph [ref=e374]:
+            - text: Each hand has five fingers, symbolizing the five daily prayers (صلوات خمس). The five fingers of the right hand represent the
+            - emphasis [ref=e375]: times
+            - text: of prayer, while the five of the left hand represent the
+            - emphasis [ref=e376]: obligatory prayers
+            - text: themselves. Just as both hands cooperate to perform cleansing, these ranks of dawat cooperate to purify the souls of the faithful.
+          - paragraph [ref=e377]: The act of cleansing oneself with water after relieving impurities represents the removal of disbelief (كفر), idolatry (شرك), and hypocrisy (نفاق) through knowledge imparted by these ranks. Thus, ablution becomes a spiritual reflection of the missionary hierarchy, revealing how divine knowledge descends and circulates among believers through the Imam’s representatives.
+          - table [ref=e378]:
+            - rowgroup [ref=e379]:
+              - row "Action Inner Correspondence" [ref=e380]:
+                - cell "Action" [ref=e381]
+                - cell "Inner Correspondence" [ref=e382]
+            - rowgroup [ref=e383]:
+              - row "River Knowledge of the Imam" [ref=e384]:
+                - cell "River" [ref=e385]
+                - cell "Knowledge of the Imam" [ref=e386]
+              - row "Well Knowledge of the Hujjat" [ref=e387]:
+                - cell "Well" [ref=e388]
+                - cell "Knowledge of the Hujjat" [ref=e389]
+              - row "Bucket Dai of proclamation" [ref=e390]:
+                - cell "Bucket" [ref=e391]
+                - cell "Dai of proclamation" [ref=e392]
+              - row "Vessel Dai al-Mutlaq" [ref=e393]:
+                - cell "Vessel" [ref=e394]
+                - cell "Dai al-Mutlaq" [ref=e395]
+              - row "Right hand’s five fingers Five times of prayer" [ref=e396]:
+                - cell "Right hand’s five fingers" [ref=e397]
+                - cell "Five times of prayer" [ref=e398]
+              - row "Left hand’s five fingers Five obligatory prayers" [ref=e399]:
+                - cell "Left hand’s five fingers" [ref=e400]
+                - cell "Five obligatory prayers" [ref=e401]
+              - row "Cleansing after impurity Removal of disbelief, idolatry, and hypocrisy" [ref=e402]:
+                - cell "Cleansing after impurity" [ref=e403]
+                - cell "Removal of disbelief, idolatry, and hypocrisy" [ref=e404]
+          - heading "The Purity and Nature of Water (ماء)" [level=2] [ref=e405]
+          - paragraph [ref=e406]: Water (ماء) by its nature is pure and purifying—it cleanses others but never needs cleansing itself. Allah purifies the body from physical impurities through water and purifies the mind from ignorance through knowledge (علم). Attaining knowledge from the Ahl al-Bayt (أهل البيت) cleanses the soul from the impurity of ignorance and constitutes the true essence of purity (طهارة).
+          - paragraph [ref=e407]: "This meaning is affirmed in the Verse of Purification, where Allah the Exalted declares:"
+          - generic [ref=e408]:
+            - generic [ref=e409] [cursor=pointer]: The Confederates (33:33).
+            - paragraph [ref=e410]: ‏ إِنَّمَا يُرِيدُ ٱللَّهُ لِيُذْهِبَ عَنكُمُ ٱلرِّجْسَ أَهْلَ ٱلْبَيْتِ وَيُطَهِّرَكُمْ تَطْهِيرًۭا ‎
+            - generic [ref=e411]: Translation:.
+            - paragraph [ref=e412]: Indeed, Allah only intends to remove impurity from you, O people of the household, and to purify you thoroughly.
+          - paragraph [ref=e413]: Purity is required only where impurity exists—but the Ahl al-Bayt were never impure, nor can impurity ever reach them. When this verse was revealed, the Prophet (رسول الله) gathered Ali (علي), Fatimah (فاطمة), Hasan (حسن), and Husayn (حسين) under his cloak and declared them his household (أهل البيت). When Lady Salma requested inclusion, the Prophet replied, “O Salma, you are upon goodness, but this cloak is for these five alone.”
+          - paragraph [ref=e414]: In this act, the Prophet elevated the Ahl al-Bayt above all humanity, symbolizing their inherent purity and divine election. The cloak itself represented the shield of divine protection, signifying that any impurity lies outside it. The Prophet then clarified that it was not his favor that brought them honor, but rather their own merit and spiritual excellence that made them worthy of Allah’s purification.
+          - paragraph [ref=e415]: The verse’s reference to impurity (رجس) points to the errors and misconceptions believers may hold regarding the rank and reality of the Imams. Through divine knowledge, Allah purifies believers’ hearts from such misunderstandings, granting them the true recognition of the Ahl al-Bayt and the Imams descended from them.
+          - paragraph [ref=e416]: The Ahl al-Bayt, being free from physical and spiritual impurity, perform purification not out of need but to symbolize the removal of veils (حجب) that obscure divine perception. Their ablution represents the cleansing of subtle spiritual obstacles, reminding believers that purification extends beyond the physical realm into the inner sanctity of the soul.
+      - button " End Session" [ref=e418] [cursor=pointer]:
+        - generic [ref=e419]: 
+        - generic [ref=e420]: End Session
+  - button "" [ref=e422] [cursor=pointer]:
+    - generic [ref=e423]: 
+  - text:     
+```

@@ -1,0 +1,252 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "KDTR Test Pattern Entry",
+    "description": "Flexible schema for storing successful test execution patterns in KDS Test Registry System",
+    "type": "object",
+    "required": [
+        "testName",
+        "testType",
+        "key",
+        "executionDate",
+        "status"
+    ],
+    "properties": {
+        "testName": {
+            "type": "string",
+            "description": "Unique identifier for the test (e.g., 'user-registration-flow', 'question-submission')",
+            "maxLength": 200
+        },
+        "testType": {
+            "type": "string",
+            "enum": [
+                "E2E",
+                "Integration",
+                "Visual",
+                "API",
+                "Reference"
+            ],
+            "description": "Type of test or data reference"
+        },
+        "key": {
+            "type": "string",
+            "description": "KDS key this test belongs to (e.g., 'user-auth', 'canvas', 'session-212')",
+            "maxLength": 100
+        },
+        "executionDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of last successful test execution"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "PASSED",
+                "VERIFIED"
+            ],
+            "description": "Test result status - Only successful tests stored in KDTR"
+        },
+        "evidence": {
+            "type": "object",
+            "description": "Links to test execution artifacts (screenshots, logs, traces)",
+            "properties": {
+                "screenshots": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Relative path to screenshot file"
+                    }
+                },
+                "consoleLog": {
+                    "type": "string",
+                    "description": "Relative path to console log file"
+                },
+                "networkLog": {
+                    "type": "string",
+                    "description": "Relative path to network HAR file"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of data (e.g., 'Database query', 'Playwright test')"
+                },
+                "screenshot": {
+                    "type": "string",
+                    "description": "Single screenshot filename (for reference data)"
+                }
+            }
+        },
+        "sessionData": {
+            "type": "object",
+            "description": "Session-specific data (IDs, tokens, metadata)",
+            "properties": {
+                "sessionId": {
+                    "type": "integer",
+                    "description": "Session ID (e.g., 212)"
+                },
+                "hostToken": {
+                    "type": "string",
+                    "description": "Host authentication token (e.g., 'PQ9N5YWW')",
+                    "maxLength": 50
+                },
+                "userToken": {
+                    "type": "string",
+                    "description": "User authentication token (e.g., 'KJAHA99L')",
+                    "maxLength": 50
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Session status (e.g., 'Created', 'Active', 'Ended')"
+                },
+                "scheduledDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "format": "date-time",
+                    "description": "Scheduled session start date (ISO 8601)"
+                },
+                "scheduledDuration": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Scheduled session duration in minutes"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Session creation timestamp (ISO 8601)"
+                },
+                "expiresAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Session expiration timestamp (ISO 8601)"
+                },
+                "hoursUntilExpiry": {
+                    "type": "integer",
+                    "description": "Hours remaining until session expires"
+                }
+            }
+        },
+        "apiResponses": {
+            "type": "object",
+            "description": "Captured API responses with request/response data",
+            "patternProperties": {
+                "^(GET|POST|PUT|DELETE|PATCH) .+$": {
+                    "type": "object",
+                    "properties": {
+                        "status": {
+                            "type": "integer",
+                            "description": "HTTP status code (e.g., 200, 201, 404)"
+                        },
+                        "body": {
+                            "description": "Response body (flexible - any JSON structure)"
+                        },
+                        "headers": {
+                            "type": "object",
+                            "description": "Response headers (key-value pairs)"
+                        }
+                    },
+                    "required": [
+                        "status",
+                        "body"
+                    ]
+                }
+            }
+        },
+        "uiState": {
+            "type": "object",
+            "description": "UI-specific state (selectors, localStorage, form data)",
+            "properties": {
+                "selectors": {
+                    "type": "object",
+                    "description": "CSS selectors for UI elements",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "localStorage": {
+                    "type": "object",
+                    "description": "Browser localStorage data",
+                    "properties": {
+                        "key": {
+                            "type": "string",
+                            "description": "localStorage key"
+                        },
+                        "value": {
+                            "description": "localStorage value (flexible - any JSON structure)"
+                        }
+                    }
+                },
+                "formData": {
+                    "type": "object",
+                    "description": "Form input values",
+                    "additionalProperties": true
+                }
+            },
+            "additionalProperties": true
+        },
+        "testPatterns": {
+            "type": "object",
+            "description": "Reusable test code patterns (Playwright snippets)",
+            "properties": {
+                "navigation": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Navigation code snippet (e.g., 'await page.goto(...)')"
+                    }
+                },
+                "authentication": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "Authentication code snippet"
+                    }
+                },
+                "apiValidation": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "API validation code snippet"
+                    }
+                }
+            },
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "reuseGuidance": {
+            "type": "object",
+            "description": "Guidance for when and how to reuse this pattern",
+            "properties": {
+                "whenToReuse": {
+                    "type": "string",
+                    "description": "Scenario description for pattern reuse",
+                    "maxLength": 500
+                },
+                "sessionDataValid": {
+                    "type": "boolean",
+                    "description": "Whether session data is still valid"
+                },
+                "tokensVerified": {
+                    "type": "boolean",
+                    "description": "Whether tokens have been verified recently"
+                },
+                "lastVerifiedDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Last verification timestamp (ISO 8601)"
+                },
+                "expirationNote": {
+                    "type": "string",
+                    "description": "Notes about data expiration or renewal",
+                    "maxLength": 500
+                }
+            }
+        }
+    },
+    "additionalProperties": true
+}

@@ -1,0 +1,117 @@
+{
+  "key": "meta-enhancements",
+  "title": "Meta Enhancement System - Prompt System Improvements",
+  "created": "2025-10-29",
+  "status": "draft",
+  "version": "1.0",
+  "phases": [
+    {
+      "id": 1,
+      "title": "Initialize and Checkpoint",
+      "status": "pending",
+      "tasks": [
+        "Create checkpoint commit: pre-enhancement wiring",
+        "Create key data stream folder and work-log entry"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Introduce Enhancement Agent",
+      "status": "pending",
+      "tasks": [
+        "Add enhance-prompts.prompt.md (report-only default)",
+        "Set defaults: report-only=true, apply-enhancements=false",
+        "Record safety guarantees (non-destructive, traceable, reversible)"
+      ],
+      "files": [".github/prompts/enhance-prompts.prompt.md"]
+    },
+    {
+      "id": 3,
+      "title": "Centralize Shared Indices",
+      "status": "pending",
+      "tasks": [
+        "Create shared/validation-engine.md as canonical index",
+        "Create shared/integration-protocol.md index",
+        "Update all agent references to use indices"
+      ],
+      "files": [
+        ".github/prompts/shared/validation-engine.md",
+        ".github/prompts/shared/integration-protocol.md"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Cohesion Integration",
+      "status": "pending",
+      "tasks": [
+        "Add auto-fix option in cohesion.prompt.md",
+        "Implement report-only preview mode",
+        "Add approved enhancement application path",
+        "Document cohesion read-only default with handoff"
+      ],
+      "files": [".github/prompts/cohesion.prompt.md"]
+    },
+    {
+      "id": 5,
+      "title": "Archival Policy",
+      "status": "pending",
+      "tasks": [
+        "Move obsolete docs to shared/archive/",
+        "Create deprecation stubs",
+        "Update links accordingly"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Link Audit and Validation",
+      "status": "pending",
+      "tasks": [
+        "Run Cohesion with scope=prompts, validation-level=cross-ref",
+        "Run Cohesion with validation-level=rules",
+        "Run Healthcheck in prompts mode"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Finalization",
+      "status": "pending",
+      "tasks": [
+        "Commit: meta(prompts): enhance cohesion and clarity",
+        "Update key work-log with execution notes",
+        "Schedule monthly enhancements sweep"
+      ]
+    }
+  ],
+  "scope": [
+    "Non-destructive enhancement agent",
+    "Safe handoff with cohesion agent",
+    "Shared indices for validation",
+    "Archival-not-deletion policy",
+    "Link and cross-ref validation"
+  ],
+  "assumptions": [
+    "Source of truth: .github/prompts/",
+    "Agent docs: Workspaces/Copilot/_DOCS/",
+    "Key data streams: .github/key-data-streams/",
+    "No runtime behavior changes"
+  ],
+  "risks": [
+    {
+      "risk": "Duplicating existing validation docs",
+      "mitigation": "validation-engine.md as index only"
+    },
+    {
+      "risk": "Overreach (behavior changes)",
+      "mitigation": "report-only default, explicit approval gates"
+    },
+    {
+      "risk": "Broken relative links",
+      "mitigation": "mandatory cross-ref validation before and after"
+    }
+  ],
+  "rollback_plan": [
+    "Revert meta(prompts) enhancement commit",
+    "Restore archived files to original locations",
+    "Re-run Cohesion (syntax + cross-ref)"
+  ]
+}

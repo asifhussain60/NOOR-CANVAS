@@ -64,6 +64,7 @@ else
             </div>
 
             <!-- User Registration Link Display -->
+            @* [REFACTOR:hcp-id] UserRegistrationLink component contains buttons - IDs added in that component *@
             @if (!string.IsNullOrEmpty(UserToken))
             {
                 @* [WORKITEM:transcrikpt-canvas] Use local handler to track selection state for button disabling *@
@@ -76,8 +77,10 @@ else
             @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
             @* [WORKITEM:transcrikpt-canvas] Disabled until canvas is selected *@
             @* [TEST-METADATA:ui-logging] Playwright log marker for Start Session button click tracking ;CLEANUP_OK *@
+            @* [REFACTOR:hcp-id] Added unique ID for Start Session button *@
             <div style="width:100%;display:flex;justify-content:center;">
-                <button type="button" 
+                <button id="sidebar-start-session-btn"
+                        type="button" 
                         @onclick="OnStartSession" 
                         disabled="@(IsLoading || Model?.SessionStatus == "Active" || IsStartSessionDisabled())"
                         data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"

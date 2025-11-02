@@ -1,0 +1,213 @@
+{
+    "sessionId": "20251031120000",
+    "timestamp": "2025-10-31T12:00:00Z",
+    "approach": "manual-dual-stream",
+    "description": "Test-prep session for HostControlPanel, SessionCanvas, and TranscriptCanvas components",
+    "kds": {
+        "sessionPlan": "../SESSION-SUMMARY.md",
+        "browserLogs": "./browser-console-logs.md",
+        "serverLogs": "../../../../SPA/NoorCanvas/playwright-server-logs.txt",
+        "trackingFile": "./injected-files.json"
+    },
+    "files": [
+        {
+            "path": "SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor",
+            "markers": 1,
+            "locations": [
+                {
+                    "id": "20251031120000-HostControlPanel-StartSession",
+                    "element": "button",
+                    "description": "Start Session button - Initiates new session"
+                }
+            ]
+        },
+        {
+            "path": "SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor",
+            "markers": 3,
+            "locations": [
+                {
+                    "id": "20251031120000-HostControlPanel-QAToggle",
+                    "element": "button",
+                    "description": "Q&A toggle button - Opens/closes questions panel"
+                },
+                {
+                    "id": "20251031120000-HostControlPanel-BroadcastTranscript",
+                    "element": "button",
+                    "description": "FAB button - Broadcasts transcript to all participants"
+                },
+                {
+                    "id": "20251031120000-HostControlPanel-EndSession",
+                    "element": "button",
+                    "description": "End Session button - Terminates active session"
+                }
+            ]
+        },
+        {
+            "path": "SPA/NoorCanvas/Components/Host/QuestionCard.razor",
+            "markers": 3,
+            "locations": [
+                {
+                    "id": "20251031120000-HostControlPanel-ShareQuestion",
+                    "element": "div",
+                    "description": "Question card click - Shares question as asset to participants"
+                },
+                {
+                    "id": "20251031120000-HostControlPanel-MarkAnswered",
+                    "element": "button",
+                    "description": "Approve button - Marks question as answered"
+                },
+                {
+                    "id": "20251031120000-HostControlPanel-DeleteQuestion",
+                    "element": "button",
+                    "description": "Delete button - Removes question from list"
+                }
+            ]
+        },
+        {
+            "path": "SPA/NoorCanvas/Pages/SessionCanvas.razor",
+            "markers": 7,
+            "locations": [
+                {
+                    "id": "20251031120000-SessionCanvas-QuestionInput",
+                    "element": "textarea",
+                    "description": "Question input field - Participant types question"
+                },
+                {
+                    "id": "20251031120000-SessionCanvas-QuestionSubmit",
+                    "element": "button",
+                    "description": "Submit button - Sends question to host"
+                },
+                {
+                    "id": "20251031120000-SessionCanvas-TabQA",
+                    "element": "button",
+                    "description": "Q&A tab - Switches to questions view"
+                },
+                {
+                    "id": "20251031120000-SessionCanvas-TabParticipants",
+                    "element": "button",
+                    "description": "Participants tab - Switches to participants list"
+                },
+                {
+                    "id": "20251031120000-SessionCanvas-EditQuestion",
+                    "element": "span",
+                    "description": "Edit icon - Opens question for editing (own questions only)"
+                },
+                {
+                    "id": "20251031120000-SessionCanvas-DeleteQuestion",
+                    "element": "span",
+                    "description": "Delete icon - Removes question (own questions only)"
+                },
+                {
+                    "id": "20251031120000-SessionCanvas-VoteQuestion",
+                    "element": "button",
+                    "description": "Vote button - Upvotes question from other participants"
+                }
+            ]
+        },
+        {
+            "path": "SPA/NoorCanvas/Pages/TranscriptCanvas.razor",
+            "markers": 4,
+            "locations": [
+                {
+                    "id": "20251031120000-TranscriptCanvas-QuestionModalToggle",
+                    "element": "button",
+                    "description": "FAB button - Opens question modal popup"
+                },
+                {
+                    "id": "20251031120000-TranscriptCanvas-QuestionInput",
+                    "element": "textarea",
+                    "description": "Question input field - Participant types question in modal"
+                },
+                {
+                    "id": "20251031120000-TranscriptCanvas-QuestionSubmit",
+                    "element": "button",
+                    "description": "Submit button - Sends question from modal"
+                },
+                {
+                    "id": "20251031120000-TranscriptCanvas-QuestionCancel",
+                    "element": "button",
+                    "description": "Cancel button - Closes question modal"
+                }
+            ]
+        }
+    ],
+    "loggingInfrastructure": {
+        "clientSide": {
+            "script": "wwwroot/js/PlaywrightLogger.js",
+            "logFile": "playwright-interaction-logs.txt",
+            "endpoint": "/api/playwright-logs",
+            "autoSaveInterval": "5 seconds or 10 events"
+        },
+        "serverSide": {
+            "configFile": "appsettings.Development.json",
+            "logFile": "playwright-server-logs.txt",
+            "provider": "Serilog"
+        }
+    },
+    "testScenarios": [
+        {
+            "name": "Host Broadcast Flow",
+            "steps": [
+                "Navigate to /host/control-panel/{HOST_TOKEN}",
+                "Click Start Session button",
+                "Wait for session to activate",
+                "Click FAB Broadcast Transcript button",
+                "Click on a question card to share as asset",
+                "Click Mark Answered on a question",
+                "Click End Session button"
+            ],
+            "expectedMarkers": [
+                "20251031120000-HostControlPanel-StartSession",
+                "20251031120000-HostControlPanel-BroadcastTranscript",
+                "20251031120000-HostControlPanel-ShareQuestion",
+                "20251031120000-HostControlPanel-MarkAnswered",
+                "20251031120000-HostControlPanel-EndSession"
+            ]
+        },
+        {
+            "name": "Participant Q&A Flow (SessionCanvas)",
+            "steps": [
+                "Navigate to /session/canvas/{USER_TOKEN}",
+                "Type question in textarea",
+                "Click Submit button",
+                "Switch to Q&A tab",
+                "Click Vote button on another user's question",
+                "Edit own question",
+                "Delete own question"
+            ],
+            "expectedMarkers": [
+                "20251031120000-SessionCanvas-QuestionInput",
+                "20251031120000-SessionCanvas-QuestionSubmit",
+                "20251031120000-SessionCanvas-TabQA",
+                "20251031120000-SessionCanvas-VoteQuestion",
+                "20251031120000-SessionCanvas-EditQuestion",
+                "20251031120000-SessionCanvas-DeleteQuestion"
+            ]
+        },
+        {
+            "name": "Participant Q&A Flow (TranscriptCanvas)",
+            "steps": [
+                "Navigate to /transcript/canvas/{USER_TOKEN}",
+                "Click FAB question modal toggle button",
+                "Type question in modal textarea",
+                "Click Submit button",
+                "Verify modal closes",
+                "Re-open modal and click Cancel"
+            ],
+            "expectedMarkers": [
+                "20251031120000-TranscriptCanvas-QuestionModalToggle",
+                "20251031120000-TranscriptCanvas-QuestionInput",
+                "20251031120000-TranscriptCanvas-QuestionSubmit",
+                "20251031120000-TranscriptCanvas-QuestionCancel"
+            ]
+        }
+    ],
+    "notes": [
+        "Session ID format: YYYYMMDDHHmmss (20251031120000 = Oct 31, 2025, 12:00:00)",
+        "All markers use session ID prefix for easy cleanup and tracking",
+        "Manual approach: Browser console logs must be manually captured and pasted into browser-console-logs.md",
+        "Server logs written to playwright-server-logs.txt via Serilog",
+        "Use test tokens from previous sessions or create new via HostProvisioner"
+    ],
+    "status": "prepped"
+}

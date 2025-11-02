@@ -257,31 +257,38 @@
 - Red → Green → Refactor (TDD workflow)
 - Task 1a = test, Tasks 1b-n = implementation
 
-### Rule #9: Honest Handoffs
+### Rule #9: Tooling Auto-Setup
+- New projects run `scripts/setup-kds-tooling.ps1`
+- Auto-detects project type (.NET, Node.js, Python, Java)
+- Installs missing packages (18 Node + 3 .NET)
+- Validates config files and browsers
+- Portable across ALL projects (zero hard-coding)
+
+### Rule #10: Honest Handoffs
 - Agents NEVER auto-execute
 - All handoffs require user invocation
 - Exception: Auto-chain when `governance.autoChainTasks = true`
 
-### Rule #10: Single Source of Truth
+### Rule #11: Single Source of Truth
 - Shared logic in `prompts/shared/`
 - Internal agents reference, never duplicate
 - This file (KDS-DESIGN.md) is THE design authority
 
-### Rule #11: Zero Build Errors
+### Rule #12: Zero Build Errors
 - Build must succeed after task/phase completion
 - Post-execution validation mandatory
 
-### Rule #12: Test Pattern Reuse
+### Rule #13: Test Pattern Reuse
 - Check `tests/index.json` BEFORE creating new tests
 - Reuse patterns when available
 - Publish new patterns after test passes
 
-### Rule #13: Documentation Organization
+### Rule #14: Documentation Organization
 - NO .md files in .github root (except README.md & KDS-DESIGN.md)
 - All docs organized under `docs/` subfolders
 - Post-request cleanup mandatory
 
-### Rule #14: Publishing Mechanism
+### Rule #15: Publishing Mechanism
 - Publish successful patterns to `knowledge/` for Copilot reference
 - Categories: test-patterns, test-data, ui-mappings, workflows
 - Required sections: Context, Implementation, What Worked, What Didn't Work
@@ -971,6 +978,9 @@ Or accept recommended alternative? [1/2]
 - [x] KDS-DESIGN.md created
 - [x] README documentation
 - [x] Folder hierarchy established
+- [x] **Tooling setup script created** (scripts/setup-kds-tooling.ps1)
+- [x] **Tooling validation automated** (18 Node packages + 3 .NET packages)
+- [x] **Database analysis documented** (recommendation: NO database for now)
 
 ### Phase 1: Dual Interface 🔄 IN PROGRESS
 - [ ] Create `prompts/user/` folder
@@ -978,10 +988,10 @@ Or accept recommended alternative? [1/2]
 - [ ] Rename agents to function-based names
 - [ ] Separate user commands from agent logic
 
-### Phase 2: Git Hooks 🔄 IN PROGRESS
-- [ ] Create `hooks/pre-commit` (KDS-only validation)
-- [ ] Create `hooks/post-merge` (auto-switch branch)
-- [ ] Test hooks on `features/kds` branch
+### Phase 2: Git Hooks ✅ COMPLETE
+- [x] Create `hooks/pre-commit` (KDS-only validation)
+- [x] Create `hooks/post-merge` (auto-switch branch)
+- [x] Test hooks on `features/kds` branch
 
 ### Phase 3: Governance Update ⏳ PENDING
 - [ ] Update `governance/rules.md` (machine-readable)
@@ -998,6 +1008,15 @@ Or accept recommended alternative? [1/2]
 - [ ] Delete obsolete architecture docs
 - [ ] Keep essential guides only
 - [ ] Update cross-references
+
+### Phase 6: Tooling Automation ✅ COMPLETE
+- [x] Create automated tooling setup script
+- [x] Support for .NET + Node.js projects
+- [x] Project type auto-detection
+- [x] Missing package detection
+- [x] Playwright browser installation
+- [x] Config file validation
+- [x] Portable across projects
 
 ---
 

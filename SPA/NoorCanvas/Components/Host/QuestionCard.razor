@@ -2,9 +2,11 @@
 @* [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Made question card clickable with hover animation for asset broadcasting ;CLEANUP_OK *@
 @* [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Added IsSelected parameter for visual feedback on shared questions ;CLEANUP_OK *@
 @* [TEST-METADATA:ui-logging] Playwright log marker for question card click (share question) ;CLEANUP_OK *@
+@* [REFACTOR:hcp-id] Added unique IDs to question card and action buttons *@
 @using Microsoft.AspNetCore.Components
 
-<div @onclick="HandleQuestionClick" 
+<div id="qa-card-@Index"
+     @onclick="HandleQuestionClick" 
      @onclick:stopPropagation="false"
      data-playwright-log-marker="20251031120000-HostControlPanel-ShareQuestion"
      style="background-color:@GetBackgroundColor();padding:1rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;border:2px solid #D1D5DB;border-right:6px solid @GetBorderColor();cursor:pointer;transition:all 0.2s ease;"
@@ -13,9 +15,11 @@
      class="@(isHovered ? "question-card-hover" : "") @(IsSelected ? "question-card-selected" : "")">
     
     @* [DEBUG-WORKITEM:hcp-questions:styling] Upvote badge - conditionally shown if VoteCount > 0 ;CLEANUP_OK *@
+    @* [REFACTOR:hcp-id] Added unique ID to vote badge *@
     @if (Question.VoteCount > 0)
     {
-        <div style="position:absolute;top:0;right:0;transform:translate(50%,-50%);background-color:#DC2626;color:white;border-radius:50%;height:1.5rem;width:1.5rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0,0,0,0.2);z-index:10;">
+        <div id="qa-votes-@Index"
+             style="position:absolute;top:0;right:0;transform:translate(50%,-50%);background-color:#DC2626;color:white;border-radius:50%;height:1.5rem;width:1.5rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0,0,0,0.2);z-index:10;">
             @Question.VoteCount
         </div>
     }
@@ -42,7 +46,9 @@
                 @* [DEBUG-WORKITEM:hcp-questions:styling] Approve button - emerald green theme ;CLEANUP_OK *@
                 @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
                 @* [TEST-METADATA:ui-logging] Playwright log marker for Mark Answered button ;CLEANUP_OK *@
-                <button type="button" 
+                @* [REFACTOR:hcp-id] Added unique ID to Mark Answered button *@
+                <button id="qa-answered-@Index"
+                        type="button" 
                         @onclick="HandleApproveClick" 
                         @onclick:stopPropagation="true"
                         data-playwright-log-marker="20251031120000-HostControlPanel-MarkAnswered"
@@ -56,7 +62,9 @@
             @* [DEBUG-WORKITEM:hcp-questions:styling] Delete button - red theme ;CLEANUP_OK *@
             @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
             @* [TEST-METADATA:ui-logging] Playwright log marker for Delete Question button ;CLEANUP_OK *@
-            <button type="button" 
+            @* [REFACTOR:hcp-id] Added unique ID to Delete button *@
+            <button id="qa-delete-@Index"
+                    type="button" 
                     @onclick="HandleDeleteClick" 
                     @onclick:stopPropagation="true"
                     data-playwright-log-marker="20251031120000-HostControlPanel-DeleteQuestion"

@@ -1,0 +1,20 @@
+{
+    "key": "test-metadata",
+    "phase": 4,
+    "task": "4a",
+    "description": "Add reverse-engineer route handler to route.prompt.md",
+    "files": [
+        ".github/prompts/route.prompt.md"
+    ],
+    "acceptanceCriteria": [
+        "reverse-engineer key routes to task.prompt.md",
+        "Extracts file path from user request",
+        "Scans file for API routes, database ops, SignalR",
+        "Loads Session 212 test data from PlaywrightQuickRef.md",
+        "Generates and inserts PLAYWRIGHT TEST METADATA block",
+        "Updates test-registry.md"
+    ],
+    "autoChain": true,
+    "nextTask": "handoffs/phase-5-enhance-playwright-quickref.json",
+    "testFile": null
+}

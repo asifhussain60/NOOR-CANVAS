@@ -1,0 +1,58 @@
+{
+    "key": "prompt-state-integration",
+    "status": "obsolete",
+    "createdAt": "2025-10-29T00:00:00Z",
+    "updatedAt": "2025-10-29T00:00:00Z",
+    "branch": "noorcanvas/prompt-enhancements",
+    "supersededBy": "prompt-efficiency-fix",
+    "phases": [
+        {
+            "phaseNumber": 1,
+            "title": "Create State Tracking Utility",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 2,
+            "title": "Integrate into route.prompt.md",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 3,
+            "title": "Integrate into plan.prompt.md",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 4,
+            "title": "Integrate into task.prompt.md",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 5,
+            "title": "Integrate into other prompts",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        },
+        {
+            "phaseNumber": 6,
+            "title": "Test with sample workflow",
+            "status": "not-started",
+            "commit": null,
+            "startedAt": null,
+            "completedAt": null
+        }
+    ]
+}

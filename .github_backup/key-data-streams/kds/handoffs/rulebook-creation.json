@@ -1,0 +1,20 @@
+{
+    "handoffType": "plan",
+    "key": "kds-rulebook",
+    "description": "Create canonical KDS Governance Rulebook in dual format (user-friendly .md + machine-readable .json). Merge MANDATORY.md, Agentic Rules, and kds-handoff-protocol.md",
+    "acceptanceCriteria": [
+        "kds-rulebook.md created with all 9+ rules categorized",
+        "kds-rulebook.json created with validation schemas",
+        "No rule contradictions exist",
+        "Each rule includes: statement, rationale, examples, anti-patterns",
+        "MANDATORY.md deprecated (marked as superseded by rulebook)"
+    ],
+    "files": [
+        ".github/governance/kds-rulebook.md",
+        ".github/governance/kds-rulebook.json"
+    ],
+    "e2eMode": true,
+    "autoChain": true,
+    "estimatedDuration": "90-120 minutes",
+    "nextTask": "system-cleanup.json"
+}

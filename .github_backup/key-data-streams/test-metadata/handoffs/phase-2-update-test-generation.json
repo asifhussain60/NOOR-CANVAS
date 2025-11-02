@@ -1,0 +1,19 @@
+{
+    "key": "test-metadata",
+    "phase": 2,
+    "task": "2a",
+    "description": "Add Step 1.5 to test-generation.prompt.md for loading test metadata",
+    "files": [
+        ".github/prompts/test-generation.prompt.md"
+    ],
+    "acceptanceCriteria": [
+        "Step 1.5 added after Step 1 (loading test data)",
+        "Searches for PLAYWRIGHT TEST METADATA block in target file",
+        "Extracts API routes, database connections, test data, selectors",
+        "Auto-populates test structure from metadata",
+        "Warns if metadata incomplete"
+    ],
+    "autoChain": true,
+    "nextTask": "handoffs/phase-3-update-healthcheck.json",
+    "testFile": null
+}

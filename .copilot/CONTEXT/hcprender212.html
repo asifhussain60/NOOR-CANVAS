@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NoorCanvas</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="NoorCanvas.styles.css?v=bAe9wRsTLxsOJwwDWShD_-VHowVpNXGln5MlgF-XUVk" rel="stylesheet" />
+    <!-- Ensure NoorCanvas.styles.css is not included elsewhere to prevent duplication -->
+    <!-- NOOR Canvas Font System -->
+    <link href="css/fonts/fonts.css?v=G6Wns9j7CKAGfSZlu1ePXb60LtW9RmcpvH_gOHbZG48" rel="stylesheet" />
+    
+    <link href="css/session-transcript.css?v=sqXrZZo6flDp0XOZFQnlxkapv53rzfD1zqoarDHKS24" rel="stylesheet" />
+    <link href="css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk" rel="stylesheet" />
+    <link href="css/debug-panel.css?v=-clSxQTKYJ_8_FGGWwmh-ofBgXnBJabNqiI7jEGZVD0" rel="stylesheet" />
+    
+    <!-- Font Awesome - Consolidated (Latest version 6.5.1) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Tailwind CSS - For Q&A UI Components -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- [DIAGNOSTIC:notyf:libs] Notyf - Modern Toast Notifications (Replaced toastr.js 2025-10-14) ;CLEANUP_OK -->
+    <!-- CDN with local fallback for reliability -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" 
+          onerror="this.onerror=null; this.href='~/lib/notyf/notyf.min.css';" />
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js" 
+            onerror="console.error('[DIAGNOSTIC:notyf:libs] CDN failed, loading local fallback ;CLEANUP_OK'); this.onerror=null; this.src='~/lib/notyf/notyf.min.js';"></script>
+    
+    <!-- NOOR Canvas Notyf Wrapper - Unified toast API with diagnostics -->
+    <script src="/js/noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g"></script>
+    
+    <!-- jQuery - Still needed for other components -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <!-- SweetAlert2 - For Asset Detection Popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Centralized Google Fonts (consolidated from all pages) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Core fonts: Inter, Poppins, Amiri, Lato, Lora, Noto Nastaliq Urdu -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=Lato:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@400;600;700&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+    <!-- Enhanced Arabic Script Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Additional decorative fonts from HostControlPanel -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!--Blazor:{"type":"server","key":{"locationHash":"54912F3C651A014F1B275C954CB092DE947378CDB83E8965F8D7F4800066B6D8:0","formattedComponentKey":""},"sequence":0,"descriptor":"CfDJ8DeH3DqcBblEm/Wh6jxNrbP/dTANNWIodW8rJSWptB9SDmUtcKxAsz87lKoOk7KHyLOnTDgiLNaaVjOVfEnpv2bO6YYxAe/4Q5xydRr7ewsyO/0f/rkROUu0m8YBZpGBu5uXoyQBpSDbP7O1kTg\u002BiCc8/epKRHKDnbRHijDPF4qosveKfoKZoOAMTGs2e2eP882yXjQrZpxjMwmCxZvh17gocUqEjUhAjcFElQJfiDhxzB56LiTSPfu4OHXB072EtDI23nq45pkoO1nxsown/I/BW5Ofma42k9lP5ncdrAlkj\u002BbSlAyaAB7o3LcrYuizRmqn0KmKJWRCLIpT\u002BbrmYFhciKwEd8n6/N8J\u002BzH3kUYMvK/dy0GYEKMrbbp1evrx5Rhv6VwRg2wQZAK7ri/8\u002BMclVq6JLbp3De\u002BbLqBYhCmzNZVVWyHT3R9x8aUu\u002BvMXOelNaR7JhB/ZL7cphzNm9YJANMipAKl1YYQCL\u002BGowjuLZ8LGScsFIYNE0G2sObAe5Q=="}-->
+
+    <!-- Toast Container for Notifications -->
+    <!-- DEBUG-WORKITEM: Added toast container for session-transcript.css toast styling ;CLEANUP_OK -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div id="blazor-error-ui">
+        
+        
+            An unhandled exception has occurred. See browser dev tools for details.
+        
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
+    <script src="js/noor-logging.js"></script>
+    <script src="js/noor-annotations.js"></script>
+    <script src="js/noor-share-system.js"></script>
+    <script src="js/PlaywrightLogger.js"></script>
+    
+    <!-- Initialize PlaywrightLogger after Blazor loads -->
+    <script>
+        window.addEventListener('load', function() {
+            if (window.PlaywrightLogger) {
+                PlaywrightLogger.init();
+                console.log('[PLAYWRIGHT-LOG] Auto-initialized on page load');
+            }
+        });
+    </script>
+    
+    <!-- [DIAGNOSTIC:notyf:signalr] Q&A Toast Functions - Updated for Notyf ;CLEANUP_OK -->
+    <script>
+        // Q&A Toast Notification Functions using NoorToast wrapper
+        window.showQuestionToast = function(questionData) {
+            console.log('[DIAGNOSTIC:notyf:signalr] showQuestionToast called for question:', questionData.id, ';CLEANUP_OK');
+            
+            if (typeof window.NoorToast !== 'undefined') {
+                const message = `"${questionData.text}" - ${questionData.userName || 'Anonymous'}`;
+                window.NoorToast.show(message, 'New Question Received', 'info');
+                console.log('[DIAGNOSTIC:notyf:signalr] ✅ Question toast displayed via NoorToast ;CLEANUP_OK');
+            } else {
+                console.error('[DIAGNOSTIC:notyf:signalr] ❌ NoorToast not available, using console fallback ;CLEANUP_OK');
+                console.log('NOOR-QA: New question -', questionData.text);
+            }
+        };
+
+        window.showVoteUpdateToast = function(questionId, newVoteCount) {
+            console.log('[DIAGNOSTIC:notyf:signalr] showVoteUpdateToast called for question:', questionId, 'votes:', newVoteCount, ';CLEANUP_OK');
+            
+            if (typeof window.NoorToast !== 'undefined') {
+                window.NoorToast.show(`Question received ${newVoteCount} votes`, 'Vote Update', 'success');
+                console.log('[DIAGNOSTIC:notyf:signalr] ✅ Vote update toast displayed via NoorToast ;CLEANUP_OK');
+            }
+        };
+
+        console.log('[DIAGNOSTIC:notyf:signalr] ✅ Q&A toast notification system initialized with Notyf ;CLEANUP_OK');
+    </script>
+    
+    <script>
+        // Initialize NOOR Canvas browser logging
+        if (window.NoorLogger) {
+            NoorLogger.info('NOOR-INIT', 'NOOR Canvas application loaded', {
+                blazorMode: 'ServerPrerendered',
+                environment: 'Development'
+            });
+            
+            // Enhanced CSS Debug Logging (Issue: CSS padding changes not visible)
+            window.addEventListener('DOMContentLoaded', function() {
+                console.log('🎨 CSS DEBUG: Starting CSS verification...');
+                
+                // Check if noor-canvas.css loaded
+                const noorCanvasLink = document.querySelector('link[href*="noor-canvas.css"]');
+                if (noorCanvasLink) {
+                    console.log('✅ CSS DEBUG: noor-canvas.css link found:', noorCanvasLink.href);
+                    
+                    // Test for .noor-btn class padding
+                    setTimeout(function() {
+                        const testBtn = document.querySelector('.noor-btn');
+                        if (testBtn) {
+                            const styles = window.getComputedStyle(testBtn);
+                            console.log('🔍 CSS DEBUG: .noor-btn padding values:', {
+                                paddingTop: styles.paddingTop,
+                                paddingRight: styles.paddingRight,
+                                paddingBottom: styles.paddingBottom,
+                                paddingLeft: styles.paddingLeft,
+                                padding: styles.padding
+                            });
+                        } else {
+                            console.log('⚠️ CSS DEBUG: No .noor-btn elements found to test');
+                        }
+                    }, 500);
+                } else {
+                    console.error('❌ CSS DEBUG: noor-canvas.css link not found!');
+                }
+                
+                // Log all loaded CSS files
+                const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
+                console.log('📋 CSS DEBUG: All loaded CSS files:');
+                cssLinks.forEach((link, index) => {
+                    console.log(`  ${index + 1}. ${link.href}`);
+                });
+            });
+            
+            // Blazor Server auto-starts, monitor the connection status
+            // Note: Blazor.start() removed to prevent double initialization
+            window.addEventListener('load', function() {
+                // Wait for Blazor to auto-initialize, then log status
+                setTimeout(function() {
+                    if (window.Blazor) {
+                        NoorLogger.info('BLAZOR-STARTUP', 'Blazor server connection auto-established');
+                    } else {
+                        NoorLogger.error('BLAZOR-STARTUP', 'Blazor auto-initialization failed');
+                    }
+                }, 1000);
+            });
+        }
+    </script>
+</body>
+</html>

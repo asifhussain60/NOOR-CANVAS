@@ -12,17 +12,20 @@ namespace NoorCanvas.Services
         private readonly HtmlParsingService _htmlParsingService;
         private readonly AssetProcessingService _assetProcessingService;
         private readonly IMediaUrlTransformService _mediaUrlTransformService;
+        private readonly ShareButtonInjectionService _shareButtonInjectionService;
         private readonly ILogger<UnifiedHtmlTransformService> _logger;
 
         public UnifiedHtmlTransformService(
             HtmlParsingService htmlParsingService,
             AssetProcessingService assetProcessingService,
             IMediaUrlTransformService mediaUrlTransformService,
+            ShareButtonInjectionService shareButtonInjectionService,
             ILogger<UnifiedHtmlTransformService> logger)
         {
             _htmlParsingService = htmlParsingService;
             _assetProcessingService = assetProcessingService;
             _mediaUrlTransformService = mediaUrlTransformService;
+            _shareButtonInjectionService = shareButtonInjectionService;
             _logger = logger;
         }
 
@@ -67,25 +70,34 @@ namespace NoorCanvas.Services
                 _logger.LogDebug("UnifiedHtmlTransformService: Applying media URL transformations for session {SessionId}", sessionId);
                 cleanedHtml = await _mediaUrlTransformService.TransformMediaUrlsAsync(cleanedHtml, sessionId);
 
-                // Step 2: Apply host-specific transformations (share button injection)
-                // Only inject buttons if session is Active or Waiting
-                bool shouldInjectButtons = sessionId.HasValue &&
+                // Step 2: Mark asset locations
+                // Add location markers for asset discovery
+                bool shouldProcessAssets = sessionId.HasValue &&
                                           (sessionStatus == "Active" || sessionStatus == "Waiting");
 
-            if (shouldInjectButtons)
+            if (shouldProcessAssets)
             {
+                _logger.LogInformation(
+                    "UnifiedHtmlTransformService: Processing assets for session {SessionId}",
+                    sessionId);
+
+                // Step 2a: Mark asset locations
+                cleanedHtml = await _assetProcessingService.MarkAssetLocationsAsync(
+                    cleanedHtml,
+                    sessionId!.Value.ToString());
+
+                // Step 2b: Inject share buttons for session assets
                 _logger.LogInformation(
                     "UnifiedHtmlTransformService: Injecting share buttons for session {SessionId}",
                     sessionId);
-
-                cleanedHtml = await _assetProcessingService.InjectAssetShareButtonsAsync(
+                cleanedHtml = await _shareButtonInjectionService.InjectShareButtonsAsync(
                     cleanedHtml,
-                    sessionId!.Value.ToString());
+                    sessionId.Value);
             }
             else
             {
                 _logger.LogInformation(
-                    "UnifiedHtmlTransformService: Skipping share button injection - SessionId: {SessionId}, Status: {Status}",
+                    "UnifiedHtmlTransformService: Skipping asset processing - SessionId: {SessionId}, Status: {Status}",
                     sessionId, sessionStatus);
             }
 

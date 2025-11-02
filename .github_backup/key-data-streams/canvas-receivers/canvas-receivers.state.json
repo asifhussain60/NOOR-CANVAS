@@ -1,0 +1,41 @@
+{
+  "completedPhases": 0,
+  "filesModified": [],
+  "lastUpdated": "2025-10-28T07:19:42.6466669-04:00",
+  "userDecisions": null,
+  "promptHandoffs": [],
+  "currentPhase": null,
+  "totalPhases": 0,
+  "status": "in_progress",
+  "branch": "development",
+  "commits": [],
+  "requests": [],
+  "key": "canvas-receivers",
+  "driftKeys": [],
+  "tags": {},
+  "created": "2025-10-28T07:19:42.6466082-04:00",
+  "phases": [
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "in_progress",
+      "completed": null,
+      "title": "Portrait Overlay Styling",
+      "started": null,
+      "commits": []
+    },
+    {
+      "number": null,
+      "duration": null,
+      "risk": null,
+      "status": "not_started",
+      "completed": null,
+      "title": "Testing & Validation",
+      "started": null,
+      "commits": []
+    }
+  ],
+  "version": "2.0",
+  "estimatedTotalDuration": null
+}

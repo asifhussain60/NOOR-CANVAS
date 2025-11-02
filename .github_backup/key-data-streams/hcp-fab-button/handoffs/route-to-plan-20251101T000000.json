@@ -1,0 +1,107 @@
+{
+    "version": "1.0.0",
+    "timestamp": "2025-11-01T00:00:00Z",
+    "fromAgent": "route",
+    "toAgent": "plan",
+    "key": "hcp-fab-button",
+    "handoffReason": "Implement FAB button click handler with toast notification system for share buttons",
+    "requestSummary": "Review hcp key and HostControlPanel.razor to identify share button injection functionality. After FAB button is injected, set a flag indicating it has loaded, then bind click event. When clicked, show toast identifying unique button ID.",
+    "scope": [
+        "UI",
+        "JavaScript"
+    ],
+    "relatedKeys": [
+        "hcp-ids",
+        "hcp-refactor"
+    ],
+    "acceptanceCriteria": [
+        "Share button injection sets initialization flag (window.shareButtonsInitialized)",
+        "Click event binding waits for initialization flag",
+        "Click handler extracts button ID from element",
+        "Toast notification displays button ID and asset type",
+        "Toast has modern gradient styling matching NOOR Canvas theme",
+        "Toast auto-dismisses after 3 seconds with animation"
+    ],
+    "parameters": {
+        "complexity": "moderate",
+        "complexityScore": 7,
+        "workType": "enhancement",
+        "architectureLayers": [
+            "UI",
+            "JavaScript"
+        ],
+        "estimatedFiles": 2
+    },
+    "contextPackage": {
+        "files": [
+            "SPA/NoorCanvas/Pages/HostControlPanel.razor",
+            ".copilot/CONTEXT/CopilotChats.md"
+        ],
+        "images": [],
+        "errors": []
+    },
+    "technicalRequirements": {
+        "shareButtonFlow": {
+            "injection": {
+                "location": "InjectShareButtons method (lines 3438-3467)",
+                "buttonIdFormat": "share-btn-{assetType}-{assetId}",
+                "example": "share-btn-ayah-card-12345"
+            },
+            "initialization": {
+                "flag": "window.shareButtonsInitialized",
+                "location": "setupShareButtonHandlers function (line 4762)",
+                "timing": "After buttons injected and handlers attached"
+            },
+            "clickHandler": {
+                "location": "handleShareButtonClick function (line 4814)",
+                "selector": ".ks-share-button, [id^=\"share-btn-\"]",
+                "dataExtraction": [
+                    "button.id",
+                    "data-share-id",
+                    "data-asset-type",
+                    "data-instance-number"
+                ]
+            },
+            "toast": {
+                "function": "showButtonIdToast(buttonId, assetType)",
+                "position": "fixed top-right (top: 5rem, right: 1rem)",
+                "styling": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                "animation": "slide-in from right, auto-dismiss after 3s",
+                "content": [
+                    "Icon: fa-fingerprint",
+                    "Title: Share Button Clicked",
+                    "Button ID",
+                    "Asset Type"
+                ]
+            }
+        },
+        "phasedApproach": {
+            "phase1": {
+                "title": "Initialization Flag & Logging",
+                "tasks": [
+                    "Add window.shareButtonsInitialized flag in setupShareButtonHandlers",
+                    "Log button IDs during setup",
+                    "Add initialization check in handleShareButtonClick"
+                ]
+            },
+            "phase2": {
+                "title": "Button ID Extraction & Toast Function",
+                "tasks": [
+                    "Update selector to include [id^=\"share-btn-\"]",
+                    "Extract button ID in click handler",
+                    "Create showButtonIdToast function",
+                    "Add toast styling and animation"
+                ]
+            },
+            "phase3": {
+                "title": "Testing & Validation",
+                "tasks": [
+                    "Test initialization flag timing",
+                    "Verify toast displays on button click",
+                    "Validate button ID extraction",
+                    "Test auto-dismiss animation"
+                ]
+            }
+        }
+    }
+}
