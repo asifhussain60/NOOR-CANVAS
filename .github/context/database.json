@@ -1,0 +1,239 @@
+{
+  "total_connections": 3,
+  "total_tables": 23,
+  "tables": [
+    {
+      "context": "CanvasDbContext",
+      "dbset": "Sessions",
+      "name": "Session",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "SessionLinks",
+      "name": "SessionLink",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "HostSessions",
+      "name": "HostSession",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "AdminSessions",
+      "name": "AdminSession",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "Users",
+      "name": "User",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "Registrations",
+      "name": "Registration",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "SharedAssets",
+      "name": "SharedAsset",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "Annotations",
+      "name": "Annotation",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "Questions",
+      "name": "Question",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "QuestionAnswers",
+      "name": "QuestionAnswer",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "QuestionVotes",
+      "name": "QuestionVote",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "AuditLogs",
+      "name": "AuditLog",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "Issues",
+      "name": "Issue",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "SecureTokens",
+      "name": "SecureToken",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "CanvasDbContext",
+      "dbset": "SessionParticipants",
+      "name": "SessionParticipant",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "KSessionsDbContext",
+      "dbset": "Groups",
+      "name": "KSessionsGroup",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "KSessionsDbContext",
+      "dbset": "Categories",
+      "name": "KSessionsCategory",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "KSessionsDbContext",
+      "dbset": "Sessions",
+      "name": "KSessionsSession",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "KSessionsDbContext",
+      "dbset": "SessionTranscripts",
+      "name": "KSessionsSessionTranscript",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "KSessionsDbContext",
+      "dbset": "Countries",
+      "name": "KSessionsCountry",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "KSessionsDbContext",
+      "dbset": "Speakers",
+      "name": "KSessionsSpeaker",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "SimplifiedCanvasDbContext",
+      "dbset": "Participants",
+      "name": "Participant",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/SimplifiedCanvasDbContext.cs",
+      "confidence": 1.0
+    },
+    {
+      "context": "SimplifiedCanvasDbContext",
+      "dbset": "AssetLookup",
+      "name": "AssetLookup",
+      "relationships": [],
+      "file": "SPA/NoorCanvas/Data/SimplifiedCanvasDbContext.cs",
+      "confidence": 1.0
+    }
+  ],
+  "last_scan": "2025-11-02T10:43:07Z",
+  "scan_duration_ms": 94.4806,
+  "connections": {
+    "_Comment": {
+      "source_file": "appsettings.Development.json",
+      "confidence": 1.0,
+      "database": "unknown",
+      "environments": [
+        "development",
+        "production"
+      ],
+      "server": "unknown"
+    },
+    "DefaultConnection": {
+      "source_file": "appsettings.Development.json",
+      "confidence": 1.0,
+      "database": "KSESSIONS_DEV",
+      "environments": [
+        "development",
+        "production"
+      ],
+      "server": "AHHOME"
+    },
+    "KSessionsDb": {
+      "source_file": "appsettings.Development.json",
+      "confidence": 1.0,
+      "database": "KSESSIONS_DEV",
+      "environments": "developmentdevelopment",
+      "server": "AHHOME"
+    }
+  },
+  "scan_metadata": {
+    "scan_mode": "Full",
+    "changed_files": [
+      "SPA/NoorCanvas/Data/CanvasDbContext.cs",
+      "SPA/NoorCanvas/Data/KSessionsDbContext.cs",
+      "SPA/NoorCanvas/Data/SimplifiedCanvasDbContext.cs",
+      "SPA/NoorCanvas/appsettings.Development.json",
+      "SPA/NoorCanvas/appsettings.Production.json",
+      "SPA/NoorCanvas/appsettings.ZOOM.json",
+      "SPA/NoorCanvas/bin/Debug/net8.0/appsettings.Development.json",
+      "SPA/NoorCanvas/bin/Debug/net8.0/appsettings.Production.json",
+      "SPA/NoorCanvas/bin/Debug/net8.0/appsettings.ZOOM.json",
+      "SPA/NoorCanvas/bin/Release/net8.0/appsettings.Development.json",
+      "SPA/NoorCanvas/bin/Release/net8.0/appsettings.Production.json",
+      "SPA/NoorCanvas/bin/Release/net8.0/appsettings.ZOOM.json"
+    ],
+    "sensor_version": "1.0.0"
+  }
+}

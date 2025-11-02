@@ -1,0 +1,899 @@
+{
+  "total_pages": 20,
+  "components": [
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/_Imports.razor",
+      "name": "_Imports",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/App.razor",
+      "name": "App",
+      "children": [
+        "Found",
+        "NotFound",
+        "LayoutView",
+        "PageNotFound",
+        "GlobalSpinner"
+      ],
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/AnnotationCanvas.razor",
+      "name": "AnnotationCanvas",
+      "children": [
+        "AnnotationCanvas",
+        "AnnotationViewModel"
+      ],
+      "api_calls": [
+        "GET /api/annotations/session/{SessionId}",
+        "DELETE /api/annotations/session/{SessionId}",
+        "POST /api/annotations/session/{SessionId}",
+        "/api/annotations/session/{SessionId}"
+      ],
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/AssetSidebar.razor",
+      "name": "AssetSidebar",
+      "children": [
+        "AssetSidebar",
+        "AssetShareRequest",
+        "DetectedAsset"
+      ],
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [
+        "@DataTestId"
+      ],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/FlagIcon.razor",
+      "name": "FlagIcon",
+      "children": "FlagIcon",
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/SessionUrlPanel.razor",
+      "name": "SessionUrlPanel",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Development/DebugPanel.razor",
+      "name": "DebugPanel",
+      "children": [
+        "DebugPanel",
+        "IDebugAction"
+      ],
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Development/DevPanel.razor",
+      "name": "DevPanel",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Diagnostics/DiagnosticLogger.razor",
+      "name": "DiagnosticLogger",
+      "children": [
+        "DiagnosticLogger",
+        "DiagnosticResult"
+      ],
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Dialogs/AlertDialog.razor",
+      "name": "AlertDialog",
+      "children": "AlertDialog",
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Dialogs/ConfirmDialog.razor",
+      "name": "ConfirmDialog",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor",
+      "name": "HostControlPanelContent",
+      "children": [
+        "LoadingSpinner",
+        "QuestionCard",
+        "Guid"
+      ],
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Host/HostControlPanelHeader.razor",
+      "name": "HostControlPanelHeader",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Host/HostControlPanelModal.razor",
+      "name": "HostControlPanelModal",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor",
+      "name": "HostControlPanelSidebar",
+      "children": [
+        "LoadingSpinner",
+        "UserRegistrationLink"
+      ],
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Host/QuestionCard.razor",
+      "name": "QuestionCard",
+      "children": "QuestionDto",
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Host/UserRegistrationLink.razor",
+      "name": "UserRegistrationLink",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Loading/EnhancedSpinner.razor",
+      "name": "EnhancedSpinner",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Loading/GlobalSpinner.razor",
+      "name": "GlobalSpinner",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Production/ProductionInfoPanel.razor",
+      "name": "ProductionInfoPanel",
+      "children": "ProductionInfoPanel",
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Shared/ErrorDisplay.razor",
+      "name": "ErrorDisplay",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/Shared/LoadingSpinner.razor",
+      "name": "LoadingSpinner",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/AnnotationDemo.razor",
+      "name": "AnnotationDemo",
+      "children": [
+        "AnnotationDemo",
+        "AnnotationCanvas"
+      ],
+      "api_calls": null,
+      "route": "/annotation-demo",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/CreateSession.razor",
+      "name": "CreateSession",
+      "children": [
+        "CreateSession",
+        "AlbumDto",
+        "CategoryDto",
+        "SessionDto",
+        "CreateSessionResponse"
+      ],
+      "api_calls": [
+        "/api/host/authenticate",
+        "/api/host/albums?guid={Guid}",
+        "/api/host/categories/{albumId}?guid={Guid}",
+        "/api/host/sessions/{categoryId}?guid={Guid}",
+        "/api/host/session/create"
+      ],
+      "route": "/host/session/create",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Host-SessionOpener.razor",
+      "name": "Host-SessionOpener",
+      "children": [
+        "SessionUrlPanel",
+        "DebugPanel",
+        "HostSessionData",
+        "HostSessionOpenerViewModel",
+        "IDebugAction"
+      ],
+      "api_calls": null,
+      "route": "/host/session-opener",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Host-SessionTranscriptViewer.razor",
+      "name": "Host-SessionTranscriptViewer",
+      "children": "TranscriptResponse",
+      "api_calls": "/api/session/{CurrentSessionId}/transcript",
+      "route": "/host/session-opener/{token}/transcript",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor",
+      "name": "HostControlPanel",
+      "children": [
+        "HostControlPanel",
+        "HostControlPanelHeader",
+        "ErrorDisplay",
+        "HostControlPanelSidebar",
+        "HostControlPanelContent",
+        "HostControlPanelModal",
+        "DebugPanel",
+        "QuestionItem",
+        "JsonElement",
+        "AssetLookupDto",
+        "EnhancedSessionDetailsApiResponse",
+        "AssetDetectionResult",
+        "ShareButtonInjectionResult",
+        "SessionAssetDto",
+        "SessionAssetsResponse",
+        "DetectedAsset"
+      ],
+      "api_calls": [
+        "/api/host/sessions/list?hostToken={Uri.EscapeDataString(hostToken ?? string.Empty)}",
+        "/api/host/sessions/{sessionIdLong}/details",
+        "/api/host/token/{Uri.EscapeDataString(hostToken)}/session-id",
+        "/api/host/sessions/by-token/{Uri.EscapeDataString(hostToken ?? string.Empty)}",
+        "/api/host/session/{SessionId}/start?canvasType={selectedCanvasType}",
+        "/api/session/{SessionId}/end",
+        "/api/host/asset-lookup",
+        "/api/host/session-details/212?guid=debug-asset-detection",
+        "/api/host/sessions/{sessionId}/assets",
+        "/api/host/ksessions/session/{sessionId}/details?hostToken={HostToken}"
+      ],
+      "route": "/host/control-panel/{hostToken}",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostControlRedirect.razor",
+      "name": "HostControlRedirect",
+      "children": null,
+      "api_calls": null,
+      "route": "/host/control/{hostToken}",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostLanding.razor",
+      "name": "HostLanding",
+      "children": [
+        "HostLanding",
+        "InputText",
+        "HostSessionValidationResponse"
+      ],
+      "api_calls": [
+        "/api/host/token/{friendlyToken}/validate",
+        "/api/host/token/{Model.FriendlyToken}/validate",
+        "/api/host/token/{Model?.FriendlyToken}/validate"
+      ],
+      "route": "/host/{friendlyToken?}",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostSessionManager.razor",
+      "name": "HostSessionManager",
+      "children": [
+        "HostSessionManager",
+        "AlertDialog",
+        "ConfirmDialog",
+        "SessionStatusData",
+        "JsonElement"
+      ],
+      "api_calls": [
+        "/api/host/authenticate",
+        "/api/host/albums?guid={Guid}",
+        "/api/host/session-status?guid={Guid}",
+        "/api/host/categories/{selectedAlbumId}?guid={Guid}",
+        "/api/host/sessions/{selectedCategoryId}?guid={Guid}",
+        "/api/host/generate-token?sessionId={selectedSessionId}&guid={Guid}",
+        "/api/host/sessions/{selectedSessionId}/begin?guid={Guid}",
+        "/api/host/sessions/end?guid={Guid}"
+      ],
+      "route": "/host/session-manager",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/PageNotFound.razor",
+      "name": "PageNotFound",
+      "children": "PageNotFound",
+      "api_calls": null,
+      "route": "/not-found",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/ParticipantRegister.razor",
+      "name": "ParticipantRegister",
+      "children": [
+        "ParticipantRegister",
+        "CountryData",
+        "SessionValidationResponse",
+        "ParticipantRegistrationResponse",
+        "AlertDialog",
+        "ConfirmDialog"
+      ],
+      "api_calls": [
+        "GET /api/sessions/{Session}/validate",
+        "POST /api/participant/register-with-token",
+        "/api/sessions/{Session}/validate",
+        "/api/participant/register-with-token",
+        "/api/host/countries?guid={Uri.EscapeDataString(Session ?? "
+      ],
+      "route": "/participant/register",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [
+        "error-message"
+      ],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SessionCanvas.razor",
+      "name": "SessionCanvas",
+      "children": [
+        "SessionCanvas",
+        "DiagnosticLogger",
+        "DebugPanel",
+        "ParticipantData",
+        "QuestionData",
+        "SessionValidationResponse",
+        "ParticipantsResponse",
+        "JsonElement",
+        "ParticipantApiData",
+        "ParticipantsCheckResponse",
+        "ParticipantCheckData"
+      ],
+      "api_calls": [
+        "POST /api/Question/Submit",
+        "POST /api/Question/{questionToUpdate.QuestionId}/update",
+        "POST /api/Question/{questionId}/vote",
+        "POST /api/Question/{questionToDelete.QuestionId}/delete",
+        "/api/participant/session/{SessionToken}/me",
+        "/api/Question/Submit",
+        "/api/Question/{questionToUpdate.QuestionId}/update",
+        "/api/Question/{questionId}/vote",
+        "/api/Question/{questionToDelete.QuestionId}/delete",
+        "/api/participant/session/{token}/validate",
+        "/api/participant/session/{token}/participants"
+      ],
+      "route": "/session/canvas/{sessionToken?}",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SessionEnded.razor",
+      "name": "SessionEnded",
+      "children": "SessionEnded",
+      "api_calls": null,
+      "route": "/session/ended",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [
+        "error-message",
+        "countdown-display",
+        "progress-bar",
+        "participants-list"
+      ],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SessionWaiting.razor",
+      "name": "SessionWaiting",
+      "children": [
+        "SessionWaiting",
+        "FlagIcon",
+        "DebugPanel",
+        "ParticipantData",
+        "SessionValidationResponse",
+        "ParticipantsResponse",
+        "ParticipantMeResponse",
+        "ParticipantsCheckResponse",
+        "ParticipantApiData",
+        "ParticipantCheckData"
+      ],
+      "api_calls": [
+        "/api/participant/session/{token}/validate",
+        "/api/participant/session/{token}/participants"
+      ],
+      "route": "/session/waiting/{sessionToken?}",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SignalRTest.razor",
+      "name": "SignalRTest",
+      "children": [
+        "SignalRTest",
+        "TestMessage"
+      ],
+      "api_calls": null,
+      "route": "/signalr-test",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SimpleSignalRTest.razor",
+      "name": "SimpleSignalRTest",
+      "children": "SimpleMessage",
+      "api_calls": null,
+      "route": "/simple-signalr-test",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SpinnerExamples.razor",
+      "name": "SpinnerExamples",
+      "children": null,
+      "api_calls": null,
+      "route": "/spinner-examples",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [
+        "error-message"
+      ],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/TranscriptCanvas.razor",
+      "name": "TranscriptCanvas",
+      "children": [
+        "TranscriptCanvas",
+        "DiagnosticLogger",
+        "DebugPanel",
+        "ParticipantData",
+        "QuestionData",
+        "SessionValidationResponse",
+        "ParticipantsResponse",
+        "JsonElement",
+        "ParticipantsCheckResponse",
+        "ParticipantApiData",
+        "ParticipantCheckData"
+      ],
+      "api_calls": [
+        "POST /api/Question/Submit",
+        "POST /api/Question/{questionToUpdate.QuestionId}/update",
+        "POST /api/Question/{questionId}/vote",
+        "POST /api/Question/{questionToDelete.QuestionId}/delete",
+        "/api/participant/session/{SessionToken}/me",
+        "/api/participant/session/{token}/validate",
+        "/api/participant/session/{token}/participants",
+        "/api/Question/Submit",
+        "/api/Question/{questionToUpdate.QuestionId}/update",
+        "/api/Question/{questionId}/vote",
+        "/api/Question/{questionToDelete.QuestionId}/delete"
+      ],
+      "route": "/transcript/canvas/{sessionToken?}",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [
+        "session-name"
+      ],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/UserLanding.razor",
+      "name": "UserLanding",
+      "children": [
+        "UserLanding",
+        "InputText",
+        "InputSelect",
+        "DebugPanel",
+        "CountryData",
+        "SessionValidationResponse",
+        "JsonElement",
+        "ParticipantsCheckResponse",
+        "SessionInfoDto",
+        "ParticipantCheckData"
+      ],
+      "api_calls": [
+        "/api/participant/session/{Model.TokenInput}/validate",
+        "/api/participant/session/{token}/participants",
+        "/api/host/countries?guid={Uri.EscapeDataString(Model?.TokenInput ?? ",
+        "/api/participant/session/{token}/validate"
+      ],
+      "route": "/user/landing",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Isolated/_IsolationTemplate.razor",
+      "name": "_IsolationTemplate",
+      "children": [
+        "TestParameter",
+        "TestScenario",
+        "TestResult",
+        "DebugLog"
+      ],
+      "api_calls": null,
+      "route": "/isolated/template",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Isolated/CanvasQuestionsIsolation.razor",
+      "name": "CanvasQuestionsIsolation",
+      "children": [
+        "CanvasQuestionsIsolation",
+        "QuestionData",
+        "TestScenario",
+        "TestResult",
+        "DebugLog",
+        "SessionValidationResponse"
+      ],
+      "api_calls": [
+        "/api/Question/Submit",
+        "/api/Question/{selectedQuestionId}/update",
+        "/api/Question/{questionId}/vote"
+      ],
+      "route": "/isolated/canvas-questions",
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Shared/EmptyLayout.razor",
+      "name": "EmptyLayout",
+      "children": null,
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Shared/MainLayout.razor",
+      "name": "MainLayout",
+      "children": "EnhancedSpinner",
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    },
+    {
+      "test_ids": [],
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Shared/NavMenu.razor",
+      "name": "NavMenu",
+      "children": "NavLink",
+      "api_calls": null,
+      "route": null,
+      "confidence": 1.0
+    }
+  ],
+  "total_components": 45,
+  "scan_metadata": {
+    "scan_mode": "Full",
+    "changed_files": [
+      "SPA/NoorCanvas/_Imports.razor",
+      "SPA/NoorCanvas/App.razor",
+      "SPA/NoorCanvas/Components/AnnotationCanvas.razor",
+      "SPA/NoorCanvas/Components/AssetSidebar.razor",
+      "SPA/NoorCanvas/Components/FlagIcon.razor",
+      "SPA/NoorCanvas/Components/SessionUrlPanel.razor",
+      "SPA/NoorCanvas/Components/Development/DebugPanel.razor",
+      "SPA/NoorCanvas/Components/Development/DevPanel.razor",
+      "SPA/NoorCanvas/Components/Diagnostics/DiagnosticLogger.razor",
+      "SPA/NoorCanvas/Components/Dialogs/AlertDialog.razor",
+      "SPA/NoorCanvas/Components/Dialogs/ConfirmDialog.razor",
+      "SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor",
+      "SPA/NoorCanvas/Components/Host/HostControlPanelHeader.razor",
+      "SPA/NoorCanvas/Components/Host/HostControlPanelModal.razor",
+      "SPA/NoorCanvas/Components/Host/HostControlPanelSidebar.razor",
+      "SPA/NoorCanvas/Components/Host/QuestionCard.razor",
+      "SPA/NoorCanvas/Components/Host/UserRegistrationLink.razor",
+      "SPA/NoorCanvas/Components/Loading/EnhancedSpinner.razor",
+      "SPA/NoorCanvas/Components/Loading/GlobalSpinner.razor",
+      "SPA/NoorCanvas/Components/Production/ProductionInfoPanel.razor",
+      "SPA/NoorCanvas/Components/Shared/ErrorDisplay.razor",
+      "SPA/NoorCanvas/Components/Shared/LoadingSpinner.razor",
+      "SPA/NoorCanvas/Pages/AnnotationDemo.razor",
+      "SPA/NoorCanvas/Pages/CreateSession.razor",
+      "SPA/NoorCanvas/Pages/Host-SessionOpener.razor",
+      "SPA/NoorCanvas/Pages/Host-SessionTranscriptViewer.razor",
+      "SPA/NoorCanvas/Pages/HostControlPanel.razor",
+      "SPA/NoorCanvas/Pages/HostControlRedirect.razor",
+      "SPA/NoorCanvas/Pages/HostLanding.razor",
+      "SPA/NoorCanvas/Pages/HostSessionManager.razor",
+      "SPA/NoorCanvas/Pages/PageNotFound.razor",
+      "SPA/NoorCanvas/Pages/ParticipantRegister.razor",
+      "SPA/NoorCanvas/Pages/SessionCanvas.razor",
+      "SPA/NoorCanvas/Pages/SessionEnded.razor",
+      "SPA/NoorCanvas/Pages/SessionWaiting.razor",
+      "SPA/NoorCanvas/Pages/SignalRTest.razor",
+      "SPA/NoorCanvas/Pages/SimpleSignalRTest.razor",
+      "SPA/NoorCanvas/Pages/SpinnerExamples.razor",
+      "SPA/NoorCanvas/Pages/TranscriptCanvas.razor",
+      "SPA/NoorCanvas/Pages/UserLanding.razor",
+      "SPA/NoorCanvas/Pages/Isolated/_IsolationTemplate.razor",
+      "SPA/NoorCanvas/Pages/Isolated/CanvasQuestionsIsolation.razor",
+      "SPA/NoorCanvas/Shared/EmptyLayout.razor",
+      "SPA/NoorCanvas/Shared/MainLayout.razor",
+      "SPA/NoorCanvas/Shared/NavMenu.razor"
+    ],
+    "sensor_version": "1.0.0"
+  },
+  "scan_duration_ms": 94.5056,
+  "last_scan": "2025-11-02T10:43:07Z",
+  "pages": [
+    {
+      "component": "AnnotationDemo",
+      "route": "/annotation-demo",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/AnnotationDemo.razor",
+      "parameters": []
+    },
+    {
+      "component": "CreateSession",
+      "route": "/host/session/create",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/CreateSession.razor",
+      "parameters": []
+    },
+    {
+      "component": "Host-SessionOpener",
+      "route": "/host/session-opener",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Host-SessionOpener.razor",
+      "parameters": []
+    },
+    {
+      "component": "Host-SessionTranscriptViewer",
+      "route": "/host/session-opener/{token}/transcript",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Host-SessionTranscriptViewer.razor",
+      "parameters": [
+        {
+          "name": "token",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "HostControlPanel",
+      "route": "/host/control-panel/{hostToken}",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostControlPanel.razor",
+      "parameters": [
+        {
+          "name": "hostToken",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "HostControlRedirect",
+      "route": "/host/control/{hostToken}",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostControlRedirect.razor",
+      "parameters": [
+        {
+          "name": "hostToken",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "HostLanding",
+      "route": "/host/{friendlyToken?}",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostLanding.razor",
+      "parameters": [
+        {
+          "name": "friendlyToken?",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "HostSessionManager",
+      "route": "/host/session-manager",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostSessionManager.razor",
+      "parameters": []
+    },
+    {
+      "component": "PageNotFound",
+      "route": "/not-found",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/PageNotFound.razor",
+      "parameters": []
+    },
+    {
+      "component": "ParticipantRegister",
+      "route": "/participant/register",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/ParticipantRegister.razor",
+      "parameters": []
+    },
+    {
+      "component": "SessionCanvas",
+      "route": "/session/canvas/{sessionToken?}",
+      "test_ids": [
+        "error-message"
+      ],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SessionCanvas.razor",
+      "parameters": [
+        {
+          "name": "sessionToken?",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "SessionEnded",
+      "route": "/session/ended",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SessionEnded.razor",
+      "parameters": []
+    },
+    {
+      "component": "SessionWaiting",
+      "route": "/session/waiting/{sessionToken?}",
+      "test_ids": [
+        "error-message",
+        "countdown-display",
+        "progress-bar",
+        "participants-list"
+      ],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SessionWaiting.razor",
+      "parameters": [
+        {
+          "name": "sessionToken?",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "SignalRTest",
+      "route": "/signalr-test",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SignalRTest.razor",
+      "parameters": []
+    },
+    {
+      "component": "SimpleSignalRTest",
+      "route": "/simple-signalr-test",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SimpleSignalRTest.razor",
+      "parameters": []
+    },
+    {
+      "component": "SpinnerExamples",
+      "route": "/spinner-examples",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/SpinnerExamples.razor",
+      "parameters": []
+    },
+    {
+      "component": "TranscriptCanvas",
+      "route": "/transcript/canvas/{sessionToken?}",
+      "test_ids": [
+        "error-message"
+      ],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/TranscriptCanvas.razor",
+      "parameters": [
+        {
+          "name": "sessionToken?",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "component": "UserLanding",
+      "route": "/user/landing",
+      "test_ids": [
+        "session-name"
+      ],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/UserLanding.razor",
+      "parameters": []
+    },
+    {
+      "component": "_IsolationTemplate",
+      "route": "/isolated/template",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Isolated/_IsolationTemplate.razor",
+      "parameters": []
+    },
+    {
+      "component": "CanvasQuestionsIsolation",
+      "route": "/isolated/canvas-questions",
+      "test_ids": [],
+      "confidence": 1.0,
+      "file": "D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Isolated/CanvasQuestionsIsolation.razor",
+      "parameters": []
+    }
+  ],
+  "total_test_ids": 8.0
+}
