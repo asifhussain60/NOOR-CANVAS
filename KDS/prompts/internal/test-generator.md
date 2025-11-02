@@ -88,7 +88,65 @@ Target:
 
 ---
 
-## 🎨 Visual Regression Tests (Percy)
+## � PRE-GENERATION: Component ID Discovery (CRITICAL)
+
+**BEFORE writing ANY Playwright test**, discover available element IDs from target components.
+
+### Step 1: Load Target Component Files
+```markdown
+Target Files (from input contract):
+- {target.files[0]}  → Primary component
+- {target.files[...]} → Related components
+```
+
+### Step 2: Extract Element IDs
+Scan each file for `id="..."` attributes:
+```regex
+Pattern: id="([a-zA-Z0-9-_]+)"
+Example matches:
+  - id="sidebar-start-session-btn"
+  - id="reg-transcript-canvas-btn"
+  - id="content-transcript-container"
+```
+
+### Step 3: Build Selector Map
+```json
+{
+  "start_session_button": "#sidebar-start-session-btn",
+  "transcript_canvas_option": "#reg-transcript-canvas-btn",
+  "asset_canvas_option": "#reg-asset-canvas-btn",
+  "transcript_container": "#content-transcript-container"
+}
+```
+
+### Step 4: Use IDs in Generated Selectors
+
+**CORRECT (ID-Based - ALWAYS USE THIS):**
+```typescript
+const startButton = page.locator('#sidebar-start-session-btn');
+const transcriptOption = page.locator('#reg-transcript-canvas-btn');
+```
+
+**WRONG (Text-Based - NEVER GENERATE THIS):**
+```typescript
+// ❌ PROHIBITED - Fragile, slow, breaks on text changes
+const startButton = page.locator('button:has-text("Start Session")');
+const transcriptOption = page.locator('div:has-text("Transcript Canvas")');
+```
+
+### Step 5: Validation Rule
+```markdown
+IF selector uses text (.has-text, :text, etc.) 
+AND component has id= attribute for same element
+THEN: REJECT → Show error:
+  ⚠️  Component has id="{id}", use #{id} instead of text selector
+  Fragile: button:has-text("Start Session")
+  Robust:  #sidebar-start-session-btn
+```
+
+---
+
+## �🎨 Visual Regression Tests (Percy)
 
 ### Pattern Loading
 ```markdown

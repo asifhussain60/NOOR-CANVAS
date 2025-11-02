@@ -3,6 +3,10 @@
 @using NoorCanvas.Components.Shared
 @using NoorCanvas.Components.Host
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using Microsoft.Extensions.Logging
+@inject IJSRuntime JSRuntime
+@inject ILogger<HostControlPanelContent> Logger
 @implements IDisposable
 
 @* Main content component for HostControlPanel - Contains transcript and Q&A panels *@
@@ -256,17 +260,72 @@
     }
     
     // [FIX:hcp-ids] Handle FAB button click with logging for debugging
+    // [REMEDIATION:tdd-logging-errors] Added proper error handling, structured logging, requestId tracking (2025-11-02)
+    /// <summary>
+    /// Handle FAB button click event - shows toast notification and broadcasts transcript
+    /// [FEATURE:fab-click-toast] Added toast notification for user feedback
+    /// </summary>
+    /// <remarks>
+    /// Toast notification proves click is working (user requirement)
+    /// Delegates broadcast to parent OnBroadcastTranscript callback
+    /// Includes error handling for JSRuntime interop failures
+    /// </remarks>
     private async Task HandleFabClick()
     {
-        Console.WriteLine($"[FAB-CLICK] Button clicked - HasTranscript: {!string.IsNullOrEmpty(Model?.TransformedTranscript)}, IsLoading: {IsLoading}");
-        if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[FAB-CLICK] [{RequestId}] ════════ FAB BUTTON CLICK STARTED ════════", requestId);
+        Logger.LogInformation("[FAB-CLICK] [{RequestId}] HasTranscript: {HasTranscript}, IsLoading: {IsLoading}", 
+            requestId, !string.IsNullOrEmpty(Model?.TransformedTranscript), IsLoading);
+        
+        try
         {
-            Console.WriteLine("[FAB-CLICK] ✅ Invoking OnBroadcastTranscript");
-            await OnBroadcastTranscript.InvokeAsync();
+            // Show toast notification to prove click is working
+            Logger.LogInformation("[FAB-CLICK] [{RequestId}] Invoking JSRuntime showFabClickToast", requestId);
+            await JSRuntime.InvokeVoidAsync("showFabClickToast", "FAB button clicked successfully! 🎯");
+            Logger.LogInformation("[FAB-CLICK] [{RequestId}] ✅ Toast displayed successfully", requestId);
+            
+            if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                Logger.LogInformation("[FAB-CLICK] [{RequestId}] Transcript available - invoking OnBroadcastTranscript callback", requestId);
+                await OnBroadcastTranscript.InvokeAsync();
+                Logger.LogInformation("[FAB-CLICK] [{RequestId}] ✅ Broadcast callback completed", requestId);
+            }
+            else
+            {
+                Logger.LogWarning("[FAB-CLICK] [{RequestId}] ⚠️ Transcript is null or empty - skipping broadcast", requestId);
+            }
+            
+            Logger.LogInformation("[FAB-CLICK] [{RequestId}] ════════ FAB BUTTON CLICK COMPLETED ════════", requestId);
         }
-        else
+        catch (JSException jsEx)
         {
-            Console.WriteLine("[FAB-CLICK] ❌ Transcript is null or empty, not broadcasting");
+            Logger.LogError(jsEx, "[FAB-CLICK] [{RequestId}] ❌ JavaScript interop failed - showFabClickToast not available or errored", requestId);
+            Logger.LogError("[FAB-CLICK] [{RequestId}] JSException Message: {Message}", requestId, jsEx.Message);
+            
+            // Fallback: Attempt to show error via parent's error display if available
+            // Note: This is a graceful degradation - user won't see toast but operation continues
+            try
+            {
+                Logger.LogInformation("[FAB-CLICK] [{RequestId}] Attempting fallback: continue with broadcast despite toast failure", requestId);
+                if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+                {
+                    await OnBroadcastTranscript.InvokeAsync();
+                    Logger.LogInformation("[FAB-CLICK] [{RequestId}] ✅ Broadcast completed despite toast failure", requestId);
+                }
+            }
+            catch (Exception fallbackEx)
+            {
+                Logger.LogError(fallbackEx, "[FAB-CLICK] [{RequestId}] ❌ Fallback broadcast also failed", requestId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[FAB-CLICK] [{RequestId}] ❌ Unexpected error during FAB button click handling", requestId);
+            Logger.LogError("[FAB-CLICK] [{RequestId}] Exception Type: {ExceptionType}", requestId, ex.GetType().Name);
+            Logger.LogError("[FAB-CLICK] [{RequestId}] Exception Message: {Message}", requestId, ex.Message);
+            
+            // Re-throw to let Blazor error boundary handle it
+            throw;
         }
     }
     

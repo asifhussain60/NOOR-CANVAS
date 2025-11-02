@@ -15,7 +15,7 @@
         - heading "Need For Messengers" [level=3] [ref=e15]
         - generic [ref=e16]:
           - generic "Session elapsed time" [ref=e17]:
-            - generic [ref=e18]: 0:19
+            - generic [ref=e18]: 0:09
           - generic [ref=e19]: Transcript Canvas
         - button "Toggle questions panel" [ref=e20] [cursor=pointer]:
           - generic [ref=e21]: "?"
@@ -443,5 +443,5 @@
         - generic [ref=e420]: End Session
   - button "" [ref=e422] [cursor=pointer]:
     - generic [ref=e423]: 
-  - text:     
+  - text:      
 ```

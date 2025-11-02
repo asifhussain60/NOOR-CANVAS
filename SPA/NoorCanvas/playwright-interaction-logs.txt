@@ -116,3 +116,53 @@
 [PLAYWRIGHT-LOG] 2025-11-02T09:12:38.744Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
 [PLAYWRIGHT-LOG] 2025-11-02T09:13:03.412Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
 [PLAYWRIGHT-LOG] 2025-11-02T09:13:03.576Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:37.347Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:38.055Z | CLICK | button#debug-action-0 | button | "Clean Canvas"
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:41.746Z | CLICK | html > body > div > div | div | "Host Session Opener
+
+        
+        
+           "
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:44.559Z | CLICK | select#album-select | select | "Select AlbumAsaas Al-TaveelIkhwan As-Safa (Brethre"
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:45.076Z | CLICK | select#album-select | select | "Select AlbumAsaas Al-TaveelIkhwan As-Safa (Brethre"
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:51.623Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-02T21:11:53.268Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > div > button | button | "Copy"
+[PLAYWRIGHT-LOG] 2025-11-02T21:12:00.536Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-02T21:12:00.633Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-02T21:12:03.311Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-02T21:12:03.930Z | CLICK | html > body > div > div > div > div:nth-of-type(2) > div > div:nth-of-type(4) | div | "SESSION CONTROLS
+
+            
+            
+      "
+[PLAYWRIGHT-LOG] 2025-11-02T21:12:04.392Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T21:47:12.840Z | CLICK | html > body > div > div > div > header | header | "HOST CONTROL PANEL
+    Manage your session with pr"
+[PLAYWRIGHT-LOG] 2025-11-02T21:49:30.778Z | CLICK | html > body > div > div > div > header | header | "HOST CONTROL PANEL
+    Manage your session with pr"
+[PLAYWRIGHT-LOG] 2025-11-02T21:51:34.789Z | CLICK | html > body > div > div > div > header | header | "HOST CONTROL PANEL
+    Manage your session with pr"
+[PLAYWRIGHT-LOG] 2025-11-02T22:01:52.981Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T22:01:53.144Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T22:02:10.863Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T22:02:11.128Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T22:05:07.653Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T22:05:08.080Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T22:05:25.765Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T22:05:25.899Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T22:52:16.777Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T22:52:16.976Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T23:09:53.841Z | CLICK | div#components-reconnect-modal | div | "Reconnection failed. Try reloading the page if you"
+[PLAYWRIGHT-LOG] 2025-11-02T23:10:04.237Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-02T23:10:05.225Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T23:15:50.867Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-02T23:15:51.698Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:04.950Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:05.749Z | CLICK | button#debug-action-0 | button | "Clean Canvas"
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:06.863Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:08.316Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:08.394Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:10.713Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-02T23:24:11.407Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-02T23:28:31.934Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-02T23:28:32.742Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession

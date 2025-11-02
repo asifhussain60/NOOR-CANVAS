@@ -81,18 +81,18 @@ namespace NoorCanvas.Services
                     "UnifiedHtmlTransformService: Processing assets for session {SessionId}",
                     sessionId);
 
-                // Step 2a: Mark asset locations
-                cleanedHtml = await _assetProcessingService.MarkAssetLocationsAsync(
-                    cleanedHtml,
-                    sessionId!.Value.ToString());
-
-                // Step 2b: Inject share buttons for session assets
+                // Step 2: Inject asset containers with purple FAB buttons
+                // This uses AssetProcessingService.InjectAssetShareButtonsAsync which:
+                // - Wraps each asset in a container div with purple border
+                // - Adds asset header with title and purple circular FAB button
+                // - Creates the purple/lilac button in top-right corner
+                var runId = DateTime.Now.ToString("HHmmss") + "-" + Random.Shared.Next(1000, 9999);
                 _logger.LogInformation(
-                    "UnifiedHtmlTransformService: Injecting share buttons for session {SessionId}",
-                    sessionId);
-                cleanedHtml = await _shareButtonInjectionService.InjectShareButtonsAsync(
+                    "UnifiedHtmlTransformService: Injecting purple FAB buttons for session {SessionId}, runId {RunId}",
+                    sessionId, runId);
+                cleanedHtml = await _assetProcessingService.InjectAssetShareButtonsAsync(
                     cleanedHtml,
-                    sessionId.Value);
+                    runId);
             }
             else
             {
@@ -127,24 +127,30 @@ namespace NoorCanvas.Services
         {
             if (string.IsNullOrEmpty(html))
             {
-                _logger.LogWarning("UnifiedHtmlTransformService: Empty HTML provided for participant transformation");
+                _logger.LogWarning("[PARTICIPANT-TRANSFORM] Empty HTML provided for participant transformation");
                 return string.Empty;
             }
 
             try
             {
                 _logger.LogInformation(
-                    "UnifiedHtmlTransformService: Transforming HTML for participant view - Length: {Length}",
+                    "[PARTICIPANT-TRANSFORM] ════════ PARTICIPANT TRANSFORMATION STARTED ════════");
+                _logger.LogInformation(
+                    "[PARTICIPANT-TRANSFORM] Input HTML Length: {Length}",
                     html.Length);
+                _logger.LogInformation(
+                    "[PARTICIPANT-TRANSFORM] First 200 chars: {Preview}",
+                    html.Length > 200 ? html.Substring(0, 200) : html);
 
                 // Core transformation using HtmlParsingService
                 // Handles security validation, Blazor compatibility, and safe rendering
+                _logger.LogInformation("[PARTICIPANT-TRANSFORM] Invoking HtmlParsingService.ParseHtml...");
                 var parseResult = _htmlParsingService.ParseHtml(html, ParseMode.Safe);
 
                 if (!parseResult.IsValid)
                 {
                     _logger.LogError(
-                        "UnifiedHtmlTransformService: HTML parsing failed for participant - {Error}",
+                        "[PARTICIPANT-TRANSFORM] ❌ HTML parsing failed for participant - {Error}",
                         parseResult.ErrorMessage);
                     return CreateErrorMessage(parseResult.ErrorMessage ?? "HTML parsing failed");
                 }
@@ -152,15 +158,20 @@ namespace NoorCanvas.Services
                 var cleanedHtml = parseResult.Content ?? string.Empty;
 
                 _logger.LogInformation(
-                    "UnifiedHtmlTransformService: Participant transformation complete - Original: {OriginalLength}, Final: {FinalLength}",
-                    html.Length, cleanedHtml.Length);
+                    "[PARTICIPANT-TRANSFORM] ✅ Parsing successful - Output Length: {FinalLength}",
+                    cleanedHtml.Length);
+                _logger.LogInformation(
+                    "[PARTICIPANT-TRANSFORM] Output preview (first 200 chars): {Preview}",
+                    cleanedHtml.Length > 200 ? cleanedHtml.Substring(0, 200) : cleanedHtml);
+                _logger.LogInformation(
+                    "[PARTICIPANT-TRANSFORM] ════════ TRANSFORMATION COMPLETE ════════");
 
             return cleanedHtml;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "UnifiedHtmlTransformService: Exception during participant transformation");
+                    "[PARTICIPANT-TRANSFORM] ❌ Exception during participant transformation");
                 return CreateErrorMessage($"Transformation error: {ex.Message}");
             }
         }

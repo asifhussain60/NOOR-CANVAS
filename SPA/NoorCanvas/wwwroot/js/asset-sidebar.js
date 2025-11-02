@@ -166,6 +166,117 @@ function pulseAllAssets() {
     });
 }
 
+/**
+ * Inject FAB share buttons for each detected asset
+ * Wraps assets in containers and adds floating share buttons above each
+ * @param {object} dotNetRef - Reference to .NET component for callbacks
+ * @returns {object} Injection result with count and success status
+ */
+function injectAssetShareButtons(dotNetRef) {
+    console.log('[ASSET-FAB-INJECT] Starting FAB button injection for assets');
+
+    let injectedCount = 0;
+    const assets = document.querySelectorAll('[data-asset-id]');
+
+    console.log(`[ASSET-FAB-INJECT] Found ${assets.length} assets with data-asset-id`);
+
+    assets.forEach((asset) => {
+        const assetId = asset.getAttribute('data-asset-id');
+
+        // Skip if button already injected
+        if (asset.parentElement?.classList.contains('asset-fab-wrapper')) {
+            console.log(`[ASSET-FAB-INJECT] Button already injected for: ${assetId}`);
+            return;
+        }
+
+        // Parse asset type and instance number from assetId (format: asset-{type}-{number})
+        const parts = assetId.split('-');
+        const assetType = parts.slice(1, -1).join('-'); // e.g., 'ayah-card' from 'asset-ayah-card-1'
+        const instanceNumber = parseInt(parts[parts.length - 1]) || 1;
+
+        // Create wrapper div
+        const wrapper = document.createElement('div');
+        wrapper.className = 'asset-fab-wrapper';
+        wrapper.style.position = 'relative';
+        wrapper.style.marginBottom = '20px';
+
+        // Create FAB button
+        const fabButton = document.createElement('button');
+        fabButton.id = `share-btn-${assetId}`;
+        fabButton.className = 'ks-share-btn asset-fab-button';
+        fabButton.setAttribute('data-asset-id', assetId);
+        fabButton.setAttribute('data-asset-type', assetType);
+        fabButton.setAttribute('data-instance-number', instanceNumber);
+        fabButton.setAttribute('data-share-button', 'asset');
+
+        // Style the FAB button
+        fabButton.style.position = 'absolute';
+        fabButton.style.top = '-45px';
+        fabButton.style.right = '10px';
+        fabButton.style.zIndex = '1000';
+        fabButton.style.backgroundColor = '#3b82f6';
+        fabButton.style.color = 'white';
+        fabButton.style.border = '2px solid #2563eb';
+        fabButton.style.borderRadius = '8px';
+        fabButton.style.padding = '10px 16px';
+        fabButton.style.cursor = 'pointer';
+        fabButton.style.fontSize = '13px';
+        fabButton.style.fontWeight = 'bold';
+        fabButton.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        fabButton.style.transition = 'all 0.2s ease';
+        fabButton.style.minWidth = '140px';
+        fabButton.style.textAlign = 'center';
+
+        // Button content
+        fabButton.innerHTML = `<i class="fa-solid fa-share"></i> SHARE`;
+
+        // Wrap asset in container
+        asset.parentNode.insertBefore(wrapper, asset);
+        wrapper.appendChild(fabButton);
+        wrapper.appendChild(asset);
+
+        injectedCount++;
+        console.log(`[ASSET-FAB-INJECT] ✅ Injected button for ${assetId} (${assetType} #${instanceNumber})`);
+    });
+
+    const result = {
+        success: true,
+        injectedCount: injectedCount,
+        totalAssets: assets.length,
+        message: `Injected ${injectedCount} FAB buttons for ${assets.length} assets`
+    };
+
+    console.log('[ASSET-FAB-INJECT] Injection complete:', result);
+    return result;
+}
+
+/**
+ * Remove all injected FAB buttons (cleanup)
+ * @returns {object} Removal result
+ */
+function removeAssetShareButtons() {
+    console.log('[ASSET-FAB-INJECT] Removing all FAB buttons');
+
+    const wrappers = document.querySelectorAll('.asset-fab-wrapper');
+    let removedCount = 0;
+
+    wrappers.forEach((wrapper) => {
+        const asset = wrapper.querySelector('[data-asset-id]');
+        if (asset && wrapper.parentNode) {
+            // Unwrap: move asset back to original position
+            wrapper.parentNode.insertBefore(asset, wrapper);
+            wrapper.remove();
+            removedCount++;
+        }
+    });
+
+    console.log(`[ASSET-FAB-INJECT] Removed ${removedCount} FAB button wrappers`);
+    return {
+        success: true,
+        removedCount: removedCount
+    };
+}
+
 // Initialize asset sidebar JavaScript
 console.log('[ASSET-SIDEBAR-JS] Asset sidebar JavaScript loaded');
 
@@ -176,3 +287,5 @@ window.highlightAsset = highlightAsset;
 window.assetExists = assetExists;
 window.getAssetInfo = getAssetInfo;
 window.pulseAllAssets = pulseAllAssets;
+window.injectAssetShareButtons = injectAssetShareButtons;
+window.removeAssetShareButtons = removeAssetShareButtons;

@@ -164,7 +164,206 @@ Proceed with installation? (Y/n)
 
 ---
 
-## �️ Architectural Thinking Mandate
+## 🧪 Playwright Testing Protocol (PowerShell)
+
+**CRITICAL RULE: All Playwright test automation scripts MUST follow the established protocol pattern.**
+
+### 🎯 CRITICAL: Component ID-Based Selectors (TDD Requirement)
+
+**RULE:** Always use element IDs for Playwright selectors. Text-based selectors are FRAGILE and PROHIBITED.
+
+**WHY:**
+- ✅ 10x faster (getElementById vs DOM text search)
+- ✅ Immune to text changes (i18n, wording updates, HTML restructuring)
+- ✅ Explicit intent (`#login-btn` is clearer than `button:has-text("Login")`)
+- ✅ No false positives (unique ID vs multiple matching texts)
+
+**WRONG (FRAGILE - DO NOT USE):**
+```typescript
+// ❌ BREAKS when text changes, slow DOM search, ambiguous
+const button = page.locator('button:has-text("Start Session")').first();
+const link = page.locator('div:has-text("Transcript Canvas")');
+```
+
+**CORRECT (ROBUST - ALWAYS USE):**
+```typescript
+// ✅ Fast, reliable, explicit, future-proof
+const button = page.locator('#sidebar-start-session-btn');
+const link = page.locator('#reg-transcript-canvas-btn');
+```
+
+**Component ID Discovery:**
+Before writing ANY Playwright test, discover available IDs:
+1. Open target component file (e.g., `HostControlPanelSidebar.razor`)
+2. Search for `id="` attributes
+3. Use those IDs in your test selectors
+4. If no ID exists → ADD ONE to the component (with `[REFACTOR:component-id]` comment)
+
+**Enforcement:**
+- Test reviews MUST reject text-based selectors
+- KDS test-generator SHOULD warn when ID exists but text selector used
+- Future: Automated crawler will build `KDS/cache/component-ids.json`
+
+### Application Routes & Tokens
+
+**Host Control Panel:**
+- Route: `https://localhost:9091/host/control-panel/{hostToken}`
+- Page File: `SPA/NoorCanvas/Pages/HostControlPanel.razor`
+- Component File: `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`
+- Session 212 Token: `PQ9N5YWW`
+- Full URL: `https://localhost:9091/host/control-panel/PQ9N5YWW`
+
+**Component IDs (Host Control Panel):**
+| Element | Component | ID | Purpose |
+|---------|-----------|-----|---------|
+| Transcript Canvas Button | UserRegistrationLink.razor | `reg-transcript-canvas-btn` | Select transcript canvas mode |
+| Asset Canvas Button | UserRegistrationLink.razor | `reg-asset-canvas-btn` | Select asset canvas mode |
+| Start Session Button | HostControlPanelSidebar.razor | `sidebar-start-session-btn` | Initiate session |
+| Registration Link Container | UserRegistrationLink.razor | `reg-link-container` | Parent container for canvas buttons |
+
+### Standard Protocol Pattern
+
+**Reference Implementation:** `Scripts/run-debug-panel-percy-tests.ps1`
+
+**Required Steps:**
+1. ✅ Launch app using `Start-Job` with `dotnet run` (NOT Start-Process)
+2. ✅ Wait for app readiness (20 seconds minimum, or health check loop)
+3. ✅ Run Playwright tests using `npx playwright test [file] --headed`
+4. ✅ Cleanup with `Stop-Job` and `Remove-Job` (unless -KeepAppRunning)
+
+### Correct Pattern (FOLLOW THIS)
+
+```powershell
+param([switch]$KeepAppRunning)
+
+# Step 1: Start app with Start-Job
+$appJob = Start-Job -ScriptBlock {
+    Set-Location 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+    dotnet run
+}
+
+# Step 2: Wait for readiness (20s minimum)
+Start-Sleep -Seconds 20
+
+# Step 3: Run Playwright tests
+try {
+    Set-Location 'D:\PROJECTS\NOOR CANVAS'
+    npx playwright test Tests/UI/my-test.spec.ts --headed
+    $exitCode = $LASTEXITCODE
+}
+finally {
+    # Step 4: Cleanup
+    if (-not $KeepAppRunning) {
+        Stop-Job -Job $appJob -ErrorAction SilentlyContinue
+        Remove-Job -Job $appJob -ErrorAction SilentlyContinue
+    }
+}
+
+exit $exitCode
+```
+
+### WRONG Patterns (NEVER DO THIS)
+
+❌ **Using Start-Process with -ArgumentList:**
+```powershell
+# WRONG - Don't use Start-Process with complex arguments
+$proc = Start-Process -FilePath "npx" -ArgumentList $testArgs -NoNewWindow -Wait -PassThru
+```
+
+❌ **Using Invoke-WebRequest for health checks without proper error handling:**
+```powershell
+# WRONG - Complex health check that can fail unpredictably
+$resp = Invoke-WebRequest -Uri $appUrl -SkipCertificateCheck -TimeoutSec 5
+```
+
+❌ **Separating test running from working directory:**
+```powershell
+# WRONG - Don't Push-Location multiple times
+Push-Location $testsPath
+npx playwright test
+Pop-Location
+```
+
+### Playwright Command Format
+
+**Correct:**
+```powershell
+# Set working directory ONCE, then run test
+Set-Location 'D:\PROJECTS\NOOR CANVAS'
+npx playwright test Tests/UI/my-test.spec.ts --headed
+```
+
+**For Percy visual tests:**
+```powershell
+# Percy wraps Playwright
+percy exec -- playwright test Tests/UI/my-test.spec.ts --headed
+```
+
+**Capture exit code:**
+```powershell
+npx playwright test Tests/UI/my-test.spec.ts --headed
+$exitCode = $LASTEXITCODE
+exit $exitCode
+```
+
+### Test Script Checklist
+
+Before creating ANY Playwright test automation script, verify:
+
+```
+✓ Uses Start-Job (not Start-Process) for app launch?
+✓ Waits minimum 20 seconds for app readiness?
+✓ Sets working directory to project root (not Tests/UI)?
+✓ Runs npx playwright test with direct command (no Start-Process)?
+✓ Captures $LASTEXITCODE for exit status?
+✓ Cleans up with Stop-Job and Remove-Job?
+✓ Supports -KeepAppRunning parameter?
+
+If ANY answer is NO → FIX before running
+```
+
+### Reference Scripts
+
+**Study these working examples:**
+- ✅ `Scripts/run-debug-panel-percy-tests.ps1` - Full featured (health checks, Percy, detailed logging)
+- ✅ `Scripts/run-transcript-canvas-visual-tests.ps1` - Simple pattern (20s wait, basic cleanup)
+- ✅ `Scripts/run-fab-share-button-percy-tests.ps1` - Percy visual regression pattern
+
+**Key Patterns:**
+```powershell
+# App Launch
+$appJob = Start-Job -ScriptBlock {
+    Set-Location 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+    dotnet run
+}
+
+# Wait Pattern (Simple)
+Start-Sleep -Seconds 20
+
+# Wait Pattern (Health Check - Advanced)
+while ($attempt -lt $maxAttempts) {
+    try {
+        $resp = Invoke-WebRequest -Uri $appUrl -UseBasicParsing -TimeoutSec 5
+        if ($resp.StatusCode -eq 200) { break }
+    } catch {
+        Start-Sleep -Seconds 2
+    }
+    $attempt++
+}
+
+# Test Execution
+Set-Location 'D:\PROJECTS\NOOR CANVAS'
+npx playwright test Tests/UI/my-test.spec.ts --headed
+$exitCode = $LASTEXITCODE
+
+# Cleanup
+Stop-Job -Job $appJob -ErrorAction SilentlyContinue
+Remove-Job -Job $appJob -ErrorAction SilentlyContinue
+```
+
+---
+
+## 🏗️ Architectural Thinking Mandate
 
 **CRITICAL RULE: All KDS agents MUST think architecturally when proposing solutions.**
 

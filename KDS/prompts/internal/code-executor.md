@@ -328,6 +328,39 @@ Before marking task complete:
 - [ ] current_phase updated if phase complete
 - [ ] Session saved
 
+### Automatic Post-Implementation Review (NEW v5.2)
+```markdown
+After task completion, AUTOMATICALLY invoke:
+#file:KDS/prompts/internal/post-implementation-reviewer.md
+
+This runs silently in background to:
+- ✅ Check TDD compliance
+- ✅ Verify error handling
+- ✅ Validate logging patterns
+- ✅ Confirm architectural alignment
+- ✅ Auto-fix safe violations
+- ⚠️ Flag critical issues (if any)
+
+Review runs in < 2 seconds for simple changes.
+User notified ONLY if critical violations found.
+```
+
+**Invocation Point:**
+```
+Task implementation completed
+    ↓
+Run tests (verify GREEN)
+    ↓
+Update session state
+    ↓
+>>> INVOKE post-implementation-reviewer.md (AUTOMATIC) <<<
+    ↓
+IF reviewer.status == "CRITICAL_VIOLATIONS":
+    HALT and display violations
+ELSE:
+    Continue to handoff generation
+```
+
 ---
 
 ## 🔍 Progress Tracking

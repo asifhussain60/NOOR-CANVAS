@@ -194,6 +194,8 @@ public class ShareButtonInjectionService
 
     /// <summary>
     /// Inject button HTML before a container with specified data-asset-id.
+    /// Wraps the asset container in a wrapper div (similar to H2 section wrapper pattern).
+    /// Pattern: shareButton + wrapperDiv(assetContainer)
     /// </summary>
     private string InjectButtonBeforeContainer(string html, long assetId, string shareButtonHtml)
     {
@@ -201,20 +203,69 @@ public class ShareButtonInjectionService
         {
             _logger.LogInformation("🔍 [CONTAINER-SEARCH] Looking for container with data-asset-id=\"{AssetId}\"", assetId);
 
+            // Find the complete asset container element (opening tag to closing tag)
             var containerPattern = $@"<[^>]*data-asset-id=""{assetId}""[^>]*>";
-            var match = System.Text.RegularExpressions.Regex.Match(html, containerPattern);
+            var openingTagMatch = System.Text.RegularExpressions.Regex.Match(html, containerPattern);
 
-            if (match.Success)
-            {
-                _logger.LogInformation("✅ [CONTAINER-FOUND] Match at index {Index}, injecting button. Matched: {Matched}",
-                    match.Index, match.Value.Substring(0, Math.Min(100, match.Value.Length)));
-                html = html.Insert(match.Index, shareButtonHtml);
-                _logger.LogInformation("✅ [BUTTON-INJECTED] Successfully inserted button before container");
-            }
-            else
+            if (!openingTagMatch.Success)
             {
                 _logger.LogWarning("❌ [CONTAINER-NOT-FOUND] No container found with data-asset-id=\"{AssetId}\"", assetId);
+                return html;
             }
+
+            _logger.LogInformation("✅ [CONTAINER-FOUND] Match at index {Index}, matched: {Matched}",
+                openingTagMatch.Index, openingTagMatch.Value.Substring(0, Math.Min(100, openingTagMatch.Value.Length)));
+
+            // Extract tag name from opening tag to find matching closing tag
+            var tagNameMatch = System.Text.RegularExpressions.Regex.Match(openingTagMatch.Value, @"<(\w+)");
+            if (!tagNameMatch.Success)
+            {
+                _logger.LogWarning("❌ [TAG-PARSE-FAILED] Could not extract tag name from: {Tag}", openingTagMatch.Value);
+                return html;
+            }
+
+            var tagName = tagNameMatch.Groups[1].Value;
+            _logger.LogDebug("[WRAPPER-INJECTION] Asset tag name: {TagName}", tagName);
+
+            // Find the matching closing tag for this element
+            var closingTag = $"</{tagName}>";
+            var openingTagEnd = openingTagMatch.Index + openingTagMatch.Length;
+            
+            // Simple approach: find the next occurrence of the closing tag
+            // Note: This assumes assets don't have nested elements with same tag name
+            var closingTagIndex = html.IndexOf(closingTag, openingTagEnd);
+            
+            if (closingTagIndex == -1)
+            {
+                _logger.LogWarning("❌ [CLOSING-TAG-NOT-FOUND] Could not find closing tag </{TagName}> for asset {AssetId}", 
+                    tagName, assetId);
+                // Fallback: just inject button before opening tag without wrapping
+                html = html.Insert(openingTagMatch.Index, shareButtonHtml);
+                _logger.LogInformation("⚠️ [BUTTON-INJECTED-NO-WRAP] Injected button without wrapper for asset {AssetId}", assetId);
+                return html;
+            }
+
+            var closingTagEnd = closingTagIndex + closingTag.Length;
+
+            // Extract the complete asset HTML (opening tag + content + closing tag)
+            var assetHtml = html.Substring(openingTagMatch.Index, closingTagEnd - openingTagMatch.Index);
+            
+            _logger.LogDebug("[WRAPPER-INJECTION] Extracted asset HTML: {Length} chars", assetHtml.Length);
+
+            // Create wrapper div with unique ID (pattern: asset-wrapper-{assetId})
+            var wrapperId = $"asset-wrapper-{assetId}";
+            var wrapperOpening = $@"<div id=""{wrapperId}"" class=""asset-share-wrapper"" data-wrapped-asset-id=""{assetId}"">";
+            var wrapperClosing = "</div>";
+
+            // Build the complete replacement: shareButton + wrapper(asset)
+            var replacement = shareButtonHtml + wrapperOpening + assetHtml + wrapperClosing;
+
+            // Replace the original asset HTML with the wrapped version
+            html = html.Remove(openingTagMatch.Index, closingTagEnd - openingTagMatch.Index);
+            html = html.Insert(openingTagMatch.Index, replacement);
+
+            _logger.LogInformation("✅ [WRAPPER-INJECTED] Successfully wrapped asset {AssetId} in div#{WrapperId} with share button", 
+                assetId, wrapperId);
 
             return html;
         }

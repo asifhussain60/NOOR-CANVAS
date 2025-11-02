@@ -1,0 +1,100 @@
+<#
+.SYNOPSIS
+    {{DESCRIPTION}} (SIMPLE PATTERN - FRAGILE)
+
+.DESCRIPTION
+    ⚠️ WARNING: This uses the SIMPLE orchestration pattern with a blind 20-second wait.
+    This pattern is FRAGILE and may fail if the app takes longer than 20 seconds to start.
+    
+    For robust tests, use: KDS/templates/playwright-orchestration-robust.ps1.template
+    
+    This pattern is acceptable for:
+    - Quick debugging sessions
+    - Local development only
+    - Temporary test scripts
+    
+    DO NOT USE for:
+    - CI/CD pipelines
+    - Production test suites
+    - Shared team scripts
+    
+.PARAMETER KeepAppRunning
+    Keep application running after tests complete (for debugging).
+
+.EXAMPLE
+    .\{{SCRIPT_NAME}}
+    Runs tests and stops app after completion.
+
+.EXAMPLE
+    .\{{SCRIPT_NAME}} -KeepAppRunning
+    Runs tests and keeps app running for manual verification.
+#>
+
+param(
+    [switch]$KeepAppRunning
+)
+
+$ErrorActionPreference = 'Stop'
+
+Write-Host '════════════════════════════════════════════════════' -ForegroundColor Cyan
+Write-Host '  {{TEST_SUITE_NAME}} (SIMPLE PATTERN)' -ForegroundColor Yellow
+Write-Host '════════════════════════════════════════════════════' -ForegroundColor Cyan
+Write-Host ''
+Write-Host '⚠️  WARNING: Using simple 20-second wait (no health check)' -ForegroundColor Yellow
+Write-Host '    This may cause flaky tests if app is slow to start' -ForegroundColor Yellow
+Write-Host ''
+
+# Step 1: Start app using Start-Job pattern
+Write-Host '[1/3] Starting NoorCanvas app...' -ForegroundColor Yellow
+$appJob = Start-Job -ScriptBlock {
+    Set-Location '{{APP_PATH}}'
+    dotnet run
+}
+
+Write-Host "      App started (Job ID: $($appJob.Id))" -ForegroundColor Green
+Write-Host ''
+
+# Step 2: Wait for app to be ready (SIMPLE PATTERN - NO HEALTH CHECK)
+Write-Host '[2/3] Waiting for app to be ready (20 seconds)...' -ForegroundColor Yellow
+Start-Sleep -Seconds 20
+Write-Host '      App should be ready (not verified)' -ForegroundColor Yellow
+Write-Host ''
+
+# Step 3: Run Playwright tests
+Write-Host '[3/3] Running Playwright tests...' -ForegroundColor Yellow
+try {
+    Set-Location '{{PROJECT_ROOT}}'
+    
+    # Run tests with headed mode for visibility (standard Playwright pattern)
+    npx playwright test {{TEST_FILE}} --headed
+    $exitCode = $LASTEXITCODE
+    
+    Write-Host ''
+    if ($exitCode -eq 0) {
+        Write-Host '✅ All tests PASSED!' -ForegroundColor Green
+    } else {
+        Write-Host "⚠️ Tests completed with exit code: $exitCode" -ForegroundColor Yellow
+    }
+}
+finally {
+    # Cleanup
+    Write-Host ''
+    if ($KeepAppRunning) {
+        Write-Host "App still running (Job ID: $($appJob.Id))" -ForegroundColor Yellow
+        Write-Host "URL: {{APP_URL}}" -ForegroundColor Gray
+        Write-Host "To stop: Stop-Job -Id $($appJob.Id); Remove-Job -Id $($appJob.Id)" -ForegroundColor Gray
+    } else {
+        Write-Host 'Stopping app...' -ForegroundColor Yellow
+        Stop-Job -Job $appJob -ErrorAction SilentlyContinue
+        Remove-Job -Job $appJob -ErrorAction SilentlyContinue
+        Write-Host '✅ App stopped' -ForegroundColor Green
+    }
+}
+
+Write-Host ''
+Write-Host '════════════════════════════════════════════════════' -ForegroundColor Cyan
+Write-Host "Exit Code: $exitCode" -ForegroundColor White
+Write-Host '════════════════════════════════════════════════════' -ForegroundColor Cyan
+Write-Host ''
+
+exit $exitCode
