@@ -1,6 +1,6 @@
 # KDS BRAIN - Knowledge Graph
 # Version: 1.0
-# Last Updated: 2025-11-02T15:30:00Z
+# Last Updated: 2025-11-02T15:35:00Z
 # Purpose: Aggregated learnings from KDS interactions
 # STATUS: ACTIVE - Learning from fab-button feature
 
@@ -9,9 +9,11 @@ intent_patterns:
     phrases:
       - pattern: "add [X] button"
         confidence: 0.95
+        routes_to: "work-planner.md"
         examples:
           - "add share button"
           - "add fab button"
+          - "I want to add a FAB button pulse animation"
   execute: {}
   resume: {}
   correct: {}
