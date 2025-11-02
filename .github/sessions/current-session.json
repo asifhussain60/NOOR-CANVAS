@@ -1,70 +1,77 @@
 {
-    "sessionId": "2025-11-02-kds-brain-week-2-database-ui-sensors",
-    "previousSessionId": "2025-11-02-kds-brain-route-sensor",
-    "createdAt": "2025-11-02T00:00:00Z",
-    "lastUpdated": "2025-11-02T16:00:00Z",
+    "sessionId": "2025-11-02-kds-brain-week-3-knowledge-graph",
+    "previousSessionId": "2025-11-02-kds-brain-week-2-database-ui-sensors",
+    "createdAt": "2025-11-02T16:00:00Z",
+    "lastUpdated": "2025-11-02T17:00:00Z",
     "status": "COMPLETED",
-    "feature": "KDS v5.0 Brain System - Week 2: Database & UI Sensors",
-    "branch": "features/fab-button",
-    "currentPhase": 2,
-    "currentTask": "2.9",
+    "feature": "KDS v5.0 Brain System - Week 3: Knowledge Graph Builder",
+    "branch": "KDS",
+    "currentPhase": 3,
+    "currentTask": "3.9",
     "totalPhases": 5,
     "totalTasks": 9,
     "completedTasks": [
-        "2.1 - Create Database Sensor PowerShell script",
-        "2.2 - Create database.json schema file",
-        "2.3 - Create UI Component Sensor PowerShell script",
-        "2.4 - Create ui-components.json schema file",
-        "2.5 - Test Database Sensor",
-        "2.6 - Test UI Component Sensor",
-        "2.7 - Create run-all-sensors.ps1 orchestrator",
-        "2.8 - Update README.md with Week 2 sensors",
-        "2.9 - Update current session"
+        "3.1 - Create knowledge-graph.json schema",
+        "3.2 - Implement graph builder PowerShell script",
+        "3.3 - Add confidence scoring to graph nodes/edges",
+        "3.4 - Implement graph query functions",
+        "3.5 - Test knowledge graph with real data (93 nodes, 30 edges)",
+        "3.6 - Update run-all-sensors to include graph builder",
+        "3.7 - Fix path resolution in graph builder script",
+        "3.8 - Update README with Week 3 completion",
+        "3.9 - Update session and commit"
     ],
     "nextTask": {
-        "taskId": "WEEK_2_COMPLETE",
-        "description": "Week 2 complete! Move to Week 3: Knowledge Graph & Context Brain Agent",
+        "taskId": "WEEK_3_COMPLETE",
+        "description": "Week 3 complete! Move to Week 4: Context Brain Agent & Contextual Activation",
         "estimatedDuration": "N/A",
         "dependencies": [],
         "files": []
     },
     "workflowAnalysis": {
         "tracking": true,
-        "purpose": "Document step-by-step how Copilot works in brain system for future KDS enhancements",
+        "purpose": "Document knowledge graph implementation for future KDS enhancements",
         "outputFile": ".github/docs/KDS-COPILOT-WORKFLOW-ANALYSIS.md"
     },
     "context": {
-        "lastUserRequest": "Continue implementing kds.design - Week 2: Database and UI Sensors",
+        "lastUserRequest": "Continue Week 3: Knowledge Graph Builder",
         "keyDecisions": [
-            "Implemented Database Sensor - scans DbContext and appsettings.json",
-            "Implemented UI Component Sensor - scans .razor files for components and test IDs",
-            "Created sensor orchestrator - runs all sensors in sequence",
-            "All sensors use incremental scanning for performance",
-            "PowerShell-based (cross-platform, no dependencies)",
-            "Discovered: 74 routes, 23 tables, 45 components, 20 pages, 8 test IDs"
+            "Implemented Knowledge Graph Builder - parses all sensor outputs",
+            "Graph stores nodes (entities) and edges (relationships)",
+            "Every node/edge has confidence score (0.0-1.0)",
+            "Confidence calculated from source reliability, verification count, recency",
+            "Graph query functions enable relationship traversal",
+            "Integrated with sensor orchestrator - runs after all sensors complete",
+            "Auto-detects context path for portable execution",
+            "Discovered: 93 nodes (45 UI components, 23 tables, 15 controllers, 9 endpoints, 1 page)",
+            "Discovered: 30 edges (all USES relationships endpoint→controller)"
         ],
         "designReference": ".github/prompts/user/kds.design",
         "openIssues": [],
         "blockers": [],
         "achievements": [
-            "✅ Database Sensor extracts 23 tables and 3 database connections",
-            "✅ UI Component Sensor discovers 45 components and 20 routable pages",
-            "✅ All sensors have JSON schemas for validation",
-            "✅ Sensor orchestrator provides unified interface",
-            "✅ Week 2 milestone complete!"
+            "✅ Knowledge graph schema with comprehensive node/edge types",
+            "✅ Graph builder extracts relationships from sensor outputs",
+            "✅ Confidence scoring system implemented (source + verification + recency)",
+            "✅ 7 graph query functions for relationship traversal",
+            "✅ Integrated with run-all-sensors.ps1 orchestrator",
+            "✅ Graph statistics: 93 nodes, 30 edges, avg confidence 0.92",
+            "✅ Week 3 milestone complete!"
         ]
     },
     "resumptionGuide": {
-        "quickStart": "#file:.github/prompts/user/kds.md Continue Week 3: Knowledge Graph Builder",
+        "quickStart": "#file:.github/prompts/user/kds.md Continue Week 4: Context Brain Agent",
         "contextFiles": [
             ".github/prompts/user/kds.design (Brain system architecture)",
             ".github/context/routes.json (74 API routes)",
             ".github/context/database.json (23 tables)",
             ".github/context/ui-components.json (45 components)",
+            ".github/context/knowledge-graph.json (93 nodes, 30 edges)",
+            ".github/scripts/sensors/query-knowledge-graph.ps1 (Query functions)",
             ".github/sessions/current-session.json"
         ],
-        "currentPhase": "Week 2 Complete",
-        "progress": "100% complete (9 of 9 Week 2 tasks)",
-        "nextPhase": "Week 3: Knowledge Graph & Context Brain Agent"
+        "currentPhase": "Week 3 Complete",
+        "progress": "100% complete (9 of 9 Week 3 tasks)",
+        "nextPhase": "Week 4: Context Brain Agent & Contextual Activation"
     }
 }

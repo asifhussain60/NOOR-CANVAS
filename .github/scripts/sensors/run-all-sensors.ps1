@@ -7,6 +7,7 @@
     - Route Sensor (API endpoints)
     - Database Sensor (DB schema, connections)
     - UI Component Sensor (Blazor components, test IDs)
+    - Knowledge Graph Builder (Relationship mapping - Week 3)
     
     Part of KDS v5.0 Brain System
 
@@ -22,9 +23,10 @@
     .\run-all-sensors.ps1 -Mode Full -SkipSensors routes
 
 .NOTES
-    Version: 1.0.0
+    Version: 1.1.0
     Author: KDS Brain System
     Created: 2025-11-02 (Week 2)
+    Updated: 2025-11-02 (Week 3 - Added Knowledge Graph Builder)
 #>
 
 param(
@@ -72,6 +74,13 @@ $sensors = @(
         Script = "scan-ui.ps1"
         Description = "Blazor components & test IDs"
         Icon = "🎨"
+    },
+    @{
+        Name = "graph"
+        DisplayName = "Knowledge Graph Builder"
+        Script = "build-knowledge-graph.ps1"
+        Description = "Relationship map from sensor outputs"
+        Icon = "🧠"
     }
 )
 
