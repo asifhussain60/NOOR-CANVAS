@@ -1,8 +1,8 @@
 # KDS DESIGN - Living Document
-**Version:** 4.4.0  
+**Version:** 4.5.0  
 **Last Updated:** 2025-11-02  
 **Status:** 🎯 ACTIVE DESIGN  
-**Branch:** features/kds
+**Branch:** KDS
 
 > **This is the SINGLE SOURCE OF TRUTH for KDS design decisions, rules, and architecture.**  
 > **Updated CONTINUOUSLY after every KDS change. Human-readable format for stakeholders.**  
@@ -26,30 +26,65 @@
 
 ## 🏗️ Architecture Overview
 
+### Universal Entry Point (v4.5)
+
+**ONE COMMAND TO RULE THEM ALL** 🎯
+
+```markdown
+#file:.github/prompts/user/kds.md
+
+[Your request in natural language]
+```
+
+**Problem Solved:** Users no longer need to remember which prompt to use (`plan.md`, `execute.md`, `test.md`, etc.).
+
+**How It Works:**
+1. User loads `kds.md` with natural language request
+2. `kds.md` loads `intent-router.md` internally
+3. Intent Router analyzes request using pattern matching
+4. Router automatically dispatches to correct specialist agent
+5. User gets result without knowing internal routing
+
+**Benefits:**
+- ✅ **Simplicity** - Remember ONE command instead of 7+
+- ✅ **Intelligent Routing** - Router handles PLAN, EXECUTE, TEST, VALIDATE, GOVERN, CORRECT, RESUME, ASK intents
+- ✅ **Multi-Intent Support** - "Add PDF export and validate" → routes to planner + validator
+- ✅ **Non-Breaking** - Specialist prompts still work directly (for advanced users)
+- ✅ **Context Preservation** - Session state maintained across handoffs
+
+**Architecture Principle:** Universal entry point is a **convenience layer** that doesn't violate single responsibility. Each specialist agent still has ONE job. The router simply analyzes and dispatches.
+
+---
+
 ### Two-Interface Design
 
 **USER INTERFACE** (Human-Readable)
 - Location: `prompts/user/`
 - Purpose: Non-technical, concise commands
-- Examples: `plan.md`, `execute.md`, `test.md`
+- **Universal Entry:** `kds.md` (routes to all others)
+- **Specialist Prompts:** `plan.md`, `execute.md`, `test.md`, `validate.md`, `govern.md`
 - Format: Natural language instructions
 
 **COPILOT INTERFACE** (Machine-Readable)
 - Location: `prompts/internal/`
 - Purpose: Technical agent logic
-- Examples: `intent-router.md`, `work-planner.md`, `code-executor.md`
+- **Router:** `intent-router.md` (analyzes & dispatches)
+- **Specialists:** `work-planner.md`, `code-executor.md`, `test-generator.md`, `health-validator.md`, `change-governor.md`
 - Format: Structured prompts with validation logic
 
-### Six Specialized Agents
+### Six Specialized Agents (+ Universal Router)
 
 | Agent | User Command | Internal Agent | Purpose |
 |-------|--------------|----------------|---------|
-| **Router** | (auto-invoked) | `intent-router.md` | Analyzes request → routes to specialist |
+| **Universal** | `kds.md` | `intent-router.md` | ONE command for everything → routes intelligently |
 | **Planner** | `plan.md` | `work-planner.md` | Breaks work into phases/tasks |
 | **Executor** | `execute.md` | `code-executor.md` | Implements code changes |
 | **Tester** | `test.md` | `test-generator.md` | Creates & runs tests |
 | **Validator** | `validate.md` | `health-validator.md` | System health checks |
 | **Governor** | `govern.md` | `change-governor.md` | Reviews KDS changes |
+| **Corrector** | `correct.md` | `code-executor.md` | Fixes Copilot errors/hallucinations |
+
+**Note:** All specialist prompts still work directly. `kds.md` is a convenience layer for users who don't want to remember which prompt to use.
 
 ---
 
@@ -66,28 +101,30 @@
 │
 ├── prompts/
 │   ├── user/                    # 👤 USER INTERFACE (human-readable)
+│   │   ├── kds.md               # 🎯 UNIVERSAL ENTRY POINT (routes to all)
 │   │   ├── plan.md              # "I want to add a feature"
 │   │   ├── execute.md           # "Execute my plan"
 │   │   ├── test.md              # "Test my changes"
 │   │   ├── validate.md          # "Check system health"
 │   │   ├── govern.md            # "Review KDS changes"
+│   │   ├── correct.md           # "Fix Copilot errors/hallucinations"
 │   │   ├── ask-kds.md           # "Ask questions about KDS"
 │   │   └── resume.md            # "Resume work from previous chat"
 │   │
 │   ├── internal/                # 🤖 COPILOT AGENTS (machine-readable)
-│   │   ├── intent-router.md     # Request analysis & routing
+│   │   ├── intent-router.md     # Request analysis & routing (8 intents)
 │   │   ├── work-planner.md      # Phase/task breakdown
-│   │   ├── code-executor.md     # Code implementation
-│   │   ├── test-generator.md    # Test creation & execution
-│   │   ├── health-validator.md  # System health checks
-│   │   ├── change-governor.md   # .github change approval
+│   │   ├── code-executor.md     # Code implementation (test-first)
+│   │   ├── test-generator.md    # Test creation & execution (Percy, MSTest, Playwright)
+│   │   ├── health-validator.md  # System health checks (HEALTHY/DEGRADED/CRITICAL)
+│   │   ├── change-governor.md   # .github change approval (APPROVE/REJECT/IMPROVE)
 │   │   └── knowledge-retriever.md # KDS knowledge queries
 │   │
 │   └── shared/                  # 🔧 SHARED LOGIC (internal KDS)
-│       ├── validation.md        # Validation patterns
-│       ├── handoff.md           # Handoff workflow
-│       ├── test-first.md        # TDD workflow
-│       ├── config-loader.md     # Config loading logic
+│       ├── validation.md        # Validation patterns (session, files, rules)
+│       ├── handoff.md           # Handoff workflow (context preservation)
+│       ├── test-first.md        # TDD workflow (RED → GREEN)
+│       ├── config-loader.md     # Config loading logic (session, rules, design)
 │       ├── publish.md           # Pattern publishing workflow
 │       └── mandatory-post-task.md # Mandatory post-task automation
 │
@@ -201,6 +238,31 @@
 **Decision 7: Challenge Authority (v4.4+)**
 - **Problem:** Copilot was blindly accepting user requests without validating against existing design
 - **Solution:** Rule #17 - Challenge User Requests
+- **Mechanism:** Agents must search codebase BEFORE implementing to prevent duplication
+- **Example:** User asks for feature that already exists → Agent shows existing implementation instead of creating duplicate
+- **Benefit:** Prevents code drift, reduces technical debt, maintains design consistency
+
+**Decision 8: Universal Entry Point (v4.5)**
+- **Problem:** Users struggled to remember which prompt to use (`plan.md`, `execute.md`, `test.md`, etc.) - cognitive overhead
+- **User Feedback:** "I won't be able to remember this. Can there be an entry prompt for anything and everything?"
+- **Solution:** Created `kds.md` as universal entry point that routes to all specialist prompts
+- **Architecture:**
+  - `kds.md` loads `intent-router.md` internally
+  - Intent Router analyzes request with 8 intent patterns (PLAN, EXECUTE, TEST, VALIDATE, GOVERN, CORRECT, RESUME, ASK)
+  - Router automatically dispatches to correct specialist agent
+  - Multi-intent support: "Add PDF export and validate" → planner + validator
+- **Design Principle:** Universal entry point is a **convenience layer**, NOT a violation of single responsibility
+  - Each specialist agent still has ONE job
+  - Router simply analyzes and dispatches (new responsibility)
+  - Specialist prompts still work directly (for advanced users)
+- **Benefits:**
+  - ✅ Users remember ONE command instead of 7+
+  - ✅ Natural language input (no need to know prompt structure)
+  - ✅ Intelligent routing based on keywords
+  - ✅ Non-breaking change (existing prompts still functional)
+  - ✅ Reduces onboarding friction
+- **Compatibility:** Non-breaking (additive enhancement)
+- **Date:** 2025-11-02
 - **Philosophy:** **Copilot is guardian of KDS design, not passive executor**
 - **Behavior:**
   - Analyze ALL requests affecting `.github/` structure
