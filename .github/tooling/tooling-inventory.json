@@ -1,0 +1,84 @@
+{
+  "project_specific_patterns": {
+    "quality_check": "pwsh -File Workspaces/CodeQuality/run-roslynator.ps1",
+    "test_command": "npx playwright test",
+    "build_command": "dotnet build SPA/NoorCanvas/NoorCanvas.csproj"
+  },
+  "last_updated": "2025-11-02T13:37:39Z",
+  "kds_integration": {
+    "rule_11_build": "dotnet build SPA/NoorCanvas/NoorCanvas.csproj",
+    "rule_15_ui_validation": ".github/scripts/validation/validate-ui-ids.ps1",
+    "rule_16_quality": "pwsh -File Workspaces/CodeQuality/run-roslynator.ps1"
+  },
+  "project_name": "NOOR-CANVAS",
+  "project_root": "D:\\PROJECTS\\NOOR CANVAS",
+  "tooling": {
+    "quality": null,
+    "test": [
+      {
+        "name": "Playwright",
+        "config_file": "playwright.config.cjs",
+        "kds_usage": "Rule #8 test generation, Rule #15 ui-mappings validation",
+        "detected": true,
+        "command": "npx playwright test",
+        "version": "1.56.1"
+      },
+      {
+        "name": "dotnet test",
+        "config_file": "Test projects detected",
+        "kds_usage": "Backend unit/integration testing",
+        "detected": true,
+        "command": "dotnet test",
+        "version": "N/A"
+      }
+    ],
+    "build": [
+      {
+        "name": "dotnet",
+        "config_file": "NoorCanvas.sln",
+        "kds_usage": "Rule #11 build validation",
+        "detected": true,
+        "command": "dotnet build",
+        "version": "9.0.305"
+      },
+      {
+        "name": "npm",
+        "config_file": "package.json",
+        "kds_usage": "Frontend build automation",
+        "detected": true,
+        "command": "npm run build",
+        "version": "10.9.2"
+      }
+    ],
+    "custom_scripts": [
+      {
+        "detected": true,
+        "name": "ncdeploy",
+        "purpose": "Project build/deployment shortcut",
+        "kds_usage": "Quick build validation",
+        "location": "Scripts/ncdeploy.ps1"
+      },
+      {
+        "detected": true,
+        "name": "ncw",
+        "purpose": "Project build/deployment shortcut",
+        "kds_usage": "Quick build validation",
+        "location": "Scripts/ncw.ps1"
+      },
+      {
+        "detected": true,
+        "name": "setup-ncdeploy-alias",
+        "purpose": "Project build/deployment shortcut",
+        "kds_usage": "Quick build validation",
+        "location": "Scripts/setup-ncdeploy-alias.ps1"
+      },
+      {
+        "detected": true,
+        "name": "setup-ncdeploy-global",
+        "purpose": "Project build/deployment shortcut",
+        "kds_usage": "Quick build validation",
+        "location": "Scripts/setup-ncdeploy-global.ps1"
+      }
+    ]
+  }
+}

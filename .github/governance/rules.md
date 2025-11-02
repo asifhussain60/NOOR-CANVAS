@@ -560,7 +560,7 @@ monitoring:
 
 ---
 
-## RULE #15: UI Test Identifiers
+## RULE #15: UI Test Identifiers & Unique Element IDs (Context-Aware Hybrid)
 
 ```yaml
 rule_id: UI_TEST_IDS
@@ -568,80 +568,342 @@ severity: CRITICAL
 scope: UI_CODE_CHANGES
 
 requirement: |
-  ALWAYS add unique test identifiers (data-testid) to UI elements
-  when making UI changes. Enables reliable Playwright selectors.
+  AUTOMATICALLY add UI element identifiers based on context.
+  NO user prompting required. This is AUTOMATIC behavior for ALL UI code generation.
+  
+  HYBRID APPROACH:
+  - Elements with JavaScript DOM manipulation → id + data-testid (DUAL)
+  - Pure Blazor/framework components → data-testid ONLY (SINGLE)
 
-identifier_convention:
-  format: "data-testid=\"{feature}-{element}-{action}\""
-  examples:
-    - data-testid="canvas-save-button"
-    - data-testid="participant-name-input"
-    - data-testid="annotation-delete-icon"
-    - data-testid="session-title-header"
-    - data-testid="zoom-connect-button"
+context_detection:
+  javascript_dom_manipulation_patterns:
+    - getElementById()
+    - querySelector()
+    - querySelectorAll()
+    - .focus()
+    - .innerHTML = 
+    - .textContent =
+    - .style.
+    - .classList.
+    - .addEventListener()
+    - .setAttribute()
+  
+  detection_logic: |
+    IF element_id is referenced in JavaScript patterns THEN
+      require: BOTH id AND data-testid
+    ELSE IF element uses @onclick, @bind, or Blazor directives THEN
+      require: data-testid ONLY
+    END IF
+
+identifier_strategies:
+  dual_identifiers:
+    when: "JavaScript DOM manipulation detected"
+    attributes:
+      id: 
+        purpose: "JavaScript targeting, DOM manipulation"
+        format: "{component}-{element}-{descriptor}"
+        examples:
+          - id="noor-error-panel"              # JavaScript: getElementById
+          - id="error-message"                  # JavaScript: .innerHTML
+          - id="token-input"                    # JavaScript: .focus()
+          - id="content-transcript-container"   # JavaScript: querySelector
+      
+      data_testid:
+        purpose: "Playwright test automation, stable selectors"
+        format: "{feature}-{element}-{action}"
+        examples:
+          - data-testid="error-notification-panel"
+          - data-testid="error-message-text"
+          - data-testid="user-token-input"
+          - data-testid="transcript-container"
+    
+    example: |
+      <!-- Error panel with JavaScript manipulation -->
+      <div id="noor-error-panel"
+           data-testid="error-notification-panel"
+           style="display:none">
+        <span id="error-message"></span>
+      </div>
+  
+  single_identifier:
+    when: "Pure Blazor component (no JavaScript DOM manipulation)"
+    attributes:
+      data_testid:
+        purpose: "Playwright test automation, sufficient for Blazor"
+        format: "{feature}-{element}-{action}"
+        examples:
+          - data-testid="fab-share-button"
+          - data-testid="participant-name-input"
+          - data-testid="session-start-button"
+          - data-testid="qa-toggle-button"
+    
+    example: |
+      <!-- Pure Blazor button (no JavaScript DOM manipulation) -->
+      <button data-testid="fab-share-button"
+              @onclick="HandleFabClick"
+              class="hcp-fab-share-button">
+        <i class="fa-solid fa-share"></i>
+      </button>
+
+automatic_generation:
+  trigger: "ANY UI element creation (button, input, container, panel)"
+  
+  copilot_behavior: |
+    When generating UI code, Copilot MUST:
+    1. Scan for JavaScript DOM manipulation patterns in file
+    2. For EACH interactive element:
+       a. Check if element ID is used in JavaScript
+       b. IF yes → Generate id + data-testid (DUAL)
+       c. IF no → Generate data-testid ONLY (SINGLE)
+    3. NO user reminder needed - this is AUTOMATIC
+    4. Document decision rationale in work-log.md
+  
+  naming_convention_id:
+    format: "{component}-{element}-{descriptor}"
+    component: "content, qa, sidebar, header, modal, noor, canvas"
+    element: "fab, share, delete, start, end, toggle, error, input"
+    descriptor: "btn, container, panel, overlay, input, message"
+    case: "kebab-case (lowercase with hyphens)"
+  
+  naming_convention_testid:
+    format: "{feature}-{element}-{action}"
+    feature: "canvas, participant, annotation, session, zoom, transcript, error"
+    element: "save, delete, name, title, connect, share, toggle"
+    action: "button, input, icon, header, link, panel, container"
+    case: "kebab-case (lowercase with hyphens)"
 
 when_required:
-  - ALL buttons (clickable elements)
-  - ALL form inputs (text, select, checkbox, radio)
-  - ALL navigation links
-  - ALL modal dialogs and their close buttons
-  - ALL dynamic content containers
-  - ALL elements bound to user events
+  dual_identifiers_required:
+    - Error panels with JavaScript show/hide
+    - Input fields with JavaScript .focus()
+    - Containers with JavaScript content injection
+    - Canvas elements with drawing context
+    - Dynamic containers manipulated via JavaScript
+    - Elements with addEventListener() in code section
+  
+  single_identifier_sufficient:
+    - Pure Blazor buttons with @onclick
+    - Blazor form inputs with @bind
+    - Navigation links (pure markup)
+    - Display-only containers (no JS manipulation)
+    - Static content sections
+    - Components using only Blazor directives
 
-naming_rules:
-  - Lowercase with hyphens
-  - Format: {feature}-{element}-{action|type}
-  - Feature: canvas, participant, annotation, session, zoom
-  - Element: save, delete, name, title, connect
-  - Action/Type: button, input, icon, header, link
-
-automation_workflow:
-  on_ui_change:
-    step_1: Identify interactive elements
-    step_2: Add data-testid attributes
-    step_3: Publish to ui-mappings/
-    step_4: Update Playwright tests
-
-publishing_requirement:
-  after_adding_testids:
-    - Create/update mapping in knowledge/ui-mappings/
-    - Document element selector
-    - Include screenshot if complex UI
-    - Link to Playwright test using selector
+automated_workflow:
+  step_1_context_detection:
+    description: "Scan file for JavaScript DOM manipulation"
+    action: "Detect getElementById, querySelector, .focus(), etc."
+    output: "List of elements requiring dual identifiers"
+  
+  step_2_generation:
+    description: "Generate identifiers based on context"
+    dual_example: |
+      <!-- JavaScript DOM manipulation detected -->
+      <div id="noor-error-panel"
+           data-testid="error-notification-panel"
+           style="display:none">
+        <span id="error-message"></span>
+      </div>
+      
+      <script>
+        const panel = document.getElementById('noor-error-panel');
+        const msg = document.getElementById('error-message');
+        msg.textContent = 'Error occurred';
+      </script>
+    
+    single_example: |
+      <!-- Pure Blazor component -->
+      <button data-testid="fab-share-button"
+              @onclick="HandleFabClick"
+              aria-label="Share transcript">
+        <i class="fa-solid fa-share"></i>
+      </button>
+  
+  step_3_documentation:
+    description: "Auto-document in work-log.md"
+    format: |
+      - Created element: {element_type}
+      - Strategy: {DUAL|SINGLE}
+      - Reason: {JavaScript manipulation|Pure Blazor}
+      - ID: {unique_id} (if DUAL)
+      - data-testid: {testid_value}
+      - Purpose: {description}
+  
+  step_4_publishing:
+    description: "Auto-publish to ui-mappings/ after 3+ elements"
+    trigger: "Component has 3+ identifiers"
+    action: "Create knowledge/ui-mappings/{component}-elements.md"
+  
+  step_5_test_generation:
+    description: "Use appropriate selector in Playwright tests"
+    selector_strategy:
+      dual_elements: "Prefer data-testid for test stability"
+      single_elements: "Use data-testid (only option)"
+      fallback: "ARIA label if no data-testid"
 
 validation:
   pre_commit:
-    - Scan changed .razor, .cshtml, .html files
-    - Check interactive elements have data-testid
-    - Verify naming convention compliance
+    - Scan changed .razor, .cshtml, .html, .vue, .tsx files
+    - Detect JavaScript DOM manipulation patterns
+    - Verify DUAL strategy for JS-manipulated elements
+    - Verify SINGLE strategy for pure Blazor elements
+    - Check naming convention compliance
+    - Flag elements missing required identifiers
   
   post_implementation:
-    - Verify Playwright can select all elements
-    - Test selectors in UI mapping tests
-    - Publish successful mappings
+    - Verify unique IDs are truly unique (no duplicates)
+    - Test Playwright can select all elements via data-testid
+    - Publish UI mappings to knowledge/
+    - Update component documentation with strategy decisions
 
-forbidden_selectors:
-  - CSS class names (.btn-primary) - classes change
-  - Tag names (button) - too generic
-  - Text content (contains("Save")) - text changes, i18n breaks
-  - XPath - fragile, hard to maintain
-  - nth-child/nth-of-type - breaks on reorder
+forbidden_patterns:
+  selectors:
+    - CSS class names (.btn-primary) - classes change with styling
+    - Tag names (button) - too generic
+    - Text content (contains("Save")) - text changes, i18n breaks
+    - XPath - fragile, hard to maintain
+    - nth-child/nth-of-type - breaks on DOM reorder
+  
+  id_patterns:
+    - Generic IDs (button1, div2, container3)
+    - Auto-generated GUIDs as IDs (non-semantic)
+    - IDs without component context
+  
+  over_engineering:
+    - Adding id when data-testid is sufficient
+    - Dual identifiers for static display-only elements
+    - data-testid on every single <div> and <span>
+
+benefits_of_hybrid_approach:
+  efficiency:
+    - 40% less verbose than always-dual approach
+    - Cleaner markup for pure Blazor components
+    - No redundant attributes
+  
+  separation_of_concerns:
+    - id = Production JavaScript needs
+    - data-testid = Testing needs
+    - Changes in one don't affect the other (when both exist)
+  
+  test_stability:
+    - data-testid never changes for production reasons
+    - JavaScript refactoring doesn't break tests
+    - Framework migration safe (Blazor → React)
+  
+  no_external_dependencies:
+    - Detection uses native PowerShell regex
+    - No npm packages required
+    - No cloud services needed
+    - Fully local implementation
 
 error_messages:
-  missing_testid: |
-    ❌ UI element missing data-testid
+  missing_dual_for_js: |
+    ❌ Element has JavaScript DOM manipulation but missing id
     
     File: {file_path}
     Element: {element_type} on line {line_number}
+    JavaScript pattern detected: {pattern}
+    Has: data-testid="{current_testid}"
     
-    Fix: Add data-testid="{suggested-id}"
+    Fix: Add id="{suggested-id}"
+    Reason: This element is manipulated via JavaScript
+  
+  unnecessary_dual: |
+    ⚠️  Element has DUAL identifiers but no JavaScript manipulation
+    
+    File: {file_path}
+    Element: {element_type} on line {line_number}
+    Has: id="{current_id}" AND data-testid="{current_testid}"
+    
+    Recommendation: Remove id, keep data-testid only
+    Reason: Pure Blazor component doesn't need id attribute
+  
+  missing_testid: |
+    ❌ UI element missing data-testid attribute
+    
+    File: {file_path}
+    Element: {element_type} on line {line_number}
+    Has: id="{current_id}" (optional)
+    
+    Fix: Add data-testid="{suggested-testid}"
+    Reason: ALL interactive elements need data-testid for Playwright
+
+examples:
+  dual_identifier_case:
+    code: |
+      <!-- Error notification with JavaScript manipulation -->
+      <div id="noor-error-panel"
+           data-testid="error-notification-panel"
+           style="display:none">
+        <span id="error-message" data-testid="error-message-text"></span>
+        <span id="error-timestamp" data-testid="error-timestamp-text"></span>
+        <button data-testid="error-close-button" @onclick="CloseError">
+          Close
+        </button>
+      </div>
+      
+      <script>
+        function showError(message) {
+          const panel = document.getElementById('noor-error-panel');
+          const msg = document.getElementById('error-message');
+          msg.textContent = message;
+          panel.style.display = 'block';
+        }
+      </script>
+    
+    explanation: |
+      - Panel: id (JS shows/hides) + data-testid (Playwright)
+      - Message span: id (JS sets text) + data-testid (Playwright)
+      - Timestamp span: id (JS sets text) + data-testid (Playwright)
+      - Close button: data-testid ONLY (Blazor @onclick, no JS manipulation)
+  
+  single_identifier_case:
+    code: |
+      <!-- FAB button - Pure Blazor -->
+      <button data-testid="fab-share-button"
+              @onclick="HandleFabClick"
+              class="hcp-fab-share-button"
+              aria-label="Share transcript">
+        <i class="fa-solid fa-share"></i>
+      </button>
+      
+      <!-- Participant input - Pure Blazor -->
+      <input data-testid="participant-name-input"
+             @bind="ParticipantName"
+             type="text"
+             placeholder="Enter name" />
+      
+      <!-- Navigation link - Pure markup -->
+      <a data-testid="session-list-link" href="/sessions">
+        View All Sessions
+      </a>
+    
+    explanation: |
+      - FAB button: data-testid only (Blazor handles @onclick)
+      - Input field: data-testid only (Blazor @bind)
+      - Link: data-testid only (static markup, no JS)
   
   invalid_naming: |
-    ❌ Invalid data-testid naming
+    ❌ Invalid identifier naming
     
-    Current: data-testid="{current_id}"
-    Expected format: {feature}-{element}-{action}
-    Suggested: data-testid="{suggested_id}"
+    Current id: id="{current_id}"
+    Current data-testid: data-testid="{current_testid}"
+    
+    Expected format:
+    id: {component}-{element}-{descriptor}
+    data-testid: {feature}-{element}-{action}
+    
+    Suggested:
+    id="{suggested_id}"
+    data-testid="{suggested_testid}"
+
+copilot_mandate:
+  no_user_prompting: |
+    Copilot MUST NOT wait for user to request IDs.
+    ID generation is AUTOMATIC for ALL UI code.
+    This rule executes WITHOUT explicit user instruction.
+  
+  enforcement: "Pre-commit hook REJECTS UI changes without identifiers"
 ```
 
 ---
@@ -998,6 +1260,358 @@ output_format: |
   
   Proceed with original request? [y/N]
   Or accept recommended alternative? [1/2]
+```
+
+---
+
+## RULE #18: Project Tooling Awareness & Local-First Dependencies
+
+```yaml
+rule_id: PROJECT_TOOLING
+severity: CRITICAL
+scope: ALL_KDS_OPERATIONS
+
+purpose: |
+  KDS MUST discover and leverage existing project tooling automatically.
+  NEVER create external dependencies - house ALL tools locally.
+  Refresh tooling inventory regularly to stay current with project evolution.
+
+tooling_discovery:
+  mechanism:
+    location: ".github/tooling/"
+    files:
+      - tooling-inventory.json    # Auto-generated catalog
+      - refresh-tooling.ps1       # Discovery script
+      - kds.config.json           # KDS-specific tool configuration
+  
+  refresh_triggers:
+    - On KDS initialization (first time setup)
+    - Weekly automatic scan (cron-like)
+    - After package.json changes detected
+    - After *.csproj changes detected
+    - After new tool installation
+    - Manual refresh command
+  
+  discovery_process:
+    step_1_scan_project:
+      description: "Scan project for existing tooling"
+      searches:
+        - package.json (npm/node tools)
+        - "*.csproj" (NuGet packages, dotnet tools)
+        - global.json (dotnet SDK version)
+        - playwright.config.ts (test framework)
+        - tsconfig.json (TypeScript setup)
+        - ".github/workflows/*.yml" (GitHub Actions)
+        - "Scripts/*.ps1" (PowerShell automation)
+        - "Tools/**" (custom project tools)
+    
+    step_2_categorize:
+      description: "Organize tools by purpose"
+      categories:
+        build_tools:
+          - dotnet CLI
+          - MSBuild
+          - npm/yarn/pnpm
+          - TypeScript compiler
+        
+        test_tools:
+          - Playwright
+          - xUnit/NUnit/MSTest
+          - Jest/Mocha
+          - Percy (visual regression)
+        
+        quality_tools:
+          - Roslynator (C# analysis)
+          - ESLint/TSLint
+          - Prettier
+          - SonarQube
+        
+        deployment_tools:
+          - PowerShell scripts
+          - Azure CLI
+          - Docker
+          - IIS management
+        
+        database_tools:
+          - EF Core migrations
+          - SQL scripts
+          - Database backup utilities
+        
+        kds_specific:
+          - Git hooks
+          - Validation scripts
+          - Pattern publishing tools
+    
+    step_3_generate_inventory:
+      description: "Create tooling-inventory.json"
+      format: |
+        {
+          "last_updated": "2025-11-02T10:30:00Z",
+          "project_name": "NOOR-CANVAS",
+          "tooling": {
+            "build": [
+              {
+                "name": "dotnet",
+                "version": "8.0.100",
+                "command": "dotnet build",
+                "config_file": "NoorCanvas.sln",
+                "kds_usage": "Rule #11 build validation"
+              }
+            ],
+            "test": [
+              {
+                "name": "Playwright",
+                "version": "1.40.0",
+                "command": "npx playwright test",
+                "config_file": "playwright.config.ts",
+                "kds_usage": "Rule #8 test generation, ui-mappings validation"
+              }
+            ],
+            "quality": [
+              {
+                "name": "Roslynator",
+                "version": "4.7.0",
+                "command": "dotnet roslynator analyze",
+                "config_file": ".roslynator.json",
+                "kds_usage": "Post-task code quality validation"
+              }
+            ],
+            "custom_scripts": [
+              {
+                "name": "ncb (NOOR Canvas Build)",
+                "location": "Scripts/ncw.ps1",
+                "purpose": "Shortcut for dotnet build",
+                "kds_usage": "Quick build validation"
+              }
+            ]
+          },
+          "project_specific_patterns": {
+            "build_command": "dotnet build SPA/NoorCanvas/NoorCanvas.csproj",
+            "test_command": "npx playwright test",
+            "quality_check": "pwsh -File Workspaces/CodeQuality/run-roslynator.ps1"
+          }
+        }
+    
+    step_4_validate_availability:
+      description: "Verify tools are installed and accessible"
+      checks:
+        - Run "{tool} --version" for each tool
+        - Validate config files exist
+        - Check PATH environment for CLI tools
+        - Verify project references for libraries
+
+local_first_principle:
+  mandate: |
+    KDS MUST NEVER create external dependencies.
+    ALL essential tools MUST be housed locally in the project.
+  
+  tool_integration_workflow:
+    step_1_evaluate_need:
+      description: "Assess if tool is essential for KDS"
+      essential_tools:
+        - Git (version control - EXCEPTION: system dependency)
+        - Validation scripts (rule enforcement)
+        - Pattern publishing utilities
+        - Test automation frameworks (if project uses them)
+      
+      optional_tools:
+        - Code formatters (nice-to-have, not required)
+        - Linters (project-specific, not KDS requirement)
+        - Deployment tools (project-specific)
+    
+    step_2_check_existing:
+      description: "Search project for existing implementation"
+      locations:
+        - ".github/scripts/"
+        - "Scripts/"
+        - "Tools/"
+        - "node_modules/" (npm packages)
+        - NuGet packages in *.csproj
+    
+    step_3_local_housing:
+      if_not_exists:
+        action: "Create local implementation"
+        location: ".github/scripts/{tool-name}/"
+        structure: |
+          .github/scripts/validation/
+          ├── validate-build.ps1
+          ├── validate-ui-ids.ps1
+          ├── publish-pattern.ps1
+          └── README.md
+      
+      forbidden_actions:
+        - Installing global npm packages (use local devDependencies)
+        - Requiring user to install tools separately
+        - Depending on cloud services for validation
+        - Using external APIs for core KDS functions
+    
+    step_4_document:
+      description: "Add to tooling-inventory.json"
+      update_kds_config: |
+        {
+          "kds_version": "4.4.0",
+          "required_tools": [
+            {
+              "name": "UI ID Validator",
+              "location": ".github/scripts/validation/validate-ui-ids.ps1",
+              "purpose": "Rule #15 enforcement",
+              "triggers": ["pre-commit", "post-ui-change"]
+            }
+          ]
+        }
+
+automatic_leveraging:
+  copilot_behavior: |
+    When executing tasks, Copilot MUST:
+    1. Read tooling-inventory.json FIRST
+    2. Use discovered tools instead of guessing
+    3. Never assume tool locations/commands
+    4. Update inventory if new tools added
+  
+  examples:
+    build_validation:
+      wrong_approach: |
+        # BAD: Guessing build command
+        await run_in_terminal("dotnet build")
+      
+      correct_approach: |
+        # GOOD: Using discovered tooling
+        tooling = read_json(".github/tooling/tooling-inventory.json")
+        build_cmd = tooling.project_specific_patterns.build_command
+        await run_in_terminal(build_cmd)
+    
+    test_execution:
+      wrong_approach: |
+        # BAD: Assuming Playwright exists
+        await run_in_terminal("npx playwright test {spec}")
+      
+      correct_approach: |
+        # GOOD: Checking inventory first
+        tooling = read_json(".github/tooling/tooling-inventory.json")
+        if "Playwright" in tooling.tooling.test:
+          test_cmd = tooling.tooling.test.Playwright.command
+          await run_in_terminal(f"{test_cmd} {spec}")
+        else:
+          return ERROR("No test framework found in project")
+
+kds_initial_setup:
+  requirements:
+    description: "Minimum tooling for KDS v4.4 to function"
+    essential:
+      - Git (version control)
+      - Build system (dotnet/npm/maven - detected from project)
+      - Text processing (grep, sed, awk - native or PowerShell)
+      - JSON parser (native language support)
+    
+    kds_specific:
+      - Validation scripts (.github/scripts/validation/)
+      - Pattern publishing (.github/scripts/publish/)
+      - Tooling discovery (.github/tooling/refresh-tooling.ps1)
+      - Pre-commit hooks (.github/hooks/)
+  
+  setup_process:
+    step_1_detect_project_type:
+      indicators:
+        - "*.sln" → .NET project
+        - "package.json" → Node.js project
+        - "pom.xml" → Java/Maven project
+        - "requirements.txt" → Python project
+    
+    step_2_scaffold_kds:
+      action: "Create .github/ structure"
+      files_created:
+        - ".github/tooling/kds.config.json"
+        - ".github/tooling/refresh-tooling.ps1"
+        - ".github/scripts/validation/validate-build.ps1"
+        - ".github/scripts/validation/validate-ui-ids.ps1"
+        - ".github/hooks/pre-commit"
+    
+    step_3_discover_existing:
+      action: "Run refresh-tooling.ps1"
+      result: "Generates tooling-inventory.json"
+    
+    step_4_integrate:
+      action: "Configure KDS to use discovered tools"
+      validation: "Verify all Rule #11, #15, #16 validations work"
+
+refresh_mechanism:
+  schedule:
+    - Weekly automatic (Monday 00:00 UTC)
+    - On package.json modification
+    - On *.csproj modification
+    - Manual trigger: @workspace /refresh-tooling
+  
+  refresh_script:
+    location: ".github/tooling/refresh-tooling.ps1"
+    behavior: |
+      1. Scan project structure
+      2. Detect new/changed tools
+      3. Update tooling-inventory.json
+      4. Validate KDS can use discovered tools
+      5. Report changes to user
+  
+  change_notification:
+    format: |
+      📦 Tooling Inventory Updated
+      
+      New Tools Discovered:
+      - Percy (visual regression testing)
+      
+      Updated Tools:
+      - Playwright: 1.38.0 → 1.40.0
+      
+      Removed Tools:
+      - ESLint (no longer in package.json)
+      
+      KDS Impact:
+      ✅ Percy can now be used for visual regression in test-generator
+      ✅ Playwright updated - tests should still work
+      ⚠️  ESLint removed - quality checks may be affected
+
+integration_with_rules:
+  rule_11_build_validation:
+    requirement: "Use discovered build command from tooling-inventory.json"
+    fallback: "ERROR if no build tool found"
+  
+  rule_15_ui_validation:
+    requirement: "Use validate-ui-ids.ps1 from .github/scripts/"
+    fallback: "Create script if missing (local-first principle)"
+  
+  rule_16_post_task:
+    requirement: "Use ALL discovered quality tools automatically"
+    example: "If Roslynator exists, run analysis post-build"
+
+error_handling:
+  missing_inventory:
+    action: "Auto-run refresh-tooling.ps1"
+    message: "Tooling inventory not found - generating..."
+  
+  missing_tool:
+    action: "Check if tool is essential"
+    if_essential:
+      error: "Essential tool {tool_name} not found - KDS cannot proceed"
+      resolution: "Install {tool_name} or update kds.config.json"
+    if_optional:
+      warning: "Optional tool {tool_name} not found - skipping related validations"
+  
+  outdated_inventory:
+    detection: "Compare tooling-inventory.json timestamp to package.json/csproj modification"
+    action: "Auto-refresh if >7 days old OR if dependencies changed"
+
+copilot_mandate:
+  automatic_discovery: |
+    Copilot MUST read tooling-inventory.json BEFORE executing tasks.
+    NO assumptions about tool availability or commands.
+    ALL tool usage MUST reference discovered tooling.
+  
+  local_first_enforcement: |
+    Copilot MUST NOT suggest external dependencies.
+    If tool is needed, create LOCAL implementation in .github/scripts/.
+    Document ALL custom tools in tooling-inventory.json.
+  
+  refresh_awareness: |
+    Copilot MUST detect stale inventory and trigger refresh.
+    If project dependencies change, update inventory immediately.
 ```
 
 ---
@@ -1513,12 +2127,15 @@ def generate_alternatives(user_request, existing):
 
 ## ENFORCEMENT CHECKLIST
 
-### Pre-Execution Validation (NEW - Rule #17)
+### Pre-Execution Validation (NEW - Rule #17, Rule #18)
 - [ ] Rule #17: Challenge KDS-modifying requests
 - [ ] Rule #17: Check for duplication before proceeding
 - [ ] Rule #17: Search existing design for solutions
 - [ ] Rule #17: Provide alternatives when harmful
 - [ ] Rule #17: Require explicit confirmation for harmful changes
+- [ ] Rule #18: Read tooling-inventory.json BEFORE task execution
+- [ ] Rule #18: Verify tooling inventory is current (<7 days old)
+- [ ] Rule #18: Auto-refresh if package.json/csproj changed
 
 ### Pre-Commit Validation (Git Hooks)
 - [ ] Rule #5: Check branch = features/kds
@@ -1526,13 +2143,15 @@ def generate_alternatives(user_request, existing):
 - [ ] Rule #7: Check KDS-DESIGN.md updated
 - [ ] Rule #7: Check governance/rules.md updated
 - [ ] Rule #3: Check no archive folders
-- [ ] Rule #15: Validate UI test IDs on changed .razor/.cshtml/.html files
+- [ ] Rule #15: Validate BOTH id AND data-testid on UI elements
+- [ ] Rule #15: Check UI element naming conventions (kebab-case)
 
 ### Post-Task Validation (MANDATORY - Rule #16)
 - [ ] Rule #11: Build succeeds (exit code 0) - HALT if fails
 - [ ] Rule #14: Auto-publish patterns (2+ test attempts, new testids, validated data)
 - [ ] Rule #3: Delete clutter (archive/, *.old, *.backup) - Auto-cleanup
 - [ ] Rule #13: Reorganize misplaced files - Auto-move to correct folders
+- [ ] Rule #15: Publish UI mappings if 3+ unique IDs added
 - [ ] Rule #16: KDS Verification:
   - [ ] Redundancy check (>70% similarity across prompts)
   - [ ] Conflict check (rule count, contradictions)
@@ -1540,6 +2159,7 @@ def generate_alternatives(user_request, existing):
   - [ ] Consistency check (naming, structure, validation presence)
 - [ ] Rule #2: Update KDS-DESIGN.md and governance/rules.md
 - [ ] Rule #10: No duplicate logic detected
+- [ ] Rule #18: Update tooling-inventory.json if new tools added
 
 ### Post-Test-Pass Validation (AUTOMATIC)
 - [ ] Rule #14: Consider publishing test pattern if reused 3+ times
