@@ -85,3 +85,36 @@ statistics:
   confidence_threshold: 0.70
   learning_enabled: true
   status: "ACTIVE"
+
+protection_config:
+  enabled: true
+  version: "1.0"
+  description: "Phase 1 Protection - Confidence checks and learning quality thresholds"
+  
+  learning_quality:
+    min_confidence_threshold: 0.70
+    min_occurrences_for_pattern: 3
+    max_single_event_confidence: 0.50
+    anomaly_confidence_threshold: 0.95
+    description: "Prevents learning from insufficient data and detects anomalies"
+  
+  routing_safety:
+    enabled: true
+    fallback_on_low_confidence: true
+    ask_user_threshold: 0.70
+    auto_route_threshold: 0.85
+    description: "Asks user for clarification when confidence is low"
+  
+  correction_memory:
+    enabled: true
+    alert_on_repeated_mistake: 3
+    prevent_action_threshold: 5
+    track_correction_patterns: true
+    description: "Prevents repeating the same mistakes"
+  
+  validation:
+    validate_confidence_scores: true
+    validate_file_references: true
+    detect_stale_relationships: true
+    max_relationship_age_days: 90
+    description: "Ensures data integrity and removes stale information"

@@ -296,7 +296,7 @@ Please clarify.
 
 ## 🔧 Routing Implementation
 
-### Step 0: Query BRAIN for Intent Confidence (BRAIN Integration)
+### Step 0: Query BRAIN for Intent Confidence (BRAIN Integration + PROTECTION)
 
 **Before pattern matching, consult the knowledge graph:**
 
@@ -321,16 +321,49 @@ recommendation:
   intent: plan
   confidence: 0.95
   auto_route: true  # Above threshold (0.70)
+  
+protection_check:
+  confidence_valid: true
+  occurrences: 12
+  meets_minimum: true  # >= 3 occurrences
+  anomaly_detected: false
 ```
 
-**If BRAIN confidence >= 0.70:**
-- ✅ Use BRAIN recommendation (skip pattern matching)
-- 🚀 Faster routing (learned from history)
-- 📊 Log success/failure for future learning
+**🛡️ PROTECTION: Apply confidence thresholds from knowledge-graph.yaml:**
+
+Load protection config:
+```yaml
+routing_safety:
+  ask_user_threshold: 0.70      # Below this = ask user
+  auto_route_threshold: 0.85    # Above this = auto-route
+```
+
+**Routing decision logic:**
+
+**If BRAIN confidence >= 0.85 AND occurrences >= 3:**
+- ✅ **HIGH CONFIDENCE** - Auto-route immediately
+- 🚀 Fastest path (learned pattern with strong evidence)
+- 📊 Log success for reinforcement learning
+
+**If BRAIN confidence >= 0.70 AND < 0.85:**
+- ⚠️ **MEDIUM CONFIDENCE** - Show intent, ask for confirmation
+- 💬 "Detected: {intent}. Proceed? (Y/n)"
+- 📊 Log user response (Y = reinforce, n = correction)
 
 **If BRAIN confidence < 0.70:**
-- ⚠️ Fall back to pattern matching (Steps 1-3 below)
+- ❌ **LOW CONFIDENCE** - Fall back to pattern matching (Steps 1-3 below)
 - 📝 Log ambiguous pattern for BRAIN to learn
+- 💡 May ask user for clarification after pattern matching
+
+**If BRAIN confidence >= 0.70 BUT occurrences < 3:**
+- ⚠️ **INSUFFICIENT DATA** - Downgrade to pattern matching
+- 🔒 Protection: Prevent learning from too few events
+- 📝 Log as low-confidence routing
+
+**If anomaly detected (confidence jump > 0.95 after 1 event):**
+- 🚨 **ANOMALY ALERT** - Flag suspicious learning
+- ⚠️ Override to pattern matching (safety fallback)
+- 📝 Log for manual review
 
 **If BRAIN unavailable (empty knowledge graph):**
 - ℹ️ Use pattern matching (Steps 1-3 below)

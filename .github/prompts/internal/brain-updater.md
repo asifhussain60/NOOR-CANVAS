@@ -27,8 +27,22 @@ This agent reads raw events from `events.jsonl` and aggregates them into structu
 - Correction history
 - Validation insights
 
-### Step 2: Read New Events
+### Step 2: Read New Events (WITH PROTECTION)
 
+🛡️ **PROTECTION: Validate event stream integrity first**
+
+#### 2.1 Validate Event Stream
+```powershell
+.\.github\scripts\protect-event-append.ps1 -Mode validate
+```
+
+**Checks:**
+- ✅ All events have valid structure
+- ✅ Timestamps are valid (not future, not too old)
+- ✅ Checksums match (if present)
+- ✅ No corrupted lines
+
+#### 2.2 Read Events
 ```jsonl
 #file:.github/kds-brain/events.jsonl
 ```
@@ -37,6 +51,11 @@ This agent reads raw events from `events.jsonl` and aggregates them into structu
 - Check `statistics.last_updated` timestamp
 - Read only events newer than last update
 - If first run, process all events
+
+**Validation per event:**
+- ✅ Required fields present (timestamp, event)
+- ✅ Timestamp in valid range
+- ⚠️ Skip corrupted events (log warning)
 
 ### Step 3: Process Events by Type
 
@@ -142,7 +161,98 @@ co_mod_rate = times_modified_together / max(file1_modifications, file2_modificat
     - "add a export button"
 ```
 
-### Step 5: Update Knowledge Graph
+### Step 5: Update Knowledge Graph (WITH PROTECTION)
+
+🛡️ **PROTECTION: Run backup and validation BEFORE updating**
+
+#### 5.1 Create Backup
+```powershell
+.\.github\scripts\protect-brain-update.ps1 -Mode backup
+```
+
+**This creates:**
+- Timestamped backup in `.github/kds-brain/backups/`
+- Keeps 10 most recent backups
+- Enables rollback if update fails
+
+#### 5.2 Validate New Data (Phase 3 - Learning Quality)
+
+**🔒 PROTECTION: Enforce occurrence thresholds**
+
+Before updating confidence scores, validate:
+
+```yaml
+protection_config:
+  learning_quality:
+    min_occurrences_for_pattern: 3
+    max_single_event_confidence: 0.50
+```
+
+**For each intent pattern:**
+```python
+if pattern.occurrences < min_occurrences_for_pattern:
+    # Don't allow high confidence with insufficient data
+    if new_confidence > max_single_event_confidence:
+        new_confidence = max_single_event_confidence
+        flag_as_low_quality = true
+        log_warning("Pattern has insufficient occurrences - capping confidence")
+```
+
+**Anomaly Detection (Phase 3):**
+```python
+if new_confidence > 0.95 and pattern.occurrences == 1:
+    # ANOMALY: Suspiciously high confidence with 1 occurrence
+    log_anomaly({
+        "type": "high_confidence_low_occurrences",
+        "pattern": pattern,
+        "confidence": new_confidence,
+        "occurrences": pattern.occurrences,
+        "action": "flagged_for_review"
+    })
+    # Cap confidence or flag for manual review
+    new_confidence = 0.70  # Safe fallback
+```
+
+**Confidence Jump Detection (Phase 3):**
+```python
+confidence_jump = new_confidence - pattern.previous_confidence
+
+if confidence_jump > 0.30:
+    # ANOMALY: Confidence jumped too much in one update
+    log_anomaly({
+        "type": "confidence_jump",
+        "pattern": pattern,
+        "previous": pattern.previous_confidence,
+        "new": new_confidence,
+        "jump": confidence_jump,
+        "action": "flagged_for_review"
+    })
+    # Moderate the jump
+    new_confidence = pattern.previous_confidence + 0.15  # Max +15% per update
+```
+
+#### 5.3 Validate Structure
+```powershell
+.\.github\scripts\protect-brain-update.ps1 -Mode validate
+```
+
+**Validates:**
+- ✅ YAML structure is valid
+- ✅ All required sections present
+- ✅ Confidence scores in 0.0-1.0 range
+- ✅ Protection config intact
+- ✅ Statistics section correct
+
+#### 5.4 Perform Update
+```powershell
+# Only if validation passes
+.\.github\scripts\protect-brain-update.ps1 -Mode update -NewContent $updatedYaml
+```
+
+**Automatic rollback if update fails:**
+- ❌ Update fails validation → Restores from backup
+- ❌ File write error → Restores from backup
+- ✅ Update succeeds → Backup kept for 10 iterations
 
 Write updated data to:
 ```yaml
@@ -150,11 +260,12 @@ Write updated data to:
 ```
 
 **Update:**
-- All pattern collections
+- All pattern collections (with occurrence enforcement)
 - File relationships
 - Workflow sequences
 - Correction history
 - Statistics (increment `total_events_processed`, update `last_updated`)
+- Anomalies queue (Phase 3 - for manual review)
 
 ### Step 6: Generate Update Summary
 

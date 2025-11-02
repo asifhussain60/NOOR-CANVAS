@@ -44,16 +44,73 @@ results:
   - intent: plan
     confidence: 0.95
     reason: "Exact match with 'add a * button' pattern (12 occurrences)"
+    occurrences: 12
     
   - intent: execute
     confidence: 0.15
     reason: "No matching patterns found"
+    occurrences: 0
 
 recommendation:
   intent: plan
   confidence: 0.95
   auto_route: true  # Above threshold (0.70)
+  
+protection_check:
+  confidence_valid: true
+  occurrences_check: 12
+  meets_minimum_threshold: true  # >= 3 required
+  anomaly_detected: false
+  safety_level: "high"  # high | medium | low
 ```
+
+**🛡️ PROTECTION: Validate confidence and occurrence data**
+
+Load protection config from knowledge-graph.yaml:
+```yaml
+protection_config:
+  learning_quality:
+    min_confidence_threshold: 0.70
+    min_occurrences_for_pattern: 3
+    max_single_event_confidence: 0.50
+    anomaly_confidence_threshold: 0.95
+```
+
+**Safety Validation Logic:**
+
+1. **Confidence Score Validation**
+   - ✅ Valid: 0.0 - 1.0 range
+   - ❌ Invalid: Outside range or NaN → Log error, return fallback
+
+2. **Occurrence Threshold Check**
+   - ✅ High confidence (>= 0.70) + occurrences >= 3 → `safety_level: "high"`
+   - ⚠️ High confidence (>= 0.70) + occurrences < 3 → `safety_level: "low"` (insufficient data)
+   - ⚠️ Medium confidence (>= 0.50) + occurrences >= 3 → `safety_level: "medium"`
+   - ❌ Low confidence (< 0.50) → `safety_level: "low"`
+
+3. **Anomaly Detection**
+   - 🚨 Confidence > 0.95 AND occurrences = 1 → `anomaly_detected: true`
+   - 🚨 Confidence jumps > 0.30 in single update → `anomaly_detected: true`
+   - 📝 Flag for manual review
+
+4. **Safety Recommendations**
+   ```yaml
+   # High safety: Auto-route
+   safety_level: "high"
+   recommendation: "Auto-route with confidence"
+   
+   # Medium safety: Ask confirmation
+   safety_level: "medium"
+   recommendation: "Show intent, ask user confirmation"
+   
+   # Low safety: Fallback to pattern matching
+   safety_level: "low"
+   recommendation: "Use traditional pattern matching"
+   
+   # Anomaly detected: Override to manual
+   anomaly_detected: true
+   recommendation: "Manual review required - suspicious pattern"
+   ```
 
 ---
 
