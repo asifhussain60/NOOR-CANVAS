@@ -1,58 +1,38 @@
-#!/usr/bin/env pwsh
-# Pre-commit hook: Validate Cloudflare tunnel ID immutability
-# Location: .git/hooks/pre-commit (copy this file there)
-#
-# This hook prevents commits that would change the Cloudflare tunnel ID
-# in config.yml from the canonical value.
+#!/bin/bash
+# KDS Branch Validation Hook
+# Ensures ONLY .github/ changes are committed on features/kds branch
 
-$ErrorActionPreference = "Stop"
+BRANCH=$(git branch --show-current)
 
-# Canonical tunnel ID (from DNS records)
-$CANONICAL_TUNNEL_ID = "93650d38-60af-4dc7-a5ec-f8347fc57514"
+if [ "$BRANCH" != "features/kds" ]; then
+  echo "❌ ERROR: KDS changes ONLY allowed on features/kds branch"
+  echo ""
+  echo "Current branch: $BRANCH"
+  echo "Required branch: features/kds"
+  echo ""
+  echo "To fix:"
+  echo "  git checkout features/kds"
+  echo "  git cherry-pick <commit-hash>"
+  exit 1
+fi
 
-# Files to check
-$configFiles = @(
-    "C:\Users\asifh\.cloudflared\config.yml"
-)
+# Check if commit touches non-KDS files
+NON_KDS_FILES=$(git diff --cached --name-only | grep -v '^\.github/')
 
-Write-Host "🔍 Validating Cloudflare tunnel configuration..." -ForegroundColor Cyan
+if [ -n "$NON_KDS_FILES" ]; then
+  echo "❌ ERROR: KDS branch ONLY for .github/ changes"
+  echo ""
+  echo "Non-KDS files detected in commit:"
+  echo "$NON_KDS_FILES"
+  echo ""
+  echo "To fix:"
+  echo "  1. git reset HEAD <non-kds-file>"
+  echo "  2. Commit those files on appropriate branch"
+  echo "  3. Return to features/kds for .github changes"
+  exit 1
+fi
 
-$validationFailed = $false
-
-foreach ($file in $configFiles) {
-    if (Test-Path $file) {
-        $content = Get-Content $file -Raw
-        
-        # Extract tunnel ID from config
-        if ($content -match "tunnel:\s*([a-f0-9\-]{36})") {
-            $tunnelId = $matches[1]
-            
-            if ($tunnelId -ne $CANONICAL_TUNNEL_ID) {
-                Write-Host "" -ForegroundColor Red
-                Write-Host "❌ COMMIT REJECTED: Tunnel ID changed!" -ForegroundColor Red
-                Write-Host "" -ForegroundColor Red
-                Write-Host "   Expected: $CANONICAL_TUNNEL_ID" -ForegroundColor Yellow
-                Write-Host "   Found:    $tunnelId" -ForegroundColor Red
-                Write-Host "" -ForegroundColor Red
-                Write-Host "   DNS CNAME records point to $CANONICAL_TUNNEL_ID" -ForegroundColor Yellow
-                Write-Host "   Changing tunnel ID will break production URLs:" -ForegroundColor Red
-                Write-Host "     - noorcanvas.kashkole.com" -ForegroundColor Red
-                Write-Host "     - resources.kashkole.com" -ForegroundColor Red
-                Write-Host "     - session.kashkole.com" -ForegroundColor Red
-                Write-Host "" -ForegroundColor Red
-                Write-Host "   To fix: Revert changes to $file" -ForegroundColor Yellow
-                Write-Host "" -ForegroundColor Red
-                Write-Host "   To bypass (NOT RECOMMENDED): git commit --no-verify" -ForegroundColor DarkGray
-                Write-Host "" -ForegroundColor Red
-                $validationFailed = $true
-            }
-        }
-    }
-}
-
-if ($validationFailed) {
-    exit 1
-}
-
-Write-Host "✅ Tunnel ID validation passed" -ForegroundColor Green
-exit 0
+echo "✅ KDS-only commit validated"
+echo "📁 Files in commit:"
+git diff --cached --name-only | sed 's/^/   - /'
+echo ""

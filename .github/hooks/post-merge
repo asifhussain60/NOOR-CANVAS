@@ -1,0 +1,26 @@
+#!/bin/bash
+# KDS Auto-Return Hook
+# After merging KDS changes to other branches, auto-switch back to features/kds
+
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Only run if we're NOT already on features/kds
+if [ "$CURRENT_BRANCH" != "features/kds" ]; then
+  echo "🔄 KDS Merge Detected - Returning to features/kds branch"
+  echo ""
+  echo "Current branch: $CURRENT_BRANCH"
+  echo "Target branch: features/kds"
+  echo ""
+  
+  # Switch back to features/kds
+  git checkout features/kds
+  
+  if [ $? -eq 0 ]; then
+    echo "✅ Successfully returned to features/kds"
+    echo "📝 Ready for next KDS change"
+  else
+    echo "⚠️  Warning: Could not switch to features/kds"
+    echo "   Please manually switch: git checkout features/kds"
+  fi
+  echo ""
+fi
