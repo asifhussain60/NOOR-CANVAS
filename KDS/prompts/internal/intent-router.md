@@ -202,6 +202,32 @@ Use these patterns to classify the user's request:
 
 ---
 
+#### ANALYZE_SCREENSHOT Intent
+**When:** User uploads screenshot/image with requirements, mockups, or annotations  
+**Patterns:**
+- "analyze [this|the] screenshot"
+- "extract requirements from [image|screenshot]"
+- "what does this [mockup|design|wireframe] show"
+- "read [the|these] annotations"
+- "implement what's shown in [this|the] image"
+- "convert this design to code"
+- "extract [specs|requirements] from screenshot"
+- Image attachment detected in conversation
+
+**Route to:** `#file:KDS/prompts/internal/screenshot-analyzer.md`
+
+**Examples:**
+```
+✓ "Analyze this screenshot and extract requirements"
+✓ "What does this mockup show?"
+✓ "Extract requirements from this annotated image"
+✓ "Implement the design shown in this screenshot"
+✓ "Read the annotations on this bug report"
+✓ [User attaches image without text - auto-detect]
+```
+
+---
+
 ## 🔀 Multi-Intent Handling
 
 **When user request contains MULTIPLE intents:**
@@ -234,12 +260,13 @@ routing_decision:
 ```
 1. CORRECT (highest priority - stop current work)
 2. RESUME (check session state first)
-3. PLAN (start new work)
-4. EXECUTE (continue work)
-5. TEST (create/run tests)
-6. VALIDATE (quality checks)
-7. ASK (questions)
-8. GOVERN (KDS reviews)
+3. ANALYZE_SCREENSHOT (visual requirements extraction)
+4. PLAN (start new work)
+5. EXECUTE (continue work)
+6. TEST (create/run tests)
+7. VALIDATE (quality checks)
+8. ASK (questions)
+9. GOVERN (KDS reviews)
 ```
 
 ---

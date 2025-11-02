@@ -2,7 +2,7 @@
 
 **Purpose:** Review and validate changes to KDS itself, protecting system integrity.
 
-**Version:** 4.5  
+**Version:** 5.1 (SOLID + BRAIN Integration)  
 **Loaded By:** `KDS/prompts/user/govern.md`
 
 ---

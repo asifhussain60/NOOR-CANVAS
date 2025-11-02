@@ -2,7 +2,7 @@
 
 **Purpose:** Validate system health (build, tests, quality, git status) and provide actionable reports.
 
-**Version:** 4.5  
+**Version:** 5.1 (SOLID + BRAIN Integration)  
 **Loaded By:** `KDS/prompts/user/validate.md`
 
 ---

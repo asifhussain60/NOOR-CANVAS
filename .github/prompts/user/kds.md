@@ -11,7 +11,7 @@
 ## 🎯 The ONLY Command You Need to Remember
 
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 [Tell KDS what you want in natural language]
 ```
@@ -54,7 +54,7 @@ Screenshot Analyzer → screenshot-analyzer.md → Extracts requirements from im
 🧠 BRAIN = Knowledge Graph + Event Stream
 
 Purpose: Learn from successful/failed routings, corrections, file relationships
-Storage: KDS/kds-brain/
+Storage: .github/kds-brain/
 - knowledge-graph.yaml  → Aggregated learnings
 - events.jsonl          → Raw event stream
 ```
@@ -95,11 +95,11 @@ test-runner    → Abstract test execution (framework agnostic)
 file-accessor  → Abstract file I/O (path agnostic)
 brain-query    → Abstract BRAIN queries (self-learning system)
 
-CRITICAL: All abstractions are 100% LOCAL (in KDS/).
-- Default storage: Local files (KDS/sessions/)
+CRITICAL: All abstractions are 100% LOCAL (in .github/).
+- Default storage: Local files (.github/sessions/)
 - Default tests: Project's existing tools (discovered, not installed)
 - Default I/O: PowerShell built-ins (Get-Content, Set-Content)
-- Default BRAIN: Local YAML/JSON (KDS/kds-brain/)
+- Default BRAIN: Local YAML/JSON (.github/kds-brain/)
 - Zero external dependencies for KDS CORE
 - Cloud/database options are OPTIONAL extensions (user's choice)
 ```
@@ -164,188 +164,10 @@ Proceed with installation? (Y/n)
 
 ---
 
-## �️ Architectural Thinking Mandate
-
-**CRITICAL RULE: All KDS agents MUST think architecturally when proposing solutions.**
-
-### Core Principles
-
-**1. Architecture-First Design**
-- ✅ Understand existing application architecture BEFORE proposing solutions
-- ✅ Design solutions that naturally fit the current architecture from the start
-- ❌ NEVER propose monolithic implementations that need refactoring later
-- ❌ NEVER create "everything in one file" with intent to break apart later
-
-**2. Pre-Flight Architectural Validation**
-Every solution proposal must pass this refactor logic check:
-
-```
-BEFORE proposing a solution:
-  ↓
-1. Identify current architectural patterns
-   - Component structure (where do similar components live?)
-   - API organization (where do similar APIs exist?)
-   - Service layer patterns (how are services currently structured?)
-   - State management (what patterns are in use?)
-   - File organization (what's the project structure?)
-   ↓
-2. Run mental refactor test
-   - Would this solution require significant refactoring to fit the architecture?
-   - Am I creating files that don't match existing conventions?
-   - Am I mixing concerns that are separated elsewhere?
-   ↓
-3. If refactor is needed → REDESIGN the solution
-   - Align with existing patterns
-   - Follow established separation of concerns
-   - Place files in correct locations from the start
-   ↓
-4. Only then propose the architecturally-aligned solution
-```
-
-**3. Forbidden Anti-Patterns**
-
-❌ **NEVER do this:**
-```
-❌ "Let's create everything in PageComponent.razor first, then we'll break out 
-   the child components later"
-   
-❌ "I'll add the API logic to the page for now, we can move it to a service later"
-
-❌ "Let's put this in a temporary location and reorganize after it works"
-
-❌ "We'll create the monolith first, then refactor to match your architecture"
-```
-
-✅ **ALWAYS do this:**
-```
-✅ "Based on the existing component structure in Components/Canvas/, 
-   I'll create CanvasPdfExport.razor there and import it into the parent"
-   
-✅ "Following the pattern in Services/, I'll create PdfExportService.cs 
-   and inject it via DI as seen in other services"
-
-✅ "The existing API controllers are in Controllers/API/, so I'll create 
-   PdfExportController.cs there with the same routing pattern"
-
-✅ "This matches the architecture - components are separated, services handle 
-   business logic, and APIs are in the correct location from the start"
-```
-
-**4. Architectural Discovery Process**
-
-Before proposing ANY solution, agents must:
-
-```
-Step 1: Discover Current Architecture
-  - Search for similar features/components
-  - Identify existing patterns and conventions
-  - Map out file organization structure
-  - Understand separation of concerns
-
-Step 2: Pattern Matching
-  - "Where do similar components live?"
-  - "How are APIs currently organized?"
-  - "What's the service layer pattern?"
-  - "How is state managed?"
-
-Step 3: Alignment Check
-  - Does my solution follow these patterns?
-  - Are files in the right locations?
-  - Is separation of concerns maintained?
-  - Would a developer familiar with this codebase find this natural?
-
-Step 4: Propose Solution
-  - Only after architectural alignment is confirmed
-  - Explicitly state which patterns you're following
-  - Show how it fits the existing structure
-```
-
-**5. Implementation Example**
-
-**BAD (Anti-Pattern):**
-```markdown
-Plan: Add PDF export feature
-
-Phase 1: Create basic implementation
-  - Task 1.1: Add export logic to TranscriptCanvas.razor
-  - Task 1.2: Test the functionality
-  
-Phase 2: Refactor to proper architecture
-  - Task 2.1: Extract to PdfExportService
-  - Task 2.2: Create dedicated component
-  - Task 2.3: Move to API controller
-
-❌ This violates architectural thinking - refactoring is built into the plan!
-```
-
-**GOOD (Architecturally Aligned):**
-```markdown
-Plan: Add PDF export feature
-
-Phase 0: Architectural Discovery
-  - Task 0.1: Map existing service patterns (Services/)
-  - Task 0.2: Identify component organization (Components/)
-  - Task 0.3: Review API structure (Controllers/API/)
-
-Phase 1: Test Infrastructure (following existing test patterns)
-  - Task 1.1: Create PdfExportServiceTests.cs (Tests/Unit/Services/)
-  - Task 1.2: Create PdfExportController tests (Tests/Unit/Controllers/)
-  - Task 1.3: Create visual tests (Tests/UI/pdf-export.spec.ts)
-
-Phase 2: Implementation (architecturally aligned from start)
-  - Task 2.1: Create PdfExportService.cs in Services/
-  - Task 2.2: Create PdfExportButton.razor in Components/Canvas/
-  - Task 2.3: Create PdfExportController.cs in Controllers/API/
-  - Task 2.4: Register service in DI (Program.cs pattern)
-
-✅ This is architecturally correct from the start - no refactoring needed!
-```
-
-**6. Agent-Specific Requirements**
-
-**Work Planner (work-planner.md):**
-- ✅ MUST include "Phase 0: Architectural Discovery" for new features
-- ✅ Plans must show architectural alignment in task descriptions
-- ✅ File paths must match existing conventions
-
-**Code Executor (code-executor.md):**
-- ✅ MUST verify file location matches architecture before creating
-- ✅ MUST follow existing patterns for similar features
-- ✅ MUST NOT create temporary/placeholder implementations
-
-**Test Generator (test-generator.md):**
-- ✅ Tests must mirror the application's architectural organization
-- ✅ Test files must be placed following existing test structure
-
-**7. Validation Checkpoint**
-
-Before ANY code generation, agents must answer:
-
-```
-✓ Have I identified where similar code lives in this architecture?
-✓ Am I following the existing file organization patterns?
-✓ Is my separation of concerns consistent with the codebase?
-✓ Would this solution require refactoring to fit the architecture?
-✓ Am I creating files in their permanent, correct locations?
-
-If ANY answer is NO → STOP and redesign the solution
-```
-
-**8. Success Criteria**
-
-A solution is architecturally valid when:
-- ✅ No refactoring phase exists in the plan
-- ✅ Files are in correct locations from creation
-- ✅ Patterns match existing similar features
-- ✅ Separation of concerns is maintained from start
-- ✅ A developer familiar with the codebase would say "this fits naturally"
-
----
-
-## �🎯 The ONLY Command You Need to Remember
+## 🎯 The ONLY Command You Need to Remember
 
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 [Tell KDS what you want in natural language]
 ```
@@ -363,7 +185,7 @@ That's it! KDS will automatically:
 
 ### Start New Work
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 I want to add a FAB button pulse animation when questions arrive
 ```
@@ -371,7 +193,7 @@ I want to add a FAB button pulse animation when questions arrive
 
 ### Continue Existing Work
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 Continue working on the current task
 ```
@@ -379,7 +201,7 @@ Continue working on the current task
 
 ### Resume After Break
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 Show me where I left off
 ```
@@ -387,7 +209,7 @@ Show me where I left off
 
 ### Fix Copilot's Mistake
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 You're modifying the wrong file. The FAB button is in HostControlPanelContent.razor
 ```
@@ -395,7 +217,7 @@ You're modifying the wrong file. The FAB button is in HostControlPanelContent.ra
 
 ### Create Tests
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 Create visual regression tests for the share button
 ```
@@ -403,25 +225,15 @@ Create visual regression tests for the share button
 
 ### Check System Health
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 Run all validations and show me the health status
 ```
 → Routes to: **validate.md** → health-validator.md
 
-### Analyze Screenshot
-```markdown
-#file:KDS/prompts/user/kds.md
-
-Analyze this screenshot and extract requirements
-
-[Attach screenshot via chat interface]
-```
-→ Routes to: **screenshot-analyzer.md** → Extracts requirements, annotations, design specs
-
 ### Ask Questions
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 How do I use Playwright to test the canvas element?
 ```
@@ -429,7 +241,7 @@ How do I use Playwright to test the canvas element?
 
 ### Review KDS Changes
 ```markdown
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 
 I updated the test-generator to support Percy visual testing
 ```
@@ -452,7 +264,7 @@ keywords:
   test: ["test", "visual regression", "playwright", "unit test"]
   validate: ["health", "validate", "check", "run all", "status"]
   ask: ["how do I", "what is", "explain", "tell me about"]
-  govern: ["I updated KDS", "I modified KDS", "review my changes"]
+  govern: ["I updated KDS", "I modified .github", "review my changes"]
 ```
 
 ### Step 2: Routing Decision
@@ -486,7 +298,7 @@ Routes to: plan.md → work-planner.md
   ↓
 Planner creates plan with testing phase
   ↓
-Tells you: "Next: #file:KDS/prompts/user/kds.md continue"
+Tells you: "Next: #file:.github/prompts/user/kds.md continue"
   ↓
 You: "continue"
   ↓
@@ -501,7 +313,7 @@ Creates tests → Validates → Complete
 
 ## 🎯 Intent Detection Rules
 
-**LOAD:** `#file:KDS/prompts/internal/intent-router.md`
+**LOAD:** `#file:.github/prompts/internal/intent-router.md`
 
 The router uses these patterns:
 
@@ -572,22 +384,11 @@ Examples:
 
 **GOVERN** - Review KDS changes
 ```
-Patterns: "I updated KDS", "modified KDS", "review", "KDS change"
+Patterns: "I updated KDS", "modified .github", "review", "KDS change"
 Examples:
   - "I updated the test-generator"
   - "Review my KDS modifications"
   - "I changed the rules"
-```
-
-**ANALYZE_SCREENSHOT** - Extract requirements from images
-```
-Patterns: "analyze screenshot", "extract from image", "what does mockup show", "read annotations"
-Examples:
-  - "Analyze this screenshot and extract requirements"
-  - "What does this mockup show?"
-  - "Extract specs from this design"
-  - "Read the annotations on this bug report"
-  - [Image attachment detected]
 ```
 
 ### SECONDARY INTENTS (Can Combine)
@@ -608,7 +409,7 @@ Planner includes testing phase in plan
 
 ### Example 1: New Feature (Simple)
 ```
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      I want to add a pulse animation to the FAB button
 
 Router: PLAN intent detected
@@ -616,12 +417,12 @@ Router: PLAN intent detected
 Planner: Creates 3-phase plan
    ↓
 Output: ✅ Session created: fab-button-animation
-        Next: #file:KDS/prompts/user/kds.md continue
+        Next: #file:.github/prompts/user/kds.md continue
 ```
 
 ### Example 2: Continue Work
 ```
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      continue
 
 Router: EXECUTE intent detected
@@ -629,14 +430,14 @@ Router: EXECUTE intent detected
 Executor: Implements next task
    ↓
 Output: ✅ Task 1.1 complete: CSS animation added
-        Next: #file:KDS/prompts/user/kds.md continue
+        Next: #file:.github/prompts/user/kds.md continue
 ```
 
 ### Example 3: Resume After Break (SOLID v5.0)
 ```
 (New chat next day)
 
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      where was I?
 
 Router: RESUME intent detected
@@ -651,17 +452,17 @@ Output: Session: fab-button-animation
         Phase 2: 🔄 1/3 tasks done
         Phase 3: ⬜ Not started
         
-        Next: #file:KDS/prompts/user/kds.md continue
+        Next: #file:.github/prompts/user/kds.md continue
 ```
 
 ### Example 4: Correction Mid-Work (SOLID v5.0)
 ```
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      continue
 
 Executor: Modifying HostControlPanel.razor...
 
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      Wrong file! The FAB is in HostControlPanelContent.razor
 
 Router: CORRECT intent detected
@@ -678,12 +479,12 @@ Actions:
    ✅ Updated task file reference
    ↓
 Output: ✅ Correction applied
-        Next: #file:KDS/prompts/user/kds.md continue
+        Next: #file:.github/prompts/user/kds.md continue
 ```
 
 ### Example 5: Multi-Intent Request
 ```
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      I want to add dark mode toggle and create Percy visual tests for it
 
 Router: PLAN + TEST intents detected
@@ -692,7 +493,7 @@ Planner: Creates plan with dedicated test phase
    ↓
 Output: ✅ 4-phase plan created (includes visual testing)
         Phase 4: Percy visual regression tests
-        Next: #file:KDS/prompts/user/kds.md continue
+        Next: #file:.github/prompts/user/kds.md continue
 ```
 
 ---
@@ -721,7 +522,7 @@ Output: ✅ 4-phase plan created (includes visual testing)
 - 🔧 **Maintainable** - fix bugs in one place
 - 🚀 **Performant** - no mode-switch overhead
 - 📦 **Portable** - abstractions make storage/tools swappable
-- 🏠 **Local-First** - 100% in KDS/, zero external dependencies
+- 🏠 **Local-First** - 100% in .github/, zero external dependencies
 - 🔒 **Offline-Capable** - works without internet (except optional cloud features)
 - 🆓 **Zero-Install** - no npm/pip/dotnet packages required for KDS
 
@@ -767,7 +568,7 @@ Benefits:
 
 **If intent is ambiguous:**
 ```
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      do something
 
 Router: ❓ Intent unclear. Did you mean:
@@ -780,7 +581,7 @@ Router: ❓ Intent unclear. Did you mean:
 
 **If no active session and you say "continue":**
 ```
-You: #file:KDS/prompts/user/kds.md
+You: #file:.github/prompts/user/kds.md
      continue
 
 Router: ❌ No active session found.
@@ -837,7 +638,7 @@ Abstraction Layer (DIP):
 + work-planner.md (planning only) ✅ SRP compliant
 + session-resumer.md (resumption only) ✅ ISP compliant
 
-- Direct file access (#file:KDS/sessions/...) ❌ DIP violation
+- Direct file access (#file:.github/sessions/...) ❌ DIP violation
 + Abstract access (session-loader.md) ✅ DIP compliant
 
 - Hardcoded test commands (npx playwright test) ❌ DIP violation
@@ -865,7 +666,7 @@ All work! Universal is for convenience, SOLID is for quality.
 
 **For everything:**
 ```
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
 [what you want in natural language]
 ```
 
@@ -896,32 +697,16 @@ All work! Universal is for convenience, SOLID is for quality.
 
 ### First-Time Setup
 
-**Option 1: Populate from existing sessions (if you have session history):**
+**Populate BRAIN from existing sessions:**
 ```powershell
 # PowerShell
-.\KDS\scripts\populate-kds-brain.ps1
+.\.github\scripts\populate-kds-brain.ps1
 
 # Then update knowledge graph
-#file:KDS/prompts/internal/brain-updater.md
+#file:.github/prompts/internal/brain-updater.md
 ```
 
-**Option 2: Crawl your codebase (recommended for new KDS installations):**
-```powershell
-# PowerShell - Quick scan (30 seconds)
-.\KDS\scripts\brain-crawler.ps1 -Mode quick
-
-# OR Deep scan (5-10 minutes, comprehensive)
-.\KDS\scripts\brain-crawler.ps1 -Mode deep
-```
-
-The crawler analyzes your entire application and feeds BRAIN with:
-- 🏗️ Architectural patterns (where components/services/tests live)
-- 🔗 File relationships (what depends on what)
-- 📝 Naming conventions (how files are named)
-- 🛠️ Technology stack (languages, frameworks, tools)
-- 🧪 Test patterns (frameworks, test data, selectors)
-
-**See:** `#file:KDS/prompts/internal/brain-crawler.md` for details
+This extracts patterns from your session history and gives BRAIN an initial knowledge base.
 
 ### Ongoing Usage
 
@@ -929,27 +714,8 @@ The crawler analyzes your entire application and feeds BRAIN with:
 - 📝 Events logged with every action
 - 🧠 BRAIN updated periodically
 - 💡 Decisions get smarter over time
-- 🕷️ Run incremental crawler scans to keep current
 
 **No manual intervention needed.**
-
-### Moving KDS to Another Application
-
-**Need to reset BRAIN for a new project?**
-```powershell
-# PowerShell - Soft reset (clear data, keep config)
-.\KDS\scripts\brain-reset.ps1 -Mode soft
-
-# OR Export generic patterns first, then reset
-.\KDS\scripts\brain-reset.ps1 -Mode export-reset -ExportPath ".\templates\my-patterns\"
-
-# Then crawl the new application
-.\KDS\scripts\brain-crawler.ps1 -Mode deep
-```
-
-BRAIN gets amnesia (forgets old app) but keeps all logic intact!
-
-**See:** `#file:KDS/prompts/internal/brain-reset.md` for details
 
 ---
 
@@ -957,19 +723,19 @@ BRAIN gets amnesia (forgets old app) but keeps all logic intact!
 
 **This prompt loads:**
 ```markdown
-#file:KDS/prompts/internal/intent-router.md
+#file:.github/prompts/internal/intent-router.md
 ```
 
 **Which analyzes your request and loads one of:**
 ```
-#file:KDS/prompts/user/plan.md → #file:KDS/prompts/internal/work-planner.md
-#file:KDS/prompts/user/execute.md → #file:KDS/prompts/internal/code-executor.md
-#file:KDS/prompts/user/test.md → #file:KDS/prompts/internal/test-generator.md
-#file:KDS/prompts/user/validate.md → #file:KDS/prompts/internal/health-validator.md
-#file:KDS/prompts/user/govern.md → #file:KDS/prompts/internal/change-governor.md
-#file:KDS/prompts/user/ask-kds.md → #file:KDS/prompts/internal/knowledge-retriever.md
-#file:KDS/prompts/user/correct.md → #file:KDS/prompts/internal/error-corrector.md (NEW)
-#file:KDS/prompts/user/resume.md → #file:KDS/prompts/internal/session-resumer.md (NEW)
+#file:.github/prompts/user/plan.md → #file:.github/prompts/internal/work-planner.md
+#file:.github/prompts/user/execute.md → #file:.github/prompts/internal/code-executor.md
+#file:.github/prompts/user/test.md → #file:.github/prompts/internal/test-generator.md
+#file:.github/prompts/user/validate.md → #file:.github/prompts/internal/health-validator.md
+#file:.github/prompts/user/govern.md → #file:.github/prompts/internal/change-governor.md
+#file:.github/prompts/user/ask-kds.md → #file:.github/prompts/internal/knowledge-retriever.md
+#file:.github/prompts/user/correct.md → #file:.github/prompts/internal/error-corrector.md (NEW)
+#file:.github/prompts/user/resume.md → #file:.github/prompts/internal/session-resumer.md (NEW)
 ```
 
 **Shared abstractions (DIP compliance):**
@@ -978,15 +744,7 @@ BRAIN gets amnesia (forgets old app) but keeps all logic intact!
 #shared-module:test-runner.md → Abstract test execution (uses project's tools)
 #shared-module:file-accessor.md → Abstract file I/O (PowerShell built-ins)
 
-NOTE: All 100% local (in KDS/), zero external dependencies
-```
-
-**BRAIN management agents:**
-```
-#file:KDS/prompts/internal/brain-query.md → Query knowledge graph
-#file:KDS/prompts/internal/brain-updater.md → Process events and update
-#file:KDS/prompts/internal/brain-crawler.md → Codebase analysis (NEW)
-#file:KDS/prompts/internal/brain-reset.md → Selective amnesia (NEW)
+NOTE: All 100% local (in .github/), zero external dependencies
 ```
 
 ---
@@ -1010,7 +768,7 @@ NOTE: All 100% local (in KDS/), zero external dependencies
 - ✅ Decoupled agents from concrete file paths and tool commands
 
 **Local-First Compliance:**
-- ✅ **100% in KDS/** - All KDS logic, data, scripts housed locally
+- ✅ **100% in .github/** - All KDS logic, data, scripts housed locally
 - ✅ **Minimal external dependencies** - Only KDS enhancement libraries (declared upfront)
 - ✅ **Offline-capable** - Works without internet (core functionality)
 - ✅ **Transparent setup** - User informed of all required libraries during setup
@@ -1024,7 +782,54 @@ NOTE: All 100% local (in KDS/), zero external dependencies
 
 **What you need to remember:**
 ```
-#file:KDS/prompts/user/kds.md
+#file:.github/prompts/user/kds.md
+[describe what you want]
+```
+
+**That's it. KDS handles the rest with SOLID principles and local-first design.** 🎯
+
+---
+
+## 📝 Documentation Policy
+
+**DO NOT create user-facing documentation unless explicitly requested.**
+
+When completing tasks:
+- ❌ **Don't create:** Summary markdown files, change logs, documentation files
+- ✅ **Do provide:** Brief completion message with next step
+- ✅ **Do answer:** Questions when asked
+- ✅ **User preference:** "I never read the documentation. If I have questions, I'll ask."
+
+**Standard completion format:**
+```
+✅ Task complete: [brief description]
+Next: #file:.github/prompts/user/kds.md continue
+```
+
+**NOT:**
+```
+✅ Task complete
+
+📋 Summary of changes:
+- Added feature X...
+- Modified file Y...
+- Created component Z...
+
+[Long detailed markdown documentation]
+```
+
+**This applies to ALL KDS agents:**
+- work-planner.md
+- code-executor.md  
+- test-generator.md
+- error-corrector.md
+- session-resumer.md
+- health-validator.md
+- change-governor.md
+
+````
+```
+#file:.github/prompts/user/kds.md
 [describe what you want]
 ```
 

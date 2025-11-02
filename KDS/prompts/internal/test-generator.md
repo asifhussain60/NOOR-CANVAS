@@ -2,7 +2,7 @@
 
 **Purpose:** Create comprehensive tests (visual regression, unit, integration, E2E) with pattern loading.
 
-**Version:** 4.5  
+**Version:** 5.1 (SOLID + BRAIN Integration)  
 **Loaded By:** `KDS/prompts/user/test.md`
 
 ---

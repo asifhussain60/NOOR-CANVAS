@@ -88,6 +88,14 @@ Automatically sets up all development tooling required for KDS to function effic
 - Firefox
 - WebKit
 
+**KDS Enhancement Features (Zero Install):**
+- Screenshot/Image Analysis - Uses GitHub Copilot's built-in Vision API
+  - Extract requirements from mockups
+  - Read annotations on screenshots
+  - Analyze design specifications
+  - Parse bug report images
+  - No additional dependencies required
+
 ---
 
 ## 🔍 Project Type Detection
