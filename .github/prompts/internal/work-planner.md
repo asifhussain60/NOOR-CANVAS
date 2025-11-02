@@ -2,14 +2,15 @@
 
 **Purpose:** Break down feature requests into multi-phase plans with granular tasks.
 
-**Version:** 4.5  
-**Loaded By:** `.github/prompts/user/plan.md`
+**Version:** 5.0 (TDD-Enhanced)  
+**Loaded By:** `.github/prompts/user/plan.md`  
+**Uses:** `#shared-module:execution-tracer.md`
 
 ---
 
 ## 🎯 Core Responsibility
 
-Transform natural language feature requests into **structured, testable, multi-phase plans**.
+Transform natural language feature requests into **structured, testable, multi-phase plans** with **test-first approach** and **correlation ID tracking**.
 
 ---
 
@@ -83,7 +84,47 @@ Context:
   "session_id": "20251102-export-pdf",
   "feature": "Add export to PDF functionality",
   "created_by": "asifhussain60",
+  "correlation_id": "a3f9c1b2",
   "phases": [
+    {
+      "phase_number": 0,
+      "name": "Test Infrastructure",
+      "description": "Establish testing foundation before implementation",
+      "tasks": [
+        {
+          "task_id": "0.1",
+          "description": "Define test scenarios for PDF export",
+          "files": ["Tests/TestPlans/pdf-export-test-plan.md"],
+          "tests": ["Test plan document"],
+          "rules": ["Rule #8 (Test-First)"],
+          "status": "not_started"
+        },
+        {
+          "task_id": "0.2",
+          "description": "Create test data fixtures (sample transcripts)",
+          "files": ["Tests/Fixtures/sample-transcript.html"],
+          "tests": ["Fixture validation"],
+          "rules": ["Rule #8"],
+          "status": "not_started"
+        },
+        {
+          "task_id": "0.3",
+          "description": "Setup test environment (Playwright config, test database)",
+          "files": ["playwright.config.ts", "Tests/Integration/TestDbContext.cs"],
+          "tests": ["Environment validation test"],
+          "rules": ["Rule #8"],
+          "status": "not_started"
+        },
+        {
+          "task_id": "0.4",
+          "description": "Verify test infrastructure ready (run smoke test)",
+          "files": [],
+          "tests": ["Tests/UI/infrastructure-ready.spec.ts"],
+          "rules": ["Rule #8"],
+          "status": "not_started"
+        }
+      ]
+    },
     {
       "phase_number": 1,
       "name": "Backend API",
@@ -302,7 +343,7 @@ Phase 3: Feature Flag (optional, no hard dependency)
 ```markdown
 #file:.github/governance/rules.md (validation rules)
 #file:.github/KDS-DESIGN.md (design principles)
-#file:.github/sessions/current-session.json (existing state)
+#shared-module:session-loader.md (existing state - DIP compliant)
 ```
 
 ### Semantic Searches
@@ -409,6 +450,66 @@ Next: #file:.github/prompts/user/execute.md to start work
 - ✅ All dependencies resolved
 - ✅ Session saved to current-session.json
 - ✅ User can execute without confusion
+- ✅ Correlation ID generated and stored
+
+---
+
+## 📝 Execution Tracing
+
+### Load Execution Tracer
+```markdown
+#shared-module:execution-tracer.md
+```
+
+### Generate Correlation ID
+
+**At session creation:**
+```powershell
+# Generate 8-character correlation ID
+$correlationId = [Guid]::NewGuid().ToString("N").Substring(0, 8)
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+
+Write-Output "[$timestamp] [INFO] [KDS:work-planner:$correlationId] ======= PLANNING SESSION ======="
+Write-Output "[$timestamp] [INFO] [KDS:work-planner:$correlationId] Feature: $featureDescription"
+```
+
+### Log Planning Steps
+
+**During plan generation:**
+```powershell
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Analyzing feature request..."
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Loading related files: $fileCount files"
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Applying rules: $ruleCount rules"
+Write-Output "[$timestamp] [INFO] [KDS:work-planner:$correlationId] Generating phases..."
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Phase 0: Test Infrastructure - $task0Count tasks"
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Phase 1: Backend API - $task1Count tasks"
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Phase 2: UI Integration - $task2Count tasks"
+```
+
+### Log Completion
+
+**After session created:**
+```powershell
+Write-Output "[$timestamp] [INFO] [KDS:work-planner:$correlationId] Plan created - SessionId: $sessionId"
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Total phases: $phaseCount"
+Write-Output "[$timestamp] [DEBUG] [KDS:work-planner:$correlationId] Total tasks: $taskCount"
+Write-Output "[$timestamp] [INFO] [KDS:work-planner:$correlationId] Session file: .github/sessions/$sessionId.json"
+Write-Output "[$timestamp] [INFO] [KDS:work-planner:$correlationId] Next: #file:.github/prompts/user/kds.md continue"
+```
+
+### Store Correlation ID
+
+**In session JSON:**
+```json
+{
+  "session_id": "20251102-export-pdf",
+  "correlation_id": "a3f9c1b2",
+  "feature": "Add export to PDF functionality",
+  "created_by": "asifhussain60",
+  "created_at": "2025-11-02T14:23:45Z",
+  "phases": []
+}
+```
 
 ---
 

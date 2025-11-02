@@ -1,0 +1,124 @@
+# KDS BRAIN - Knowledge Graph
+# Version: 1.0
+# Last Updated: 2025-11-02
+# Purpose: Aggregated learnings from KDS interactions
+
+# Intent Detection Patterns (learned from successful/failed routings)
+intent_patterns:
+  plan:
+    successful_phrases:
+      # Pattern: High confidence phrases that successfully triggered PLAN intent
+      # Format: { pattern: string, confidence: float, frequency: int }
+    failed_phrases:
+      # Pattern: Ambiguous phrases that caused confusion
+      # Format: { pattern: string, clarification_needed: bool, frequency: int }
+    
+  execute:
+    successful_phrases: []
+    failed_phrases: []
+    
+  resume:
+    successful_phrases: []
+    failed_phrases: []
+    
+  correct:
+    successful_phrases: []
+    failed_phrases: []
+    triggers:
+      # Common correction triggers
+      # Format: { pattern: string, frequency: int, common_error: string }
+    
+  test:
+    successful_phrases: []
+    failed_phrases: []
+    
+  validate:
+    successful_phrases: []
+    failed_phrases: []
+    
+  ask:
+    successful_phrases: []
+    failed_phrases: []
+    
+  govern:
+    successful_phrases: []
+    failed_phrases: []
+
+# File Relationship Mappings (learned from co-modifications)
+file_relationships:
+  # Example structure:
+  # HostControlPanelContent.razor:
+  #   related_files:
+  #     - HostControlPanel.razor
+  #   common_changes_with:
+  #     wwwroot/css/noor-canvas.css: 0.75  # 75% co-modification rate
+  #   test_files:
+  #     - Tests/UI/host-control-panel.spec.ts
+  #   last_modified_for: "session-id"
+  #   modification_count: 23
+
+# Workflow Patterns (learned from successful task sequences)
+workflow_patterns:
+  # Example:
+  # UI_feature_workflow:
+  #   sequence:
+  #     - plan
+  #     - execute
+  #     - test
+  #     - validate
+  #   success_rate: 0.92
+  #   frequency: 45
+  #   common_file_types:
+  #     - "*.razor"
+  #     - "*.css"
+  #     - "*.spec.ts"
+
+# Correction History (learned from user corrections)
+correction_history:
+  file_mismatch:
+    total_occurrences: 0
+    common_mistakes:
+      # Example:
+      # - incorrect: "HostControlPanel.razor"
+      #   correct: "HostControlPanelContent.razor"
+      #   frequency: 8
+      
+  approach_mismatch:
+    total_occurrences: 0
+    common_mistakes: []
+    
+  scope_mismatch:
+    total_occurrences: 0
+    common_mistakes: []
+
+# Validation Insights (learned from health checks)
+validation_insights:
+  common_failures:
+    # Example:
+    # - check: "linting"
+    #   failure_rate: 0.15
+    #   common_fix: "run fix-copilotchats-violations.ps1"
+    #   files_prone_to_failure:
+    #     - "*.razor"
+
+# Component/Feature Mappings (learned from session context)
+feature_components:
+  # Example:
+  # fab_button:
+  #   primary_files:
+  #     - SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor
+  #   style_files:
+  #     - SPA/NoorCanvas/wwwroot/css/noor-canvas.css
+  #   test_files:
+  #     - Tests/UI/fab-button-tests.spec.ts
+  #   sessions:
+  #     - fab-button-animation
+  #   total_modifications: 15
+
+# Statistics (meta-information about BRAIN health)
+statistics:
+  total_events_processed: 0
+  last_updated: "2025-11-02T00:00:00Z"
+  knowledge_graph_version: "1.0"
+  confidence_threshold: 0.70  # Minimum confidence for auto-routing
+  learning_enabled: true

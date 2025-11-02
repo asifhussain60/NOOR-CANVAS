@@ -2,8 +2,164 @@
 
 **Purpose:** Single command for ALL KDS interactions. You don't need to remember multiple commands - just use this one and KDS figures out what you need.
 
-**Version:** 4.5  
-**Status:** ACTIVE
+**Version:** 5.0 (SOLID Refactor)  
+**Status:** 🎯 ACTIVE DESIGN  
+**Architecture:** SOLID-compliant modular system
+
+---
+
+## 🎯 The ONLY Command You Need to Remember
+
+```markdown
+#file:.github/prompts/user/kds.md
+
+[Tell KDS what you want in natural language]
+```
+
+That's it! KDS will automatically:
+- ✅ Analyze your request (intent detection)
+- ✅ Route to the appropriate specialist agent
+- ✅ Execute the correct workflow
+- ✅ Handle multi-step operations
+- ✅ Maintain session state
+
+---
+
+## 🏗️ SOLID v5.0 Architecture
+
+### What's New
+- ✅ **Single Responsibility (SRP):** Each agent has ONE clear job
+- ✅ **Interface Segregation (ISP):** Dedicated agents (no mode switches)
+- ✅ **Dependency Inversion (DIP):** Abstractions for session/file/test access
+- ✅ **Open/Closed (OCP):** Easy to extend (add new intents/agents)
+
+### Specialist Agents (8 Total)
+```
+Router         → intent-router.md       → Analyzes & routes requests
+Planner        → work-planner.md        → Creates multi-phase plans
+Executor       → code-executor.md       → Implements code (test-first)
+Tester         → test-generator.md      → Creates & runs tests
+Validator      → health-validator.md    → System health checks
+Governor       → change-governor.md     → Reviews KDS changes
+Error Corrector → error-corrector.md    → Fixes Copilot mistakes (NEW)
+Session Resumer → session-resumer.md    → Resumes after breaks (NEW)
+```
+
+### 🧠 BRAIN System (Self-Learning Feedback Loop)
+
+**NEW in v5.0:** KDS learns from every interaction!
+
+```
+🧠 BRAIN = Knowledge Graph + Event Stream
+
+Purpose: Learn from successful/failed routings, corrections, file relationships
+Storage: .github/kds-brain/
+- knowledge-graph.yaml  → Aggregated learnings
+- events.jsonl          → Raw event stream
+```
+
+**What BRAIN Learns:**
+- ✅ Intent patterns (which phrases trigger which intents)
+- ✅ File relationships (which files are modified together)
+- ✅ Common mistakes (which corrections happen frequently)
+- ✅ Workflow patterns (successful task sequences)
+- ✅ Validation insights (common failures and fixes)
+
+**How It Works:**
+```
+User request → Router queries BRAIN → High confidence? → Auto-route
+                                   → Low confidence? → Pattern matching
+
+Agent action → Log event → BRAIN updater processes → Knowledge graph updated
+
+Next request → Router gets smarter (learned from history)
+```
+
+**Benefits:**
+- 🚀 Faster routing (learns successful patterns)
+- ⚠️ Prevents mistakes (warns about common file confusions)
+- 💡 Suggests related files (based on co-modification history)
+- 📊 Improves over time (accumulates knowledge)
+
+**BRAIN Agents:**
+```
+brain-query.md   → Query knowledge graph for insights
+brain-updater.md → Process events and update graph
+```
+
+### Shared Abstractions (DIP Compliance)
+```
+session-loader → Abstract session access (file/db/cloud agnostic)
+test-runner    → Abstract test execution (framework agnostic)
+file-accessor  → Abstract file I/O (path agnostic)
+brain-query    → Abstract BRAIN queries (self-learning system)
+
+CRITICAL: All abstractions are 100% LOCAL (in .github/).
+- Default storage: Local files (.github/sessions/)
+- Default tests: Project's existing tools (discovered, not installed)
+- Default I/O: PowerShell built-ins (Get-Content, Set-Content)
+- Default BRAIN: Local YAML/JSON (.github/kds-brain/)
+- Zero external dependencies for KDS CORE
+- Cloud/database options are OPTIONAL extensions (user's choice)
+```
+
+### 📦 Open Source Library Policy
+
+**KDS Enhancement Libraries (ALLOWED)**
+
+Open source libraries that enhance KDS functionality are PERMITTED when:
+- ✅ They are declared as **required dependencies** during KDS setup
+- ✅ They are included in setup instructions (package.json, requirements.txt, etc.)
+- ✅ User is informed upfront that these are needed to proceed
+- ✅ They enhance KDS capabilities (routing, analysis, testing, validation)
+
+**Examples of Acceptable KDS Dependencies:**
+```json
+// package.json (if KDS uses Node.js enhancements)
+{
+  "devDependencies": {
+    "markdown-it": "^13.0.0",      // Enhanced markdown parsing for intent analysis
+    "yaml": "^2.3.0",                // YAML parsing for configuration
+    "chalk": "^5.3.0"                // Terminal output formatting
+  }
+}
+
+// requirements.txt (if KDS uses Python enhancements)
+markdown-it-py>=3.0.0    # Enhanced markdown processing
+pyyaml>=6.0              # YAML configuration parsing
+rich>=13.0.0             # Beautiful terminal output
+```
+
+**NOT Considered External Dependencies:**
+- Libraries needed for KDS core functionality (router, planner, executor)
+- Libraries that improve intent detection accuracy
+- Libraries that enhance session state management
+- Libraries that provide better error reporting/logging
+
+**STILL External Dependencies (Require User Approval):**
+- Libraries for the user's APPLICATION code (React, SignalR, etc.)
+- Libraries that change application architecture
+- Libraries that affect production deployment
+- Database/cloud providers not already in use
+
+**Setup Protocol:**
+When recommending KDS enhancement libraries:
+```markdown
+⚠️ **KDS Enhancement Dependencies Required**
+
+To proceed with this KDS feature, the following libraries are needed:
+
+📦 Node.js (npm install):
+  - markdown-it: Enhanced markdown parsing for intent analysis
+  - yaml: Configuration file parsing
+  
+Installation:
+  npm install --save-dev markdown-it yaml
+
+These are KDS-internal dependencies and won't affect your application code.
+
+Proceed with installation? (Y/n)
+```
 
 ---
 
@@ -276,7 +432,7 @@ Output: ✅ Task 1.1 complete: CSS animation added
         Next: #file:.github/prompts/user/kds.md continue
 ```
 
-### Example 3: Resume After Break
+### Example 3: Resume After Break (SOLID v5.0)
 ```
 (New chat next day)
 
@@ -285,14 +441,20 @@ You: #file:.github/prompts/user/kds.md
 
 Router: RESUME intent detected
    ↓
-Planner: Loads current session
+Session Resumer: Loads via session-loader (DIP)
    ↓
 Output: Session: fab-button-animation
         Progress: 3/8 tasks (38%)
+        
+        📊 Detailed Progress:
+        Phase 1: ✅ Complete
+        Phase 2: 🔄 1/3 tasks done
+        Phase 3: ⬜ Not started
+        
         Next: #file:.github/prompts/user/kds.md continue
 ```
 
-### Example 4: Correction Mid-Work
+### Example 4: Correction Mid-Work (SOLID v5.0)
 ```
 You: #file:.github/prompts/user/kds.md
      continue
@@ -304,9 +466,18 @@ You: #file:.github/prompts/user/kds.md
 
 Router: CORRECT intent detected
    ↓
-Executor: STOPS, re-analyzes, corrects
+Error Corrector: HALTS execution (dedicated agent)
    ↓
-Output: ✅ Corrected. Modifying HostControlPanelContent.razor instead.
+Analysis: FILE_MISMATCH
+   Incorrect: HostControlPanel.razor
+   Correct: HostControlPanelContent.razor
+   ↓
+Actions:
+   ✅ Reverted changes to HostControlPanel.razor
+   ✅ Loaded HostControlPanelContent.razor
+   ✅ Updated task file reference
+   ↓
+Output: ✅ Correction applied
         Next: #file:.github/prompts/user/kds.md continue
 ```
 
@@ -326,37 +497,68 @@ Output: ✅ 4-phase plan created (includes visual testing)
 
 ---
 
-## ✅ Benefits of Universal Entry Point
+## ✅ Benefits of Universal Entry Point + SOLID v5.0
 
 ### User Experience
 - ✅ **One command to remember** (`kds.md`)
 - ✅ **Natural language** - say what you want
 - ✅ **No cognitive load** - don't need to know which specialist to call
 - ✅ **Forgiving** - works even if you're vague
+- ✅ **Predictable** - same command, consistent behavior
 
-### Technical Benefits
+### Technical Benefits (SOLID v5.0)
 - ✅ **Intelligent routing** - right agent for the job
 - ✅ **Multi-intent handling** - complex requests work
-- ✅ **Context preservation** - session state maintained
+- ✅ **Context preservation** - session state via abstraction
 - ✅ **Automatic workflows** - no manual orchestration
+- ✅ **Single Responsibility** - each agent focused on one job
+- ✅ **Dependency Inversion** - swap storage/tools without breaking agents
+- ✅ **Interface Segregation** - no mode switches, dedicated specialists
+- ✅ **Easy to test** - mock abstractions, isolate agents
+
+### Architecture Benefits
+- 🎯 **Modular** - add new agents without touching existing ones
+- 🔧 **Maintainable** - fix bugs in one place
+- 🚀 **Performant** - no mode-switch overhead
+- 📦 **Portable** - abstractions make storage/tools swappable
+- 🏠 **Local-First** - 100% in .github/, zero external dependencies
+- 🔒 **Offline-Capable** - works without internet (except optional cloud features)
+- 🆓 **Zero-Install** - no npm/pip/dotnet packages required for KDS
 
 ### Comparison
 
-**Before (7 commands to remember):**
+**Before v5.0 (7 commands + mode switches):**
 ```
 plan.md → for new features
-execute.md → for continuing work
-resume.md → after breaks
-correct.md → for fixing errors
+execute.md → for continuing work + corrections (mode switch)
+resume.md → after breaks (actually loads work-planner)
+correct.md → for fixing errors (loads executor in correction mode)
 test.md → for creating tests
 validate.md → for health checks
 ask-kds.md → for questions
 govern.md → for KDS changes
+
+Issues:
+❌ Executor does 2 jobs (execution + correction)
+❌ Planner does 2 jobs (planning + resumption)
+❌ Hardcoded file paths everywhere
+❌ Hardcoded test commands
 ```
 
-**After (1 command):**
+**After v5.0 (1 command + SOLID compliance):**
 ```
 kds.md → for EVERYTHING
+  ↓
+intent-router.md → routes to 8 focused specialists
+  ↓
+Specialists use shared abstractions (session-loader, test-runner, file-accessor)
+
+Benefits:
+✅ Each agent has ONE responsibility
+✅ Error correction is dedicated (error-corrector.md)
+✅ Session resumption is dedicated (session-resumer.md)
+✅ Abstractions decouple from storage/tools
+✅ Easy to extend (add new agent = add new route)
 ```
 
 ---
@@ -388,39 +590,73 @@ Router: ❌ No active session found.
 
 ---
 
-## 📊 Does This Hurt KDS Design?
+## 📊 SOLID v5.0 Design Benefits
 
-### Answer: NO - It Enhances It!
+### Answer: YES - It Makes KDS Better!
 
-**Design Principle:**
-- ✅ **Specialist agents still exist** (plan, execute, test, etc.)
-- ✅ **Single Responsibility maintained** (each agent has one job)
-- ✅ **Routing layer is separate** (intent-router.md)
-- ✅ **You can still call specialists directly** (if you want)
+**Design Improvements:**
+- ✅ **Single Responsibility** - Each agent has ONE clear job
+- ✅ **Interface Segregation** - No mode switches (dedicated agents)
+- ✅ **Dependency Inversion** - Abstractions decouple from concrete implementations
+- ✅ **Open/Closed** - Easy to extend (add agents) without modifying existing code
 
-**Architecture:**
+**SOLID v5.0 Architecture:**
 ```
 User Interface Layer:
   kds.md (universal) ────────┐
   plan.md (direct)   ────────┤
   execute.md (direct) ───────┤
   test.md (direct)    ───────┤  All route through
-  ...                        ├─→ intent-router.md
+  correct.md (direct) ───────┤
+  resume.md (direct)  ───────┤
+  ...                        ├─→ intent-router.md (ROUTER)
                              │
 Internal Agent Layer:        │
-  work-planner.md     ←──────┤
-  code-executor.md    ←──────┤
-  test-generator.md   ←──────┤
-  health-validator.md ←──────┤
-  change-governor.md  ←──────┘
+  work-planner.md     ←──────┤  (PLAN only)
+  code-executor.md    ←──────┤  (EXECUTE only)
+  error-corrector.md  ←──────┤  (CORRECT only - NEW)
+  session-resumer.md  ←──────┤  (RESUME only - NEW)
+  test-generator.md   ←──────┤  (TEST only)
+  health-validator.md ←──────┤  (VALIDATE only)
+  change-governor.md  ←──────┤  (GOVERN only)
+  knowledge-retriever.md ←───┘  (ASK only)
+  
+Abstraction Layer (DIP):
+  session-loader.md   → Abstract session access
+  test-runner.md      → Abstract test execution
+  file-accessor.md    → Abstract file I/O
 ```
+
+**What Changed from v4.5:**
+```diff
+- code-executor.md (execution + correction modes) ❌ SRP violation
++ code-executor.md (execution only) ✅ SRP compliant
++ error-corrector.md (correction only) ✅ ISP compliant
+
+- work-planner.md (planning + resumption modes) ❌ SRP violation
++ work-planner.md (planning only) ✅ SRP compliant
++ session-resumer.md (resumption only) ✅ ISP compliant
+
+- Direct file access (#file:.github/sessions/...) ❌ DIP violation
++ Abstract access (session-loader.md) ✅ DIP compliant
+
+- Hardcoded test commands (npx playwright test) ❌ DIP violation
++ Abstract runner (test-runner.md) ✅ DIP compliant
+```
+
+**Benefits:**
+- 🎯 **Clarity** - One agent = one job (easier to understand)
+- 🚀 **Performance** - No mode-switch logic (faster routing)
+- 🔧 **Testability** - Mock abstractions (easier to test)
+- 📦 **Flexibility** - Swap storage/tools without breaking agents
 
 **Flexibility:**
 ```
 Option 1 (Easy): Use kds.md universal entry point
 Option 2 (Explicit): Call specific prompts directly
+Option 3 (Advanced): Call internal agents with abstractions
 
-Both work! Universal is for convenience.
+All work! Universal is for convenience, SOLID is for quality.
 ```
 
 ---
@@ -447,7 +683,42 @@ Both work! Universal is for convenience.
 
 ---
 
-## 🔗 Technical Implementation
+## 🧠 BRAIN System Best Practices
+
+### Standard Practice: Always Let BRAIN Learn
+
+**Every KDS interaction should:**
+1. ✅ Log events (automatic in all agents)
+2. ✅ Query BRAIN for insights (before decisions)
+3. ✅ Update knowledge graph (periodic automatic)
+
+**This is now STANDARD KDS practice** - all agents follow this pattern.
+
+### First-Time Setup
+
+**Populate BRAIN from existing sessions:**
+```powershell
+# PowerShell
+.\.github\scripts\populate-kds-brain.ps1
+
+# Then update knowledge graph
+#file:.github/prompts/internal/brain-updater.md
+```
+
+This extracts patterns from your session history and gives BRAIN an initial knowledge base.
+
+### Ongoing Usage
+
+**Just use KDS normally!** BRAIN learns automatically:
+- 📝 Events logged with every action
+- 🧠 BRAIN updated periodically
+- 💡 Decisions get smarter over time
+
+**No manual intervention needed.**
+
+---
+
+## 🔗 Technical Implementation (SOLID v5.0)
 
 **This prompt loads:**
 ```markdown
@@ -462,8 +733,17 @@ Both work! Universal is for convenience.
 #file:.github/prompts/user/validate.md → #file:.github/prompts/internal/health-validator.md
 #file:.github/prompts/user/govern.md → #file:.github/prompts/internal/change-governor.md
 #file:.github/prompts/user/ask-kds.md → #file:.github/prompts/internal/knowledge-retriever.md
-#file:.github/prompts/user/correct.md → #file:.github/prompts/internal/code-executor.md
-#file:.github/prompts/user/resume.md → #file:.github/prompts/internal/work-planner.md
+#file:.github/prompts/user/correct.md → #file:.github/prompts/internal/error-corrector.md (NEW)
+#file:.github/prompts/user/resume.md → #file:.github/prompts/internal/session-resumer.md (NEW)
+```
+
+**Shared abstractions (DIP compliance):**
+```
+#shared-module:session-loader.md → Abstract session access (default: local files)
+#shared-module:test-runner.md → Abstract test execution (uses project's tools)
+#shared-module:file-accessor.md → Abstract file I/O (PowerShell built-ins)
+
+NOTE: All 100% local (in .github/), zero external dependencies
 ```
 
 ---
@@ -471,12 +751,33 @@ Both work! Universal is for convenience.
 ## ✨ Summary
 
 **You asked:**
-> "I won't be able to remember this. Can there be an entry prompt for anything and everything?"
+> "Will the KDS system benefit from SOLID principles?"
 
-**Answer: YES! Use `kds.md` for EVERYTHING.**
+**Answer: ABSOLUTELY! v5.0 implements:**
+- ✅ **Single Responsibility** - One agent = one job
+- ✅ **Interface Segregation** - Dedicated agents (no mode switches)
+- ✅ **Dependency Inversion** - Abstractions decouple from concrete implementations
+- ✅ **Open/Closed** - Easy to extend without modifying existing code
 
-**Will this hurt KDS design?**
-> **NO! It enhances it with a convenience layer while preserving the specialist architecture.**
+**What changed:**
+- ➕ Added `error-corrector.md` (dedicated correction agent)
+- ➕ Added `session-resumer.md` (dedicated resumption agent)
+- ➕ Added abstraction layer (`session-loader`, `test-runner`, `file-accessor`)
+- ✅ Removed mode switches from `code-executor` and `work-planner`
+- ✅ Decoupled agents from concrete file paths and tool commands
+
+**Local-First Compliance:**
+- ✅ **100% in .github/** - All KDS logic, data, scripts housed locally
+- ✅ **Minimal external dependencies** - Only KDS enhancement libraries (declared upfront)
+- ✅ **Offline-capable** - Works without internet (core functionality)
+- ✅ **Transparent setup** - User informed of all required libraries during setup
+- ⚠️ **Optional extensions** - Cloud/database storage available but not required
+
+**Dependency Categories:**
+1. **KDS Core** - Zero dependencies (PowerShell/bash built-ins only)
+2. **KDS Enhancements** - Open source libraries for improved capabilities (ALLOWED, declared at setup)
+3. **Application Code** - User's project dependencies (Copilot recommends, user approves)
+4. **Optional Features** - Cloud/DB/external services (opt-in only)
 
 **What you need to remember:**
 ```
@@ -484,4 +785,4 @@ Both work! Universal is for convenience.
 [describe what you want]
 ```
 
-**That's it. KDS handles the rest.** 🎯
+**That's it. KDS handles the rest with SOLID principles and local-first design.** 🎯

@@ -17,19 +17,43 @@
     "test": [
       {
         "name": "Playwright",
-        "config_file": "playwright.config.cjs",
+        "config_file": "config/testing/playwright.config.cjs",
         "kds_usage": "Rule #8 test generation, Rule #15 ui-mappings validation",
         "detected": true,
-        "command": "npx playwright test",
-        "version": "1.56.1"
+        "command": "npx playwright",
+        "version": "1.56.1",
+        "framework_type": "ui",
+        "language": "typescript",
+        "test_patterns": [
+          "Tests/UI/**/*.spec.ts",
+          "PlayWright/**/*.spec.ts"
+        ]
       },
       {
-        "name": "dotnet test",
-        "config_file": "Test projects detected",
+        "name": "Percy",
+        "config_file": ".percy.yml",
+        "kds_usage": "Visual regression testing",
+        "detected": true,
+        "command": "npx percy exec",
+        "version": "1.31.4",
+        "framework_type": "visual-regression",
+        "language": "typescript",
+        "test_patterns": [
+          "Tests/UI/**/*percy*.spec.ts"
+        ]
+      },
+      {
+        "name": "MSTest",
+        "config_file": "NoorCanvas.sln",
         "kds_usage": "Backend unit/integration testing",
         "detected": true,
         "command": "dotnet test",
-        "version": "N/A"
+        "version": "3.0+",
+        "framework_type": "unit-integration",
+        "language": "csharp",
+        "test_patterns": [
+          "Tests/Integration/**/*Tests.cs"
+        ]
       }
     ],
     "build": [

@@ -1,0 +1,11 @@
+# KDS BRAIN .gitignore
+
+# Don't commit large event logs (can be regenerated from sessions)
+events.jsonl
+
+# Keep knowledge graph (it's the valuable aggregated knowledge)
+!knowledge-graph.yaml
+
+# Keep documentation
+!README.md
+!IMPLEMENTATION-SUMMARY.md

@@ -242,7 +242,7 @@ Re-run test
 
 ### Always Load
 ```markdown
-#file:.github/sessions/current-session.json (session state)
+#shared-module:session-loader.md (session state - DIP compliant)
 #file:.github/prompts/shared/test-first.md (TDD workflow)
 #file:.github/governance/rules.md (validation rules)
 ```
