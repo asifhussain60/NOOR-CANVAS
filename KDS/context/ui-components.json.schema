@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KDS UI Component Sensor Output",
+  "description": "Schema for ui-components.json - auto-generated UI component context from .razor files",
+  "type": "object",
+  "required": [
+    "last_scan",
+    "scan_metadata",
+    "total_components",
+    "total_pages",
+    "total_test_ids",
+    "components",
+    "pages",
+    "scan_duration_ms"
+  ],
+  "properties": {
+    "last_scan": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of last sensor scan"
+    },
+    "scan_metadata": {
+      "type": "object",
+      "required": ["sensor_version", "scan_mode", "changed_files"],
+      "properties": {
+        "sensor_version": {
+          "type": "string",
+          "description": "Version of UI component sensor script"
+        },
+        "scan_mode": {
+          "type": "string",
+          "enum": ["Full", "Incremental"],
+          "description": "Whether this was a full or incremental scan"
+        },
+        "changed_files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of .razor files scanned"
+        }
+      }
+    },
+    "total_components": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of Blazor components found"
+    },
+    "total_pages": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of routable pages (@page directive)"
+    },
+    "total_test_ids": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of data-testid attributes found"
+    },
+    "components": {
+      "type": "array",
+      "description": "All Blazor components (.razor files)",
+      "items": {
+        "type": "object",
+        "required": ["name", "file", "route", "test_ids", "children", "api_calls", "confidence"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Component name (file basename)"
+          },
+          "file": {
+            "type": "string",
+            "description": "Path to .razor file"
+          },
+          "route": {
+            "type": ["string", "null"],
+            "description": "Page route from @page directive (null if not a page)"
+          },
+          "test_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "data-testid attributes in component"
+          },
+          "children": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Child component references (e.g., <ChildComponent>)"
+          },
+          "api_calls": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "API endpoints called from component (e.g., 'POST /api/Canvas/Save')"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Confidence score (1.0 = code analysis)"
+          }
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "description": "Routable pages (components with @page directive)",
+      "items": {
+        "type": "object",
+        "required": ["route", "component", "file", "parameters", "test_ids", "confidence"],
+        "properties": {
+          "route": {
+            "type": "string",
+            "description": "Route pattern from @page directive (e.g., '/canvas/{sessionId:int}')"
+          },
+          "component": {
+            "type": "string",
+            "description": "Component name"
+          },
+          "file": {
+            "type": "string",
+            "description": "Path to .razor file"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "Route parameters extracted from pattern",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Parameter name"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Parameter type (e.g., 'int', 'string', 'guid')"
+                }
+              }
+            }
+          },
+          "test_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "data-testid attributes in page"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Confidence score (1.0 = code analysis)"
+          }
+        }
+      }
+    },
+    "scan_duration_ms": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Time taken to complete scan in milliseconds"
+    }
+  }
+}
