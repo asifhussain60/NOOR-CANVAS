@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧠 KDS Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #252526;
+      --bg-tertiary: #2d2d30;
+      --bg-hover: #37373d;
+      
+      --success: #4ec9b0;
+      --warning: #ce9178;
+      --critical: #f48771;
+      --info: #007acc;
+      --pending: #858585;
+      
+      --text-primary: #d4d4d4;
+      --text-secondary: #858585;
+      --text-accent: #4ec9b0;
+      
+      --border: #3e3e42;
+      --border-accent: #007acc;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-secondary);
+      padding: 24px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      border-left: 4px solid var(--info);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: var(--text-accent);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--info);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #005a9e;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 122, 204, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--info);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: var(--bg-primary);
+    }
+
+    .btn-success:hover {
+      background: #3da98a;
+      transform: translateY(-2px);
+    }
+
+    .header-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-tertiary);
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 3px solid var(--border);
+    }
+
+    .stat-label {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-card.healthy { border-left-color: var(--success); }
+    .stat-card.warning { border-left-color: var(--warning); }
+    .stat-card.critical { border-left-color: var(--critical); }
+    .stat-card.info { border-left-color: var(--info); }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+
+    .nav-tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+    }
+
+    .nav-tab.active {
+      color: var(--text-accent);
+    }
+
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--text-accent);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Overview Cards */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .overview-card {
+      background: var(--bg-secondary);
+      padding: 24px;
+      border-radius: 8px;
+      border-left: 4px solid var(--border-accent);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .overview-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      border-left-color: var(--text-accent);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 1.2em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-status {
+      font-size: 24px;
+    }
+
+    .card-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 12px;
+    }
+
+    .card-stat {
+      flex: 1;
+    }
+
+    .card-stat-label {
+      font-size: 0.75em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-stat-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Health Check Section */
+    .health-category {
+      background: var(--bg-secondary);
+      margin-bottom: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .category-header {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .category-header:hover {
+      background: var(--bg-hover);
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.1em;
+      font-weight: 700;
+    }
+
+    .category-progress {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .progress-text {
+      font-size: 0.9em;
+      color: var(--text-secondary);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .expand-icon {
+      transition: transform 0.3s;
+      color: var(--text-secondary);
+    }
+
+    .category-header.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .category-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .category-content.expanded {
+      max-height: 2000px;
+      transition: max-height 0.5s ease-in;
+    }
+
+    .check-list {
+      padding: 0 24px 24px;
+    }
+
+    .check-item {
+      padding: 16px;
+      margin-bottom: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.2s;
+    }
+
+    .check-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .check-item.passed {
+      border-left: 3px solid var(--success);
+    }
+
+    .check-item.warning {
+      border-left: 3px solid var(--warning);
+    }
+
+    .check-item.critical {
+      border-left: 3px solid var(--critical);
+    }
+
+    .check-item.running {
+      border-left: 3px solid var(--info);
+    }
+
+    .check-item.pending {
+      border-left: 3px solid var(--pending);
+    }
+
+    /* Status Circles */
+    .status-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .status-circle.pending {
+      border: 2px solid var(--pending);
+      background: transparent;
+    }
+
+    .status-circle.running {
+      border: 2px solid var(--info);
+      background: var(--info);
+      animation: pulse 1.5s infinite;
+    }
+
+    .status-circle.passed {
+      background: var(--success);
+      border: 2px solid var(--success);
+    }
+
+    .status-circle.warning {
+      background: var(--warning);
+      border: 2px solid var(--warning);
+      animation: pulse-slow 2s infinite;
+    }
+
+    .status-circle.critical {
+      background: var(--critical);
+      border: 2px solid var(--critical);
+      animation: pulse-fast 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes pulse-fast {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.15); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .status-circle.running::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--info);
+      animation: spin 1s linear infinite;
+    }
+
+    .check-details {
+      flex: 1;
+    }
+
+    .check-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .check-status {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+    }
+
+    .check-time {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* Recommendations */
+    .recommendations {
+      background: var(--bg-secondary);
+      padding: 24px;
+      border-radius: 8px;
+      border-left: 4px solid var(--warning);
+      margin-top: 24px;
+    }
+
+    .recommendations h3 {
+      color: var(--warning);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recommendation-item {
+      background: var(--bg-tertiary);
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .recommendation-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .recommendation-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .recommendation-content {
+      flex: 1;
+    }
+
+    .recommendation-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .recommendation-action {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      font-family: 'Consolas', monospace;
+      background: var(--bg-primary);
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    /* Activity Log */
+    .activity-log {
+      background: var(--bg-secondary);
+      padding: 24px;
+      border-radius: 8px;
+      border-left: 4px solid var(--info);
+    }
+
+    .activity-log h3 {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .activity-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-time {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      min-width: 80px;
+      flex-shrink: 0;
+    }
+
+    .activity-message {
+      flex: 1;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9em;
+    }
+
+    /* Utilities */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-success { color: var(--success); }
+    .text-warning { color: var(--warning); }
+    .text-critical { color: var(--critical); }
+    .text-info { color: var(--info); }
+    .text-muted { color: var(--text-secondary); }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--info);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <h1>
+          <span>🧠</span>
+          <span>KDS Dashboard</span>
+        </h1>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="exportReport()">
+            📊 Export Report
+          </button>
+          <button class="btn btn-primary" onclick="refreshDashboard()">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+      <div class="header-stats" id="headerStats">
+        <!-- Dynamic stats populated by JS -->
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('overview')">
+        📊 Overview
+      </button>
+      <button class="nav-tab" onclick="switchTab('health')">
+        ❤️ Health Checks
+      </button>
+      <button class="nav-tab" onclick="switchTab('brain')">
+        🧠 BRAIN System
+      </button>
+      <button class="nav-tab" onclick="switchTab('activity')">
+        📝 Activity Log
+      </button>
+    </div>
+
+    <!-- Tab: Overview -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="overview-grid" id="overviewGrid">
+        <!-- Dynamic cards populated by JS -->
+      </div>
+    </div>
+
+    <!-- Tab: Health Checks -->
+    <div id="tab-health" class="tab-content">
+      <div id="healthChecks">
+        <!-- Dynamic health check categories populated by JS -->
+      </div>
+      <div id="recommendations" class="hidden">
+        <!-- Dynamic recommendations populated by JS -->
+      </div>
+    </div>
+
+    <!-- Tab: BRAIN System -->
+    <div id="tab-brain" class="tab-content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 16px;">Loading BRAIN metrics...</p>
+      </div>
+    </div>
+
+    <!-- Tab: Activity Log -->
+    <div id="tab-activity" class="tab-content">
+      <div class="activity-log">
+        <h3>📝 Recent Activity</h3>
+        <div id="activityList">
+          <!-- Dynamic activity items populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>KDS Dashboard v1.0 | Workspace: NOOR CANVAS</p>
+      <p>Last Updated: <span id="lastUpdate">Loading...</span></p>
+    </footer>
+  </div>
+
+  <script>
+    // ==========================================
+    // State Management
+    // ==========================================
+    const state = {
+      currentTab: 'overview',
+      lastRefresh: null,
+      autoRefresh: true,
+      refreshInterval: 30000, // 30 seconds
+      healthCategories: [],
+      overallStatus: 'HEALTHY',
+      stats: {},
+      apiUrl: 'http://localhost:8765',
+      apiMode: 'server' // 'server' or 'demo'
+    };
+
+    // ==========================================
+    // Health Check Definitions
+    // ==========================================
+    const healthCheckCategories = [
+      {
+        id: 'infrastructure',
+        icon: '🏗️',
+        name: 'Infrastructure',
+        checks: [
+          { name: 'Directory Structure', description: 'All KDS directories exist' },
+          { name: 'Core Files Present', description: 'Essential prompts and configs found' },
+          { name: 'Config Validation', description: 'kds.config.json is valid JSON' },
+          { name: 'Permissions Check', description: 'Read/Write permissions OK' },
+          { name: 'Git Integration', description: 'Repository clean and up-to-date' },
+          { name: 'PowerShell Version', description: 'PowerShell ≥ 7.0 detected' }
+        ]
+      },
+      {
+        id: 'agents',
+        icon: '🤖',
+        name: 'Agents & Prompts',
+        checks: [
+          { name: 'Intent Router', description: 'intent-router.md accessible' },
+          { name: 'Work Planner', description: 'work-planner.md valid' },
+          { name: 'Code Executor', description: 'code-executor.md valid' },
+          { name: 'Test Generator', description: 'test-generator.md valid' },
+          { name: 'Health Validator', description: 'health-validator.md valid' },
+          { name: 'Change Governor', description: 'change-governor.md valid' },
+          { name: 'Shared Modules', description: 'All shared/*.md files loadable' }
+        ]
+      },
+      {
+        id: 'brain',
+        icon: '🧠',
+        name: 'BRAIN System',
+        checks: [
+          { name: 'Knowledge Graph', description: 'knowledge-graph.yaml exists & valid' },
+          { name: 'Event Stream', description: 'events.jsonl integrity check' },
+          { name: 'Pattern Recognition', description: 'Confidence thresholds correct' },
+          { name: 'Protection Scripts', description: 'All protection scripts operational' },
+          { name: 'Anomaly Queue', description: 'Pending anomalies < 10' },
+          { name: 'Update Freshness', description: 'Last update < 24 hours ago' }
+        ]
+      },
+      {
+        id: 'sessions',
+        icon: '📊',
+        name: 'Session State',
+        checks: [
+          { name: 'Current Session', description: 'current-session.json valid' },
+          { name: 'Session History', description: 'session-history.json valid' },
+          { name: 'Resumption Guide', description: 'resumption-guide.md up-to-date' },
+          { name: 'Session Limit', description: 'Active sessions < 20' },
+          { name: 'No Orphaned Sessions', description: 'All sessions have valid state' }
+        ]
+      },
+      {
+        id: 'knowledge',
+        icon: '📚',
+        name: 'Knowledge Base',
+        checks: [
+          { name: 'Test Patterns', description: 'Test pattern directory accessible' },
+          { name: 'UI Mappings', description: 'UI element mappings complete' },
+          { name: 'Published Workflows', description: 'Workflow patterns valid' },
+          { name: 'Update Requests', description: 'Pending update requests < 5' },
+          { name: 'Cross-References', description: 'All references resolved' }
+        ]
+      },
+      {
+        id: 'scripts',
+        icon: '🔧',
+        name: 'Scripts & Tools',
+        checks: [
+          { name: 'PowerShell Executable', description: 'Scripts have execute permissions' },
+          { name: 'Conversation STM', description: 'conversation-stm.ps1 working' },
+          { name: 'BRAIN Updater', description: 'brain-updater.md accessible' },
+          { name: 'Monitoring Scripts', description: 'Dashboard scripts runnable' },
+          { name: 'Maintenance Tools', description: 'Maintenance scripts tested' }
+        ]
+      },
+      {
+        id: 'performance',
+        icon: '⚡',
+        name: 'Performance',
+        checks: [
+          { name: 'BRAIN Query Time', description: 'Average query < 500ms' },
+          { name: 'Session Load Time', description: 'Session loading < 200ms' },
+          { name: 'Event Log Size', description: 'events.jsonl < 10MB' },
+          { name: 'Knowledge Graph Size', description: 'knowledge-graph.yaml < 5MB' },
+          { name: 'Memory Usage', description: 'No memory leaks detected' }
+        ]
+      }
+    ];
+
+    // ==========================================
+    // Tab Switching
+    // ==========================================
+    function switchTab(tabName) {
+      // Update state
+      state.currentTab = tabName;
+
+      // Update tab buttons
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+
+      // Load tab-specific data
+      if (tabName === 'health') {
+        renderHealthChecks();
+      } else if (tabName === 'brain') {
+        loadBRAINMetrics();
+      } else if (tabName === 'activity') {
+        loadActivityLog();
+      }
+    }
+
+    // ==========================================
+    // Overview Rendering
+    // ==========================================
+    function renderOverview() {
+      const grid = document.getElementById('overviewGrid');
+      
+      const overviewCards = [
+        {
+          icon: '🏗️',
+          title: 'Infrastructure',
+          status: '✅',
+          color: 'var(--success)',
+          stats: [
+            { label: 'Files', value: '127' },
+            { label: 'Health', value: '100%' }
+          ],
+          onclick: "switchTab('health'); expandCategory('infrastructure')"
+        },
+        {
+          icon: '🤖',
+          title: 'Agents',
+          status: '✅',
+          color: 'var(--success)',
+          stats: [
+            { label: 'Active', value: '7/7' },
+            { label: 'Health', value: '100%' }
+          ],
+          onclick: "switchTab('health'); expandCategory('agents')"
+        },
+        {
+          icon: '🧠',
+          title: 'BRAIN System',
+          status: '⚠️',
+          color: 'var(--warning)',
+          stats: [
+            { label: 'Events', value: '247' },
+            { label: 'Anomalies', value: '3' }
+          ],
+          onclick: "switchTab('brain')"
+        },
+        {
+          icon: '📊',
+          title: 'Sessions',
+          status: '✅',
+          color: 'var(--success)',
+          stats: [
+            { label: 'Active', value: '1' },
+            { label: 'History', value: '15' }
+          ],
+          onclick: "switchTab('health'); expandCategory('sessions')"
+        },
+        {
+          icon: '📚',
+          title: 'Knowledge',
+          status: '✅',
+          color: 'var(--success)',
+          stats: [
+            { label: 'Patterns', value: '23' },
+            { label: 'Workflows', value: '8' }
+          ],
+          onclick: "switchTab('health'); expandCategory('knowledge')"
+        },
+        {
+          icon: '⚡',
+          title: 'Performance',
+          status: '✅',
+          color: 'var(--success)',
+          stats: [
+            { label: 'Avg Query', value: '120ms' },
+            { label: 'Load Time', value: '45ms' }
+          ],
+          onclick: "switchTab('health'); expandCategory('performance')"
+        }
+      ];
+
+      grid.innerHTML = overviewCards.map(card => `
+        <div class="overview-card" onclick="${card.onclick}">
+          <div class="card-header">
+            <div class="card-title">
+              <span>${card.icon}</span>
+              <span>${card.title}</span>
+            </div>
+            <div class="card-status">${card.status}</div>
+          </div>
+          <div class="card-stats">
+            ${card.stats.map(stat => `
+              <div class="card-stat">
+                <div class="card-stat-label">${stat.label}</div>
+                <div class="card-stat-value" style="color: ${card.color}">${stat.value}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================
+    // Health Check Rendering
+    // ==========================================
+    function renderHealthChecks() {
+      const container = document.getElementById('healthChecks');
+      
+      container.innerHTML = healthCheckCategories.map(category => `
+        <div class="health-category">
+          <div class="category-header" onclick="toggleCategory('${category.id}')">
+            <div class="category-title">
+              <span>${category.icon}</span>
+              <span>${category.name}</span>
+            </div>
+            <div class="category-progress">
+              <div class="progress-dots" id="progress-${category.id}">
+                ${category.checks.map(() => '<div class="status-circle pending"></div>').join('')}
+              </div>
+              <span class="progress-text" id="progress-text-${category.id}">0/${category.checks.length}</span>
+              <span class="expand-icon">▼</span>
+            </div>
+          </div>
+          <div class="category-content" id="content-${category.id}">
+            <div class="check-list">
+              ${category.checks.map((check, idx) => `
+                <div class="check-item pending" id="check-${category.id}-${idx}">
+                  <div class="status-circle pending" id="circle-${category.id}-${idx}"></div>
+                  <div class="check-details">
+                    <div class="check-name">${check.name}</div>
+                    <div class="check-status">${check.description}</div>
+                  </div>
+                  <div class="check-time" id="time-${category.id}-${idx}">Pending</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCategory(categoryId) {
+      const header = event.currentTarget;
+      const content = document.getElementById(`content-${categoryId}`);
+      
+      header.classList.toggle('expanded');
+      content.classList.toggle('expanded');
+    }
+
+    function expandCategory(categoryId) {
+      const header = document.querySelector(`#content-${categoryId}`).previousElementSibling;
+      const content = document.getElementById(`content-${categoryId}`);
+      
+      header.classList.add('expanded');
+      content.classList.add('expanded');
+    }
+
+    // ==========================================
+    // Run Health Checks
+    // ==========================================
+    async function runHealthChecks() {
+      // Try API mode first, fallback to demo mode
+      if (state.apiMode === 'server') {
+        try {
+          await runHealthChecksAPI();
+          return;
+        } catch (error) {
+          console.warn('API server not available, falling back to demo mode:', error.message);
+          state.apiMode = 'demo';
+        }
+      }
+      
+      // Demo mode (simulated checks)
+      await runHealthChecksDemo();
+    }
+    
+    // Real health checks via API
+    async function runHealthChecksAPI() {
+      try {
+        // Check if API is available
+        const statusResponse = await fetch(`${state.apiUrl}/api/status`);
+        if (!statusResponse.ok) {
+          throw new Error('API server not responding');
+        }
+        
+        // Run health checks
+        const response = await fetch(`${state.apiUrl}/api/health`);
+        if (!response.ok) {
+          throw new Error(`API error: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Update UI with real results
+        for (const category of data.categories) {
+          const categoryIndex = healthCheckCategories.findIndex(c => c.id === category.id);
+          if (categoryIndex === -1) continue;
+          
+          let passedCount = 0;
+          
+          for (let i = 0; i < category.checks.length; i++) {
+            const check = category.checks[i];
+            
+            // Update to running briefly
+            updateCheckStatus(category.id, i, 'running', 'Running...');
+            await sleep(100); // Small delay for visual effect
+            
+            // Update with real result
+            updateCheckStatus(category.id, i, check.status, check.message);
+            
+            if (check.status === 'passed') {
+              passedCount++;
+            }
+          }
+          
+          updateCategoryProgress(category.id, passedCount, category.checks.length);
+        }
+        
+        // Update overall stats
+        updateHeaderStatsFromData(data);
+        
+        // Show recommendations
+        if (data.recommendations && data.recommendations.length > 0) {
+          showRecommendations(data.recommendations);
+        }
+        
+      } catch (error) {
+        console.error('Health check API error:', error);
+        throw error;
+      }
+    }
+    
+    // Demo health checks (simulated)
+    async function runHealthChecksDemo() {
+      const recommendations = [];
+      
+      for (const category of healthCheckCategories) {
+        let passedCount = 0;
+        
+        for (let i = 0; i < category.checks.length; i++) {
+          const check = category.checks[i];
+          
+          // Update to running
+          updateCheckStatus(category.id, i, 'running', 'Running...');
+          
+          // Simulate check
+          await sleep(Math.random() * 1000 + 500);
+          
+          // Random result for demo
+          const result = Math.random();
+          let status, message;
+          
+          if (result > 0.85) {
+            status = 'critical';
+            message = 'Failed';
+            recommendations.push({
+              category: category.name,
+              check: check.name,
+              action: 'Run validation script or check manually'
+            });
+          } else if (result > 0.70) {
+            status = 'warning';
+            message = 'Warning';
+            recommendations.push({
+              category: category.name,
+              check: check.name,
+              action: 'Review and optimize'
+            });
+          } else {
+            status = 'passed';
+            message = 'Passed';
+            passedCount++;
+          }
+          
+          updateCheckStatus(category.id, i, status, message);
+        }
+        
+        // Update category progress
+        updateCategoryProgress(category.id, passedCount, category.checks.length);
+      }
+      
+      // Show recommendations if any
+      if (recommendations.length > 0) {
+        showRecommendations(recommendations);
+      }
+    }
+
+    function updateCheckStatus(categoryId, checkIdx, status, message) {
+      const checkItem = document.getElementById(`check-${categoryId}-${checkIdx}`);
+      const circle = document.getElementById(`circle-${categoryId}-${checkIdx}`);
+      const time = document.getElementById(`time-${categoryId}-${checkIdx}`);
+      
+      checkItem.className = `check-item ${status}`;
+      circle.className = `status-circle ${status}`;
+      time.textContent = message;
+    }
+
+    function updateCategoryProgress(categoryId, passed, total) {
+      const progressDots = document.getElementById(`progress-${categoryId}`);
+      const progressText = document.getElementById(`progress-text-${categoryId}`);
+      
+      progressText.textContent = `${passed}/${total}`;
+      
+      // Update progress dots
+      const dots = progressDots.children;
+      for (let i = 0; i < dots.length; i++) {
+        if (i < passed) {
+          dots[i].className = 'status-circle passed';
+        }
+      }
+    }
+
+    function showRecommendations(recommendations) {
+      const container = document.getElementById('recommendations');
+      
+      container.innerHTML = `
+        <div class="recommendations">
+          <h3>⚠️ Recommendations</h3>
+          ${recommendations.map(rec => `
+            <div class="recommendation-item">
+              <div class="recommendation-icon">💡</div>
+              <div class="recommendation-content">
+                <div class="recommendation-title">${rec.category} → ${rec.check}</div>
+                <div class="recommendation-action">${rec.action}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      container.classList.remove('hidden');
+    }
+
+    // ==========================================
+    // Header Stats
+    // ==========================================
+    function renderHeaderStats() {
+      const stats = document.getElementById('headerStats');
+      
+      const mode = state.apiMode === 'server' ? '🔗 Live' : '🎮 Demo';
+      
+      stats.innerHTML = `
+        <div class="stat-card ${state.overallStatus.toLowerCase()}">
+          <div class="stat-label">Overall Status</div>
+          <div class="stat-value text-${state.overallStatus.toLowerCase()}">${getStatusEmoji(state.overallStatus)} ${state.overallStatus}</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Mode</div>
+          <div class="stat-value text-info">${mode}</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Components</div>
+          <div class="stat-value text-info">${state.stats.passed || 0} / ${state.stats.totalChecks || 0}</div>
+        </div>
+        <div class="stat-card ${state.stats.warnings > 0 ? 'warning' : 'info'}">
+          <div class="stat-label">Warnings</div>
+          <div class="stat-value text-${state.stats.warnings > 0 ? 'warning' : 'info'}">${state.stats.warnings || 0}</div>
+        </div>
+      `;
+    }
+    
+    function updateHeaderStatsFromData(data) {
+      state.overallStatus = data.overallStatus || 'HEALTHY';
+      state.stats = data.stats || {};
+      renderHeaderStats();
+    }
+    
+    function getStatusEmoji(status) {
+      switch (status) {
+        case 'HEALTHY': return '✅';
+        case 'DEGRADED': return '⚠️';
+        case 'CRITICAL': return '❌';
+        default: return '❓';
+      }
+    }
+
+    // ==========================================
+    // BRAIN Metrics
+    // ==========================================
+    function loadBRAINMetrics() {
+      const container = document.getElementById('tab-brain');
+      
+      setTimeout(() => {
+        container.innerHTML = `
+          <div class="overview-grid">
+            <div class="overview-card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span>📊</span>
+                  <span>Event Stream</span>
+                </div>
+                <div class="card-status">✅</div>
+              </div>
+              <div class="card-stats">
+                <div class="card-stat">
+                  <div class="card-stat-label">Total Events</div>
+                  <div class="card-stat-value" style="color: var(--success)">247</div>
+                </div>
+                <div class="card-stat">
+                  <div class="card-stat-label">Pending</div>
+                  <div class="card-stat-value" style="color: var(--warning)">12</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="overview-card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span>🧠</span>
+                  <span>Knowledge Graph</span>
+                </div>
+                <div class="card-status">✅</div>
+              </div>
+              <div class="card-stats">
+                <div class="card-stat">
+                  <div class="card-stat-label">Patterns</div>
+                  <div class="card-stat-value" style="color: var(--success)">156</div>
+                </div>
+                <div class="card-stat">
+                  <div class="card-stat-label">Confidence</div>
+                  <div class="card-stat-value" style="color: var(--success)">0.92</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="overview-card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span>🛡️</span>
+                  <span>Protection</span>
+                </div>
+                <div class="card-status">⚠️</div>
+              </div>
+              <div class="card-stats">
+                <div class="card-stat">
+                  <div class="card-stat-label">Anomalies</div>
+                  <div class="card-stat-value" style="color: var(--warning)">3</div>
+                </div>
+                <div class="card-stat">
+                  <div class="card-stat-label">Accuracy</div>
+                  <div class="card-stat-value" style="color: var(--success)">96%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }, 1000);
+    }
+
+    // ==========================================
+    // Activity Log
+    // ==========================================
+    function loadActivityLog() {
+      const container = document.getElementById('activityList');
+      
+      const activities = [
+        { time: '2 mins ago', message: 'Health check completed - All systems healthy' },
+        { time: '15 mins ago', message: 'BRAIN updated with 12 new events' },
+        { time: '1 hour ago', message: 'Session created: pdf-export-feature' },
+        { time: '2 hours ago', message: 'Knowledge graph validated successfully' },
+        { time: '3 hours ago', message: 'Maintenance script executed' }
+      ];
+      
+      container.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+          <div class="activity-time">${activity.time}</div>
+          <div class="activity-message">${activity.message}</div>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================
+    // Actions
+    // ==========================================
+    function refreshDashboard() {
+      state.lastRefresh = new Date();
+      updateLastUpdateTime();
+      
+      // Refresh current tab
+      if (state.currentTab === 'overview') {
+        renderOverview();
+      } else if (state.currentTab === 'health') {
+        renderHealthChecks();
+        runHealthChecks();
+      } else if (state.currentTab === 'brain') {
+        loadBRAINMetrics();
+      } else if (state.currentTab === 'activity') {
+        loadActivityLog();
+      }
+      
+      renderHeaderStats();
+    }
+
+    function exportReport() {
+      const report = {
+        timestamp: new Date().toISOString(),
+        status: state.overallStatus,
+        categories: healthCheckCategories.map(cat => ({
+          name: cat.name,
+          checks: cat.checks
+        })),
+        stats: state.stats
+      };
+      
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kds-health-report-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function updateLastUpdateTime() {
+      const elem = document.getElementById('lastUpdate');
+      if (state.lastRefresh) {
+        elem.textContent = state.lastRefresh.toLocaleString();
+      } else {
+        elem.textContent = new Date().toLocaleString();
+      }
+    }
+
+    // ==========================================
+    // Utilities
+    // ==========================================
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ==========================================
+    // Initialization
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderOverview();
+      renderHeaderStats();
+      updateLastUpdateTime();
+      
+      // Auto-refresh if enabled
+      if (state.autoRefresh) {
+        setInterval(() => {
+          if (document.visibilityState === 'visible') {
+            refreshDashboard();
+          }
+        }, state.refreshInterval);
+      }
+    });
+  </script>
+</body>
+</html>

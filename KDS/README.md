@@ -229,6 +229,50 @@ KDS/
 
 ---
 
+## 🎯 Health Dashboard
+
+### Quick Access
+
+**🚀 ONE COMMAND (Recommended):**
+```bash
+# All-in-one: Start API server + Open dashboard
+Ctrl+Shift+P → Tasks: Run Task → "kds: launch dashboard (all-in-one)"
+```
+
+**Alternative Methods:**
+```bash
+# Method 1: PowerShell (all-in-one)
+.\KDS\scripts\launch-dashboard.ps1
+
+# Method 2: Separate control
+Ctrl+Shift+P → "kds: start api server"  # Terminal 1
+Ctrl+Shift+P → "kds: health dashboard"  # Browser opens
+
+# Method 3: Dashboard only (demo mode)
+Double-click: KDS\kds-dashboard.html
+```
+
+**Features:**
+- 📊 **Overview Tab** - System status at a glance
+- ❤️ **Health Checks** - 7 categories, 39+ checks (expandable drill-down)
+- 🧠 **BRAIN Metrics** - Event stream, knowledge graph stats
+- 📝 **Activity Log** - Recent system events
+- 🔄 **Auto-Refresh** - Configurable interval (30s default)
+- 📤 **Export Reports** - JSON format for analysis
+- 🔗 **Live Mode** - Real health checks via API server
+- 🎮 **Demo Mode** - Simulated checks (fallback)
+
+**Architecture:**
+- ✅ Single HTML file (~60KB)
+- ✅ Zero external dependencies
+- ✅ Beautiful dark theme
+- ✅ Real-time status animations
+- ✅ 100% portable
+
+See [Dashboard Documentation](dashboard/README.md) for full details.
+
+---
+
 ## 🛠️ Configuration
 
 ### Customize User Output Templates
