@@ -1294,12 +1294,13 @@
       state.lastRefresh = new Date();
       updateLastUpdateTime();
       
-      // Refresh current tab
+      // Always run health checks (updates overview cards too)
+      renderHealthChecks();
+      runHealthChecks();
+      
+      // Refresh current tab content
       if (state.currentTab === 'overview') {
         renderOverview();
-      } else if (state.currentTab === 'health') {
-        renderHealthChecks();
-        runHealthChecks();
       } else if (state.currentTab === 'brain') {
         loadBRAINMetrics();
       } else if (state.currentTab === 'activity') {

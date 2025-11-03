@@ -1,0 +1,621 @@
+{
+    "session_id": "kds-testing-system-2025-11-03",
+    "title": "KDS Comprehensive Testing System",
+    "created": "2025-11-03T19:30:00Z",
+    "status": "planning",
+    "current_phase": 1,
+    "current_task": "1.1",
+    "phases": [
+        {
+            "phase": 1,
+            "name": "Foundation - BRAIN Integrity Test",
+            "status": "pending",
+            "tasks": [
+                {
+                    "task_id": "1.1",
+                    "description": "Create test-brain-integrity.ps1 - File existence and structure validation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test validates all BRAIN files exist (conversation-history.jsonl, knowledge-graph.yaml, development-context.yaml, events.jsonl)",
+                        "Test validates JSON/JSONL syntax for all files",
+                        "Test validates YAML syntax for knowledge-graph.yaml and development-context.yaml",
+                        "Test validates conversation history FIFO queue (max 20, no duplicates)",
+                        "Test validates knowledge graph confidence scores (0.50-1.00 range)",
+                        "Test validates event log integrity (all lines valid JSON)",
+                        "Test validates file sizes are reasonable (events.jsonl < 50MB)",
+                        "Test returns structured result with pass/fail per check",
+                        "Exit code 0 on success, non-zero on failure"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-brain-integrity.ps1"
+                    ],
+                    "estimated_time": "2 hours"
+                },
+                {
+                    "task_id": "1.2",
+                    "description": "Test the BRAIN integrity test with real KDS data",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test runs successfully against current KDS BRAIN files",
+                        "All checks pass with current healthy BRAIN state",
+                        "Test correctly identifies corrupted data when injected",
+                        "Output is human-readable and actionable",
+                        "Performance: completes in < 10 seconds"
+                    ],
+                    "files_to_modify": [],
+                    "estimated_time": "30 minutes"
+                },
+                {
+                    "task_id": "1.3",
+                    "description": "Create Playwright test to verify test-brain-integrity.ps1 execution",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Playwright test launches test-brain-integrity.ps1",
+                        "Test captures exit code and validates success (0)",
+                        "Test parses JSON output and validates structure",
+                        "Test validates all expected checks are present",
+                        "Screenshot captured on failure",
+                        "Test runs in both headed and headless modes"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-brain-integrity.spec.ts"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "1.4",
+                    "description": "Document test-brain-integrity usage and integration",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "README.md created in KDS/tests/ with usage examples",
+                        "Documentation includes what each check validates",
+                        "Examples show how to run test manually and via task",
+                        "Troubleshooting section for common failures",
+                        "Integration with dashboard documented"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/README.md"
+                    ],
+                    "estimated_time": "30 minutes"
+                }
+            ],
+            "estimated_time": "4 hours",
+            "deliverables": [
+                "test-brain-integrity.ps1 (working, tested)",
+                "Playwright automation test",
+                "Test documentation"
+            ]
+        },
+        {
+            "phase": 2,
+            "name": "Intent Router Accuracy Test",
+            "status": "pending",
+            "tasks": [
+                {
+                    "task_id": "2.1",
+                    "description": "Create test-intent-routing.ps1 - Router accuracy validation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test validates 8 canonical intent phrases (PLAN, EXECUTE, TEST, VALIDATE, GOVERN, CORRECT, RESUME, ASK)",
+                        "Test invokes intent-router.md for each phrase",
+                        "Test captures detected intent and confidence score",
+                        "Test asserts correct intent detected for each phrase",
+                        "Test asserts confidence score >= 0.85 for all canonical phrases",
+                        "Test includes variant phrases (3+ per intent)",
+                        "Test calculates overall accuracy percentage",
+                        "Test returns structured results with per-intent breakdown",
+                        "Exit code 0 if accuracy >= 95%, non-zero otherwise"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-intent-routing.ps1"
+                    ],
+                    "estimated_time": "3 hours"
+                },
+                {
+                    "task_id": "2.2",
+                    "description": "Create test data file with canonical and variant phrases",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "JSON file contains 8 intent categories",
+                        "Each category has 1 canonical phrase",
+                        "Each category has 3+ variant phrases",
+                        "Expected intent and minimum confidence documented",
+                        "File is easily extensible for new test cases"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-data/intent-test-phrases.json"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "2.3",
+                    "description": "Test the intent routing test with current knowledge graph",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test runs successfully with current knowledge-graph.yaml",
+                        "All canonical phrases route correctly",
+                        "Accuracy score calculated and displayed",
+                        "Failed intents logged with details",
+                        "Performance: completes in < 20 seconds"
+                    ],
+                    "files_to_modify": [],
+                    "estimated_time": "30 minutes"
+                },
+                {
+                    "task_id": "2.4",
+                    "description": "Create Playwright test for intent routing validation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test executes test-intent-routing.ps1",
+                        "Test validates exit code and accuracy percentage",
+                        "Test parses results and validates per-intent accuracy",
+                        "Test captures failures for debugging",
+                        "Screenshot on failure with accuracy breakdown"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-intent-routing.spec.ts"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "2.5",
+                    "description": "Update test documentation with intent routing test",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "README.md updated with intent routing test section",
+                        "Examples show how to add new test phrases",
+                        "Expected accuracy thresholds documented",
+                        "Troubleshooting for low-confidence routes included"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/README.md"
+                    ],
+                    "estimated_time": "30 minutes"
+                }
+            ],
+            "estimated_time": "6 hours",
+            "deliverables": [
+                "test-intent-routing.ps1 (working, tested)",
+                "intent-test-phrases.json (test data)",
+                "Playwright automation test",
+                "Updated documentation"
+            ]
+        },
+        {
+            "phase": 3,
+            "name": "BRAIN Learning Effectiveness Test",
+            "status": "pending",
+            "tasks": [
+                {
+                    "task_id": "3.1",
+                    "description": "Create test-brain-learning.ps1 - Learning validation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test captures baseline knowledge graph state (pattern count, event count, confidence scores)",
+                        "Test logs 10+ synthetic events (intent_detected, file_modified, pattern_identified)",
+                        "Test invokes brain-updater.md to process events",
+                        "Test captures post-update knowledge graph state",
+                        "Test asserts events processed count increased",
+                        "Test asserts pattern count increased or maintained",
+                        "Test asserts knowledge graph version incremented",
+                        "Test validates no regression (confidence scores didn't decrease)",
+                        "Test cleans up synthetic data after run",
+                        "Exit code 0 if learning occurred, non-zero if regression detected"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-brain-learning.ps1"
+                    ],
+                    "estimated_time": "4 hours"
+                },
+                {
+                    "task_id": "3.2",
+                    "description": "Create synthetic event generator helper",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Helper function generates valid event JSON",
+                        "Supports all event types (intent_detected, file_modified, pattern_identified, etc.)",
+                        "Events have proper timestamps and structure",
+                        "Events are tagged as synthetic for cleanup",
+                        "Helper validates event structure before writing"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/helpers/New-SyntheticEvent.ps1"
+                    ],
+                    "estimated_time": "2 hours"
+                },
+                {
+                    "task_id": "3.3",
+                    "description": "Test the BRAIN learning test with backup/restore",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test backs up BRAIN files before running",
+                        "Test runs successfully and validates learning",
+                        "Test restores BRAIN files after completion",
+                        "No permanent changes to production BRAIN data",
+                        "Performance: completes in < 45 seconds"
+                    ],
+                    "files_to_modify": [],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "3.4",
+                    "description": "Create Playwright test for BRAIN learning validation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test executes test-brain-learning.ps1",
+                        "Test validates learning occurred (exit code 0)",
+                        "Test parses before/after metrics",
+                        "Test validates improvement percentage calculated",
+                        "Screenshot captured with metrics comparison"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-brain-learning.spec.ts"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "3.5",
+                    "description": "Update documentation with learning effectiveness test",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "README.md updated with learning test section",
+                        "Explanation of what learning effectiveness means",
+                        "Examples of synthetic events used",
+                        "Expected learning improvements documented",
+                        "Safety notes about backup/restore included"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/README.md"
+                    ],
+                    "estimated_time": "30 minutes"
+                }
+            ],
+            "estimated_time": "8.5 hours",
+            "deliverables": [
+                "test-brain-learning.ps1 (working, tested)",
+                "New-SyntheticEvent.ps1 (helper)",
+                "Playwright automation test",
+                "Updated documentation"
+            ]
+        },
+        {
+            "phase": 4,
+            "name": "Unified Test Runner",
+            "status": "pending",
+            "tasks": [
+                {
+                    "task_id": "4.1",
+                    "description": "Create run-kds-tests.ps1 - Unified test suite runner",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Script runs all 3 tests in sequence",
+                        "Supports -Quick flag (skips learning test)",
+                        "Supports -Verbose flag for detailed output",
+                        "Aggregates results (passed/failed/skipped counts)",
+                        "Displays summary with overall health status",
+                        "Exit code equals number of failed tests",
+                        "Execution time displayed per test and total",
+                        "Color-coded output (green/yellow/red)",
+                        "JSON output option for programmatic use"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/run-kds-tests.ps1"
+                    ],
+                    "estimated_time": "2 hours"
+                },
+                {
+                    "task_id": "4.2",
+                    "description": "Add VS Code task for running KDS tests",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Task 'kds: run tests (quick)' runs with -Quick flag",
+                        "Task 'kds: run tests (full)' runs all tests",
+                        "Tasks integrated into existing task list",
+                        "Task presentation configured for terminal visibility",
+                        "Tasks show in VS Code task picker"
+                    ],
+                    "files_to_modify": [
+                        ".vscode/tasks.json"
+                    ],
+                    "estimated_time": "30 minutes"
+                },
+                {
+                    "task_id": "4.3",
+                    "description": "Test the unified runner with all tests",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Quick mode completes in < 30 seconds",
+                        "Full mode completes in < 60 seconds",
+                        "All tests execute in correct order",
+                        "Failure in one test doesn't block others",
+                        "Summary accurately reflects test results",
+                        "VS Code tasks work correctly"
+                    ],
+                    "files_to_modify": [],
+                    "estimated_time": "30 minutes"
+                },
+                {
+                    "task_id": "4.4",
+                    "description": "Create comprehensive test suite documentation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "README.md has complete usage guide",
+                        "Quick start section for new users",
+                        "Detailed explanation of each test",
+                        "CI/CD integration examples",
+                        "Troubleshooting section",
+                        "When to run which tests documented"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/README.md"
+                    ],
+                    "estimated_time": "1 hour"
+                }
+            ],
+            "estimated_time": "4 hours",
+            "deliverables": [
+                "run-kds-tests.ps1 (unified runner)",
+                "VS Code tasks integration",
+                "Complete test documentation"
+            ]
+        },
+        {
+            "phase": 5,
+            "name": "Dashboard Integration (Optional)",
+            "status": "pending",
+            "tasks": [
+                {
+                    "task_id": "5.1",
+                    "description": "Add test execution endpoint to dashboard API server",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "New endpoint: GET /api/tests/run",
+                        "Endpoint executes run-kds-tests.ps1 -Quick",
+                        "Returns JSON with test results",
+                        "Includes execution time and status",
+                        "CORS headers configured for dashboard access"
+                    ],
+                    "files_to_modify": [
+                        "KDS/scripts/dashboard-api-server.ps1"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "5.2",
+                    "description": "Add 'Run KDS Tests' button to dashboard",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Button added to dashboard header or overview tab",
+                        "Button calls /api/tests/run endpoint",
+                        "Loading state shown during execution",
+                        "Results displayed in modal or dedicated section",
+                        "Pass/fail counts shown with color coding",
+                        "Failed tests show details",
+                        "Last run timestamp displayed"
+                    ],
+                    "files_to_modify": [
+                        "KDS/kds-dashboard.html"
+                    ],
+                    "estimated_time": "2 hours"
+                },
+                {
+                    "task_id": "5.3",
+                    "description": "Test dashboard integration end-to-end",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Button click triggers API call",
+                        "Tests execute successfully",
+                        "Results display correctly in UI",
+                        "Performance: responds in < 35 seconds",
+                        "Error handling works (API server down)"
+                    ],
+                    "files_to_modify": [],
+                    "estimated_time": "30 minutes"
+                },
+                {
+                    "task_id": "5.4",
+                    "description": "Create Playwright test for dashboard test button",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Test launches dashboard and API server",
+                        "Test clicks 'Run KDS Tests' button",
+                        "Test waits for execution to complete",
+                        "Test validates results displayed",
+                        "Screenshot captured showing results"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/test-dashboard-kds-tests.spec.ts"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "5.5",
+                    "description": "Update dashboard documentation with test feature",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Dashboard README updated with test button section",
+                        "Quick start guide includes test execution",
+                        "API endpoint documented",
+                        "Screenshots of test results included"
+                    ],
+                    "files_to_modify": [
+                        "KDS/dashboard/README.md"
+                    ],
+                    "estimated_time": "30 minutes"
+                }
+            ],
+            "estimated_time": "5 hours",
+            "deliverables": [
+                "Dashboard API test endpoint",
+                "Dashboard UI test button",
+                "Playwright automation test",
+                "Updated dashboard documentation"
+            ]
+        },
+        {
+            "phase": 6,
+            "name": "Validation & Knowledge Graph Update",
+            "status": "pending",
+            "tasks": [
+                {
+                    "task_id": "6.1",
+                    "description": "Run complete test suite validation",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "All tests pass with current KDS state",
+                        "Quick mode completes in < 30 seconds",
+                        "Full mode completes in < 60 seconds",
+                        "Dashboard integration works correctly",
+                        "No false positives or false negatives",
+                        "Documentation accurate and complete"
+                    ],
+                    "files_to_modify": [],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "6.2",
+                    "description": "Update knowledge graph with testing patterns",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Pattern added: kds_system_testing (PowerShell test framework)",
+                        "Pattern added: synthetic_event_generation (BRAIN testing)",
+                        "Pattern added: intent_routing_validation (accuracy testing)",
+                        "File relationships added for test ecosystem",
+                        "Intent pattern added: 'run tests' → VALIDATE",
+                        "Feature component added: kds_testing_system"
+                    ],
+                    "files_to_modify": [
+                        "KDS/kds-brain/knowledge-graph.yaml"
+                    ],
+                    "estimated_time": "1 hour"
+                },
+                {
+                    "task_id": "6.3",
+                    "description": "Log session completion and create session summary",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Session marked as complete in current-session.json",
+                        "Session moved to session-history.json",
+                        "Events logged to events.jsonl",
+                        "Conversation boundary created",
+                        "Session summary document created"
+                    ],
+                    "files_to_modify": [
+                        "KDS/sessions/current-session.json",
+                        "KDS/sessions/session-history.json",
+                        "KDS/kds-brain/events.jsonl",
+                        "KDS/kds-brain/conversation-history.jsonl"
+                    ],
+                    "estimated_time": "30 minutes"
+                },
+                {
+                    "task_id": "6.4",
+                    "description": "Update kds.md with testing intent (minimal)",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Single phrase added: 'run tests' → routes to VALIDATE",
+                        "No complex documentation in kds.md (keep simple)",
+                        "Intent router handles routing automatically",
+                        "Documentation stays in KDS/tests/README.md"
+                    ],
+                    "files_to_modify": [
+                        "KDS/prompts/user/kds.md"
+                    ],
+                    "estimated_time": "15 minutes"
+                },
+                {
+                    "task_id": "6.5",
+                    "description": "Create implementation summary document",
+                    "status": "pending",
+                    "acceptance_criteria": [
+                        "Document created: KDS/tests/IMPLEMENTATION-SUMMARY.md",
+                        "Summary includes all tests created",
+                        "Usage examples included",
+                        "Performance metrics documented",
+                        "Future enhancements listed",
+                        "Links to all test files"
+                    ],
+                    "files_to_modify": [
+                        "KDS/tests/IMPLEMENTATION-SUMMARY.md"
+                    ],
+                    "estimated_time": "1 hour"
+                }
+            ],
+            "estimated_time": "3.75 hours",
+            "deliverables": [
+                "Validated test suite",
+                "Updated knowledge graph",
+                "Session completion artifacts",
+                "Implementation summary"
+            ]
+        }
+    ],
+    "total_estimated_time": "31.25 hours",
+    "files_created": [
+        "KDS/tests/test-brain-integrity.ps1",
+        "KDS/tests/test-brain-integrity.spec.ts",
+        "KDS/tests/test-intent-routing.ps1",
+        "KDS/tests/test-intent-routing.spec.ts",
+        "KDS/tests/test-data/intent-test-phrases.json",
+        "KDS/tests/test-brain-learning.ps1",
+        "KDS/tests/test-brain-learning.spec.ts",
+        "KDS/tests/helpers/New-SyntheticEvent.ps1",
+        "KDS/tests/run-kds-tests.ps1",
+        "KDS/tests/README.md",
+        "KDS/tests/test-dashboard-kds-tests.spec.ts",
+        "KDS/tests/IMPLEMENTATION-SUMMARY.md"
+    ],
+    "files_modified": [
+        ".vscode/tasks.json",
+        "KDS/scripts/dashboard-api-server.ps1",
+        "KDS/kds-dashboard.html",
+        "KDS/dashboard/README.md",
+        "KDS/kds-brain/knowledge-graph.yaml",
+        "KDS/prompts/user/kds.md",
+        "KDS/sessions/current-session.json",
+        "KDS/sessions/session-history.json",
+        "KDS/kds-brain/events.jsonl",
+        "KDS/kds-brain/conversation-history.jsonl"
+    ],
+    "acceptance_criteria": [
+        "3 core tests created and working (brain integrity, intent routing, learning effectiveness)",
+        "All tests complete in < 60 seconds (full mode)",
+        "Quick mode completes in < 30 seconds",
+        "Unified test runner provides clear pass/fail summary",
+        "VS Code tasks integrated for easy execution",
+        "Dashboard integration functional (optional)",
+        "All tests have Playwright automation",
+        "Complete documentation in KDS/tests/README.md",
+        "Knowledge graph updated with testing patterns",
+        "Zero false positives/negatives in test results",
+        "Exit codes correct (0 = success, non-zero = failures)",
+        "kds.md remains simple (1 line addition max)"
+    ],
+    "risks": [
+        {
+            "risk": "BRAIN updater integration complexity",
+            "mitigation": "Use backup/restore for test isolation, validate with manual runs first"
+        },
+        {
+            "risk": "Intent router invocation in tests",
+            "mitigation": "Use similar pattern to existing test scripts, validate output structure"
+        },
+        {
+            "risk": "Dashboard API server conflicts",
+            "mitigation": "Use different port for tests or check port availability"
+        },
+        {
+            "risk": "Synthetic events corrupting production BRAIN",
+            "mitigation": "Tag synthetic events, clean up after tests, use backup/restore"
+        }
+    ],
+    "notes": [
+        "Phase 5 (Dashboard Integration) is optional - can be deferred if time-constrained",
+        "Tests designed to run independently - failure in one doesn't block others",
+        "All tests include Playwright automation for CI/CD readiness",
+        "Quick mode designed for pre-commit validation",
+        "Full mode designed for weekly validation or before major changes",
+        "Documentation prioritizes actionable guidance over comprehensive theory",
+        "Keep kds.md simple - detailed docs in KDS/tests/README.md"
+    ]
+}

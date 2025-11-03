@@ -372,8 +372,15 @@ workflow_patterns:
 
 correction_history:
   file_mismatch:
-    total_occurrences: 0
-    common_mistakes: []
+    total_occurrences: 1
+    common_mistakes:
+      - incorrect_location: "tmp/PdfExportService.cs"
+        correct_location: "SPA/NoorCanvas/Services/PdfExportService.cs"
+        reason: "Architectural Thinking Mandate - no temporary files"
+        pattern: "Services must be in Services/ directory"
+        occurrences: 1
+        first_seen: "2025-11-03T20:10:00Z"
+        confidence: 0.85
   approach_mismatch:
     total_occurrences: 0
     common_mistakes: []
