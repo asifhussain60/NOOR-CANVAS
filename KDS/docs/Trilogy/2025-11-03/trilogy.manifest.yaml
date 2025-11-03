@@ -1,5 +1,5 @@
 version: 2025-11-03
-created_at: 2025-11-03T13:33:06Z
+created_at: 2025-11-03T14:05:16Z
 includes_pr_intelligence: true
 files:
   - path: Image-Prompts.md
@@ -9,8 +9,8 @@ files:
     sha256: 02b5a4ea1eaa8a957fb891a87f11317ec09d35898c04a076209017e27c5dccf3
     size_bytes: 5236
   - path: Story.md
-    sha256: f7dab65e5e397e918ce9fb6d5a1de3ebeb44255c54317b8551a860d0a2fd6b89
-    size_bytes: 2598
+    sha256: 9dd3fc6c340369504159c24dfce9a004df22ff6936f7888597b64082f7fab110
+    size_bytes: 7407
 checks:
   - all_share_same_trilogy_version: true
   - image_prompts_has_pr_sections: true
