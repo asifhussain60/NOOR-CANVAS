@@ -97,12 +97,23 @@ Validation runs → Validator checks → Log event
 Brain Updater aggregates events:
 ```
 events.jsonl → Parse events → Identify patterns → Update knowledge-graph.yaml
+                                                ↓
+                                    (Throttled) Check if Tier 3 needed
+                                                ↓
+                            IF last_collection > 1 hour → Update development-context.yaml
 ```
 
-**Triggers:**
+**Triggers (Tier 2 - Knowledge Graph):**
 - After 50+ new events
+- After 24 hours (if 10+ events exist)
 - End of session
 - Manual: `#file:KDS/prompts/internal/brain-updater.md`
+
+**Triggers (Tier 3 - Development Context):**
+- ⚡ **Throttled:** Only if last Tier 3 collection > 1 hour
+- ✅ **Efficiency:** Reduces 2-5 min operations from 2-4x/day to 1-2x/day
+- ✅ **Accuracy:** 1-hour freshness sufficient for git/test/build metrics
+- Manual: Always runs (no throttling on explicit requests)
 
 ### 3. **Query for Insights** (Real-time)
 

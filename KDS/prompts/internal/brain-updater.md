@@ -286,7 +286,36 @@ Write updated data to:
 
 ### Step 6: Trigger Development Context Collection (Tier 3)
 
-**After updating knowledge graph, collect development context metrics:**
+**⚡ EFFICIENCY OPTIMIZATION: Throttled Tier 3 collection to balance accuracy vs performance**
+
+**Check if Tier 3 update is needed:**
+
+```yaml
+# Read development-context.yaml
+last_collection_time = development-context.yaml.metadata.last_updated
+
+# Calculate time since last collection
+time_since_collection = now() - last_collection_time
+```
+
+**Decision Logic:**
+```python
+if time_since_collection > 1_hour OR manual_trigger:
+    # Tier 3 collection needed
+    trigger_tier3_collection()
+else:
+    # Skip Tier 3 - data is still fresh
+    log_skip("Tier 3 skipped - last collection was {time_since_collection} ago")
+    proceed_to_step_7()
+```
+
+**Rationale:**
+- ✅ **Accuracy preserved:** 1-hour freshness sufficient for velocity/git metrics
+- ✅ **Efficiency improved:** Reduces 2-5 min operations from 2-4x/day to 1-2x/day
+- ✅ **User experience:** Still runs in background, zero user impact
+- 📊 **Data type justification:** Git commits, test patterns, and build metrics don't change every 50 events
+
+**If Tier 3 collection needed, invoke:**
 
 ```markdown
 #file:KDS/prompts/internal/development-context-collector.md
@@ -296,14 +325,18 @@ Write updated data to:
 - `development-context.yaml` with latest git, KDS, test, and build metrics
 - Proactive insights and warnings
 - Work patterns and correlations
+- `metadata.last_updated` timestamp (used for throttling)
 
 **Frequency:**
-- Every BRAIN update (to keep Tier 3 synchronized with Tier 2)
-- OR if last collection > 1 hour ago
+- ✅ **Throttled:** Only if last_collection > 1 hour
+- ✅ **On-demand:** Manual trigger always runs
+- ✅ **Smart:** Skips redundant collections
 
 ### Step 7: Generate Update Summary
 
-**Output:**
+**Output format varies based on Tier 3 status:**
+
+#### **If Tier 3 was updated:**
 ```markdown
 🧠 **BRAIN Update Complete** (3 Tiers Updated)
 
@@ -361,6 +394,46 @@ Write updated data to:
 - Planner will use Tier 3 metrics for data-driven estimates
 - File suggestions will prioritize high co-modification pairs
 - Warnings will surface proactively during planning
+```
+
+#### **If Tier 3 was skipped (throttled):**
+```markdown
+🧠 **BRAIN Update Complete** (Tier 2 Updated, Tier 3 Skipped)
+
+📊 **Events Processed:** 47 new events since last update
+
+**Tier 2: Knowledge Graph (Long-Term Memory)**
+
+🎯 **Intent Patterns:**
+- PLAN: +3 successful phrases (now 15 total)
+- CORRECT: +2 correction triggers (now 8 total)
+
+📁 **File Relationships:**
+- HostControlPanelContent.razor ↔ noor-canvas.css: 0.75 co-mod rate (+0.15)
+- New relationship discovered: HostSessionList.razor ↔ SessionHub.cs
+
+🔧 **Correction Insights:**
+- file_mismatch: 3 new occurrences (total: 18)
+- Most common: HostControlPanel.razor → HostControlPanelContent.razor (12 times)
+
+✅ **Validation Insights:**
+- Linting failure rate: 0.12 (-0.03 improvement!)
+- Common fix: fix-copilotchats-violations.ps1 (worked 95% of time)
+
+🔄 **Workflow Patterns:**
+- UI feature workflow: 92% success rate (45 instances)
+- Bug fix workflow: 88% success rate (18 instances)
+
+**Tier 3: Development Context (Holistic Metrics)**
+
+⏭️ **Skipped** (last collection: 23 minutes ago - still fresh)
+ℹ️  Tier 3 only updates every 1+ hour to optimize performance
+📊 Using cached metrics from last collection
+
+⚡ **Next Actions:**
+- Router will use Tier 2 patterns for better intent detection
+- Planner will use cached Tier 3 metrics for estimates
+- File suggestions will prioritize high co-modification pairs
 ```
 
 ---
