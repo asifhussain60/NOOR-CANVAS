@@ -20,6 +20,18 @@ This agent intelligently analyzes uncommitted changes and creates **optimal, cat
 
 ## Execution Steps
 
+**Overview:**
+1. Analyze uncommitted changes and categorize
+2. Validate branch compliance
+3. Determine commit strategy (single/grouped/multiple)
+4. Generate semantic commit messages
+5. Detect milestone/tag opportunities
+6. Execute commits (stage → commit → tag → log)
+7. **Verify zero uncommitted files** ✅ **CRITICAL**
+8. Generate post-commit summary
+
+---
+
 ### Step 1: Analyze Uncommitted Changes
 
 **Run git status and categorize files:**
@@ -342,9 +354,67 @@ if tag_name:
 
 ---
 
-### Step 7: Post-Commit Summary
+### Step 7: Verify Zero Uncommitted Files
 
-**Output detailed summary of what was committed:**
+**🎯 CRITICAL: Ensure all committable files are committed**
+
+```powershell
+# Check for remaining uncommitted files
+git status --short
+
+# Exclude build artifacts
+$uncommitted = git status --short | Where-Object {
+    $_ -notmatch '^\?\? .*(bin/|obj/|node_modules/|\.skip|test-results/|playwright-report/)'
+}
+```
+
+**Validation Logic:**
+
+```python
+uncommitted_files = get_uncommitted_files(exclude_artifacts=True)
+
+if len(uncommitted_files) > 0:
+    ERROR("❌ Uncommitted files remaining after commit operation!")
+    
+    # Categorize remaining files
+    remaining_kds = [f for f in uncommitted_files if f.startswith("KDS/")]
+    remaining_app = [f for f in uncommitted_files if not f.startswith("KDS/")]
+    
+    if remaining_kds:
+        ERROR(f"KDS files not committed: {remaining_kds}")
+        SUGGEST("These should have been committed. Re-run commit handler.")
+    
+    if remaining_app:
+        WARN(f"Application files not committed: {remaining_app}")
+        SUGGEST("Run commit handler again or manually commit.")
+    
+    HALT()  # Do not proceed with summary until fixed
+else:
+    SUCCESS("✅ Verified: Zero uncommitted files (excluding build artifacts)")
+```
+
+**If uncommitted files found:**
+```markdown
+⚠️ **VERIFICATION FAILED**
+
+Uncommitted files detected after commit:
+  - KDS/prompts/internal/test-agent.md
+  - SPA/NoorCanvas/Components/NewComponent.razor
+
+This should not happen. Possible causes:
+1. File categorization failed
+2. File was modified during commit
+3. Branch switching issue
+
+**Action Required:**
+Re-run commit handler to commit remaining files.
+```
+
+---
+
+### Step 8: Post-Commit Summary
+
+**Only generate summary after Step 7 verification passes:**
 
 ```markdown
 ✅ **Commits Created Successfully**
@@ -353,6 +423,7 @@ if tag_name:
 - Total commits: 3
 - Total files: 12
 - Git tags: 1
+- **Uncommitted files: 0** ✅ **VERIFIED**
 
 ---
 
@@ -382,8 +453,14 @@ if tag_name:
 
 ---
 
+**Final Verification:**
+✅ All committable files committed (0 uncommitted)
+✅ Build artifacts correctly ignored: 4 files
+   - Tests/Unit/*.skip (2 files)
+   - Tests/Unit/bin/ (directory)
+   - Tests/Unit/obj/ (directory)
+
 **Next Actions:**
-✅ All changes committed (0 uncommitted files)
 ✅ Ready to push: git push origin features/kds features/fab-button --tags
 ✅ Consider: Merge features/kds to development when ready
 
