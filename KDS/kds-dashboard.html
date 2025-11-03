@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧠 KDS Dashboard</title>
+  
+  <!-- Chart.js for metrics visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  
   <style>
     * {
       margin: 0;
@@ -584,6 +588,58 @@
     .text-info { color: var(--info); }
     .text-muted { color: var(--text-secondary); }
 
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-card {
+      background: var(--bg-secondary);
+      padding: 24px;
+      border-radius: 8px;
+      border-left: 4px solid var(--border-accent);
+      transition: all 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      border-left-color: var(--text-accent);
+    }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .metric-header h3 {
+      font-size: 1.1em;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .metric-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: var(--text-accent);
+    }
+
+    .metric-card canvas {
+      max-height: 300px;
+    }
+
     /* Loading State */
     .loading {
       text-align: center;
@@ -600,9 +656,107 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--bg-tertiary);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .progress-bar-container.active {
+      opacity: 1;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--info), var(--text-accent));
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px var(--info);
+    }
+
+    .progress-bar.indeterminate {
+      width: 30%;
+      animation: progress-indeterminate 1.5s ease-in-out infinite;
+    }
+
+    @keyframes progress-indeterminate {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(30, 30, 30, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-message {
+      font-size: 1.2em;
+      color: var(--text-accent);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .loading-details {
+      font-size: 0.9em;
+      color: var(--text-secondary);
+    }
+
+    /* Refresh Button Animation */
+    .btn-primary.refreshing {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .btn-primary.refreshing::before {
+      content: '🔄';
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
+  <!-- Progress Bar -->
+  <div class="progress-bar-container" id="progressBar">
+    <div class="progress-bar indeterminate"></div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner" style="width: 60px; height: 60px; border-width: 6px;"></div>
+    <div class="loading-message">
+      <span id="loadingIcon">🔄</span>
+      <span id="loadingText">Loading...</span>
+    </div>
+    <div class="loading-details" id="loadingDetails">
+      Connecting to API server...
+    </div>
+  </div>
+
   <div class="container">
     <!-- Header -->
     <header>
@@ -612,6 +766,9 @@
           <span>KDS Dashboard</span>
         </h1>
         <div class="header-actions">
+          <button class="btn btn-secondary" onclick="copyToClipboard()">
+            📋 Copy to Clipboard
+          </button>
           <button class="btn btn-secondary" onclick="exportReport()">
             📊 Export Report
           </button>
@@ -635,6 +792,9 @@
       </button>
       <button class="nav-tab" onclick="switchTab('brain')">
         🧠 BRAIN System
+      </button>
+      <button class="nav-tab" onclick="switchTab('metrics')">
+        📈 Metrics
       </button>
       <button class="nav-tab" onclick="switchTab('activity')">
         📝 Activity Log
@@ -676,6 +836,65 @@
       </div>
     </div>
 
+    <!-- Tab: Metrics -->
+    <div id="tab-metrics" class="tab-content">
+      <div class="metrics-grid">
+        <!-- BRAIN Health Score -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <h3>🧠 BRAIN Health Score</h3>
+            <span class="metric-value" id="brainHealthValue">--</span>
+          </div>
+          <canvas id="brainHealthChart"></canvas>
+        </div>
+
+        <!-- Routing Accuracy -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <h3>🎯 Routing Accuracy</h3>
+            <span class="metric-value" id="routingAccuracyValue">--</span>
+          </div>
+          <canvas id="routingAccuracyChart"></canvas>
+        </div>
+
+        <!-- Knowledge Graph Growth -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <h3>📚 Knowledge Graph Growth</h3>
+            <span class="metric-value" id="knowledgeGrowthValue">--</span>
+          </div>
+          <canvas id="knowledgeGrowthChart"></canvas>
+        </div>
+
+        <!-- File Hotspots -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <h3>🔥 File Hotspots</h3>
+            <span class="metric-value" id="fileHotspotsValue">--</span>
+          </div>
+          <canvas id="fileHotspotsChart"></canvas>
+        </div>
+
+        <!-- Event Activity -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <h3>📊 Event Activity (30 days)</h3>
+            <span class="metric-value" id="eventActivityValue">--</span>
+          </div>
+          <canvas id="eventActivityChart"></canvas>
+        </div>
+
+        <!-- Test Success Rate -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <h3>✅ Test Success Rate</h3>
+            <span class="metric-value" id="testSuccessValue">--</span>
+          </div>
+          <canvas id="testSuccessChart"></canvas>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer>
       <p>KDS Dashboard v1.0 | Workspace: NOOR CANVAS</p>
@@ -693,105 +912,75 @@
       autoRefresh: true,
       refreshInterval: 30000, // 30 seconds
       healthCategories: [],
-      overallStatus: 'HEALTHY',
-      stats: {},
+      overallStatus: 'UNKNOWN',
+      stats: {
+        passed: 0,
+        totalChecks: 0,
+        warnings: 0,
+        critical: 0
+      },
       apiUrl: 'http://localhost:8765',
-      apiMode: 'server' // 'server' or 'demo'
+      healthData: null,
+      apiConnected: false,
+      isLoading: false
     };
 
     // ==========================================
-    // Health Check Definitions
+    // UI Feedback Utilities
     // ==========================================
-    const healthCheckCategories = [
-      {
-        id: 'infrastructure',
-        icon: '🏗️',
-        name: 'Infrastructure',
-        checks: [
-          { name: 'Directory Structure', description: 'All KDS directories exist' },
-          { name: 'Core Files Present', description: 'Essential prompts and configs found' },
-          { name: 'Config Validation', description: 'kds.config.json is valid JSON' },
-          { name: 'Permissions Check', description: 'Read/Write permissions OK' },
-          { name: 'Git Integration', description: 'Repository clean and up-to-date' },
-          { name: 'PowerShell Version', description: 'PowerShell ≥ 7.0 detected' }
-        ]
-      },
-      {
-        id: 'agents',
-        icon: '🤖',
-        name: 'Agents & Prompts',
-        checks: [
-          { name: 'Intent Router', description: 'intent-router.md accessible' },
-          { name: 'Work Planner', description: 'work-planner.md valid' },
-          { name: 'Code Executor', description: 'code-executor.md valid' },
-          { name: 'Test Generator', description: 'test-generator.md valid' },
-          { name: 'Health Validator', description: 'health-validator.md valid' },
-          { name: 'Change Governor', description: 'change-governor.md valid' },
-          { name: 'Shared Modules', description: 'All shared/*.md files loadable' }
-        ]
-      },
-      {
-        id: 'brain',
-        icon: '🧠',
-        name: 'BRAIN System',
-        checks: [
-          { name: 'Knowledge Graph', description: 'knowledge-graph.yaml exists & valid' },
-          { name: 'Event Stream', description: 'events.jsonl integrity check' },
-          { name: 'Pattern Recognition', description: 'Confidence thresholds correct' },
-          { name: 'Protection Scripts', description: 'All protection scripts operational' },
-          { name: 'Anomaly Queue', description: 'Pending anomalies < 10' },
-          { name: 'Update Freshness', description: 'Last update < 24 hours ago' }
-        ]
-      },
-      {
-        id: 'sessions',
-        icon: '📊',
-        name: 'Session State',
-        checks: [
-          { name: 'Current Session', description: 'current-session.json valid' },
-          { name: 'Session History', description: 'session-history.json valid' },
-          { name: 'Resumption Guide', description: 'resumption-guide.md up-to-date' },
-          { name: 'Session Limit', description: 'Active sessions < 20' },
-          { name: 'No Orphaned Sessions', description: 'All sessions have valid state' }
-        ]
-      },
-      {
-        id: 'knowledge',
-        icon: '📚',
-        name: 'Knowledge Base',
-        checks: [
-          { name: 'Test Patterns', description: 'Test pattern directory accessible' },
-          { name: 'UI Mappings', description: 'UI element mappings complete' },
-          { name: 'Published Workflows', description: 'Workflow patterns valid' },
-          { name: 'Update Requests', description: 'Pending update requests < 5' },
-          { name: 'Cross-References', description: 'All references resolved' }
-        ]
-      },
-      {
-        id: 'scripts',
-        icon: '🔧',
-        name: 'Scripts & Tools',
-        checks: [
-          { name: 'PowerShell Executable', description: 'Scripts have execute permissions' },
-          { name: 'Conversation STM', description: 'conversation-stm.ps1 working' },
-          { name: 'BRAIN Updater', description: 'brain-updater.md accessible' },
-          { name: 'Monitoring Scripts', description: 'Dashboard scripts runnable' },
-          { name: 'Maintenance Tools', description: 'Maintenance scripts tested' }
-        ]
-      },
-      {
-        id: 'performance',
-        icon: '⚡',
-        name: 'Performance',
-        checks: [
-          { name: 'BRAIN Query Time', description: 'Average query < 500ms' },
-          { name: 'Session Load Time', description: 'Session loading < 200ms' },
-          { name: 'Event Log Size', description: 'events.jsonl < 10MB' },
-          { name: 'Knowledge Graph Size', description: 'knowledge-graph.yaml < 5MB' },
-          { name: 'Memory Usage', description: 'No memory leaks detected' }
-        ]
+    function showProgressBar() {
+      const progressBar = document.getElementById('progressBar');
+      progressBar.classList.add('active');
+    }
+
+    function hideProgressBar() {
+      const progressBar = document.getElementById('progressBar');
+      progressBar.classList.remove('active');
+    }
+
+    function showLoadingOverlay(message = 'Loading...', details = '') {
+      state.isLoading = true;
+      const overlay = document.getElementById('loadingOverlay');
+      const textElem = document.getElementById('loadingText');
+      const detailsElem = document.getElementById('loadingDetails');
+      
+      textElem.textContent = message;
+      detailsElem.textContent = details;
+      overlay.classList.add('active');
+    }
+
+    function hideLoadingOverlay() {
+      state.isLoading = false;
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.remove('active');
+    }
+
+    function setRefreshButtonState(isRefreshing) {
+      const btn = document.querySelector('.btn-primary');
+      if (isRefreshing) {
+        btn.classList.add('refreshing');
+        btn.disabled = true;
+      } else {
+        btn.classList.remove('refreshing');
+        btn.disabled = false;
       }
-    ];
+    }
+
+    function resetStatsToZero() {
+      state.stats = {
+        passed: 0,
+        totalChecks: 0,
+        warnings: 0,
+        critical: 0
+      };
+      state.overallStatus = 'UNKNOWN';
+      renderHeaderStats();
+    }
+
+    // ==========================================
+    // Health Check Definitions (Removed - Using API Data Only)
+    // ==========================================
+    // Categories are now loaded from the API server dynamically
 
     // ==========================================
     // Tab Switching
@@ -817,6 +1006,8 @@
         renderHealthChecks();
       } else if (tabName === 'brain') {
         loadBRAINMetrics();
+      } else if (tabName === 'metrics') {
+        loadMetrics();
       } else if (tabName === 'activity') {
         loadActivityLog();
       }
@@ -828,74 +1019,59 @@
     function renderOverview() {
       const grid = document.getElementById('overviewGrid');
       
-      const overviewCards = [
-        {
-          icon: '🏗️',
-          title: 'Infrastructure',
-          status: '✅',
-          color: 'var(--success)',
-          stats: [
-            { label: 'Files', value: '127' },
-            { label: 'Health', value: '100%' }
-          ],
-          onclick: "switchTab('health'); expandCategory('infrastructure')"
-        },
-        {
-          icon: '🤖',
-          title: 'Agents',
-          status: '✅',
-          color: 'var(--success)',
-          stats: [
-            { label: 'Active', value: '7/7' },
-            { label: 'Health', value: '100%' }
-          ],
-          onclick: "switchTab('health'); expandCategory('agents')"
-        },
-        {
-          icon: '🧠',
-          title: 'BRAIN System',
-          status: '⚠️',
-          color: 'var(--warning)',
-          stats: [
-            { label: 'Events', value: '247' },
-            { label: 'Anomalies', value: '3' }
-          ],
-          onclick: "switchTab('brain')"
-        },
-        {
-          icon: '📊',
-          title: 'Sessions',
-          status: '✅',
-          color: 'var(--success)',
-          stats: [
-            { label: 'Active', value: '1' },
-            { label: 'History', value: '15' }
-          ],
-          onclick: "switchTab('health'); expandCategory('sessions')"
-        },
-        {
-          icon: '📚',
-          title: 'Knowledge',
-          status: '✅',
-          color: 'var(--success)',
-          stats: [
-            { label: 'Patterns', value: '23' },
-            { label: 'Workflows', value: '8' }
-          ],
-          onclick: "switchTab('health'); expandCategory('knowledge')"
-        },
-        {
-          icon: '⚡',
-          title: 'Performance',
-          status: '✅',
-          color: 'var(--success)',
-          stats: [
-            { label: 'Avg Query', value: '120ms' },
-            { label: 'Load Time', value: '45ms' }
-          ],
-          onclick: "switchTab('health'); expandCategory('performance')"
+      if (!state.apiConnected || !state.healthData) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔌</div>
+            <h2 style="color: var(--text-secondary); margin-bottom: 12px;">API Server Not Connected</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+              Please start the KDS API server to view health data.
+            </p>
+            <code style="background: var(--bg-secondary); padding: 12px 24px; border-radius: 6px; display: inline-block;">
+              .\\KDS\\scripts\\launch-dashboard.ps1
+            </code>
+            <div style="margin-top: 24px;">
+              <button class="btn btn-primary" onclick="refreshDashboard()">
+                🔄 Retry Connection
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Build overview cards from real API data
+      const overviewCards = state.healthData.categories.map(category => {
+        const totalChecks = category.checks.length;
+        const passedChecks = category.checks.filter(c => c.status === 'passed').length;
+        const warningChecks = category.checks.filter(c => c.status === 'warning').length;
+        const criticalChecks = category.checks.filter(c => c.status === 'critical').length;
+        
+        let status = '✅';
+        let color = 'var(--success)';
+        
+        if (criticalChecks > 0) {
+          status = '❌';
+          color = 'var(--critical)';
+        } else if (warningChecks > 0) {
+          status = '⚠️';
+          color = 'var(--warning)';
         }
-      ];
+        
+        const healthPercent = Math.round((passedChecks / totalChecks) * 100);
+        
+        return {
+          icon: category.icon,
+          title: category.name,
+          status: status,
+          color: color,
+          stats: [
+            { label: 'Passed', value: `${passedChecks}/${totalChecks}` },
+            { label: 'Health', value: `${healthPercent}%` }
+          ],
+          onclick: `switchTab('health'); expandCategory('${category.id}')`
+        };
+      });
 
       grid.innerHTML = overviewCards.map(card => `
         <div class="overview-card" onclick="${card.onclick}">
@@ -924,37 +1100,62 @@
     function renderHealthChecks() {
       const container = document.getElementById('healthChecks');
       
-      container.innerHTML = healthCheckCategories.map(category => `
-        <div class="health-category">
-          <div class="category-header" onclick="toggleCategory('${category.id}')">
-            <div class="category-title">
-              <span>${category.icon}</span>
-              <span>${category.name}</span>
-            </div>
-            <div class="category-progress">
-              <div class="progress-dots" id="progress-${category.id}">
-                ${category.checks.map(() => '<div class="status-circle pending"></div>').join('')}
+      if (!state.apiConnected || !state.healthData) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: 8px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔌</div>
+            <h2 style="color: var(--text-secondary); margin-bottom: 12px;">No Health Data Available</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+              Connect to the API server to view health checks.
+            </p>
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+              🔄 Retry Connection
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = state.healthData.categories.map(category => {
+        const totalChecks = category.checks.length;
+        const passedChecks = category.checks.filter(c => c.status === 'passed').length;
+        
+        return `
+          <div class="health-category">
+            <div class="category-header" onclick="toggleCategory('${category.id}')">
+              <div class="category-title">
+                <span>${category.icon}</span>
+                <span>${category.name}</span>
               </div>
-              <span class="progress-text" id="progress-text-${category.id}">0/${category.checks.length}</span>
-              <span class="expand-icon">▼</span>
-            </div>
-          </div>
-          <div class="category-content" id="content-${category.id}">
-            <div class="check-list">
-              ${category.checks.map((check, idx) => `
-                <div class="check-item pending" id="check-${category.id}-${idx}">
-                  <div class="status-circle pending" id="circle-${category.id}-${idx}"></div>
-                  <div class="check-details">
-                    <div class="check-name">${check.name}</div>
-                    <div class="check-status">${check.description}</div>
-                  </div>
-                  <div class="check-time" id="time-${category.id}-${idx}">Pending</div>
+              <div class="category-progress">
+                <div class="progress-dots" id="progress-${category.id}">
+                  ${category.checks.map(check => `
+                    <div class="status-circle ${check.status}"></div>
+                  `).join('')}
                 </div>
-              `).join('')}
+                <span class="progress-text" id="progress-text-${category.id}">${passedChecks}/${totalChecks}</span>
+                <span class="expand-icon">▼</span>
+              </div>
+            </div>
+            <div class="category-content" id="content-${category.id}">
+              <div class="check-list">
+                ${category.checks.map((check, idx) => `
+                  <div class="check-item ${check.status}" id="check-${category.id}-${idx}">
+                    <div class="status-circle ${check.status}" id="circle-${category.id}-${idx}"></div>
+                    <div class="check-details">
+                      <div class="check-name">${check.name}</div>
+                      <div class="check-status">${check.message}</div>
+                    </div>
+                    <div class="check-time" id="time-${category.id}-${idx}">
+                      ${check.timestamp ? new Date(check.timestamp).toLocaleTimeString() : 'N/A'}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function toggleCategory(categoryId) {
@@ -977,155 +1178,103 @@
     // Run Health Checks
     // ==========================================
     async function runHealthChecks() {
-      // Try API mode first, fallback to demo mode
-      if (state.apiMode === 'server') {
-        try {
-          await runHealthChecksAPI();
-          return;
-        } catch (error) {
-          console.warn('API server not available, falling back to demo mode:', error.message);
-          state.apiMode = 'demo';
-        }
-      }
+      showProgressBar();
+      showLoadingOverlay('Running Health Checks...', 'Connecting to API server...');
+      resetStatsToZero();
       
-      // Demo mode (simulated checks)
-      await runHealthChecksDemo();
-    }
-    
-    // Real health checks via API
-    async function runHealthChecksAPI() {
       try {
         // Check if API is available
-        const statusResponse = await fetch(`${state.apiUrl}/api/status`);
+        updateLoadingMessage('Checking API Connection...', 'http://localhost:8765');
+        const statusResponse = await fetch(`${state.apiUrl}/api/status`, { 
+          signal: AbortSignal.timeout(5000) 
+        });
+        
         if (!statusResponse.ok) {
           throw new Error('API server not responding');
         }
         
         // Run health checks
-        const response = await fetch(`${state.apiUrl}/api/health`);
+        updateLoadingMessage('Running Health Checks...', 'This may take a few moments...');
+        const response = await fetch(`${state.apiUrl}/api/health`, { 
+          signal: AbortSignal.timeout(30000) 
+        });
+        
         if (!response.ok) {
           throw new Error(`API error: ${response.statusText}`);
         }
         
+        updateLoadingMessage('Processing Results...', 'Updating dashboard...');
         const data = await response.json();
         
-        // Update UI with real results
-        for (const category of data.categories) {
-          const categoryIndex = healthCheckCategories.findIndex(c => c.id === category.id);
-          if (categoryIndex === -1) continue;
-          
-          let passedCount = 0;
-          
-          for (let i = 0; i < category.checks.length; i++) {
-            const check = category.checks[i];
-            
-            // Update to running briefly
-            updateCheckStatus(category.id, i, 'running', 'Running...');
-            await sleep(100); // Small delay for visual effect
-            
-            // Update with real result
-            updateCheckStatus(category.id, i, check.status, check.message);
-            
-            if (check.status === 'passed') {
-              passedCount++;
-            }
-          }
-          
-          updateCategoryProgress(category.id, passedCount, category.checks.length);
-        }
+        // Update state
+        state.healthData = data;
+        state.apiConnected = true;
+        state.overallStatus = data.overallStatus || 'UNKNOWN';
+        state.stats = data.stats || {
+          passed: 0,
+          totalChecks: 0,
+          warnings: 0,
+          critical: 0
+        };
         
-        // Update overall stats
+        // Update UI with real results
+        renderHealthChecks();
         updateHeaderStatsFromData(data);
         
-        // Show recommendations
+        // Show recommendations if any
         if (data.recommendations && data.recommendations.length > 0) {
           showRecommendations(data.recommendations);
+        } else {
+          document.getElementById('recommendations').classList.add('hidden');
         }
+        
+        updateLoadingMessage('Complete!', 'Health checks finished successfully');
+        await sleep(500); // Brief pause to show completion
         
       } catch (error) {
         console.error('Health check API error:', error);
-        throw error;
-      }
-    }
-    
-    // Demo health checks (simulated)
-    async function runHealthChecksDemo() {
-      const recommendations = [];
-      
-      for (const category of healthCheckCategories) {
-        let passedCount = 0;
+        state.apiConnected = false;
+        state.healthData = null;
         
-        for (let i = 0; i < category.checks.length; i++) {
-          const check = category.checks[i];
-          
-          // Update to running
-          updateCheckStatus(category.id, i, 'running', 'Running...');
-          
-          // Simulate check
-          await sleep(Math.random() * 1000 + 500);
-          
-          // Random result for demo
-          const result = Math.random();
-          let status, message;
-          
-          if (result > 0.85) {
-            status = 'critical';
-            message = 'Failed';
-            recommendations.push({
-              category: category.name,
-              check: check.name,
-              action: 'Run validation script or check manually'
-            });
-          } else if (result > 0.70) {
-            status = 'warning';
-            message = 'Warning';
-            recommendations.push({
-              category: category.name,
-              check: check.name,
-              action: 'Review and optimize'
-            });
-          } else {
-            status = 'passed';
-            message = 'Passed';
-            passedCount++;
-          }
-          
-          updateCheckStatus(category.id, i, status, message);
-        }
+        updateLoadingMessage('Connection Failed', error.message);
+        await sleep(1000);
         
-        // Update category progress
-        updateCategoryProgress(category.id, passedCount, category.checks.length);
-      }
-      
-      // Show recommendations if any
-      if (recommendations.length > 0) {
-        showRecommendations(recommendations);
+        // Show error message
+        const container = document.getElementById('healthChecks');
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--critical);">
+            <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+            <h2 style="color: var(--critical); margin-bottom: 12px;">Connection Failed</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 12px;">
+              ${error.message}
+            </p>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+              Please ensure the KDS API server is running.
+            </p>
+            <code style="background: var(--bg-primary); padding: 12px 24px; border-radius: 6px; display: inline-block; margin-bottom: 24px;">
+              .\\KDS\\scripts\\launch-dashboard.ps1
+            </code>
+            <div>
+              <button class="btn btn-primary" onclick="refreshDashboard()">
+                🔄 Retry Connection
+              </button>
+            </div>
+          </div>
+        `;
+        
+        updateHeaderStats();
+      } finally {
+        hideProgressBar();
+        hideLoadingOverlay();
       }
     }
 
-    function updateCheckStatus(categoryId, checkIdx, status, message) {
-      const checkItem = document.getElementById(`check-${categoryId}-${checkIdx}`);
-      const circle = document.getElementById(`circle-${categoryId}-${checkIdx}`);
-      const time = document.getElementById(`time-${categoryId}-${checkIdx}`);
+    function updateLoadingMessage(text, details) {
+      const textElem = document.getElementById('loadingText');
+      const detailsElem = document.getElementById('loadingDetails');
       
-      checkItem.className = `check-item ${status}`;
-      circle.className = `status-circle ${status}`;
-      time.textContent = message;
-    }
-
-    function updateCategoryProgress(categoryId, passed, total) {
-      const progressDots = document.getElementById(`progress-${categoryId}`);
-      const progressText = document.getElementById(`progress-text-${categoryId}`);
-      
-      progressText.textContent = `${passed}/${total}`;
-      
-      // Update progress dots
-      const dots = progressDots.children;
-      for (let i = 0; i < dots.length; i++) {
-        if (i < passed) {
-          dots[i].className = 'status-circle passed';
-        }
-      }
+      textElem.textContent = text;
+      detailsElem.textContent = details;
     }
 
     function showRecommendations(recommendations) {
@@ -1155,19 +1304,20 @@
     function renderHeaderStats() {
       const stats = document.getElementById('headerStats');
       
-      const mode = state.apiMode === 'server' ? '🔗 Live' : '🎮 Demo';
+      const mode = state.apiConnected ? '🔗 Live' : '🔌 Disconnected';
+      const modeClass = state.apiConnected ? 'success' : 'critical';
       
       stats.innerHTML = `
-        <div class="stat-card ${state.overallStatus.toLowerCase()}">
+        <div class="stat-card ${getStatusClass(state.overallStatus)}">
           <div class="stat-label">Overall Status</div>
-          <div class="stat-value text-${state.overallStatus.toLowerCase()}">${getStatusEmoji(state.overallStatus)} ${state.overallStatus}</div>
+          <div class="stat-value text-${getStatusClass(state.overallStatus)}">${getStatusEmoji(state.overallStatus)} ${state.overallStatus}</div>
+        </div>
+        <div class="stat-card ${modeClass}">
+          <div class="stat-label">Connection</div>
+          <div class="stat-value text-${modeClass}">${mode}</div>
         </div>
         <div class="stat-card info">
-          <div class="stat-label">Mode</div>
-          <div class="stat-value text-info">${mode}</div>
-        </div>
-        <div class="stat-card info">
-          <div class="stat-label">Components</div>
+          <div class="stat-label">Checks Passed</div>
           <div class="stat-value text-info">${state.stats.passed || 0} / ${state.stats.totalChecks || 0}</div>
         </div>
         <div class="stat-card ${state.stats.warnings > 0 ? 'warning' : 'info'}">
@@ -1178,9 +1328,22 @@
     }
     
     function updateHeaderStatsFromData(data) {
-      state.overallStatus = data.overallStatus || 'HEALTHY';
+      state.overallStatus = data.overallStatus || 'UNKNOWN';
       state.stats = data.stats || {};
       renderHeaderStats();
+    }
+    
+    function updateHeaderStats() {
+      renderHeaderStats();
+    }
+    
+    function getStatusClass(status) {
+      switch (status) {
+        case 'HEALTHY': return 'healthy';
+        case 'DEGRADED': return 'warning';
+        case 'CRITICAL': return 'critical';
+        default: return 'info';
+      }
     }
     
     function getStatusEmoji(status) {
@@ -1195,112 +1358,656 @@
     // ==========================================
     // BRAIN Metrics
     // ==========================================
-    function loadBRAINMetrics() {
+    async function loadBRAINMetrics() {
       const container = document.getElementById('tab-brain');
       
-      setTimeout(() => {
+      // Show loading state
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top: 16px;">Loading BRAIN metrics...</p></div>';
+      
+      if (!state.apiConnected || !state.healthData) {
         container.innerHTML = `
-          <div class="overview-grid">
-            <div class="overview-card">
-              <div class="card-header">
-                <div class="card-title">
-                  <span>📊</span>
-                  <span>Event Stream</span>
-                </div>
-                <div class="card-status">✅</div>
+          <div style="text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: 8px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔌</div>
+            <h2 style="color: var(--text-secondary); margin-bottom: 12px;">API Server Not Connected</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+              Connect to the API server to view BRAIN metrics.
+            </p>
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+              🔄 Retry Connection
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      try {
+        // Get BRAIN-specific data from the health data
+        const brainCategory = state.healthData.categories.find(c => c.id === 'brain');
+        
+        if (!brainCategory) {
+          throw new Error('BRAIN category not found in health data');
+        }
+        
+        renderBRAINMetricsFromAPI(brainCategory);
+        
+      } catch (error) {
+        console.error('Could not load BRAIN metrics:', error);
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--critical);">
+            <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+            <h2 style="color: var(--critical); margin-bottom: 12px;">Error Loading BRAIN Metrics</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+              ${error.message}
+            </p>
+            <button class="btn btn-primary" onclick="loadBRAINMetrics()">
+              🔄 Retry
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    function renderBRAINMetricsFromAPI(brainCategory) {
+      const container = document.getElementById('tab-brain');
+      
+      // Extract integrity checks
+      const integrityChecks = brainCategory.checks.filter(c => c.name.startsWith('Integrity:'));
+      const overallIntegrity = brainCategory.checks.find(c => c.name === 'Overall Integrity');
+      const eventStream = brainCategory.checks.find(c => c.name === 'Event Stream');
+      const knowledgeGraph = brainCategory.checks.find(c => c.name === 'Knowledge Graph');
+      
+      // Count check statuses
+      const passedCount = integrityChecks.filter(c => c.status === 'passed').length;
+      const warningCount = integrityChecks.filter(c => c.status === 'warning').length;
+      const criticalCount = integrityChecks.filter(c => c.status === 'critical').length;
+      
+      container.innerHTML = `
+        <div class="overview-grid" style="margin-bottom: 24px;">
+          <div class="overview-card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>🔍</span>
+                <span>Integrity Status</span>
               </div>
-              <div class="card-stats">
-                <div class="card-stat">
-                  <div class="card-stat-label">Total Events</div>
-                  <div class="card-stat-value" style="color: var(--success)">247</div>
-                </div>
-                <div class="card-stat">
-                  <div class="card-stat-label">Pending</div>
-                  <div class="card-stat-value" style="color: var(--warning)">12</div>
-                </div>
-              </div>
+              <div class="card-status">${overallIntegrity?.status === 'passed' ? '✅' : '❌'}</div>
             </div>
-            
-            <div class="overview-card">
-              <div class="card-header">
-                <div class="card-title">
-                  <span>🧠</span>
-                  <span>Knowledge Graph</span>
-                </div>
-                <div class="card-status">✅</div>
+            <div class="card-stats">
+              <div class="card-stat">
+                <div class="card-stat-label">Passed</div>
+                <div class="card-stat-value" style="color: var(--success)">${passedCount}</div>
               </div>
-              <div class="card-stats">
-                <div class="card-stat">
-                  <div class="card-stat-label">Patterns</div>
-                  <div class="card-stat-value" style="color: var(--success)">156</div>
-                </div>
-                <div class="card-stat">
-                  <div class="card-stat-label">Confidence</div>
-                  <div class="card-stat-value" style="color: var(--success)">0.92</div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="overview-card">
-              <div class="card-header">
-                <div class="card-title">
-                  <span>🛡️</span>
-                  <span>Protection</span>
-                </div>
-                <div class="card-status">⚠️</div>
-              </div>
-              <div class="card-stats">
-                <div class="card-stat">
-                  <div class="card-stat-label">Anomalies</div>
-                  <div class="card-stat-value" style="color: var(--warning)">3</div>
-                </div>
-                <div class="card-stat">
-                  <div class="card-stat-label">Accuracy</div>
-                  <div class="card-stat-value" style="color: var(--success)">96%</div>
+              <div class="card-stat">
+                <div class="card-stat-label">Issues</div>
+                <div class="card-stat-value" style="color: ${criticalCount > 0 ? 'var(--critical)' : 'var(--warning)'}">
+                  ${criticalCount + warningCount}
                 </div>
               </div>
             </div>
           </div>
-        `;
-      }, 1000);
+          
+          <div class="overview-card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>📊</span>
+                <span>Event Stream</span>
+              </div>
+              <div class="card-status">${eventStream?.status === 'passed' ? '✅' : '⚠️'}</div>
+            </div>
+            <div class="card-stats">
+              <div class="card-stat">
+                <div class="card-stat-label">Status</div>
+                <div class="card-stat-value" style="color: var(--${eventStream?.status === 'passed' ? 'success' : 'warning'})">${eventStream?.message || 'Unknown'}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="overview-card">
+            <div class="card-header">
+              <div class="card-title">
+                <span>🧠</span>
+                <span>Knowledge Graph</span>
+              </div>
+              <div class="card-status">${knowledgeGraph?.status === 'passed' ? '✅' : '⚠️'}</div>
+            </div>
+            <div class="card-stats">
+              <div class="card-stat">
+                <div class="card-stat-label">Status</div>
+                <div class="card-stat-value" style="color: var(--${knowledgeGraph?.status === 'passed' ? 'success' : 'warning'})">${knowledgeGraph?.message || 'Unknown'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="health-category" style="margin-bottom: 20px;">
+          <div class="category-header expanded" onclick="toggleCategory('brain-integrity')">
+            <div class="category-title">
+              <span>🔍</span>
+              <span>BRAIN Integrity Checks (${integrityChecks.length} Tests)</span>
+            </div>
+            <div class="category-progress">
+              <span class="progress-text">${passedCount}/${integrityChecks.length}</span>
+              <span class="expand-icon">▼</span>
+            </div>
+          </div>
+          <div class="category-content expanded" id="content-brain-integrity">
+            <div class="check-list">
+              ${integrityChecks.map((check, idx) => {
+                const cleanName = check.name.replace('Integrity: ', '');
+                return `
+                  <div class="check-item ${check.status}">
+                    <div class="status-circle ${check.status}"></div>
+                    <div class="check-details">
+                      <div class="check-name">${cleanName}</div>
+                      <div class="check-status">${check.message}</div>
+                    </div>
+                    <div class="check-time">${check.status === 'passed' ? 'Passed' : check.status === 'warning' ? 'Warning' : 'Failed'}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+        
+        ${criticalCount > 0 || warningCount > 0 ? `
+          <div class="recommendations">
+            <h3>⚠️ BRAIN Issues Detected</h3>
+            ${integrityChecks.filter(c => c.status !== 'passed').map(check => `
+              <div class="recommendation-item">
+                <div class="recommendation-icon">${check.status === 'critical' ? '🔴' : '⚠️'}</div>
+                <div class="recommendation-content">
+                  <div class="recommendation-title">${check.name.replace('Integrity: ', '')}</div>
+                  <div class="recommendation-action">Run: .\\KDS\\tests\\test-brain-integrity.ps1 -Verbose</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    // ==========================================
+    // Metrics Visualization
+    // ==========================================
+    let metricsCharts = {};
+    
+    async function loadMetrics() {
+      if (!state.apiConnected) {
+        showMetricsError('API server not connected');
+        return;
+      }
+      
+      // Remove any error overlay
+      const errorOverlay = document.getElementById('metrics-error-overlay');
+      if (errorOverlay) {
+        errorOverlay.remove();
+      }
+      
+      try {
+        const response = await fetch(`${state.apiUrl}/api/metrics`);
+        if (!response.ok) {
+          throw new Error(`API error: ${response.statusText}`);
+        }
+        
+        const metrics = await response.json();
+        
+        // Render all charts
+        renderBRAINHealthChart(metrics.brainHealth);
+        renderRoutingAccuracyChart(metrics.routingAccuracy);
+        renderKnowledgeGrowthChart(metrics.knowledgeGraph);
+        renderFileHotspotsChart(metrics.fileHotspots);
+        renderEventActivityChart(metrics.eventActivity);
+        renderTestSuccessChart(metrics.testSuccess);
+        
+      } catch (error) {
+        console.error('Failed to load metrics:', error);
+        showMetricsError(error.message);
+      }
+    }
+    
+    function showMetricsError(message) {
+      const container = document.getElementById('tab-metrics');
+      if (!container) return;
+      
+      // Create error overlay instead of replacing content
+      const errorOverlay = document.createElement('div');
+      errorOverlay.id = 'metrics-error-overlay';
+      errorOverlay.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--bg-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      `;
+      errorOverlay.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+          <h2 style="color: var(--text-secondary); margin-bottom: 12px;">Metrics Unavailable</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 24px;">${message}</p>
+          <button class="btn btn-primary" onclick="document.getElementById('metrics-error-overlay')?.remove(); loadMetrics();">
+            🔄 Retry
+          </button>
+        </div>
+      `;
+      
+      // Remove any existing error overlay
+      const existingOverlay = document.getElementById('metrics-error-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+      
+      // Add overlay without destroying chart elements
+      container.style.position = 'relative';
+      container.appendChild(errorOverlay);
+    }
+    
+    function renderBRAINHealthChart(data) {
+      const canvas = document.getElementById('brainHealthChart');
+      const valueElem = document.getElementById('brainHealthValue');
+      
+      if (!canvas || !valueElem) {
+        console.error('BRAIN Health chart elements not found');
+        return;
+      }
+      
+      valueElem.textContent = `${data.score}%`;
+      valueElem.style.color = data.score >= 90 ? 'var(--success)' : 
+                              data.score >= 70 ? 'var(--warning)' : 'var(--critical)';
+      
+      // Destroy existing chart
+      if (metricsCharts.brainHealth) {
+        metricsCharts.brainHealth.destroy();
+      }
+      
+      metricsCharts.brainHealth = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Health Score', 'Remaining'],
+          datasets: [{
+            data: [data.score, 100 - data.score],
+            backgroundColor: [
+              data.score >= 90 ? '#4ec9b0' : data.score >= 70 ? '#ce9178' : '#f48771',
+              '#3e3e42'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          cutout: '70%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.label}: ${context.parsed}%`
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    function renderRoutingAccuracyChart(data) {
+      const canvas = document.getElementById('routingAccuracyChart');
+      const valueElem = document.getElementById('routingAccuracyValue');
+      
+      if (!canvas || !valueElem) {
+        console.error('Routing Accuracy chart elements not found');
+        return;
+      }
+      
+      valueElem.textContent = `${data.overall}%`;
+      
+      if (metricsCharts.routingAccuracy) {
+        metricsCharts.routingAccuracy.destroy();
+      }
+      
+      const intents = Object.keys(data.byIntent);
+      const values = Object.values(data.byIntent);
+      
+      metricsCharts.routingAccuracy = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: intents,
+          datasets: [{
+            label: 'Accuracy %',
+            data: values,
+            backgroundColor: '#007acc',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { color: '#858585' },
+              grid: { color: '#3e3e42' }
+            },
+            x: {
+              ticks: { color: '#858585' },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+    
+    function renderKnowledgeGrowthChart(data) {
+      const canvas = document.getElementById('knowledgeGrowthChart');
+      const valueElem = document.getElementById('knowledgeGrowthValue');
+      
+      if (!canvas || !valueElem) {
+        console.error('Knowledge Growth chart elements not found');
+        return;
+      }
+      
+      valueElem.textContent = data.totalEntries;
+      
+      if (metricsCharts.knowledgeGrowth) {
+        metricsCharts.knowledgeGrowth.destroy();
+      }
+      
+      // Generate sample growth data (last 7 days)
+      const labels = [];
+      const values = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        values.push(Math.max(0, data.totalEntries - (i * 50)));
+      }
+      
+      metricsCharts.knowledgeGrowth = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Entries',
+            data: values,
+            borderColor: '#4ec9b0',
+            backgroundColor: 'rgba(78, 201, 176, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#858585' },
+              grid: { color: '#3e3e42' }
+            },
+            x: {
+              ticks: { color: '#858585' },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+    
+    function renderFileHotspotsChart(data) {
+      const canvas = document.getElementById('fileHotspotsChart');
+      const valueElem = document.getElementById('fileHotspotsValue');
+      
+      if (!canvas || !valueElem) {
+        console.error('File Hotspots chart elements not found');
+        return;
+      }
+      
+      valueElem.textContent = data.length;
+      
+      if (metricsCharts.fileHotspots) {
+        metricsCharts.fileHotspots.destroy();
+      }
+      
+      const files = data.map(h => h.file.split('/').pop());
+      const churns = data.map(h => h.churn);
+      
+      metricsCharts.fileHotspots = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: files,
+          datasets: [{
+            label: 'Churn %',
+            data: churns,
+            backgroundColor: churns.map(c => c > 20 ? '#f48771' : c > 10 ? '#ce9178' : '#4ec9b0'),
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { color: '#858585' },
+              grid: { color: '#3e3e42' }
+            },
+            y: {
+              ticks: { color: '#858585', font: { size: 11 } },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+    
+    function renderEventActivityChart(data) {
+      const canvas = document.getElementById('eventActivityChart');
+      const valueElem = document.getElementById('eventActivityValue');
+      
+      if (!canvas || !valueElem) {
+        console.error('Event Activity chart elements not found');
+        return;
+      }
+      
+      valueElem.textContent = data.total;
+      
+      if (metricsCharts.eventActivity) {
+        metricsCharts.eventActivity.destroy();
+      }
+      
+      const labels = data.last30Days.map(d => {
+        const date = new Date(d.date);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+      const counts = data.last30Days.map(d => d.count);
+      
+      metricsCharts.eventActivity = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: labels.length > 0 ? labels : ['No data'],
+          datasets: [{
+            label: 'Events',
+            data: counts.length > 0 ? counts : [0],
+            borderColor: '#007acc',
+            backgroundColor: 'rgba(0, 122, 204, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#858585' },
+              grid: { color: '#3e3e42' }
+            },
+            x: {
+              ticks: { color: '#858585', maxRotation: 45 },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+    
+    function renderTestSuccessChart(data) {
+      const canvas = document.getElementById('testSuccessChart');
+      const valueElem = document.getElementById('testSuccessValue');
+      
+      if (!canvas || !valueElem) {
+        console.error('Test Success chart elements not found');
+        return;
+      }
+      
+      valueElem.textContent = `${data.rate}%`;
+      
+      if (metricsCharts.testSuccess) {
+        metricsCharts.testSuccess.destroy();
+      }
+      
+      // Handle zero data
+      if (data.total === 0) {
+        metricsCharts.testSuccess = new Chart(canvas, {
+          type: 'doughnut',
+          data: {
+            labels: ['No Tests'],
+            datasets: [{
+              data: [1],
+              backgroundColor: ['#3e3e42'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '70%',
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+        return;
+      }
+      
+      metricsCharts.testSuccess = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Passed', 'Failed'],
+          datasets: [{
+            data: [data.passed, data.total - data.passed],
+            backgroundColor: ['#4ec9b0', '#f48771'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          cutout: '70%',
+          plugins: {
+            legend: { 
+              display: true,
+              position: 'bottom',
+              labels: { color: '#d4d4d4' }
+            }
+          }
+        }
+      });
     }
 
     // ==========================================
     // Activity Log
     // ==========================================
-    function loadActivityLog() {
+    async function loadActivityLog() {
       const container = document.getElementById('activityList');
       
-      const activities = [
-        { time: '2 mins ago', message: 'Health check completed - All systems healthy' },
-        { time: '15 mins ago', message: 'BRAIN updated with 12 new events' },
-        { time: '1 hour ago', message: 'Session created: pdf-export-feature' },
-        { time: '2 hours ago', message: 'Knowledge graph validated successfully' },
-        { time: '3 hours ago', message: 'Maintenance script executed' }
-      ];
+      if (!state.apiConnected || !state.healthData) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔌</div>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+              Connect to the API server to view activity logs.
+            </p>
+            <button class="btn btn-primary" onclick="refreshDashboard()">
+              🔄 Retry Connection
+            </button>
+          </div>
+        `;
+        return;
+      }
       
-      container.innerHTML = activities.map(activity => `
-        <div class="activity-item">
-          <div class="activity-time">${activity.time}</div>
-          <div class="activity-message">${activity.message}</div>
+      // Try to load activity from API
+      try {
+        const response = await fetch(`${state.apiUrl}/api/activity`);
+        if (response.ok) {
+          const activities = await response.json();
+          
+          if (activities && activities.length > 0) {
+            container.innerHTML = activities.map(activity => `
+              <div class="activity-item">
+                <div class="activity-time">${activity.time}</div>
+                <div class="activity-message">${activity.message}</div>
+              </div>
+            `).join('');
+            return;
+          }
+        }
+      } catch (error) {
+        console.warn('Could not load activity log from API:', error);
+      }
+      
+      // Fallback: show message
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+          <p style="color: var(--text-secondary);">
+            No activity data available from the API server.
+          </p>
         </div>
-      `).join('');
+      `;
     }
 
     // ==========================================
     // Actions
     // ==========================================
-    function refreshDashboard() {
+    async function refreshDashboard() {
+      if (state.isLoading) {
+        console.log('Already refreshing, ignoring request');
+        return;
+      }
+      
+      setRefreshButtonState(true);
       state.lastRefresh = new Date();
       updateLastUpdateTime();
       
-      // Always run health checks (updates overview cards too)
-      renderHealthChecks();
-      runHealthChecks();
+      // Reset stats to zero before refresh
+      resetStatsToZero();
       
-      // Refresh current tab content
+      // Try to fetch fresh data from API
+      await runHealthChecks();
+      
+      // Refresh current tab
       if (state.currentTab === 'overview') {
         renderOverview();
+      } else if (state.currentTab === 'health') {
+        renderHealthChecks();
       } else if (state.currentTab === 'brain') {
         loadBRAINMetrics();
       } else if (state.currentTab === 'activity') {
@@ -1308,17 +2015,89 @@
       }
       
       renderHeaderStats();
+      setRefreshButtonState(false);
     }
 
-    function exportReport() {
+    async function copyToClipboard() {
+      if (!state.healthData) {
+        alert('No health data available to copy. Please run health checks first (click Refresh).');
+        return;
+      }
+      
+      // Build comprehensive metrics analysis
+      const metricsAnalysis = generateMetricsAnalysis();
+      
       const report = {
         timestamp: new Date().toISOString(),
         status: state.overallStatus,
-        categories: healthCheckCategories.map(cat => ({
-          name: cat.name,
-          checks: cat.checks
-        })),
-        stats: state.stats
+        stats: state.stats,
+        apiConnected: state.apiConnected,
+        categories: state.healthData.categories,
+        recommendations: state.healthData.recommendations || [],
+        metricsAnalysis: metricsAnalysis
+      };
+      
+      const jsonText = JSON.stringify(report, null, 2);
+      
+      try {
+        // Try modern clipboard API first
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(jsonText);
+        } else {
+          // Fallback for non-HTTPS or older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = jsonText;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          try {
+            document.execCommand('copy');
+            textArea.remove();
+          } catch (err) {
+            textArea.remove();
+            throw err;
+          }
+        }
+        
+        // Visual feedback
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✅ Copied!';
+        btn.style.background = 'var(--success)';
+        
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Failed to copy to clipboard:', error);
+        
+        // Show the JSON in a prompt as last resort
+        prompt('Copy this JSON (Ctrl+C):', jsonText);
+      }
+    }
+
+    function exportReport() {
+      if (!state.healthData) {
+        alert('No health data available to export. Please connect to the API server first.');
+        return;
+      }
+      
+      // Build comprehensive metrics analysis
+      const metricsAnalysis = generateMetricsAnalysis();
+      
+      const report = {
+        timestamp: new Date().toISOString(),
+        status: state.overallStatus,
+        stats: state.stats,
+        categories: state.healthData.categories,
+        recommendations: state.healthData.recommendations || [],
+        metricsAnalysis: metricsAnalysis
       };
       
       const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
@@ -1339,6 +2118,148 @@
       }
     }
 
+    function generateMetricsAnalysis() {
+      const analysis = {
+        summary: {
+          generated: new Date().toISOString(),
+          overallHealth: state.overallStatus,
+          healthScore: calculateHealthScore()
+        },
+        brainMetrics: extractBRAINMetrics(),
+        learningMetrics: extractLearningMetrics(),
+        performanceMetrics: extractPerformanceMetrics(),
+        insights: generateInsights()
+      };
+      
+      return analysis;
+    }
+
+    function calculateHealthScore() {
+      if (!state.stats) return 0;
+      const total = state.stats.totalChecks || 1;
+      const passed = state.stats.passed || 0;
+      return Math.round((passed / total) * 100);
+    }
+
+    function extractBRAINMetrics() {
+      const brainCategory = state.healthData?.categories?.find(c => c.name === 'BRAIN System');
+      if (!brainCategory) return { available: false };
+
+      const integrityChecks = brainCategory.checks.filter(c => c.name.startsWith('Integrity:'));
+      const passedCount = integrityChecks.filter(c => c.status === 'passed').length;
+      
+      return {
+        available: true,
+        integrityScore: Math.round((passedCount / integrityChecks.length) * 100),
+        totalIntegrityChecks: integrityChecks.length,
+        passedIntegrityChecks: passedCount,
+        checks: integrityChecks.map(c => ({
+          name: c.name.replace('Integrity: ', ''),
+          status: c.status,
+          message: c.message
+        }))
+      };
+    }
+
+    function extractLearningMetrics() {
+      const brainCategory = state.healthData?.categories?.find(c => c.name === 'BRAIN System');
+      if (!brainCategory) return { available: false };
+
+      // Extract knowledge graph data from checks
+      const kgCheck = brainCategory.checks.find(c => c.name === 'Knowledge Graph');
+      const eventCheck = brainCategory.checks.find(c => c.name === 'Event Stream');
+      
+      return {
+        available: true,
+        knowledgeGraph: {
+          status: kgCheck?.status || 'unknown',
+          message: kgCheck?.message || 'No data'
+        },
+        eventStream: {
+          status: eventCheck?.status || 'unknown',
+          message: eventCheck?.message || 'No data'
+        }
+      };
+    }
+
+    function extractPerformanceMetrics() {
+      const perfCategory = state.healthData?.categories?.find(c => c.name === 'Performance');
+      if (!perfCategory) return { available: false };
+
+      return {
+        available: true,
+        checks: perfCategory.checks.map(c => ({
+          name: c.name,
+          status: c.status,
+          message: c.message
+        }))
+      };
+    }
+
+    function generateInsights() {
+      const insights = [];
+      
+      // Health score insights
+      const healthScore = calculateHealthScore();
+      if (healthScore === 100) {
+        insights.push({
+          type: 'success',
+          category: 'overall',
+          message: '🟢 Perfect health - all systems operational'
+        });
+      } else if (healthScore >= 90) {
+        insights.push({
+          type: 'info',
+          category: 'overall',
+          message: '🟡 Excellent health with minor issues'
+        });
+      } else if (healthScore >= 75) {
+        insights.push({
+          type: 'warning',
+          category: 'overall',
+          message: '🟠 Good health but attention needed'
+        });
+      } else {
+        insights.push({
+          type: 'critical',
+          category: 'overall',
+          message: '🔴 Critical issues detected - immediate action required'
+        });
+      }
+
+      // BRAIN-specific insights
+      const brainMetrics = extractBRAINMetrics();
+      if (brainMetrics.available) {
+        if (brainMetrics.integrityScore === 100) {
+          insights.push({
+            type: 'success',
+            category: 'brain',
+            message: '🧠 BRAIN integrity perfect - all 13 checks passed'
+          });
+        } else {
+          const failedCount = brainMetrics.totalIntegrityChecks - brainMetrics.passedIntegrityChecks;
+          insights.push({
+            type: 'warning',
+            category: 'brain',
+            message: `🧠 BRAIN integrity at ${brainMetrics.integrityScore}% - ${failedCount} check(s) failing`
+          });
+        }
+      }
+
+      // Add recommendations from health checks
+      if (state.healthData?.recommendations) {
+        state.healthData.recommendations.forEach(rec => {
+          insights.push({
+            type: 'recommendation',
+            category: 'system',
+            message: rec
+          });
+        });
+      }
+
+      return insights;
+    }
+
     // ==========================================
     // Utilities
     // ==========================================
@@ -1349,16 +2270,34 @@
     // ==========================================
     // Initialization
     // ==========================================
-    document.addEventListener('DOMContentLoaded', () => {
-      renderOverview();
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Show initial loading state
+      showLoadingOverlay('Initializing Dashboard...', 'Loading components...');
+      
+      // Initial render with zero data
+      resetStatsToZero();
       renderHeaderStats();
       updateLastUpdateTime();
       
+      // Brief pause for visual feedback
+      await sleep(800);
+      
+      // Try to connect to API and load data
+      await runHealthChecks();
+      renderOverview();
+      
       // Auto-refresh if enabled
       if (state.autoRefresh) {
-        setInterval(() => {
-          if (document.visibilityState === 'visible') {
-            refreshDashboard();
+        setInterval(async () => {
+          if (document.visibilityState === 'visible' && state.apiConnected && !state.isLoading) {
+            console.log('Auto-refresh triggered');
+            
+            // Refresh current tab data
+            if (state.currentTab === 'metrics') {
+              await loadMetrics();
+            } else {
+              await refreshDashboard();
+            }
           }
         }, state.refreshInterval);
       }

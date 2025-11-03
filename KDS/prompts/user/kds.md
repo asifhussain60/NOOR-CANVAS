@@ -1096,6 +1096,111 @@ UserRegistrationLink.razor     ██████████░░ 24% churn �
 
 ---
 
+## 🧠 KDS Health Dashboard
+
+**Purpose:** Visual monitoring dashboard for KDS system health, BRAIN status, and development metrics.
+
+### Launch Dashboard
+
+```markdown
+#file:KDS/prompts/user/kds.md launch dashboard
+```
+
+Or directly:
+```powershell
+.\KDS\scripts\launch-dashboard.ps1
+```
+
+**What it does:**
+- ✅ Starts API server in a **separate visible PowerShell window**
+- ✅ Opens dashboard in your default browser
+- ✅ Provides real-time health monitoring
+- ✅ Shows visual feedback for all operations
+
+**⚠️ PERMANENT RULE: API Server Window Behavior**
+
+The API server MUST run in a **separate visible PowerShell window**, NOT as a background job.
+
+**Rationale:**
+- ✅ User can see server logs in real-time
+- ✅ Easy to stop (just close the window or Ctrl+C)
+- ✅ Clear visual indicator that server is running
+- ✅ No hidden background processes
+- ❌ Background jobs are invisible and hard to manage
+- ❌ Users couldn't tell if server was running
+
+**Implementation:**
+```powershell
+# CORRECT - Separate visible window
+Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd '$workspaceRoot'; .\KDS\scripts\dashboard-api-server.ps1"
+
+# WRONG - Background job (DO NOT USE)
+$job = Start-Job -ScriptBlock { ... }
+```
+
+### Dashboard Features
+
+**Visual Loading Feedback:**
+- 📊 Progress bar at top of page during operations
+- 🔄 Loading overlay with detailed status messages
+- ⏱️ Real-time progress updates
+- 🎯 Stats start at 0 and refresh with live data
+
+**Health Check Categories:**
+- 🏗️ Infrastructure (files, directories, permissions)
+- 🤖 Agents & Prompts (all 10 specialist agents)
+- 🧠 BRAIN System (3-tier architecture)
+- 💾 Session State (active sessions, history)
+- 📚 Knowledge Base (graph, patterns, context)
+- 🔧 Scripts & Tools (PowerShell, validation)
+- ⚡ Performance (response times, efficiency)
+
+**Actions:**
+- 🔄 **Refresh** - Run all health checks (shows loading feedback)
+- 📋 **Copy to Clipboard** - Copy health report JSON (with fallback for file:// protocol)
+- 📊 **Export Report** - Download JSON file
+
+**Connection States:**
+- 🔗 **Live** - API server connected, real data
+- 🔌 **Disconnected** - API server not running (shows retry button)
+
+### Copy to Clipboard Feature
+
+**Multi-Layer Fallback System:**
+
+1. **Modern Clipboard API** (HTTPS/secure context)
+   ```javascript
+   navigator.clipboard.writeText(jsonText)
+   ```
+
+2. **Legacy execCommand** (HTTP/file:// protocol)
+   ```javascript
+   document.execCommand('copy')
+   ```
+
+3. **Manual Prompt** (Last resort)
+   ```javascript
+   prompt('Copy this JSON (Ctrl+C):', jsonText)
+   ```
+
+**Why fallback is needed:**
+- ⚠️ Dashboard runs on `file://` protocol (not HTTPS)
+- ⚠️ Modern clipboard API requires secure context
+- ✅ Fallback ensures copy works in all scenarios
+- ✅ Always provides a way to get the JSON
+
+### To Stop Dashboard
+
+**Option 1:** Close the API server PowerShell window
+
+**Option 2:** Press Ctrl+C in the API server window
+
+**Option 3:** Just close your browser (server keeps running until manually stopped)
+
+**Dashboard remains functional** in disconnected mode - you can view cached data and retry connection.
+
+---
+
 ## 🚀 First-Time Setup (New Application Installation)
 
 **When to use this:** You're installing KDS in a new application (e.g., a fresh project like `https://github.com/yourname/new-project`)

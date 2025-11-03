@@ -571,6 +571,52 @@
 			"isBackground": false,
 			"group": "test",
 			"detail": "🧪 Automated test: Verify dashboard refresh (headless mode for CI/CD)"
+		},
+		{
+			"label": "kds: test metrics dashboard",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/KDS/tests/test-metrics-dashboard.ps1"
+			],
+			"isBackground": false,
+			"group": "test",
+			"detail": "🧪 Test KDS metrics dashboard: API endpoints, data validation, chart elements"
+		},
+		{
+			"label": "kds: test dashboard visual loading",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/KDS/tests/test-dashboard-visual-loading.ps1"
+			],
+			"isBackground": false,
+			"group": "test",
+			"detail": "🎭 Visual test: Launch dashboard and verify all cards & metrics load correctly"
+		},
+		{
+			"label": "kds: test dashboard visual (keep open)",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/KDS/tests/test-dashboard-visual-loading.ps1",
+				"-KeepOpen"
+			],
+			"isBackground": false,
+			"group": "test",
+			"detail": "🎭 Visual test: Keep browser open for manual inspection after tests"
 		}
 	]
 }

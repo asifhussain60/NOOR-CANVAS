@@ -298,6 +298,46 @@ workflow_patterns:
     benefits:
       - "100% portable (single file)"
       - "Zero external dependencies"
+  
+  brain_test_synchronization:
+    description: "CRITICAL: BRAIN integrity test changes require synchronous updates to health checks and dashboard"
+    rule_id: "BRAIN-SYNC-001"
+    enforcement: "MANDATORY (change-governor blocks violations)"
+    trigger_files:
+      - "KDS/tests/test-brain-integrity.ps1"
+      - "KDS/tests/test-brain-corruption-scenarios.ps1"
+    required_dependencies:
+      - path: "KDS/scripts/run-health-checks.ps1"
+        section: "Test-BRAINSystem()"
+        requirement: "Must map ALL integrity checks from test suite"
+      - path: "KDS/kds-dashboard.html"
+        section: "renderBRAINMetricsFromAPI()"
+        requirement: "Must display ALL integrity checks in BRAIN System tab"
+      - path: "KDS/tests/BRAIN-INTEGRITY-TEST.md"
+        section: "What Gets Validated"
+        requirement: "Must document ALL checks with current count"
+    validation_logic:
+      - "Detect if test-brain-integrity.ps1 modified"
+      - "Verify all 3 dependencies also modified in same commit"
+      - "Count checks in test suite (currently 13)"
+      - "Verify health script maps all 13 checks"
+      - "Verify dashboard displays all 13 checks"
+      - "Verify documentation reflects count of 13"
+      - "REJECT commit if any dependency missing or count mismatch"
+    rationale:
+      - "Dashboard must show ALL current BRAIN checks, not subset"
+      - "Automated health checks must include every integrity validation"
+      - "System components must agree on what 'healthy BRAIN' means"
+      - "Users must see accurate, complete BRAIN status"
+      - "Silent failures are prevented by enforced synchronization"
+    confidence: 1.00
+    source: "governance/rules/brain-test-synchronization.md"
+    enforced_by: "change-governor.md"
+    created: "2025-11-03"
+    current_check_count: 13
+    success_rate: 1.0
+    reusable: false
+    scope: "kds_internal_governance"
       - "Works offline"
       - "Fast load time"
       - "Easy to share/deploy"

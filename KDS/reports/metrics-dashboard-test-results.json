@@ -1,0 +1,235 @@
+{
+  "Failed": 0,
+  "Warnings": 0,
+  "Details": [
+    {
+      "Message": "Status code: 200",
+      "Status": "PASS",
+      "Test": "API Server Running",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Received response",
+      "Status": "PASS",
+      "Test": "Health Endpoint Responds",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Field present",
+      "Status": "PASS",
+      "Test": "Health Data: timestamp",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Field present",
+      "Status": "PASS",
+      "Test": "Health Data: stats",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Field present",
+      "Status": "PASS",
+      "Test": "Health Data: categories",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Value: 50",
+      "Status": "PASS",
+      "Test": "Health Stats: passed",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Value: 2",
+      "Status": "PASS",
+      "Test": "Health Stats: warnings",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Value: 53",
+      "Status": "PASS",
+      "Test": "Health Stats: totalChecks",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Received response",
+      "Status": "PASS",
+      "Test": "Metrics Endpoint Responds",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Present",
+      "Status": "PASS",
+      "Test": "Metric Category: brainHealth",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Present",
+      "Status": "PASS",
+      "Test": "Metric Category: routingAccuracy",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Present",
+      "Status": "PASS",
+      "Test": "Metric Category: knowledgeGraph",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Present",
+      "Status": "PASS",
+      "Test": "Metric Category: fileHotspots",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Present",
+      "Status": "PASS",
+      "Test": "Metric Category: eventActivity",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Present",
+      "Status": "PASS",
+      "Test": "Metric Category: testSuccess",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Score: 94%",
+      "Status": "PASS",
+      "Test": "BRAIN Health Score",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Status: healthy",
+      "Status": "PASS",
+      "Test": "BRAIN Health Status",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Accuracy: 96%",
+      "Status": "PASS",
+      "Test": "Routing Accuracy Overall",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Tracking 5 intent types",
+      "Status": "PASS",
+      "Test": "Routing Accuracy by Intent",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Total entries: 169",
+      "Status": "PASS",
+      "Test": "Knowledge Graph Entries",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Total events: 68",
+      "Status": "PASS",
+      "Test": "Event Activity Total",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "D:\\PROJECTS\\NOOR CANVAS\\KDS\\tests\\..\\kds-dashboard.html",
+      "Status": "PASS",
+      "Test": "Dashboard File Exists",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "CDN reference found",
+      "Status": "PASS",
+      "Test": "Chart.js Library Included",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Metrics section found",
+      "Status": "PASS",
+      "Test": "Metrics Tab Present",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Element found",
+      "Status": "PASS",
+      "Test": "Canvas Element: brainHealthChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Element found",
+      "Status": "PASS",
+      "Test": "Canvas Element: routingAccuracyChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Element found",
+      "Status": "PASS",
+      "Test": "Canvas Element: knowledgeGrowthChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Element found",
+      "Status": "PASS",
+      "Test": "Canvas Element: fileHotspotsChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Element found",
+      "Status": "PASS",
+      "Test": "Canvas Element: eventActivityChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Element found",
+      "Status": "PASS",
+      "Test": "Canvas Element: testSuccessChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "loadMetrics() Function",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "Function: renderBRAINHealthChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "Function: renderRoutingAccuracyChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "Function: renderKnowledgeGrowthChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "Function: renderFileHotspotsChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "Function: renderEventActivityChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "Function defined",
+      "Status": "PASS",
+      "Test": "Function: renderTestSuccessChart",
+      "Timestamp": "2025-11-03 18:01:18"
+    },
+    {
+      "Message": "29ms (target: <500ms)",
+      "Status": "PASS",
+      "Test": "Metrics API Response Time",
+      "Timestamp": "2025-11-03 18:01:18"
+    }
+  ],
+  "Passed": 38
+}

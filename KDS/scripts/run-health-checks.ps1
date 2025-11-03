@@ -369,6 +369,86 @@ function Test-BRAINSystem {
     }
     $checks += Add-Check -CategoryName 'BRAIN' -CheckName 'Update Freshness' -Result $result
     
+    # 3.7-3.19 Full BRAIN Integrity Test (13 checks from test-brain-integrity.ps1)
+    # GOVERNANCE RULE: When test-brain-integrity.ps1 is updated, this section MUST be updated
+    # See: KDS/governance/rules/brain-test-synchronization.md
+    $brainTestPath = Join-Path $workspaceRoot "KDS\tests\test-brain-integrity.ps1"
+    if (Test-Path $brainTestPath) {
+        if ($VerboseOutput) { Write-Host "    Running full BRAIN integrity test..." -ForegroundColor Cyan }
+        
+        try {
+            # Run the full integrity test with JSON output
+            $brainTestOutput = & $brainTestPath -JsonOutput 2>&1 | Out-String
+            
+            # Try to parse JSON (handle potential non-JSON output before the JSON)
+            $jsonStart = $brainTestOutput.IndexOf('{')
+            if ($jsonStart -ge 0) {
+                $jsonContent = $brainTestOutput.Substring($jsonStart)
+                $brainResult = $jsonContent | ConvertFrom-Json
+                
+                # Map each of the 13 integrity checks to our health check format
+                foreach ($check in $brainResult.checks) {
+                    $checkStatus = switch ($check.status) {
+                        'PASS' { 'passed' }
+                        'WARN' { 'warning' }
+                        'FAIL' { 'critical' }
+                        default { 'warning' }
+                    }
+                    
+                    $checkResult = @{
+                        status = $checkStatus
+                        message = $check.message
+                    }
+                    
+                    $checks += Add-Check -CategoryName 'BRAIN' -CheckName "Integrity: $($check.check)" -Result $checkResult
+                    
+                    # Add recommendations for failures
+                    if ($checkStatus -eq 'critical') {
+                        $results.recommendations += @{
+                            category = 'BRAIN System'
+                            check = "Integrity: $($check.check)"
+                            action = "Fix issue: .\KDS\tests\test-brain-integrity.ps1 -Verbose"
+                        }
+                    }
+                }
+                
+                # Add overall integrity status
+                $overallStatus = if ($brainResult.overall_status -eq 'PASS') { 'passed' } else { 'critical' }
+                $overallMessage = "$($brainResult.passed)/$($brainResult.total_checks) integrity checks passed"
+                if ($brainResult.failed -gt 0) {
+                    $overallMessage += " ($($brainResult.failed) failed, $($brainResult.warnings) warnings)"
+                }
+                
+                $checksAdded = @{
+                    status = $overallStatus
+                    message = $overallMessage
+                }
+                $checks += Add-Check -CategoryName 'BRAIN' -CheckName 'Overall Integrity' -Result $checksAdded
+                
+            } else {
+                # JSON parsing failed
+                $result = @{ 
+                    status = 'warning'
+                    message = "Brain test output could not be parsed" 
+                }
+                $checks += Add-Check -CategoryName 'BRAIN' -CheckName 'Full Integrity Test' -Result $result
+            }
+            
+        } catch {
+            $result = @{ 
+                status = 'warning'
+                message = "Brain integrity test failed: $($_.Exception.Message)" 
+            }
+            $checks += Add-Check -CategoryName 'BRAIN' -CheckName 'Full Integrity Test' -Result $result
+        }
+    } else {
+        $result = @{ 
+            status = 'warning'
+            message = "Brain integrity test script not found at: $brainTestPath" 
+        }
+        $checks += Add-Check -CategoryName 'BRAIN' -CheckName 'Full Integrity Test' -Result $result
+    }
+    
     return @{
         id = 'brain'
         name = 'BRAIN System'

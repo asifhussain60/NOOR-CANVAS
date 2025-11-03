@@ -30,25 +30,23 @@ if (-not (Test-Path $apiServerScript)) {
     exit 1
 }
 
-# Step 1: Start API Server in background
+# Step 1: Start API Server in separate visible window
 Write-Host "Step 1/2: Starting API Server..." -ForegroundColor Cyan
 Write-Host "  Port: $Port" -ForegroundColor Gray
-Write-Host "  Mode: Background process" -ForegroundColor Gray
+Write-Host "  Mode: Separate PowerShell window (visible)" -ForegroundColor Gray
 
-$job = Start-Job -ScriptBlock {
-    param($Script, $Port)
-    & $Script -Port $Port
-} -ArgumentList $apiServerScript, $Port
+# Start API server in a new visible PowerShell window
+$process = Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd '$workspaceRoot'; .\KDS\scripts\dashboard-api-server.ps1 -Port $Port" -PassThru
 
 # Wait a moment for server to start
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 3
 
-# Check if job is running
-$jobState = Get-Job -Id $job.Id | Select-Object -ExpandProperty State
-if ($jobState -eq 'Running') {
-    Write-Host "  ✅ API Server started (Job ID: $($job.Id))" -ForegroundColor Green
+# Check if process is running
+if ($process -and !$process.HasExited) {
+    Write-Host "  ✅ API Server started (PID: $($process.Id))" -ForegroundColor Green
+    Write-Host "  ℹ️  Server window opened - keep it running" -ForegroundColor Cyan
 } else {
-    Write-Host "  ⚠️ API Server may have issues (State: $jobState)" -ForegroundColor Yellow
+    Write-Host "  ⚠️ API Server may have issues" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -75,56 +73,11 @@ Write-Host "  • Look for Live mode indicator" -ForegroundColor Gray
 Write-Host ""
 Write-Host "API Server:" -ForegroundColor Cyan
 Write-Host "  • Running on http://localhost:$Port" -ForegroundColor Gray
-Write-Host "  • Background Job ID: $($job.Id)" -ForegroundColor Gray
-Write-Host "  • Processing health check requests" -ForegroundColor Gray
+Write-Host "  • Running in separate PowerShell window" -ForegroundColor Gray
+Write-Host "  • Keep that window open while using dashboard" -ForegroundColor Gray
 Write-Host ""
-
-if ($KeepServerRunning) {
-    Write-Host "Server Control:" -ForegroundColor Yellow
-    Write-Host "  • Server will keep running in background" -ForegroundColor Gray
-    Write-Host "  • To stop: Get-Job -Id $($job.Id) | Stop-Job; Remove-Job -Id $($job.Id)" -ForegroundColor Gray
-    Write-Host "  • To view logs: Receive-Job -Id $($job.Id) -Keep" -ForegroundColor Gray
-    Write-Host ""
-} else {
-    Write-Host "Press Ctrl+C to stop the API server and close..." -ForegroundColor Yellow
-    Write-Host ""
-    
-    try {
-        # Keep script running and monitor job
-        while ($true) {
-            $jobState = Get-Job -Id $job.Id -ErrorAction SilentlyContinue | Select-Object -ExpandProperty State
-            
-            if ($jobState -ne 'Running') {
-                Write-Host ""
-                Write-Host "⚠️ API Server stopped unexpectedly (State: $jobState)" -ForegroundColor Yellow
-                
-                # Show any errors
-                $jobErrors = Receive-Job -Id $job.Id -ErrorAction SilentlyContinue 2>&1
-                if ($jobErrors) {
-                    Write-Host "Error output:" -ForegroundColor Red
-                    $jobErrors | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
-                }
-                
-                break
-            }
-            
-            Start-Sleep -Seconds 1
-        }
-    } catch {
-        Write-Host ""
-        Write-Host "Interrupted by user" -ForegroundColor Yellow
-    } finally {
-        # Cleanup
-        Write-Host ""
-        Write-Host "Stopping API Server..." -ForegroundColor Cyan
-        Get-Job -Id $job.Id -ErrorAction SilentlyContinue | Stop-Job
-        Get-Job -Id $job.Id -ErrorAction SilentlyContinue | Remove-Job -Force
-        Write-Host "✅ Cleanup complete" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "Dashboard remains open in your browser." -ForegroundColor Gray
-        Write-Host "It will switch to Demo mode (🎮) now that API server is stopped." -ForegroundColor Gray
-    }
-}
-
+Write-Host "To Stop:" -ForegroundColor Yellow
+Write-Host "  • Close the API server PowerShell window, or" -ForegroundColor Gray
+Write-Host "  • Press Ctrl+C in the API server window" -ForegroundColor Gray
 Write-Host ""
 Write-Host "=" * 60 -ForegroundColor Gray
