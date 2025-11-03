@@ -1,0 +1,15 @@
+# KDS BRAIN - Development Context (Tier 3)
+# Version: 1.0
+# Last Updated: 2025-11-03T08:21:19Z
+# Purpose: Holistic project understanding for intelligent planning and proactive warnings
+# Update Frequency: Hourly (automated) or on-demand
+
+code_changes: System.Collections.Specialized.OrderedDictionary
+correlations: System.Collections.Specialized.OrderedDictionary
+git_activity: System.Collections.Specialized.OrderedDictionary
+kds_usage: System.Collections.Specialized.OrderedDictionary
+proactive_insights: System.Collections.Specialized.OrderedDictionary
+project_health: System.Collections.Specialized.OrderedDictionary
+statistics: System.Collections.Specialized.OrderedDictionary
+testing_activity: System.Collections.Specialized.OrderedDictionary
+work_patterns: System.Collections.Specialized.OrderedDictionary
