@@ -26,8 +26,8 @@ This agent intelligently analyzes uncommitted changes and creates **optimal, cat
 3. Determine commit strategy (single/grouped/multiple)
 4. Generate semantic commit messages
 5. Detect milestone/tag opportunities
-6. Execute commits (stage → commit → tag → log)
-7. **Verify zero uncommitted files** ✅ **CRITICAL**
+6. Execute commits (with pre-baseline tracking)
+7. **Verify commit success (smart validation with baseline comparison)** ✅ **FIXED**
 8. Generate post-commit summary
 
 ---
@@ -319,12 +319,16 @@ def should_create_tag(commits):
 
 ---
 
-### Step 6: Execute Commits
+### Step 6: Execute Commits (with Pre/Post Validation)
 
-**Create commits in optimal order:**
+**Create commits in optimal order with baseline tracking:**
 
 ```powershell
-# For each commit category (in priority order):
+# STEP 6a: Baseline uncommitted files BEFORE commit
+baseline_uncommitted = get_uncommitted_files(exclude_artifacts=True)
+log_debug(f"Baseline: {len(baseline_uncommitted)} uncommitted files before commit")
+
+# STEP 6b: For each commit category (in priority order):
 
 # 1. Stage files for this category
 git add <files>
@@ -354,60 +358,116 @@ if tag_name:
 
 ---
 
-### Step 7: Verify Zero Uncommitted Files
+### Step 7: Verify Commit Success (Smart Validation)
 
-**🎯 CRITICAL: Ensure all committable files are committed**
+**🎯 CRITICAL: Ensure all committable files were committed, differentiate from build artifacts**
 
 ```powershell
-# Check for remaining uncommitted files
-git status --short
+# Check for remaining uncommitted files AFTER commit
+after_commit = git status --short
 
-# Exclude build artifacts
-$uncommitted = git status --short | Where-Object {
+# Exclude build artifacts from both checks
+$uncommitted_after = after_commit | Where-Object {
     $_ -notmatch '^\?\? .*(bin/|obj/|node_modules/|\.skip|test-results/|playwright-report/)'
 }
 ```
 
-**Validation Logic:**
+**Smart Validation Logic:**
 
 ```python
-uncommitted_files = get_uncommitted_files(exclude_artifacts=True)
+# Get uncommitted files AFTER commit
+uncommitted_after = get_uncommitted_files(exclude_artifacts=True)
 
-if len(uncommitted_files) > 0:
-    ERROR("❌ Uncommitted files remaining after commit operation!")
+# Compare with baseline
+still_uncommitted = set(uncommitted_after) & set(baseline_uncommitted)  # Intersection
+new_during_commit = set(uncommitted_after) - set(baseline_uncommitted)  # New files
+
+# VALIDATION CHECKS
+
+# Check 1: Files that SHOULD have been committed but weren't
+if len(still_uncommitted) > 0:
+    ERROR("❌ Commit operation failed - files still uncommitted!")
     
     # Categorize remaining files
-    remaining_kds = [f for f in uncommitted_files if f.startswith("KDS/")]
-    remaining_app = [f for f in uncommitted_files if not f.startswith("KDS/")]
+    remaining_kds = [f for f in still_uncommitted if f.startswith("KDS/")]
+    remaining_app = [f for f in still_uncommitted if not f.startswith("KDS/")]
     
     if remaining_kds:
         ERROR(f"KDS files not committed: {remaining_kds}")
-        SUGGEST("These should have been committed. Re-run commit handler.")
+        SUGGEST("File categorization may have failed. Check commit-handler logic.")
     
     if remaining_app:
-        WARN(f"Application files not committed: {remaining_app}")
-        SUGGEST("Run commit handler again or manually commit.")
+        ERROR(f"Application files not committed: {remaining_app}")
+        SUGGEST("These files were in baseline but not committed.")
     
     HALT()  # Do not proceed with summary until fixed
+
+# Check 2: New files created DURING commit (informational, not error)
+elif len(new_during_commit) > 0:
+    WARN(f"⚠️ New files appeared during commit: {new_during_commit}")
+    
+    # Likely build artifacts or pre-commit hook outputs
+    SUGGEST("Check if these should be in .gitignore:")
+    for file in new_during_commit:
+        print(f"  - {file}")
+    
+    # Log but don't halt
+    log_event({
+      "event": "files_created_during_commit",
+      "files": new_during_commit,
+      "timestamp": now()
+    })
+    
+    SUCCESS("✅ Original files committed successfully")
+    PROCEED_TO_SUMMARY()
+
+# Check 3: Perfect commit - all files committed, none created
 else:
-    SUCCESS("✅ Verified: Zero uncommitted files (excluding build artifacts)")
+    SUCCESS("✅ Verified: All committable files committed (0 uncommitted)")
+    PROCEED_TO_SUMMARY()
 ```
 
-**If uncommitted files found:**
+**If validation fails (Check 1):**
 ```markdown
-⚠️ **VERIFICATION FAILED**
+❌ **COMMIT VERIFICATION FAILED**
 
-Uncommitted files detected after commit:
+Files from baseline still uncommitted:
   - KDS/prompts/internal/test-agent.md
   - SPA/NoorCanvas/Components/NewComponent.razor
 
-This should not happen. Possible causes:
-1. File categorization failed
-2. File was modified during commit
-3. Branch switching issue
+These files existed BEFORE commit but were NOT committed.
+
+**Root Causes:**
+1. ❌ File categorization logic failed (didn't match any category)
+2. ❌ Branch switching mid-commit caused stage failure
+3. ❌ Git operation failed silently
 
 **Action Required:**
-Re-run commit handler to commit remaining files.
+1. Check file paths match categorization patterns
+2. Verify correct branch active
+3. Re-run commit handler with verbose logging
+```
+
+**If new files appear (Check 2):**
+```markdown
+⚠️ **NEW FILES DURING COMMIT**
+
+Files created during commit operation:
+  - Tests/bin/Debug/test.dll
+  - .vs/config/cache.json
+  
+These files were NOT in baseline but appeared after commit.
+
+**Likely Causes:**
+✅ Pre-commit hooks generated files
+✅ Build artifacts from compilation
+✅ IDE cache files
+
+**Action:**
+✓ Original files committed successfully
+⚠️ Consider adding to .gitignore:
+  echo "Tests/bin/" >> .gitignore
+  echo ".vs/" >> .gitignore
 ```
 
 ---

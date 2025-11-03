@@ -57,7 +57,7 @@ function ConvertTo-SimpleYaml {
     
     foreach ($key in $Data.Keys | Sort-Object) {
         $value = $Data[$key]
-        if ($value -is [hashtable]) {
+        if ($value -is [hashtable] -or $value -is [System.Collections.Specialized.OrderedDictionary]) {
             $lines += "${spaces}${key}:"
             $lines += ConvertTo-SimpleYaml $value ($Indent + 1)
         }
@@ -279,46 +279,71 @@ try {
     Set-Location $WorkspaceRoot
     
     Write-Host "📊 Step 1: Collecting Git Activity Metrics..." -ForegroundColor Yellow
+    $gitStartTime = Get-Date
     
     try {
         # Get commits in last 30 days
+        Write-Host "  → Fetching commit history (last 30 days)..." -ForegroundColor Gray
         $commits = git log --since="30 days ago" --pretty=format:"%H|%an|%ad|%s" --date=iso 2>$null
         
         if ($commits) {
             $commitLines = $commits -split "`n"
-            $context.git_activity.last_30_days.total_commits = $commitLines.Count
-            $context.git_activity.last_30_days.commits_per_day_avg = [math]::Round($commitLines.Count / 30.0, 1)
+            $commitCount = $commitLines.Count
+            $context.git_activity.last_30_days.total_commits = $commitCount
+            $context.git_activity.last_30_days.commits_per_day_avg = [math]::Round($commitCount / 30.0, 1)
+            
+            Write-Host "  → Found $commitCount commits, analyzing contributors..." -ForegroundColor Gray
             
             # Extract unique contributors
             $contributors = $commitLines | ForEach-Object { ($_ -split '\|')[1] } | Select-Object -Unique
             $context.git_activity.last_30_days.contributors = @($contributors)
             
-            # Count by component (simple path-based classification)
-            foreach ($line in $commitLines) {
-                $hash = ($line -split '\|')[0]
-                $files = git diff-tree --no-commit-id --name-only -r $hash 2>$null
-                
-                foreach ($file in $files) {
-                    if ($file -match '^SPA/|^PlayWright/|Pages/|Components/') {
-                        $context.git_activity.commits_by_component.UI++
-                    }
-                    elseif ($file -match '^Controllers/|Services/|Models/') {
-                        $context.git_activity.commits_by_component.Backend++
-                    }
-                    elseif ($file -match '^Tests/|\.spec\.|\.test\.') {
-                        $context.git_activity.commits_by_component.Tests++
-                    }
-                    elseif ($file -match '^Docs/|\.md$|README') {
-                        $context.git_activity.commits_by_component.Documentation++
-                    }
+            # Count by component - OPTIMIZED: Use single git command for ALL files changed
+            Write-Host "  → Classifying commits by component (this may take a moment)..." -ForegroundColor Gray
+            
+            # Get ALL changed files in one git command (much faster than per-commit)
+            $allChangedFiles = git log --since="30 days ago" --name-only --pretty=format:"" 2>$null | Where-Object { $_.Trim() -ne "" }
+            
+            $uiCount = 0
+            $backendCount = 0
+            $testCount = 0
+            $docCount = 0
+            
+            foreach ($file in $allChangedFiles) {
+                if ($file -match '^SPA/|^PlayWright/|Pages/|Components/') {
+                    $uiCount++
                 }
+                elseif ($file -match '^Controllers/|Services/|Models/') {
+                    $backendCount++
+                }
+                elseif ($file -match '^Tests/|\.spec\.|\.test\.') {
+                    $testCount++
+                }
+                elseif ($file -match '^Docs/|\.md$|README') {
+                    $docCount++
+                }
+            }
+            
+            # Convert file counts to commit estimates (rough approximation)
+            $totalFiles = $allChangedFiles.Count
+            if ($totalFiles -gt 0) {
+                $context.git_activity.commits_by_component.UI = [int]($commitCount * ($uiCount / $totalFiles))
+                $context.git_activity.commits_by_component.Backend = [int]($commitCount * ($backendCount / $totalFiles))
+                $context.git_activity.commits_by_component.Tests = [int]($commitCount * ($testCount / $totalFiles))
+                $context.git_activity.commits_by_component.Documentation = [int]($commitCount * ($docCount / $totalFiles))
             }
             
             $metricsCollected += 4
         }
         
+        $gitDuration = [math]::Round(((Get-Date) - $gitStartTime).TotalSeconds, 1)
         $context.git_activity.last_updated = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-        Write-Host "  ✓ Git activity: $($context.git_activity.last_30_days.total_commits) commits" -ForegroundColor Green
+        Write-Host "  ✓ Git activity: $($context.git_activity.last_30_days.total_commits) commits ($gitDuration seconds)" -ForegroundColor Green
+        
+        # Timeout warning if it took too long
+        if ($gitDuration -gt 30) {
+            Write-Host "  ⚠️  Git collection took ${gitDuration}s (>30s threshold) - Consider using -Quick mode" -ForegroundColor Yellow
+        }
         
     }
     catch {
@@ -404,7 +429,7 @@ try {
     Write-Host "📁 Step 5: Writing development-context.yaml..." -ForegroundColor Yellow
     
     # Generate YAML content
-    $yamlLines = @(
+    $yamlContent = @(
         "# KDS BRAIN - Development Context (Tier 3)"
         "# Version: 1.0"
         "# Last Updated: $now"
@@ -413,10 +438,12 @@ try {
         ""
     )
     
-    $yamlLines += ConvertTo-SimpleYaml $context
+    # Add converted YAML lines
+    $yamlContent += ConvertTo-SimpleYaml $context 0
     
-    # Write to file
-    $yamlLines | Out-File -FilePath $ContextFile -Encoding UTF8 -Force
+    # Write to file (join lines with newline)
+    $yamlContent -join "`n" | Out-File -FilePath $ContextFile -Encoding UTF8 -Force -NoNewline
+    Add-Content -Path $ContextFile -Value "" -Encoding UTF8  # Add final newline
     
     $fileSize = [math]::Round((Get-Item $ContextFile).Length / 1KB, 1)
     $context.statistics.total_storage_kb = $fileSize

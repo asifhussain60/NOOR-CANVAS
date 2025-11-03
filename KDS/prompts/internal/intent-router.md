@@ -202,6 +202,32 @@ Use these patterns to classify the user's request:
 
 ---
 
+#### METRICS Intent
+**When:** User wants to see KDS performance metrics and BRAIN health  
+**Patterns:**
+- "run metrics"
+- "show metrics"
+- "brain metrics"
+- "performance report"
+- "kds stats"
+- "show [me] performance"
+- "how is [kds|brain] performing"
+- "brain health"
+
+**Route to:** `#file:KDS/prompts/internal/metrics-reporter.md`
+
+**Examples:**
+```
+✓ "run metrics"
+✓ "show metrics"
+✓ "brain metrics"
+✓ "performance report"
+✓ "how is KDS performing?"
+✓ "show me BRAIN health stats"
+```
+
+---
+
 #### COMMIT Intent
 **When:** User wants to commit changes to git with intelligent categorization  
 **Patterns:**
@@ -290,12 +316,9 @@ routing_decision:
 6. EXECUTE (continue work)
 7. TEST (create/run tests)
 8. VALIDATE (check system health)
-9. GOVERN (review KDS changes)
-10. ASK (answer questions)
-```
-7. VALIDATE (quality checks)
-8. ASK (questions)
-9. GOVERN (KDS reviews)
+9. METRICS (performance reporting)
+10. GOVERN (review KDS changes)
+11. ASK (answer questions)
 ```
 
 ---
@@ -430,6 +453,37 @@ routing_safety:
 input: "[user's natural language request]"
 ```
 
+### Step 1.5: Load Conversation Context (CONVERSATION TRACKING)
+
+**Before pattern matching, load recent conversation history:**
+
+```markdown
+#file:KDS/prompts/internal/conversation-context-manager.md load
+```
+
+**Returns:** Last 10 user messages with intents and entities
+
+**Use context to:**
+1. **Resolve pronouns** ("it", "that", "this") to actual entities
+2. **Expand message** with explicit references for better intent detection
+3. **Detect context switching** (new topic vs continuation)
+
+**Example:**
+```python
+recent_context = load_conversation_context()
+
+# Resolve references
+if "it" in user_message or "that" in user_message or "this" in user_message:
+    context_ref = extract_most_recent_entity(recent_context)
+    expanded_message = expand_with_context(user_message, context_ref)
+    # "Make it purple" → "Make the FAB button purple"
+else:
+    expanded_message = user_message
+
+# Use expanded message for intent detection
+user_message_for_routing = expanded_message
+```
+
 ### Step 2: Pattern Matching (Fallback if BRAIN confidence low)
 ```python
 for intent in [CORRECT, RESUME, PLAN, EXECUTE, TEST, VALIDATE, ASK, GOVERN]:
@@ -449,7 +503,35 @@ else:
     pass_secondary_intents_as_context()
 ```
 
-### Step 4: Load Specialist Agent
+### Step 4: Log Message to Conversation Context (CONVERSATION TRACKING)
+
+**After intent detected, log this message:**
+
+```python
+log_conversation_entry({
+    "timestamp": now(),
+    "user_message": user_message_original,  # Original, not expanded
+    "intent": detected_intent,
+    "session_id": current_session_id,
+    "context_ref": context_ref_if_resolved
+})
+
+# Auto-rotate (keep only last 10)
+rotate_conversation_context(max_entries=10)
+
+# Auto-expire (remove messages > 2 hours old)
+expire_old_messages(max_age_hours=2)
+```
+
+**File:** `KDS/kds-brain/conversation-context.jsonl`
+
+**Format:**
+```jsonl
+{"timestamp":"2025-11-03T14:23:45Z","user_message":"I want to add a FAB button","intent":"PLAN","session_id":"fab-button"}
+{"timestamp":"2025-11-03T14:24:12Z","user_message":"Make it purple","intent":"EXECUTE","session_id":"fab-button","context_ref":"FAB button"}
+```
+
+### Step 5: Load Specialist Agent
 
 **After routing decision, log event to BRAIN:**
 
