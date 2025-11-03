@@ -23,10 +23,10 @@
 | **Tier 2: Knowledge Graph** | ✅ | Learning from interactions (95% complete) |
 | **Event Logging** | ✅ | All agents log to events.jsonl |
 | **Protection System** | ✅ | Confidence thresholds, anomaly detection |
-| **Tier 3: Development Context** | ✅ | Recently fixed - now collecting real data |
+| **Tier 3: Development Context** | ✅ | Collecting git/test/build metrics (1,249 commits analyzed) |
 | **Commit Handler** | ✅ | Smart validation with baseline comparison |
-| **Tier 1: Conversation History** | 🟡 | File created, needs intent router integration |
-| **Conversation Tracking** | 📋 | Designed - not integrated with routing |
+| **Tier 1: Conversation History** | ✅ | Complete - 3 conversations stored, FIFO queue working |
+| **Conversation Tracking** | ✅ | Integrated with intent router - "Make it purple" works |
 | **Setup Automation** | 📋 | Documented - not implemented |
 | **Brain Crawler** | 📋 | Designed - not implemented |
 
@@ -146,6 +146,8 @@ KDS City will plan it, build it, test it, validate it, commit it — and learn f
 - Session Resumer: `session-resumer.md`
 - Screenshot Analyzer: `screenshot-analyzer.md`
 - Commit Handler: `commit-handler.md`
+- Knowledge Retriever: `knowledge-retriever.md`
+- Metrics Reporter: `metrics-reporter.md`
 - Brain Updater: `brain-updater.md`
 - Brain Query: `brain-query.md`
 - Conversation Manager: `conversation-context-manager.md`
@@ -199,14 +201,13 @@ Commit Handler    → commit-handler.md      → Intelligent git commits (NEW)
 **NEW in v5.0:** KDS learns from every interaction!  
 **ENHANCED in v6.0:** Three-tier architecture with holistic development intelligence!
 
-**⚠️ IMPLEMENTATION NOTE:** Tier 1 (Conversation History) is **partially implemented**. File exists but not integrated with intent router. Follow-up messages ("Make it purple") may not have full context until integration is complete.
-
 ```
 🧠 BRAIN = Three-Tier Intelligence System
 
 Purpose: Learn from interactions, conversations, AND development activity
 Storage: KDS/kds-brain/
-- conversation-history.jsonl → Last 20 complete conversations (Tier 1) 🟡 PARTIAL
+- conversation-history.jsonl → Last 20 complete conversations (Tier 1) ✅ WORKING
+- conversation-context.jsonl → Recent messages buffer (last 10) ✅ WORKING
 - knowledge-graph.yaml       → Aggregated learnings (Tier 2) ✅ WORKING
 - development-context.yaml   → Holistic project metrics (Tier 3) ✅ WORKING
 - events.jsonl               → Raw event stream ✅ WORKING
@@ -360,12 +361,6 @@ Proactive Warnings:
 - ✅ **Impact:** Reduces 2-5 min operations from 2-4x/day to 1-2x/day
 - ✅ **Accuracy:** 1-hour freshness sufficient for velocity metrics
 - 📊 **User benefit:** Zero performance impact, same data quality
-
-**Privacy & Storage:**
-- 🏠 **Local storage:** History stays in `KDS/kds-brain/conversation-history.jsonl`
-- 💾 **Predictable size:** Always 20 conversations (~70-200 KB total)
-- 🧹 **Manual clear:** Use `#file:KDS/prompts/internal/clear-conversation.md` to reset
-- 🔒 **Deleted conversations:** Patterns extracted, details discarded
 
 **Automatic Update Triggers:**
 1. **Event threshold:** 50+ new events accumulated (Tier 2 update)
@@ -957,28 +952,78 @@ Analyze this screenshot and extract requirements
 
 Commit changes
 ```
-→ Routes to: **commit-handler.md** → Intelligent git commits with categorization
+→ Uses: **KDS/scripts/commit-kds-changes.ps1** → Smart commit handler achieving zero uncommitted files
 
 **What it does:**
-- ✅ Analyzes uncommitted files and categorizes them
-- ✅ Separates KDS changes from application changes
-- ✅ Creates semantic commit messages (feat/fix/docs/test)
-- ✅ Enforces branch isolation rules (features/kds for KDS)
-- ✅ Auto-creates git tags for milestones
-- ✅ Handles build artifacts intelligently (.gitignore suggestions)
-- ✅ Generates detailed commit summaries
-- ✅ Logs events to BRAIN for learning
+- ✅ Analyzes uncommitted files and categorizes them intelligently
+- ✅ Auto-updates .gitignore for KDS auto-generated files (BRAIN state, internal prompts, reports)
+- ✅ Resets auto-generated files that should not be committed (conversation-context.jsonl, etc.)
+- ✅ Stages only user-created files (user prompts, documentation, code)
+- ✅ Creates semantic commit messages (feat/fix/docs/chore)
+- ✅ Achieves zero uncommitted files automatically
+- ✅ Interactive mode for documentation decisions
+- ✅ Dry-run mode for preview without changes
+
+**Automatic .gitignore management:**
+- KDS BRAIN state files (conversation-context.jsonl, conversation-history.jsonl, development-context.yaml)
+- KDS internal prompts (auto-updated by system)
+- KDS reports (monitoring/, self-review/, test-reports/)
+- PlayWright KDS artifacts
+- Temporary test files (.mjs, .spec.*)
 
 **Example output:**
 ```
-📦 Stage 1: KDS Changes (features/kds branch)
-  ✅ Commit: feat(kds): Intelligent commit handler
-  🏷️  Tag: kds-v5.2.0
+🧠 KDS Smart Commit Handler
+═══════════════════════════════════════════════════════
 
-📦 Stage 2: Application Changes (features/fab-button branch)
-  ✅ Commit: feat: PDF export for canvas
-  
-🎉 All changes committed (0 uncommitted files)
+Step 1: Analyzing uncommitted files...
+  Modified files: 9
+  Untracked files: 11
+
+Step 2: Categorizing files...
+Step 3: Updating .gitignore...
+  Adding to .gitignore:
+    + KDS/kds-brain/conversation-context.jsonl
+    + KDS/prompts/internal/*.md
+    + KDS/reports/monitoring/
+  ✅ .gitignore updated with KDS patterns
+
+Step 4: Resetting auto-generated files...
+  Resetting:
+    - KDS/kds-brain/conversation-context.jsonl
+    - KDS/prompts/internal/code-executor.md
+  ✅ Reset 2 auto-generated files
+
+Step 5: Preparing commit...
+  Files to commit: 3
+    + KDS/prompts/user/kds.md
+    + KDS/dashboard/README.md
+    + .gitignore
+
+Step 6: Staging files...
+  ✅ Files staged
+
+Step 7: Committing...
+  ✅ Changes committed
+
+═══════════════════════════════════════════════════════
+✅ SUCCESS: Zero uncommitted files!
+═══════════════════════════════════════════════════════
+```
+
+**Usage:**
+```powershell
+# Interactive mode (default)
+.\KDS\scripts\commit-kds-changes.ps1
+
+# With custom message
+.\KDS\scripts\commit-kds-changes.ps1 -Message "feat(kds): Add dashboard"
+
+# Dry run (preview without changes)
+.\KDS\scripts\commit-kds-changes.ps1 -DryRun
+
+# Non-interactive (auto-include all documentation)
+.\KDS\scripts\commit-kds-changes.ps1 -Interactive:$false
 ```
 
 ### Ask Questions
@@ -1113,11 +1158,11 @@ ALL long-running operations (>30 seconds) in KDS MUST:
 **Step 1.1: Verify KDS Structure**
 ```
 ✓ Check KDS/ directory exists
-✓ Verify all core agents present (9 specialist agents)
+✓ Verify all core agents present (10 specialist agents)
 ✓ Validate BRAIN directories (kds-brain/, sessions/, knowledge/)
 ✓ Check abstraction layer (session-loader, test-runner, file-accessor)
 
-Status: ✅ KDS structure verified (9/9 agents found)
+Status: ✅ KDS structure verified (10/10 agents found)
 ```
 
 **Step 1.2: Detect Application Type**
