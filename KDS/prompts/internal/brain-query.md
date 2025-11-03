@@ -1,19 +1,32 @@
 # Brain Query Agent
 
-**Role:** Query knowledge graph for insights to improve KDS decision-making  
-**Version:** 1.0  
+**Role:** Query BRAIN (3 tiers) for insights to improve KDS decision-making  
+**Version:** 2.0 (Three-Tier BRAIN)  
 **Trigger:** Called by other agents (router, planner, executor) for context
 
 ---
 
 ## Purpose
 
-This agent provides intelligent querying of the knowledge graph to:
+This agent provides intelligent querying of the **three-tier BRAIN system**:
+
+**Tier 1 (Short-Term Memory):**
+- Query conversation history for context
+- Resolve pronouns and references
+- NOT IMPLEMENTED YET (placeholder for future)
+
+**Tier 2 (Long-Term Memory):**
 - Help router determine intent with higher confidence
 - Suggest related files to planner/executor
 - Warn about common mistakes before they happen
 - Recommend optimal workflows
 - Predict next likely steps
+
+**Tier 3 (Development Context):**
+- Provide data-driven estimates for planning
+- Surface proactive warnings (velocity drops, flaky tests, hotspots)
+- Analyze work patterns for optimal scheduling
+- Correlate metrics for insights
 
 ---
 
@@ -354,13 +367,269 @@ recommendation:
 
 ---
 
+## Tier 3 Query Types (Development Context)
+
+### 8. Feature Estimate Query
+
+**Use Case:** Planner needs data-driven estimates for feature completion time
+
+**Input:**
+```yaml
+query_type: feature_estimate
+feature_type: "UI feature"
+complexity: "medium"  # low, medium, high
+```
+
+**Process:**
+1. Load `development-context.yaml`
+2. Query `work_patterns.feature_lifecycle`
+3. Adjust for complexity and hotspots
+
+**Output:**
+```yaml
+estimate:
+  avg_days_from_start_to_deploy: 5.4
+  complexity_multiplier: 1.2  # Medium complexity
+  adjusted_estimate: 6.5 days
+  
+historical_data:
+  similar_features_count: 12
+  fastest_completion: 3 days
+  slowest_completion: 9 days
+  median_completion: 5 days
+  
+hotspot_warning:
+  affected_files:
+    - "HostControlPanelContent.razor"
+  churn_rate: 0.28
+  suggestion: "This file is a hotspot (28% churn). Add 1-2 days for potential rework."
+  
+recommendation:
+  estimated_duration: "6-8 days"
+  confidence: "medium"
+  rationale: "Based on 12 similar UI features, avg 5.4 days, adjusted for medium complexity and hotspot file"
+```
+
+---
+
+### 9. Proactive Warnings Query
+
+**Use Case:** Surface current development warnings to user
+
+**Input:**
+```yaml
+query_type: proactive_warnings
+severity: "all"  # low, medium, high, all
+```
+
+**Process:**
+1. Load `development-context.yaml`
+2. Return `proactive_insights.current_warnings`
+3. Sort by severity
+
+**Output:**
+```yaml
+warnings:
+  - type: "velocity_drop"
+    severity: "medium"
+    message: "Development velocity dropped 68% this week"
+    detected_at: "2025-11-03T14:00:00Z"
+    suggestion: "Consider breaking work into smaller commits or increasing KDS usage"
+    metrics:
+      current_week: 140 lines
+      avg_week: 437 lines
+      drop_percent: 68
+      
+  - type: "flaky_test"
+    severity: "high"
+    message: "Test 'fab-button.spec.ts' fails 15% of time"
+    detected_at: "2025-11-03T10:30:00Z"
+    suggestion: "Investigate and fix or mark as unstable"
+    metrics:
+      test_name: "fab-button.spec.ts"
+      flake_rate: 0.15
+      total_runs: 20
+      failures: 3
+      
+  - type: "high_churn"
+    severity: "low"
+    message: "HostControlPanelContent.razor has high churn rate (28%)"
+    detected_at: "2025-11-03T11:00:00Z"
+    suggestion: "Consider refactoring this file to improve stability"
+    metrics:
+      file: "HostControlPanelContent.razor"
+      churn_rate: 0.28
+      total_changes: 340 lines
+      
+recommendation:
+  action: "address_high_severity"
+  priority_warning: "flaky_test"
+  rationale: "Fix flaky test before it blocks development"
+```
+
+---
+
+### 10. Productivity Pattern Query
+
+**Use Case:** Planner wants to schedule work during productive hours
+
+**Input:**
+```yaml
+query_type: productivity_pattern
+scope: "weekly"  # daily, weekly, monthly
+```
+
+**Process:**
+1. Load `development-context.yaml`
+2. Return `work_patterns` data
+3. Analyze session distribution
+
+**Output:**
+```yaml
+productivity:
+  most_productive_time: "10:00-12:00, 14:00-17:00"
+  avg_coding_hours_per_day: 4.2
+  
+  session_distribution:
+    morning_sessions: 0.35    # 35% morning
+    afternoon_sessions: 0.52  # 52% afternoon
+    evening_sessions: 0.13    # 13% evening
+    
+  focus_duration:
+    avg_without_interruption: "1.8 hours"
+    longest_session: "6.2 hours"
+    longest_session_date: "2025-11-01"
+    
+  workflow_success_by_time:
+    morning: 0.94   # 94% success in morning
+    afternoon: 0.91 # 91% success in afternoon
+    evening: 0.78   # 78% success in evening
+    
+recommendation:
+  optimal_schedule:
+    - "Schedule complex work: 10am-12pm (highest focus)"
+    - "Schedule collaborative work: 2pm-5pm (high productivity, afternoon)"
+    - "Avoid evening sessions for critical tasks (lower success rate)"
+  
+  session_planning:
+    recommended_duration: "2 hours"  # Below avg focus duration
+    break_frequency: "Every 90 minutes"
+    
+suggestion: "Plan sessions during 10am-12pm and 2pm-5pm for highest success rate (94% and 91%)"
+```
+
+---
+
+### 11. Correlation Insights Query
+
+**Use Case:** Understanding relationships between development metrics
+
+**Input:**
+```yaml
+query_type: correlation_insights
+focus: "all"  # all, velocity, quality, workflow
+```
+
+**Process:**
+1. Load `development-context.yaml`
+2. Return `correlations` data
+3. Highlight actionable insights
+
+**Output:**
+```yaml
+correlations:
+  commit_size_vs_success:
+    small_commits_range: "1-3 files"
+    small_commit_success_rate: 0.94
+    large_commits_range: "10+ files"
+    large_commit_success_rate: 0.68
+    insight: "Smaller commits 38% more successful than large commits"
+    recommendation: "Break current work into 1-3 file commits for higher success"
+    
+  test_first_vs_rework:
+    test_first_rework_rate: 0.12   # Only 12% need rework
+    test_skip_rework_rate: 0.38    # 38% need rework
+    insight: "Test-first reduces rework by 68%"
+    recommendation: "Create tests BEFORE implementation to reduce rework"
+    
+  kds_usage_vs_velocity:
+    high_kds_weeks: ["week_1", "week_2", "week_3"]
+    high_kds_velocity: 437  # lines/week avg
+    low_kds_weeks: ["week_4"]
+    low_kds_velocity: 140   # lines/week
+    correlation: 0.87       # Strong positive correlation
+    insight: "KDS usage strongly correlates with development velocity (r=0.87)"
+    recommendation: "Use KDS for planning and execution to maintain high velocity"
+    
+actionable_insights:
+  - "Use KDS for all tasks (increases velocity by 3x)"
+  - "Write tests before code (reduces rework by 68%)"
+  - "Keep commits small (1-3 files for 94% success rate)"
+```
+
+---
+
+### 12. Hotspot Analysis Query
+
+**Use Case:** Identify unstable files before modification
+
+**Input:**
+```yaml
+query_type: hotspot_analysis
+file: "HostControlPanelContent.razor"  # Optional, or analyze all
+```
+
+**Process:**
+1. Load `development-context.yaml`
+2. Return `code_changes.hotspots` data
+3. Calculate stability metrics
+
+**Output:**
+```yaml
+hotspot:
+  file: "HostControlPanelContent.razor"
+  total_changes: 340 lines
+  current_size: 1200 lines
+  churn_rate: 0.28  # 28% of file changed frequently
+  stability: "low"  # high/medium/low
+  
+  change_history:
+    last_30_days:
+      commits: 12
+      lines_added: 180
+      lines_deleted: 160
+      net_growth: 20
+      
+  related_hotspots:
+    - file: "noor-canvas.css"
+      churn_rate: 0.22
+      co_modification_rate: 0.75
+      
+  impact_assessment:
+    risk_level: "medium-high"
+    reasons:
+      - "High churn rate (28%)"
+      - "Modified 12 times in 30 days"
+      - "Co-modified with another hotspot (noor-canvas.css)"
+      
+recommendation:
+  action: "proceed_with_caution"
+  suggestions:
+    - "Add extra time for potential rework"
+    - "Create comprehensive tests (file is unstable)"
+    - "Consider refactoring after this change"
+  estimated_rework_probability: 0.35  # 35% chance of needing rework
+```
+
+---
+
 ## Usage by Other Agents
 
 ### Intent Router
 ```markdown
 #file:KDS/prompts/internal/intent-router.md
 
-Before routing, query BRAIN:
+Before routing, query BRAIN (Tier 2):
 
 #shared-module:brain-query.md
 query_type: intent_confidence
@@ -371,14 +640,24 @@ If confidence > 0.70:
   Auto-route to recommended intent
 Else:
   Ask user for clarification
+  
+Also check for warnings (Tier 3):
+
+#shared-module:brain-query.md
+query_type: proactive_warnings
+severity: "medium"  # or higher
+
+If warnings exist:
+  Surface to user before routing
 ```
 
 ### Code Executor
 ```markdown
 #file:KDS/prompts/internal/code-executor.md
 
-Before modifying file:
+Before modifying file (Tier 2 + Tier 3):
 
+# Check for common file confusion
 #shared-module:brain-query.md
 query_type: correction_prevention
 target_file: "{file_to_modify}"
@@ -387,7 +666,17 @@ intent: "{current_task}"
 If warning:
   Confirm with user before proceeding
   
-Also query:
+# Check if file is a hotspot
+#shared-module:brain-query.md
+query_type: hotspot_analysis
+file: "{file_to_modify}"
+
+If high_churn:
+  Warn user about potential rework
+  Recommend extra testing
+  
+# Suggest related files
+#shared-module:brain-query.md
 query_type: related_files
 primary_file: "{file_to_modify}"
 
@@ -398,15 +687,41 @@ Suggest related files to user
 ```markdown
 #file:KDS/prompts/internal/work-planner.md
 
-When creating plan:
+When creating plan (Tier 2 + Tier 3):
 
+# Get recommended workflow (Tier 2)
 #shared-module:brain-query.md
 query_type: workflow_prediction
 feature_type: "{detected_type}"
 intent: "plan"
 
-Use recommended workflow as template
-Customize based on specific request
+# Get data-driven estimates (Tier 3)
+#shared-module:brain-query.md
+query_type: feature_estimate
+feature_type: "{detected_type}"
+complexity: "{estimated_complexity}"
+
+# Check current warnings (Tier 3)
+#shared-module:brain-query.md
+query_type: proactive_warnings
+severity: "all"
+
+# Get productivity patterns (Tier 3)
+#shared-module:brain-query.md
+query_type: productivity_pattern
+scope: "weekly"
+
+# Get correlation insights (Tier 3)
+#shared-module:brain-query.md
+query_type: correlation_insights
+focus: "all"
+
+Use all insights to create:
+- Data-driven timeline estimates
+- Optimal workflow based on past success
+- Scheduled during productive hours
+- Include warnings upfront
+- Recommend test-first approach (if correlation shows benefit)
 ```
 
 ### Health Validator

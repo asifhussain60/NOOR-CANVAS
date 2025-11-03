@@ -1,14 +1,31 @@
 # Brain Updater Agent
 
-**Role:** Process event stream and update knowledge graph  
-**Version:** 1.0  
+**Role:** Process event stream and update knowledge graph (Tier 2) + trigger development context collection (Tier 3)  
+**Version:** 2.0 (Three-Tier BRAIN)  
 **Trigger:** Periodic (after N events) or on-demand via `#file:KDS/prompts/internal/brain-updater.md`
 
 ---
 
 ## Purpose
 
-This agent reads raw events from `events.jsonl` and aggregates them into structured knowledge in `knowledge-graph.yaml`. It identifies patterns, relationships, and insights that improve KDS routing and decision-making.
+This agent manages the KDS BRAIN update cycle for **Tier 2 (Knowledge Graph)** and **Tier 3 (Development Context)**:
+
+**Tier 1 (Short-Term Memory):**
+- Conversation history (last 20 conversations)
+- Managed separately by conversation-context-manager.md
+- Not updated by this agent
+
+**Tier 2 (Long-Term Memory):**
+- Reads raw events from `events.jsonl`
+- Aggregates them into structured knowledge in `knowledge-graph.yaml`
+- Identifies patterns, relationships, and insights
+- Improves KDS routing and decision-making
+
+**Tier 3 (Development Context):**
+- Collects holistic project metrics from git, tests, builds
+- Updates `development-context.yaml` with development activity
+- Generates proactive warnings and correlations
+- Enables data-driven planning and velocity tracking
 
 ---
 
@@ -267,13 +284,32 @@ Write updated data to:
 - Statistics (increment `total_events_processed`, update `last_updated`)
 - Anomalies queue (Phase 3 - for manual review)
 
-### Step 6: Generate Update Summary
+### Step 6: Trigger Development Context Collection (Tier 3)
+
+**After updating knowledge graph, collect development context metrics:**
+
+```markdown
+#file:KDS/prompts/internal/development-context-collector.md
+```
+
+**This updates:**
+- `development-context.yaml` with latest git, KDS, test, and build metrics
+- Proactive insights and warnings
+- Work patterns and correlations
+
+**Frequency:**
+- Every BRAIN update (to keep Tier 3 synchronized with Tier 2)
+- OR if last collection > 1 hour ago
+
+### Step 7: Generate Update Summary
 
 **Output:**
 ```markdown
-🧠 **BRAIN Update Complete**
+🧠 **BRAIN Update Complete** (3 Tiers Updated)
 
 📊 **Events Processed:** 47 new events since last update
+
+**Tier 2: Knowledge Graph (Long-Term Memory)**
 
 🎯 **Intent Patterns:**
 - PLAN: +3 successful phrases (now 15 total)
@@ -295,10 +331,36 @@ Write updated data to:
 - UI feature workflow: 92% success rate (45 instances)
 - Bug fix workflow: 88% success rate (18 instances)
 
+**Tier 3: Development Context (Holistic Metrics)**
+
+📈 **Git Activity:**
+- 47 commits in last 30 days (1.6/day avg)
+- 3 contributors active
+- Hotspot: HostControlPanelContent.razor (12 commits, churn rate 28%)
+
+⚡ **Development Velocity:**
+- Week 4: 437 lines (up from 380)
+- Trend: Increasing ✅
+- KDS correlation: 0.87 (strong positive)
+
+🧪 **Testing Activity:**
+- 28 tests created, 88% pass rate
+- ⚠️ Flaky test detected: fab-button.spec.ts (15% failure rate)
+
+⏰ **Work Patterns:**
+- Most productive: 10am-12pm, 2pm-5pm
+- Avg session duration: 2.4 hours
+- Test-first success: 96% vs test-skip: 67%
+
+⚠️  **Proactive Warnings (2):**
+1. High churn file: HostControlPanelContent.razor (consider refactoring)
+2. Flaky test: fab-button.spec.ts needs investigation
+
 ⚡ **Next Actions:**
-- Router will use updated patterns for better intent detection
+- Router will use Tier 2 patterns for better intent detection
+- Planner will use Tier 3 metrics for data-driven estimates
 - File suggestions will prioritize high co-modification pairs
-- Correction prevention for common file mistakes
+- Warnings will surface proactively during planning
 ```
 
 ---
