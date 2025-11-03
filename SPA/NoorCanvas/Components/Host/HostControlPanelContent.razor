@@ -10,36 +10,39 @@
 @implements IDisposable
 
 @* Main content component for HostControlPanel - Contains transcript and Q&A panels *@
+@* [PLAYWRIGHT-IDS] Added unique IDs for Playwright testing of purple FAB button and related elements *@
 
-<div class="host-main-container" style="display:flex;gap:1.5rem;width:100%;min-height:600px;align-items:stretch;min-width:0;">
+<div id="hcp-content-main-container" class="host-main-container" style="display:flex;gap:1.5rem;width:100%;min-height:600px;align-items:stretch;min-width:0;">
     
     <!-- Left Panel: Session Transcript (70% when Q&A open, 100% when closed) -->
     @* [DEBUG-WORKITEM:hcp:simple] Updated border to 2px with darker gold (#C5A84C) for prominence *@
-    <div class="host-transcript-panel" style="@(QAPanelOpen ? "flex:0 0 70%" : "flex:1 1 100%");background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #C5A84C;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-width:0;">
+    <div id="hcp-content-transcript-panel" class="host-transcript-panel" style="@(QAPanelOpen ? "flex:0 0 70%" : "flex:1 1 100%");background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #C5A84C;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-width:0;">
         @* [SIMPLE:hcp:restore-controls] Centered header with session name instead of 'Session Transcript' *@
         @* [WORKITEM:hcp] Updated borders: 1px dark green top/right/bottom, kept 4px left, removed border-radius, changed to Roboto font *@
         @* [WORKITEM:hcp-timer:phase2] Timer relocated from control pod to session title header *@
         @* [WORKITEM:hcp-timer-v2] Sticky header, Q&A button integrated, fixed-width timer font, canvas type indicator *@
         @* [WORKITEM:qa-btn-resize] Removed file-lines icon per user request *@
         @* [WORKITEM:qa-btn-enhance] Increased spacing to 2rem for better visual separation *@
-        <div style="position:sticky; top:1rem; z-index:20; display:flex;align-items:center;justify-content:center;gap:2rem;padding:1rem 1.5rem;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-top:1px solid #006400;border-right:1px solid #006400;border-bottom:1px solid #006400;border-left:4px solid #006400;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,100,0,0.1);font-family:'Roboto',sans-serif;">
-            <h3 style="font-size:2rem;font-weight:700;color:#006400;margin:0;letter-spacing:-0.02em;font-family:'Roboto',sans-serif;">@(Model?.SessionName ?? "Session Transcript")</h3>
+        @* [PLAYWRIGHT-IDS] Added ID to session header for testing *@
+        <div id="hcp-content-session-header" style="position:sticky; top:1rem; z-index:20; display:flex;align-items:center;justify-content:center;gap:2rem;padding:1rem 1.5rem;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-top:1px solid #006400;border-right:1px solid #006400;border-bottom:1px solid #006400;border-left:4px solid #006400;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,100,0,0.1);font-family:'Roboto',sans-serif;">
+            <h3 id="hcp-content-session-title" style="font-size:2rem;font-weight:700;color:#006400;margin:0;letter-spacing:-0.02em;font-family:'Roboto',sans-serif;">@(Model?.SessionName ?? "Session Transcript")</h3>
             
             @if (Model?.SessionStatus == "Active" && SessionStartTime.HasValue)
             {
-                <div style="display:flex; flex-direction:column; align-items:center; gap:0.25rem; margin-left:auto;">
+                <div id="hcp-content-timer-container" style="display:flex; flex-direction:column; align-items:center; gap:0.25rem; margin-left:auto;">
                     @* [WORKITEM:qa-btn-enhance] Removed fa-clock icon per user request, keeping only timer text *@
-                    <div aria-label="Session elapsed time"
+                    <div id="hcp-content-timer-display" aria-label="Session elapsed time"
                          style="display:flex; align-items:center; gap:0.5rem;">
-                        <span style="font-weight:700; font-family:'Consolas','Monaco','Courier New',monospace; font-size:3rem; letter-spacing:0.02em; color:#FF8C00;">@GetElapsedTime()</span>
+                        <span id="hcp-content-timer-value" style="font-weight:700; font-family:'Consolas','Monaco','Courier New',monospace; font-size:3rem; letter-spacing:0.02em; color:#FF8C00;">@GetElapsedTime()</span>
                     </div>
-                    <span style="font-size:0.75rem; color:#6B7280; font-family:'Roboto',sans-serif; font-weight:400;">
+                    <span id="hcp-content-canvas-type" style="font-size:0.75rem; color:#6B7280; font-family:'Roboto',sans-serif; font-weight:400;">
                         @(SelectedCanvasType == "transcript" ? "Transcript Canvas" : "Asset Canvas")
                     </span>
                 </div>
                 
                 @* [TEST-METADATA:ui-logging] Playwright log marker for Q&A toggle button ;CLEANUP_OK *@
                 @* [REFACTOR:hcp-id] Added unique ID for Q&A toggle button *@
+                @* [PLAYWRIGHT-IDS] Enhanced with additional test attributes *@
                 <button id="content-qa-toggle-btn"
                         type="button"
                         @onclick="OnToggleQAPanel"
@@ -47,6 +50,7 @@
                         aria-expanded="@QAPanelOpen"
                         aria-controls="content-qa-panel"
                         aria-label="Toggle questions panel"
+                        data-testid="qa-toggle-btn"
                         data-playwright-log-marker="20251031120000-HostControlPanel-QAToggle"
                         style="position:relative; width:66px; height:66px; display:flex; align-items:center; justify-content:center; background-color:#006400; color:white; border:none; border-radius:50%; cursor:pointer; box-shadow:0 6px 12px rgba(0,100,0,0.25); transition:all 0.2s ease;"
                         onmouseover="this.style.backgroundColor='#004d00'; this.style.transform='scale(1.05)'"
@@ -54,7 +58,10 @@
                     @* [WORKITEM:qa-btn-enhance] Changed to fa-question for solid icon, toggles to fa-times when expanded *@
                     <i class="fa-solid @(QAPanelOpen ? "fa-times" : "fa-question")" style="font-size:2rem;"></i>
                     @* [WORKITEM:qa-badge-style] Increased badge size and changed to white text on red background for better visibility *@
-                    <span aria-label="@OnGetQuestionCount() questions"
+                    @* [PLAYWRIGHT-IDS] Added ID to question count badge *@
+                    <span id="hcp-content-question-badge" 
+                          aria-label="@OnGetQuestionCount() questions"
+                          data-testid="question-count-badge"
                           style="position:absolute; top:-6px; right:-6px; min-width:28px; height:28px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; background-color:#DC2626; color:white; border-radius:999px; font-size:1rem; font-weight:800; font-family:'Poppins',sans-serif; box-shadow:0 2px 6px rgba(220,38,38,0.3);">
                         @OnGetQuestionCount()
                     </span>
@@ -70,11 +77,12 @@
         </div>
         
     <!-- Transcript Content Area with Independent Scrolling -->
-    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;">
+    <div id="hcp-content-transcript-area" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;">
             @* [WORKITEM:hcp-fab-button] FAB share button always visible when transcript loaded (not tied to session state) ;CLEANUP_OK *@
             @* [TEST-METADATA:ui-logging] Playwright log marker for FAB broadcast transcript button ;CLEANUP_OK *@
             @* [REFACTOR:hcp-id] Added unique ID for FAB share button *@
             @* [FIX:hcp-ids] Ensure button renders even when loading to maintain DOM presence *@
+            @* [PLAYWRIGHT-IDS] Enhanced with comprehensive test attributes for purple FAB button testing *@
             @if (!string.IsNullOrEmpty(Model?.TransformedTranscript) || IsLoading)
             {
                 <button id="content-fab-share-btn"
@@ -83,24 +91,28 @@
                         disabled="@(IsLoading || string.IsNullOrEmpty(Model?.TransformedTranscript))"
                         aria-label="Broadcast transcript to participants"
                         class="hcp-fab-share-button"
+                        data-testid="fab-share-btn"
                         data-playwright-log-marker="20251031120000-HostControlPanel-BroadcastTranscript"
                         data-has-transcript="@(!string.IsNullOrEmpty(Model?.TransformedTranscript))"
+                        data-is-loading="@IsLoading"
+                        data-session-status="@Model?.SessionStatus"
                         title="Share Transcript">
                     @if (IsLoading)
                     {
-                        <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                        <i id="hcp-fab-spinner-icon" class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;"></i>
                     }
                     else
                     {
-                        <i class="fa-solid fa-share-nodes" style="font-size:1.5rem;"></i>
+                        <i id="hcp-fab-share-icon" class="fa-solid fa-share-nodes" style="font-size:1.5rem;"></i>
                     }
                 </button>
             }
             
             @* [DEBUG-WORKITEM:hcp-unify:spinner] Loading state already implemented with LoadingSpinner component ;CLEANUP_OK *@
+            @* [PLAYWRIGHT-IDS] Added ID to loading state container *@
             @if (IsLoading)
             {
-                <div style="color:#6B7280;text-align:center;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+                <div id="hcp-content-loading-state" style="color:#6B7280;text-align:center;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
                     <LoadingSpinner Size="40" Color="#D4AF37" Text="Loading session transcript..." ShowText="@true" />
                     <p style="margin:0;color:#9CA3AF;font-size:0.875rem;">Please wait while we retrieve the session content.</p>
                 </div>
@@ -109,8 +121,10 @@
             {
                 <!-- [DEBUG-WORKITEM:hcp-tcanvas:parse] Container ID for JavaScript section parser ;CLEANUP_OK -->
                 <!-- [REFACTOR:hcp-id] Added unique ID for transcript container -->
+                <!-- [PLAYWRIGHT-IDS] Enhanced container for testing transcript content -->
              <div id="content-transcript-container" 
                  style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;min-width:0;" 
+                 data-testid="transcript-container"
                      @ref="transcriptContainer">
                     <!-- [DEBUG-WORKITEM:css:theme-consistency] Unified CSS classes and theme with SessionCanvas/TranscriptCanvas (90% width for consistency) ;CLEANUP_OK -->
                     <div class="html-viewer-content session-transcript-content islamic-content" data-theme="narrow">
@@ -121,7 +135,7 @@
             }
             else
             {
-                <div style="flex:1;color:#6B7280;text-align:center;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div id="hcp-content-empty-state" style="flex:1;color:#6B7280;text-align:center;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;">
                     <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
                     <p style="margin:0;color:#6B7280;">No transcript available for this session.</p>
                 </div>
@@ -132,24 +146,26 @@
         @* [DEBUG-WORKITEM:hcp-participant-links:simple] Added type="button" to prevent form submission *@
         @* [TEST-METADATA:ui-logging] Playwright log marker for End Session button ;CLEANUP_OK *@
         @* [REFACTOR:hcp-id] Added unique ID for End Session button *@
+        @* [PLAYWRIGHT-IDS] Enhanced with test attributes *@
         @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
         {
-            <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
+            <div id="hcp-content-end-session-container" style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
                 <button id="content-end-session-btn"
                         type="button" 
                         @onclick="OnEndSession" 
                         disabled="@IsLoading"
+                        data-testid="end-session-btn"
                         data-playwright-log-marker="20251031120000-HostControlPanel-EndSession"
                         style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(220,38,38,0.4);color:white;font-weight:600;font-size:1rem;background-color:#DC2626;border:none;cursor:@(IsLoading ? "not-allowed" : "pointer");opacity:@(IsLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
                         onmouseover="this.style.backgroundColor='#B91C1C'; this.style.transform='scale(1.05)'"
                         onmouseout="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1)'">
                     @if (IsLoading)
                     {
-                        <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
+                        <i id="hcp-end-session-spinner" class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
                     }
                     else
                     {
-                        <i class="fa-solid fa-stop" style="font-size:1rem;"></i>
+                        <i id="hcp-end-session-icon" class="fa-solid fa-stop" style="font-size:1rem;"></i>
                     }
                     <span>End Session</span>
                 </button>
@@ -163,22 +179,32 @@
     @* [DEBUG-WORKITEM:hcp:simple] Updated border to 2px with darker gold (#C5A84C) for prominence *@
     @* [WORKITEM:hcp:impl:20251022-1836] Panel visibility controlled by QAPanelOpen parameter from parent ;CLEANUP_OK *@
     @* [REFACTOR:hcp-id] Added unique ID for Q&A panel container *@
+    @* [PLAYWRIGHT-IDS] Enhanced Q&A panel with test attributes *@
     @if (QAPanelOpen)
     {
-    <div id="content-qa-panel" class="host-qa-panel" style="flex:0 0 30%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #C5A84C;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;position:sticky;top:1rem;align-self:flex-start;max-height:calc(100vh - 2rem);overflow-x:hidden;overflow-y:hidden;min-width:0;">
+    <div id="content-qa-panel" 
+         class="host-qa-panel" 
+         data-testid="qa-panel"
+         aria-label="Questions panel"
+         style="flex:0 0 30%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #C5A84C;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;position:sticky;top:1rem;align-self:flex-start;max-height:calc(100vh - 2rem);overflow-x:hidden;overflow-y:hidden;min-width:0;">
         @* [SIMPLE:hcp:timer-relocation] Changed header to flex layout with timer on right, updated icon to circle-question, changed text to "Questions" ;CLEANUP_OK *@
         @* [WORKITEM:hcp] Updated borders: 1px dark green top/right/bottom, kept 4px left, removed border-radius, changed to Roboto font *@
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-top:1px solid #006400;border-right:1px solid #006400;border-bottom:1px solid #006400;border-left:4px solid #006400;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,100,0,0.1);font-family:'Roboto',sans-serif;">
+        @* [PLAYWRIGHT-IDS] Added ID to Q&A panel header *@
+        <div id="hcp-content-qa-header" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-top:1px solid #006400;border-right:1px solid #006400;border-bottom:1px solid #006400;border-left:4px solid #006400;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,100,0,0.1);font-family:'Roboto',sans-serif;">
             <div style="display:flex;align-items:center;gap:1rem;">
                 <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#006400;"></i>
-                <h3 style="font-size:2rem;font-weight:700;color:#006400;margin:0;letter-spacing:-0.02em;font-family:'Roboto',sans-serif;">Questions</h3>
+                <h3 id="hcp-content-qa-title" style="font-size:2rem;font-weight:700;color:#006400;margin:0;letter-spacing:-0.02em;font-family:'Roboto',sans-serif;">Questions</h3>
             </div>
             @* Timer moved to compact control pod in HostControlPanel.razor *@
         </div>
         
         <!-- Questions List with Independent Scrolling - Vertical Only -->
         @* [DEBUG-WORKITEM:hcp-questions:sticky:TRACE] Questions container with flex:1 for full height, vertical scroll only ;CLEANUP_OK *@
-    <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding-right:0.5rem;min-height:0;min-width:0;" class="custom-scrollbar">
+        @* [PLAYWRIGHT-IDS] Added ID to questions list container *@
+    <div id="hcp-content-questions-list" 
+         data-testid="questions-list"
+         style="flex:1;overflow-y:auto;overflow-x:hidden;padding-right:0.5rem;min-height:0;min-width:0;" 
+         class="custom-scrollbar">
             @if (Model?.Questions != null && Model.Questions.Any())
             {
                 @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered).Select((q, i) => new { Question = q, Index = i }))
@@ -196,7 +222,9 @@
             }
             else
             {
-                <div style="text-align:center;color:#6B7280;padding:2rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div id="hcp-content-questions-empty" 
+                     data-testid="questions-empty-state"
+                     style="text-align:center;color:#6B7280;padding:2rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
                     <div style="background:linear-gradient(135deg,#F3F4F6,#E5E7EB);border-radius:50%;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
                         <i class="fa-solid fa-clipboard-question" style="font-size:1.5rem;color:#9CA3AF;"></i>
                     </div>
