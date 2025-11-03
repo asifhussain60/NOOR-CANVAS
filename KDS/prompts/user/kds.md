@@ -33,7 +33,7 @@ That's it! KDS will automatically:
 - ✅ **Dependency Inversion (DIP):** Abstractions for session/file/test access
 - ✅ **Open/Closed (OCP):** Easy to extend (add new intents/agents)
 
-### Specialist Agents (9 Total)
+### Specialist Agents (10 Total)
 ```
 Router            → intent-router.md       → Analyzes & routes requests
 Planner           → work-planner.md        → Creates multi-phase plans
@@ -43,7 +43,8 @@ Validator         → health-validator.md    → System health checks
 Governor          → change-governor.md     → Reviews KDS changes
 Error Corrector   → error-corrector.md     → Fixes Copilot mistakes
 Session Resumer   → session-resumer.md     → Resumes after breaks
-Screenshot Analyzer → screenshot-analyzer.md → Extracts requirements from images (NEW)
+Screenshot Analyzer → screenshot-analyzer.md → Extracts requirements from images
+Commit Handler    → commit-handler.md      → Intelligent git commits (NEW)
 ```
 
 ### 🧠 BRAIN System (Self-Learning Feedback Loop)
@@ -800,6 +801,36 @@ Analyze this screenshot and extract requirements
 [Attach screenshot via chat interface]
 ```
 → Routes to: **screenshot-analyzer.md** → Extracts requirements, annotations, design specs
+
+### Commit Changes
+```markdown
+#file:KDS/prompts/user/kds.md
+
+Commit changes
+```
+→ Routes to: **commit-handler.md** → Intelligent git commits with categorization
+
+**What it does:**
+- ✅ Analyzes uncommitted files and categorizes them
+- ✅ Separates KDS changes from application changes
+- ✅ Creates semantic commit messages (feat/fix/docs/test)
+- ✅ Enforces branch isolation rules (features/kds for KDS)
+- ✅ Auto-creates git tags for milestones
+- ✅ Handles build artifacts intelligently (.gitignore suggestions)
+- ✅ Generates detailed commit summaries
+- ✅ Logs events to BRAIN for learning
+
+**Example output:**
+```
+📦 Stage 1: KDS Changes (features/kds branch)
+  ✅ Commit: feat(kds): Intelligent commit handler
+  🏷️  Tag: kds-v5.2.0
+
+📦 Stage 2: Application Changes (features/fab-button branch)
+  ✅ Commit: feat: PDF export for canvas
+  
+🎉 All changes committed (0 uncommitted files)
+```
 
 ### Ask Questions
 ```markdown
@@ -1717,6 +1748,20 @@ Examples:
   - "Analyze this screenshot and extract requirements"
   - "What does this mockup show?"
   - "Extract specs from this design"
+  - "Read the annotations on this bug report"
+  - [Image attachment detected]
+```
+
+**COMMIT** - Intelligent git commits
+```
+Patterns: "commit changes", "commit work", "git commit", "save to git"
+Examples:
+  - "Commit changes"
+  - "Commit my work"
+  - "Save changes to git"
+  - "Create commits with proper categorization"
+  - "Commit and tag if milestone"
+```
   - "Read the annotations on this bug report"
   - [Image attachment detected]
 ```

@@ -202,6 +202,30 @@ Use these patterns to classify the user's request:
 
 ---
 
+#### COMMIT Intent
+**When:** User wants to commit changes to git with intelligent categorization  
+**Patterns:**
+- "commit changes"
+- "commit [my|the] work"
+- "git commit"
+- "save [to|changes to] git"
+- "create [a|] commit[s]"
+- "commit and tag"
+- "commit everything"
+
+**Route to:** `#file:KDS/prompts/internal/commit-handler.md`
+
+**Examples:**
+```
+✓ "commit changes"
+✓ "commit my work"
+✓ "git commit with proper messages"
+✓ "save changes to git"
+✓ "commit everything and tag if needed"
+```
+
+---
+
 #### ANALYZE_SCREENSHOT Intent
 **When:** User uploads screenshot/image with requirements, mockups, or annotations  
 **Patterns:**
@@ -260,10 +284,15 @@ routing_decision:
 ```
 1. CORRECT (highest priority - stop current work)
 2. RESUME (check session state first)
-3. ANALYZE_SCREENSHOT (visual requirements extraction)
-4. PLAN (start new work)
-5. EXECUTE (continue work)
-6. TEST (create/run tests)
+3. COMMIT (save work before new actions)
+4. ANALYZE_SCREENSHOT (visual requirements extraction)
+5. PLAN (start new work)
+6. EXECUTE (continue work)
+7. TEST (create/run tests)
+8. VALIDATE (check system health)
+9. GOVERN (review KDS changes)
+10. ASK (answer questions)
+```
 7. VALIDATE (quality checks)
 8. ASK (questions)
 9. GOVERN (KDS reviews)
