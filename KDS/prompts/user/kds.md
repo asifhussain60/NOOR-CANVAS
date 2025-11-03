@@ -48,15 +48,26 @@ Screenshot Analyzer → screenshot-analyzer.md → Extracts requirements from im
 
 ### 🧠 BRAIN System (Self-Learning Feedback Loop)
 
-**NEW in v5.0:** KDS learns from every interaction!
+**NEW in v5.0:** KDS learns from every interaction!  
+**ENHANCED in v6.0:** Three-tier architecture with holistic development intelligence!
 
 ```
-🧠 BRAIN = Knowledge Graph + Event Stream
+🧠 BRAIN = Three-Tier Intelligence System
 
-Purpose: Learn from successful/failed routings, corrections, file relationships
+Purpose: Learn from interactions, conversations, AND development activity
 Storage: KDS/kds-brain/
-- knowledge-graph.yaml  → Aggregated learnings
-- events.jsonl          → Raw event stream
+- conversation-history.jsonl → Last 20 complete conversations (Tier 1)
+- knowledge-graph.yaml       → Aggregated learnings (Tier 2)
+- development-context.yaml   → Holistic project metrics (Tier 3) 🆕
+- events.jsonl               → Raw event stream
+
+Architecture: Three-tier system inspired by human cognition
+- Tier 1 (Short-term): Last 20 conversations (FIFO queue, no time expiration)
+- Tier 2 (Long-term): Consolidated patterns from deleted conversations
+- Tier 3 (Context): Development activity, velocity, correlations 🆕
+- Design: KDS/docs/architecture/BRAIN-CONVERSATION-MEMORY-DESIGN.md
+- Tier 3 Design: KDS/docs/architecture/KDS-HOLISTIC-REVIEW-AND-RECOMMENDATIONS.md
+- Validation: KDS/docs/architecture/CONVERSATION-MEMORY-SELF-REVIEW.md (health tracking)
 ```
 
 **What BRAIN Learns:**
@@ -65,6 +76,160 @@ Storage: KDS/kds-brain/
 - ✅ Common mistakes (which corrections happen frequently)
 - ✅ Workflow patterns (successful task sequences)
 - ✅ Validation insights (common failures and fixes)
+- ✅ **Conversation history (last 20 complete conversations, FIFO queue)** 🆕
+- ✅ **Development velocity (code changes, commit patterns)** 🆕
+- ✅ **Testing activity (pass rates, flaky tests, coverage)** 🆕
+- ✅ **Work patterns (productive times, focus duration, correlations)** 🆕
+
+**How Automatic Learning Works:**
+```
+Agent performs action
+    ↓
+Event logged to events.jsonl (automatic)
+Message appended to active conversation
+    ↓
+Conversation boundary detected? → End conversation, start new one
+    ↓
+IF 21st conversation starts → Delete oldest conversation (FIFO)
+    ↓
+Event count checked after each task (Rule #16 Step 5)
+    ↓
+IF 50+ events OR 24 hours passed → Automatic BRAIN update
+    ↓
+brain-updater.md processes events → Updates knowledge-graph.yaml
+Deleted conversations → Patterns extracted → Long-term memory
+    ↓
+Next request → Router queries BRAIN + conversation history → Smarter decisions with context
+```
+
+**Conversation History Benefits:**
+- 🔄 **Continuity:** "Make it purple" knows you mean the FAB button from earlier conversation
+- 🧩 **Cross-conversation context:** Reference any of the last 20 conversations
+- 💬 **Natural follow-ups:** No need to repeat full context in every message
+- 📝 **Reference resolution:** "Change that file" knows which file from conversation history
+- ⏳ **Long-running work:** Conversation preserved until 20 newer conversations (days/weeks/months depending on usage)
+
+**FIFO Queue (Conversation-Level):**
+- 📊 **Capacity:** Last 20 complete conversations (not individual messages)
+- 🔄 **Deletion:** When conversation #21 starts, conversation #1 deleted
+- ⏰ **No time limits:** Conversations preserved until FIFO deletion (could be months for light usage)
+- ✨ **Active conversation:** Never deleted (even if oldest)
+- 🎯 **Pattern extraction:** Before deletion, patterns consolidated to long-term memory
+
+**Privacy & Storage:**
+- 🏠 **Local storage:** History stays in `KDS/kds-brain/conversation-history.jsonl`
+- 💾 **Predictable size:** Always 20 conversations (~70-200 KB total)
+- 🧹 **Manual clear:** Use `#file:KDS/prompts/internal/clear-conversation.md` to reset
+- 🔒 **Deleted conversations:** Patterns extracted, details discarded
+
+**Tier 3: Development Context (NEW in v6.0)**
+
+**Purpose:** Holistic project understanding for data-driven planning and proactive warnings
+
+**What's Tracked:**
+```yaml
+Git Activity:
+  - Commit history (30 days)
+  - Change velocity per week
+  - File hotspots (high churn rate)
+  - Contributors and patterns
+  
+Code Changes:
+  - Lines added/deleted
+  - Velocity trends (increasing/decreasing)
+  - Churn rates per file
+  - Stability classification
+  
+KDS Usage:
+  - Session creation and completion rates
+  - Intent distribution (PLAN, EXECUTE, TEST, etc.)
+  - Workflow success rates
+  - Test-first vs test-skip effectiveness
+  
+Testing Activity:
+  - Test creation rate
+  - Pass/fail rates
+  - Flaky test detection
+  - Coverage trends
+  
+Project Health:
+  - Build status
+  - Deployment frequency
+  - Code quality metrics
+  - Issue resolution times
+  
+Work Patterns:
+  - Most productive times
+  - Session duration averages
+  - Feature lifecycle timing
+  - Focus duration without interruptions
+  
+Correlations:
+  - Commit size vs success rate
+  - Test-first vs rework rate
+  - KDS usage vs velocity
+```
+
+**Automatic Benefits:**
+```
+Planning Phase:
+  → "Based on 12 similar UI features, estimated 5-6 days"
+  → "Recommend 10am-12pm sessions (94% success rate at that time)"
+  → "Test-first approach reduces rework by 68%"
+
+File Modification:
+  → "⚠️ HostControlPanel.razor is a hotspot (28% churn)"
+  → "This file often modified with noor-canvas.css (75% co-mod rate)"
+  → "Add extra testing - file is unstable"
+
+Proactive Warnings:
+  → "⚠️ Velocity dropped 68% this week (consider smaller commits)"
+  → "⚠️ Flaky test detected: fab-button.spec.ts (15% failure rate)"
+  → "✅ Test coverage increased from 72% to 76% (good trend!)"
+```
+
+**How to Collect:**
+```powershell
+# Manual collection
+.\KDS\scripts\collect-development-context.ps1
+
+# Automatic collection (runs after each BRAIN update)
+# Triggered by brain-updater.md every 50 events or 24 hours
+```
+
+**Storage:**
+- File: `KDS/kds-brain/development-context.yaml`
+- Size: ~50-100 KB (holistic metrics, not raw data)
+- Update: Hourly or after BRAIN update
+- Purpose: Data-driven estimates, proactive warnings, velocity tracking
+
+**Privacy & Storage:**
+- 🏠 **Local storage:** History stays in `KDS/kds-brain/conversation-history.jsonl`
+- 💾 **Predictable size:** Always 20 conversations (~70-200 KB total)
+- 🧹 **Manual clear:** Use `#file:KDS/prompts/internal/clear-conversation.md` to reset
+- 🔒 **Deleted conversations:** Patterns extracted, details discarded
+
+**Automatic Update Triggers:**
+1. **Event threshold:** 50+ new events accumulated
+2. **Time threshold:** 24 hours since last update (if 10+ events exist)
+3. **End of session:** When all tasks in session complete
+4. **Manual trigger:** User explicitly calls `#file:KDS/prompts/internal/brain-updater.md`
+
+**🚨 CRITICAL: Event Logging Must Be Active**
+
+For automatic learning to work:
+- ✅ All agents MUST log events to `events.jsonl`
+- ✅ Events follow standard format (see `KDS/kds-brain/README.md`)
+- ✅ `events.jsonl` must be writable (check file permissions)
+- ✅ Rule #16 Step 5 must include BRAIN health check
+
+**If BRAIN isn't learning:**
+1. Check `events.jsonl` exists and has recent events
+2. Verify `knowledge-graph.yaml` updated in last 24 hours
+3. Count unprocessed events (warn if >50)
+4. Run manual update: `#file:KDS/prompts/internal/brain-updater.md`
+
+**See:** `KDS/docs/architecture/KDS-SELF-REVIEW-STRATEGY.md` for violation detection
 
 **How It Works:**
 ```
@@ -84,8 +249,11 @@ Next request → Router gets smarter (learned from history)
 
 **BRAIN Agents:**
 ```
-brain-query.md   → Query knowledge graph for insights
-brain-updater.md → Process events and update graph
+brain-query.md   → Query knowledge graph AND development context for insights
+brain-updater.md → Process events, update graph, trigger Tier 3 collection
+conversation-context-manager.md → Track recent messages for continuity (NEW)
+clear-conversation.md → Reset conversation context (NEW)
+development-context-collector.md → Collect git, test, build metrics (Tier 3) 🆕
 ```
 
 ### Shared Abstractions (DIP Compliance)
@@ -167,6 +335,12 @@ Proceed with installation? (Y/n)
 ## 🧪 Playwright Testing Protocol (PowerShell)
 
 **CRITICAL RULE: All Playwright test automation scripts MUST follow the established protocol pattern.**
+
+**⚠️ LONG-RUNNING PROCESS:** Test automation scripts often run >30 seconds. Follow the Long-Running Process Protocol (see Setup section) for:
+- Padded time estimates (add 25-50% buffer to test execution time)
+- Status updates during app startup and test execution
+- Progress indicators when running multiple test files
+- Graceful Ctrl+C handling with cleanup
 
 ### 🎯 CRITICAL: Component ID-Based Selectors (TDD Requirement)
 
@@ -636,6 +810,755 @@ I updated the test-generator to support Percy visual testing
 
 ---
 
+## 🚀 First-Time Setup (New Application Installation)
+
+**When to use this:** You're installing KDS in a new application (e.g., a fresh project like `https://github.com/yourname/new-project`)
+
+**Purpose:** Complete KDS initialization with brain absorption, crawlers, and knowledge graph population for application-specific intelligence.
+
+### Setup Command
+
+```markdown
+#file:KDS/prompts/user/kds.md Setup
+```
+
+This triggers the complete KDS initialization sequence.
+
+**⏱️ Expected Duration: 15-20 minutes** (padded estimate)
+- Small project (<1000 files): ~10-12 minutes
+- Medium project (1000-5000 files): ~15-18 minutes  
+- Large project (>5000 files): ~20-25 minutes
+
+**🔔 Status Updates:** You'll receive progress updates every 30-60 seconds so you know the system is working.
+
+---
+
+### 📋 Setup Sequence (Automatic)
+
+When you invoke `Setup`, KDS executes this sequence:
+
+**⚙️ RULE: Long-Running Process Protocol**
+
+ALL long-running operations (>30 seconds) in KDS MUST:
+1. ✅ Display padded time estimate upfront (add 25-50% buffer)
+2. ✅ Show phase-by-phase progress indicators
+3. ✅ Provide status updates every 30-60 seconds
+4. ✅ Display percentage complete when measurable
+5. ✅ Show "Still working..." heartbeat for CPU-intensive tasks
+6. ✅ Explain what's happening (not just "Processing...")
+7. ✅ Allow graceful interruption (Ctrl+C with cleanup)
+
+**Examples of long-running operations:**
+- Setup sequence (15-20 min)
+- Deep crawler (5-10 min)
+- Development context collection (2-5 min)
+- BRAIN updates with large event backlogs (1-3 min)
+- Test suite runs (varies)
+- Build processes (varies)
+
+**See:** Full protocol at end of this section
+
+#### Phase 1: Environment Validation (2-3 minutes)
+
+**Status Display:**
+```
+🚀 KDS Setup - Phase 1/6: Environment Validation
+⏱️  Estimated time: 2-3 minutes
+📊 Progress: [▓▓▓░░░░░░░] 0%
+
+⏳ Checking KDS structure...
+```
+
+**Step 1.1: Verify KDS Structure**
+```
+✓ Check KDS/ directory exists
+✓ Verify all core agents present (9 specialist agents)
+✓ Validate BRAIN directories (kds-brain/, sessions/, knowledge/)
+✓ Check abstraction layer (session-loader, test-runner, file-accessor)
+
+Status: ✅ KDS structure verified (9/9 agents found)
+```
+
+**Step 1.2: Detect Application Type**
+```
+⏳ Analyzing application type...
+
+✓ Identify primary language (C#, TypeScript, Python, etc.)
+✓ Detect frameworks (ASP.NET, React, Django, etc.)
+✓ Find build tools (dotnet, npm, pip, etc.)
+✓ Locate test frameworks (Playwright, Jest, xUnit, etc.)
+
+Status: ✅ Detected: C# + ASP.NET Core 8.0 + Playwright
+```
+
+**Step 1.3: Validate Dependencies**
+```
+⏳ Checking system dependencies...
+
+✓ Check Git is available (required for context collection)
+✓ Verify PowerShell/Bash (for scripts)
+✓ Confirm workspace structure is readable
+✓ Test file system permissions
+
+Status: ✅ All dependencies available
+
+📊 Progress: [▓▓▓▓▓░░░░░] 20% - Phase 1 complete
+```
+
+**Output:** Environment validation report
+
+---
+
+#### Phase 2: BRAIN Initialization (7-12 minutes)
+
+**Status Display:**
+```
+🚀 KDS Setup - Phase 2/6: BRAIN Initialization
+⏱️  Estimated time: 7-12 minutes (longest phase)
+📊 Progress: [▓▓▓▓▓░░░░░] 20%
+
+⚠️  This phase takes the longest - please be patient!
+```
+
+**Step 2.1: Create BRAIN Storage**
+```
+⏳ Creating BRAIN directory structure...
+
+✓ Initialize KDS/kds-brain/ directory structure
+  - conversation-history.jsonl (Tier 1 - empty initially)
+  - knowledge-graph.yaml (Tier 2 - base template)
+  - development-context.yaml (Tier 3 - empty initially)
+  - events.jsonl (event stream - empty)
+  - crawler-state.yaml (crawler tracking)
+✓ Set up session storage (KDS/sessions/)
+✓ Create knowledge repository (KDS/knowledge/)
+
+Status: ✅ BRAIN storage created
+📊 Progress: [▓▓▓▓▓▓░░░░] 25%
+```
+
+**Step 2.2: Run Deep Codebase Crawler**
+```
+⏳ Starting deep codebase crawl...
+⏱️  This will take 5-10 minutes depending on project size
+
+Invoke: #file:KDS/prompts/internal/brain-crawler.md
+Mode: deep
+Duration: 5-10 minutes
+
+Status updates every 60 seconds:
+  [00:30] 📂 Discovered 247 files (still scanning...)
+  [01:00] 📂 Discovered 612 files (analyzing structure...)
+  [01:30] 📂 Discovered 1,089 files (mapping relationships...)
+  [02:00] 🔍 Parsing file contents (324/1,089 files)
+  [02:30] 🔍 Parsing file contents (687/1,089 files)
+  [03:00] 🔍 Analyzing imports and dependencies...
+  [03:30] 📊 Building relationship graph...
+  [04:00] 🎯 Detecting naming conventions...
+  [04:30] ✅ Crawler complete - generating report...
+
+What it discovers:
+✓ File structure & architecture (where components/services/tests live)
+✓ Code relationships (dependencies, imports, DI patterns)
+✓ Test patterns (frameworks, selectors, test data)
+✓ Technology stack (languages, frameworks, libraries)
+✓ Naming conventions (PascalCase, kebab-case, etc.)
+✓ Configuration patterns (appsettings hierarchy, env vars)
+✓ Documentation locations (README files, API docs)
+
+Feeds BRAIN with:
+  - architectural_patterns (Components/**/*.razor)
+  - file_relationships (co-modification patterns)
+  - test_patterns (Playwright, session-212, data-testid)
+  - conventions (naming, file organization)
+  - technology_stack (complete inventory)
+
+Status: ✅ Crawler discovered 1,089 files, 3,247 relationships
+📊 Progress: [▓▓▓▓▓▓▓░░░] 35%
+```
+
+**Output:** Crawler report (`KDS/kds-brain/crawler-report-{timestamp}.md`)
+
+**Step 2.3: Initialize Development Context (Tier 3)**
+```
+⏳ Collecting development metrics (2-5 minutes)...
+
+Invoke: #file:KDS/prompts/internal/development-context-collector.md
+
+Status updates:
+  [00:30] 📊 Analyzing Git history (last 30 days)...
+  [01:00] 📊 Processing 1,237 commits...
+  [01:30] 📊 Calculating code velocity...
+  [02:00] 📊 Identifying file hotspots...
+  [02:30] 📊 Analyzing test patterns...
+  [03:00] 📊 Building baseline metrics...
+
+What it collects:
+✓ Git activity (last 30 days of commits)
+✓ Code change velocity (lines added/deleted per week)
+✓ File hotspots (high churn rate files)
+✓ KDS session history (if any exist)
+✓ Testing activity (if tests exist)
+✓ Build/deploy patterns (if scripts exist)
+
+Feeds BRAIN with:
+  - Baseline metrics (velocity, churn, activity)
+  - Productivity patterns (commit frequency)
+  - File stability analysis (churn rates)
+  - Initial correlations (commit size vs complexity)
+
+Status: ✅ Collected metrics from 1,237 commits, 78 tests
+📊 Progress: [▓▓▓▓▓▓▓▓░░] 45%
+```
+
+**Output:** `KDS/kds-brain/development-context.yaml` (baseline metrics)
+
+---
+
+#### Phase 3: Knowledge Graph Population (3-5 minutes)
+
+**Status Display:**
+```
+🚀 KDS Setup - Phase 3/6: Knowledge Graph Population
+⏱️  Estimated time: 3-5 minutes
+📊 Progress: [▓▓▓▓▓▓▓▓░░] 45%
+
+⏳ Processing crawler discoveries...
+```
+
+**Step 3.1: Process Crawler Results**
+```
+⏳ Transforming discoveries into knowledge graph...
+
+Invoke: #file:KDS/prompts/internal/brain-updater.md
+Mode: bootstrap
+
+Status updates:
+  [00:30] 🧠 Processing 3,247 relationships...
+  [01:00] 🧠 Assigning confidence scores...
+  [01:30] 🧠 Creating file_relationships section (1,247 entries)
+  [02:00] 🧠 Creating architectural_patterns section (127 patterns)
+  [02:30] 🧠 Creating validation_insights section...
+
+Actions:
+✓ Transform crawler discoveries into knowledge graph entries
+✓ Assign confidence scores (0.50 - 0.98)
+  - Direct observations (imports): 0.95+ confidence
+  - Pattern inference (naming): 0.70-0.85 confidence
+  - Statistical (co-modification): 0.50-0.70 confidence
+✓ Create file_relationships section
+✓ Create architectural_patterns section
+✓ Create validation_insights section
+✓ Create intent_patterns (empty, will learn from usage)
+
+Status: ✅ Knowledge graph populated with 3,247 entries
+📊 Progress: [▓▓▓▓▓▓▓▓▓░] 55%
+```
+
+**Step 3.2: Build Intent Vocabulary (Bootstrapping)**
+```
+⏳ Bootstrapping intent patterns...
+
+If generic patterns available (from templates):
+  ✓ Import common intent patterns
+    - "add a button" → PLAN intent
+    - "create service" → PLAN intent
+    - "continue" → EXECUTE intent
+  ✓ Seed with generic workflow patterns
+    - UI feature: plan → execute → test
+    - API endpoint: plan → execute → unit-test → integration-test
+  ✓ Import common file confusion warnings
+    - "HostControlPanel vs HostControlPanelContent"
+    
+If no templates:
+  ✓ Start with empty intent_patterns
+  ✓ BRAIN will learn from first interactions
+
+Status: ✅ Intent vocabulary seeded with 47 patterns
+📊 Progress: [▓▓▓▓▓▓▓▓▓░] 60%
+```
+
+**Step 3.3: Validate Knowledge Graph**
+```
+⏳ Validating knowledge graph integrity...
+
+✓ Run structure validation (YAML syntax)
+✓ Check confidence score ranges (0.50-1.00)
+✓ Verify file references exist
+✓ Test query functionality
+✓ Run protection rules check
+
+Status: ✅ Knowledge graph validated successfully
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 65%
+```
+
+**Output:** `KDS/kds-brain/knowledge-graph.yaml` (fully populated)
+
+---
+
+#### Phase 4: Three-Tier BRAIN Setup (1-2 minutes)
+
+**Status Display:**
+```
+🚀 KDS Setup - Phase 4/6: Three-Tier BRAIN Setup
+⏱️  Estimated time: 1-2 minutes
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 65%
+
+⏳ Configuring three-tier architecture...
+```
+
+**Step 4.1: Initialize Tier 1 (Conversation History)**
+```
+⏳ Setting up conversation memory...
+
+✓ Create conversation-history.jsonl
+✓ Set FIFO queue capacity (20 conversations)
+✓ Initialize first conversation (the setup itself)
+✓ Configure conversation boundary detection
+
+Status: ✅ Tier 1 initialized
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 70%
+```
+
+**Step 4.2: Verify Tier 2 (Knowledge Graph)**
+```
+⏳ Verifying knowledge graph...
+
+✓ Confirm knowledge-graph.yaml populated
+✓ Test brain-query queries
+✓ Verify all sections present:
+  - intent_patterns
+  - file_relationships
+  - workflow_patterns
+  - validation_insights
+  - correction_history
+
+Status: ✅ Tier 2 verified (3,247 entries)
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 75%
+```
+
+**Step 4.3: Verify Tier 3 (Development Context)**
+```
+⏳ Verifying development context...
+
+✓ Confirm development-context.yaml has baseline metrics
+✓ Test proactive_warnings generation
+✓ Verify correlation analysis available
+✓ Check hotspot detection working
+
+Status: ✅ Tier 3 verified (baseline metrics ready)
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 80%
+```
+
+**Step 4.4: Enable Automatic Learning**
+```
+⏳ Configuring automatic learning...
+
+✓ Configure event logging (all agents → events.jsonl)
+✓ Set automatic update triggers:
+  - 50+ events → brain-updater.md
+  - 24 hours → brain-updater.md (if 10+ events)
+✓ Enable Tier 3 collection (runs after brain updates)
+✓ Verify Rule #16 Step 5 compliance (event count check)
+
+Status: ✅ Automatic learning enabled
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 85%
+```
+
+**Output:** Three-tier BRAIN fully operational
+
+---
+
+#### Phase 5: Testing & Validation (2-3 minutes)
+
+**Status Display:**
+```
+🚀 KDS Setup - Phase 5/6: Testing & Validation
+⏱️  Estimated time: 2-3 minutes
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 85%
+
+⏳ Running validation checks...
+```
+
+**Step 5.1: Test Core Workflows**
+```
+⏳ Testing KDS components...
+
+✓ Test intent routing (sample phrases)
+  - "I want to add a feature" → Should route to PLAN
+  - "Continue" → Should detect no session, prompt accordingly
+✓ Test BRAIN queries
+  - Query architectural_patterns → Should return discovered structure
+  - Query file_relationships → Should return co-modification data
+✓ Test file operations
+  - session-loader.md → Should create/read session files
+  - file-accessor.md → Should read/write application files
+
+Status: ✅ All core workflows tested successfully
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 90%
+```
+
+**Step 5.2: Run Health Validator**
+```
+⏳ Running comprehensive health check...
+
+Invoke: #file:KDS/prompts/internal/health-validator.md
+
+Checks:
+✓ All agents loadable
+✓ BRAIN files readable/writable
+✓ Knowledge graph valid
+✓ Session storage functional
+✓ Test framework detection working
+✓ Git integration working
+
+Status: ✅ All health checks passed
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 93%
+```
+
+**Step 5.3: Generate Setup Report**
+```
+⏳ Generating setup report...
+
+Create: KDS/setup-report-{timestamp}.md
+
+Contents:
+✓ Environment summary (languages, frameworks, tools)
+✓ Discovered patterns (components, services, tests)
+✓ BRAIN status (all 3 tiers operational)
+✓ File counts (components: 89, services: 34, tests: 120)
+✓ Known issues (if any)
+✓ Next steps (ready to use!)
+
+Status: ✅ Report generated
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 95%
+```
+
+**Output:** Setup complete confirmation
+
+---
+
+#### Phase 6: First Interaction Guidance (1 minute)
+
+**Status Display:**
+```
+🚀 KDS Setup - Phase 6/6: Finalizing
+⏱️  Estimated time: 1 minute
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 95%
+
+⏳ Preparing your workspace...
+```
+
+**Step 6.1: Show User Quick Start**
+```
+⏳ Generating getting started guide...
+
+Display:
+  ✅ Setup complete! KDS is ready.
+  
+  📊 What KDS learned about your application:
+  - Technology: {detected stack}
+  - Components: {count} files in {location}
+  - Services: {count} files in {location}
+  - Tests: {count} files, {framework} framework
+  - Conventions: {naming patterns}
+  
+  🧠 BRAIN Status:
+  - Tier 1 (Conversations): Initialized
+  - Tier 2 (Knowledge Graph): {entry_count} entries
+  - Tier 3 (Dev Context): Baseline metrics collected
+  
+  🚀 Ready to start!
+  
+  Try: #file:KDS/prompts/user/kds.md
+       I want to [describe your first feature]
+
+Status: ✅ Setup complete!
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 98%
+```
+
+**Step 6.2: Log Setup Event**
+```
+⏳ Finalizing...
+
+✓ Record setup completion in events.jsonl
+✓ Create first conversation in conversation-history.jsonl
+✓ Mark setup as successful in crawler-state.yaml
+
+Status: ✅ All done!
+📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 100% ✨
+
+⏱️  Total time: 15m 32s
+```
+
+---
+
+### 📊 Long-Running Process Protocol (UNIVERSAL RULE)
+
+**APPLIES TO:** All KDS operations >30 seconds
+
+**Required Elements:**
+
+1. **Upfront Expectation Setting**
+   ```
+   ⏱️  Estimated time: X-Y minutes (padded 25-50%)
+   ⚠️  This is the longest phase - please be patient!
+   ```
+
+2. **Visual Progress Indicators**
+   ```
+   📊 Progress: [▓▓▓▓▓▓▓░░░] 45%
+   🔄 Phase 3/6: Knowledge Graph Population
+   ```
+
+3. **Heartbeat Status Updates**
+   ```
+   Every 30-60 seconds:
+   [00:30] Still working on X... (detail what's happening)
+   [01:00] Processing Y... (show counts/progress)
+   [01:30] Almost done with Z... (reassure user)
+   ```
+
+4. **Informative Messages**
+   ```
+   ❌ BAD: "Processing..." (vague, scary)
+   ✅ GOOD: "Analyzing 1,247 commits for velocity patterns..."
+   
+   ❌ BAD: "Please wait..." (no context)
+   ✅ GOOD: "Scanning 612 files for architectural patterns (2m 30s elapsed)"
+   ```
+
+5. **Completion Confirmation**
+   ```
+   Status: ✅ Phase complete in 4m 23s
+   📊 Progress: [▓▓▓▓▓▓▓▓▓▓] 65% → 75%
+   ```
+
+6. **Graceful Interruption**
+   ```
+   ⏸️  You can press Ctrl+C to cancel
+   ⚠️  Cleanup will run automatically if interrupted
+   ```
+
+7. **Error Recovery Guidance**
+   ```
+   If something goes wrong:
+   ❌ Error at Phase 3 (2m 15s elapsed)
+   💡 You can:
+      1. Retry this phase only
+      2. Skip and continue (if non-critical)
+      3. Cancel and review logs
+   ```
+
+**Implementation Checklist:**
+
+For ALL long-running operations, verify:
+- ☐ Padded time estimate shown upfront (realistic + buffer)
+- ☐ Phase/step breakdown displayed
+- ☐ Progress bar or percentage shown
+- ☐ Status updates every 30-60 seconds minimum
+- ☐ Detailed "what's happening now" messages
+- ☐ Elapsed time counter visible
+- ☐ Graceful Ctrl+C handling
+- ☐ Clear completion confirmation
+- ☐ Error messages with recovery options
+
+**Examples in KDS:**
+
+```markdown
+Long-Running Operations:
+✓ Setup (15-20 min) - Has all required elements above
+✓ Deep Crawler (5-10 min) - Needs status updates added
+✓ Development Context Collection (2-5 min) - Needs progress bar
+✓ BRAIN Update with backlog (1-3 min) - Needs heartbeat
+✓ Test Suite Execution (varies) - Needs all elements
+✓ Build Processes (varies) - Needs all elements
+```
+
+**Agents Responsible:**
+
+All specialist agents that trigger long operations:
+- `work-planner.md` - When creating large plans
+- `code-executor.md` - When running builds/tests
+- `test-generator.md` - When generating many tests
+- `health-validator.md` - When running full validation
+- `brain-crawler.md` - When scanning codebase
+- `development-context-collector.md` - When analyzing history
+- `brain-updater.md` - When processing large backlogs
+
+**PowerShell Script Requirements:**
+
+All KDS scripts (`.ps1`) MUST include:
+```powershell
+# At start
+Write-Host "⏱️  Estimated time: 3-5 minutes" -ForegroundColor Yellow
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+# During execution (every 30-60s)
+Write-Host "[$(($stopwatch.Elapsed.TotalSeconds).ToString('00.0'))s] Still working on X..." -ForegroundColor Cyan
+
+# At completion
+$stopwatch.Stop()
+Write-Host "✅ Complete in $($stopwatch.Elapsed.TotalMinutes.ToString('0.0'))m" -ForegroundColor Green
+```
+
+**See Also:**
+- Playwright Testing Protocol (uses 20s wait with status)
+- Health Validator (should show check-by-check progress)
+- Crawler modes (quick vs deep time estimates)
+
+---
+
+### 🎯 Setup Modes
+
+**Default Mode: Full Setup (Recommended)**
+```markdown
+#file:KDS/prompts/user/kds.md Setup
+```
+- ⏱️ Duration: 15-20 minutes (padded estimate)
+- Runs all 6 phases with complete initialization
+- Complete BRAIN initialization with deep crawler
+- Ready for immediate production use
+- **Status updates:** Every 30-60 seconds
+- **Progress tracking:** Phase-by-phase with percentage
+
+**Quick Mode: Minimal Setup (For Testing)**
+```markdown
+#file:KDS/prompts/user/kds.md Setup --quick
+```
+- ⏱️ Duration: 3-5 minutes (padded estimate)
+- Skips deep crawler (runs quick scan only)
+- Minimal Tier 3 data (current snapshot only)
+- Good for experimentation, not production
+- **Status updates:** Every 60 seconds
+- **Progress tracking:** Simplified progress bar
+
+**Migration Mode: Import Existing Knowledge**
+```markdown
+#file:KDS/prompts/user/kds.md Setup --import "path/to/old-kds/kds-brain/"
+```
+- ⏱️ Duration: 7-10 minutes (padded estimate)
+- Imports generic patterns from previous KDS installation
+- Runs deep crawler for new application
+- Merges old patterns with new discoveries
+- Best for migrating KDS to similar project
+- **Status updates:** Every 45 seconds
+- **Progress tracking:** Shows import + scan progress separately
+
+---
+
+### 📁 What Gets Created
+
+After setup completes, you'll have:
+
+```
+KDS/
+├── kds-brain/
+│   ├── conversation-history.jsonl      ✅ Initialized (setup conversation)
+│   ├── knowledge-graph.yaml            ✅ Populated (crawler + baseline)
+│   ├── development-context.yaml        ✅ Baseline metrics
+│   ├── events.jsonl                    ✅ Setup events logged
+│   ├── crawler-state.yaml              ✅ Last scan info
+│   └── crawler-report-{timestamp}.md   📊 Detailed discoveries
+│
+├── sessions/                           ✅ Empty (ready for first session)
+│
+├── knowledge/                          ✅ Ready for knowledge articles
+│
+├── scripts/
+│   ├── brain-crawler.ps1               ✅ Tested and working
+│   ├── collect-development-context.ps1 ✅ Tested and working
+│   └── protect-brain-update.ps1        ✅ Protection active
+│
+└── setup-report-{timestamp}.md         📊 Setup summary
+```
+
+---
+
+### 🔧 Troubleshooting Setup
+
+**Setup fails at Phase 1 (Validation):**
+```
+Cause: Missing KDS files or permissions issue
+Fix: 
+  1. Verify KDS/ directory copied completely
+  2. Check file permissions (should be readable/writable)
+  3. Ensure Git is installed and accessible
+```
+
+**Setup fails at Phase 2 (Crawler):**
+```
+Cause: Large codebase (>10,000 files) or binary files
+Fix:
+  1. Use Setup --quick (skips deep scan)
+  2. Manually run targeted crawler later
+  3. Add skip patterns to KDS/kds-brain/crawler-config.yaml
+```
+
+**Setup succeeds but queries fail:**
+```
+Cause: Knowledge graph structure invalid
+Fix:
+  1. Check KDS/kds-brain/knowledge-graph.yaml syntax
+  2. Re-run: #file:KDS/prompts/internal/brain-updater.md
+  3. Validate with: #file:KDS/prompts/internal/health-validator.md
+```
+
+---
+
+### ✅ Setup Success Indicators
+
+You'll know setup succeeded when:
+
+```
+✓ All 6 phases completed without errors
+✓ KDS/setup-report-{timestamp}.md exists
+✓ knowledge-graph.yaml has 50+ entries
+✓ development-context.yaml has baseline metrics
+✓ Health validator reports "All checks passed"
+✓ Test query returns architectural patterns
+✓ First kds.md request routes correctly
+```
+
+---
+
+### 🎓 Post-Setup Best Practices
+
+**1. Verify BRAIN Learning:**
+```
+After your first few KDS interactions:
+
+Check: KDS/kds-brain/events.jsonl (should have new events)
+Check: conversation-history.jsonl (should have conversations)
+Run: #file:KDS/prompts/internal/brain-updater.md (manual update)
+Verify: knowledge-graph.yaml updated with your patterns
+```
+
+**2. Regular Maintenance:**
+```
+Daily: Let automatic learning work (no action needed)
+Weekly: Check proactive_warnings in development-context.yaml
+Monthly: Run incremental crawler (keep structure current)
+After refactoring: Run deep crawler (re-learn architecture)
+```
+
+**3. Optimize for Your Workflow:**
+```
+If KDS misroutes frequently:
+  → Check intent_patterns in knowledge-graph.yaml
+  → Add manual entries for your common phrases
+  
+If file suggestions wrong:
+  → Check architectural_patterns
+  → Run targeted crawler on new modules
+  
+If estimates inaccurate:
+  → Let development-context accumulate data (2-4 weeks)
+  → Correlations improve with more history
+```
+
+---
+
 ## 🤖 How It Works
 
 ### Step 1: Intent Detection
@@ -1084,27 +2007,112 @@ All work! Universal is for convenience, SOLID is for quality.
 
 ## 🧠 BRAIN System Best Practices
 
-### Standard Practice: Always Let BRAIN Learn
+### Automatic Learning is ENABLED by Default
 
-**Every KDS interaction should:**
-1. ✅ Log events (automatic in all agents)
-2. ✅ Query BRAIN for insights (before decisions)
+**KDS v5.0+ automatically logs events and updates BRAIN - no user action needed!**
+
+**What happens automatically:**
+1. ✅ Agents log events after every action (routing, file modifications, corrections)
+2. ✅ Events accumulate in `KDS/kds-brain/events.jsonl`
+3. ✅ Rule #16 Step 5 checks event count after each task
+4. ✅ When 50 events reached → `brain-updater.md` auto-triggered
+5. ✅ Knowledge graph updated with new patterns
+6. ✅ Next routing decision gets smarter
+
+**You benefit without doing anything!**
+
+### Verify BRAIN is Learning (Optional Health Check)
+
+**Want to confirm automatic learning is working?**
+
+Check these indicators:
+```bash
+# 1. Recent events logged (should have timestamps from today)
+cat KDS/kds-brain/events.jsonl | tail -5
+
+# 2. Knowledge graph updated recently (check last modified)
+ls -la KDS/kds-brain/knowledge-graph.yaml
+
+# 3. Event count reasonable (not accumulating to 100+)
+wc -l KDS/kds-brain/events.jsonl
+```
+
+**Healthy BRAIN signs:**
+- ✅ `events.jsonl` has recent timestamps (within last few hours)
+- ✅ `knowledge-graph.yaml` updated in last 24 hours
+- ✅ Event count stays below 50 (auto-cleanup working)
+
+**⚠️ Warning signs (violations detected):**
+- ❌ No events logged for 4+ hours (event logging broken)
+- ❌ `knowledge-graph.yaml` not updated in 24+ hours
+- ❌ 50+ unprocessed events accumulated (automatic update not triggering)
+
+**If you see warnings:** See `KDS/docs/architecture/KDS-SELF-REVIEW-STRATEGY.md` for fixes
+
+### Manual BRAIN Update (Only if Needed)
+
+**When to manually update:**
+- 🔧 After bulk corrections (fixed multiple files at once)
+- 🔧 After large refactoring (want BRAIN to learn patterns immediately)
+- 🚨 If automatic updates stopped working (>50 events accumulated)
+- 📊 Before important routing decision (want latest knowledge)
+
+**How to trigger manually:**
+```markdown
+#file:KDS/prompts/internal/brain-updater.md
+```
+
+This processes all events and updates the knowledge graph.
+
+### Standard Practice: Trust Automatic Learning
+
+**Every KDS interaction SHOULD automatically:**
+1. ✅ Log events (no user action needed)
+2. ✅ Query BRAIN for insights (before routing/file decisions)
 3. ✅ Update knowledge graph (periodic automatic)
 
-**This is now STANDARD KDS practice** - all agents follow this pattern.
+**This is STANDARD KDS practice** - all agents follow this pattern automatically.
 
-### First-Time Setup
+### For Advanced Users Only
+
+**Manual intervention rarely needed, but available:**
+
+1. **Manually correct routing** if BRAIN suggests wrong intent:
+   ```markdown
+   #file:KDS/prompts/user/kds.md
+   Wrong intent! I meant [correct interpretation]
+   ```
+   Error corrector logs the mistake, BRAIN learns for next time.
+
+2. **Check BRAIN health** during self-review:
+   ```markdown
+   #file:KDS/prompts/user/validate.md
+   Check BRAIN system health
+   ```
+
+3. **Force immediate update** after major changes:
+   ```markdown
+   #file:KDS/prompts/internal/brain-updater.md
+   ```
+
+**But in normal usage: Just use KDS and let BRAIN learn automatically!**
+
+### First-Time Setup (Optional - BRAIN Works Out of the Box)
+
+**KDS v5.0+ works immediately with empty BRAIN - learning starts from first use!**
+
+**Optional bootstrapping (faster initial learning):**
 
 **Option 1: Populate from existing sessions (if you have session history):**
 ```powershell
-# PowerShell
+# PowerShell - Seed BRAIN from past sessions
 .\KDS\scripts\populate-kds-brain.ps1
 
 # Then update knowledge graph
 #file:KDS/prompts/internal/brain-updater.md
 ```
 
-**Option 2: Crawl your codebase (recommended for new KDS installations):**
+**Option 2: Crawl your codebase (recommended for new installations):**
 ```powershell
 # PowerShell - Quick scan (30 seconds)
 .\KDS\scripts\brain-crawler.ps1 -Mode quick
@@ -1122,15 +2130,24 @@ The crawler analyzes your entire application and feeds BRAIN with:
 
 **See:** `#file:KDS/prompts/internal/brain-crawler.md` for details
 
-### Ongoing Usage
+**But remember: Bootstrapping is OPTIONAL - BRAIN learns automatically from first interaction!**
 
-**Just use KDS normally!** BRAIN learns automatically:
-- 📝 Events logged with every action
-- 🧠 BRAIN updated periodically
-- 💡 Decisions get smarter over time
-- 🕷️ Run incremental crawler scans to keep current
+### Ongoing Usage - No Action Needed!
 
-**No manual intervention needed.**
+**Just use KDS normally!** BRAIN learns automatically from every interaction:
+- 📝 Events logged automatically with every agent action
+- 🧠 BRAIN updated automatically when 50 events accumulate
+- 💡 Decisions get smarter automatically over time
+- 🕷️ Optional: Run incremental crawler scans to refresh architectural knowledge
+
+**Zero manual intervention required for continuous learning.**
+
+**Only manual actions needed:**
+1. 🚨 If automatic learning breaks (check `KDS-SELF-REVIEW-STRATEGY.md`)
+2. 🔧 After bulk corrections (want immediate learning)
+3. 📊 When starting new project (run crawler to learn codebase)
+
+**99% of the time: BRAIN just works!**
 
 ### Moving KDS to Another Application
 
