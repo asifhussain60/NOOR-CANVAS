@@ -14,6 +14,18 @@ intent_patterns:
           - "add share button"
           - "add fab button"
           - "I want to add a FAB button pulse animation"
+      - pattern: "create [X] dashboard"
+        confidence: 0.95
+        routes_to: "work-planner.md"
+        examples:
+          - "create a SPA dashboard for healthcheck"
+          - "create health monitoring dashboard"
+      - pattern: "implement [X]"
+        confidence: 0.90
+        routes_to: "work-planner.md"
+        examples:
+          - "implement the healthchecks"
+          - "implement API integration"
   execute:
     phrases:
       - pattern: "add ids to [component]"
@@ -143,6 +155,38 @@ file_relationships:
         reason: "Component IDs documented for Playwright testing"
     modification_pattern: "component_with_test_documentation"
     frequency: 1
+  
+  kds_dashboard:
+    primary_file: "KDS/kds-dashboard.html"
+    related_files:
+      - path: "KDS/scripts/run-health-checks.ps1"
+        relationship: "health_check_engine"
+        confidence: 1.0
+        reason: "Executes health checks called by dashboard"
+      - path: "KDS/scripts/dashboard-api-server.ps1"
+        relationship: "api_backend"
+        confidence: 1.0
+        reason: "HTTP server providing health check API"
+      - path: "KDS/scripts/launch-dashboard.ps1"
+        relationship: "unified_launcher"
+        confidence: 1.0
+        reason: "All-in-one launcher for server + dashboard"
+      - path: "KDS/scripts/open-dashboard.ps1"
+        relationship: "simple_launcher"
+        confidence: 1.0
+        reason: "Dashboard-only launcher"
+      - path: "KDS/dashboard/README.md"
+        relationship: "primary_documentation"
+        confidence: 1.0
+        reason: "Main dashboard documentation"
+      - path: ".vscode/tasks.json"
+        relationship: "vscode_integration"
+        confidence: 1.0
+        reason: "VS Code tasks for easy launching"
+    modification_pattern: "dashboard_ecosystem"
+    frequency: 1
+    created: "2025-11-03"
+    feature_type: "health_monitoring"
 
 workflow_patterns:
   service_layer_ui_injection:
@@ -231,6 +275,100 @@ workflow_patterns:
     reusable: true
     used_in:
       - "playwright-ids-fab-button"
+  
+  single_file_spa_creation:
+    description: "Create portable HTML dashboard with inline CSS/JS and zero dependencies"
+    steps:
+      - "Design UI structure with tabs and cards"
+      - "Inline all CSS (no external stylesheets)"
+      - "Inline all JavaScript (no external scripts)"
+      - "Add PowerShell launcher script"
+      - "Create VS Code task integration"
+      - "Write comprehensive documentation"
+    file_pattern:
+      main_file: "KDS/*.html"
+      documentation: "KDS/dashboard/*.md"
+      launcher: "KDS/scripts/open-*.ps1"
+      tasks: ".vscode/tasks.json"
+    success_rate: 1.0
+    confidence: 0.95
+    reusable: true
+    used_in:
+      - "kds-health-dashboard"
+    benefits:
+      - "100% portable (single file)"
+      - "Zero external dependencies"
+      - "Works offline"
+      - "Fast load time"
+      - "Easy to share/deploy"
+  
+  kds_health_monitoring:
+    description: "PowerShell-based health checks with browser dashboard and API server"
+    architecture: "Client-Server (browser SPA + local API)"
+    components:
+      dashboard: "Single-file HTML with auto-detection (Live/Demo modes)"
+      api_server: "PowerShell HTTP listener on localhost:8765"
+      health_checks: "PowerShell script with categorized validations"
+      launcher: "All-in-one script (server + client)"
+    steps:
+      - "Start PowerShell HTTP server (background job)"
+      - "Open dashboard in browser"
+      - "Dashboard detects API availability"
+      - "Execute health checks on demand"
+      - "Display results with status circles"
+      - "Generate recommendations from failures"
+    technologies:
+      - "PowerShell (server + health checks)"
+      - "HTML5/CSS3/JavaScript (dashboard)"
+      - "HTTP REST API (communication)"
+      - "VS Code tasks (easy launch)"
+    success_rate: 1.0
+    confidence: 0.95
+    reusable: true
+    used_in:
+      - "kds-health-dashboard"
+  
+  powershell_http_server:
+    description: "Simple PowerShell HTTP server for local API endpoints"
+    pattern_type: "Local development server"
+    implementation:
+      - "Create HttpListener on localhost:port"
+      - "Set up CORS headers for browser access"
+      - "Handle GET/POST requests"
+      - "Return JSON responses"
+      - "Run as background job"
+    use_cases:
+      - "Dashboard API integration"
+      - "Local testing without IIS/Kestrel"
+      - "Lightweight health check endpoints"
+    success_rate: 1.0
+    confidence: 0.90
+    reusable: true
+    used_in:
+      - "kds-dashboard-api-server"
+  
+  unified_launcher_pattern:
+    description: "Single command to start server + open client application"
+    pattern_type: "Developer experience"
+    steps:
+      - "Start background API server (job)"
+      - "Wait for server readiness"
+      - "Open client application"
+      - "Verify connectivity"
+      - "Optional: keep server running or auto-cleanup"
+    parameters:
+      - "-KeepServerRunning (optional)"
+      - "-Port (default 8765)"
+    success_rate: 1.0
+    confidence: 0.95
+    reusable: true
+    used_in:
+      - "kds-launch-dashboard"
+    benefits:
+      - "Single command UX"
+      - "Automatic cleanup"
+      - "User-friendly"
+      - "Reduces setup friction"
 
 correction_history:
   file_mismatch:
@@ -268,6 +406,21 @@ validation_insights:
         - "Better for visual regression testing"
       used_in:
         - "hcp-fab-button-testing"
+    
+    dashboard_refresh_automation:
+      framework: "playwright"
+      description: "Automated testing of dashboard refresh functionality with API integration"
+      confidence: 1.0
+      reusable: true
+      test_pattern: "api_connectivity_validation"
+      checks:
+        - "API server responds on localhost:8765"
+        - "Health check endpoint returns valid JSON"
+        - "Dashboard loads and renders"
+        - "Refresh button triggers API call"
+        - "UI updates with health check results"
+      used_in:
+        - "kds-dashboard-testing"
 
 feature_components:
   fab_button:
@@ -281,11 +434,36 @@ feature_components:
       - "Tests/UI/hcp-fab-button-click-test.spec.ts"
     test_approach: "playwright_e2e_session_212"
     workflow_used: "service_layer_ui_injection"
+  
+  kds_health_dashboard:
+    status: "complete"
+    completion_date: "2025-11-03"
+    files:
+      - "KDS/kds-dashboard.html"
+      - "KDS/scripts/run-health-checks.ps1"
+      - "KDS/scripts/dashboard-api-server.ps1"
+      - "KDS/scripts/launch-dashboard.ps1"
+      - "KDS/scripts/open-dashboard.ps1"
+      - "KDS/tests/test-dashboard-refresh.ps1"
+      - "KDS/dashboard/README.md"
+      - "KDS/dashboard/QUICK-START.md"
+      - "KDS/dashboard/HEALTHCHECK-INTEGRATION.md"
+      - "KDS/dashboard/IMPLEMENTATION-SUMMARY.md"
+      - "KDS/dashboard/QUICK-REFERENCE.md"
+      - ".vscode/tasks.json"
+    test_approach: "playwright_automation"
+    workflow_used: "single_file_spa_creation"
+    patterns_applied:
+      - "single_file_spa_creation"
+      - "kds_health_monitoring"
+      - "powershell_http_server"
+      - "unified_launcher_pattern"
+    source: "copilot_chat"
 
 statistics:
-  total_events_processed: 10
-  last_updated: "2025-11-03T11:30:00Z"
-  knowledge_graph_version: "1.3"
+  total_events_processed: 15
+  last_updated: "2025-11-03T19:00:00Z"
+  knowledge_graph_version: "1.4"
   confidence_threshold: 0.70
   learning_enabled: true
   status: "ACTIVE"
@@ -305,6 +483,12 @@ statistics:
       intent: "execute"
       success: true
       learnings: ["id_based_playwright_selectors", "test_first_id_preparation"]
+    - session_id: "conv-dashboard-2025-11-03"
+      date: "2025-11-03"
+      intent: "plan"
+      success: true
+      source: "copilot_chat"
+      learnings: ["single_file_spa_creation", "kds_health_monitoring", "powershell_http_server", "unified_launcher_pattern", "dashboard_refresh_automation"]
 
 protection_config:
   enabled: true
