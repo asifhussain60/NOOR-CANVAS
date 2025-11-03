@@ -1,0 +1,36 @@
+version: 1
+scope_root: KDS
+exclude_dirs:
+  - KDS/kds-brain
+  - KDS/scripts
+  - KDS/prompts
+  - KDS/schemas
+  - KDS/services
+  - KDS/sessions
+  - KDS/validators
+  - KDS/tooling
+  - KDS/tests
+  - KDS/config
+  - KDS/knowledge
+include_dirs:
+  - KDS/docs
+  - KDS
+patterns_temp:
+  - "*.tmp"
+  - "*.bak"
+  - "*.old"
+  - "*~"
+  - ".DS_Store"
+retention_by_glob:
+  - glob: "KDS/docs/IMPLEMENTATION-PROGRESS-*.md"
+    keep: 1
+  - glob: "KDS/docs/*IMPLEMENTATION-*.md"
+    keep: 2
+  - glob: "KDS/docs/v*.md"
+    keep: 1
+duplicate_policy:
+  prefer_dirs:
+    - KDS/docs/Trilogy
+  fallback: newest
+empty_file_policy: archive
+archive_dir: KDS/_archive

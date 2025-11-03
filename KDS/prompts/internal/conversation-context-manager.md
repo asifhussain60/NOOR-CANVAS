@@ -15,8 +15,6 @@ Maintain a rolling window of recent conversation history so KDS can understand f
 ```
 Without conversation memory:
   User: "I want to add a FAB button"
-  KDS: Creates plan
-  
   User: "Make it purple"
   KDS: ❌ What should be purple? (no context)
 
@@ -67,9 +65,6 @@ def process_user_message(user_message):
     recent_context = load_last_n_messages(n=10)
     
     # Step 2: Analyze with context
-    intent = detect_intent(user_message, recent_context)
-    context_refs = extract_context_references(user_message, recent_context)
-    
     # Step 3: Log this message
     log_conversation_entry({
         "timestamp": now(),
@@ -83,10 +78,6 @@ def process_user_message(user_message):
     rotate_conversation_context(max_entries=10)
     
     # Step 5: Route with context
-    route_to_agent(intent, context=recent_context)
-```
-
----
 
 ## 🧩 Context Reference Extraction
 

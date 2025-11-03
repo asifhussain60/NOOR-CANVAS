@@ -431,6 +431,35 @@
 			],
 			"problemMatcher": [],
 			"group": "test"
+		},
+		{
+			"label": "kds: maintenance (dry-run)",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"KDS/scripts/run-maintenance.ps1"
+			],
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "kds: maintenance (archive)",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"KDS/scripts/run-maintenance.ps1",
+				"-Archive"
+			],
+			"isBackground": false,
+			"group": "test"
 		}
 	]
 }

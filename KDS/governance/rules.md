@@ -1081,6 +1081,56 @@ enforcement:
 
 ---
 
+## RULE #19: Regular Maintenance (Docs Sync + Redundancy Cleanup)
+
+```yaml
+rule_id: REGULAR_MAINTENANCE
+severity: HIGH
+scope: KDS_HYGIENE
+
+purpose: |
+  Keep KDS documentation synchronized and storage lean.
+  Automate document trilogy validation and redundant file cleanup.
+
+cadence:
+  - post_merge: ALWAYS (non-blocking)
+  - weekly: Monday 09:00 local (recommended)
+  - manual: VS Code tasks (dry-run and archive)
+
+tools:
+  trilogy_sync:
+    script: KDS/scripts/sync-trilogy.ps1
+    behavior: validate versions, write manifest, assert PR prompts present
+  cleanup:
+    script: KDS/scripts/clean-redundant-files.ps1
+    behavior: detect temp/empty/duplicate/retention candidates, delete by default (Rule #3)
+  maintenance_combined:
+    script: KDS/scripts/run-maintenance.ps1
+    behavior: run trilogy sync then cleanup (dry-run or delete)
+
+vs_code_tasks:
+  - label: "kds: maintenance (dry-run)"
+  - label: "kds: maintenance (archive)"
+
+enforcement:
+  post_task_note: "Include maintenance summary in post-task logs (Rule #16)."
+  non_blocking: true  # never blocks merges; only reports and deletes
+  thresholds:
+    max_empty_files: 0
+    max_temp_files: 0
+    action: delete   # trust git for history (Rule #3)
+
+validation:
+  trilogy:
+    - versions_match: required
+    - pr_prompts_present: required (Prompts 10–23)
+  cleanup:
+    - reports_written: required (JSON and CSV)
+    - deletion_summary: required (console output)
+```
+
+---
+
 ## RULE #17: Challenge User Requests (KDS Defense Mechanism)
 
 ```yaml

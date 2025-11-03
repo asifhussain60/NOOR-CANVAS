@@ -461,7 +461,7 @@ input: "[user's natural language request]"
 #file:KDS/prompts/internal/conversation-context-manager.md load
 ```
 
-**Returns:** Last 10 user messages with intents and entities
+**Returns:** Last 10 user messages with intents and entities (from `conversation-context.jsonl`)
 
 **Use context to:**
 1. **Resolve pronouns** ("it", "that", "this") to actual entities
@@ -523,7 +523,16 @@ rotate_conversation_context(max_entries=10)
 expire_old_messages(max_age_hours=2)
 ```
 
-**File:** `KDS/kds-brain/conversation-context.jsonl`
+Additionally, if a conversation boundary is detected (e.g., plan fully executed, explicit "new topic", or prolonged inactivity), finalize and persist a conversation record to Tier 1:
+
+```
+finalize_current_conversation_to_history()   # Appends JSON line to KDS/kds-brain/conversation-history.jsonl
+enforce_history_fifo(max_conversations=20)   # Keep last 20 conversations; never delete active one
+```
+
+**Files:**
+- Messages buffer: `KDS/kds-brain/conversation-context.jsonl`
+- Tier 1 conversations: `KDS/kds-brain/conversation-history.jsonl` (JSON Lines; one conversation object per line)
 
 **Format:**
 ```jsonl

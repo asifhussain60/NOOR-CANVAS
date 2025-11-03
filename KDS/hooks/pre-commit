@@ -36,3 +36,20 @@ echo "✅ KDS-only commit validated"
 echo "📁 Files in commit:"
 git diff --cached --name-only | sed 's/^/   - /'
 echo ""
+
+# Run KDS light checks (pre-commit fast scan) via PowerShell
+REPO_ROOT=$(git rev-parse --show-toplevel)
+LIGHT_CHECK_SCRIPT="$REPO_ROOT/KDS/scripts/clean-redundant-files-light.ps1"
+
+if [ -f "$LIGHT_CHECK_SCRIPT" ]; then
+  echo "🔎 Running KDS light checks..."
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$LIGHT_CHECK_SCRIPT"
+  EXIT_CODE=$?
+  if [ $EXIT_CODE -ne 0 ]; then
+    echo "❌ Pre-commit light checks failed (see violations above)."
+    exit $EXIT_CODE
+  fi
+  echo "✅ KDS light checks passed"
+else
+  echo "ℹ️  KDS light checks script not found: $LIGHT_CHECK_SCRIPT (skipping)"
+fi

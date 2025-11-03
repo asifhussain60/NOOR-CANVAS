@@ -1,6 +1,6 @@
 # KDS DESIGN - Living Document
 **Version:** 5.1.0 (SOLID + BRAIN Integration)  
-**Last Updated:** 2025-11-02  
+**Last Updated:** 2025-11-03  
 **Status:** 🎯 ACTIVE DESIGN  
 **Branch:** KDS
 
@@ -789,6 +789,16 @@ fi
 echo "✅ KDS-only commit validated"
 ```
 
+### Pre-Commit Light Checks (Fast, Staged-Only)
+
+To balance speed with quality, the hook runs a fast PowerShell scan over staged KDS files only:
+
+- Script: `KDS/scripts/clean-redundant-files-light.ps1`
+- Fails on: archive/deprecated folders, temp files, version-suffix files, and 0-byte files
+- Purpose: Enforce Rule #3 (Delete Over Archive) and hygiene thresholds without scanning the whole repo
+
+This is intentionally lightweight and runs in under a second for typical commits. Full maintenance runs remain available via VS Code tasks or post-merge automation.
+
 **Post-Merge Hook** (`hooks/post-merge`):
 ```bash
 #!/bin/bash
@@ -810,6 +820,22 @@ fi
 ---
 
 ## 🔄 Change History (Tracked Over Time)
+### 2025-11-03: Pre-Commit Light Checks + Delete-Over-Archive Alignment
+
+What changed:
+- ✅ Added `KDS/scripts/clean-redundant-files-light.ps1` and wired it into `hooks/pre-commit`
+- ✅ Updated `run-maintenance.ps1` to delete instead of archive (aligns with Rule #3)
+- ✅ Updated governance Rule #19 (“Regular Maintenance”) to reflect delete-by-default policy
+
+Rationale:
+- Maintain commit-time speed with staged-only checks
+- Remove ambiguity around “archive” by enforcing Delete Over Archive (trust git history)
+- Keep the maintenance experience consistent across docs, hooks, and scripts
+
+Compatibility:
+- Non-breaking; pre-commit continues to validate branch and KDS-only scope
+- Light checks add a quick validation layer; full maintenance stays available via tasks
+
 
 ### 2025-11-02: v5.0 PHASE 2 COMPLETE ✅ - Closed the Implementation Gap
 

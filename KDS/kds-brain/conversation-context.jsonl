@@ -1,0 +1,5 @@
+{"timestamp":"2025-11-03T17:30:50Z","user_message":"I want to add a FAB button","intent":"PLAN","session_id":"stm-self-test"}
+{"timestamp":"2025-11-03T17:30:50Z","user_message":"Make it purple","intent":"EXECUTE","session_id":"stm-self-test","context_ref":"FAB button"}
+{"timestamp":"2025-11-03T17:30:50Z","user_message":"Add a pulse animation","intent":"PLAN","session_id":"stm-self-test","context_ref":"FAB button"}
+{"timestamp":"2025-11-03T17:30:50Z","user_message":"Put it in the header","intent":"EXECUTE","session_id":"stm-self-test","context_ref":"FAB button"}
+{"timestamp":"2025-11-03T17:30:50Z","user_message":"continue","intent":"EXECUTE","session_id":"stm-self-test"}
