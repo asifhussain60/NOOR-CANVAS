@@ -307,3 +307,15 @@
 [PLAYWRIGHT-LOG] 2025-11-23T18:59:18.194Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
 [PLAYWRIGHT-LOG] 2025-11-23T18:59:20.326Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
 [PLAYWRIGHT-LOG] 2025-11-23T18:59:20.880Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T21:05:38.556Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T21:05:39.859Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T21:05:39.920Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T21:05:42.259Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T21:05:43.324Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T21:05:58.842Z | CLICK | html > body > div > div | div | "User Authentication
+            Need For Messenger"
+[PLAYWRIGHT-LOG] 2025-11-23T21:06:03.140Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T21:06:04.182Z | CLICK | button#debug-action-0 > span | span | "Enter Test Data"
+[PLAYWRIGHT-LOG] 2025-11-23T21:06:04.692Z | CLICK | html > body > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > button | button | "Join Live Canvas"
+[PLAYWRIGHT-LOG] 2025-11-23T21:06:08.622Z | CLICK | [data-testid="transcript-container"] | button | "Share Section"
+[PLAYWRIGHT-LOG] 2025-11-23T21:06:13.018Z | CLICK | [data-testid="transcript-container"] | button | "Share Asset"

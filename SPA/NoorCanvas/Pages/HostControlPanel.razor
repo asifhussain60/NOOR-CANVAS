@@ -1443,10 +1443,10 @@ else
             var dotNetRef = DotNetObjectReference.Create(this);
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Calling JSRuntime.InvokeAsync('TranscriptSectionParser.injectShareButtons') ;CLEANUP_OK", requestId);
-            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container ID: transcript-content-container ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] Container ID: content-transcript-container ;CLEANUP_OK", requestId);
             Logger.LogInformation("[WORKITEM:hcp-timer-v2] [{RequestId}] Canvas Type: {CanvasType} (buttons will be injected only for 'transcript') ;CLEANUP_OK", requestId, selectedCanvasType);
             
-            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "transcript-content-container", dotNetRef, selectedCanvasType);
+            var injectionResult = await JSRuntime.InvokeAsync<JsonElement>("TranscriptSectionParser.injectShareButtons", "content-transcript-container", dotNetRef, selectedCanvasType);
             
             Logger.LogInformation("[TRACE:hcp-tcanvas:inject] [{RequestId}] JavaScript injection call returned ;CLEANUP_OK", requestId);
             

@@ -77,7 +77,7 @@ test.describe('Share Button Injection System', () => {
         await page.click('#sidebar-start-session-btn');
 
         // Wait for transcript content container to appear (session initialized)
-        await page.waitForSelector('#transcript-content-container', { timeout: 10000 });
+        await page.waitForSelector('#content-transcript-container', { timeout: 10000 });
 
         // Give time for JavaScript initialization and share button injection
         await page.waitForTimeout(2000);
@@ -86,7 +86,7 @@ test.describe('Share Button Injection System', () => {
     test('Golden section buttons are injected on H2 transcript sections', async ({ page }) => {
         // Inject test H2 sections into transcript content container
         await page.evaluate(() => {
-            const transcriptContainer = document.getElementById('transcript-content-container');
+            const transcriptContainer = document.getElementById('content-transcript-container');
             if (transcriptContainer) {
                 transcriptContainer.innerHTML = `
           <h2>Introduction Section</h2>
@@ -97,7 +97,7 @@ test.describe('Share Button Injection System', () => {
 
                 // Trigger section parser manually (call JavaScript function directly)
                 if ((window as any).TranscriptSectionParser && typeof (window as any).TranscriptSectionParser.injectShareButtons === 'function') {
-                    (window as any).TranscriptSectionParser.injectShareButtons('transcript-content-container', null, 'transcript');
+                    (window as any).TranscriptSectionParser.injectShareButtons('content-transcript-container', null, 'transcript');
                 }
             }
         });
@@ -201,13 +201,13 @@ test.describe('Share Button Injection System', () => {
     test('Golden buttons have functional click handlers', async ({ page }) => {
         // Inject test H2 sections
         await page.evaluate(() => {
-            const transcriptContainer = document.getElementById('transcript-content-container');
+            const transcriptContainer = document.getElementById('content-transcript-container');
             if (transcriptContainer) {
                 transcriptContainer.innerHTML = `<h2>Test Section</h2><p>Content</p>`;
 
                 // Manually trigger parser
                 if ((window as any).TranscriptSectionParser && typeof (window as any).TranscriptSectionParser.injectShareButtons === 'function') {
-                    (window as any).TranscriptSectionParser.injectShareButtons('transcript-content-container', null, 'transcript');
+                    (window as any).TranscriptSectionParser.injectShareButtons('content-transcript-container', null, 'transcript');
                 }
             }
         });
@@ -237,7 +237,7 @@ test.describe('Share Button Injection System', () => {
     test('Blue buttons have functional click handlers', async ({ page }) => {
         // Inject test asset with blue button
         await page.evaluate(() => {
-            const transcriptContainer = document.getElementById('transcript-content-container');
+            const transcriptContainer = document.getElementById('content-transcript-container');
             if (transcriptContainer) {
                 transcriptContainer.innerHTML = `
           <div class="action-wrapper">
