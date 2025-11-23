@@ -178,3 +178,132 @@
 [PLAYWRIGHT-LOG] 2025-11-23T09:33:21.937Z | INPUT | select#session-select | value="212"
 [PLAYWRIGHT-LOG] 2025-11-23T09:33:21.938Z | CLICK | select#session-select | select | "Select SessionLove Based ReligionNeed For Messenge"
 [PLAYWRIGHT-LOG] 2025-11-23T09:33:23.789Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T13:33:51.334Z | CLICK | select#album-select | select | "Select AlbumAsaas Al-TaveelIkhwan As-Safa (Brethre"
+[PLAYWRIGHT-LOG] 2025-11-23T13:33:52.150Z | INPUT | select#album-select | value="11"
+[PLAYWRIGHT-LOG] 2025-11-23T13:33:52.153Z | CLICK | select#album-select | select | "Select AlbumAsaas Al-TaveelIkhwan As-Safa (Brethre"
+[PLAYWRIGHT-LOG] 2025-11-23T13:45:56.949Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T13:45:58.681Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > div > button | button | "Copy"
+[PLAYWRIGHT-LOG] 2025-11-23T13:45:59.373Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T13:45:59.437Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:06.537Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "Loading Session Controls..."
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:10.851Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:12.024Z | CLICK | button#debug-action-0 > span | span | "Enter Test Data"
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:13.272Z | CLICK | html > body > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > button > span | span | "Join Waiting Room"
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:15.894Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:17.520Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:35.095Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:36.775Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-BroadcastTranscript"] | button | "" | MARKER: 20251031120000-HostControlPanel-BroadcastTranscript
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:37.095Z | NAVIGATE | https://localhost:9091/transcript/canvas/KJAHA99L
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:42.589Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:46:43.466Z | CLICK | [data-testid="transcript-container"] | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:02.218Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:03.312Z | CLICK | button#debug-action-0 > span | span | "Clean Canvas"
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:04.354Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:05.842Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > div > button | button | "Copy"
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:06.357Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:06.401Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:13.910Z | CLICK | button#debug-toggle-btn > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:14.786Z | CLICK | button#debug-action-0 > span | span | "Enter Test Data"
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:15.290Z | CLICK | html > body > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > button | button | "Join Waiting Room"
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:22.798Z | CLICK | button#reg-asset-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:24.110Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:24.340Z | NAVIGATE | https://localhost:9091/session/canvas/KJAHA99L
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:29.023Z | CLICK | [data-testid="transcript-container"] | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:47:31.949Z | CLICK | [data-testid="transcript-container"] | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T13:48:06.809Z | CLICK | [data-testid="transcript-container"] | button | ""
+[PLAYWRIGHT-LOG] 2025-11-23T17:28:18.744Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T17:28:21.017Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T17:28:21.156Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T17:28:26.015Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T17:28:26.815Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T17:41:41.196Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T17:41:42.852Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T17:41:42.956Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T17:41:48.230Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T17:41:49.468Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T17:42:07.116Z | CLICK | [data-testid="transcript-container"] | button | "Share Asset"
+[PLAYWRIGHT-LOG] 2025-11-23T18:32:11.405Z | CLICK | html > body > div > div > div > header > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:33:55.305Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:34:10.643Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:34:10.685Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:37:24.383Z | CLICK | html > body > div > div > div > header > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:50:40.066Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:50:40.377Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:50:40.409Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:50:59.479Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:50:59.783Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:50:59.866Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:03.501Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "Loading Session Controls..."
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:19.533Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:20.008Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:20.096Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:37.413Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:37.763Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:37.847Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:55.742Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:56.902Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:51:56.985Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:52:14.283Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:52:14.669Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:52:14.740Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:54:40.743Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:54:41.490Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:54:41.601Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:54:43.662Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:54:44.230Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:03.431Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:04.527Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:04.641Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:06.672Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:07.209Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:24.330Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:24.689Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:24.739Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:26.139Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:26.671Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:44.028Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:44.341Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:44.419Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:46.578Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:47.265Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:55:48.109Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "Loading Session Controls..."
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:06.969Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:07.908Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:07.987Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:10.052Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:10.618Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:30.872Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:31.137Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:31.195Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:32.717Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:56:33.267Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:38.947Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:39.271Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:39.368Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:40.916Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:41.446Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:58.699Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:59.063Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:57:59.092Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:01.150Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:01.715Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:15.139Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:16.113Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:16.158Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:18.253Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:18.798Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:37.384Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:37.878Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:37.949Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:39.993Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:40.547Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:55.435Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:55.844Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:55.901Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:57.943Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:58:58.477Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T18:59:16.097Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-23T18:59:18.126Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-23T18:59:18.194Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-23T18:59:20.326Z | CLICK | button#reg-transcript-canvas-btn > div > i | i | ""
+[PLAYWRIGHT-LOG] 2025-11-23T18:59:20.880Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | span | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession

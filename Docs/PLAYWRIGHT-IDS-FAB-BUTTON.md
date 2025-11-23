@@ -6,7 +6,7 @@
 
 ## Overview
 
-Added comprehensive `id` and `data-testid` attributes to all interactive elements in the Host Control Panel Content component to enable robust, ID-based Playwright testing. This follows KDS best practices for test automation.
+Added comprehensive `id` and `data-testid` attributes to all interactive elements in the Host Control Panel Content component to enable robust, ID-based Playwright testing. This follows CORTEX best practices for test automation.
 
 ## Why ID-Based Selectors?
 
@@ -251,9 +251,9 @@ hcp-content-main-container
     └── hcp-content-questions-empty (when no questions)
 ```
 
-## KDS Compliance
+## CORTEX Compliance
 
-This implementation follows KDS Playwright Testing Protocol:
+This implementation follows CORTEX Playwright Testing Protocol:
 
 ✅ **Component ID-Based Selectors** - All elements use unique IDs  
 ✅ **TDD Requirement** - IDs added before writing tests  
@@ -264,7 +264,7 @@ This implementation follows KDS Playwright Testing Protocol:
 
 1. ✅ IDs added to component
 2. ⏳ Create Playwright test spec file
-3. ⏳ Create PowerShell test runner script (following KDS protocol)
+3. ⏳ Create PowerShell test runner script (following CORTEX protocol)
 4. ⏳ Add Percy visual regression tests
 5. ⏳ Document in test suite
 
@@ -273,4 +273,4 @@ This implementation follows KDS Playwright Testing Protocol:
 - Component: `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`
 - Page: `SPA/NoorCanvas/Pages/HostControlPanel.razor`
 - Test Script Template: `Scripts/run-debug-panel-percy-tests.ps1` (reference)
-- KDS Reference: `KDS/prompts/user/kds.md` (Playwright Testing Protocol section)
+- CORTEX Reference: `.github/prompts/CORTEX.prompt.md` (Playwright Testing Protocol section)

@@ -1,0 +1,43 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - img "NOOR Canvas" [ref=e7]
+      - heading " HOST CONTROL PANEL" [level=1] [ref=e8]:
+        - generic [ref=e9]: 
+        - generic [ref=e10]: HOST CONTROL PANEL
+      - paragraph [ref=e11]: Manage your session with professional-grade controls
+    - text:   
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - heading "Need For Messengers" [level=3] [ref=e15]
+        - generic [ref=e16]:
+          - generic "Session elapsed time" [ref=e17]:
+            - generic [ref=e18]: 0:10
+          - generic [ref=e19]: Transcript Canvas
+        - button "Toggle questions panel" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: "?"
+          - generic "0 questions" [ref=e22]: "0"
+      - generic [ref=e23]:
+        - button "Broadcast transcript to participants" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: 
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Regular paragraph text
+          - button " Share Section" [ref=e29] [cursor=pointer]:
+            - generic [ref=e30]: 
+            - text: Share Section
+          - generic [ref=e31]:
+            - heading "Section Heading" [level=2] [ref=e32]
+            - paragraph [ref=e33]: More text content
+            - button "Share Asset" [ref=e35] [cursor=pointer]
+            - paragraph [ref=e38]: Asset content
+            - paragraph [ref=e39]: Final paragraph
+      - button " End Session" [ref=e41] [cursor=pointer]:
+        - generic [ref=e42]: 
+        - generic [ref=e43]: End Session
+  - button "" [ref=e45] [cursor=pointer]:
+    - generic [ref=e46]: 
+  - text:      
+```
