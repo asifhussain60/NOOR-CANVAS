@@ -166,3 +166,15 @@
 [PLAYWRIGHT-LOG] 2025-11-02T23:24:11.407Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
 [PLAYWRIGHT-LOG] 2025-11-02T23:28:31.934Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
 [PLAYWRIGHT-LOG] 2025-11-02T23:28:32.742Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:05.070Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:06.195Z | CLICK | button#debug-action-0 | button | "Clean Canvas"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:08.784Z | CLICK | select#album-select | select | "Select AlbumAsaas Al-TaveelIkhwan As-Safa (Brethre"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:18.201Z | INPUT | select#album-select | value="14"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:18.203Z | CLICK | select#album-select | select | "Select AlbumAsaas Al-TaveelIkhwan As-Safa (Brethre"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:19.604Z | CLICK | select#category-select | select | "Select CategorySeerah"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:20.587Z | INPUT | select#category-select | value="52"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:20.588Z | CLICK | select#category-select | select | "Select CategorySeerah"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:21.094Z | CLICK | select#session-select | select | "Select SessionLove Based ReligionNeed For Messenge"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:21.937Z | INPUT | select#session-select | value="212"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:21.938Z | CLICK | select#session-select | select | "Select SessionLove Based ReligionNeed For Messenge"
+[PLAYWRIGHT-LOG] 2025-11-23T09:33:23.789Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
