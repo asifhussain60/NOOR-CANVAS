@@ -1,8 +1,9 @@
 {
   "embedded": true,
   "parent_project": "NOOR-CANVAS",
-  "cortex_version": "{\n  \"cortex_version\": \"5.3.1\",\n  \"schema_version\": 1,\n  \"installed_date\": \"2025-11-23T00:00:00\",\n  \"last_upgrade\": \"2025-11-23T00:00:00\",\n  \"upgrade_history\": [\n    {\n      \"from_version\": \"5.3.0\",\n      \"to_version\": \"5.3.1\",\n      \"date\": \"2025-11-23T00:00:00\",\n      \"changes\": \"KDS system removal, CORTEX unification, brain system consolidation\"\n    }\n  ],\n  \"workspace_id\": \"cortex-main-repo\",\n  \"customizations\": [],\n  \"deployment_type\": \"setup\",\n  \"github_release_url\": \"https://github.com/asifhussain60/CORTEX/releases/tag/v5.3.1\"\n}",
+  "cortex_version": "3.1.1",
   "created_at": "2025-11-23T17:38:09.443223",
   "created_by": "mark_embedded.py",
+  "updated_at": "2025-11-24T08:37:20",
   "description": "CORTEX embedded in NOOR-CANVAS - Upgrade system will preserve parent project structure"
 }
