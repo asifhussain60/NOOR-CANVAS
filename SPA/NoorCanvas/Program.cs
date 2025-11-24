@@ -7,6 +7,7 @@ using NoorCanvas.Hubs;
 using NoorCanvas.Middleware;
 using NoorCanvas.Services;
 using NoorCanvas.Services.Development;
+using NoorCanvas.Services.SignalR;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +51,10 @@ builder.Services.AddServerSideBlazor(options =>
     // Previous: 180s (3 min) - too short for sessions lasting 30+ minutes
     options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(30); // 30 minutes (was 180s)
 });
+
+// Add HttpContextAccessor (required for SignalR URL resolution in HubConnectionFactory)
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -200,8 +205,13 @@ builder.Services.AddScoped<IScreenshotAnalysisService, ScreenshotAnalysisService
 // [hcp-refactor:phase2] SignalR Infrastructure - Extracted from HostControlPanel.razor
 builder.Services.AddScoped<IHubConnectionFactory, HubConnectionFactory>(); // Factory for creating SignalR connections with reconnection policy
 builder.Services.AddScoped<SignalRMiddleware>(); // Middleware for managing SignalR connections with health monitoring
+builder.Services.AddScoped<IHostSignalREventHandler, HostSignalREventHandler>(); // [REFACTOR:Phase2] SignalR event handler service for Host Control Panel
+builder.Services.AddScoped<ISessionCanvasSignalRService, SessionCanvasSignalRService>(); // [REFACTOR:Phase3] SignalR event handler service for SessionCanvas/TranscriptCanvas
 // [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcastService removed ;CLEANUP_OK
 // [DEBUG-WORKITEM:canvascleanup:impl] DatabaseMigrator removed ;CLEANUP_OK
+
+// [CORTEX-INTEGRATION] Broadcast logging service for real-time monitoring and debugging
+builder.Services.AddSingleton<NoorCanvas.Services.Logging.BroadcastLogService>(); // Centralized broadcast event logging integrated with Cortex
 
 var app = builder.Build();
 

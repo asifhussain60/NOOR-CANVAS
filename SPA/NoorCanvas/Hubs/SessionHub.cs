@@ -236,21 +236,36 @@ public class SessionHub : Hub
         var groupName = $"session_{sessionId}";
         var hubTrackingId = Guid.NewGuid().ToString("N")[..8];
 
-        _logger.LogInformation("[ASSET-SHARE-POC] Publishing content to group {GroupName}, trackingId={HubTrackingId}, contentLength={ContentLength}", 
-            groupName, hubTrackingId, contentHtml?.Length ?? 0);
+        _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] ════════════════════════════════════════", hubTrackingId);
+        _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: PublishAssetContent invoked", hubTrackingId);
+        _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: sessionId={SessionId}, groupName={GroupName}, contentLength={ContentLength}",
+            hubTrackingId, sessionId, groupName, contentHtml?.Length ?? 0);
+        _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: ConnectionId={ConnectionId}", hubTrackingId, Context.ConnectionId);
+        
+        // Log group membership info
+        var userIdentifier = Context.UserIdentifier ?? "anonymous";
+        _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: Caller UserIdentifier={UserIdentifier}", hubTrackingId, userIdentifier);
 
         try
         {
             // Simple direct broadcast - no complex wrapping, following KSESSIONS pattern
+            _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: Sending 'AssetContentReceived' to group '{GroupName}'...", 
+                hubTrackingId, groupName);
+            
             await Clients.Group(groupName).SendAsync("AssetContentReceived", contentHtml);
             
-            _logger.LogInformation("[ASSET-SHARE-POC] ✅ Content published successfully to group {GroupName}, trackingId={HubTrackingId}", 
-                groupName, hubTrackingId);
+            _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: ✅ SendAsync completed successfully", hubTrackingId);
+            _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] HUB: Broadcast sent to all connections in group {GroupName}", 
+                hubTrackingId, groupName);
+            _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] ════════════════════════════════════════", hubTrackingId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[ASSET-SHARE-POC] ❌ Failed to publish content to group {GroupName}, trackingId={HubTrackingId}", 
-                groupName, hubTrackingId);
+            _logger.LogError(ex, "[DEBUG-BROADCAST:{HubTrackingId}] HUB: ❌ EXCEPTION during SendAsync to group {GroupName}", 
+                hubTrackingId, groupName);
+            _logger.LogError("[DEBUG-BROADCAST:{HubTrackingId}] HUB: Exception type: {ExceptionType}, Message: {Message}",
+                hubTrackingId, ex.GetType().Name, ex.Message);
+            _logger.LogInformation("[DEBUG-BROADCAST:{HubTrackingId}] ════════════════════════════════════════", hubTrackingId);
             throw;
         }
     }

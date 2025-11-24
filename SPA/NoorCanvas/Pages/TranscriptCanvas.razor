@@ -21,6 +21,8 @@
 @inject NoorCanvas.Services.SessionStateService SessionStateService
 @inject NoorCanvas.Services.HtmlParsingService HtmlParsingService
 @inject NoorCanvas.Services.UnifiedHtmlTransformService HtmlTransform
+@inject NoorCanvas.Middleware.SignalRMiddleware SignalRService
+@inject NoorCanvas.Services.SignalR.ISessionCanvasSignalRService SignalREventService
 
 <PageTitle>Noor Canvas - Transcript View</PageTitle>
 
@@ -2789,10 +2791,7 @@
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ INITIALIZING SIGNALR ════════ SessionId={SessionId}, UserGuid={UserGuid} ;CLEANUP_OK",
                 Model?.SessionId ?? 0, CurrentUserGuid);
             
-            hubConnection = new HubConnectionBuilder()
-                .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
-                .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) })
-                .Build();
+            hubConnection = await SignalRService.GetOrCreateConnectionAsync("/hub/session");
 
             // SIGNALR-FIX: Log initial connection state
             Logger.LogInformation("[SIGNALR-FIX:CLIENT] SignalR connection created - Initial State: {State}", hubConnection.State);
@@ -2865,134 +2864,15 @@
                 }
             };
 
-            // Question events - Handle questions received from other participants
-            hubConnection.On<object>("QuestionReceived", async (questionData) =>
+            // Question events - Delegate to service
+            hubConnection.On<object>("QuestionReceived", async (data) =>
             {
-                Logger.LogInformation("SIGNALR-DIAG: [TC-QuestionReceived] Event fired - DiagId={DiagId}", diagId);
-                
-                if (Model?.Questions != null && questionData != null)
-                {
-                    try
-                    {
-                        // Parse the question data from SignalR
-                        var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
-                        var root = jsonDoc.RootElement;
-                        
-                        var question = new QuestionData
-                        {
-                            QuestionId = root.TryGetProperty("questionId", out var qIdProp) ? 
-                                (qIdProp.ValueKind == JsonValueKind.String ? qIdProp.GetString() ?? "" : qIdProp.GetInt32().ToString()) : "",
-                            Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : "",
-                            UserName = root.TryGetProperty("userName", out var userProp) ? userProp.GetString() ?? "Anonymous" : "Anonymous",
-                            CreatedBy = root.TryGetProperty("userId", out var userIdProp) ? userIdProp.GetString() ?? "" : "",
-                            Votes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0,
-                            CreatedAt = root.TryGetProperty("submittedAt", out var dateProp) ? dateProp.GetDateTime() : DateTime.UtcNow,
-                            IsAnswered = root.TryGetProperty("isAnswered", out var answeredProp) ? answeredProp.GetBoolean() : false,
-                            IsMyQuestion = root.TryGetProperty("userId", out var myUserIdProp) ? 
-                                (myUserIdProp.GetString() == CurrentUserGuid) : false
-                        };
-                        
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] QuestionReceived - QuestionId={QuestionId}, IncomingUserId={IncomingUserId}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK",
-                            question.QuestionId, question.CreatedBy, CurrentUserGuid, question.IsMyQuestion);
-                        
-                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ownership] QuestionReceived details - UserName={UserName}, Text={Text} ;CLEANUP_OK",
-                            question.UserName, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
-                        
-                        // Only add if not already in the list (prevent duplicates)
-                        if (!Model.Questions.Any(q => q.QuestionId == question.QuestionId))
-                        {
-                            Model.Questions.Add(question);
-                        }
-                        
-                        await InvokeAsync(StateHasChanged);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Error processing QuestionReceived event");
-                    }
-                }
+                await SignalREventService.HandleQuestionReceivedAsync(data, OnQuestionAdded);
             });
 
-            // Handle question updates
-            hubConnection.On<object>("QuestionUpdated", async (questionData) =>
+            hubConnection.On<object>("QuestionUpdated", async (data) =>
             {
-                var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 📝 QuestionUpdated SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                
-                try
-                {
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Current State BEFORE update: ;CLEANUP_OK", requestId);
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Model.Questions: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null ? "NULL" : "NOT NULL");
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - questionData: {IsNull} ;CLEANUP_OK", requestId, questionData == null ? "NULL" : "NOT NULL");
-                    
-                    if (Model?.Questions == null || questionData == null)
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ⚠️ Cannot process update - preconditions failed ;CLEANUP_OK", requestId);
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Model.Questions is NULL: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - questionData is NULL: {IsNull} ;CLEANUP_OK", requestId, questionData == null);
-                        return;
-                    }
-
-                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Payload JSON: {Json} ;CLEANUP_OK", requestId, jsonString);
-                    
-                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
-                    var root = jsonDoc.RootElement;
-                    
-                    // SignalR serializes to camelCase
-                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
-                    var newText = root.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
-                    
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - NewText: {NewText} ;CLEANUP_OK", requestId, newText?.Substring(0, Math.Min(50, newText?.Length ?? 0)) ?? "NULL");
-                    
-                    if (questionId != null)
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Searching for question in local list... ;CLEANUP_OK", requestId);
-                        
-                        var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
-                        if (question != null)
-                        {
-                            var oldText = question.Text;
-                            question.Text = newText ?? question.Text;
-                            
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ✅ QUESTION FOUND - Updating text ;CLEANUP_OK", requestId);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - OldText: {OldText} ;CLEANUP_OK", requestId, oldText?.Substring(0, Math.Min(50, oldText?.Length ?? 0)));
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - NewText: {NewText} ;CLEANUP_OK", requestId, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
-                            
-                            await InvokeAsync(StateHasChanged);
-                            
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Current State AFTER update: ;CLEANUP_OK", requestId);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ✅ SessionCanvas UI updated successfully ;CLEANUP_OK", requestId);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Question updated via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
-                        }
-                        else
-                        {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND in SessionCanvas.Questions ;CLEANUP_OK", requestId);
-                            Logger.LogDebug("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Available Question IDs: {QuestionIds} ;CLEANUP_OK", 
-                                requestId, string.Join(", ", Model.Questions.Select(q => q.QuestionId)));
-                        }
-                    }
-                    else
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ⚠️ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 💥 EXCEPTION processing QuestionUpdated: {Message} ;CLEANUP_OK", requestId, ex.Message);
-                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
-                }
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] SessionCanvas QuestionUpdated handler COMPLETE ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                await SignalREventService.HandleQuestionUpdatedAsync(data, OnQuestionUpdated);
             });
 
             hubConnection.On<string, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
@@ -3027,78 +2907,9 @@
                 }
             });
 
-            // Also handle QuestionVoteUpdate (without "d") event from API
-            hubConnection.On<object>("QuestionVoteUpdate", async (voteData) =>
+            hubConnection.On<object>("QuestionVoteUpdate", async (data) =>
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ SIGNALR RECEIVED QuestionVoteUpdate ════════ ;CLEANUP_OK");
-                
-                try
-                {
-                    var jsonString = System.Text.Json.JsonSerializer.Serialize(voteData);
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR payload: {Payload} ;CLEANUP_OK", jsonString);
-                    
-                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
-                    var root = jsonDoc.RootElement;
-                    
-                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
-                    var votes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0;
-                    
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Parsed - QuestionId={QuestionId}, NewVotes={Votes} ;CLEANUP_OK", 
-                        questionId, votes);
-                    
-                    Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] QuestionVoteUpdate received - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
-                        questionId, votes);
-                    
-                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR QuestionVoteUpdate (API format) - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
-                        questionId, votes);
-                    
-                    if (Model?.Questions != null && questionId != null)
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Searching for question in Model.Questions, Total={Total} ;CLEANUP_OK", 
-                            Model.Questions.Count);
-                        
-                        var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
-                        if (question != null)
-                        {
-                            var oldVotes = question.Votes;
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] UPDATING VOTE COUNT - QuestionId={QuestionId}, OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
-                                questionId, oldVotes, votes);
-                            
-                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote count UPDATE (API format) - QuestionId={QuestionId}, OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
-                                questionId, question.Votes, votes);
-                            
-                            question.Votes = votes;
-                            
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Calling StateHasChanged to refresh UI ;CLEANUP_OK");
-                            await InvokeAsync(StateHasChanged);
-                            
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ UI UPDATED - Question {QuestionId} now shows {Votes} votes ;CLEANUP_OK", 
-                                questionId, votes);
-                            
-                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] UI refreshed with new vote count (API format) - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
-                                questionId, votes);
-                        }
-                        else
-                        {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] ❌ QUESTION NOT FOUND in Model.Questions - QuestionId={QuestionId}, TotalQuestions={Total} ;CLEANUP_OK", 
-                                questionId, Model.Questions.Count);
-                            
-                            // Log all question IDs for debugging
-                            var allIds = string.Join(", ", Model.Questions.Select(q => q.QuestionId.Substring(0, 8)));
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] Available QuestionIds: {Ids} ;CLEANUP_OK", allIds);
-                        }
-                    }
-                    else
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] ❌ Model.Questions is null or QuestionId is null - Questions={QuestionsNull}, QuestionId={QuestionId} ;CLEANUP_OK", 
-                            Model?.Questions == null, questionId ?? "NULL");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:upvote] ❌ EXCEPTION in SignalR handler: {Message} ;CLEANUP_OK", ex.Message);
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:signalr] Error processing QuestionVoteUpdate: {Message} ;CLEANUP_OK", ex.Message);
-                }
+                await SignalREventService.HandleVoteUpdateAsync(data, OnVoteUpdated);
             });
 
             // [FIX-ISSUE-2] Handle question being marked as answered by host
@@ -3186,124 +2997,9 @@
                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
             });
 
-            // Handle question deletion
-            hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
+            hubConnection.On<object>("QuestionDeleted", async (data) =>
             {
-                var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🗑️ QuestionDeleted SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State BEFORE deletion: ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Model.Questions: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null ? "NULL" : "NOT NULL");
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - deleteData: {IsNull} ;CLEANUP_OK", requestId, deleteData == null ? "NULL" : "NOT NULL");
-                
-                if (Model?.Questions != null && deleteData != null)
-                {
-                    try
-                    {
-                        var jsonString = System.Text.Json.JsonSerializer.Serialize(deleteData);
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Payload JSON: {Json} ;CLEANUP_OK", requestId, jsonString);
-                        
-                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
-                        var root = jsonDoc.RootElement;
-                        
-                        // SignalR serializes to camelCase, so use "questionId" not "QuestionId"
-                        var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
-                        var sessionId = root.TryGetProperty("sessionId", out var sIdProp) ? sIdProp.GetInt32() : 0;
-                        var originalAskerGuid = root.TryGetProperty("originalAskerGuid", out var askerProp) ? askerProp.GetString() : null;  // [FIX-ISSUE-3] Extract for toast targeting
-                        var deletedBy = root.TryGetProperty("deletedBy", out var deletedByProp) ? deletedByProp.GetString() : null;  // [FIX-ISSUE-3] Determine who deleted it
-                        
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, sessionId);
-                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - OriginalAskerGuid: {AskerGuid} ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
-                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - DeletedBy: {DeletedBy} ;CLEANUP_OK", requestId, deletedBy ?? "NULL");
-                        
-                        if (questionId != null)
-                        {
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Searching for question in local list... ;CLEANUP_OK", requestId);
-                            
-                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
-                            if (question != null)
-                            {
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ QUESTION FOUND - Removing from UI ;CLEANUP_OK", requestId);
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question Text: '{Text}' ;CLEANUP_OK", requestId, question.Text);
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question User: '{UserName}' ;CLEANUP_OK", requestId, question.UserName);
-                                
-                                Model.Questions.Remove(question);
-                                
-                                // [FIX-ISSUE-3] Show toast if THIS user asked the question that was deleted by host
-                                if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
-                                {
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] 🎯 THIS USER asked the question that was deleted - showing info toast ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionDeleted) ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
-                                    
-                                    try
-                                    {
-                                        await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                                            "The host has removed your question. It may be addressed differently or outside this Q&A session.", 
-                                            "Question Removed", 
-                                            "info");
-                                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
-                                    }
-                                    catch (Exception toastEx)
-                                    {
-                                        Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
-                                    }
-                                    
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                                }
-                                else
-                                {
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionDeleted) ;CLEANUP_OK", requestId);
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
-                                }
-                                
-                                await InvokeAsync(StateHasChanged);
-                                
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ SessionCanvas UI updated successfully ;CLEANUP_OK", requestId);
-                            }
-                            else
-                            {
-                                Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND in SessionCanvas.Questions ;CLEANUP_OK", requestId);
-                                Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Available QuestionIds: {QuestionIds} ;CLEANUP_OK", 
-                                    requestId, string.Join(", ", Model.Questions.Select(q => q.QuestionId)));
-                            }
-                        }
-                        else
-                        {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION processing QuestionDeleted: {Message} ;CLEANUP_OK", requestId, ex.Message);
-                        Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
-                    }
-                }
-                else
-                {
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Cannot process delete - preconditions failed ;CLEANUP_OK", requestId);
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Model.Questions is NULL: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - deleteData is NULL: {IsNull} ;CLEANUP_OK", requestId, deleteData == null);
-                }
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] SessionCanvas QuestionDeleted handler COMPLETE ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                await SignalREventService.HandleQuestionDeletedAsync(data, OnQuestionDeleted);
             });
 
             // Participant events
@@ -3336,118 +3032,21 @@
                 }
             });
 
-            // Note: Using AssetContentReceived for KSESSIONS pattern consistency
-            // AssetShared handler added for question broadcasting from HostControlPanel
-
-            // [DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] Handle question assets shared from HostControlPanel ;CLEANUP_OK
-            hubConnection.On<object>("AssetShared", async (assetPayload) =>
-            {
-                var trackingId = Guid.NewGuid().ToString("N")[..8];
-                var receiveTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                
-                try
-                {
-                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION START ════════ ;CLEANUP_OK", trackingId);
-                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] AssetShared event received at {ReceiveTime}ms ;CLEANUP_OK", 
-                        trackingId, receiveTime);
-                    
-                    var json = System.Text.Json.JsonSerializer.Serialize(assetPayload);
-                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Payload JSON length: {Length} chars ;CLEANUP_OK", 
-                        trackingId, json?.Length ?? 0);
-                    
-                    if (string.IsNullOrEmpty(json))
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ JSON serialization resulted in null/empty ;CLEANUP_OK", trackingId);
-                        return;
-                    }
-                    
-                    using var doc = System.Text.Json.JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    
-                    // Extract asset data from the broadcast payload
-                    if (root.TryGetProperty("asset", out var assetElement))
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Asset element found in payload ;CLEANUP_OK", trackingId);
-                        
-                        if (assetElement.TryGetProperty("htmlContent", out var htmlElement))
-                        {
-                            var htmlContent = htmlElement.GetString();
-                            var assetType = assetElement.TryGetProperty("assetType", out var typeElement) 
-                                ? typeElement.GetString() 
-                                : "unknown";
-                            var shareId = assetElement.TryGetProperty("shareId", out var idElement) 
-                                ? idElement.GetString() 
-                                : "unknown";
-                            
-                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Extracted asset - Type: {AssetType}, ShareId: {ShareId}, HTML length: {Length} chars ;CLEANUP_OK", 
-                                trackingId, assetType, shareId, htmlContent?.Length ?? 0);
-                            
-                            if (!string.IsNullOrEmpty(htmlContent) && Model != null)
-                            {
-                                // Display the question asset in the canvas content area
-                                Model.SharedAssetContent = htmlContent;
-                                await InvokeAsync(StateHasChanged);
-                                
-                                var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ✅ Question asset displayed at {DisplayTime}ms (latency: {Latency}ms) ;CLEANUP_OK", 
-                                    trackingId, displayTime, displayTime - receiveTime);
-                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION COMPLETE ════════ ;CLEANUP_OK", trackingId);
-                            }
-                            else
-                            {
-                                Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ Cannot display - htmlContent empty or Model null ;CLEANUP_OK", trackingId);
-                            }
-                        }
-                        else
-                        {
-                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No htmlContent property in asset element ;CLEANUP_OK", trackingId);
-                        }
-                    }
-                    else
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No asset property in broadcast payload ;CLEANUP_OK", trackingId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ❌ Error processing AssetShared event: {Message} ;CLEANUP_OK", 
-                        trackingId, ex.Message);
-                }
-            });
-
-            // POC: Simple asset content reception - KSESSIONS-style approach
+            // NEW: AssetContentReceived from PublishAssetContent (KSESSIONS pattern)
+            // Delegated to SignalREventService for consistency with other event handlers
+            Logger.LogInformation("[DEBUG-BROADCAST] TRANSCRIPTCANVAS: Registering AssetContentReceived handler");
             hubConnection.On<string>("AssetContentReceived", async (htmlContent) =>
             {
-                var trackingId = Guid.NewGuid().ToString("N")[..8];
-                var receiveTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                var eventId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] ════════════════════════════════════════", eventId);
+                Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] TRANSCRIPTCANVAS: AssetContentReceived EVENT FIRED", eventId);
+                Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] TRANSCRIPTCANVAS: htmlContent length={Length}", eventId, htmlContent?.Length ?? 0);
+                Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] TRANSCRIPTCANVAS: Calling SignalREventService.HandleAssetContentReceivedAsync...", eventId);
                 
-                try
-                {
-                    Logger.LogInformation("[DOM-TIMING] AssetContentReceived at {ReceiveTime}ms, trackingId={TrackingId}", 
-                        receiveTime, trackingId);
-                    Logger.LogInformation("[ASSET-SHARE-POC] Content received, length={Length}, trackingId={TrackingId}", 
-                        htmlContent?.Length ?? 0, trackingId);
-                    
-                    if (!string.IsNullOrEmpty(htmlContent) && Model != null)
-                    {
-                        // Direct assignment - no complex parsing, following KSESSIONS pattern
-                        Model.SharedAssetContent = htmlContent;
-                        await InvokeAsync(StateHasChanged);
-                        
-                        var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                        Logger.LogInformation("[DOM-TIMING] Content displayed at {DisplayTime}ms, trackingId={TrackingId}", 
-                            displayTime, trackingId);
-                        Logger.LogInformation("[ASSET-SHARE-POC] ✅ Content displayed successfully, trackingId={TrackingId}", trackingId);
-                    }
-                    else
-                    {
-                        Logger.LogWarning("[ASSET-SHARE-POC] ⚠️ No content or model null, trackingId={TrackingId}", trackingId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[ASSET-SHARE-POC] ❌ Error displaying content, trackingId={TrackingId}", trackingId);
-                }
+                await SignalREventService.HandleAssetContentReceivedAsync(htmlContent, OnAssetShared);
+                
+                Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] TRANSCRIPTCANVAS: ✅ Handler completed", eventId);
+                Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] ════════════════════════════════════════", eventId);
             });
 
             // HTML content broadcasting events (using working SimpleSignalRTest pattern)
@@ -3634,36 +3233,9 @@
                 }
             });
 
-            // [DEBUG-WORKITEM:session-ended:hub] Listen for session ended events ;CLEANUP_OK
-            hubConnection.On<object>("SessionEnded", async (endData) =>
+            hubConnection.On<object>("SessionEnded", async (data) =>
             {
-                Logger.LogInformation("SIGNALR-DIAG: [TC-SessionEnded] Event fired - DiagId={DiagId}", diagId);
-                try
-                {
-                    Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] SessionEnded event received ;CLEANUP_OK");
-                    
-                    var json = System.Text.Json.JsonSerializer.Serialize(endData);
-                    using var doc = System.Text.Json.JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    
-                    int sessionId = 0;
-                    if (root.TryGetProperty("sessionId", out var sessionIdElement))
-                    {
-                        sessionId = sessionIdElement.GetInt32();
-                    }
-                    
-                    Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] Session {SessionId} has ended, redirecting to SessionEnded page ;CLEANUP_OK", sessionId);
-                    
-                    // [DEBUG-WORKITEM:prod-issues:url-fix] No hardcoded URLs - using relative navigation
-                    await InvokeAsync(() =>
-                    {
-                        Navigation.NavigateTo($"/session/ended/{sessionId}", forceLoad: true);
-                    });
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:session-ended:redirect] Error processing SessionEnded event ;CLEANUP_OK");
-                }
+                await SignalREventService.HandleSessionEndedAsync(data, OnSessionEnded);
             });
 
             // [DIAGNOSTIC:hcp-annotate:receiver] Handle annotation broadcasts from host ;CLEANUP_OK
@@ -3714,21 +3286,17 @@
                 }
             });
 
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
-            Logger.LogInformation("SIGNALR-DIAG: [TC-InitializeSignalRAsync] Starting connection - DiagId={DiagId}", diagId);
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 SignalR connection ready...");
+            Logger.LogInformation("SIGNALR-DIAG: [TC-InitializeSignalRAsync] Connection obtained from middleware - DiagId={DiagId}", diagId);
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Handlers registered: QuestionReceived, QuestionUpdated, QuestionVoteUpdated, QuestionVoteUpdate, QuestionDeleted, ParticipantJoined, ParticipantLeft, SessionEnded ;CLEANUP_OK");
             
-            // SIGNALR-FIX: Enhanced connection start logging
-            Logger.LogInformation("[SIGNALR-FIX:CLIENT] Starting SignalR connection - SessionId: {SessionId}", Model?.SessionId ?? 0);
-            await hubConnection.StartAsync();
+            // Connection already started by SignalRMiddleware
             lastConnectionTime = DateTime.UtcNow;
             
-            // SIGNALR-FIX: Enhanced connected logging with timestamp
-            Logger.LogInformation("[SIGNALR-FIX:CLIENT] ✅ SignalR connection STARTED - State: {State}, ConnectionId: {ConnectionId}, SessionId: {SessionId}",
+            Logger.LogInformation("[SIGNALR-FIX:CLIENT] ✅ SignalR connection READY - State: {State}, ConnectionId: {ConnectionId}, SessionId: {SessionId}",
                 hubConnection.State, hubConnection.ConnectionId ?? "null", Model?.SessionId ?? 0);
-            Logger.LogInformation("SIGNALR-DIAG: [TC-InitializeSignalRAsync] Connection established - ConnectionId={ConnectionId}, State={State}, DiagId={DiagId}",
+            Logger.LogInformation("SIGNALR-DIAG: [TC-InitializeSignalRAsync] Connection active - ConnectionId={ConnectionId}, State={State}, DiagId={DiagId}",
                 hubConnection.ConnectionId, hubConnection.State, diagId);
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ SIGNALR CONNECTED - State={State}, ConnectionId={ConnectionId} ;CLEANUP_OK", 
@@ -3788,6 +3356,94 @@
             // Trigger UI update to show disconnected status with retry button
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    // [REFACTOR:Phase3] SignalR Event Callbacks - Adapted from service
+    private async Task OnQuestionAdded(NoorCanvas.Pages.SessionCanvas.QuestionData serviceQuestion)
+    {
+        // Convert from service type to local type
+        var question = new QuestionData
+        {
+            QuestionId = serviceQuestion.QuestionId,
+            Text = serviceQuestion.Text,
+            UserName = serviceQuestion.UserName,
+            CreatedBy = serviceQuestion.CreatedBy,
+            Votes = serviceQuestion.Votes,
+            CreatedAt = serviceQuestion.CreatedAt,
+            IsAnswered = serviceQuestion.IsAnswered,
+            IsMyQuestion = serviceQuestion.CreatedBy == CurrentUserGuid
+        };
+        
+        if (Model?.Questions != null && !Model.Questions.Any(q => q.QuestionId == question.QuestionId))
+        {
+            Model.Questions.Add(question);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnQuestionUpdated(NoorCanvas.Pages.SessionCanvas.QuestionData serviceQuestion)
+    {
+        if (Model?.Questions != null)
+        {
+            var question = Model.Questions.FirstOrDefault(q => q.QuestionId == serviceQuestion.QuestionId);
+            if (question != null)
+            {
+                question.Text = serviceQuestion.Text;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private async Task OnVoteUpdated(string questionId, int newVoteCount)
+    {
+        if (Model?.Questions != null)
+        {
+            var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+            if (question != null)
+            {
+                question.Votes = newVoteCount;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private async Task OnQuestionDeleted(string questionId, string? originalAskerGuid)
+    {
+        if (Model?.Questions != null)
+        {
+            var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+            if (question != null)
+            {
+                Model.Questions.Remove(question);
+                await InvokeAsync(StateHasChanged);
+                
+                if (originalAskerGuid == CurrentUserGuid)
+                {
+                    await JSRuntime.InvokeVoidAsync("showToast", "Question Removed", "Your question was removed from the session.");
+                }
+            }
+        }
+    }
+
+    private async Task OnAssetShared(string htmlContent)
+    {
+        Model.SharedAssetContent = htmlContent;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnTranscriptUpdated(string transcript)
+    {
+        // TranscriptCanvas-specific: Update shared asset content for transcript display
+        if (Model != null)
+        {
+            Model.SharedAssetContent = transcript;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnSessionEnded(int sessionId)
+    {
+        Navigation.NavigateTo($"/session/ended/{sessionId}");
     }
 
     private async Task LoadPersistedSessionStateAsync(string requestId)

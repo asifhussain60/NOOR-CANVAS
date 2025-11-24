@@ -12,6 +12,7 @@
 @using NoorCanvas.Middleware
 @using NoorCanvas.Services
 @using NoorCanvas.Services.Security
+@using NoorCanvas.Services.SignalR
 @using NoorCanvas.ViewModels
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
@@ -27,6 +28,7 @@
 @inject IAssetSharingService AssetSharing
 @inject IQuestionManagementService QuestionManagement
 @inject SignalRMiddleware SignalRService
+@inject IHostSignalREventHandler SignalREventHandler
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
@@ -305,12 +307,17 @@ else
 
             Logger.LogInformation("SIGNALR-DIAG: [HCP-InitializeSignalRAsync] Connection established, registering event handlers via middleware - DiagId={DiagId}", diagId);
 
-            // [hcp-refactor:phase1] Register event handlers via SignalRMiddleware (extracted to named methods)
-            SignalRService.RegisterHandler<object>("QuestionReceived", HandleQuestionReceivedAsync);
-            SignalRService.RegisterHandler<string>("TranscriptUpdated", HandleTranscriptUpdatedAsync);
-            SignalRService.RegisterHandler<string, int>("VoteUpdateReceived", HandleVoteUpdateReceivedAsync);
-            SignalRService.RegisterHandler<object>("HostQuestionUpdated", HandleHostQuestionUpdatedAsync);
-            SignalRService.RegisterHandler<object>("HostQuestionDeleted", HandleHostQuestionDeletedAsync);
+            // [hcp-refactor:phase2] Register event handlers via service layer with callback pattern
+            SignalRService.RegisterHandler<object>("QuestionReceived", 
+                async data => await SignalREventHandler.HandleQuestionReceivedAsync(data, OnQuestionAdded));
+            SignalRService.RegisterHandler<string>("TranscriptUpdated", 
+                async transcript => await SignalREventHandler.HandleTranscriptUpdatedAsync(transcript, OnTranscriptUpdated));
+            SignalRService.RegisterHandler<string, int>("VoteUpdateReceived", 
+                async (text, count) => await SignalREventHandler.HandleVoteUpdateReceivedAsync(text, count, OnVoteUpdated));
+            SignalRService.RegisterHandler<object>("HostQuestionUpdated", 
+                async data => await SignalREventHandler.HandleHostQuestionUpdatedAsync(data, OnQuestionUpdated));
+            SignalRService.RegisterHandler<object>("HostQuestionDeleted", 
+                async data => await SignalREventHandler.HandleHostQuestionDeletedAsync(data, OnQuestionDeleted));
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 🔗 SignalR connection managed by middleware - ConnectionId={ConnectionId}, State={State}", 
                 hubConnection.ConnectionId, hubConnection.State);
@@ -330,9 +337,72 @@ else
         }
     }
 
+    // [hcp-refactor:phase2] SignalR Event Handler Callbacks (Service Delegation Pattern)
+    // Purpose: Component owns state, service handles business logic
+    // These callbacks are invoked by IHostSignalREventHandler after processing SignalR events
+    
+    private async Task OnQuestionAdded(QuestionItem question)
+    {
+        if (Model?.Questions == null) return;
+        
+        // Check for duplicates before adding
+        if (!Model.Questions.Any(q => q.Id == question.Id))
+        {
+            Model.Questions.Add(question);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task OnTranscriptUpdated(string transcript)
+    {
+        if (Model != null)
+        {
+            Model.SessionTranscript = transcript;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task OnVoteUpdated(string questionText, int voteCount)
+    {
+        if (Model?.Questions == null) return;
+        
+        var question = Model.Questions.FirstOrDefault(q => q.Text == questionText);
+        if (question != null)
+        {
+            question.VoteCount = voteCount;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task OnQuestionUpdated(QuestionItem updatedQuestion)
+    {
+        if (Model?.Questions == null) return;
+        
+        var existingQuestion = Model.Questions.FirstOrDefault(q => q.Id == updatedQuestion.Id);
+        if (existingQuestion != null)
+        {
+            existingQuestion.Text = updatedQuestion.Text;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task OnQuestionDeleted(Guid questionId)
+    {
+        if (Model?.Questions == null) return;
+        
+        var questionToRemove = Model.Questions.FirstOrDefault(q => q.Id == questionId);
+        if (questionToRemove != null)
+        {
+            Model.Questions.Remove(questionToRemove);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
     // [hcp-refactor:phase1] Extracted SignalR Event Handlers (from inline registrations)
     // Purpose: Testability, maintainability, separation of concerns
 
+    // [hcp-refactor:phase2] OBSOLETE: Replaced by IHostSignalREventHandler service + OnQuestionAdded callback
+    [Obsolete("Use IHostSignalREventHandler.HandleQuestionReceivedAsync with OnQuestionAdded callback instead")]
     private async Task HandleQuestionReceivedAsync(object questionData)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
@@ -447,6 +517,8 @@ else
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
     }
 
+    // [hcp-refactor:phase2] OBSOLETE: Replaced by IHostSignalREventHandler service + OnTranscriptUpdated callback
+    [Obsolete("Use IHostSignalREventHandler.HandleTranscriptUpdatedAsync with OnTranscriptUpdated callback instead")]
     private async Task HandleTranscriptUpdatedAsync(string transcript)
     {
         Logger.LogInformation("SIGNALR-DIAG: [HCP-TranscriptUpdated] Event fired - TranscriptLength={Length}",
@@ -461,6 +533,8 @@ else
         }
     }
 
+    // [hcp-refactor:phase2] OBSOLETE: Replaced by IHostSignalREventHandler service + OnVoteUpdated callback
+    [Obsolete("Use IHostSignalREventHandler.HandleVoteUpdateReceivedAsync with OnVoteUpdated callback instead")]
     private async Task HandleVoteUpdateReceivedAsync(string questionText, int voteCount)
     {
         Logger.LogInformation("SIGNALR-DIAG: [HCP-VoteUpdateReceived] Event fired - QuestionText={Text}, VoteCount={Count}",
@@ -484,6 +558,8 @@ else
     // [hcp-refactor:phase1] Additional handlers follow pattern above
     // Full handler extraction continues with HostQuestionUpdated, HostQuestionDeleted, etc.
 
+    // [hcp-refactor:phase2] OBSOLETE: Replaced by IHostSignalREventHandler service + OnQuestionUpdated callback
+    [Obsolete("Use IHostSignalREventHandler.HandleHostQuestionUpdatedAsync with OnQuestionUpdated callback instead")]
     private async Task HandleHostQuestionUpdatedAsync(object questionData)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
@@ -570,6 +646,8 @@ else
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
     }
 
+    // [hcp-refactor:phase2] OBSOLETE: Replaced by IHostSignalREventHandler service + OnQuestionDeleted callback
+    [Obsolete("Use IHostSignalREventHandler.HandleHostQuestionDeletedAsync with OnQuestionDeleted callback instead")]
     private async Task HandleHostQuestionDeletedAsync(object deleteData)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
@@ -1660,6 +1738,14 @@ else
             return;
         }
 
+        // [DEBUG-BROADCAST] Entry point for asset sharing
+        var broadcastId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-BROADCAST:{BroadcastId}] ════════════════════════════════════════", broadcastId);
+        Logger.LogInformation("[DEBUG-BROADCAST:{BroadcastId}] HOST: ShareAsset called", broadcastId);
+        Logger.LogInformation("[DEBUG-BROADCAST:{BroadcastId}] HOST: SessionId={SessionId}, shareId={ShareId}, assetType={AssetType}, instance={Instance}",
+            broadcastId, SessionId.Value, shareId, assetType, instanceNumber);
+        Logger.LogInformation("[DEBUG-BROADCAST:{BroadcastId}] HOST: HubConnection.State={State}", broadcastId, hubConnection.State);
+
         // Delegate to AssetSharingService
         var success = await AssetSharing.ShareAssetAsync(
             SessionId.Value,
@@ -1668,6 +1754,9 @@ else
             instanceNumber,
             Model?.SessionTranscript ?? string.Empty,
             hubConnection);
+
+        Logger.LogInformation("[DEBUG-BROADCAST:{BroadcastId}] HOST: ShareAssetAsync returned success={Success}", broadcastId, success);
+        Logger.LogInformation("[DEBUG-BROADCAST:{BroadcastId}] ════════════════════════════════════════", broadcastId);
 
         if (!success)
         {

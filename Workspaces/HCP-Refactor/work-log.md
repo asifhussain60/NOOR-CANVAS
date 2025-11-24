@@ -28,6 +28,122 @@
 
 ## Session History
 
+### Session 4: Phase 3 Complete - SessionCanvas & TranscriptCanvas Service Migration (November 24, 2025)
+
+**Branch:** `development`  
+**Status:** ✅ COMPLETE  
+**Agent:** GitHub Copilot
+
+**Objective:**
+Complete SignalR service pattern migration for SessionCanvas and TranscriptCanvas, eliminating ~1,200 lines of duplicated SignalR handler code.
+
+**Context:**
+Following Phase 1 (HostControlPanel - IHostSignalREventHandler) and Phase 2 (preparation), Phase 3 focused on migrating the two largest canvas components to use centralized service pattern with JSON parsing.
+
+**Work Performed:**
+
+1. **ISessionCanvasSignalRService Interface (7 methods):**
+   - `HandleQuestionReceivedAsync(object data, Func<QuestionData, Task>?)`
+   - `HandleQuestionUpdatedAsync(object data, Func<QuestionData, Task>?)`
+   - `HandleQuestionDeletedAsync(object data, Func<string, string?, Task>?)`
+   - `HandleVoteUpdateAsync(object data, Func<string, int, Task>?)`
+   - `HandleAssetSharedAsync(object data, Func<string, Task>?)`
+   - `HandleTranscriptUpdatedAsync(object data, Func<string, Task>?)`
+   - `HandleSessionEndedAsync(object data, Func<int, Task>?)`
+   - All methods accept `object data` for JSON flexibility
+
+2. **SessionCanvasSignalRService Implementation (336 lines):**
+   - JSON parsing with `JsonDocument` and `JsonSerializer`
+   - Flexible type handling (string/int for IDs, nested properties)
+   - SignalREventContext for standardized logging
+   - Null-safe property extraction with defaults
+
+3. **SessionCanvas.razor Migration:**
+   - Added `@inject SignalRMiddleware` and `@inject ISessionCanvasSignalRService`
+   - Created 7 callback methods (OnQuestionAdded, OnQuestionUpdated, etc.)
+   - Replaced HubConnectionBuilder with `SignalRMiddleware.GetOrCreateConnectionAsync("/hub/session")`
+   - Delegated 6 handlers to service
+   - Kept 7 handlers inline (UI-specific: toasts, participant management, legacy logging)
+   - **Reduction:** 3,740 lines (from 4,056) = **-316 lines (7.8%)**
+
+4. **TranscriptCanvas.razor Migration:**
+   - Same injection pattern as SessionCanvas
+   - Created 7 callback methods with **type adapters** (SessionCanvas.QuestionData → TranscriptCanvas.QuestionData)
+   - Replaced HubConnectionBuilder with SignalRMiddleware
+   - Delegated 6 handlers to service
+   - Kept 8 handlers inline (transcript-specific: TranscriptShared, ReceiveTranscriptSection, AnnotationCreated)
+   - Fixed broken QuestionAnswered handler (leftover from incomplete edit)
+   - **Reduction:** 3,982 lines (from ~4,871) = **-889 lines (18.2%)**
+
+5. **Test Infrastructure Updated:**
+   - Fixed SessionCanvasSignalRServiceTests.cs (12 tests) - updated signatures to match `object data` parameters
+   - All 12 SessionCanvas tests ✅ PASSING
+   - All 21 HostSignalREventHandler tests ✅ PASSING
+   - **Total: 33 unit tests passing**
+
+**Architecture Patterns:**
+
+**Service Pattern:**
+```csharp
+// Service accepts object data, parses JSON, invokes callback
+await SignalREventService.HandleQuestionReceivedAsync(data, OnQuestionAdded);
+```
+
+**Type Adapter Pattern (TranscriptCanvas):**
+```csharp
+private async Task OnQuestionAdded(SessionCanvas.QuestionData serviceQuestion)
+{
+    // Convert service type to local nested class type
+    var question = new QuestionData 
+    { 
+        QuestionId = serviceQuestion.QuestionId,
+        Text = serviceQuestion.Text,
+        // ... map remaining properties
+    };
+    Model.Questions.Add(question);
+    await InvokeAsync(StateHasChanged);
+}
+```
+
+**Metrics:**
+- **SessionCanvas:** -316 lines (7.8% reduction)
+- **TranscriptCanvas:** -889 lines (18.2% reduction)
+- **Service Implementation:** +336 lines
+- **Net Codebase Reduction:** ~869 lines eliminated
+- **Unit Tests:** 33 passing (12 SessionCanvas + 21 HostSignalREventHandler)
+- **Build Status:** ✅ Clean build (19 warnings - pre-existing StyleCop/nullability)
+
+**Files Modified:**
+- `Services/SignalR/ISessionCanvasSignalRService.cs` (created)
+- `Services/SignalR/SessionCanvasSignalRService.cs` (created, 336 lines)
+- `Pages/SessionCanvas.razor` (migrated, 3,740 lines)
+- `Pages/TranscriptCanvas.razor` (migrated, 3,982 lines)
+- `Tests/Unit/Services/SignalR/SessionCanvasSignalRServiceTests.cs` (updated, 12 tests passing)
+
+**Current State:**
+- ✅ Phase 1: HostControlPanel (IHostSignalREventHandler pattern, 21 tests passing)
+- ✅ Phase 2: Preparation (Constants, DTOs, JavaScript, 53 Playwright tests passing)
+- ✅ Phase 3: SessionCanvas & TranscriptCanvas (ISessionCanvasSignalRService pattern, 12 tests passing)
+- ✅ Original 3-phase migration plan **COMPLETE**
+
+**Next Phase Recommendation:**
+Phase 4: Consolidation & Verification
+- Run Playwright E2E tests for SignalR flows
+- Performance validation
+- Documentation updates
+- Code cleanup (remove commented code, verify DI)
+
+**Work Duration:** ~2 hours (service creation, component migration, test fixes, verification)
+
+**Key Insights:**
+- Service layer accepting raw `object` data provides flexibility for SignalR's dynamic typing
+- Type adapters necessary when service interfaces reference component-specific nested types (SessionCanvas.QuestionData incompatible with TranscriptCanvas.QuestionData)
+- Incomplete edits during refactoring can leave broken handlers - always verify complete removal
+- JSON parsing with fallbacks (string/int IDs, nested properties) handles SignalR payload variations
+- Build succeeds ≠ tests pass - always verify unit tests after interface changes
+
+---
+
 ### Session 3: Cherry-Pick Revert - Restore Working Broadcast (October 30, 2025)
 
 **Branch:** `features/fab-button`  
