@@ -1,4 +1,4 @@
 const path = require('path');
 
-// Re-export the canonical repository-root Playwright configuration.
-module.exports = require(path.resolve(__dirname, '..', '..', 'playwright.config.js'));
+// Re-export the canonical Playwright configuration from config/testing/
+module.exports = require(path.resolve(__dirname, '..', '..', 'config', 'testing', 'playwright.config.cjs'));
