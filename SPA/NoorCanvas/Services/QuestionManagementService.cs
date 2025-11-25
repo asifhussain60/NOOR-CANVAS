@@ -5,14 +5,39 @@ using NoorCanvas.ViewModels;
 namespace NoorCanvas.Services;
 
 /// <summary>
-/// [PHASE-6:hcp] Service for managing question operations in Host Control Panel
-/// Extracted from HostControlPanel.razor to separate business logic from UI layer
-/// Handles question loading, sharing, deletion, and HTML formatting
+/// [REFACTOR:Week2] Service for managing question operations across Host Control Panel and Canvas components
+/// Consolidates Q&A API calls to eliminate ~400 duplicate lines
+/// Extracted from HostControlPanel.razor and SessionCanvas.razor to separate business logic from UI layer
+/// Handles question submission, updating, voting, deletion, loading, sharing, and HTML formatting
 /// </summary>
 public interface IQuestionManagementService
 {
+    // [REFACTOR:Week2] Canvas Participant Operations - SessionCanvas.razor
+    
     /// <summary>
-    /// Load questions for a session using user token
+    /// Submit new question to session
+    /// </summary>
+    Task<QuestionSubmissionResult> SubmitQuestionAsync(string sessionToken, string questionText, string userGuid);
+    
+    /// <summary>
+    /// Update existing question text
+    /// </summary>
+    Task<QuestionUpdateResult> UpdateQuestionAsync(string questionId, string sessionToken, string questionText, string userGuid);
+    
+    /// <summary>
+    /// Vote on a question (upvote)
+    /// </summary>
+    Task<QuestionVoteResult> VoteQuestionAsync(string questionId, string sessionToken, string direction, string userGuid);
+    
+    /// <summary>
+    /// Delete question from session
+    /// </summary>
+    Task<QuestionDeleteResult> DeleteQuestionAsync(string questionId, string sessionToken, string userGuid);
+    
+    // [PHASE-6:hcp] Host Control Panel Operations - HostControlPanel.razor
+    
+    /// <summary>
+    /// Load questions for a session using user token (host view)
     /// </summary>
     Task<List<QuestionItem>> LoadQuestionsAsync(string userToken);
     
@@ -22,7 +47,7 @@ public interface IQuestionManagementService
     Task ShareQuestionAsync(QuestionItem question, int sessionId, HubConnection hubConnection);
     
     /// <summary>
-    /// Delete question from database and broadcast deletion via SignalR
+    /// Delete question from database and broadcast deletion via SignalR (host operation)
     /// </summary>
     Task<bool> DeleteQuestionAsync(Guid questionId, string hostToken, string createdBy);
     
@@ -30,6 +55,50 @@ public interface IQuestionManagementService
     /// Format question into orange-themed HTML card
     /// </summary>
     string FormatQuestionHtml(QuestionItem question);
+}
+
+/// <summary>
+/// [REFACTOR:Week2] Result object for question submission
+/// </summary>
+public class QuestionSubmissionResult
+{
+    public bool Success { get; set; }
+    public System.Net.HttpStatusCode StatusCode { get; set; }
+    public string? ResponseContent { get; set; }
+    public string? ErrorMessage { get; set; }
+}
+
+/// <summary>
+/// [REFACTOR:Week2] Result object for question update
+/// </summary>
+public class QuestionUpdateResult
+{
+    public bool Success { get; set; }
+    public System.Net.HttpStatusCode StatusCode { get; set; }
+    public string? ResponseContent { get; set; }
+    public string? ErrorMessage { get; set; }
+}
+
+/// <summary>
+/// [REFACTOR:Week2] Result object for question vote
+/// </summary>
+public class QuestionVoteResult
+{
+    public bool Success { get; set; }
+    public System.Net.HttpStatusCode StatusCode { get; set; }
+    public string? ResponseContent { get; set; }
+    public string? ErrorMessage { get; set; }
+}
+
+/// <summary>
+/// [REFACTOR:Week2] Result object for question deletion
+/// </summary>
+public class QuestionDeleteResult
+{
+    public bool Success { get; set; }
+    public System.Net.HttpStatusCode StatusCode { get; set; }
+    public string? ResponseContent { get; set; }
+    public string? ErrorMessage { get; set; }
 }
 
 public class QuestionManagementService : IQuestionManagementService
@@ -44,6 +113,276 @@ public class QuestionManagementService : IQuestionManagementService
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // [REFACTOR:Week2] CANVAS PARTICIPANT OPERATIONS (SessionCanvas.razor)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// [REFACTOR:Week2] Submit new question to session
+    /// Calls POST /api/Question/Submit endpoint
+    /// Extracted from SessionCanvas.razor SubmitQuestion() method
+    /// </summary>
+    public async Task<QuestionSubmissionResult> SubmitQuestionAsync(string sessionToken, string questionText, string userGuid)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] SubmitQuestionAsync called - SessionToken={TokenPreview}, UserGuid={UserGuid}", 
+            requestId, sessionToken?.Substring(0, Math.Min(4, sessionToken?.Length ?? 0)) + "...", userGuid);
+
+        try
+        {
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                QuestionText = questionText.Trim(),
+                UserGuid = userGuid
+            };
+            
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Sending POST request to /api/Question/Submit", requestId);
+            
+            using var httpClient = _httpClientFactory.CreateClient("default");
+            var response = await httpClient.PostAsJsonAsync("/api/Question/Submit", requestPayload);
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] API response received - StatusCode: {StatusCode}", 
+                requestId, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Question submitted successfully", requestId);
+                return new QuestionSubmissionResult
+                {
+                    Success = true,
+                    StatusCode = response.StatusCode,
+                    ResponseContent = responseContent
+                };
+            }
+            else
+            {
+                _logger.LogWarning("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Question submission failed: {StatusCode} - {Error}", 
+                    requestId, response.StatusCode, responseContent);
+                return new QuestionSubmissionResult
+                {
+                    Success = false,
+                    StatusCode = response.StatusCode,
+                    ErrorMessage = responseContent
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Exception during question submission: {Message}", 
+                requestId, ex.Message);
+            return new QuestionSubmissionResult
+            {
+                Success = false,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    /// <summary>
+    /// [REFACTOR:Week2] Update existing question text
+    /// Calls POST /api/Question/{questionId}/update endpoint
+    /// Extracted from SessionCanvas.razor UpdateQuestion() method
+    /// </summary>
+    public async Task<QuestionUpdateResult> UpdateQuestionAsync(string questionId, string sessionToken, string questionText, string userGuid)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] UpdateQuestionAsync called - QuestionId={QuestionId}, UserGuid={UserGuid}", 
+            requestId, questionId, userGuid);
+
+        try
+        {
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                QuestionText = questionText.Trim(),
+                UserGuid = userGuid
+            };
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Sending UPDATE request to /api/Question/{QuestionId}/update", 
+                requestId, questionId);
+            
+            using var httpClient = _httpClientFactory.CreateClient("default");
+            var response = await httpClient.PostAsJsonAsync($"/api/Question/{questionId}/update", requestPayload);
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] API response received - StatusCode: {StatusCode}", 
+                requestId, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Question updated successfully", requestId);
+                return new QuestionUpdateResult
+                {
+                    Success = true,
+                    StatusCode = response.StatusCode,
+                    ResponseContent = responseContent
+                };
+            }
+            else
+            {
+                _logger.LogWarning("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Question update failed: {StatusCode} - {Error}", 
+                    requestId, response.StatusCode, responseContent);
+                return new QuestionUpdateResult
+                {
+                    Success = false,
+                    StatusCode = response.StatusCode,
+                    ErrorMessage = responseContent
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Exception during question update: {Message}", 
+                requestId, ex.Message);
+            return new QuestionUpdateResult
+            {
+                Success = false,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    /// <summary>
+    /// [REFACTOR:Week2] Vote on a question (upvote)
+    /// Calls POST /api/Question/{questionId}/vote endpoint
+    /// Extracted from SessionCanvas.razor VoteQuestion() method
+    /// </summary>
+    public async Task<QuestionVoteResult> VoteQuestionAsync(string questionId, string sessionToken, string direction, string userGuid)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] VoteQuestionAsync called - QuestionId={QuestionId}, Direction={Direction}, UserGuid={UserGuid}", 
+            requestId, questionId, direction, userGuid);
+
+        try
+        {
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                Direction = direction,
+                UserGuid = userGuid
+            };
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Sending vote request to /api/Question/{QuestionId}/vote", 
+                requestId, questionId);
+            
+            using var httpClient = _httpClientFactory.CreateClient("default");
+            var response = await httpClient.PostAsJsonAsync($"/api/Question/{questionId}/vote", requestPayload);
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] API response received - StatusCode: {StatusCode}", 
+                requestId, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Vote successful", requestId);
+                return new QuestionVoteResult
+                {
+                    Success = true,
+                    StatusCode = response.StatusCode,
+                    ResponseContent = responseContent
+                };
+            }
+            else
+            {
+                _logger.LogWarning("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Vote failed: {StatusCode} - {Error}", 
+                    requestId, response.StatusCode, responseContent);
+                return new QuestionVoteResult
+                {
+                    Success = false,
+                    StatusCode = response.StatusCode,
+                    ErrorMessage = responseContent
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Exception during vote: {Message}", 
+                requestId, ex.Message);
+            return new QuestionVoteResult
+            {
+                Success = false,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    /// <summary>
+    /// [REFACTOR:Week2] Delete question from session (participant operation)
+    /// Calls POST /api/Question/{questionId}/delete endpoint
+    /// Extracted from SessionCanvas.razor DeleteConfirmed() method
+    /// </summary>
+    public async Task<QuestionDeleteResult> DeleteQuestionAsync(string questionId, string sessionToken, string userGuid)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] DeleteQuestionAsync called - QuestionId={QuestionId}, UserGuid={UserGuid}", 
+            requestId, questionId, userGuid);
+
+        try
+        {
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                UserGuid = userGuid
+            };
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Sending DELETE request to /api/Question/{QuestionId}/delete", 
+                requestId, questionId);
+            
+            using var httpClient = _httpClientFactory.CreateClient("default");
+            var response = await httpClient.PostAsJsonAsync($"/api/Question/{questionId}/delete", requestPayload);
+
+            _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] API response received - StatusCode: {StatusCode}", 
+                requestId, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Question deleted successfully", requestId);
+                return new QuestionDeleteResult
+                {
+                    Success = true,
+                    StatusCode = response.StatusCode,
+                    ResponseContent = responseContent
+                };
+            }
+            else
+            {
+                _logger.LogWarning("[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Question deletion failed: {StatusCode} - {Error}", 
+                    requestId, response.StatusCode, responseContent);
+                return new QuestionDeleteResult
+                {
+                    Success = false,
+                    StatusCode = response.StatusCode,
+                    ErrorMessage = responseContent
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[REFACTOR:Week2:QuestionMgmt] [{RequestId}] Exception during question deletion: {Message}", 
+                requestId, ex.Message);
+            return new QuestionDeleteResult
+            {
+                Success = false,
+                StatusCode = System.Net.HttpStatusCode.InternalServerError,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // [PHASE-6:hcp] HOST CONTROL PANEL OPERATIONS (HostControlPanel.razor)
+    // ═══════════════════════════════════════════════════════════════════════════
 
     /// <summary>
     /// [PHASE-6:hcp] Load questions for a session using user token

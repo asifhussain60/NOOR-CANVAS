@@ -13,10 +13,12 @@
 @using NoorCanvas.Components
 @using System.Timers
 @using System.Globalization
+@using NoorCanvas.Models.DTOs
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<SessionWaiting> Logger
+@inject NoorCanvas.Services.IParticipantService ParticipantManagement
 
 <PageTitle>NoorCanvas</PageTitle>
 
@@ -1274,77 +1276,37 @@ background-color: #effff9;
         return fallbackTime;
     }
 
+    /// <summary>
+    /// [REFACTOR:Week2] Load participants - delegates to ParticipantService
+    /// SessionWaiting has unique additive logic: adds only new participants to existing list
+    /// </summary>
     private async Task LoadParticipantsAsync(string requestId)
     {
         try
         {
-            // Loading participants
-            
-            using var httpClient = HttpClientFactory.CreateClient("default");
-            var baseUri = new Uri(Navigation.BaseUri);
-            Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] LoadParticipantsAsync using base URL: {BaseUri} ;CLEANUP_OK", Navigation.BaseUri);
-            httpClient.BaseAddress = baseUri;
-            
-            var apiUrl = $"api/participant/session/{SessionToken}/participants";
-            // Making participants API call
-            
-            var response = await httpClient.GetAsync(apiUrl);
-            
-            // Participants API call completed
-            
-            if (response.IsSuccessStatusCode)
+            // [REFACTOR:Week2] Delegate to ParticipantService for SessionToken-based participant loading
+            var result = await ParticipantManagement.LoadParticipantsWithSessionTokenAsync(SessionToken, Navigation.BaseUri);
+
+            if (result.Success && result.Participants != null)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                // Participants API response received
-                
-                var participantsResponse = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(content, 
-                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                if (participantsResponse?.Participants != null)
-                {
-                    // Processing participants list
-                    
-                    // Initialize participants list if null
-                    if (Model!.Participants == null)
-                    {
-                        Model!.Participants = new List<ParticipantData>();
-                    }
-
-                    // Convert API participants to display participants (with database-driven flag codes)
-                    var newParticipants = participantsResponse.Participants.Select(p => new ParticipantData
-                    {
-                        Name = p.DisplayName,
-                        Country = p.Country ?? "Unknown",
-                        Flag = p.CountryFlag ?? "un" // Database-driven flag code from API
-                    }).ToList();
-
-                    // Processing participant data
-
-                    // Add only new participants that don't already exist
-                    var existingNames = Model.Participants.Select(p => p.Name).ToHashSet();
-                    var participantsToAdd = newParticipants.Where(p => !existingNames.Contains(p.Name)).ToList();
-                    
-                    // Add new participants to existing list
-                    Model.Participants.AddRange(participantsToAdd);
-                    
-                    // Participant list updated
-                }
-                else
+                // Initialize participants list if null
+                if (Model!.Participants == null)
                 {
                     Model!.Participants = new List<ParticipantData>();
-                    // No participants returned from API
                 }
+
+                // SessionWaiting-specific logic: Add only new participants that don't already exist
+                var existingNames = Model.Participants.Select(p => p.Name).ToHashSet();
+                var participantsToAdd = result.Participants.Where(p => !existingNames.Contains(p.Name)).ToList();
+                
+                // Add new participants to existing list
+                Model.Participants.AddRange(participantsToAdd);
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[{RequestId}] Failed to load participants: {StatusCode} - {ErrorContent}", 
-                    requestId, response.StatusCode, errorContent);
-                
-                // Only use real data - no fallback to demo data
+                Logger.LogWarning("[{RequestId}] Participants loading failed: {ErrorMessage}", 
+                    requestId, result.ErrorMessage ?? "Unknown error");
                 Model!.Participants = new List<ParticipantData>();
-                Logger.LogWarning("[{RequestId}] Participants API call failed - Token: {Token}, URL: {Url}, Status: {Status}", 
-                    requestId, SessionToken, $"api/participant/session/{SessionToken}/participants", response.StatusCode);
             }
         }
         catch (Exception ex)
@@ -2144,12 +2106,7 @@ background-color: #effff9;
         CriticalError
     }
 
-    public class ParticipantData
-    {
-        public string Name { get; set; } = "";
-        public string Country { get; set; } = "";
-        public string Flag { get; set; } = "";
-    }
+    // [REFACTOR:Week2] ParticipantData moved to Models/DTOs/ParticipantsDto.cs ;CLEANUP_OK
 
     public class SessionValidationResponse
     {
@@ -2191,25 +2148,7 @@ background-color: #effff9;
         public DateTime? LastAccessedAt { get; set; }
     }
 
-    public class ParticipantsResponse
-    {
-        public int SessionId { get; set; }
-        public string? Token { get; set; }
-        public int ParticipantCount { get; set; }
-        public List<ParticipantApiData>? Participants { get; set; }
-        public string? RequestId { get; set; }
-    }
-
-    public class ParticipantApiData
-    {
-        public string UserId { get; set; } = "";
-        public string DisplayName { get; set; } = "";
-        public DateTime JoinedAt { get; set; }
-        public string Role { get; set; } = "";
-        public string? City { get; set; }
-        public string? Country { get; set; }
-        public string? CountryFlag { get; set; } // Database-driven flag code
-    }
+    // [REFACTOR:Week2] ParticipantsResponse, ParticipantApiData, ParticipantData moved to Models/DTOs/ParticipantsDto.cs ;CLEANUP_OK
 
     public class ParticipantMeResponse
     {

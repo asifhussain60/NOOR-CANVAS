@@ -193,6 +193,7 @@ builder.Services.AddScoped<AssetProcessingService>(); // HTML transformation ser
 builder.Services.AddScoped<TranscriptProcessingService>(); // Transcript retrieval, transformation, and asset detection
 builder.Services.AddScoped<IAssetSharingService, AssetSharingService>(); // [PHASE-5:hcp] Asset sharing service - extracted from HostControlPanel.razor
 builder.Services.AddScoped<IQuestionManagementService, QuestionManagementService>(); // [PHASE-6:hcp] Question management service - extracted from HostControlPanel.razor
+builder.Services.AddScoped<IParticipantService, ParticipantService>(); // [REFACTOR:Week2] Participant management service - consolidates LoadParticipantsAsync from SessionCanvas/TranscriptCanvas/SessionWaiting
 
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection

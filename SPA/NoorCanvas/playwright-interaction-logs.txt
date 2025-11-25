@@ -394,3 +394,20 @@
 [PLAYWRIGHT-LOG] 2025-11-24T21:29:11.491Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
 [PLAYWRIGHT-LOG] 2025-11-24T21:29:32.645Z | CLICK | [data-testid="transcript-container"] | button | "Share Asset"
 [PLAYWRIGHT-LOG] 2025-11-24T21:29:43.317Z | CLICK | [data-testid="transcript-container"] | button | "Share Section"
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:33.420Z | CLICK | button#openSessionBtn > span | span | "Generate User Token"
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:36.097Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > div > button | button | "Copy"
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:37.147Z | CLICK | html > body > div > div > div > div:nth-of-type(3) > div:nth-of-type(2) > button | button | "Open Control Panel"
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:37.208Z | NAVIGATE | https://localhost:9091/host/control-panel/PQ9N5YWW
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:50.679Z | CLICK | html > body > div > div | div | "User Authentication
+            Need For Messenger"
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:54.594Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:55.860Z | CLICK | button#debug-action-0 | button | "Enter Test Data"
+[PLAYWRIGHT-LOG] 2025-11-25T16:09:59.588Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "Need For Messengers
+            We Look at the Pur"
+[PLAYWRIGHT-LOG] 2025-11-25T16:10:08.439Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-25T16:10:10.831Z | CLICK | html > body > div > div > div > div:nth-of-type(2) | div | "Need For Messengers
+            We Look at the Pur"
+[PLAYWRIGHT-LOG] 2025-11-25T16:10:11.866Z | CLICK | button#reg-transcript-canvas-btn > div | div | ""
+[PLAYWRIGHT-LOG] 2025-11-25T16:10:12.842Z | CLICK | [data-playwright-log-marker="20251031120000-HostControlPanel-StartSession"] | button | "Start Session" | MARKER: 20251031120000-HostControlPanel-StartSession
+[PLAYWRIGHT-LOG] 2025-11-25T16:10:15.895Z | CLICK | button#debug-toggle-btn | button | ""
+[PLAYWRIGHT-LOG] 2025-11-25T16:10:16.638Z | CLICK | [data-testid="transcript-container"] | button | "Share Section"

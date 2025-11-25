@@ -1,0 +1,33 @@
+@*
+    [REFACTOR:Week1:Task1.3] PortraitWarning Component
+    Reusable portrait orientation warning overlay for mobile/tablet devices
+    Eliminates ~60 lines of duplicated markup across 3 components
+    
+    Features:
+    - Full-screen purple gradient overlay
+    - Animated icon with pulse effect
+    - Responsive message card
+    - CSS-based visibility control via media query
+    
+    Usage: Automatically shown on mobile/tablet in portrait mode
+    Hidden: Desktop and landscape orientation
+    
+    Created: November 25, 2025
+    Refactoring Plan: CANVAS-REFACTORING-PLAN.md (Week 1, Task 1.3)
+*@
+
+<!-- [FEATURE:canvas-receivers] Portrait Orientation Overlay - Mobile & Tablet Only ;CLEANUP_OK -->
+<div class="canvas-portrait-overlay">
+    <div class="canvas-portrait-message-card">
+        <i class="fas fa-mobile-screen-button fa-rotate-90 canvas-portrait-icon"></i>
+        <h2 class="canvas-portrait-heading">Landscape Mode Required</h2>
+        <p class="canvas-portrait-text">
+            Please rotate your device to landscape orientation for the best viewing experience.
+        </p>
+    </div>
+</div>
+
+@code {
+    // No code-behind needed - all behavior controlled by CSS media queries in canvas-shared.css
+    // Component is stateless and purely presentational
+}

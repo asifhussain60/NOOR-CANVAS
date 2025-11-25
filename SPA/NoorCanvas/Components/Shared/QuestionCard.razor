@@ -1,0 +1,174 @@
+@using NoorCanvas.Pages
+@inject ILogger<QuestionCard> Logger
+
+@*
+    [REFACTOR:Week1:Task1.2] QuestionCard Component
+    Reusable question card component for SessionCanvas and TranscriptCanvas
+    Eliminates ~300 lines of duplicated question rendering markup
+    
+    Design Patterns:
+    - Green theme for user's own questions
+    - Sienna/orange theme for other users' questions
+    - Vote button with disabled state for voted/own questions
+    - Edit/Delete actions for question owners only
+    
+    Created: November 25, 2025
+    Refactoring Plan: CANVAS-REFACTORING-PLAN.md (Week 1, Task 1.2)
+*@
+
+@if (isMyQuestion)
+{
+    <!-- GREEN THEME: Own Question Card -->
+    <div class="canvas-question-item question-item-style-green">
+        
+        <!-- TOP ROW: Owner Label (left) + Action Buttons (right) -->
+        <div class="canvas-question-footer">
+            <span class="canvas-question-owner-label owner-label-color">
+                Your Question
+            </span>
+            
+            <div class="canvas-question-actions">
+                <span @onclick="HandleEditClick" 
+                      class="canvas-question-edit-button"
+                      data-playwright-log-marker="@GetPlaywrightMarker("EditQuestion")">
+                    <i class="fa-solid fa-pen"></i>
+                </span>
+                <span @onclick="HandleDeleteClick" 
+                      class="canvas-question-delete-button"
+                      data-playwright-log-marker="@GetPlaywrightMarker("DeleteQuestion")">
+                    <i class="fa-solid fa-trash-can"></i>
+                </span>
+            </div>
+        </div>
+        
+        <!-- BOTTOM ROW: Question Text -->
+        <div class="canvas-question-content">
+            <div class="canvas-question-header">
+                <span class="canvas-question-text question-text-color-green">
+                    @Question.Text
+                </span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- SIENNA THEME: Other Users' Question Card -->
+    <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
+        
+        <!-- Absolute Positioned Vote Badge (Red Circle) -->
+        <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
+            @Question.Votes
+        </div>
+        
+        <!-- Single Row Content -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+            
+            <!-- Vote Button (Left) -->
+            <button @onclick="HandleVoteClick"
+                    disabled="@IsVoteDisabled"
+                    class="vote-button-style-sienna"
+                    style="background-color:#DEB887;color:#5D2E0F;border:none;border-radius:9999px;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;cursor:@(IsVoteDisabled ? "not-allowed" : "pointer");opacity:@(IsVoteDisabled ? "0.5" : "1");flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+                <i class="fa-solid fa-thumbs-up" style="font-size:0.875rem;"></i>
+            </button>
+            
+            <!-- Question Text (Center - Flexible) -->
+            <div style="flex:1;min-width:0;">
+                <div class="canvas-question-text question-text-color-sienna" 
+                     style="color:#5D2E0F;font-size:0.875rem;line-height:1.4;word-wrap:break-word;overflow-wrap:break-word;">
+                    @Question.Text
+                </div>
+            </div>
+            
+            <!-- Owner Label (Right) -->
+            <div style="flex-shrink:0;">
+                <span class="canvas-question-owner-label owner-label-color"
+                      style="color:#92400E;font-size:0.75rem;font-weight:600;white-space:nowrap;">
+                    @Question.UserName
+                </span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Question data to display</summary>
+    [Parameter, EditorRequired] 
+    public SessionCanvas.QuestionData Question { get; set; } = null!;
+    
+    /// <summary>Index of question in parent list (for edit/delete operations)</summary>
+    [Parameter] 
+    public int Index { get; set; }
+    
+    /// <summary>Current user's GUID for ownership comparison</summary>
+    [Parameter] 
+    public string CurrentUserGuid { get; set; } = string.Empty;
+    
+    /// <summary>Set of question IDs the user has already voted on</summary>
+    [Parameter] 
+    public HashSet<string> VotedQuestionIds { get; set; } = new();
+    
+    /// <summary>View context for Playwright logging (SessionCanvas or TranscriptCanvas)</summary>
+    [Parameter] 
+    public string ViewContext { get; set; } = "Canvas";
+    
+    /// <summary>Callback when vote button is clicked</summary>
+    [Parameter] 
+    public EventCallback<string> OnVote { get; set; }
+    
+    /// <summary>Callback when edit button is clicked</summary>
+    [Parameter] 
+    public EventCallback<int> OnEdit { get; set; }
+    
+    /// <summary>Callback when delete button is clicked</summary>
+    [Parameter] 
+    public EventCallback<int> OnDelete { get; set; }
+    
+    // Computed properties for UI logic
+    private bool isMyQuestion => Question.CreatedBy == CurrentUserGuid;
+    private bool IsVoteDisabled => VotedQuestionIds.Contains(Question.QuestionId) || isMyQuestion;
+    
+    protected override void OnParametersSet()
+    {
+        // Diagnostic logging for question ownership (matches original pattern)
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership-trace] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK", 
+            Question.QuestionId, Question.CreatedBy, CurrentUserGuid, isMyQuestion);
+        
+        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes}, Theme={Theme} ;CLEANUP_OK",
+            isMyQuestion, IsVoteDisabled, Question.Votes, isMyQuestion ? "Green" : "Sienna");
+        
+        if (!isMyQuestion)
+        {
+            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
+                Question.QuestionId);
+        }
+    }
+    
+    private async Task HandleVoteClick()
+    {
+        if (!IsVoteDisabled && OnVote.HasDelegate)
+        {
+            await OnVote.InvokeAsync(Question.QuestionId);
+        }
+    }
+    
+    private async Task HandleEditClick()
+    {
+        if (OnEdit.HasDelegate)
+        {
+            await OnEdit.InvokeAsync(Index);
+        }
+    }
+    
+    private async Task HandleDeleteClick()
+    {
+        if (OnDelete.HasDelegate)
+        {
+            await OnDelete.InvokeAsync(Index);
+        }
+    }
+    
+    /// <summary>Generate Playwright log marker with view context prefix</summary>
+    private string GetPlaywrightMarker(string action) => 
+        $"20251031120000-{ViewContext}-{action}";
+}

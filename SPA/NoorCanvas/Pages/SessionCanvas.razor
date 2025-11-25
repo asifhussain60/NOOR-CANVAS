@@ -11,6 +11,7 @@
 @using NoorCanvas.Services
 @using NoorCanvas.Components.Shared
 @using NoorCanvas.Components.Diagnostics
+@using NoorCanvas.Models.DTOs
 
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
@@ -23,6 +24,8 @@
 @inject NoorCanvas.Services.UnifiedHtmlTransformService HtmlTransform
 @inject NoorCanvas.Middleware.SignalRMiddleware SignalRService
 @inject NoorCanvas.Services.SignalR.ISessionCanvasSignalRService SignalREventService
+@inject NoorCanvas.Services.IQuestionManagementService QuestionManagement
+@inject NoorCanvas.Services.IParticipantService ParticipantManagement
 
 <PageTitle>Noor Canvas</PageTitle>
 
@@ -32,6 +35,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/session-transcript.css">
+    
+    <!-- [REFACTOR:Week1] Shared Canvas Component Styles ;CLEANUP_OK -->
+    <link rel="stylesheet" href="~/css/canvas-shared.css" asp-append-version="true" />
     
     <!-- [DIAGNOSTIC:notyf:libs] Notyf - Modern Toast Notifications (Replaced toastr.js 2025-10-14) ;CLEANUP_OK -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" 
@@ -47,19 +53,13 @@
     <script src="~/js/html-renderer.js"></script>
 </HeadContent>
 
+<!-- [REFACTOR:Week1] Component-specific styles only - shared styles moved to canvas-shared.css ;CLEANUP_OK -->
 <style>
-    .poppins { font-family: 'Poppins', sans-serif; }
-    .inter { font-family: 'Inter', sans-serif; }
-    .shadow-golden { box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); }
-    .canvas-tab-button.active { border-bottom-color: #D4AF37; color: #006400; }
-    .canvas-custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .canvas-custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    .canvas-custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
-    .canvas-custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C5B358; }
-    .canvas-animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @@keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .8; }
+    /* SessionCanvas-specific: Green theme for canvas content area */
+    .canvas-content-area {
+        border: #006400 dotted 3px;
+        background-color: #eeffee;
+        margin: 10px;
     }
 
     /* [DEBUG-WORKITEM:canvas:toastr-styling:trace] Toast styling moved to ~/css/noor-toastr.css for reuse across all views ;CLEANUP_OK */
@@ -1079,28 +1079,8 @@
     }
 </style>
 
-<!-- Root container matching SessionWaiting.razor structure -->
-<div class="session-canvas-root">
-    
-    <!-- [FEATURE:canvas-receivers] Portrait Orientation Overlay (Mobile/Tablet Only) ;CLEANUP_OK -->
-    <div class="canvas-portrait-overlay">
-        <div class="canvas-portrait-message-card">
-            <i class="fas fa-mobile-screen-button fa-rotate-90 canvas-portrait-icon"></i>
-            <h2 class="canvas-portrait-heading">Landscape Mode Required</h2>
-            <p class="canvas-portrait-text">
-                Please rotate your device to landscape orientation for the best viewing experience.
-            </p>
-        </div>
-    </div>
-
-    @* [DIAGNOSTIC-COMPONENT] Reusable diagnostic logger ;CLEANUP_OK *@
-    <DiagnosticLogger @ref="diagnosticLogger" />
-    
-    <!-- Main content container -->
-    <div class="session-canvas-container">
-
-        @* Loading state is now handled by the global LoadingService via EnhancedSpinner *@
-        @if (Model?.CurrentState == SessionCanvasState.SessionNotFound)
+@* Loading state is now handled by the global LoadingService via EnhancedSpinner *@
+@if (Model?.CurrentState == SessionCanvasState.SessionNotFound)
     {
         <!-- Error State -->
         <div class="canvas-error-container">
@@ -1260,96 +1240,21 @@
                         <div class="canvas-tab-padding">
                             <h3 class="canvas-section-title">Recent Questions</h3>
                             <div class="canvas-questions-container">
+                                @* [REFACTOR:Week1:Task1.2] Replaced inline question rendering with QuestionCard component ;CLEANUP_OK *@
                                 @if (Model?.Questions?.Any() == true)
                                 {
                                     @foreach (var question in Model.Questions.OrderByDescending(q => q.Votes))
                                     {
                                         var index = Model.Questions.IndexOf(question);
-                                        var isMyQuestion = question.IsMyQuestion;
-                                        var hasVoted = VotedQuestionIds.Contains(question.QuestionId);
-
-                                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership-trace] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK", 
-                                            question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion);
                                         
-                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes}, Theme={Theme} ;CLEANUP_OK",
-                                            isMyQuestion, hasVoted, question.Votes, isMyQuestion ? "Green" : "Sienna");
-
-                                        @if (isMyQuestion)
-                                        {
-                                            <!-- GREEN THEME: Own Question Card (Horizontal Top Row) -->
-                                            <div class="canvas-question-item question-item-style-green">
-                                                
-                                                <!-- TOP ROW: Owner Label (left) + Action Buttons (right) -->
-                                @* [TEST-METADATA:ui-logging] Playwright log markers for question edit/delete buttons ;CLEANUP_OK *@
-                                <div class="canvas-question-footer">
-                                    <span class="canvas-question-owner-label owner-label-color">
-                                        Your Question
-                                    </span>
-                                    
-                                    <div class="canvas-question-actions">
-                                        <span @onclick="() => EditQuestion(index)" 
-                                              class="canvas-question-edit-button"
-                                              data-playwright-log-marker="20251031120000-SessionCanvas-EditQuestion">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </span>
-                                        <span @onclick="() => ShowDeleteModal(index)" 
-                                              class="canvas-question-delete-button"
-                                              data-playwright-log-marker="20251031120000-SessionCanvas-DeleteQuestion">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </span>
-                                    </div>
-                                </div>                                                <!-- BOTTOM ROW: Question Text -->
-                                                <div class="canvas-question-content">
-                                                    <div class="canvas-question-header">
-                                                        <span class="canvas-question-text question-text-color-green">
-                                                            @question.Text
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
-                                                question.QuestionId);
-                                            
-                                            <!-- SIENNA THEME: Other Users' Question Card (Compact Single-Row Layout from ContextCopilot.txt) -->
-                                            <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
-                                                
-                                                <!-- Absolute Positioned Vote Badge (Red Circle) -->
-                                                <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
-                                                    @question.Votes
-                                                </div>
-                                                
-                                                <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) -->
-                                                <div class="canvas-question-content" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;">
-                                                    
-                                                    <!-- LEFT SIDE: Question Text (Allows space for the right side) -->
-                                                    <div class="canvas-question-header" style="flex-grow:1;margin-right:1rem;">
-                                                        <span class="canvas-question-text question-text-color-sienna" style="font-size:1rem;line-height:1.375;font-weight:normal;">
-                                                            @question.Text
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <!-- RIGHT SIDE: Compact Vote Button -->
-                                                    @* [TEST-METADATA:ui-logging] Playwright log marker for vote button ;CLEANUP_OK *@
-                                                    <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
-                                                        <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
-                                                                @onclick:preventDefault="true"
-                                                                @onclick:stopPropagation="true"
-                                                                class="canvas-question-vote-button vote-button-style-sienna-owner"
-                                                                data-question-id="@question.QuestionId"
-                                                                data-playwright-log-marker="20251031120000-SessionCanvas-VoteQuestion"
-                                                                style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
-                                                                disabled="@hasVoted"
-                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                            <i class="fa-solid fa-thumbs-up" style="font-size:1.5rem;"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                
-                                            </div>
-                                        }
+                                        <QuestionCard Question="@question"
+                                                      Index="@index"
+                                                      CurrentUserGuid="@CurrentUserGuid"
+                                                      VotedQuestionIds="@VotedQuestionIds"
+                                                      ViewContext="SessionCanvas"
+                                                      OnVote="@VoteQuestion"
+                                                      OnEdit="@EditQuestion"
+                                                      OnDelete="@ShowDeleteModal" />
                                     }
                                 }
                                 else
@@ -1399,10 +1304,6 @@
             </div>
         </div>
     }
-    </div>
-</div>
-
-
 
 <!-- Confirmation Modal -->
 @if (IsModalVisible)
@@ -1828,99 +1729,35 @@
         await SaveSessionStateAsync();
     }
 
+    /// <summary>
+    /// [REFACTOR:Week2] Load participants - delegates to ParticipantService
+    /// </summary>
     private async Task LoadParticipantsAsync(string requestId)
     {
         try
         {
-            // [DEBUG-WORKITEM:canvas:API] First get UserToken for the session using SimplifiedTokenService
-            string? userToken = null;
-            
-            if (_sessionId.HasValue)
+            if (!_sessionId.HasValue)
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Getting UserToken via SimplifiedTokenService for SessionId: {SessionId}", requestId, _sessionId.Value);
-                
-                var tokens = await TokenService.GetTokensBySessionIdAsync(_sessionId.Value);
-                
-                if (tokens.HasValue)
-                {
-                    userToken = tokens.Value.userToken;
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Retrieved UserToken: {UserToken}", 
-                        requestId, userToken ?? "NULL");
-                }
-                else
-                {
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] No tokens found for SessionId: {SessionId}", 
-                        requestId, _sessionId.Value);
-                }
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Cannot load participants - SessionId is null", requestId);
+                return;
             }
-            
-            // [DEBUG-WORKITEM:canvas:API] Use UserToken (8 chars) for participants API instead of HostAuthToken (36 chars)
-            if (!string.IsNullOrEmpty(userToken))
+
+            // [REFACTOR:Week2] Delegate to ParticipantService for UserToken-based participant loading
+            var result = await ParticipantManagement.LoadParticipantsWithUserTokenAsync(_sessionId.Value, TokenService);
+
+            if (result.Success && result.Participants != null)
             {
-                using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
-                var apiUrl = $"api/participant/session/{userToken}/participants";
+                Model!.Participants = result.Participants;
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Loading participants with UserToken: {ApiUrl}", requestId, apiUrl);
-                
-                var response = await httpClient.GetAsync(apiUrl);
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Participants API response: {Content}", 
-                        requestId, content.Length > 500 ? content[..500] + "..." : content);
-
-                    var participantsResponse = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(content, 
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                    if (participantsResponse?.Participants != null)
-                    {
-                        // [DEBUG-WORKITEM:use-landing:trace] Log participants received from API ;CLEANUP_OK
-                        Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] API returned {Count} participants ;CLEANUP_OK",
-                            requestId, participantsResponse.Participants.Count);
-                        for (int i = 0; i < participantsResponse.Participants.Count; i++)
-                        {
-                            var p = participantsResponse.Participants[i];
-                            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] API Participant {Index}: UserId={UserId}, DisplayName={DisplayName}, Country={Country} ;CLEANUP_OK",
-                                requestId, i + 1, p.UserId, p.DisplayName, p.Country);
-                        }
-                        
-                        // Convert API participants to display participants
-                        Model!.Participants = participantsResponse.Participants.Select(p => new ParticipantData
-                        {
-                            UserId = p.UserId,
-                            Name = p.DisplayName,
-                            Country = p.Country ?? "Unknown",
-                            Flag = p.CountryFlag?.ToLower() ?? ""
-                        }).ToList();
-                        
-                        // [DEBUG-WORKITEM:use-landing:trace] Log participants after client-side transformation ;CLEANUP_OK
-                        Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] After client transformation: {Count} participants in Model.Participants ;CLEANUP_OK",
-                            requestId, Model.Participants.Count);
-                        for (int i = 0; i < Model.Participants.Count; i++)
-                        {
-                            var p = Model.Participants[i];
-                            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] Display Participant {Index}: UserId={UserId}, Name={Name}, Country={Country}, Flag={Flag} ;CLEANUP_OK",
-                                requestId, i + 1, p.UserId, p.Name, p.Country, p.Flag);
-                        }
-                        
-                        // API-BASED APPROACH: Get current participant directly from API using token
-                        // This eliminates the hash-based selection that caused "same name on multiple browsers" issue
-                        await LoadCurrentParticipantFromApiAsync(requestId);
-                        Model.ParticipantCount = Model.Participants.Count;
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Loaded {Count} participants for session canvas", 
-                            requestId, Model.Participants.Count);
-                    }
-                }
-                else
-                {
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Participants API failed - Status: {StatusCode}", 
-                        requestId, response.StatusCode);
-                }
+                // API-BASED APPROACH: Get current participant directly from API using token
+                // This eliminates the hash-based selection that caused "same name on multiple browsers" issue
+                await LoadCurrentParticipantFromApiAsync(requestId);
+                Model.ParticipantCount = Model.Participants.Count;
             }
             else
             {
-                Logger.LogError("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Cannot load participants - UserToken is null or empty", requestId);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Participants loading failed: {ErrorMessage}", 
+                    requestId, result.ErrorMessage ?? "Unknown error");
             }
         }
         catch (Exception ex)
@@ -2284,13 +2121,7 @@
         SessionNotFound
     }
 
-    public class ParticipantData
-    {
-        public string UserId { get; set; } = "";
-        public string Name { get; set; } = "";
-        public string Country { get; set; } = "";
-        public string Flag { get; set; } = "";
-    }
+    // [REFACTOR:Week2] ParticipantData moved to Models/DTOs/ParticipantsDto.cs ;CLEANUP_OK
 
     public class QuestionData
     {
@@ -2339,27 +2170,7 @@
         public DateTime? LastAccessedAt { get; set; }
     }
 
-    public class ParticipantsResponse
-    {
-        public int SessionId { get; set; }
-        public string? Token { get; set; }
-        public int ParticipantCount { get; set; }
-        public List<ParticipantApiData>? Participants { get; set; }
-        public string? RequestId { get; set; }
-    }
-
-    public class ParticipantApiData
-    {
-        public string UserId { get; set; } = "";
-        public string DisplayName { get; set; } = "";
-        public DateTime JoinedAt { get; set; }
-        public string Role { get; set; } = "";
-        public string? City { get; set; }
-        public string? Country { get; set; }
-        public string? CountryFlag { get; set; }
-    }
-
-
+    // [REFACTOR:Week2] ParticipantsResponse, ParticipantApiData, ParticipantData moved to Models/DTOs/ParticipantsDto.cs ;CLEANUP_OK
 
     public class SessionTokenResponse
     {
@@ -2373,13 +2184,16 @@
     }
 
     // Q&A Methods
+    /// <summary>
+    /// [REFACTOR:Week2] Submit question - delegates to QuestionManagementService
+    /// </summary>
     private async Task SubmitQuestion()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] SubmitQuestion called - EditingQuestionIndex: {EditingIndex}, QuestionInput: '{QuestionText}' ;CLEANUP_OK", 
             requestId, EditingQuestionIndex?.ToString() ?? "NULL", QuestionInput?.Trim() ?? "NULL");
 
-        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
+        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken))
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
             return;
@@ -2395,27 +2209,20 @@
                 return;
             }
 
-            // Create new question
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Preparing API request payload for new question ;CLEANUP_OK", requestId);
-            var requestPayload = new
-            {
-                SessionToken = SessionToken,
-                QuestionText = QuestionInput.Trim(),
-                UserGuid = CurrentUserGuid
-            };
-            
+            // [REFACTOR:Week2] Delegate to QuestionManagementService
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Delegating to QuestionManagementService ;CLEANUP_OK", requestId);
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] [{RequestId}] Submitting question - CurrentUserGuid={CurrentUserGuid}, SessionToken={SessionToken} ;CLEANUP_OK", 
                 requestId, CurrentUserGuid, SessionToken);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Sending POST request to /api/Question/Submit ;CLEANUP_OK", requestId);
-            var response = await Http.PostAsJsonAsync("/api/Question/Submit", requestPayload);
+            var result = await QuestionManagement.SubmitQuestionAsync(SessionToken, QuestionInput.Trim(), CurrentUserGuid);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", 
+                requestId, result.StatusCode);
 
-            if (response.IsSuccessStatusCode)
+            if (result.Success)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submitted successfully - Response: {Response} ;CLEANUP_OK", requestId, responseContent);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submitted successfully - Response: {Response} ;CLEANUP_OK", 
+                    requestId, result.ResponseContent);
                 
                 // Question submitted successfully - clear input
                 QuestionInput = "";
@@ -2423,10 +2230,10 @@
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question input cleared and UI refreshed ;CLEANUP_OK", requestId);
             }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] User unauthorized - redirecting to landing page. Error: {Error} ;CLEANUP_OK", requestId, errorContent);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] User unauthorized - redirecting to landing page. Error: {Error} ;CLEANUP_OK", 
+                    requestId, result.ErrorMessage);
                 
                 // Redirect to UserLanding.razor with session token for proper authentication
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
@@ -2434,16 +2241,20 @@
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
+                Logger.LogError("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", 
+                    requestId, result.StatusCode, result.ErrorMessage);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Exception during question submission: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Exception during question submission: {ExceptionMessage} ;CLEANUP_OK", 
+                requestId, ex.Message);
         }
     }
 
+    /// <summary>
+    /// [REFACTOR:Week2] Update question - delegates to QuestionManagementService
+    /// </summary>
     private async Task UpdateQuestion()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
@@ -2455,7 +2266,6 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - QuestionInput: '{Input}' ;CLEANUP_OK", requestId, QuestionInput ?? "NULL");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - SessionToken: {Token} ;CLEANUP_OK", requestId, SessionToken ?? "NULL");
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - Http: {HttpNull} ;CLEANUP_OK", requestId, Http == null);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - CurrentUserGuid: {UserGuid} ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - HubConnection State: {State} ;CLEANUP_OK", requestId, hubConnection?.State.ToString() ?? "NULL");
         
@@ -2469,10 +2279,10 @@
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
+        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken))
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Validation failed - QuestionInput empty={Empty}, SessionToken empty={TokenEmpty}, Http null={HttpNull} ;CLEANUP_OK",
-                requestId, string.IsNullOrWhiteSpace(QuestionInput), string.IsNullOrEmpty(SessionToken), Http == null);
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Validation failed - QuestionInput empty={Empty}, SessionToken empty={TokenEmpty} ;CLEANUP_OK",
+                requestId, string.IsNullOrWhiteSpace(QuestionInput), string.IsNullOrEmpty(SessionToken));
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
             return;
         }
@@ -2486,32 +2296,25 @@
                 questionToUpdate.Text?.Substring(0, Math.Min(50, questionToUpdate.Text?.Length ?? 0)));
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - NewText: '{NewText}' ;CLEANUP_OK", requestId,
                 QuestionInput.Trim().Substring(0, Math.Min(50, QuestionInput.Trim().Length)));
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - API Endpoint: /api/Question/{QuestionId}/update ;CLEANUP_OK", 
-                requestId, questionToUpdate.QuestionId);
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Updating question - QuestionId: {QuestionId}, NewText: '{NewText}' ;CLEANUP_OK", 
                 requestId, questionToUpdate.QuestionId, QuestionInput.Trim());
 
-            var requestPayload = new
-            {
-                SessionToken = SessionToken,
-                QuestionText = QuestionInput.Trim(),
-                UserGuid = CurrentUserGuid
-            };
-
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Sending UPDATE request... ;CLEANUP_OK", requestId);
-            var response = await Http.PostAsJsonAsync($"/api/Question/{questionToUpdate.QuestionId}/update", requestPayload);
+            // [REFACTOR:Week2] Delegate to QuestionManagementService
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Delegating to QuestionManagementService ;CLEANUP_OK", requestId);
+            var result = await QuestionManagement.UpdateQuestionAsync(questionToUpdate.QuestionId, SessionToken, QuestionInput.Trim(), CurrentUserGuid);
 
             Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] API response received - StatusCode={StatusCode} ({StatusCodeInt}) ;CLEANUP_OK", 
-                requestId, response.StatusCode, (int)response.StatusCode);
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
+                requestId, result.StatusCode, (int)result.StatusCode);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", 
+                requestId, result.StatusCode);
 
-            if (response.IsSuccessStatusCode)
+            if (result.Success)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ Update API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
-                    requestId, responseContent);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully - Response: {Response} ;CLEANUP_OK", requestId, responseContent);
+                    requestId, result.ResponseContent);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully - Response: {Response} ;CLEANUP_OK", 
+                    requestId, result.ResponseContent);
                 
                 // Update local model immediately (don't wait for SignalR)
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Updating local model immediately ;CLEANUP_OK", requestId);
@@ -2528,28 +2331,34 @@
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Waiting for SignalR QuestionUpdated event... ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
             }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
-                Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ User unauthorized - Error: {Error} ;CLEANUP_OK", 
+                    requestId, result.ErrorMessage);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] User unauthorized - Error: {Error} ;CLEANUP_OK", 
+                    requestId, result.ErrorMessage);
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
                 Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Update API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
-                    requestId, response.StatusCode, errorContent);
-                Logger.LogError("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question update failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
+                    requestId, result.StatusCode, result.ErrorMessage);
+                Logger.LogError("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question update failed: {StatusCode} - {Error} ;CLEANUP_OK", 
+                    requestId, result.StatusCode, result.ErrorMessage);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] 💥 EXCEPTION during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:update] [{RequestId}] Exception during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] 💥 EXCEPTION during question update: {ExceptionMessage} ;CLEANUP_OK", 
+                requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:update] [{RequestId}] Exception during question update: {ExceptionMessage} ;CLEANUP_OK", 
+                requestId, ex.Message);
         }
     }
 
+    /// <summary>
+    /// [REFACTOR:Week2] Vote on question - delegates to QuestionManagementService
+    /// </summary>
     private async Task VoteQuestion(string questionId)
     {
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ VOTE FLOW START ════════ QuestionId={QuestionId}, UserGuid={UserGuid}, SessionToken={SessionToken}, HubConnection={HubState} ;CLEANUP_OK", 
@@ -2569,11 +2378,11 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] BEFORE API CALL - Current vote count={CurrentVotes}, Question found={Found} ;CLEANUP_OK", 
             currentVotes, question != null);
         
-        if (Http == null || string.IsNullOrEmpty(SessionToken))
+        if (string.IsNullOrEmpty(SessionToken))
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] Vote failed - Http={HttpNull}, SessionToken={TokenNull} ;CLEANUP_OK", 
-                Http == null, string.IsNullOrEmpty(SessionToken));
-            Logger.LogWarning("[DEBUG-WORKITEM:use-questions:vote] Vote failed - Http or SessionToken is null ;CLEANUP_OK");
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] Vote failed - SessionToken={TokenNull} ;CLEANUP_OK", 
+                string.IsNullOrEmpty(SessionToken));
+            Logger.LogWarning("[DEBUG-WORKITEM:use-questions:vote] Vote failed - SessionToken is null ;CLEANUP_OK");
             return;
         }
         
@@ -2587,23 +2396,19 @@
         
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Sending vote request to API - QuestionId={QuestionId}, SessionToken={TokenPreview} ;CLEANUP_OK",
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Delegating to QuestionManagementService - QuestionId={QuestionId}, SessionToken={TokenPreview} ;CLEANUP_OK",
                 questionId, SessionToken.Substring(0, Math.Min(4, SessionToken.Length)) + "...");
             
             Logger.LogDebug("[DEBUG-WORKITEM:use-questions:vote] Sending vote request - QuestionId={QuestionId}, SessionToken={TokenPreview}, Direction=up ;CLEANUP_OK", 
                 questionId, SessionToken.Substring(0, Math.Min(4, SessionToken.Length)) + "...");
             
-            var response = await Http.PostAsJsonAsync($"/api/Question/{questionId}/vote", new
-            {
-                SessionToken = SessionToken,
-                Direction = "up",
-                UserGuid = CurrentUserGuid
-            });
+            // [REFACTOR:Week2] Delegate to QuestionManagementService
+            var result = await QuestionManagement.VoteQuestionAsync(questionId, SessionToken, "up", CurrentUserGuid);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Vote API response - StatusCode={StatusCode} ;CLEANUP_OK", response.StatusCode);
-            Logger.LogDebug("[DEBUG-WORKITEM:use-questions:vote] Vote response received - StatusCode={StatusCode} ;CLEANUP_OK", response.StatusCode);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Vote API response - StatusCode={StatusCode} ;CLEANUP_OK", result.StatusCode);
+            Logger.LogDebug("[DEBUG-WORKITEM:use-questions:vote] Vote response received - StatusCode={StatusCode} ;CLEANUP_OK", result.StatusCode);
 
-            if (response.IsSuccessStatusCode)
+            if (result.Success)
             {
                 // Mark question as voted
                 VotedQuestionIds.Add(questionId);
@@ -2625,11 +2430,10 @@
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
                 Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] Vote FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
-                    response.StatusCode, errorContent);
+                    result.StatusCode, result.ErrorMessage);
                 Logger.LogWarning("[DEBUG-WORKITEM:use-questions:vote] Vote failed - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
-                    response.StatusCode, errorContent);
+                    result.StatusCode, result.ErrorMessage);
             }
         }
         catch (Exception ex)
@@ -2701,7 +2505,6 @@
         
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ════════ DELETE CONFIRMED ════════ ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Current state: ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Http: {HttpNull} ;CLEANUP_OK", requestId, Http == null);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - QuestionToDeleteIndex: {Index} ;CLEANUP_OK", requestId, QuestionToDeleteIndex);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Model.Questions: {QuestionsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
@@ -2709,7 +2512,7 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - CurrentUserGuid: {UserGuid} ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - HubConnection State: {State} ;CLEANUP_OK", requestId, hubConnection?.State.ToString() ?? "NULL");
         
-        if (Http == null || QuestionToDeleteIndex == null || Model?.Questions == null)
+        if (QuestionToDeleteIndex == null || Model?.Questions == null)
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Invalid delete state - aborting ;CLEANUP_OK", requestId);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Invalid delete state ;CLEANUP_OK", requestId);
@@ -2729,35 +2532,29 @@
 
             try
             {
-                var requestPayload = new
-                {
-                    SessionToken = SessionToken,
-                    UserGuid = CurrentUserGuid
-                };
-
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Sending DELETE request... ;CLEANUP_OK", requestId);
-                var response = await Http.PostAsJsonAsync($"/api/Question/{questionToDelete.QuestionId}/delete", requestPayload);
+                // [REFACTOR:Week2] Delegate to QuestionManagementService
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Delegating to QuestionManagementService ;CLEANUP_OK", requestId);
+                var result = await QuestionManagement.DeleteQuestionAsync(questionToDelete.QuestionId, SessionToken, CurrentUserGuid);
 
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] API response received - StatusCode={StatusCode} ({StatusCodeInt}) ;CLEANUP_OK", 
-                    requestId, response.StatusCode, (int)response.StatusCode);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
+                    requestId, result.StatusCode, (int)result.StatusCode);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", 
+                    requestId, result.StatusCode);
 
-                if (response.IsSuccessStatusCode)
+                if (result.Success)
                 {
-                    var responseContent = await response.Content.ReadAsStringAsync();
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ✅ Delete API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
-                        requestId, responseContent);
+                        requestId, result.ResponseContent);
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Waiting for SignalR QuestionDeleted event to update UI... ;CLEANUP_OK", requestId);
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully ;CLEANUP_OK", requestId);
                     // Question will be removed from UI via SignalR notification
                 }
                 else
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
                     Logger.LogError("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Delete API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
-                        requestId, response.StatusCode, errorContent);
+                        requestId, result.StatusCode, result.ErrorMessage);
                     Logger.LogError("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deletion failed: {StatusCode} - {Error} ;CLEANUP_OK", 
-                        requestId, response.StatusCode, errorContent);
+                        requestId, result.StatusCode, result.ErrorMessage);
                 }
             }
             catch (Exception ex)
@@ -2889,7 +2686,14 @@
                 Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] SESSIONCANVAS: htmlContent length={Length}", eventId, htmlContent?.Length ?? 0);
                 Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] SESSIONCANVAS: Calling SignalREventService.HandleAssetContentReceivedAsync...", eventId);
                 
-                await SignalREventService.HandleAssetContentReceivedAsync(htmlContent, OnAssetShared);
+                if (htmlContent != null)
+                {
+                    await SignalREventService.HandleAssetContentReceivedAsync(htmlContent, OnAssetShared);
+                }
+                else
+                {
+                    Logger.LogWarning("[DEBUG-BROADCAST:{EventId}] SESSIONCANVAS: htmlContent is null", eventId);
+                }
                 
                 Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] SESSIONCANVAS: ✅ Handler completed", eventId);
                 Logger.LogInformation("[DEBUG-BROADCAST:{EventId}] ════════════════════════════════════════", eventId);

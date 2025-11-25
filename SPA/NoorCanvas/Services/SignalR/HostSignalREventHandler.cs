@@ -55,7 +55,7 @@ public class HostSignalREventHandler : IHostSignalREventHandler
             context.LogInfo("Parsed - QuestionId: {QuestionId}, Text: {Text}, UserName: {UserName}",
                 questionId ?? "NULL", 
                 questionText ?? "NULL", 
-                userName);
+                userName ?? "NULL");
 
             if (questionId != null && !string.IsNullOrEmpty(questionText))
             {
@@ -78,7 +78,7 @@ public class HostSignalREventHandler : IHostSignalREventHandler
                 
                 // Show toast notification to host about new question
                 context.LogInfo("Showing toast notification - User: {UserName}, Question: {Text}", 
-                    userName, questionText.Substring(0, Math.Min(50, questionText.Length)));
+                    userName ?? "Anonymous", questionText.Substring(0, Math.Min(50, questionText.Length)));
                 
                 try
                 {
@@ -116,7 +116,7 @@ public class HostSignalREventHandler : IHostSignalREventHandler
         {
             context.LogInfo("TranscriptLength={Length}", transcript?.Length ?? 0);
             
-            if (onTranscriptUpdated != null)
+            if (onTranscriptUpdated != null && transcript != null)
             {
                 await onTranscriptUpdated(transcript);
                 context.LogInfo("Transcript updated successfully");
@@ -140,10 +140,10 @@ public class HostSignalREventHandler : IHostSignalREventHandler
                 voteCount);
             
             // Show toast notification to host about vote update
-            await _jsRuntime.InvokeVoidAsync("showVoteUpdateToast", questionText, voteCount);
+            await _jsRuntime.InvokeVoidAsync("showVoteUpdateToast", questionText ?? string.Empty, voteCount);
             
             // Invoke callback to update vote count in model
-            if (onVoteUpdated != null)
+            if (onVoteUpdated != null && questionText != null)
             {
                 await onVoteUpdated(questionText, voteCount);
                 context.LogInfo("Vote count updated successfully");

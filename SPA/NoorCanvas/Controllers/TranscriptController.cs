@@ -193,8 +193,6 @@ public class TranscriptController : ControllerBase
     }
 }
 
-#region Request DTOs
-
 /// <summary>
 /// Request model for POST /api/transcript/{sessionId}/transform
 /// </summary>
@@ -221,5 +219,3 @@ public class DetectAssetsRequest
     /// </summary>
     public string Html { get; set; } = string.Empty;
 }
-
-#endregion

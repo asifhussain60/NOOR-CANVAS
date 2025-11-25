@@ -37,6 +37,10 @@ public class SignalREventContext : IAsyncDisposable
         try
         {
             var json = data.ToString();
+            if (string.IsNullOrEmpty(json))
+            {
+                throw new ArgumentException("Data cannot be serialized to null or empty string", nameof(data));
+            }
             var result = System.Text.Json.JsonSerializer.Deserialize<T>(json);
             
             if (result == null)

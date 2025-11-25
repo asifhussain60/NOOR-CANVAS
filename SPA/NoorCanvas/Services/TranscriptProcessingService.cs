@@ -31,8 +31,6 @@ public class TranscriptProcessingService
         _httpClientFactory = httpClientFactory;
     }
 
-    #region Transcript Retrieval
-
     /// <summary>
     /// Get transcript HTML from KSESSIONS database by session ID
     /// </summary>
@@ -73,10 +71,6 @@ public class TranscriptProcessingService
             throw;
         }
     }
-
-    #endregion
-
-    #region Transcript Transformation
 
     /// <summary>
     /// Transform transcript HTML by removing delete buttons, share buttons, and asset attributes
@@ -196,10 +190,6 @@ public class TranscriptProcessingService
         return result;
     }
 
-    #endregion
-
-    #region Asset Detection
-
     /// <summary>
     /// Detect sharable assets in transcript HTML using AssetLookup definitions
     /// Uses AngleSharp for CSS selector-based detection
@@ -305,11 +295,7 @@ public class TranscriptProcessingService
             return new List<AssetLookupDto>();
         }
     }
-
-    #endregion
 }
-
-#region Response DTOs
 
 /// <summary>
 /// Response model for GetTranscriptAsync
@@ -435,5 +421,3 @@ public enum TransformationType
     /// </summary>
     Full
 }
-
-#endregion

@@ -328,6 +328,12 @@ public class AssetProcessingService
                 _logger.LogDebug("[ASSETSHARE-DB:{RunId}] Parsing header HTML for {ShareId}, length: {Length}",
                     runId, shareId, containerHeader?.Length ?? 0);
 
+                if (string.IsNullOrEmpty(containerHeader))
+                {
+                    _logger.LogWarning("[ASSETSHARE-DB:{RunId}] Container header is null or empty for {ShareId}", runId, shareId);
+                    return;
+                }
+
                 // Parse and insert header before the asset element
                 var headerDoc = parser.ParseFragment(containerHeader, element.ParentElement);
                 var headerNodes = headerDoc.ToList();

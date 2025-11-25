@@ -228,6 +228,12 @@ public class SessionCanvasSignalRService : ISessionCanvasSignalRService
             var jsonString = JsonSerializer.Serialize(data);
             context.LogInfo("Payload JSON length: {Length}", jsonString?.Length ?? 0);
             
+            if (string.IsNullOrEmpty(jsonString))
+            {
+                context.LogWarning("Failed to serialize data to JSON");
+                return;
+            }
+            
             using var jsonDocument = JsonDocument.Parse(jsonString);
             var root = jsonDocument.RootElement;
             

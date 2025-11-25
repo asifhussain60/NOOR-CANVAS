@@ -1,0 +1,1094 @@
+/**
+ * NOOR Canvas - Shared Canvas Component Styles
+ * 
+ * This stylesheet contains common CSS used across:
+ * - HostControlPanel.razor
+ * - SessionCanvas.razor
+ * - TranscriptCanvas.razor
+ * 
+ * Extracted from embedded <style> blocks to reduce duplication (~2,000 lines saved)
+ * Last Updated: November 25, 2025
+ * Refactoring Plan: CANVAS-REFACTORING-PLAN.md (Week 1, Task 1.1)
+ */
+
+/* ============================================================================
+   TYPOGRAPHY & UTILITY CLASSES
+   ============================================================================ */
+
+.poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+.inter {
+    font-family: 'Inter', sans-serif;
+}
+
+.shadow-golden {
+    box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4);
+}
+
+/* ============================================================================
+   CANVAS TAB SYSTEM
+   ============================================================================ */
+
+.canvas-tab-button.active {
+    border-bottom-color: #D4AF37;
+    color: #006400;
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
+.canvas-custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.canvas-custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.canvas-custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 10px;
+}
+
+.canvas-custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #C5B358;
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+.canvas-animate-pulse-subtle {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes portraitPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ============================================================================
+   PORTRAIT ORIENTATION OVERLAY (Mobile & Tablet Only)
+   ============================================================================ */
+
+.canvas-portrait-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.canvas-portrait-message-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.canvas-portrait-icon {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 1.5rem;
+    animation: portraitPulse 2s ease-in-out infinite;
+}
+
+.canvas-portrait-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.canvas-portrait-text {
+    font-size: 1rem;
+    color: #6B7280;
+    line-height: 1.6;
+}
+
+/* Show overlay in portrait mode on mobile/tablet */
+@media (max-width: 1024px) and (orientation: portrait) {
+    .canvas-portrait-overlay {
+        display: flex !important;
+    }
+    
+    .session-canvas-container,
+    .canvas-content-wrapper,
+    .canvas-main-grid {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+   ROOT CONTAINERS
+   ============================================================================ */
+
+.session-canvas-root {
+    background-color: #F8F5F1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.session-canvas-container {
+    width: 95%;
+    max-width: 1400px;
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ============================================================================
+   ERROR STATE STYLES
+   ============================================================================ */
+
+.canvas-error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    padding: 2rem;
+    text-align: center;
+    gap: 1.5rem;
+}
+
+.canvas-error-logo {
+    margin-bottom: 1rem;
+}
+
+.canvas-error-logo-img {
+    height: 60px;
+    opacity: 0.7;
+}
+
+.canvas-error-icon-container {
+    font-size: 4rem;
+    color: #DC2626;
+    margin-bottom: 1rem;
+}
+
+.canvas-error-icon {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.canvas-error-message {
+    font-size: 1.25rem;
+    color: #374151;
+    max-width: 500px;
+}
+
+.canvas-error-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.canvas-home-button {
+    background-color: #D4AF37;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.canvas-home-button:hover {
+    background-color: #C5B358;
+}
+
+.canvas-home-button-icon {
+    font-size: 1rem;
+}
+
+/* ============================================================================
+   HEADER STYLES
+   ============================================================================ */
+
+.canvas-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.canvas-header {
+    background: linear-gradient(135deg, #006400 0%, #228B22 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4);
+    border: 3px solid #D4AF37;
+}
+
+.canvas-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.canvas-header-logo {
+    display: flex;
+    align-items: center;
+}
+
+.canvas-header-logo-img {
+    height: 50px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.canvas-header-session-info {
+    color: white;
+}
+
+.canvas-session-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.canvas-session-description {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin: 0.25rem 0 0 0;
+}
+
+/* ============================================================================
+   SIGNALR STATUS INDICATOR
+   ============================================================================ */
+
+.canvas-signalr-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.canvas-signalr-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.canvas-signalr-icon {
+    font-size: 1rem;
+}
+
+.canvas-retry-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.canvas-retry-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.canvas-retry-icon {
+    margin-right: 0.25rem;
+}
+
+/* ============================================================================
+   WELCOME PANEL
+   ============================================================================ */
+
+.canvas-welcome-panel {
+    background-color: #FEF3C7;
+    border-left: 4px solid #D4AF37;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.canvas-welcome-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.canvas-welcome-text {
+    font-size: 0.875rem;
+    color: #78350F;
+    margin: 0;
+}
+
+/* ============================================================================
+   CANVAS AREA CONTAINER
+   ============================================================================ */
+
+.canvas-area-container {
+    background-color: #F9FAFB;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border: 3px solid #D4AF37;
+    box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4);
+    min-height: 400px;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.canvas-content-area {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 1rem;
+    transition: all 0.2s;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.canvas-asset-content {
+    width: 100%;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    overflow: visible;
+}
+
+.canvas-empty-message {
+    text-align: center;
+    color: #6B7280;
+    font-size: 1rem;
+    padding: 2rem;
+}
+
+/* ============================================================================
+   SIDEBAR TOGGLE BUTTON
+   ============================================================================ */
+
+.canvas-sidebar-toggle {
+    background: linear-gradient(135deg, #D4AF37 0%, #C5B358 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+    white-space: nowrap;
+}
+
+.canvas-sidebar-toggle:hover {
+    background: linear-gradient(135deg, #C5B358 0%, #D4AF37 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.4);
+}
+
+.canvas-sidebar-toggle:active {
+    transform: translateY(0);
+}
+
+.canvas-sidebar-toggle-icon {
+    font-size: 1rem;
+}
+
+/* ============================================================================
+   SECTION TITLES & EMPTY STATES
+   ============================================================================ */
+
+.canvas-section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.canvas-empty-state {
+    text-align: center;
+    color: #9CA3AF;
+    padding: 2rem 1rem;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+.canvas-empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.canvas-empty-state-icon {
+    font-size: 3rem;
+    color: #D1D5DB;
+}
+
+/* ============================================================================
+   MODAL SYSTEM
+   ============================================================================ */
+
+.canvas-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    text-align: center;
+}
+
+.canvas-modal-question {
+    max-width: 500px;
+}
+
+.canvas-modal-button-flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.canvas-modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 1rem;
+}
+
+.canvas-modal-message {
+    color: #6B7280;
+    margin-bottom: 1.5rem;
+}
+
+.canvas-modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.canvas-modal-button {
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.canvas-modal-button-delete {
+    background-color: #DC2626;
+    color: white;
+}
+
+.canvas-modal-button-cancel {
+    background-color: #E5E7EB;
+    color: #374151;
+}
+
+/* ============================================================================
+   FORM ELEMENTS
+   ============================================================================ */
+
+.canvas-form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #D1D5DB;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    resize: vertical;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    min-height: 80px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.canvas-form-textarea:focus {
+    outline: none;
+    border-color: #D4AF37;
+}
+
+.canvas-form-textarea:disabled {
+    background-color: #F3F4F6;
+    cursor: not-allowed;
+}
+
+.canvas-form-submit-button {
+    background: linear-gradient(135deg, #D4AF37 0%, #C5B358 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 80px;
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+}
+
+.canvas-form-submit-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #C5B358 0%, #D4AF37 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.4);
+}
+
+.canvas-form-submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.canvas-form-submit-icon {
+    font-size: 1rem;
+}
+
+.canvas-form-submit-text {
+    font-weight: 600;
+}
+
+/* Ensure modal Submit button has visible golden background */
+.canvas-modal-buttons .canvas-form-submit-button {
+    background: linear-gradient(135deg, #D4AF37 0%, #C5B358 100%);
+}
+
+.canvas-modal-buttons .canvas-form-submit-button:hover {
+    background: linear-gradient(135deg, #C5B358 0%, #D4AF37 100%);
+}
+
+/* ============================================================================
+   QUESTION ITEMS
+   ============================================================================ */
+
+.canvas-question-item {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: visible;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.canvas-question-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Green Theme - Own Question */
+.question-item-style-green {
+    background-color: #F0FDF4;
+    border: 2px solid #22C55E;
+}
+
+/* Sienna Theme - Other Users' Question */
+.question-item-style-sienna {
+    background-color: #FAEBD7;
+    border: 2px solid #A0522D;
+    box-shadow: 0 2px 8px rgba(160, 82, 45, 0.2);
+}
+
+.canvas-question-text {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #1F2937;
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.question-text-color-green {
+    color: #166534;
+}
+
+.question-text-color-sienna {
+    color: #5D2E0F;
+}
+
+.owner-label-color {
+    color: #92400E;
+}
+
+.vote-button-style-sienna {
+    background-color: #DEB887;
+    color: #5D2E0F;
+}
+
+.vote-button-style-sienna-owner {
+    background-color: #D3D3D3;
+    color: #808080;
+}
+
+.vote-count-color-sienna {
+    background-color: #DEB887;
+    color: #5D2E0F;
+}
+
+.canvas-question-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.canvas-question-edit-button {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.2s;
+}
+
+.canvas-question-edit-button:hover {
+    color: #2563EB;
+}
+
+.canvas-question-edit-button i {
+    font-size: 0.875rem;
+}
+
+.canvas-question-delete-button {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.2s;
+}
+
+.canvas-question-delete-button:hover {
+    color: #DC2626;
+}
+
+.canvas-question-delete-button i {
+    font-size: 0.875rem;
+}
+
+.canvas-question-content {
+    flex: 1;
+}
+
+.canvas-question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.canvas-question-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.canvas-question-owner-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    font-weight: 600;
+}
+
+.canvas-question-vote-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.canvas-question-vote-button {
+    background: none;
+    border: none;
+    color: #D4AF37;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.canvas-question-vote-button:not(:disabled):hover {
+    transform: scale(1.2);
+}
+
+.canvas-question-vote-button i {
+    pointer-events: none;
+}
+
+.canvas-question-vote-count {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1F2937;
+    min-width: 1.5rem;
+    text-align: center;
+    background-color: #D4AF37;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.125rem 0.5rem;
+}
+
+/* ============================================================================
+   PARTICIPANT ITEMS
+   ============================================================================ */
+
+.canvas-participant-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #F9FAFB;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.canvas-participant-item:hover {
+    background-color: #F3F4F6;
+}
+
+.canvas-participant-flag {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.canvas-participant-flag-fallback {
+    width: 24px;
+    height: 16px;
+    background-color: #E5E7EB;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-participant-flag-text {
+    font-size: 0.625rem;
+    color: #6B7280;
+}
+
+.canvas-participant-name {
+    font-size: 0.875rem;
+    color: #1F2937;
+    font-weight: 500;
+}
+
+/* ============================================================================
+   SIDEBAR SYSTEM
+   ============================================================================ */
+
+.canvas-sidebar {
+    background-color: #F9FAFB;
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #E5E7EB;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.canvas-tabs {
+    display: flex;
+    background-color: #FFFFFF;
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.canvas-tab-button {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6B7280;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.canvas-tab-button-left {
+    border-right: 1px solid #E5E7EB;
+}
+
+.canvas-tab-button-right {
+    border-left: 1px solid #E5E7EB;
+}
+
+.canvas-tab-button.active {
+    color: #006400;
+    border-bottom-color: #D4AF37;
+    background-color: #F9FAFB;
+}
+
+.canvas-tab-icon {
+    font-size: 1.125rem;
+}
+
+.canvas-tab-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.canvas-tab-content.hidden {
+    display: none;
+}
+
+.canvas-tab-padding {
+    padding: 1.5rem;
+}
+
+.canvas-questions-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.canvas-questions-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.canvas-questions-container::-webkit-scrollbar-thumb {
+    background-color: #D4AF37;
+    border-radius: 10px;
+}
+
+.canvas-participants-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* ============================================================================
+   QUESTION PANEL (HostControlPanel specific)
+   ============================================================================ */
+
+.canvas-question-panel {
+    background-color: #F9FAFB;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 2px solid #E5E7EB;
+}
+
+.canvas-question-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.canvas-question-icon {
+    color: #D4AF37;
+}
+
+.canvas-question-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+.canvas-question-form {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+/* ============================================================================
+   MAIN GRID LAYOUT
+   ============================================================================ */
+
+.canvas-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+/* ============================================================================
+   RESPONSIVE LAYOUT - MOBILE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .session-canvas-root {
+        padding: 0.5rem;
+    }
+
+    .session-canvas-container {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+
+    .canvas-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+
+    .canvas-header-content {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .canvas-header-logo-img {
+        height: 40px;
+    }
+
+    .canvas-session-title {
+        font-size: 1.25rem;
+    }
+
+    .canvas-signalr-status {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .canvas-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .canvas-sidebar {
+        order: -1;
+    }
+
+    .canvas-area-container {
+        padding: 1rem;
+    }
+
+    .canvas-content-area {
+        padding: 0.75rem;
+    }
+
+    .canvas-question-item {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .canvas-question-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .canvas-modal-content {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .canvas-form-submit-button {
+        min-height: 60px;
+    }
+
+    .canvas-welcome-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .canvas-sidebar-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE LAYOUT - MOBILE LANDSCAPE
+   ============================================================================ */
+
+@media (max-width: 1024px) and (orientation: landscape) {
+    .canvas-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .canvas-sidebar {
+        max-height: 300px;
+    }
+
+    .canvas-area-container {
+        min-height: 300px;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE LAYOUT - TABLET
+   ============================================================================ */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .canvas-main-grid {
+        grid-template-columns: 1.5fr 1fr;
+    }
+}

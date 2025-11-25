@@ -212,7 +212,7 @@
                     @* [DEBUG-WORKITEM:hcp-questions:styling] Updated to pass VoteCount from QuestionItem ;CLEANUP_OK *@
                     @* [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Added OnQuestionClick handler for asset broadcasting ;CLEANUP_OK *@
                     @* [DEBUG-WORKITEM:hcp-question:selection-state:TRACE] Pass IsSelected state based on SelectedQuestionId ;CLEANUP_OK *@
-                    <QuestionCard Question="@(new NoorCanvas.Components.Host.QuestionCard.QuestionDto { Id = (int)question.Question.Id.GetHashCode(), Text = question.Question.Text, UserName = question.Question.UserName, IsAnswered = question.Question.IsAnswered, VoteCount = question.Question.VoteCount })" 
+                    <NoorCanvas.Components.Host.QuestionCard Question="@(new NoorCanvas.Components.Host.QuestionCard.QuestionDto { Id = (int)question.Question.Id.GetHashCode(), Text = question.Question.Text, UserName = question.Question.UserName, IsAnswered = question.Question.IsAnswered, VoteCount = question.Question.VoteCount })" 
                                   Index="@question.Index"
                                   IsSelected="@(SelectedQuestionId.HasValue && SelectedQuestionId.Value == question.Question.Id)"
                                   OnMarkAnswered="@(EventCallback.Factory.Create<int>(this, async (id) => await OnMarkQuestionAnswered.InvokeAsync(question.Question.Id)))" 

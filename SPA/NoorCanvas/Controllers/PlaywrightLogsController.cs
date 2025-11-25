@@ -11,9 +11,8 @@ namespace NoorCanvas.Controllers
     public class PlaywrightLogsController : ControllerBase
     {
         private static readonly string LogFilePath = Path.Combine(
-            Directory.GetCurrentDirectory(), 
-            "playwright-interaction-logs.txt"
-        );
+            Directory.GetCurrentDirectory(),
+            "playwright-interaction-logs.txt");
 
         [HttpPost]
         public async Task<IActionResult> SaveLogs([FromBody] PlaywrightLogRequest request)

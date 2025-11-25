@@ -186,6 +186,12 @@ namespace NoorCanvas.Services
                     _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
                         jsonContent?.Length ?? 0);
                     
+                    if (string.IsNullOrEmpty(jsonContent))
+                    {
+                        _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Empty JSON response for categories");
+                        return categories;
+                    }
+                    
                     categories = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.CategoryData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -244,6 +250,12 @@ namespace NoorCanvas.Services
                     
                     _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
                         jsonContent?.Length ?? 0);
+                    
+                    if (string.IsNullOrEmpty(jsonContent))
+                    {
+                        _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Empty JSON response for sessions");
+                        return sessions;
+                    }
                     
                     sessions = JsonSerializer.Deserialize<List<HostSessionData>>(jsonContent, new JsonSerializerOptions
                     {
@@ -394,6 +406,12 @@ namespace NoorCanvas.Services
                     
                     _logger.LogInformation("[DEBUG-WORKITEM:host-session-opener-fix:phase1] JSON response length: {Length} bytes ;CLEANUP_OK", 
                         jsonContent?.Length ?? 0);
+                    
+                    if (string.IsNullOrEmpty(jsonContent))
+                    {
+                        _logger.LogWarning("[DEBUG-WORKITEM:host-session-opener-fix:phase1] Empty JSON response for validation");
+                        return new HostTokenValidationResult { Valid = false, SessionId = 0 };
+                    }
                     
                     var validationResponse = JsonSerializer.Deserialize<NoorCanvas.Controllers.HostSessionValidationResponse>(jsonContent, new JsonSerializerOptions
                     {
